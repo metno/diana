@@ -366,6 +366,7 @@ public:
       and fill a PlotOptions with appropriate values */
   static bool parsePlotOption(const miutil::KeyValue_v&, PlotOptions&, miutil::KeyValue_v& unusedOptions);
   static bool parsePlotOption(const miutil::KeyValue_v&, PlotOptions&);
+  static bool parsePlotOption(const miutil::KeyValue& kv, PlotOptions& po);
 
   static const std::vector< std::vector<std::string> >& getPlotTypes();
   enum EnabledOptions {

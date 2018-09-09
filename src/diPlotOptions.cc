@@ -256,530 +256,597 @@ PlotOptions::PlotOptions()
 {
 }
 
+bool PlotOptions::parsePlotOption(const miutil::KeyValue& kv, PlotOptions& po)
+{
+  if (kv.value().empty())
+    return false;
+
+  bool result=true;
+
+  const string& key = kv.key();
+  string value = diutil::quote_removed(kv.value(), '\'');
+  value = diutil::quote_removed(kv.value(), '\"');
+
+  if (key == key_colour) {
+    po.colours.clear();
+    if (value == OFF) {
+      po.options_1 = false;
+    } else {
+      po.options_1 = true;
+      const Colour c(value);
+      po.textcolour = c;
+      po.linecolour = c;
+      po.fillcolour = c;
+      po.bordercolour = c;
+      po.colours.push_back(c);
+    }
+
+  } else if (key == key_colour_2) {
+    if (value == OFF) {
+      po.options_2 = false;
+    } else {
+      po.options_2 = true;
+      const Colour c(value);
+      po.linecolour_2 = c;
+      po.colours.push_back(c);
+    }
+
+  } else if (key == key_tcolour) {
+    const Colour c(value);
+    po.textcolour = c;
+
+  } else if (key == key_fcolour) {
+    const Colour c(value);
+    po.fillcolour = c;
+
+  } else if (key == key_pcolour) {
+    const Colour c(value);
+    po.fillcolour = c;
+
+  } else if (key == key_bcolour) {
+    const Colour c(value);
+    po.bordercolour = c;
+
+  } else if (key == key_colours) {
+    po.colours.clear();
+    // if(value==OFF){
+    //   po.options_1= false;
+    // } else {
+    po.options_1 = true;
+    const vector<string> stokens = miutil::split(value, 0, ",");
+    for (const string& c : stokens) {
+      po.colours.push_back(Colour(c));
+    }
+
+  } else if (key == key_palettecolours) {
+    po.palettecolours.clear();
+    po.palettecolours_cold.clear();
+    po.contourShading = (value != OFF);
+    miutil::remove(value, '"');
+    po.palettename = value;
+    const vector<string> stokens = miutil::split(value, ",");
+    const size_t m = stokens.size();
+    if (m > 2) {
+      for (const string& c : stokens) {
+        po.palettecolours.push_back(Colour(c));
+      }
+    } else {
+      if (m > 0) {
+        vector<std::string> ntoken = miutil::split(stokens[0], 0, ";");
+        ColourShading cs(ntoken[0]);
+        if (ntoken.size() == 2 && miutil::is_int(ntoken[1])) {
+          po.palettecolours = cs.getColourShading(atoi(ntoken[1].c_str()));
+        } else {
+          po.palettecolours = cs.getColourShading();
+        }
+      }
+      if (m > 1) {
+        vector<std::string> ntoken = miutil::split(stokens[1], 0, ";");
+        ColourShading cs(ntoken[0]);
+        if (ntoken.size() == 2 && miutil::is_int(ntoken[1]))
+          po.palettecolours_cold = cs.getColourShading(atoi(ntoken[1].c_str()));
+        else
+          po.palettecolours_cold = cs.getColourShading();
+      }
+    }
+
+  } else if (key == key_linetype) {
+    po.linetype = Linetype(value);
+    po.linetypes.clear();
+    po.linetypes.push_back(po.linetype);
+
+  } else if (key == key_linetype_2) {
+    po.linetype_2 = Linetype(value);
+    po.linetypes.push_back(po.linetype_2);
+
+  } else if (key == key_linetypes) {
+    const vector<string> stokens = miutil::split(value, 0, ",");
+    for (const string& l : stokens) {
+      po.linetypes.push_back(Linetype(l));
+    }
+    if (po.linetypes.empty())
+      po.linetypes.push_back(po.linetype);
+
+  } else if (key == key_linewidth) {
+    if (miutil::is_int(value)) {
+      po.linewidth = miutil::to_int(value);
+      po.linewidths.clear();
+      po.linewidths.push_back(po.linewidth);
+    } else
+      result = false;
+
+  } else if (key == key_linewidth_2) {
+    if (miutil::is_int(value)) {
+      po.linewidth_2 = miutil::to_int(value);
+      po.linewidths.push_back(po.linewidth_2);
+    } else
+      result = false;
+
+  } else if (key == key_linewidths) {
+    po.linewidths.clear();
+    po.linewidths = po.intVector(value);
+    if (po.linewidths.empty()) {
+      po.linewidths.push_back(po.linewidth);
+      result = false;
+    }
+
+  } else if (key == key_patterns) {
+    if (value != OFF) {
+      po.patternname = value;
+      po.contourShading = 1;
+    }
+    if (miutil::contains(value, ","))
+      po.patterns = miutil::split(value, 0, ",");
+    else {
+      po.patterns = Pattern::getPatternInfo(value);
+    }
+
+  } else if (key == key_lineinterval) {
+    if (miutil::is_number(value)) {
+      po.lineinterval = atof(value.c_str());
+      po.linevalues.clear();
+      po.loglinevalues.clear();
+    } else {
+      result = false;
+    }
+
+  } else if (key == key_lineinterval_2) {
+    if (miutil::is_number(value)) {
+      po.lineinterval_2 = atof(value.c_str());
+      po.linevalues_2.clear();
+      po.loglinevalues_2.clear();
+    } else {
+      result = false;
+    }
+
+  } else if (key == key_minvalue) {
+    if (miutil::is_number(value)) {
+      po.minvalue = atof(value.c_str());
+    }
+
+  } else if (key == key_maxvalue) {
+    if (miutil::is_number(value)) {
+      po.maxvalue = atof(value.c_str());
+    }
+
+  } else if (key == key_minvalue_2) {
+    if (miutil::is_number(value)) {
+      po.minvalue_2 = atof(value.c_str());
+    }
+
+  } else if (key == key_maxvalue_2) {
+    if (miutil::is_number(value)) {
+      po.maxvalue_2 = atof(value.c_str());
+    }
+
+  } else if (key == key_colourcut) {
+    if (miutil::is_number(value))
+      po.colourcut = atof(value.c_str());
+
+  } else if (key == key_linevalues) {
+    po.linevalues = autoExpandFloatVector(value);
+    if (not checkFloatVector(po.linevalues))
+      result = false;
+
+  } else if (key == key_linevalues_2) {
+    po.linevalues_2 = autoExpandFloatVector(value);
+    if (not checkFloatVector(po.linevalues_2))
+      result = false;
+
+  } else if (key == key_loglinevalues) {
+    po.loglinevalues = po.floatVector(value);
+    if (not checkFloatVector(po.loglinevalues))
+      result = false;
+
+  } else if (key == key_loglinevalues_2) {
+    po.loglinevalues_2 = po.floatVector(value);
+    if (not checkFloatVector(po.loglinevalues_2))
+      result = false;
+
+  } else if (key == key_limits) {
+    po.limits = autoExpandFloatVector(value);
+    if (po.limits.size() == 0)
+      result = false;
+
+  } else if (key == key_values) {
+    po.values = po.floatVector(value);
+    if (po.values.size() == 0)
+      result = false;
+
+  } else if (key == key_extremeType) {
+    // this version: should be "L+H" or "C+W"...
+    po.extremeType = value;
+
+  } else if (key == key_extremeSize) {
+    if (miutil::is_number(value))
+      po.extremeSize = atof(value.c_str());
+    else
+      result = false;
+
+  } else if (key == key_extremeRadius) {
+    if (miutil::is_number(value))
+      po.extremeRadius = atof(value.c_str());
+    else
+      result = false;
+
+  } else if (key == key_extremeLimits) {
+    po.extremeLimits = autoExpandFloatVector(value);
+    if (po.extremeLimits.size() == 0)
+      result = false;
+
+  } else if (key == key_lineSmooth) {
+    if (miutil::is_int(value))
+      po.lineSmooth = atoi(value.c_str());
+    else
+      result = false;
+
+  } else if (key == key_fieldSmooth) {
+    if (miutil::is_int(value))
+      po.fieldSmooth = atoi(value.c_str());
+    else
+      result = false;
+
+  } else if (key == key_frame) {
+    if (miutil::is_int(value)) {
+      po.frame = atoi(value.c_str());
+      if (po.frame < 0)
+        po.frame = 0;
+      if (po.frame > 3)
+        po.frame = 3;
+    } else
+      result = false;
+
+  } else if (key == key_zeroLine) {
+    if (miutil::is_int(value)) {
+      po.zeroLine = atoi(value.c_str());
+      if (po.zeroLine < -1)
+        po.zeroLine = -1;
+      if (po.zeroLine > 1)
+        po.zeroLine = 1;
+    } else
+      result = false;
+
+  } else if (key == key_valueLabel) {
+    if (miutil::is_int(value)) {
+      po.valueLabel = atoi(value.c_str());
+      if (po.valueLabel < 0)
+        po.valueLabel = 0;
+      if (po.valueLabel > 1)
+        po.valueLabel = 1;
+    } else
+      result = false;
+
+  } else if (key == key_labelSize) {
+    if (miutil::is_number(value)) {
+      po.labelSize = atof(value.c_str());
+      if (po.labelSize < 0.2)
+        po.labelSize = 0.2;
+      if (po.labelSize > 5.0)
+        po.labelSize = 5.0;
+    } else
+      result = false;
+
+  } else if (key == key_gridValue) {
+    if (miutil::is_int(value)) {
+      po.gridValue = atoi(value.c_str());
+      if (po.gridValue < -1)
+        po.gridValue = -1;
+      if (po.gridValue > 1)
+        po.gridValue = 1;
+    } else
+      result = false;
+
+  } else if (key == key_gridLines) {
+    if (miutil::is_int(value)) {
+      po.gridLines = atoi(value.c_str());
+      if (po.gridLines < 0)
+        po.gridLines = 0;
+    } else
+      result = false;
+
+  } else if (key == key_gridLinesMax) {
+    if (miutil::is_int(value)) {
+      po.gridLinesMax = atoi(value.c_str());
+      if (po.gridLinesMax < 0)
+        po.gridLinesMax = 0;
+    } else
+      result = false;
+
+  } else if (key == key_plottype) {
+    value = miutil::to_lower(value);
+    if (value == fpt_contour1 || value == fpt_value || value == fpt_contour2 || value == fpt_contour || value == fpt_rgb || value == fpt_alpha_shade ||
+        value == fpt_symbol || value == fpt_alarm_box || value == fpt_fill_cell || value == fpt_wind || value == fpt_vector || value == fpt_wind_temp_fl ||
+        value == fpt_wind_value || value == fpt_direction || value == fpt_frame) {
+      po.plottype = value;
+    } else if (value == "wind_colour") {
+      po.plottype = fpt_wind;
+    } else if (value == "direction_colour") {
+      po.plottype = fpt_direction;
+    } else if (value == "box_pattern") {
+      po.plottype = fpt_contour;
+    } else if (value == "layer") {
+      po.plottype = fpt_value;
+    } else if (value == "wind_number") {
+      po.plottype = fpt_wind_value;
+    } else if (value == "number") {
+      po.plottype = fpt_value;
+    } else {
+      result = false;
+    }
+
+  } else if (key == key_rotatevectors) {
+    if (miutil::is_int(value))
+      po.rotateVectors = atoi(value.c_str());
+    else
+      result = false;
+
+  } else if (key == key_discontinuous) {
+    if (miutil::is_int(value))
+      po.discontinuous = atoi(value.c_str());
+    else
+      result = false;
+
+  } else if (key == key_table) {
+    if (miutil::is_int(value))
+      po.table = atoi(value.c_str());
+    else
+      result = false;
+
+  } else if (key == key_alpha) {
+    if (miutil::is_int(value))
+      po.alpha = atoi(value.c_str());
+    else
+      result = false;
+
+  } else if (key == key_repeat) {
+    if (miutil::is_int(value))
+      po.repeat = atoi(value.c_str());
+    else
+      result = false;
+
+  } else if (key == key_classes) {
+    po.classSpecifications = value;
+  } else if (key == key_basevalue) {
+    if (miutil::is_number(value))
+      po.base = atof(value.c_str());
+    else
+      result = false;
+
+  } else if (key == key_basevalue_2) {
+    if (miutil::is_number(value))
+      po.base_2 = atof(value.c_str());
+    else
+      result = false;
+
+  } else if (key == key_density) {
+    if (miutil::is_int(value)) {
+      po.density = atoi(value.c_str());
+    } else {
+      po.density = 0;
+      size_t pos1 = value.find_first_of("(") + 1;
+      size_t pos2 = value.find_first_of(")");
+      if (pos2 > pos1) {
+        std::string tmp = value.substr(pos1, (pos2 - pos1));
+        if (miutil::is_number(tmp)) {
+          po.densityFactor = atof(tmp.c_str());
+        }
+      }
+    }
+
+  } else if (key == key_densityfactor) {
+    if (miutil::is_number(value)) {
+      po.densityFactor = atof(value.c_str());
+    } else {
+      result = false;
+    }
+
+  } else if (key == key_vectorunit) {
+    if (miutil::is_number(value))
+      po.vectorunit = atof(value.c_str());
+    else
+      result = false;
+
+  } else if (key == key_vectorunitname) {
+    po.vectorunitname = value;
+    miutil::remove(po.vectorunitname, '"');
+
+  } else if (key == key_vectorscale_x) {
+    if (miutil::is_number(value))
+      po.vectorscale_x = miutil::to_float(value);
+    else
+      result = false;
+
+  } else if (key == key_vectorscale_y) {
+    if (miutil::is_number(value))
+      po.vectorscale_y = miutil::to_float(value);
+    else
+      result = false;
+
+  } else if (key == key_vectorthickness) {
+    if (miutil::is_number(value))
+      po.vectorthickness = std::max(0.0f, miutil::to_float(value));
+    else
+      result = false;
+
+  } else if (key == key_forecastLength) {
+    po.forecastLength = po.intVector(value);
+    if (po.forecastLength.size() == 0)
+      result = false;
+
+  } else if (key == key_forecastValueMin) {
+    po.forecastValueMin = po.floatVector(value);
+    if (po.forecastValueMin.size() == 0)
+      result = false;
+
+  } else if (key == key_forecastValueMax) {
+    po.forecastValueMax = po.floatVector(value);
+    if (po.forecastValueMax.size() == 0)
+      result = false;
+
+  } else if (key == key_undefMasking) {
+    if (miutil::is_int(value))
+      po.undefMasking = atoi(value.c_str());
+    else
+      result = false;
+
+  } else if (key == key_undefColour) {
+    const Colour c(value);
+    po.undefColour = c;
+
+  } else if (key == key_undefLinewidth) {
+    if (miutil::is_int(value))
+      po.undefLinewidth = atoi(value.c_str());
+    else
+      result = false;
+
+  } else if (key == key_undefLinetype) {
+    po.undefLinetype = Linetype(value);
+
+  } else if (key == key_polystyle) {
+    if (value == "fill")
+      po.polystyle = poly_fill;
+    else if (value == "border")
+      po.polystyle = poly_border;
+    else if (value == "both")
+      po.polystyle = poly_both;
+    else if (value == "none")
+      po.polystyle = poly_none;
+
+  } else if (key == key_arrowstyle) { // warning: only arrow_wind_arrow implemented yet
+    if (value == "wind")
+      po.arrowstyle = arrow_wind;
+    else if (value == "wind_arrow")
+      po.arrowstyle = arrow_wind_arrow;
+    else if (value == "wind_colour")
+      po.arrowstyle = arrow_wind_colour;
+    else if (value == "wind_value")
+      po.arrowstyle = arrow_wind_value;
+
+  } else if (key == key_h_alignment) {
+    if (value == "left")
+      po.h_align = align_left;
+    else if (value == "right")
+      po.h_align = align_right;
+    else if (value == "center")
+      po.h_align = align_center;
+
+  } else if (key == key_v_alignment) {
+    if (value == "top")
+      po.v_align = align_top;
+    else if (value == "bottom")
+      po.v_align = align_bottom;
+    else if (value == "center")
+      po.v_align = align_center;
+
+  } else if (key == key_alignX) {
+    po.alignX = atoi(value.c_str());
+
+  } else if (key == key_alignY) {
+    po.alignY = atoi(value.c_str());
+
+  } else if (key == key_fontname) {
+    po.fontname = value;
+
+  } else if (key == key_fontface) {
+    po.fontface = diutil::fontFaceFromString(value);
+
+  } else if (key == key_fontsize) {
+    if (miutil::is_number(value))
+      po.fontsize = atof(value.c_str());
+    else
+      result = false;
+
+  } else if (key == key_precision) {
+    if (miutil::is_number(value))
+      po.precision = atof(value.c_str());
+    else
+      result = false;
+
+  } else if (key == key_dimension) {
+    if (miutil::is_int(value))
+      po.dimension = miutil::to_int(value);
+    else
+      result = false;
+
+  } else if (key == key_enabled) {
+    po.enabled = (value == TRUE);
+  } else if (key == key_fname) {
+    po.fname = value;
+  } else if (key == key_contourShape) {
+    po.contourShape = (value == TRUE);
+  } else if (key == key_shapefilename) {
+    po.shapefilename = value.c_str();
+  } else if (key == key_legendunits) {
+    po.legendunits = value.c_str();
+  } else if (key == key_legendtitle) {
+    po.legendtitle = value.c_str();
+  } else if (key == key_antialiasing) {
+    po.antialiasing = (value == TRUE);
+  } else if (key == key_use_stencil) {
+    po.use_stencil = (value == TRUE);
+  } else if (key == key_update_stencil) {
+    po.update_stencil = (value == TRUE);
+  } else if (key == key_plot_under) {
+    po.plot_under = (value == TRUE);
+  } else if (key == key_maxDiagonalInMeters) {
+    po.maxDiagonalInMeters = atof(value.c_str());
+  } else if (key == key_vector_example_x) {
+    po.vector_example_x = miutil::to_float(value);
+  } else if (key == key_vector_example_y) {
+    po.vector_example_y = miutil::to_float(value);
+  } else if (key == key_vector_example_unit_x) {
+    po.vector_example_unit_x = value;
+  } else if (key == key_vector_example_unit_y) {
+    po.vector_example_unit_y = value;
+
+  } else {
+    return false;
+  }
+  if (!result) {
+    std::ostringstream msg;
+    msg << "bad option: " << kv;
+    throw std::runtime_error(msg.str());
+  }
+  return true;
+}
+
 // parse a string (possibly) containing plotting options,
 // and fill a PlotOptions with appropriate values
 bool PlotOptions::parsePlotOption(const miutil::KeyValue_v& opts, PlotOptions& po, miutil::KeyValue_v& unusedOptions)
 {
   // very frequent METLIBS_LOG_SCOPE();
 
-  bool result=true;
+  bool result = true;
 
   for (miutil::KeyValue kv : opts) {
-    if (!kv.value().empty()) {
-      const string& key = kv.key();
-      string value = diutil::quote_removed(kv.value(), '\'');
-      value = diutil::quote_removed(kv.value(), '\"');
-
-      if (key==key_colour){
-        po.colours.clear();
-        if(value==OFF){
-          po.options_1= false;
-        } else {
-          po.options_1= true;
-          const Colour c(value);
-          po.textcolour= c;
-          po.linecolour= c;
-          po.fillcolour= c;
-          po.bordercolour= c;
-          po.colours.push_back(c);
-        }
-
-      } else if (key==key_colour_2){
-        if(value==OFF){
-          po.options_2= false;
-        } else {
-          po.options_2= true;
-          const Colour c(value);
-          po.linecolour_2= c;
-          po.colours.push_back(c);
-        }
-
-      } else if (key==key_tcolour){
-        const Colour c(value);
-        po.textcolour= c;
-
-      } else if (key==key_fcolour){
-        const Colour c(value);
-        po.fillcolour= c;
-
-      } else if (key==key_pcolour){
-        const Colour c(value);
-        po.fillcolour= c;
-
-      } else if (key==key_bcolour){
-        const Colour c(value);
-        po.bordercolour= c;
-
-      } else if (key==key_colours){
-        po.colours.clear();
-        // if(value==OFF){
-        //   po.options_1= false;
-        // } else {
-        po.options_1= true;
-        const vector<string> stokens= miutil::split(value, 0, ",");
-        for (const string& c : stokens) {
-          po.colours.push_back(Colour(c));
-        }
-
-      } else if (key==key_palettecolours){
-        po.palettecolours.clear();
-        po.palettecolours_cold.clear();
-        po.contourShading = ( value != OFF);
-        miutil::remove(value,'"');
-        po.palettename=value;
-        const vector<string> stokens = miutil::split(value, ",");
-        const size_t m= stokens.size();
-        if(m>2){
-          for (const string& c : stokens) {
-            po.palettecolours.push_back(Colour(c));
-          }
-        } else {
-          if(m>0){
-            vector<std::string> ntoken=miutil::split(stokens[0], 0, ";");
-            ColourShading cs(ntoken[0]);
-            if(ntoken.size()==2 && miutil::is_int(ntoken[1])){
-              po.palettecolours = cs.getColourShading(atoi(ntoken[1].c_str()));
-            }
-            else {
-              po.palettecolours = cs.getColourShading();
-            }
-          }
-          if(m>1){
-            vector<std::string> ntoken=miutil::split(stokens[1], 0, ";");
-            ColourShading cs(ntoken[0]);
-            if(ntoken.size()==2 && miutil::is_int(ntoken[1]))
-              po.palettecolours_cold = cs.getColourShading(atoi(ntoken[1].c_str()));
-            else
-              po.palettecolours_cold = cs.getColourShading();
-          }
-        }
-
-      } else if (key==key_linetype){
-        po.linetype = Linetype(value);
-        po.linetypes.clear();
-        po.linetypes.push_back(Linetype(value));
-
-      } else if (key==key_linetype_2){
-        po.linetype_2 = Linetype(value);
-        po.linetypes.push_back(Linetype(value));
-
-      } else if (key==key_linetypes){
-        const vector<string> stokens = miutil::split(value, 0, ",");
-        for (const string& l : stokens) {
-          po.linetypes.push_back(Linetype(l));
-        }
-
-      } else if (key==key_linewidth){
-        if (miutil::is_int(value)){
-          po.linewidth= atoi(value.c_str());
-          po.linewidths.clear();
-          po.linewidths.push_back(atoi(value.c_str()));
-        }
-        else result=false;
-
-      } else if (key==key_linewidth_2){
-        if (miutil::is_int(value)){
-          po.linewidth_2= atoi(value.c_str());
-          po.linewidths.push_back(atoi(value.c_str()));
-        }
-        else result=false;
-
-      } else if (key==key_linewidths){
-        po.linewidths.clear();
-        po.linewidths= po.intVector(value);
-        if (po.linewidths.size()==0) result= false;
-
-      } else if (key==key_patterns){
-        if(value!=OFF) {
-          po.patternname = value;
-          po.contourShading=1;
-        }
-        if(miutil::contains(value, ","))
-          po.patterns = miutil::split(value, 0, ",");
-        else {
-          po.patterns = Pattern::getPatternInfo(value);
-        }
-
-      } else if (key==key_lineinterval){
-        if (miutil::is_number(value)) {
-          po.lineinterval= atof(value.c_str());
-          po.linevalues.clear();
-          po.loglinevalues.clear();
-        } else {
-          result=false;
-        }
-
-      } else if (key==key_lineinterval_2){
-        if (miutil::is_number(value)) {
-          po.lineinterval_2= atof(value.c_str());
-          po.linevalues_2.clear();
-          po.loglinevalues_2.clear();
-        } else {
-          result=false;
-        }
-
-      } else if (key==key_minvalue){
-        if (miutil::is_number(value)){
-          po.minvalue = atof(value.c_str());
-        }
-
-      } else if (key==key_maxvalue){
-        if (miutil::is_number(value)){
-          po.maxvalue = atof(value.c_str());
-        }
-
-      } else if (key==key_minvalue_2){
-        if (miutil::is_number(value)) {
-          po.minvalue_2 = atof(value.c_str());
-        }
-
-      } else if (key==key_maxvalue_2){
-        if (miutil::is_number(value)){
-          po.maxvalue_2 = atof(value.c_str());
-        }
-
-      } else if (key==key_colourcut){
-        if (miutil::is_number(value))
-          po.colourcut = atof(value.c_str());
-
-      } else if (key==key_linevalues){
-        po.linevalues = autoExpandFloatVector(value);
-        if (not checkFloatVector(po.linevalues))
-          result = false;
-
-      } else if (key==key_linevalues_2){
-        po.linevalues_2 = autoExpandFloatVector(value);
-        if (not checkFloatVector(po.linevalues_2))
-          result = false;
-
-      } else if (key==key_loglinevalues){
-        po.loglinevalues = po.floatVector(value);
-        if (not checkFloatVector(po.loglinevalues))
-          result = false;
-
-      } else if (key==key_loglinevalues_2){
-        po.loglinevalues_2 = po.floatVector(value);
-        if (not checkFloatVector(po.loglinevalues_2))
-          result = false;
-
-      } else if (key==key_limits){
-        po.limits = autoExpandFloatVector(value);
-        if (po.limits.size()==0) result= false;
-
-      } else if (key==key_values){
-        po.values= po.floatVector(value);
-        if (po.values.size()==0) result= false;
-
-      } else if (key==key_extremeType){
-        // this version: should be "L+H" or "C+W"...
-        po.extremeType= value;
-
-      } else if (key==key_extremeSize){
-        if (miutil::is_number(value))
-          po.extremeSize= atof(value.c_str());
-        else result=false;
-
-      } else if (key==key_extremeRadius){
-        if (miutil::is_number(value))
-          po.extremeRadius= atof(value.c_str());
-        else result=false;
-
-      } else if (key==key_extremeLimits){
-        po.extremeLimits = autoExpandFloatVector(value);
-        if (po.extremeLimits.size()==0) result= false;
-
-      } else if (key==key_lineSmooth){
-        if (miutil::is_int(value))
-          po.lineSmooth= atoi(value.c_str());
-        else result=false;
-
-      } else if (key==key_fieldSmooth){
-        if (miutil::is_int(value))
-          po.fieldSmooth= atoi(value.c_str());
-        else result=false;
-
-      } else if (key==key_frame){
-        if (miutil::is_int(value)) {
-          po.frame= atoi(value.c_str());
-          if (po.frame<0) po.frame=0;
-          if (po.frame> 3) po.frame= 3;
-        } else result=false;
-
-      } else if (key==key_zeroLine){
-        if (miutil::is_int(value)) {
-          po.zeroLine= atoi(value.c_str());
-          if (po.zeroLine<-1) po.zeroLine=-1;
-          if (po.zeroLine> 1) po.zeroLine= 1;
-        } else result=false;
-
-      } else if (key==key_valueLabel){
-        if (miutil::is_int(value)) {
-          po.valueLabel= atoi(value.c_str());
-          if (po.valueLabel<0) po.valueLabel= 0;
-          if (po.valueLabel>1) po.valueLabel= 1;
-        } else result=false;
-
-      } else if (key==key_labelSize){
-        if (miutil::is_number(value)) {
-          po.labelSize= atof(value.c_str());
-          if (po.labelSize<0.2) po.labelSize= 0.2;
-          if (po.labelSize>5.0) po.labelSize= 5.0;
-        } else result=false;
-
-      } else if (key==key_gridValue){
-        if (miutil::is_int(value)) {
-          po.gridValue= atoi(value.c_str());
-          if (po.gridValue<-1) po.gridValue=-1;
-          if (po.gridValue> 1) po.gridValue= 1;
-        } else result=false;
-
-      } else if (key==key_gridLines){
-        if (miutil::is_int(value)) {
-          po.gridLines= atoi(value.c_str());
-          if (po.gridLines<0) po.gridLines= 0;
-        } else result=false;
-
-      } else if (key==key_gridLinesMax){
-        if (miutil::is_int(value)) {
-          po.gridLinesMax= atoi(value.c_str());
-          if (po.gridLinesMax<0) po.gridLinesMax= 0;
-        } else result=false;
-
-      } else if (key==key_plottype){
-        value= miutil::to_lower(value);
-        if (value==fpt_contour1        || value==fpt_value ||
-            value==fpt_contour2 ||
-            value==fpt_contour         ||value==fpt_rgb         ||
-            value==fpt_alpha_shade     || value==fpt_symbol     ||
-            value==fpt_alarm_box       || value==fpt_fill_cell  ||
-            value==fpt_wind            || value==fpt_vector     ||
-            value==fpt_wind_temp_fl    || value==fpt_wind_value ||
-            value==fpt_direction       || value==fpt_frame)
-        {
-          po.plottype= value;
-        } else if(value == "wind_colour") {
-          po.plottype = fpt_wind;
-        } else if(value == "direction_colour") {
-          po.plottype = fpt_direction;
-        } else if(value == "box_pattern") {
-          po.plottype = fpt_contour;
-        } else if(value == "layer") {
-          po.plottype = fpt_value;
-        } else if(value == "wind_number") {
-          po.plottype = fpt_wind_value;
-        } else  if(value == "number") {
-          po.plottype = fpt_value;
-        } else {
-          result= false;
-        }
-
-      } else if (key==key_rotatevectors){
-        if (miutil::is_int(value))
-          po.rotateVectors= atoi(value.c_str());
-        else result=false;
-
-      } else if (key==key_discontinuous){
-        if (miutil::is_int(value))
-          po.discontinuous= atoi(value.c_str());
-        else result=false;
-
-      } else if (key==key_table){
-        if (miutil::is_int(value))
-          po.table= atoi(value.c_str());
-        else result=false;
-
-      } else if (key==key_alpha){
-        if (miutil::is_int(value))
-          po.alpha= atoi(value.c_str());
-        else result=false;
-
-      } else if (key==key_repeat){
-        if (miutil::is_int(value))
-          po.repeat= atoi(value.c_str());
-        else result=false;
-
-      } else if (key==key_classes){
-        po.classSpecifications= value;
-      } else if (key==key_basevalue){
-        if (miutil::is_number(value))
-          po.base= atof(value.c_str());
-        else result=false;
-
-      } else if (key==key_basevalue_2){
-        if (miutil::is_number(value))
-          po.base_2= atof(value.c_str());
-        else result=false;
-
-      } else if (key==key_density){
-        if (miutil::is_int(value)) {
-          po.density= atoi(value.c_str());
-        } else {
-          po.density=0;
-          size_t pos1 = value.find_first_of("(")+1;
-          size_t pos2 = value.find_first_of(")");
-          if ( pos2 > pos1 ) {
-          std::string tmp = value.substr(pos1,(pos2-pos1));
-          if (miutil::is_number(tmp) ) {
-            po.densityFactor= atof(tmp.c_str());
-          }
-          }
-        }
-
-      } else if (key==key_densityfactor){
-        if (miutil::is_number(value)) {
-          po.densityFactor= atof(value.c_str());
-        } else {
-          result=false;
-        }
-
-      } else if (key==key_vectorunit){
-        if (miutil::is_number(value))
-          po.vectorunit= atof(value.c_str());
-        else result=false;
-
-      } else if (key==key_vectorunitname){
-        po.vectorunitname= value;
-        miutil::remove(po.vectorunitname, '"');
-
-      } else if (key==key_vectorscale_x) {
-        if (miutil::is_number(value))
-          po.vectorscale_x = miutil::to_float(value);
-        else result=false;
-
-      } else if (key==key_vectorscale_y) {
-        if (miutil::is_number(value))
-          po.vectorscale_y = miutil::to_float(value);
-        else result=false;
-
-      } else if (key==key_vectorthickness){
-        if (miutil::is_number(value))
-          po.vectorthickness = std::max(0.0f, miutil::to_float(value));
-        else result=false;
-
-      } else if (key==key_forecastLength){
-        po.forecastLength= po.intVector(value);
-        if (po.forecastLength.size()==0) result= false;
-
-      } else if (key==key_forecastValueMin){
-        po.forecastValueMin= po.floatVector(value);
-        if (po.forecastValueMin.size()==0) result= false;
-
-      } else if (key==key_forecastValueMax){
-        po.forecastValueMax= po.floatVector(value);
-        if (po.forecastValueMax.size()==0) result= false;
-
-      } else if (key==key_undefMasking){
-        if (miutil::is_int(value))
-          po.undefMasking= atoi(value.c_str());
-        else result=false;
-
-      } else if (key==key_undefColour){
-        const Colour c(value);
-        po.undefColour= c;
-
-      } else if (key==key_undefLinewidth){
-        if (miutil::is_int(value))
-          po.undefLinewidth= atoi(value.c_str());
-        else result=false;
-
-      } else if (key==key_undefLinetype){
-        po.undefLinetype= Linetype(value);
-
-      } else if (key==key_polystyle){
-        if (value=="fill") po.polystyle= poly_fill;
-        else if (value=="border") po.polystyle= poly_border;
-        else if (value=="both") po.polystyle= poly_both;
-        else if (value=="none") po.polystyle= poly_none;
-
-      } else if (key==key_arrowstyle){ // warning: only arrow_wind_arrow implemented yet
-        if (value=="wind") po.arrowstyle= arrow_wind;
-        else if (value=="wind_arrow") po.arrowstyle= arrow_wind_arrow;
-        else if (value=="wind_colour") po.arrowstyle= arrow_wind_colour;
-        else if (value=="wind_value") po.arrowstyle= arrow_wind_value;
-
-      } else if (key==key_h_alignment){
-        if (value=="left") po.h_align= align_left;
-        else if (value=="right") po.h_align= align_right;
-        else if (value=="center") po.h_align= align_center;
-
-      } else if (key==key_v_alignment){
-        if (value=="top") po.v_align= align_top;
-        else if (value=="bottom") po.v_align= align_bottom;
-        else if (value=="center") po.v_align= align_center;
-
-      } else if (key==key_alignX){
-        po.alignX= atoi(value.c_str());
-
-      } else if (key==key_alignY){
-        po.alignY= atoi(value.c_str());
-
-      } else if (key==key_fontname){
-        po.fontname= value;
-
-      } else if (key==key_fontface){
-        po.fontface = diutil::fontFaceFromString(value);
-
-      } else if (key==key_fontsize){
-        if (miutil::is_number(value))
-          po.fontsize= atof(value.c_str());
-        else result=false;
-
-      } else if (key==key_precision){
-        if (miutil::is_number(value))
-          po.precision= atof(value.c_str());
-        else result=false;
-
-      } else if (key==key_dimension){
-        if (miutil::is_int(value))
-          po.dimension= miutil::to_int(value);
-        else result=false;
-
-      } else if (key==key_enabled){
-        po.enabled= (value == TRUE);
-      } else if (key==key_fname){
-        po.fname=value;
-      } else if (key==key_contourShape){
-        po.contourShape = (value == TRUE);
-      } else if (key==key_shapefilename){
-        po.shapefilename=value.c_str();
-      } else if (key==key_legendunits){
-        po.legendunits=value.c_str();
-      } else if (key==key_legendtitle){
-        po.legendtitle=value.c_str();
-      } else if (key==key_antialiasing){
-        po.antialiasing=(value == TRUE);
-      } else if (key==key_use_stencil){
-        po.use_stencil=(value == TRUE);
-      } else if (key==key_update_stencil){
-        po.update_stencil=(value == TRUE);
-      } else if (key==key_plot_under){
-        po.plot_under=(value == TRUE);
-      } else if (key==key_maxDiagonalInMeters){
-        po.maxDiagonalInMeters=atof(value.c_str());
-      } else if (key==key_vector_example_x){
-        po.vector_example_x = miutil::to_float(value);
-      } else if (key==key_vector_example_y){
-        po.vector_example_y = miutil::to_float(value);
-      } else if (key==key_vector_example_unit_x){
-        po.vector_example_unit_x = value;
-      } else if (key==key_vector_example_unit_y){
-        po.vector_example_unit_y = value;
-
-      } else {
+    try {
+      const bool used = parsePlotOption(kv, po);
+      if (!used)
         unusedOptions.push_back(kv);
-      }
-    } else {
-      unusedOptions.push_back(kv);
+    } catch (std::runtime_error& e) {
+      result = false; // ignore otherwise
     }
   }
-
-  if (po.linetypes.size() == 0 ) {
-    po.linetypes.push_back(po.linetype);
-  }
-  if (po.linewidths.size() == 0 ) {
-    po.linewidths.push_back(po.linewidth);
-  }
-
   return result;
 }
 
