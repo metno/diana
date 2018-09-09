@@ -188,6 +188,8 @@ void DiPaintGLPainter::makeCurrent()
   clearColor = QColor(0, 0, 0, 0);
   colorMask = true;
 
+  smooth = false;
+
   stencil.clear = 0;
   stencil.path = QPainterPath();
   stencil.fail = gl_KEEP;
