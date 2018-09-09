@@ -848,7 +848,7 @@ void SatDialog::putOKString(const PlotCommand_cpv& vstr)
   multiPicture->setChecked(restore);
 }
 
-void SatDialog::putOptions(const state okVar)
+void SatDialog::putOptions(const state& okVar)
 {
   if (!okVar.filetime.undef() && okVar.filetime != ztime) {
     timefileBut->button(1)->setChecked(true);

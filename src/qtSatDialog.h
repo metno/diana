@@ -117,7 +117,7 @@ private:
   state decodeString(const miutil::KeyValue_v &tokens);
   // make string from state
   miutil::KeyValue_v makeOKString(state & okVar);
-  void putOptions(const state okVar);
+  void putOptions(const state& okVar);
 
   std::string pictureString(state,bool);  
   // get the time string on the form yyyymmddhhmn from time
