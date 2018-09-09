@@ -29,8 +29,13 @@
 
 #include "diFieldUtil.h"
 
+#include "diField/diField.h"
+#include "diField/diFlightLevel.h"
 #include "diPlotOptions.h"
 #include "util/misc_util.h"
+#include "util/string_util.h"
+
+#include <sstream>
 
 namespace {
 
@@ -46,9 +51,9 @@ const std::set<std::string> cp__idnum1 = {"model", "plot",    "parameter", "vlev
 
 } // namespace
 
-void mergeFieldOptions(miutil::KeyValue_v& fieldopts, miutil::KeyValue_v opts)
+void mergeFieldOptions(miutil::KeyValue_v& fieldopts, miutil::KeyValue_v defaultopts)
 {
-  if (opts.empty())
+  if (defaultopts.empty())
     return;
 
   miutil::KeyValue_v new_fieldopts;
@@ -60,13 +65,13 @@ void mergeFieldOptions(miutil::KeyValue_v& fieldopts, miutil::KeyValue_v opts)
   // skip "line.interval" from default options if "(log.)line.values" are given
   if (miutil::find(fieldopts, PlotOptions::key_linevalues) != npos || miutil::find(fieldopts, PlotOptions::key_loglinevalues) != npos) {
     size_t i_interval;
-    while ((i_interval = miutil::find(opts, PlotOptions::key_lineinterval)) != npos) {
-      opts.erase(opts.begin() + i_interval);
+    while ((i_interval = miutil::find(defaultopts, PlotOptions::key_lineinterval)) != npos) {
+      defaultopts.erase(defaultopts.begin() + i_interval);
     }
   }
 
   // loop through current options, replace the value if the new string has same option with different value
-  for (miutil::KeyValue& opt : opts) {
+  for (miutil::KeyValue& opt : defaultopts) {
     const size_t i = miutil::find(fieldopts, opt.key());
     if (i != npos) {
       // there is no option with variable no. of values, YET !!!!!
@@ -80,13 +85,13 @@ void mergeFieldOptions(miutil::KeyValue_v& fieldopts, miutil::KeyValue_v opts)
     if (fopt.key() == "level" || fopt.key() == "idnum")
       continue;
 
-    const size_t j = miutil::find(opts, fopt.key());
+    const size_t j = miutil::find(defaultopts, fopt.key());
     if (j == npos) {
-      opts.push_back(fopt);
+      defaultopts.push_back(fopt);
     }
   }
 
-  diutil::insert_all(new_fieldopts, opts);
+  diutil::insert_all(new_fieldopts, defaultopts);
   std::swap(new_fieldopts, fieldopts);
 }
 
@@ -138,4 +143,53 @@ void cleanupFieldOptions(miutil::KeyValue_v& vpopt)
     }
     vpopt.push_back(miutil::KeyValue(UNIT, value));
   }
+}
+
+void makeFieldText(Field* fout, const std::string& plotName, bool flightlevel)
+{
+  std::string fieldtext = fout->modelName + " " + plotName;
+  if (!fout->leveltext.empty()) {
+    diutil::appendText(fieldtext, " ");
+    if (flightlevel)
+      diutil::appendText(fieldtext, FlightLevel::getFlightLevel(fout->leveltext));
+    else
+      diutil::appendText(fieldtext, fout->leveltext);
+  }
+  diutil::appendText(fieldtext, fout->idnumtext);
+
+  if (!fout->analysisTime.undef() && !fout->validFieldTime.undef()) {
+    fout->forecastHour = miutil::miTime::hourDiff(fout->validFieldTime, fout->analysisTime);
+  }
+
+  std::string progtext;
+  if (!fout->analysisTime.undef() && fout->forecastHour != -32767) {
+    std::ostringstream ostr;
+    ostr.width(2);
+    ostr.fill('0');
+    ostr << fout->analysisTime.hour() << " ";
+    if (fout->forecastHour >= 0) {
+      ostr << "+" << fout->forecastHour;
+    } else {
+      ostr << fout->forecastHour;
+    }
+    progtext = "(" + ostr.str() + ")";
+  }
+
+  std::string timetext;
+  if (!fout->validFieldTime.undef()) {
+    std::string sclock = fout->validFieldTime.isoClock();
+    std::string shour = sclock.substr(0, 2);
+    std::string smin = sclock.substr(3, 2);
+    timetext = fout->validFieldTime.isoDate() + " " + shour;
+    if (smin != "00")
+      timetext += ":" + smin;
+    timetext += " UTC";
+  }
+
+  fout->name = plotName;
+  fout->text = fieldtext + " " + progtext;
+  fout->fulltext = fieldtext + " " + progtext + " " + timetext;
+  fout->fieldText = fieldtext;
+  fout->progtext = progtext;
+  fout->timetext = timetext;
 }

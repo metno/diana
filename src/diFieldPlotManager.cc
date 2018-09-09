@@ -27,27 +27,21 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#include "diFieldPlotManager.h"
+
 #include "diana_config.h"
 
 #include "diFieldPlot.h"
-#include "diFieldPlotManager.h"
 #include "diFieldUtil.h"
 #include "diKVListPlotCommand.h"
-#include "diPlotOptions.h"
-#include "miSetupParser.h"
 #include "util/misc_util.h"
 #include "util/string_util.h"
 
-#include "diField/diFieldFunctions.h"
 #include "diField/diFlightLevel.h"
 
 #include <puTools/miStringFunctions.h>
 
-#include <boost/algorithm/string.hpp>
-
-#include <iomanip>
 #include <memory>
-#include <sstream>
 
 #define MILOGGER_CATEGORY "diana.FieldPlotManager"
 #include <miLogger/miLogging.h>
@@ -535,55 +529,6 @@ bool FieldPlotManager::makeFields(const miutil::KeyValue_v& kvs,
   }
 
   return true;
-}
-
-void FieldPlotManager::makeFieldText(Field* fout, const std::string& plotName, bool flightlevel)
-{
-  std::string fieldtext = fout->modelName + " " + plotName;
-  if (!fout->leveltext.empty()) {
-    diutil::appendText(fieldtext, " ");
-    if (flightlevel)
-      diutil::appendText(fieldtext, FlightLevel::getFlightLevel(fout->leveltext));
-    else
-      diutil::appendText(fieldtext, fout->leveltext);
-  }
-  diutil::appendText(fieldtext, fout->idnumtext);
-
-  if (!fout->analysisTime.undef() && !fout->validFieldTime.undef()) {
-    fout->forecastHour = miutil::miTime::hourDiff(fout->validFieldTime, fout->analysisTime);
-  }
-
-  std::string progtext;
-  if (!fout->analysisTime.undef() && fout->forecastHour != -32767) {
-    std::ostringstream ostr;
-    ostr.width(2);
-    ostr.fill('0');
-    ostr << fout->analysisTime.hour()<<" ";
-    if (fout->forecastHour >= 0) {
-      ostr << "+" << fout->forecastHour;
-    } else {
-      ostr << fout->forecastHour;
-    }
-    progtext = "(" + ostr.str() + ")";
-  }
-
-  std::string timetext;
-  if (!fout->validFieldTime.undef()) {
-    std::string sclock = fout->validFieldTime.isoClock();
-    std::string shour = sclock.substr(0, 2);
-    std::string smin = sclock.substr(3, 2);
-    timetext = fout->validFieldTime.isoDate() + " " + shour;
-    if (smin != "00")
-      timetext += ":" + smin;
-    timetext += " UTC";
-  }
-
-  fout->name = plotName;
-  fout->text = fieldtext + " " + progtext;
-  fout->fulltext = fieldtext + " " + progtext + " " + timetext;
-  fout->fieldText = fieldtext;
-  fout->progtext = progtext;
-  fout->timetext = timetext;
 }
 
 void FieldPlotManager::freeFields(const std::vector<Field*>& fv)

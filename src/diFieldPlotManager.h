@@ -84,9 +84,6 @@ public:
       std::vector<std::string> config,
       const std::vector<std::string>& option);
 
-  /// return available times for the requested models and fields
-  void makeFieldText(Field* fout, const std::string& plotName, bool flightlevel=false);
-
   plottimes_t getFieldTime(std::vector<FieldRequest>& request, bool updateSources = false);
 
   /// return all field groups for one model/file (to FieldDialog)

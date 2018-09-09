@@ -32,14 +32,17 @@
 
 #include "util/diKeyValue.h"
 
+class Field;
 /*! Merge field options from command (e.g. quick menu) and setup/logfile.
  * \param fieldopts options from command, will be updated
- * \param opts options from setup/logfile
+ * \param defaultopts options from setup/logfile
  */
-void mergeFieldOptions(miutil::KeyValue_v& fieldopts, miutil::KeyValue_v opts);
+void mergeFieldOptions(miutil::KeyValue_v& fieldopts, miutil::KeyValue_v defaultopts);
 
 bool splitDifferenceCommandString(const miutil::KeyValue_v& pin, miutil::KeyValue_v& fspec1, miutil::KeyValue_v& fspec2);
 
 void cleanupFieldOptions(miutil::KeyValue_v& vpopt);
+
+void makeFieldText(Field* fout, const std::string& plotName, bool flightlevel);
 
 #endif // difieldutil_h
