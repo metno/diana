@@ -124,7 +124,6 @@ public:
   /** fill a field's PlotOptions from static map, and substitute values
       from a string containing plotoptions */
   static void getFieldPlotOptions(const std::string& name, PlotOptions& po, miutil::KeyValue_v &fdo);
-  static std::string getFieldClassSpecs(const std::string& fieldplotname);
 
 private:
   std::vector<PlotField> vPlotField;

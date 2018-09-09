@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013 met.no
+  Copyright (C) 2013-2018 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -186,7 +186,7 @@ private:
   bool mUseOptions2;
   level_points_m m_lines;
   level_points_m m_polygons;
-  std::vector<int> mClassValues;
+  std::vector<float> mClassValues;
 };
 
 // ########################################################################

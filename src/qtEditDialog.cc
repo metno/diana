@@ -49,19 +49,20 @@
 #include <QVBoxLayout>
 #include <QToolTip>
 
-#include "qtEditDialog.h"
-#include "qtEditNewDialog.h"
-#include "qtEditComment.h"
-#include "qtUtility.h"
-#include "qtToggleButton.h"
-#include "qtComplexText.h"
-#include "qtEditText.h"
-#include "qtAnnoText.h"
-#include "diLocalSetupParser.h"
 #include "diController.h"
 #include "diEditManager.h"
 #include "diFieldPlotManager.h"
+#include "diLocalSetupParser.h"
 #include "diObjectManager.h"
+#include "qtAnnoText.h"
+#include "qtComplexText.h"
+#include "qtEditComment.h"
+#include "qtEditDialog.h"
+#include "qtEditNewDialog.h"
+#include "qtEditText.h"
+#include "qtToggleButton.h"
+#include "qtUtility.h"
+#include "util/plotoptions_util.h"
 
 #include <edit_open_value.xpm>
 #include <edit_lock_value.xpm>
@@ -1398,16 +1399,8 @@ void EditDialog::EditNewOk(EditProduct& ep,
 
     numFieldEditTools= n;
 
-    const std::string str = FieldPlotManager::getFieldClassSpecs(currprod.fields[0].name);
-    vector<std::string> vclass= miutil::split(str, 0, ",");
-    for (unsigned int i=0; i<vclass.size(); i++) {
-      vector<std::string> vs= miutil::split(vclass[i], ":");
-      if (vs.size()>=2) {
-        classNames.push_back(vs[1]);
-        classValues.push_back(atof(vs[0].c_str()));
-        classValuesLocked.push_back(false);
-      }
-    }
+    getFieldClassSpecs();
+
     classNames.push_back(tr("Undefined").toStdString());
     classValues.push_back(1.e+35);        // the fieldUndef value
     classValuesLocked.push_back(false);
@@ -1637,16 +1630,8 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
 
     numFieldEditTools= n;
 
-    const std::string str = FieldPlotManager::getFieldClassSpecs(currprod.fields[0].name);
-    vector<std::string> vclass= miutil::split(str, 0, ",");
-    for (unsigned int i=0; i<vclass.size(); i++) {
-      vector<std::string> vs= miutil::split(vclass[i], ":");
-      if (vs.size()>=2) {
-        classNames.push_back(vs[1]);
-        classValues.push_back(atof(vs[0].c_str()));
-        classValuesLocked.push_back(false);
-      }
-    }
+    getFieldClassSpecs();
+
     classNames.push_back(tr("Undefined").toStdString());
     classValues.push_back(1.e+35);        // the fieldUndef value
     classValuesLocked.push_back(false);
@@ -1779,4 +1764,13 @@ void EditDialog::saveEdit()
 bool EditDialog::inedit()
 {
   return (inEdit && !m_editm->getEditPause());
+}
+
+void EditDialog::getFieldClassSpecs()
+{
+  PlotOptions po;
+  unsigned int maxlen = 0;
+  m_editm->getFieldPlotOptions(currprod.fields[0].name, po);
+  diutil::parseClasses(po, classValues, classNames, maxlen);
+  classValuesLocked.insert(classValuesLocked.end(), classValues.size(), false);
 }

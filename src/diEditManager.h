@@ -249,6 +249,8 @@ public:
   bool getDataAnnotations(std::vector<std::string>& anno);
   /// insert time in text string
   PlotCommand_cp insertTime(PlotCommand_cp pc, const miutil::miTime&);
+
+  void getFieldPlotOptions(const std::string& name, PlotOptions& po);
 };
 
 #endif

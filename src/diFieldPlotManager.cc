@@ -982,13 +982,3 @@ void FieldPlotManager::getFieldPlotOptions(const std::string& name, PlotOptions&
     fieldDataOptions[name]= fdo;
   }
 }
-
-std::string FieldPlotManager::getFieldClassSpecs(const std::string& fieldplotname)
-{
-  map<std::string,PlotOptions>::iterator p = fieldPlotOptions.find(fieldplotname);
-  if (p != fieldPlotOptions.end()) {
-    return p->second.classSpecifications;;
-  } else {
-    return std::string();
-  }
-}

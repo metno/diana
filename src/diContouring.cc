@@ -4041,7 +4041,7 @@ void fillContours(DiGLPainter* gl, vector<ContourLine*>& contourlines,
   // to be used in other methods, such as writing shape files
   getCLindex(contourlines, clindex, poptions, drawBorders, fieldUndef);
 
-  const vector<int> classValues = diutil::parseClassValues(poptions);
+  const vector<float> classValues = diutil::parseClassValues(poptions);
   const int nclass= classValues.size();
 
   if (iconv==1) {
@@ -4213,7 +4213,7 @@ void writeShapefile(vector<ContourLine*>& contourlines,
   // to be used in other methods, such as writing shape files
   getCLindex(contourlines, clindex, poptions, drawBorders, fieldUndef);
 
-  vector<int>      classValues;
+  vector<float> classValues;
   vector<std::string> classNames;
   unsigned int maxlen;
   diutil::parseClasses(poptions, classValues, classNames, maxlen);

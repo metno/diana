@@ -98,6 +98,8 @@ private:
   bool saveEverything(bool send, bool approved);
   void updateLabels();
 
+  void getFieldClassSpecs();
+
 private slots:
   // Field slots
   void fgroupClicked( int index );

@@ -3216,3 +3216,9 @@ PlotCommand_cp EditManager::insertTime(PlotCommand_cp lc, const miTime& time)
 
   return tpc;
 }
+
+void EditManager::getFieldPlotOptions(const std::string& name, PlotOptions& po)
+{
+  miutil::KeyValue_v fdo;
+  return fieldPlotManager->getFieldPlotOptions(name, po, fdo);
+}

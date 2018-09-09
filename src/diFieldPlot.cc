@@ -53,6 +53,7 @@
 #include "diUtilities.h"
 #include "util/math_util.h"
 #include "util/misc_util.h"
+#include "util/plotoptions_util.h"
 #include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
@@ -999,21 +1000,12 @@ bool FieldPlot::plotValue(DiGLPainter* gl)
 
   // plot symbol
   ImageGallery ig;
-  std::map<int, std::string> classImages;
-  if (plottype() == fpt_symbol && poptions.discontinuous == 1
-      && (not poptions.classSpecifications.empty())) {
-    std::vector<int> classValues;
+  std::map<float, std::string> classImages;
+  if (plottype() == fpt_symbol) {
+    std::vector<float> classValues;
     std::vector<std::string> classNames;
-    std::vector<std::string> classSpec = miutil::split(poptions.classSpecifications, ",");
-    for (size_t i = 0; i < classSpec.size(); i++) {
-      const std::vector<std::string> vstr = miutil::split(classSpec[i], ":");
-      if (vstr.size() > 2) {
-        const int value = miutil::to_int(vstr[0]);
-        classValues.push_back(value);
-        classNames.push_back(vstr[1]);
-        classImages[value] = vstr[2];
-      }
-    }
+    unsigned int maxlen = 0;
+    diutil::parseClasses(poptions, classValues, classNames, classImages, maxlen);
   }
 
   // convert gridpoints to correct projection
@@ -1085,7 +1077,7 @@ bool FieldPlot::plotValue(DiGLPainter* gl)
         }
 
         if (!classImages.empty()) { //plot symbol
-          std::map<int, std::string>::const_iterator it = classImages.find(int(value));
+          std::map<float, std::string>::const_iterator it = classImages.find(value);
           if (it != classImages.end()) {
             ig.plotImage(gl, getStaticPlot()->plotArea(), it->second, gx, gy, true, poptions.labelSize * 0.25);
           }
