@@ -85,7 +85,7 @@ void mergeFieldOptions(miutil::KeyValue_v& fieldopts, miutil::KeyValue_v default
 
   // loop through new options, add new option if it is not a part of current options
   for (miutil::KeyValue& fopt : fieldopts) {
-    if (fopt.key() == "level" || fopt.key() == "idnum")
+    if (fopt.key() == "level" || fopt.key() == "idnum" || cp__idnum1.count(fopt.key()))
       continue;
 
     const size_t j = miutil::find(defaultopts, fopt.key());
