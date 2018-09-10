@@ -522,6 +522,18 @@ void EditManager::setEditMode(const std::string mmode,  // mapmode
 ----------------------------  keyboard/mouse event ----------------------
  -----------------------------------------------------------------------*/
 
+namespace {
+inline bool matchButton(const QMouseEvent* me, Qt::MouseButton button)
+{
+  if (me->type() == QEvent::MouseMove)
+    return (me->buttons() & button);
+  else if (me->type() == QEvent::MouseButtonPress)
+    return (me->button() == button);
+  else
+    return false;
+}
+} // namespace
+
 bool EditManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
 {
   //  METLIBS_LOG_SCOPE();
@@ -537,46 +549,48 @@ bool EditManager::sendMouseEvent(QMouseEvent* me, EventResult& res)
   objm->getEditObjects().setMouseCoordinates(newx,newy);
 
   if (mapmode == fedit_mode) { // field editing
-    if (me->type() == QEvent::MouseMove && me->buttons() == Qt::NoButton) {
+    const bool m_move = (me->type() == QEvent::MouseMove), m_press = (me->type() == QEvent::MouseButtonPress);
+    if (m_move && me->buttons() == Qt::NoButton) {
       res.newcursor = edit_value_cursor;
       res.action = browsing;
       return true;
     }
     EditEvent ee(newx, newy);
-    if (me->button() == Qt::LeftButton) {
-      ee.type = edit_pos;
-    } else if (me->button() == Qt::MidButton) {
-      ee.type = edit_inspection;
-    } else if (me->button() == Qt::RightButton) {
-      ee.type = edit_size;
-    }
-    if (me->type() == QEvent::MouseButtonPress){
-      if (me->button() != Qt::LeftButton && me->button() != Qt::MidButton && me->button() != Qt::RightButton) {
+    if (m_move || m_press) {
+      if (m_press) {
+        ee.order = start_event;
+      } else {
+        res.action = quick_browsing;
+        ee.order = normal_event;
+      }
+      if (matchButton(me, Qt::LeftButton)) {
+        ee.type = edit_pos;
+      } else if (matchButton(me, Qt::MidButton)) {
+        ee.type = edit_inspection;
+      } else if (matchButton(me, Qt::RightButton)) {
+        ee.type = edit_size;
+      } else {
         return false;
       }
-      ee.order = start_event;
-      res.repaint = notifyEditEvent(ee);
-    } else if (me->type() == QEvent::MouseMove){
-      res.action = quick_browsing;
-      if (me->button() != Qt::LeftButton && me->button() != Qt::MidButton && me->button() != Qt::RightButton) {
-        return false;
-      }
-      ee.order = normal_event;
       res.repaint = notifyEditEvent(ee);
     } else if (me->type() == QEvent::MouseButtonRelease) {
-      if (me->button() != Qt::LeftButton) {
+      if (me->button() == Qt::LeftButton) {
+        ee.type = edit_pos;
+        ee.order = stop_event;
+        res.repaint = notifyEditEvent(ee);
+        if (res.repaint)
+          res.action = fields_changed;
+      } else {
         return false;
       }
-      ee.order = stop_event;
-      res.repaint = notifyEditEvent(ee);
-      if (res.repaint)
-        res.action = fields_changed;
     } else if (me->type() == QEvent::MouseButtonDblClick) {
-      if (me->button() != Qt::LeftButton) {
+      if (me->button() == Qt::LeftButton) {
+        ee.type = edit_pos; // ..type edit_pos
+        ee.order = start_event;
+        res.repaint = notifyEditEvent(ee);
+      } else {
         return false;
       }
-      ee.order = start_event;
-      res.repaint = notifyEditEvent(ee);
     }
   } else { // draw_mode or combine mode
     if (me->type() == QEvent::MouseButtonPress){
