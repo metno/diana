@@ -1,3 +1,9 @@
+diana-3.47 (3.47.1-1) unstable; urgency=low
+
+  * FieldEdit bugfix
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 10 Sep 2018 12:13:07 +0200
+
 diana-3.47 (3.47.0-1) unstable; urgency=low
 
   * operational version
