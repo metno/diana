@@ -1,4 +1,11 @@
-diana-3.46 (3.47.0~rc1-1) unstable; urgency=low
+diana-3.47 (3.47.0-1) unstable; urgency=low
+
+  * operational version
+  * Wave spectra bugfix
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 10 Sep 2018 08:40:59 +0200
+
+diana-3.47 (3.47.0~rc1-1) unstable; urgency=low
 
   * code refactoring
 
