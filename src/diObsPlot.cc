@@ -2835,21 +2835,18 @@ void ObsPlot::printNumber(DiGLPainter* gl, float f, QPointF xy, const std::strin
     gl->drawLine(x, (y - ch / 6), (x + cw), (y - ch / 6));
 }
 
-void ObsPlot::printString(DiGLPainter* gl, const std::string& c, QPointF xy, bool align_right, bool line)
+void ObsPlot::printString(DiGLPainter* gl, const std::string& c, QPointF xy, bool align_right)
 {
   float x = xy.x() * scale;
   float y = xy.y() * scale;
 
   float w, h;
-  if (align_right || line)
+  if (align_right)
     gl->getTextSize(c, w, h);
   if (align_right)
     x -= w;
 
   gl->drawText(c, x, y, 0.0);
-
-  if (line)
-    gl->drawLine(x, (y - h / 6), (x + w), (y - h / 6));
 }
 
 void ObsPlot::printTime(DiGLPainter* gl, const miTime& time, QPointF xy, bool align_right, const std::string& format)

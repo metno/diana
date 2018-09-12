@@ -283,7 +283,7 @@ protected:
   bool checkWMOnumber(const ObsData& dta) const;
 
   // from plotList, plotSynop, plotMetar, metarWind, ROAD/plotDBMetar, ROAD/plotDBSynop
-  void printString(DiGLPainter* gl, const std::string&, QPointF xypos, bool align_right = false, bool = false);
+  void printString(DiGLPainter* gl, const std::string&, QPointF xypos, bool align_right = false);
 
   // from plotMetar, ROAD/plotDBMetar (commented)
   void metarSymbol(DiGLPainter* gl, const std::string&, QPointF, int&);
