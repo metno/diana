@@ -188,5 +188,7 @@ ObsDialogInfo::Misc ObsDialogInfo::miscFromText(const std::string& text)
     return asFieldButton;
   if (text == "leveldiffs")
     return leveldiffs;
+  if (text == "show_VV_as_code")
+    return show_VV_as_code;
   return none;
 }

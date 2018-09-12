@@ -70,6 +70,18 @@ std::vector<ObsReader_p> ObsManager::readers(ObsPlot* oplot)
   return readers;
 }
 
+bool ObsManager::setPlotDefaults(ObsPlot* oplot)
+{
+  // Default for flags in misc is false
+  for (const auto& spt : setupPlotTypes_) {
+    if (spt.plottype == oplot->plottype()) {
+      if (spt.misc & ObsDialogInfo::show_VV_as_code)
+        oplot->setShowVVAsCode(false);
+      break;
+    }
+  }
+}
+
 bool ObsManager::prepare(ObsPlot* oplot, const miutil::miTime& time)
 {
   METLIBS_LOG_SCOPE();

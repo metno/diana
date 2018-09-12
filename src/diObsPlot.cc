@@ -33,7 +33,6 @@
 
 #include "diGlUtilities.h"
 #include "diImageGallery.h"
-#include "diKVListPlotCommand.h"
 #include "diLocalSetupParser.h"
 #include "diObsPositions.h"
 #include "diStaticPlot.h"
@@ -161,11 +160,10 @@ bool ObsPlotCollider::collision(const Box& box) const
 
 // ========================================================================
 
-ObsPlot::ObsPlot(const miutil::KeyValue_v& pin, ObsPlotType plottype)
-  : m_plottype(plottype)
+ObsPlot::ObsPlot(const std::string& dn, ObsPlotType plottype)
+    : m_plottype(plottype)
+    , dialogname(dn)
 {
-  setPlotInfo(pin);
-
   METLIBS_LOG_SCOPE();
 
   x = NULL;
@@ -180,6 +178,7 @@ ObsPlot::ObsPlot(const miutil::KeyValue_v& pin, ObsPlotType plottype)
   numPar = 0;
   tempPrecision = false;
   unit_ms = false;
+  show_VV_as_code_ = true;
   vertical_orientation = true;
   left_alignment = true;
   showpos = false;
@@ -343,181 +342,185 @@ int ObsPlot::getObsCount() const
 }
 
 // static
-ObsPlot* ObsPlot::createObsPlot(const PlotCommand_cp& pc)
+std::string ObsPlot::extractDialogname(const miutil::KeyValue_v& kvs)
+{
+  std::string dialogname;
+  const size_t i_plot = miutil::rfind(kvs, "plot");
+  if (i_plot != size_t(-1)) {
+    const miutil::KeyValue& kv_plot = kvs[i_plot];
+    if (kv_plot.hasValue()) {
+      const std::vector<std::string> vstr = miutil::split(kv_plot.value(), ":");
+      if (!vstr.empty())
+        dialogname = vstr[0];
+    }
+  }
+  return dialogname;
+}
+
+// static
+ObsPlotType ObsPlot::extractPlottype(const std::string& dialogname)
+{
+  const std::string valp = miutil::to_lower(dialogname);
+  if (valp == "synop") {
+    return OPT_SYNOP;
+  } else if (valp == "metar") {
+    return OPT_METAR;
+  }
+#ifdef ROADOBS
+  // To avoid that roadobs will be set to ascii below
+  else if (valp == "synop_wmo" || valp == "synop_ship") {
+    return OPT_SYNOP;
+  } else if (valp == "metar_icao") {
+    return OPT_METAR;
+  }
+#endif // !ROADOBS
+  else {
+    return OPT_LIST;
+  }
+}
+
+void ObsPlot::setPlotInfo(const miutil::KeyValue_v& pin)
 {
   METLIBS_LOG_SCOPE();
 
-  KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pc);
-  if (!cmd)
-    return 0;
+  poptions.fontname = diutil::BITMAPFONT;
+  poptions.fontface = diutil::F_NORMAL;
 
-  ObsPlotType plottype = OPT_SYNOP;
-  std::string dialogname;
-  const size_t i_plot = cmd->rfind("plot");
-  if (i_plot != KVListPlotCommand::npos && !cmd->value(i_plot).empty()) {
-    const std::vector<std::string> vstr = miutil::split(cmd->value(i_plot), ":");
-    if (!vstr.empty())
-      dialogname = vstr[0];
-    if (dialogname.empty())
-      METLIBS_LOG_WARN("probably malformed observation plot specification '" << cmd->value(i_plot) << "'");
-    const std::string valp = miutil::to_lower(dialogname);
-    if (valp == "synop") {
-      plottype = OPT_SYNOP;
-    } else if (valp == "metar") {
-      plottype = OPT_METAR;
-    }
-#ifdef ROADOBS
-    // To avoid that roadobs will be set to ascii below
-    else if (valp == "synop_wmo" || valp == "synop_ship") {
-      plottype = OPT_SYNOP;
-    } else if (valp == "metar_icao") {
-      plottype = OPT_METAR;
-    }
-#endif // !ROADOBS
-    else {
-      plottype = OPT_LIST;
-    }
-  }
-  std::unique_ptr<ObsPlot> op(new ObsPlot(cmd->all(), plottype));
-
-  op->dialogname = dialogname;
-
-  op->poptions.fontname = diutil::BITMAPFONT;
-  op->poptions.fontface = diutil::F_NORMAL;
+  Plot::setPlotInfo(pin);
 
   vector<std::string> parameter;
-  for (const miutil::KeyValue& kv : cmd->all()) {
+  for (const miutil::KeyValue& kv : pin) {
     const std::string& key = kv.key();
     const std::string& value = kv.value();
     const std::string value_lower_case = miutil::to_lower(value);
     if (key == "plot") {
       if (value == "pressure")
-        op->levelsuffix = "hPa";
+        levelsuffix = "hPa";
       else if (value == "ocean")
-        op->levelsuffix = "m";
+        levelsuffix = "m";
     } else if (key == "data") {
-      op->readernames = miutil::split(value, ",");
+      readernames = miutil::split(value, ",");
     } else if (key == "parameter") {
       parameter = miutil::split(value, 0, ",");
     } else if (key == "scale") {
-      op->textSize = kv.toFloat();
-      if (op->markerSize < 0)
-        op->markerSize = kv.toFloat();
+      textSize = kv.toFloat();
+      if (markerSize < 0)
+        markerSize = kv.toFloat();
     } else if (key == "marker.size") {
-      op->markerSize = kv.toFloat();
+      markerSize = kv.toFloat();
     } else if (key == "text.size") {
-      op->textSize = kv.toFloat();
+      textSize = kv.toFloat();
     } else if (key == "density") {
       if (value_lower_case == "allobs")
-        op->allObs = true;
+        allObs = true;
       else
-        op->density = kv.toFloat();
+        density = kv.toFloat();
     } else if (key == "priority") {
-      op->priorityFile = value;
-      op->priority = true;
+      priorityFile = value;
+      priority = true;
     } else if (key == "colour") {
-      op->origcolour = Colour(value);
+      origcolour = Colour(value);
     } else if (key == "devfield") {
       if (kv.toBool()) {
-        op->devfield.reset(new ObsPositions);
+        devfield.reset(new ObsPositions);
       } else {
-        op->devfield.reset(0);
+        devfield.reset(0);
       }
     } else if (key == "devcolour1") {
-      op->mslpColour1 = Colour(value);
+      mslpColour1 = Colour(value);
     } else if (key == "devcolour2") {
-      op->mslpColour2 = Colour(value);
+      mslpColour2 = Colour(value);
     } else if (key == "tempprecision") {
-      op->tempPrecision = kv.toBool();
+      tempPrecision = kv.toBool();
     } else if (key == "unit_ms") {
-      op->unit_ms = kv.toBool();
+      unit_ms = kv.toBool();
+    } else if (key == "show_VV_as_code") {
+      show_VV_as_code_ = kv.toBool();
     } else if (key == "parametername") {
-      op->parameterName = kv.toBool();
+      parameterName = kv.toBool();
     } else if (key == "popup") {
-      op->popupText = kv.toBool();
+      popupText = kv.toBool();
     } else if (key == "qualityflag") {
-      op->qualityFlag = kv.toBool();
+      qualityFlag = kv.toBool();
     } else if (key == "wmoflag") {
-      op->wmoFlag = kv.toBool();
+      wmoFlag = kv.toBool();
     } else if (key == "moretimes") {
-      op->moretimes = kv.toBool();
+      moretimes = kv.toBool();
     } else if (key == "sort") {
-      op->decodeSort(value);
+      decodeSort(value);
     } else if (key == "timediff")
       if (value_lower_case == "alltimes")
-        op->timeDiff = -1;
+        timeDiff = -1;
       else
-        op->timeDiff = kv.toInt();
+        timeDiff = kv.toInt();
     else if (key == "level") {
       if (value_lower_case == "asfield") {
-        op->levelAsField = true;
-        op->level = -1;
+        levelAsField = true;
+        level = -1;
       } else
-        op->level = kv.toInt();
+        level = kv.toInt();
     } else if (key == "onlypos") {
-      op->onlypos = true;
+      onlypos = true;
     } else if (key == "showonlyprioritized") {
-      op->showOnlyPrioritized = true;
+      showOnlyPrioritized = true;
     } else if (key == "image") {
-      op->image = value;
+      image = value;
     } else if (key == "showpos") {
-     op->showpos = true;
+      showpos = true;
     } else if (key == "orientation") {
       if (value_lower_case == "horizontal")
-        op->vertical_orientation = false;
+        vertical_orientation = false;
     } else if (key == "alignment") {
       if (value_lower_case == "right")
-        op->left_alignment = false;
+        left_alignment = false;
     } else if (key == "criteria") {
-      op->decodeCriteria(value);
+      decodeCriteria(value);
     } else if (key == "arrowstyle") {
       if (value_lower_case == "wind")
-        op->poptions.arrowstyle = arrow_wind;
+        poptions.arrowstyle = arrow_wind;
       else if (value_lower_case == "wind_arrow")
-        op->poptions.arrowstyle = arrow_wind_arrow;
+        poptions.arrowstyle = arrow_wind_arrow;
     } else if (key == "wind_scale") {
-      op->wind_scale = kv.toFloat();
+      wind_scale = kv.toFloat();
     } else if (key == "annotations") {
-      op->annotations = kv.toBool();
+      annotations = kv.toBool();
     } else if (key == "font") {
-      op->poptions.fontname = value;
+      poptions.fontname = value;
     } else if (key == "face") {
-      op->poptions.fontface = diutil::fontFaceFromString(value);
+      poptions.fontface = diutil::fontFaceFromString(value);
     }
   }
 
-  if (op->markerSize < 0)
-    op->markerSize = op->textSize;
-  op->parameterDecode("all", false);
-  op->numPar = parameter.size();
+  if (markerSize < 0)
+    markerSize = textSize;
+  parameterDecode("all", false);
+  numPar = parameter.size();
   for (const std::string& p : parameter) {
-    op->parameterDecode(p);
+    parameterDecode(p);
   }
-  if (op->mslp())
-    op->parameterDecode("PPPP_mslp");
+  if (mslp())
+    parameterDecode("PPPP_mslp");
 
   // static tables, read once
 
   std::string path = LocalSetupParser::basicValue("obsplotfilepath");
 
-  if (op->isSynopList()) {
+  if (isSynopList()) {
     if (itabSynop.empty() || iptabSynop.empty()) {
-      if (!readTable(op->plottype(), path + "/itab_synop.txt", path + "/iptab_synop.txt", itabSynop, iptabSynop))
-        return 0;
+      if (!readTable(plottype(), path + "/itab_synop.txt", path + "/iptab_synop.txt", itabSynop, iptabSynop))
+        METLIBS_LOG_ERROR("could not read itab_synop.txt");
     }
-    op->itab = &itabSynop;
-    op->iptab = &iptabSynop;
+    itab = &itabSynop;
+    iptab = &iptabSynop;
 
-  } else if (op->plottype() == OPT_METAR) {
+  } else if (plottype() == OPT_METAR) {
     if (itabMetar.empty() || iptabMetar.empty()) {
-      if (!readTable(op->plottype(), path + "/itab_metar.txt", path + "/iptab_metar.txt", itabMetar, iptabMetar))
-        return 0;
+      if (!readTable(plottype(), path + "/itab_metar.txt", path + "/iptab_metar.txt", itabMetar, iptabMetar))
+        METLIBS_LOG_ERROR("could not read itab_metar.txt");
     }
-    op->itab = &itabMetar;
-    op->iptab = &iptabMetar;
+    itab = &itabMetar;
+    iptab = &iptabMetar;
   }
-
-  return op.release();
 }
 
 static int normalize_angle(float dd)
@@ -1653,7 +1656,7 @@ void ObsPlot::printListParameter(DiGLPainter* gl, const ObsData& dta, const ObsD
       if (f_p != dta.fdata.end()) {
         checkColourCriteria(gl, param.name, f_p->second);
         if (param.name == "VV") {
-          printList(gl, visibility(f_p->second, dta.ship_buoy), xypos, 0, align_right, true);
+          printVisibility(gl, f_p->second, dta.ship_buoy, xypos, align_right);
         } else if (param.type == ObsDialogInfo::pt_knot && !unit_ms) {
           printList(gl, diutil::ms2knots(f_p->second), xypos, param.precision, align_right);
         } else if (param.type == ObsDialogInfo::pt_temp && tempPrecision) {
@@ -2150,8 +2153,8 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   // Horizontal visibility - VV
   if (pFlag.count("vv") && (f_p = dta.fdata.find("VV")) != fend) {
     checkColourCriteria(gl, "VV", f_p->second);
-    const QPointF vvxy(VVxpos, xytab(lpos + 14).y());
-    printNumber(gl, visibility(f_p->second, dta.ship_buoy), vvxy, "fill_2");
+    QPointF vvxy(VVxpos, xytab(lpos + 14).y());
+    printVisibility(gl, f_p->second, dta.ship_buoy, vvxy);
   }
   // Temperature - TTT
   if (pFlag.count("ttt") && ttt_p != fend) {
@@ -2875,7 +2878,29 @@ void ObsPlot::printTime(DiGLPainter* gl, const miTime& time, QPointF xy, bool al
   gl->drawText(s, x, y, 0.0);
 }
 
-int ObsPlot::visibility(float VV, bool ship)
+void ObsPlot::printVisibility(DiGLPainter* gl, const float& VV, bool ship, QPointF& vvxy, bool align_right)
+{
+
+  ostringstream cs;
+
+  if (show_VV_as_code_) {
+    cs.width(2);
+    cs.fill('0');
+    cs << visibilityCode(VV, ship);
+  } else {
+    float VV_value = VV / 1000;
+    if (VV_value < 5.0) {
+      cs.setf(ios::fixed);
+      cs.precision(1);
+      cs << VV_value;
+    } else {
+      cs << diutil::float2int(VV_value);
+    }
+  }
+  printListString(gl, cs.str(), vvxy, align_right);
+}
+
+int ObsPlot::visibilityCode(float VV, bool ship)
 {
   //Code table 4377
   //12.2.1.3.2   In reporting visibility at sea,

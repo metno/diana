@@ -30,6 +30,7 @@
 #include "diObsPlotCluster.h"
 
 #include "diEditManager.h"
+#include "diKVListPlotCommand.h"
 #include "diObsManager.h"
 #include "diObsPlot.h"
 #include "diUtilities.h"
@@ -75,13 +76,22 @@ void ObsPlotCluster::prepare(const PlotCommand_cpv& inp)
   hasDevField_ = false;
 
   for (PlotCommand_cp pc : inp) {
-    ObsPlot *op = ObsPlot::createObsPlot(pc);
-    if (op) {
-      plotenabled.restore(op);
+    if (KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pc)) {
+      const std::string dialogname = ObsPlot::extractDialogname(cmd->all());
+      if (dialogname.empty()) {
+        METLIBS_LOG_WARN("probably malformed observation plot specification");
+        continue;
+      }
+      const ObsPlotType plottype = ObsPlot::extractPlottype(dialogname);
+      std::unique_ptr<ObsPlot> op(new ObsPlot(dialogname, plottype));
+      obsm_->setPlotDefaults(op.get());
+      op->setPlotInfo(cmd->all());
       op->setCanvas(canvas_);
       op->setCollider(collider_.get());
-      plots_.push_back(op);
       hasDevField_ |= op->mslp();
+
+      plotenabled.restore(op.get());
+      plots_.push_back(op.release());
     }
   }
   collider_->clear();

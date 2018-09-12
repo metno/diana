@@ -71,7 +71,7 @@ public:
   virtual std::string getEnabledStateKey() const;
 
   /// set the plot info string
-  void setPlotInfo(const miutil::KeyValue_v& kvs);
+  virtual void setPlotInfo(const miutil::KeyValue_v& kvs);
 
   /// return current plot info string
   const miutil::KeyValue_v& getPlotInfo() const

@@ -106,14 +106,13 @@ protected:
   const ObsPlotType m_plottype;
   std::string dialogname;
   std::vector<ObsDialogInfo::Par> vparam;
-  ObsPlotType plottype() const
-    { return m_plottype; }
 
   std::vector<std::string> readernames;
   bool priority;
   std::string priorityFile;
   bool tempPrecision; //temp and dewpoint in desidegrees or degrees
   bool unit_ms; //wind in m/s or knots
+  bool show_VV_as_code_; // hor. visibility in km or WMO codevisib
   bool parameterName; // parameter name printed in front of value (ascii only), from plotAscii
   bool popupText; // selected parameters in popup window
 
@@ -323,7 +322,8 @@ protected:
   void wave(DiGLPainter* gl, const float& PwPw, const float& HwHw, QPointF xy, bool align_right = false);
 
   // used only from plotList and plotSynop
-  int visibility(float vv, bool ship);
+  void printVisibility(DiGLPainter* gl, const float& VV, bool ship, QPointF& vvxy, bool align_right = false);
+  int visibilityCode(float vv, bool ship);
 
   // used only from plotMetar (and commented out in ROAD/plotDBMetar)
   int vis_direction(float dv);
@@ -354,18 +354,23 @@ protected:
   int getObsCount() const;
   int numVisiblePositions() const; // slow!
 
-protected:
-  ObsPlot(const miutil::KeyValue_v &pin, ObsPlotType plottype);
-
 public:
+  ObsPlot(const std::string& dialogname, ObsPlotType plottype);
   ~ObsPlot();
 
-  static ObsPlot* createObsPlot(const PlotCommand_cp& pin);
+  static std::string extractDialogname(const miutil::KeyValue_v& kvs);
+  static ObsPlotType extractPlottype(const std::string& dialogname);
+
+  void setPlotInfo(const miutil::KeyValue_v& pin) override;
 
   bool operator==(const ObsPlot &rhs) const;
 
+  ObsPlotType plottype() const { return m_plottype; }
+
   void setCollider(ObsPlotCollider* collider)
     { collider_ = collider; }
+
+  void setShowVVAsCode(bool on) { show_VV_as_code_ = on; }
 
   // return the computed index in stationlist, ROADOBS only
   std::vector<int>& getStationsToPlot();
@@ -376,12 +381,12 @@ public:
   // Returns the allObs boolean
   bool isallObs() { return allObs; };
 
-  void plot(DiGLPainter* gl, PlotOrder zorder);
+  void plot(DiGLPainter* gl, PlotOrder zorder) override;
 
   void setParameters(const std::vector<ObsDialogInfo::Par>& vp);
   bool setData();
   void clear();
-  void getAnnotation(std::string &, Colour &) const;
+  void getAnnotation(std::string&, Colour&) const override;
   bool getDataAnnotations(std::vector<std::string>& anno);
 
   std::string makeAnnotationString() const;
