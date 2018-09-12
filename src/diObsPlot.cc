@@ -1653,7 +1653,7 @@ void ObsPlot::printListParameter(DiGLPainter* gl, const ObsData& dta, const ObsD
       if (f_p != dta.fdata.end()) {
         checkColourCriteria(gl, param.name, f_p->second);
         if (param.name == "VV") {
-          printList(gl, visibility(f_p->second, dta.show_time_id), xypos, 0, align_right, true);
+          printList(gl, visibility(f_p->second, dta.ship_buoy), xypos, 0, align_right, true);
         } else if (param.type == ObsDialogInfo::pt_knot && !unit_ms) {
           printList(gl, diutil::ms2knots(f_p->second), xypos, param.precision, align_right);
         } else if (param.type == ObsDialogInfo::pt_temp && tempPrecision) {
@@ -1703,8 +1703,7 @@ void ObsPlot::printListSymbol(DiGLPainter* gl, const ObsData& dta, const ObsDial
 
         const std::map<string, float>::const_iterator ttt_p = dta.fdata.find("TTT");
         if (ttt_p != dta.fdata.end()) {
-          weather(gl, (short int) f_p->second, ttt_p->second, dta.show_time_id,
-              spos - QPointF(0, 0.2*yStep*scale), scale * 0.6, align_right);
+          weather(gl, (short int)f_p->second, ttt_p->second, dta.ship_buoy, spos - QPointF(0, 0.2 * yStep * scale), scale * 0.6, align_right);
         } else {
           printUndef(gl, xypos, align_right);
         }
@@ -1977,7 +1976,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   //Some positions depend on wheather the following parameters are plotted or not
   bool ClFlag = ((pFlag.count("cl") && dta.fdata.count("Cl")) || ((pFlag.count("st.type") && (not dta.dataType.empty()))));
   bool TxTnFlag = (pFlag.count("txtn") && dta.fdata.find("TxTn") != fend);
-  bool timeFlag = (pFlag.count("time") && dta.show_time_id);
+  bool timeFlag = (pFlag.count("time") && dta.ship_buoy);
 
   //reset colour
   gl->setColour(origcolour);
@@ -2033,7 +2032,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
     checkColourCriteria(gl, "ww", f_p->second);
     const QPointF wwxy = xytab(lpos + 12);
     VVxpos = wwxy.x() - 20;
-    weather(gl, (short int) f_p->second, ttt_p->second, dta.show_time_id, wwxy);
+    weather(gl, (short int)f_p->second, ttt_p->second, dta.ship_buoy, wwxy);
   }
 
   //characteristics of pressure tendency - a
@@ -2137,8 +2136,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   }
 
   //Precipitation - RRR
-  if (pFlag.count("rrr")
-      && !(dta.show_time_id && dta.fdata.count("ds") && dta.fdata.count("vs"))) {
+  if (pFlag.count("rrr") && !(dta.ship_buoy && dta.fdata.count("ds") && dta.fdata.count("vs"))) {
     if ((f_p = dta.fdata.find("RRR")) != fend) {
       checkColourCriteria(gl, "RRR", f_p->second);
       if (f_p->second < 0.0) //Precipitation, but less than 0.1 mm (0.0)
@@ -2153,7 +2151,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   if (pFlag.count("vv") && (f_p = dta.fdata.find("VV")) != fend) {
     checkColourCriteria(gl, "VV", f_p->second);
     const QPointF vvxy(VVxpos, xytab(lpos + 14).y());
-    printNumber(gl, visibility(f_p->second, dta.show_time_id), vvxy, "fill_2");
+    printNumber(gl, visibility(f_p->second, dta.ship_buoy), vvxy, "fill_2");
   }
   // Temperature - TTT
   if (pFlag.count("ttt") && ttt_p != fend) {
@@ -2176,8 +2174,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   }
 
   // Snow depth - sss
-  if (pFlag.count("sss") && (f_p = dta.fdata.find("sss")) != fend
-      && !dta.show_time_id) {
+  if (pFlag.count("sss") && (f_p = dta.fdata.find("sss")) != fend && !dta.ship_buoy) {
     checkColourCriteria(gl, "sss", f_p->second);
     printNumber(gl, f_p->second, xytab(lpos + 46));
   }
@@ -2202,8 +2199,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
 
   // Maximum wind speed
   if (pFlag.count("fxfx")) {
-    if ((f_p = dta.fdata.find("fxfx")) != fend
-        && !dta.show_time_id) {
+    if ((f_p = dta.fdata.find("fxfx")) != fend && !dta.ship_buoy) {
       checkColourCriteria(gl, "fxfx", f_p->second);
       float ff = unit_ms ? f_p->second : diutil::ms2knots(f_p->second);
       if (TxTnFlag)
@@ -2229,7 +2225,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   }
 
   // Ship or buoy identifier
-  if (pFlag.count("id") && dta.show_time_id) {
+  if (pFlag.count("id") && dta.ship_buoy) {
     checkColourCriteria(gl, "Id", 0);
     if (timeFlag)
       printString(gl, dta.id, xytab(lpos + 46) + QPointF(0, 15));
@@ -2238,7 +2234,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   }
 
   //Wmo block + station number - land stations
-  if (pFlag.count("st.no") && !dta.show_time_id) {
+  if (pFlag.count("st.no") && !dta.ship_buoy) {
     checkColourCriteria(gl, "st.no", 0);
     if ((pFlag.count("sss") && dta.fdata.count("sss"))) //if snow
       printString(gl, dta.id, xytab(lpos + 46) + QPointF(0, 15));
@@ -3449,8 +3445,7 @@ void ObsPlot::plotWind(DiGLPainter* gl, int dd, float ff_ms, bool ddvar, float r
   }
 }
 
-void ObsPlot::weather(DiGLPainter* gl, short int ww, float TTT, bool show_time_id,
-    QPointF xypos, float scale, bool align_right)
+void ObsPlot::weather(DiGLPainter* gl, short int ww, float TTT, bool ship_buoy, QPointF xypos, float scale, bool align_right)
 {
   const int auto2man[100] = { 0, 1, 2, 3, 4, 5, 0, 0, 0, 0, 10, 76, 13, 0, 0, 0,
       0, 0, 18, 0, 28, 21, 20, 21, 22, 24, 29, 38, 38, 37, 41, 41, 43, 45, 47,
@@ -3469,7 +3464,7 @@ void ObsPlot::weather(DiGLPainter* gl, short int ww, float TTT, bool show_time_i
   }
 
   int index = iptab->at(1247 + ww);
-  if (ww == 7 && show_time_id)
+  if (ww == 7 && ship_buoy)
     index = iptab->at(1247 + 127);
   if (TTT < 0 && (ww > 92 && ww < 98))
     index = iptab->at(1247 + ww + 10);
@@ -3483,7 +3478,7 @@ void ObsPlot::weather(DiGLPainter* gl, short int ww, float TTT, bool show_time_i
   //do not plot ww<4
 
   int n = vtab(40 + ww);
-  if (ww == 7 && show_time_id)
+  if (ww == 7 && ship_buoy)
     n = vtab(140);
   if (ww > 92 && TTT > -1000 && TTT < 1000) {
     if (TTT < 0 && (ww > 92 && ww < 96))

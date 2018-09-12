@@ -46,7 +46,7 @@ public:
   std::string name;
   float xpos;
   float ypos;
-  bool show_time_id;
+  bool ship_buoy;
   miutil::miTime obsTime;
 
   //metar

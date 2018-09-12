@@ -534,7 +534,7 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
   d.CAVOK = false;
   d.xpos = -32767;
   d.ypos = -32767;
-  d.show_time_id = 0;
+  d.ship_buoy = 0;
 
   for (int i = 0, j = kelem * subset; i < ktdexl; i++, j++) {
     //METLIBS_LOG_DEBUG(ktdexp[i]<<" : "<<values[j]);
@@ -555,7 +555,7 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
     case 1003:
       if (values[j] < bufrMissing) {
         wmoBlock = int(values[j]);
-        d.show_time_id = true;
+        d.ship_buoy = true;
       }
       break;
 
@@ -585,7 +585,7 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
         } else {
           d.id = miutil::from_number(values[j]);
         }
-        d.show_time_id = true;
+        d.ship_buoy = true;
       }
       break;
 
@@ -605,7 +605,7 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
       if ( !wmoNumber ) {
         int index = int(values[j]) / 1000 - 1;
         add_substr(d.id, cvals, index, 7);
-        d.show_time_id= true;
+        d.ship_buoy = true;
       }
     }
     break;
@@ -638,7 +638,7 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
     case 1087:
     {
         d.id = miutil::from_number(int(values[j]));
-        d.show_time_id= true;
+        d.ship_buoy = true;
     }
     break;
 
@@ -1390,7 +1390,7 @@ bool ObsDataBufr::get_diana_data_level(int ktdexl, const int *ktdexp, const doub
   //    METLIBS_LOG_DEBUG("get_diana_data");
   d.fdata.clear();
   d.id.clear();
-  d.show_time_id = 0;
+  d.ship_buoy = 0;
 
   int wmoBlock = 0;
   int wmoSubarea = 0;
@@ -1446,7 +1446,7 @@ bool ObsDataBufr::get_diana_data_level(int ktdexl, const int *ktdexp, const doub
       case 1005:
         if (values[j] < bufrMissing) {
           d.id = miutil::from_number(int(values[j]));
-          d.show_time_id = true;
+          d.ship_buoy = true;
         }
         break;
 
@@ -1466,7 +1466,7 @@ bool ObsDataBufr::get_diana_data_level(int ktdexl, const int *ktdexp, const doub
         if ( !wmoNumber ) {
           int index = int(values[j]) / 1000 - 1;
           add_substr(d.id, cvals, index, 4);
-          d.show_time_id = true;
+          d.ship_buoy = true;
         }
       }
       break;
