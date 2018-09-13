@@ -1,3 +1,9 @@
+diana-3.48 (3.48.0~a1-1) unstable; urgency=low
+
+  * vprof refactoring
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Thu, 13 Sep 2018 08:00:08 +0200
+
 diana-3.47 (3.47.0-1) unstable; urgency=low
 
   * operational version
