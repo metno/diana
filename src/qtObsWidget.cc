@@ -219,6 +219,8 @@ void ObsWidget::setDialogInfo(ObsDialogInfo::PlotType dialoginfo)
   onlyposCheckBox= new QCheckBox(tr("Positions only"),this);
 
   markerBox = PixmapBox( this, markerName);
+  markerName.push_back("off");
+  markerBox->addItem("off");
   if( markerName.size() == 0 )
     onlyposCheckBox->setEnabled(false);
 

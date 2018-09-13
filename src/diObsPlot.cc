@@ -1281,6 +1281,8 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 
   //Plot markers only
   if (onlypos) {
+    if (image == "off")
+      return;
     ImageGallery ig;
     ig.plotImages(gl, getStaticPlot()->plotArea(), numObs, image, x, y, true, markerSize);
     return;
@@ -1856,8 +1858,8 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
   float thisMarkerSize = checkMarkersizeCriteria(dta);
 
   ImageGallery ig;
-  float xShift = ig.widthp(image) / 2;
-  float yShift = ig.heightp(image) / 2;
+  float xShift = 0;
+  float yShift = 0;
 
   if (!pFlag.count("Wind")) {
     ObsData::stringdata_t::const_iterator it = dta.stringdata.find("image");
@@ -1866,7 +1868,9 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
       xShift = ig.widthp(thatImage) / 2;
       yShift = ig.heightp(thatImage) / 2;
       ig.plotImage(gl, getStaticPlot()->plotArea(), thatImage, x[index], y[index], true, thisMarkerSize);
-    } else {
+    } else if (image != "off") {
+      xShift = ig.widthp(thisImage) / 2;
+      yShift = ig.heightp(thisImage) / 2;
       ig.plotImage(gl, getStaticPlot()->plotArea(), thisImage, x[index], y[index], true, thisMarkerSize);
     }
   }
@@ -1920,7 +1924,6 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
     if ( printPos == 0 || printPos == 3 )
       xshift = 2 * width;
 
-    xypos.ry() += -0.2 * yStep;
   }
   if (plottype() == OPT_LIST) {
     if (yStep < 0)
