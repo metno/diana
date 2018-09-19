@@ -1848,6 +1848,10 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
   if (not checkQuality(dta) or not checkWMOnumber(dta))
     return;
 
+  map<string, float>::const_iterator it;
+  if (((it = dta.fdata.find("isdata")) != dta.fdata.end()) && it->second == 0)
+    return;
+
   //reset colour
   gl->setColour(origcolour);
   colour = origcolour;
@@ -1978,6 +1982,9 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   map<string, float>::iterator f_p;
   map<string, float>::iterator h_p;
   map<string, float>::iterator ttt_p = dta.fdata.find("TTT");
+
+  if (((f_p = dta.fdata.find("isdata")) != fend) && f_p->second == 0)
+    return;
 
   //Some positions depend on wheather the following parameters are plotted or not
   bool ClFlag = ((pFlag.count("cl") && dta.fdata.count("Cl")) || ((pFlag.count("st.type") && (not dta.dataType.empty()))));
@@ -2247,6 +2254,14 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
     else
       printString(gl, dta.id, xytab(lpos + 46));
   }
+  // WMO station id or callsign
+  if (pFlag.count("name") && !dta.id.empty()) {
+    checkColourCriteria(gl, "name", 0);
+    QPointF offset;
+    if (pFlag.count("sss") && dta.fdata.count("sss")) // if snow
+      offset = QPointF(0, 15);
+    printString(gl, dta.id, xytab(lpos + 46) + offset);
+  }
 
   //Sea temperature
   if (pFlag.count("twtwtw") && (f_p = dta.fdata.find("TwTwTw")) != fend) {
@@ -2280,6 +2295,9 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
   const map<string, float>::iterator fend = dta.fdata.end();
   map<string, float>::iterator f2_p;
   map<string, float>::iterator f_p;
+
+  if (((f_p = dta.fdata.find("isdata")) != fend) && f_p->second == 0)
+    return;
 
   //reset colour
   gl->setColour(origcolour);
@@ -2399,6 +2417,21 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
     }
   }
 
+  QPointF VVxpos = xytab(lpos + 14) + QPointF(22, 0);
+  map<string, string>::iterator s_p;
+  if (pFlag.count("gwi") && (s_p = dta.stringdata.find("GWI")) != dta.stringdata.end()) {
+    checkColourCriteria(gl, "GWI", 0);
+    printString(gl, s_p->second, xytab(lpos + 12, lpos + 13) + QPointF(-8, 0));
+    VVxpos = xytab(lpos + 12) - QPointF(-28, 0);
+  }
+
+  // horizontal prevailing visibility
+  if (pFlag.count("vv") && (f_p = dta.fdata.find("VV")) != fend) {
+    checkColourCriteria(gl, "VV", f_p->second);
+    QPointF vvxy(VVxpos.x(), xytab(lpos + 14).y());
+    printVisibility(gl, f_p->second, dta.ship_buoy, vvxy);
+  }
+
   //CAVOK
   if (pFlag.count("clouds")) {
     checkColourCriteria(gl, "Clouds", 0);
@@ -2426,6 +2459,12 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
   if (pFlag.count("id")) {
     checkColourCriteria(gl, "Id", 0);
     printString(gl, dta.metarId, xyid);
+  }
+
+  // Name
+  if (pFlag.count("name")) {
+    checkColourCriteria(gl, "Name", 0);
+    printString(gl, dta.id, xyid);
   }
 }
 

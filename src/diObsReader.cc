@@ -34,6 +34,9 @@
 
 #include <puTools/miStringFunctions.h>
 
+#define MILOGGER_CATEGORY "diana.ObsReader"
+#include <miLogger/miLogging.h>
+
 ObsDataRequest::ObsDataRequest()
     : timeDiff(0)
     , level(-2)

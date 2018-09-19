@@ -31,6 +31,7 @@
 
 #include "diObsRoad.h"
 
+#include "diField/diMetConstants.h"
 #include "diLabelPlotCommand.h"
 #include "diUtilities.h"
 
@@ -56,6 +57,7 @@
 #include <miLogger/miLogging.h>
 
 //#define DEBUGPRINT 1
+//#define DEBUG_OBSDATA 1
 
 #define _undef -32767.0
 
@@ -709,6 +711,14 @@ float ObsRoad::height_of_clouds(double height)
   return 9.0;
 }
 
+float ObsRoad::convert2hft(double height)
+{
+  METLIBS_LOG_SCOPE(height);
+
+  // return (height*3.2808399)/100.0;
+  return (height * MetNo::Constants::ft_per_m) / 100.0;
+}
+
 float ObsRoad::ms2code4451(float v)
 {
   METLIBS_LOG_SCOPE(v);
@@ -770,6 +780,7 @@ float ObsRoad::convertWW(float ww)
   }
   return ww;
 }
+
 void ObsRoad::decodeData()
 {
   METLIBS_LOG_SCOPE();
@@ -815,14 +826,30 @@ void ObsRoad::decodeData()
 
     ObsData obsData;
     const size_t tmp_nColumn = std::min(pstr.size(), m_columnType.size());
-    // fill both stringdata and fdata
-    // stringdata
+    // fdata note Cl, Cm, Ch, adjustment
     for (size_t i = 0; i < tmp_nColumn; i++) {
       if (not asciiColumnUndefined.count(pstr[i])) {
         // Set metadata for station...
         if (m_columnName[i] == "data_type") {
           if (pstr[i] != undef_string)
             obsData.stringdata[m_columnName[i]] = pstr[i];
+          if (pstr[i] == "SHIP") {
+            obsData.ship_buoy = true;
+          }
+        } else if (m_columnName[i] == "GWI") {
+          if (pstr[i] != undef_string) {
+            // Convert to float
+            float value = miutil::to_float(pstr[i]);
+            if (value == 2.) {
+              obsData.stringdata[m_columnName[i]] = "OK";
+            } else if (value == 1.) { // Clouds
+              obsData.stringdata[m_columnName[i]] = "NSC";
+            } else if (value == 3.) { // Clouds
+              obsData.stringdata[m_columnName[i]] = "SKC";
+            } else { // FIXME, translate to string if needed.
+              obsData.stringdata[m_columnName[i]] = pstr[i];
+            }
+          }
         } else if (m_columnName[i] == "auto") {
           if (pstr[i] != undef_string)
             obsData.fdata[m_columnName[i]] = miutil::to_float(pstr[i]);
@@ -831,41 +858,6 @@ void ObsRoad::decodeData()
             obsData.fdata[m_columnName[i]] = miutil::to_float(pstr[i]);
           // End of metadata
         } else if (m_columnName[i] == "Cl" || m_columnName[i] == "Cm" || m_columnName[i] == "Ch") {
-          if (pstr[i] != undef_string)
-            if (miutil::is_number(pstr[i])) {
-              // Convert to the symbol dataspace
-              cloud_type_string(obsData, miutil::to_float(pstr[i]));
-            }
-        } else if (m_columnName[i] == "h") {
-          if (pstr[i] != undef_string)
-            if (miutil::is_number(pstr[i]))
-              // Convert to clouds dataspace
-              obsData.stringdata[m_columnName[i]] = height_of_clouds_string(miutil::to_float(pstr[i]));
-        } else if (m_columnName[i] == "N") {
-          if (pstr[i] != undef_string)
-            if (miutil::is_number(pstr[i]))
-              // Convert to clouds dataspace
-              obsData.stringdata[m_columnName[i]] = miutil::from_number(percent2oktas(miutil::to_float(pstr[i])));
-        } else if (m_columnName[i] == "vs") {
-          if (pstr[i] != undef_string)
-            if (miutil::is_number(pstr[i]))
-              // Convert to clouds dataspace
-              obsData.stringdata[m_columnName[i]] = miutil::from_number(ms2code4451(miutil::to_float(pstr[i])));
-        } else if (m_columnName[i] == "ww") {
-          if (pstr[i] != undef_string)
-            if (miutil::is_number(pstr[i]))
-              // Convert to manual synop dataspace
-              obsData.stringdata[m_columnName[i]] = miutil::from_number(convertWW(miutil::to_float(pstr[i])));
-        } else {
-          if (pstr[i] != undef_string)
-            obsData.stringdata[m_columnName[i]] = pstr[i];
-        }
-      }
-    }
-    // fdata note Cl, Cm, Ch, adjustment
-    for (size_t i = 0; i < tmp_nColumn; i++) {
-      if (not asciiColumnUndefined.count(pstr[i])) {
-        if (m_columnName[i] == "Cl" || m_columnName[i] == "Cm" || m_columnName[i] == "Ch") {
           if (pstr[i] != undef_string)
             if (miutil::is_number(pstr[i])) {
               // Convert to the symbol dataspace
@@ -891,6 +883,12 @@ void ObsRoad::decodeData()
             if (miutil::is_number(pstr[i]))
               // Convert to malual synop dataspace
               obsData.fdata[m_columnName[i]] = convertWW(miutil::to_float(pstr[i]));
+        } else if ((m_columnName[i] == "HS_A1") || (m_columnName[i] == "HS_A2") || (m_columnName[i] == "HS_A3") || (m_columnName[i] == "HS_A4") ||
+                   (m_columnName[i] == "HS1") || (m_columnName[i] == "HS2") || (m_columnName[i] == "HS3") || (m_columnName[i] == "HS4")) {
+          if (pstr[i] != undef_string)
+            if (miutil::is_number(pstr[i]))
+              // Convert to malual synop dataspace
+              obsData.fdata[m_columnName[i]] = convert2hft(miutil::to_float(pstr[i]));
         } else {
           if (pstr[i] != undef_string)
             if (miutil::is_number(pstr[i]))
@@ -981,18 +979,18 @@ void ObsRoad::decodeData()
       else
         continue;
     }
-#ifdef DEBUGPRINT
+#ifdef DEBUG_OBSDATA
     // Produces a lot of output...
+    METLIBS_LOG_INFO("obsData.id: "
+                     << ", " << obsData.id);
+    METLIBS_LOG_INFO("obsData.xpos: "
+                     << ", " << obsData.xpos);
+    METLIBS_LOG_INFO("obsData.ypos: "
+                     << ", " << obsData.ypos);
     std::map<std::string, float>::iterator itf = obsData.fdata.begin();
     METLIBS_LOG_INFO("fdata");
     for (; itf != obsData.fdata.end(); itf++) {
       METLIBS_LOG_INFO(itf->first << ", " << itf->second);
-    }
-
-    std::map<std::string, std::string>::iterator its = obsData.stringdata.begin();
-    METLIBS_LOG_INFO("stringdata");
-    for (; its != obsData.stringdata.end(); its++) {
-      METLIBS_LOG_INFO(its->first << ", " << its->second);
     }
 #endif
     vObsData.push_back(obsData);

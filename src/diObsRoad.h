@@ -120,6 +120,7 @@ public:
   // from ObsBufr
   void cloud_type(ObsData& d, double v);
   float height_of_clouds(double height);
+  float convert2hft(double height);
   float ms2code4451(float v);
   float percent2oktas(float v);
   float convertWW(float ww);

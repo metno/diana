@@ -53,31 +53,3 @@ void ObsReaderRoad::getDataFromFile(const FileInfo& fi, ObsDataRequest_cp reques
   result->add(obsdata);
 #endif
 }
-
-std::vector<ObsDialogInfo::Par> ObsReaderRoad::getParameters()
-{
-#ifdef ROADOBS
-  // The road format must have a header file, defined in prod
-  // This file, defines the parameters as well as the mapping
-  // between diana and road parameter space.
-
-  std::string filename; // just dummy here
-  miTime filetime;      // just dummy here
-  ObsDataRequest_cp request; // just dummy here
-  
-  METLIBS_LOG_DEBUG(databasefile << ", " << stationfile << ", " << headerfile);
-  
-  ObsRoad obsRoad = ObsRoad(filename, databasefile, stationfile, headerfile, filetime, request, false);
-  std::vector<ObsDialogInfo::Par> parameters;
-  
-  for (size_t c = 0; c < obsRoad.columnCount(); c++) {
-    ObsDialogInfo::Par pt(obsRoad.columnName(c),ObsDialogInfo::ParType::pt_std,0,0,obsRoad.columnTooltip(c),0,1);
-    parameters.push_back(pt);
-  }
-
-  
-  return parameters;
-#else
-  return ObsReader::getParameters();
-#endif
-}

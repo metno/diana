@@ -9,7 +9,6 @@ public:
   ObsReaderRoad();
 
   bool configure(const std::string& key, const std::string& value) override;
-  std::vector<ObsDialogInfo::Par> getParameters() override;
 
 protected:
   void getDataFromFile(const FileInfo& fi, ObsDataRequest_cp request, ObsDataResult_p result) override;
