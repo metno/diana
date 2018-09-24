@@ -69,6 +69,8 @@ extern const std::string VP_CLOUDBASE;
 
 extern const std::string VP_UNIT_COMPASS_DEGREES; // meteorological degrees (0 == north, 90 = east, i.e. like a clock)
 
+extern const std::vector<int> default_flightlevels;
+
 Colour alternateColour(const Colour& c);
 
 struct TextSpacing

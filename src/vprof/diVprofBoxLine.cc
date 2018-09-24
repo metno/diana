@@ -267,8 +267,30 @@ void VprofBoxLine::plotZAxisGrid(VprofPainter* p)
   vcross::detail::AxisCPtr zAxis = axes->z;
 
   vcross::ticks_t tickValues;
+  std::vector<bool> tickIsMajor;
   vcross::tick_to_axis_f tta = vcross::identity;
-  vcross::generateVerticalTicks(zAxis, tickValues, tta);
+  if (zAxis->quantity() == vcross::detail::Axis::PRESSURE) {
+    if (zAxis->label() == "hPa") {
+      for (int p = 1050; p > 0; p -= 50) {
+        tickValues.push_back(p);
+        tickIsMajor.push_back(p == 1000 || p == 500);
+      }
+    } else if (zAxis->label() == "FL") {
+      // transform from int to float
+      std::copy(vprof::default_flightlevels.begin(), vprof::default_flightlevels.end(), std::back_inserter(tickValues));
+      std::transform(vprof::default_flightlevels.begin(), vprof::default_flightlevels.end(), std::back_inserter(tickIsMajor),
+                     [](int fl) { return ((fl % 50) == 0); });
+      tta = vcross::util::FL_to_hPa;
+    }
+  }
+  if (tickValues.empty()) {
+    vcross::generateVerticalTicks(zAxis, tickValues, tta);
+    bool major = true;
+    for (vcross::ticks_t::const_iterator it = tickValues.begin(); it != tickValues.end(); ++it) {
+      tickIsMajor.push_back(major);
+      major = !major;
+    }
+  }
   METLIBS_LOG_DEBUG(LOGVAL(tickValues.size()));
 
   const float dy = vprof::chybas * 1.2;
@@ -283,15 +305,14 @@ void VprofBoxLine::plotZAxisGrid(VprofPainter* p)
 
   const Colour& c = x_grid_linestyle_minor_.colour;
   for (size_t i = 0; i < tickValues.size(); ++i) {
-    const bool majorLine = ((i & 0x3) == 0);
+    const bool major = tickIsMajor[i];
     const float axisValue = tta(tickValues[i]);
     const float zPos = zAxis->value2paint(axisValue);
     if (zAxis->legalPaint(zPos)) {
-      p->setLineStyle(majorLine ? z_grid_linestyle_major_ : z_grid_linestyle_minor_);
+      p->setLineStyle(major ? z_grid_linestyle_major_ : z_grid_linestyle_minor_);
       p->drawLine(area.x1, zPos, area.x2, zPos);
     }
-    const bool majorText = ((i & 0x1) == 0);
-    if (z_ticks_showtext_ && majorText && ts.accept(zPos)) {
+    if (z_ticks_showtext_ && ts.accept(zPos)) {
       std::ostringstream ostr;
       ostr << tickValues[i];
       p->fpInitStr(ostr.str(), x1, zPos - vprof::chybas * 0.5, 0.0, vprof::chybas, c, VprofPainter::ALIGN_RIGHT);
