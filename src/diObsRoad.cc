@@ -826,6 +826,15 @@ void ObsRoad::decodeData()
 
     ObsData obsData;
     const size_t tmp_nColumn = std::min(pstr.size(), m_columnType.size());
+    // We must get obshour for TxTn and RRR.
+    int obshour = 0;
+    float value;
+    std::string text;
+    if (getColumnValue("time", pstr, text)) {
+      METLIBS_LOG_DEBUG("time: " << text);
+      vector<std::string> tpart = miutil::split(text, ":");
+      obshour = miutil::to_int(tpart[0]);
+    }
     // fdata note Cl, Cm, Ch, adjustment
     for (size_t i = 0; i < tmp_nColumn; i++) {
       if (not asciiColumnUndefined.count(pstr[i])) {
@@ -836,10 +845,22 @@ void ObsRoad::decodeData()
           if (pstr[i] == "SHIP") {
             obsData.ship_buoy = true;
           }
+        } else if (m_columnName[i] == "TxTxTx") {
+          if (pstr[i] != undef_string) {
+            obsData.fdata[m_columnName[i]] = miutil::to_float(pstr[i]);
+            if (obshour == 18)
+              obsData.fdata["TxTn"] = miutil::to_float(pstr[i]);
+          }
+        } else if (m_columnName[i] == "TnTnTn") {
+          if (pstr[i] != undef_string) {
+            obsData.fdata[m_columnName[i]] = miutil::to_float(pstr[i]);
+            if (obshour == 6)
+              obsData.fdata["TxTn"] = miutil::to_float(pstr[i]);
+          }
         } else if (m_columnName[i] == "GWI") {
           if (pstr[i] != undef_string) {
             // Convert to float
-            float value = miutil::to_float(pstr[i]);
+            value = miutil::to_float(pstr[i]);
             if (value == 2.) {
               obsData.stringdata[m_columnName[i]] = "OK";
             } else if (value == 1.) { // Clouds
@@ -896,8 +917,7 @@ void ObsRoad::decodeData()
         }
       }
     }
-    float value;
-    std::string text;
+
     if (getColumnValue("x", pstr, value) || getColumnValue("Lon", pstr, value))
       if (value != _undef)
         obsData.xpos = value;
