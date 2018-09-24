@@ -174,7 +174,6 @@ VprofValues_cpv VprofDataRoadobs::getValues(const VprofValuesRequest& req)
     // does nothing if already done
     ObsRoad road = ObsRoad(filename, db_connectfile, getStationsFileName(), db_parameterfile, req.time, NULL, false);
     VprofValues_p vv = road.getVprofPlot(getModelName(), req.name, req.time);
-    vv->calculate();
     values.push_back(vv);
   } catch (...) {
     METLIBS_LOG_ERROR("Exception in ObsRoad: " << db_connectfile << "," << getStationsFileName() << "," << db_parameterfile << "," << req.time);

@@ -1003,7 +1003,15 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
 #ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
 #endif
-  vp = std::make_shared<VprofValues>();
+
+  vertical_axis_ = PRESSURE;
+  const std::string zUnit = (vertical_axis_ == PRESSURE) ? "hPa" : "m";
+  vp = std::make_shared<VprofSimpleValues>();
+  vp->add(temperature = std::make_shared<VprofSimpleData>(vprof::VP_AIR_TEMPERATURE, zUnit, "degree_Celsius"));
+  vp->add(dewpoint_temperature = std::make_shared<VprofSimpleData>(vprof::VP_DEW_POINT_TEMPERATURE, zUnit, "degree_Celsius"));
+  vp->add(wind_dd = std::make_shared<VprofSimpleData>(vprof::VP_WIND_DD, zUnit, vprof::VP_UNIT_COMPASS_DEGREES));
+  vp->add(wind_ff = std::make_shared<VprofSimpleData>(vprof::VP_WIND_FF, zUnit, "m/s"));
+  vp->add(wind_sig = std::make_shared<VprofSimpleData>(vprof::VP_WIND_SIG, zUnit, ""));
 
   if (modelName == "AMDAR" || modelName == "PILOT") {
     METLIBS_LOG_WARN("This model is not implemented yet: " << modelName);
@@ -1042,11 +1050,6 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
 
   vp->text.index = -1;
   vp->text.modelName = modelName;
-//####  if (contents[n].stationID.substr(0,2)=="99")
-//####    vp->text.posName=
-//####	contents[n].stationID.substr(2,contents[n].stationID.length()-2);
-//####  else
-//####    vp->text.posName= contents[n].stationID;
   vp->text.posName = miutil::trimmed(station_n.name());
   vp->text.prognostic = false;
   vp->text.forecastHour = 0;
@@ -1142,7 +1145,6 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
     ittp = ittts->second.begin();
     for (; ittp != ittts->second.end(); ittp++) {
       TTTs_value = ittp->second.floatvalue;
-      // METLIBS_LOG_DEBUG("TTTs_value: " << TTTs_value);
     }
   }
 
@@ -1153,7 +1155,6 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
     ittp = ittds->second.begin();
     for (; ittp != ittds->second.end(); ittp++) {
       TdTdTds_value = ittp->second.floatvalue;
-      // METLIBS_LOG_DEBUG("TdTdTds_value: " << TdTdTds_value);
     }
   }
 
@@ -1163,7 +1164,6 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
     ittp = itdds->second.begin();
     for (; ittp != itdds->second.end(); ittp++) {
       dds_value = ittp->second.floatvalue;
-      // METLIBS_LOG_DEBUG("dds_value: " << dds_value);
     }
   }
 
@@ -1173,7 +1173,6 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
     ittp = itffs->second.begin();
     for (; ittp != itffs->second.end(); ittp++) {
       ffs_value = ittp->second.floatvalue;
-      // METLIBS_LOG_DEBUG("ffs_value: " << ffs_value);
     }
   }
 
@@ -1183,7 +1182,6 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
     ittp = itpps->second.begin();
     for (; ittp != itpps->second.end(); ittp++) {
       PPPPs_value = ittp->second.floatvalue;
-      // METLIBS_LOG_DEBUG("PPPPs_value: " << PPPPs_value);
     }
   }
 #ifdef DEBUGPRINT
@@ -1196,7 +1194,6 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
 
   if (ittt == data_map.end()) {
     vp->prognostic = false;
-    vp->maxLevels = 0;
     return vp;
   }
 
@@ -1205,7 +1202,6 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
 
   if (ittd == data_map.end()) {
     vp->prognostic = false;
-    vp->maxLevels = 0;
     return vp;
   }
 
@@ -1214,7 +1210,6 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
 
   if (itdd == data_map.end()) {
     vp->prognostic = false;
-    vp->maxLevels = 0;
     return vp;
   }
 
@@ -1223,7 +1218,6 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
 
   if (itff == data_map.end()) {
     vp->prognostic = false;
-    vp->maxLevels = 0;
     return vp;
   }
 
@@ -1260,22 +1254,6 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
   float p, tt, td, fff, ddd;
   int dd, ff, bpart;
   int ffmax = -1, kmax = -1;
-
-//####################################################################
-//  if (station=="03005" || station=="03953") {
-//    METLIBS_LOG_DEBUG("-------------------------------------------------");
-//    METLIBS_LOG_DEBUG(station<<"   "<<time);
-//    for (int k=0; k<nLevel; k++) {
-//      METLIBS_LOG_DEBUG("  p="<<contents[n].data.PPPP[k]
-//          <<"  dd="<<contents[n].data.dd[k]
-//          <<"  ff="<<contents[n].data.ff[k]
-//          <<"  t="<<contents[n].data.TTT[k]
-//          <<"  td="<<contents[n].data.TdTdTd[k]
-//          <<"  flags1="<<contents[n].data.flags1[k]);
-//    }
-//    METLIBS_LOG_DEBUG("-------------------------------------------------");
-//  }
-//####################################################################
   /* Can we trust that all parameters, has the same number of levels ? */
   ittp = ittt->second.begin();
   // Here should we sort!
@@ -1294,7 +1272,6 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
   for (; it != keys.end(); it++) {
     float key = *it;
     p = key * 0.01;
-    // p= ittp->second[key].floatvalue * 0.01;
     // check with ground level pressure !
     if ((p > PPPPs_value) && (PPPPs_value != -32767.0))
       continue;
@@ -1311,14 +1288,9 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
           td = ittd->second[key].floatvalue;
       }
       if (tt > -30000.) {
-        vp->ptt.push_back(p);
-        vp->tt.push_back(tt);
+        temperature->add(p, tt);
         if (td > -30000.) {
-          vp->ptd.push_back(p);
-          vp->td.push_back(td);
-          vp->pcom.push_back(p);
-          vp->tcom.push_back(tt);
-          vp->tdcom.push_back(td);
+          dewpoint_temperature->add(p, td);
         }
       }
       if (key == (PPPPs_value * 100.0)) {
@@ -1332,9 +1304,6 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
         if (itff->second.count(key))
           ff = int(itff->second[key].floatvalue);
       }
-      /* Wind should always be plotted in knots,
-      convert from m/s as they are stored in road */
-      ff = diutil::ms2knots(ff);
       if (dd >= 0 && dd <= 360 && ff >= 0) {
         // Only plot the significant winds
         bpart = 0;
@@ -1343,27 +1312,20 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
           bpart = 1;
         // Plot winds at significant levels and at standard pressure levels.
         if (bpart > 0 || p == 1000 || p == 925 || p == 850 || p == 800 || p == 700 || p == 500 || p == 400 || p == 300 || p == 200 || p == 100 || p == 50) {
-          vp->sigwind.push_back(bpart);
-          vp->puv.push_back(p);
-          vp->dd.push_back(dd);
-          vp->ff.push_back(ff);
-          // convert to east/west and north/south component
-          fff = float(ff);
-          ddd = (float(dd) + 90.) * DEG_TO_RAD;
-          vp->uu.push_back(fff * cosf(ddd));
-          vp->vv.push_back(-fff * sinf(ddd));
-
+          wind_dd->add(p, dd);
+          wind_ff->add(p, ff);
+          wind_sig->add(p, bpart);
           if (ff > ffmax) {
             ffmax = ff;
-            kmax = vp->sigwind.size() - 1;
+            kmax = wind_sig->length() - 1;
           }
         }
       }
     }
   } /* End for */
   if (kmax >= 0)
-    vp->sigwind[kmax] = 3;
+    wind_sig->setX(kmax, 3);
   vp->prognostic = false;
-  vp->maxLevels = std::max(vp->ptt.size(), vp->puv.size());
+  vp->calculate();
   return vp;
 }

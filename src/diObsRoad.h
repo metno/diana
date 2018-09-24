@@ -31,13 +31,14 @@
 #define diObsRoad_h
 
 #ifdef ROADOBS
-#include "diObsReader.h"
 #include "diCommonTypes.h"
 #include "diObsData.h"
 #include "diObsMetaData.h"
 #include "diObsPlot.h"
+#include "diObsReader.h"
 #include "diStationTypes.h"
-#include "diVprofData.h"
+#include "vprof/diVprofSimpleData.h"
+#include "vprof/diVprofSimpleValues.h"
 
 #include <newarkAPI/diStation.h>
 
@@ -106,8 +107,10 @@ private:
   void parseHeaderBrackets(const std::string& str);
 
   void addStationsToUrl(std::string& filename);
-
-  VprofValues_p vp;
+  enum VerticalAxis { PRESSURE, ALTITUDE };
+  VprofSimpleValues_p vp;
+  VprofSimpleData_p temperature, dewpoint_temperature, wind_dd, wind_ff, wind_sig;
+  VerticalAxis vertical_axis_;
 
 public:
   ObsRoad(const std::string& filename, const std::string& databasefile, const std::string& stationfile, const std::string& headerfile,
