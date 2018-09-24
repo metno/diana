@@ -51,6 +51,17 @@ bool VprofBox::separate() const
 
 void VprofBox::configure(const miutil::KeyValue_v& options)
 {
+  configureDefaults();
+  configureOptions(options);
+}
+
+void VprofBox::configureDefaults()
+{
+  setWidth(0);
+}
+
+void VprofBox::configureOptions(const miutil::KeyValue_v& options)
+{
   for (const auto& kv : options) {
     if (kv.key() == key_width)
       setWidth(kv.toFloat());

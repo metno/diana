@@ -40,7 +40,6 @@ public:
   bool separate() const override;
   void setSeparate(bool on) { separate_ = on; }
 
-  void configure(const miutil::KeyValue_v& options) override;
   void updateLayout() override;
   void plotDiagram(VprofPainter* p) override;
   void plotDiagramFrame(VprofPainter* p) override;
@@ -51,6 +50,10 @@ public:
   std::string graphComponentVarName(size_t graph, size_t component) override;
 
   static const std::string& boxType();
+
+protected:
+  void configureDefaults() override;
+  void configureOptions(const miutil::KeyValue_v& options) override;
 
 private:
   bool separate_;

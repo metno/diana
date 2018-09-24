@@ -49,11 +49,11 @@ VprofBoxVerticalWind::VprofBoxVerticalWind()
 {
 }
 
-void VprofBoxVerticalWind::configure(const miutil::KeyValue_v& options)
+void VprofBoxVerticalWind::configureDefaults()
 {
+  VprofBoxLine::configureDefaults();
   setXUnitLabel("hPa/s"); // default unit hPa/s
   setWidth(vprof::chxbas * 6.5);
-  VprofBoxLine::configure(options);
   //  vwindColour = vprof::alternateColour(Colour(vpopt->frameColour));
   //  vwindLinewidth = vpopt->frameLinewidth;
 }

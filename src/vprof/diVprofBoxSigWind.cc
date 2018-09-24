@@ -55,10 +55,10 @@ bool VprofBoxSigWind::separate() const
   return true;
 }
 
-void VprofBoxSigWind::configure(const miutil::KeyValue_v& options)
+void VprofBoxSigWind::configureDefaults()
 {
+  VprofBoxZ::configureDefaults();
   setWidth(vprof::chxbas * 6.5);
-  VprofBoxZ::configure(options);
 }
 
 void VprofBoxSigWind::updateLayout()

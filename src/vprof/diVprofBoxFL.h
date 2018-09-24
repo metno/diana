@@ -42,7 +42,6 @@ public:
   void setLevels(const std::vector<int>& table) { flightlevels = table; }
   void setStyle(const Linestyle& s) { style = s; }
 
-  void configure(const miutil::KeyValue_v& options) override;
   void updateLayout() override;
   void plotDiagram(VprofPainter* p) override;
   void plotDiagramFrame(VprofPainter* p) override;
@@ -57,6 +56,9 @@ public:
   static const std::string key_text;
   static const std::string key_levels;
   static const std::string key_style;
+
+protected:
+  void configureOptions(const miutil::KeyValue_v& options) override;
 
 private:
   Linestyle style;

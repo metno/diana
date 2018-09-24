@@ -378,9 +378,9 @@ const std::string VprofBoxPT::key_cotrails = "cotrails";
 const std::string VprofBoxPT::key_cotrails_pmin = VprofBoxPT::key_cotrails + ".pmin";
 const std::string VprofBoxPT::key_cotrails_pmax = VprofBoxPT::key_cotrails + ".pmax";
 
-void VprofBoxPT::configure(const miutil::KeyValue_v& options)
+void VprofBoxPT::configureDefaults()
 {
-  METLIBS_LOG_SCOPE(LOGVAL(options));
+  VprofBoxLine::configureDefaults();
 
   VprofAxesPT_p axes_pt = std::make_shared<VprofAxesPT>();
   axes_pt->z = axes->z;
@@ -394,32 +394,36 @@ void VprofBoxPT::configure(const miutil::KeyValue_v& options)
   setXValueRange(-30, 30);
   setWidth(25);
 
-  VprofBoxLine::configure(options);
-
   setTAngle(30);
   tstep_ = 5;
 
   pdryadiabat = true;   // dry adiabats
   dryadiabatstep_ = 10; // temperature step (C at 1000hPa)
-  Linestyle dryadiabatLS("black", 1, "solid");
 
   pwetadiabat = true;  // dry adiabats
   wetadiabatstep_ = 5; // temperature step (C at 1000hPa)
-  Linestyle wetadiabatLS("darkRed", 1, "solid");
   wetadiabatPmin = 300;
   wetadiabatTmin = -50;
 
   pmixingratio = true; // mixing ratio
   qtable = {.1, .2, .4, 1., 2., 5., 10., 20., 30., 40., 50.};
-  Linestyle mixingratioLS("magenta", 1, "longdash");
   mixingratioPmin = 300;
   mixingratioTmin = -50;
 
   pcotrails = true; // condensation trail lines
-  Linestyle cotrailsLS("cyan", 3, "solid");
   cotrailsPmin = 100;
   cotrailsPmax = 700;
+}
 
+void VprofBoxPT::configureOptions(const miutil::KeyValue_v& options)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(options));
+  VprofBoxLine::configureOptions(options);
+
+  Linestyle dryadiabatLS("black", 1, "solid");
+  Linestyle wetadiabatLS("darkRed", 1, "solid");
+  Linestyle mixingratioLS("magenta", 1, "longdash");
+  Linestyle cotrailsLS("cyan", 3, "solid");
   for (const auto& kv : options) {
     if (kv.key() == key_t_angle)
       setTAngle(kv.toFloat(tangle_));

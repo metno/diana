@@ -59,7 +59,6 @@ public:
   void setCotrailsPMax(int pmax) { cotrailsPmax = pmax; }
   void setCotrailsStyle(const Linestyle& s) { cotrailsLineStyle = s; }
 
-  void configure(const miutil::KeyValue_v& options) override;
   void updateLayout() override;
   void plotDiagram(VprofPainter* p) override;
 
@@ -87,6 +86,9 @@ public:
   static const std::string key_cotrails_pmax;
 
 protected:
+  void configureDefaults() override;
+  void configureOptions(const miutil::KeyValue_v& options) override;
+
   void configureXAxisLabelSpace() override;
 
   void plotXAxisGrid(VprofPainter* p) override;

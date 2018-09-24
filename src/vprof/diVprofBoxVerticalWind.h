@@ -37,11 +37,11 @@ class VprofBoxVerticalWind : public VprofBoxLine
 public:
   VprofBoxVerticalWind();
 
-  void configure(const miutil::KeyValue_v& options) override;
-
   static const std::string& boxType();
 
 protected:
+  void configureDefaults() override;
+
   void plotXAxisLabels(VprofPainter* p) override;
 };
 typedef std::shared_ptr<VprofBoxVerticalWind> VprofBoxVerticalWind_p;

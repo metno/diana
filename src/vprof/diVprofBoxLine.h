@@ -78,7 +78,6 @@ public:
   void setXLimitsInCorners(bool on) { x_limits_in_corners_ = on; }
   void setXUnitLabel(const std::string& x_unit_label);
 
-  void configure(const miutil::KeyValue_v& options) override;
   void updateLayout() override;
 
   void plotDiagram(VprofPainter* p) override;
@@ -113,6 +112,9 @@ public:
   static const std::string COMPONENTS;
 
 protected:
+  void configureDefaults() override;
+  void configureOptions(const miutil::KeyValue_v& options) override;
+
   virtual void configureZAxisLabelSpace();
   virtual void configureXAxisLabelSpace();
 

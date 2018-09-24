@@ -130,8 +130,10 @@ void VprofBoxLine::setXUnitLabel(const std::string& x_unit_label)
   axes->x->setLabel(x_unit_label);
 }
 
-void VprofBoxLine::configure(const miutil::KeyValue_v& options)
+void VprofBoxLine::configureDefaults()
 {
+  VprofBox::configureDefaults();
+
   setWidth(vprof::chxbas * 7);
   labelStyle = Linestyle("red", 1, "solid");
 
@@ -139,17 +141,20 @@ void VprofBoxLine::configure(const miutil::KeyValue_v& options)
 
   z_grid_ = false;
   z_ticks_showtext_ = false;
-  Linestyle zGridStyle("black", 1, "solid");
-  float zGridLinewidth2 = 2;
 
   x_grid_ = true;
   x_ticks_showtext_ = true;
   x_limits_in_corners_ = false;
+}
+
+void VprofBoxLine::configureOptions(const miutil::KeyValue_v& options)
+{
+  VprofBox::configureOptions(options);
+
+  Linestyle zGridStyle("black", 1, "solid");
+  float zGridLinewidth2 = 2;
   Linestyle xGridStyle = zGridStyle;
   float xGridLinewidth2 = zGridLinewidth2;
-
-  VprofBox::configure(options);
-
   float x_min = 0, x_max = 1;
   for (const auto& kv : options) {
     if (kv.key() == key_frame)

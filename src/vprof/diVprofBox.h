@@ -60,7 +60,7 @@ public:
   float width() const { return width_; }
   void setWidth(float width) { width_ = width; }
 
-  virtual void configure(const miutil::KeyValue_v& options);
+  void configure(const miutil::KeyValue_v& options);
   virtual void updateLayout();
   virtual void plotDiagram(VprofPainter* p) = 0;
   virtual void plotDiagramFrame(VprofPainter* p) = 0;
@@ -74,6 +74,10 @@ public:
   static const std::string key_id;
   static const std::string key_type;
   static const std::string key_width;
+
+protected:
+  virtual void configureDefaults();
+  virtual void configureOptions(const miutil::KeyValue_v& options);
 
 public:
   std::string id_;

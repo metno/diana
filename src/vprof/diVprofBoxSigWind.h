@@ -39,7 +39,6 @@ public:
 
   bool separate() const override;
 
-  void configure(const miutil::KeyValue_v& options) override;
   void updateLayout() override;
   void plotDiagram(VprofPainter* p) override;
   void plotDiagramFrame(VprofPainter* p) override;
@@ -50,6 +49,9 @@ public:
   std::string graphComponentVarName(size_t graph, size_t component) override;
 
   static const std::string& boxType();
+
+protected:
+  void configureDefaults() override;
 };
 typedef std::shared_ptr<VprofBoxSigWind> VprofBoxSigWind_p;
 

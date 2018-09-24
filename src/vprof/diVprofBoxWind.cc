@@ -52,12 +52,16 @@ bool VprofBoxWind::separate() const
   return separate_;
 }
 
-void VprofBoxWind::configure(const miutil::KeyValue_v& options)
+void VprofBoxWind::configureDefaults()
 {
+  VprofBoxZ::configureDefaults();
   separate_ = true;
   setWidth(vprof::chxbas * 8);
+}
 
-  VprofBoxZ::configure(options);
+void VprofBoxWind::configureOptions(const miutil::KeyValue_v& options)
+{
+  VprofBoxZ::configureOptions(options);
 
   const size_t i_id = miutil::rfind(options, "separate");
   if (i_id != size_t(-1))
