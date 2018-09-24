@@ -47,6 +47,7 @@ VprofGraphData_cp wind_sig(VprofGraphData_cp wind_ff);
 
 float kindex(VprofGraphData_cp tt, VprofGraphData_cp td);
 
+bool is_empty(VprofGraphData_cp data);
 bool valid_content(VprofGraphData_cp data);
 
 inline bool all_valid(VprofGraphData_cp s)

@@ -86,6 +86,9 @@ void VprofBoxSigWind::plotValues(VprofPainter* p, VprofValues_cp values, const V
   VprofGraphData_cp dd = values->series(graphComponentVarName(0, 0));
   VprofGraphData_cp ff = values->series(graphComponentVarName(0, 1));
   VprofGraphData_cp wsig = values->series(graphComponentVarName(0, 2));
+  if (vprof::is_empty(dd) && vprof::is_empty(ff) && vprof::is_empty(wsig)) {
+    return;
+  }
   if (!vprof::valid_content(dd) || !vprof::valid_content(ff) || !vprof::valid_content(wsig)) {
     METLIBS_LOG_WARN("invalid dd/ff/wsig");
     return;

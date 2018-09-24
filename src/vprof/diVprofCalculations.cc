@@ -344,9 +344,14 @@ float kindex(VprofGraphData_cp tt, VprofGraphData_cp td)
   return (tfind[0] + tdfind[0]) - (tfind[1] - tdfind[1]) - tfind[2];
 }
 
+bool is_empty(VprofGraphData_cp data)
+{
+  return !data || data->empty();
+}
+
 bool valid_content(VprofGraphData_cp data)
 {
-  return data && !data->empty() && (data->defined() == difield::ALL_DEFINED);
+  return !is_empty(data) && (data->defined() == difield::ALL_DEFINED);
 }
 
 } // namespace vprof
