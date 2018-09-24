@@ -51,10 +51,6 @@ using diutil::PointF;
 
 namespace vprof {
 
-// standard stoerrelse iflg. et amble-diagram:
-// avstand i cm mellom 100 og 1000 hPa
-const float height = 27.8;
-
 // lengde i cm langs p=konst for 1 grad celsius
 const float dx1deg = 0.418333;
 
