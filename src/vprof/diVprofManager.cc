@@ -43,6 +43,7 @@
 #include "diVprofUtils.h"
 #include "miSetupParser.h"
 #include "util/misc_util.h"
+#include "util/time_util.h"
 #include "vcross_v2/VcrossSetup.h"
 
 #include "diField/VcrossUtil.h"
@@ -394,40 +395,16 @@ miTime VprofManager::setTime(int step, int dir)
   if (timeList.empty())
     return miTime::nowTime();
 
-  int n = timeList.size();
-  int i = 0;
+  plottimes_t::const_iterator it;
   if (step == 0) {
-    while (i < n && timeList[i] != plotTime) {
-      i++;
-    }
-    i += dir;
-
+    it = miutil::step_time(timeList, plotTime, dir);
   } else {
-
-    miTime newTime(plotTime);
-    newTime.addHour(step * dir);
-
-    if (dir > 0) {
-      i = 0;
-      while (i < n && timeList[i] < newTime) {
-        i++;
-      }
-    } else {
-      i = n - 1;
-      while (i >= 0 && timeList[i] > newTime) {
-        i--;
-      }
-    }
+    it = miutil::step_time(timeList, plotTime, miutil::addHour(plotTime, step * dir));
   }
+  if (it == timeList.end())
+    it = --timeList.end();
 
-  if (i == n) {
-    i = n - 1;
-  }
-  if (i < 0) {
-    i = 0;
-  }
-
-  plotTime = timeList[i];
+  plotTime = *it;
 
   initStations();
 
@@ -634,21 +611,18 @@ void VprofManager::initTimes()
   METLIBS_LOG_SCOPE(plotTime.isoTime());
   realizationCount = 1;
 
-  std::set<miutil::miTime> set_times;
+  timeList.clear();
   for (VprofData_p vp : vpdata) {
     vcross::util::maximize(realizationCount, vp->getRealizationCount());
-    diutil::insert_all(set_times, vp->getTimes());
+    diutil::insert_all(timeList, vp->getTimes());
   }
 
-  timeList.clear();
-  diutil::insert_all(timeList, set_times);
-
-  std::vector<miutil::miTime>::const_iterator it = std::find(timeList.begin(), timeList.end(), plotTime);
+  plottimes_t::const_iterator it = timeList.find(plotTime);
   if (it == timeList.end() && !timeList.empty()) {
     plotTime = nowTime();
-    std::vector<miutil::miTime>::const_iterator it = std::find(timeList.begin(), timeList.end(), plotTime);
+    it = timeList.find(plotTime);
     if (it == timeList.end() && !timeList.empty()) {
-      plotTime = timeList.back();
+      plotTime = *timeList.rbegin();
     }
   }
 
@@ -662,17 +636,9 @@ void VprofManager::mainWindowTimeChanged(const miTime& mainWindowTime)
 {
   METLIBS_LOG_SCOPE(mainWindowTime);
 
-  int maxdiff = 0, itime = -1;
-  const int n = timeList.size();
-  for (int i = 0; i < n; i++) {
-    const int diff = abs(miTime::minDiff(timeList[i], mainWindowTime));
-    if (itime < 0 || diff < maxdiff) {
-      maxdiff = diff;
-      itime = i;
-    }
-  }
-  if (itime > -1)
-    setTime(timeList[itime]);
+  plottimes_t::const_iterator best = miutil::nearest(timeList, mainWindowTime);
+  if (best != timeList.end())
+    setTime(*best);
 }
 
 std::string VprofManager::getAnnotationString()
@@ -689,7 +655,7 @@ vector<string> VprofManager::writeLog()
   return vpopt->writeOptions();
 }
 
-void VprofManager::readLog(const vector<string>& vstr, const string& thisVersion, const string& logVersion)
+void VprofManager::readLog(const vector<string>& vstr, const string& /*thisVersion*/, const string& /*logVersion*/)
 {
   miutil::KeyValue_v options;
   for (const std::string& line : vstr)

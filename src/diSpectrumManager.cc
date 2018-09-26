@@ -31,14 +31,16 @@
 
 #include "diSpectrumManager.h"
 
-#include "diSpectrumOptions.h"
-#include "diSpectrumFile.h"
 #include "diSpectrumData.h"
+#include "diSpectrumFile.h"
+#include "diSpectrumOptions.h"
 #include "diSpectrumPlot.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
-#include "vcross_v2/VcrossSetup.h"
+#include "util/misc_util.h"
+#include "util/time_util.h"
 #include "vcross_v2/VcrossCollector.h"
+#include "vcross_v2/VcrossSetup.h"
 
 #include <diField/VcrossUtil.h>
 
@@ -217,44 +219,20 @@ miTime SpectrumManager::setTime(int step, int dir)
 {
   METLIBS_LOG_DEBUG(LOGVAL(step) << LOGVAL(dir));
 
-  if (timeList.size()==0)
+  if (timeList.empty())
     return miTime::nowTime();
 
-  int n= timeList.size();
-  int i = 0;
-  if ( step == 0 ){
-    while (i<n && timeList[i] != plotTime) {
-      i++;
-    }
-    i += dir;
-
-
+  plottimes_t::const_iterator it;
+  if (step == 0) {
+    it = miutil::step_time(timeList, plotTime, dir);
   } else {
-
-    miTime newTime(plotTime);
-    newTime.addHour(step * dir);
-
-    if( dir > 0 ) {
-      i = 0;
-      while (i<n && timeList[i] < newTime) {
-        i++;
-      }
-    } else {
-      i = n-1;
-      while (i>=0 && timeList[i] > newTime) {
-        i--;
-      }
-    }
+    it = miutil::step_time(timeList, plotTime, miutil::addHour(plotTime, step * dir));
   }
+  if (it == timeList.end())
+    it = --timeList.end();
 
-  if (i==n) {
-    i = n-1;
-  }
-  if (i<0) {
-    i = 0;
-  }
+  plotTime = *it;
 
-  plotTime= timeList[i];
   dataChange= true;
 
   return plotTime;
@@ -289,25 +267,7 @@ std::string SpectrumManager::setStation(int step)
 miTime SpectrumManager::setTime(int step)
 {
   METLIBS_LOG_SCOPE(step);
-
-  if (timeList.size()==0)
-    return miTime::nowTime();
-
-  int n= timeList.size();
-  int i= 0;
-  while (i<n && timeList[i]!=plotTime) i++;
-  if (i<n) {
-    i+=step;
-    if (i<0)  i= 0;
-    if (i>=n) i= n-1;
-  } else {
-    i= 0;
-  }
-
-  plotTime= timeList[i];
-  dataChange= true;
-
-  return plotTime;
+  return setTime(0, step);
 }
 
 bool SpectrumManager::plot(DiGLPainter* gl)
@@ -525,19 +485,11 @@ void SpectrumManager::initTimes()
 
   //assume common times...
   if (spdata.size()) {
-    timeList= spdata[0]->getTimes();
+    diutil::insert_all(timeList, spdata[0]->getTimes());
     realizationCount = spdata[0]->getRealizationCount();
   } else if (spfile.size()) {
-    timeList= spfile[0]->getTimes();
+    diutil::insert_all(timeList, spfile[0]->getTimes());
     realizationCount = 1;
-  }
-
-  int n= timeList.size();
-  int i= 0;
-  while (i<n && timeList[i]!=plotTime) i++;
-
-  if (i==n && n>0) {
-      plotTime= timeList[0];
   }
   setRealization(realization);
 }
@@ -547,20 +499,9 @@ void SpectrumManager::mainWindowTimeChanged(const miTime& time)
 {
   METLIBS_LOG_SCOPE(LOGVAL(time));
 
-  miTime mainWindowTime = time;
-  //change plotTime
-  int maxdiff= miTime::minDiff (mainWindowTime,ztime);
-  int diff,itime=-1;
-  int n = timeList.size();
-  for (int i=0;i<n;i++){
-    diff = abs(miTime::minDiff(timeList[i],mainWindowTime));
-    if(diff<maxdiff){
-      maxdiff = diff;
-      itime=i;
-    }
-  }
-  if (itime>-1)
-    setTime(timeList[itime]);
+  plottimes_t::const_iterator best = miutil::nearest(timeList, time);
+  if (best != timeList.end())
+    setTime(*best);
 }
 
 
@@ -578,9 +519,7 @@ vector<string> SpectrumManager::writeLog()
   return spopt->writeOptions();
 }
 
-
-void SpectrumManager::readLog(const vector<string>& vstr,
-    const string& thisVersion, const string& logVersion)
+void SpectrumManager::readLog(const vector<string>& vstr, const string& /*thisVersion*/, const string& /*logVersion*/)
 {
   spopt->readOptions(vstr);
 }

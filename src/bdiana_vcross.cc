@@ -59,9 +59,21 @@ ImageSource* DianaVcross::imageSource()
   return imageSource_.get();
 }
 
-miutil::miTime DianaVcross::getTime()
+miutil::miTime DianaVcross::getReferenceTime()
 {
-  return manager->getTimeValue();
+  if (manager->getFieldCount() > 0)
+    return manager->getReftimeAt(0);
+  else
+    return miutil::miTime();
+}
+
+plottimes_t DianaVcross::getTimes()
+{
+  plottimes_t times;
+  const int count = manager->getTimeCount();
+  for (int i = 0; i < count; ++i)
+    times.insert(manager->getTimeValue(i));
+  return times;
 }
 
 void DianaVcross::setTime(const miutil::miTime& time)

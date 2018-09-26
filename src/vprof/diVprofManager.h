@@ -31,6 +31,7 @@
 
 #include "diPlotCommand.h"
 #include "diStationTypes.h"
+#include "diTimeTypes.h"
 #include "diVprofReaderBufr.h"
 #include "diVprofReaderFimex.h"
 #include "diVprofReaderRoadobs.h"
@@ -75,7 +76,7 @@ private:
   std::vector<VprofData_p> vpdata;
 
   std::vector<stationInfo> stationList;
-  std::vector<miutil::miTime> timeList;
+  plottimes_t timeList;
 
   VprofSelectedModel_v selectedModels;
 
@@ -131,7 +132,7 @@ public:
   const std::vector<std::string>& getStations() { return selectedStations; }
   const std::string& getLastStation() { return lastStation; }
   const std::vector<stationInfo>& getStationList() const { return stationList; }
-  const std::vector<miutil::miTime>& getTimeList() { return timeList; }
+  const plottimes_t& getTimeList() { return timeList; }
   int getRealizationCount() const { return realizationCount; }
   const std::vector<std::string>& getModelNames();
   const std::vector<std::string>& getModelFiles() { return dialogFileNames; }

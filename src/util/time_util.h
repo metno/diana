@@ -30,13 +30,18 @@
 #ifndef TIME_UTIL_H
 #define TIME_UTIL_H
 
-#include <puTools/miTime.h>
+#include "diTimeTypes.h"
 
 namespace miutil {
 
 miTime addSec(const miTime& t, int seconds);
 miTime addMin(const miTime& t, int minutes);
 miTime addHour(const miTime& t, int hours);
+
+plottimes_t::const_iterator nearest(const plottimes_t& times, const miTime& time);
+
+plottimes_t::const_iterator step_time(const plottimes_t& times, const miTime& time, int steps);
+plottimes_t::const_iterator step_time(const plottimes_t& times, const miTime& time, const miTime& newTime);
 
 } // namespace miutil
 

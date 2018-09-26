@@ -48,7 +48,9 @@ struct BdianaVprof : public BdianaSource
   void commands(const std::vector<std::string>& pcom);
   ImageSource* imageSource() override;
 
-  miutil::miTime getTime() override;
+  miutil::miTime getReferenceTime() override;
+  plottimes_t getTimes() override;
+
   void setTime(const miutil::miTime& time) override;
 
   PlotCommand_cpv vprof_options;

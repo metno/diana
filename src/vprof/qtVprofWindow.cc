@@ -426,11 +426,11 @@ void VprofWindow::updateTimeBox()
   METLIBS_LOG_SCOPE();
 
   timeBox->clear();
-  const std::vector<miutil::miTime>& times = vprofm->getTimeList();
+  const plottimes_t& times = vprofm->getTimeList();
   for (const miutil::miTime& t : times)
     timeBox->addItem(QString::fromStdString(t.isoTime(false, false)));
 
-  Q_EMIT emitTimes("vprof", plottimes_t(times.begin(), times.end()));
+  Q_EMIT emitTimes("vprof", times);
 }
 
 /***************************************************************************/
@@ -449,10 +449,12 @@ void VprofWindow::stationBoxActivated(int)
 
 void VprofWindow::timeBoxActivated(int index)
 {
-  const std::vector<miutil::miTime>& times = vprofm->getTimeList();
+  const plottimes_t& times = vprofm->getTimeList();
 
   if (index >= 0 && index < int(times.size())) {
-    vprofm->setTime(times[index]);
+    plottimes_t::const_iterator it = times.begin();
+    std::advance(it, index);
+    vprofm->setTime(*it);
 
     // emit to main Window (updates stationPlot)
     Q_EMIT modelChanged();

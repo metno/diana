@@ -39,7 +39,6 @@
 
 BdianaMain::BdianaMain()
     : keeparea(false)
-    , use_time(USE_LASTTIME)
 {
 }
 
@@ -109,11 +108,13 @@ static type_times_t::const_iterator find_times(const type_times_t& times, const 
   return it;
 }
 
-miutil::miTime BdianaMain::getTime()
+miutil::miTime BdianaMain::getReferenceTime()
 {
-  if (use_time == USE_REFERENCETIME)
-    return controller->getFieldReferenceTime();
+  return controller->getFieldReferenceTime();
+}
 
+plottimes_t BdianaMain::getTimes()
+{
   type_times_t times;
   controller->getPlotTimes(times);
   type_times_t::const_iterator it = find_times(times, "fields");
@@ -126,25 +127,7 @@ miutil::miTime BdianaMain::getTime()
   if (it == times.end())
     it = find_times(times, "products");
   if (it == times.end())
-    return miutil::miTime();
-
-  const plottimes_t& fieldtimes = it->second;
-  if (fieldtimes.empty())
-    return miutil::miTime::nowTime();
-
-  if (use_time == USE_NOWTIME) {
-    const miutil::miTime now = miutil::miTime::nowTime();
-    // select closest to now without overstepping
-    for (plottimes_t::const_iterator it = fieldtimes.begin(); it != fieldtimes.end(); ++it) {
-      if (*it >= now)
-        return *((it != fieldtimes.begin()) ? (--it) : it);
-    }
-  }
-  if (use_time == USE_FIRSTTIME)
-    return *fieldtimes.begin();
-
-  // both USE_LASTTIME and not-found for USE_NOWTIME
-  return *fieldtimes.rbegin();
+    return plottimes_t();
 }
 
 void BdianaMain::setTime(const miutil::miTime& time)

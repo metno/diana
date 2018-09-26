@@ -29,6 +29,11 @@
 
 #include "bdiana_source.h"
 
+BdianaSource::BdianaSource()
+    : use_time_(USE_LASTTIME)
+{
+}
+
 BdianaSource::~BdianaSource()
 {
 }
@@ -41,4 +46,33 @@ bool BdianaSource::hasCutout()
 QRectF BdianaSource::cutout()
 {
   return QRectF();
+}
+
+miutil::miTime BdianaSource::getTime()
+{
+  if (getTimeChoice() == USE_REFERENCETIME)
+    return getReferenceTime();
+
+  const plottimes_t& times = getTimes();
+  if (times.empty())
+    return miutil::miTime::nowTime();
+
+  if (getTimeChoice() == USE_NOWTIME) {
+    const miutil::miTime now = miutil::miTime::nowTime();
+    // select closest to now without overstepping
+    for (plottimes_t::const_iterator it = times.begin(); it != times.end(); ++it) {
+      if (*it >= now)
+        return *((it != times.begin()) ? (--it) : it);
+    }
+  }
+  if (getTimeChoice() == USE_FIRSTTIME)
+    return *times.begin();
+
+  // both USE_LASTTIME and not-found for USE_NOWTIME
+  return *times.rbegin();
+}
+
+void BdianaSource::setTimeChoice(TimeChoice tc)
+{
+  use_time_ = tc;
 }

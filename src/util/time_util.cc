@@ -28,6 +28,7 @@
 */
 
 #include "time_util.h"
+#include "nearest_element.h"
 
 namespace miutil {
 
@@ -50,6 +51,45 @@ miTime addHour(const miTime& t, int hours)
   miTime tt(t);
   tt.addHour(hours);
   return tt;
+}
+
+plottimes_t::const_iterator nearest(const plottimes_t& times, const miTime& time)
+{
+  return diutil::nearest_element(times, time, miTime::secDiff);
+}
+
+plottimes_t::const_iterator step_time(const plottimes_t& times, const miTime& time, int steps)
+{
+  plottimes_t::const_iterator it = times.find(time);
+  if (it != times.end()) {
+    if (steps > 0) {
+      while (it != times.end() && (--steps >= 0))
+        ++it;
+    } else if (steps < 0) {
+      while (it != times.begin() && (++steps <= 0))
+        --it;
+    }
+  }
+  if (it == times.end() && !times.empty())
+    it = --times.end();
+  return it;
+}
+
+plottimes_t::const_iterator step_time(const plottimes_t& times, const miTime& time, const miTime& newTime)
+{
+  plottimes_t::const_iterator it = times.find(time);
+  if (it != times.end()) {
+    if (newTime > time) {
+      while (it != times.end() && *it < newTime)
+        ++it;
+    } else {
+      while (it != times.begin() && *it > newTime)
+        --it;
+    }
+  }
+  if (it == times.end() && !times.empty())
+    it = --times.end();
+  return it;
 }
 
 } // namespace miutil

@@ -30,22 +30,34 @@
 #ifndef BDIANA_SOURCE_H
 #define BDIANA_SOURCE_H
 
+#include "diTimeTypes.h"
 #include <QRectF>
-#include <puTools/miTime.h>
 
 class ImageSource;
 
 class BdianaSource
 {
 public:
+  enum TimeChoice { USE_LASTTIME, USE_FIRSTTIME, USE_REFERENCETIME, USE_FIXEDTIME, USE_NOWTIME };
+
+  BdianaSource();
   virtual ~BdianaSource();
 
   virtual ImageSource* imageSource() = 0;
   virtual bool hasCutout();
   virtual QRectF cutout();
 
-  virtual miutil::miTime getTime() = 0;
+  virtual miutil::miTime getReferenceTime() = 0;
+  virtual plottimes_t getTimes() = 0;
+  virtual miutil::miTime getTime();
+
   virtual void setTime(const miutil::miTime& time) = 0;
+
+  TimeChoice getTimeChoice() const { return use_time_; }
+  virtual void setTimeChoice(TimeChoice tc);
+
+private:
+  TimeChoice use_time_;
 };
 
 #endif // BDIANA_SOURCE_H

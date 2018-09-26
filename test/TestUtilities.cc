@@ -493,3 +493,52 @@ TEST(TestUtilities, NearestElementMiTime)
   EXPECT_EQ(++data.begin(), nearest_element(data, addHour(t0, 4), miTime::minDiff));
   EXPECT_EQ(--data.end(), nearest_element(data, addHour(t0, 14), miTime::minDiff));
 }
+
+static plottimes_t makeTimes()
+{
+  plottimes_t times;
+  const miutil::miTime t0(2018, 9, 9, 0, 0), t1 = miutil::addHour(t0, 24);
+  for (miutil::miTime t = t0; t <= t1; t.addHour(3))
+    times.insert(t);
+  return times;
+}
+
+TEST(TestUtilities, StepTimeN)
+{
+  const plottimes_t times = makeTimes();
+  const miutil::miTime t0600(2018, 9, 9, 6, 0);
+
+  using namespace miutil;
+  plottimes_t::const_iterator it;
+
+  EXPECT_EQ(9, times.size());
+
+  it = step_time(times, t0600, 2);
+  EXPECT_TRUE(it != times.end() && *it == miutil::miTime(2018, 9, 9, 12, 0));
+
+  it = step_time(times, t0600, -2);
+  EXPECT_TRUE(it != times.end() && *it == miutil::miTime(2018, 9, 9, 0, 0));
+
+  EXPECT_EQ(times.begin(), step_time(times, t0600, -4));
+  EXPECT_EQ(--times.end(), step_time(times, t0600, 12));
+}
+
+TEST(TestUtilities, StepTimeT)
+{
+  const plottimes_t times = makeTimes();
+  const miutil::miTime t0600(2018, 9, 9, 6, 0);
+
+  using namespace miutil;
+  plottimes_t::const_iterator it;
+
+  EXPECT_EQ(9, times.size());
+
+  it = step_time(times, t0600, addHour(t0600, 2));
+  EXPECT_TRUE(it != times.end() && *it == miutil::miTime(2018, 9, 9, 9, 0));
+
+  it = step_time(times, t0600, addHour(t0600, -2));
+  EXPECT_TRUE(it != times.end() && *it == miutil::miTime(2018, 9, 9, 3, 0));
+
+  EXPECT_EQ(times.begin(), step_time(times, t0600, addHour(t0600, -12)));
+  EXPECT_EQ(--times.end(), step_time(times, t0600, addHour(t0600, 24)));
+}

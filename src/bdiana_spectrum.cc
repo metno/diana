@@ -115,9 +115,19 @@ ImageSource* BdianaSpectrum::imageSource()
   return imageSource_.get();
 }
 
-miutil::miTime BdianaSpectrum::getTime()
+miutil::miTime BdianaSpectrum::getReferenceTime()
 {
-  return manager->getTime();
+  const std::vector<SpectrumManager::SelectedModel>& sms = manager->getSelectedModels();
+  for (const auto& sm : sms) {
+    if (!sm.reftime.empty())
+      return miutil::miTime(sm.reftime);
+  }
+  return miutil::miTime();
+}
+
+plottimes_t BdianaSpectrum::getTimes()
+{
+  return manager->getTimeList();
 }
 
 void BdianaSpectrum::setTime(const miutil::miTime& time)

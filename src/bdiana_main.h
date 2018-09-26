@@ -53,13 +53,11 @@ struct BdianaMain : public BdianaSource
   bool hasCutout() override;
   QRectF cutout() override;
 
-  miutil::miTime getTime() override;
+  miutil::miTime getReferenceTime() override;
+  plottimes_t getTimes() override;
   void setTime(const miutil::miTime& time) override;
 
   bool keeparea;
-
-  enum TimeChoice { USE_LASTTIME, USE_FIRSTTIME, USE_REFERENCETIME, USE_FIXEDTIME, USE_NOWTIME };
-  TimeChoice use_time;
 
   std::vector<std::string> extra_field_lines;
 

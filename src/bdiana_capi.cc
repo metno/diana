@@ -243,6 +243,7 @@ struct Bdiana
 
   int prepareInput(istream& is);
   bool ensureSetup();
+  void setTimeChoice(BdianaSource::TimeChoice tc);
   void set_ptime(BdianaSource& src);
   void createJsonAnnotation();
   std::vector<std::string> FIND_END_COMMAND(int& k, const std::string& end1, const std::string& end2, bool* found_end = 0);
@@ -866,6 +867,14 @@ static void printUsage(bool showexample)
       std::ostream_iterator<std::string>(std::cout, "\n"));
 
   exit(1);
+}
+
+void Bdiana::setTimeChoice(BdianaSource::TimeChoice tc)
+{
+  main.setTimeChoice(tc);
+  vc.setTimeChoice(tc);
+  vprof.setTimeChoice(tc);
+  wavespec.setTimeChoice(tc);
 }
 
 void Bdiana::set_ptime(BdianaSource& src)
@@ -1718,19 +1727,19 @@ int Bdiana::parseAndProcess(istream& is)
     } else if (key == com_settime) {
       ptime = miTime(); // undef
       if (value == "nowtime" || value == "current" || value == "currenttime") {
-        main.use_time = BdianaMain::USE_NOWTIME;
+        setTimeChoice(BdianaSource::USE_NOWTIME);
       } else if (value == "firsttime") {
-        main.use_time = BdianaMain::USE_FIRSTTIME;
+        setTimeChoice(BdianaSource::USE_FIRSTTIME);
       } else if (value == "lasttime") {
-        main.use_time = BdianaMain::USE_LASTTIME;
+        setTimeChoice(BdianaSource::USE_LASTTIME);
       } else if (value == "referencetime") {
-        main.use_time = BdianaMain::USE_REFERENCETIME;
+        setTimeChoice(BdianaSource::USE_REFERENCETIME);
       } else if (miTime::isValid(value)) {
-        main.use_time = BdianaMain::USE_FIXEDTIME;
+        setTimeChoice(BdianaSource::USE_FIXEDTIME);
         fixedtime = miTime(value);
       } else {
         METLIBS_LOG_ERROR("command " << com_settime << " has invalid argument '" << value << "'");
-        main.use_time = BdianaMain::USE_LASTTIME;
+        setTimeChoice(BdianaSource::USE_LASTTIME);
         fixedtime = miTime();
       }
 
@@ -1912,7 +1921,7 @@ int diana_init(int _argc, char** _argv)
       // Use time closest to the current time even if there exists a field
       // and not the timestamps for the future. This corresponds to the
       // default value when using the gui.
-      bdiana()->main.use_time = BdianaMain::USE_NOWTIME;
+      bdiana()->setTimeChoice(BdianaSource::USE_NOWTIME);
 
     } else if (sarg.find("-address=") == 0) {
       if (!orderbook) {

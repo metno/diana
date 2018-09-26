@@ -30,6 +30,7 @@
 #define SPECTRUMMANAGER_H
 
 #include "diCommonTypes.h"
+#include "diTimeTypes.h"
 #include "vcross_v2/VcrossSetup.h"
 
 #include <puTools/miTime.h>
@@ -51,16 +52,18 @@ class QSize;
 */
 class SpectrumManager
 {
+public:
+  struct SelectedModel
+  {
+    std::string model;
+    std::string reftime;
+  };
+
 private:
   struct StationPos {
     float latitude;
     float longitude;
     std::string obs;
-  };
-
-  struct SelectedModel{
-    std::string model;
-    std::string reftime;
   };
 
   // map<model,filename>
@@ -80,7 +83,7 @@ private:
   std::vector<std::string> nameList;
   std::vector<float> latitudeList;
   std::vector<float> longitudeList;
-  std::vector<miutil::miTime>   timeList;
+  plottimes_t timeList;
 
   std::vector<SelectedModel> selectedModels;
 
@@ -128,12 +131,13 @@ public:
   const std::vector<std::string>& getStationList() { return nameList; }
   const std::vector<float>& getLatitudes() { return latitudeList; }
   const std::vector<float>& getLongitudes() { return longitudeList; }
-  const std::vector<miutil::miTime>& getTimeList() { return timeList; }
+  const plottimes_t& getTimeList() { return timeList; }
 
   std::vector<std::string> getModelNames();
   std::vector<std::string> getModelFiles();
   std::vector <std::string> getReferencetimes(const std::string& model);
   void setSelectedModels(const std::vector<std::string>& models);
+  const std::vector<SelectedModel>& getSelectedModels() const { return selectedModels; }
 
   bool plot(DiGLPainter* gl);
   void mainWindowTimeChanged(const miutil::miTime& time);

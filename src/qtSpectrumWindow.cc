@@ -435,12 +435,12 @@ void SpectrumWindow::updateTimeBox()
   METLIBS_LOG_SCOPE();
 
   timeBox->clear();
-  const vector<miutil::miTime>& times = spectrumm->getTimeList();
+  const plottimes_t& times = spectrumm->getTimeList();
   for (const miutil::miTime& t : times) {
     timeBox->addItem(QString::fromStdString(t.isoTime(false, false)));
   }
 
-  Q_EMIT emitTimes("spectrum", plottimes_t(times.begin(), times.end()));
+  Q_EMIT emitTimes("spectrum", times);
 }
 
 void SpectrumWindow::stationBoxActivated(int)
@@ -455,10 +455,12 @@ void SpectrumWindow::stationBoxActivated(int)
 
 void SpectrumWindow::timeBoxActivated(int index)
 {
-  vector<miutil::miTime> times= spectrumm->getTimeList();
+  const plottimes_t& times = spectrumm->getTimeList();
 
   if (index>=0 && index<int(times.size())) {
-    spectrumm->setTime(times[index]);
+    plottimes_t::const_iterator it = times.begin();
+    std::advance(it, index);
+    spectrumm->setTime(*it);
 
     spectrumqw->update();
   }

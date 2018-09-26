@@ -78,9 +78,19 @@ ImageSource* BdianaVprof::imageSource()
   return imageSource_.get();
 }
 
-miutil::miTime BdianaVprof::getTime()
+miutil::miTime BdianaVprof::getReferenceTime()
 {
-  return manager->getTime();
+  const std::vector<VprofSelectedModel>& sms = manager->getSelectedModels();
+  for (const auto& sm : sms) {
+    if (!sm.reftime.empty())
+      return miutil::miTime(sm.reftime);
+  }
+  return miutil::miTime();
+}
+
+plottimes_t BdianaVprof::getTimes()
+{
+  return manager->getTimeList();
 }
 
 void BdianaVprof::setTime(const miutil::miTime& time)
