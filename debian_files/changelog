@@ -1,3 +1,10 @@
+diana-3.48 (3.48.0~a3-1) unstable; urgency=low
+
+  * bdiana: settime=referencetime/... for vprof, vcross, wavespec
+  * ObsRoad: TxTn from TxTxTx and TnTnTn
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Thu, 27 Sep 2018 08:00:08 +0200
+
 diana-3.48 (3.48.0~a2-1) unstable; urgency=low
 
   * vprof: restore z axis flight/pressure level list
