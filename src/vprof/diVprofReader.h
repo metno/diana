@@ -34,7 +34,7 @@
 
 #include <memory>
 #include <string>
-#include <vector>
+#include <set>
 
 struct VprofSelectedModel
 {
@@ -49,7 +49,7 @@ typedef std::vector<VprofSelectedModel> VprofSelectedModel_v;
 struct VprofReader
 {
   virtual ~VprofReader();
-  virtual std::vector<std::string> getReferencetimes(const std::string& modelName);
+  virtual std::set<std::string> getReferencetimes(const std::string& modelName);
   virtual VprofData_p find(const VprofSelectedModel& vsm, const std::string& stationsfilename) = 0;
 };
 

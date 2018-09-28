@@ -131,7 +131,7 @@ void VprofModelDialog::modelfilelistClicked(QListWidgetItem* item)
   diutil::OverrideCursor waitCursor;
 
   reftimeWidget->clear();
-  const vector<std::string> rfv = vprofm->getReferencetimes(item->text().toStdString());
+  const std::set<std::string> rfv = vprofm->getReferencetimes(item->text().toStdString());
 
   if (rfv.empty()) {
     const QString model = currentItem(modelfileList);
@@ -205,9 +205,9 @@ void VprofModelDialog::getModel()
   for (auto& sm : vprofm->getSelectedModels()) {
     std::string reftime = sm.reftime;
     if (reftime.empty()) {
-      const vector<std::string> rfv = vprofm->getReferencetimes(sm.model);
+      const set<std::string> rfv = vprofm->getReferencetimes(sm.model);
       if (!rfv.empty())
-        reftime = rfv.back();
+        reftime = *rfv.rbegin();
     }
     selectedModelsWidget->addItem(QString::fromStdString(sm.model + " " + reftime));
   }

@@ -33,6 +33,7 @@
 
 #include "diLocalSetupParser.h"
 #include "diUtilities.h"
+#include "diFieldUtil.h"
 #include "diVprofBoxFactory.h"
 #include "diVprofBoxLine.h"
 #include "diVprofData.h"
@@ -212,7 +213,7 @@ void VprofManager::applyPlotCommands(const PlotCommand_cpv& vstr)
 
   // old style
   miutil::KeyValue_v vprof_options;
-  VprofPlotCommand_cp cmd_models, cmd_station;
+  VprofPlotCommand_cp cmd_station;
 
   // new style
   VprofPlotCommand_cp cmd_diagram;
@@ -229,10 +230,17 @@ void VprofManager::applyPlotCommands(const PlotCommand_cpv& vstr)
         else
           METLIBS_LOG_WARN("ignoring multiple vprof STATION commands");
       } else if (pc->type() == VprofPlotCommand::MODELS) {
-        if (!cmd_models)
-          cmd_models = pc;
-        else
-          METLIBS_LOG_WARN("ignoring multiple vprof MODEL commands");
+        for (const std::string& m : pc->items()) {
+          METLIBS_LOG_DEBUG(LOGVAL(m));
+          const VprofSelectedModel sm = VprofSelectedModel::fromSpaceText(m);
+          if (sm.model.empty())
+            continue;
+          VprofPlotCommand_p dc = std::make_shared<VprofPlotCommand>(VprofPlotCommand::DATA);
+          dc->add("name", sm.model);
+          if (!sm.reftime.empty())
+            dc->add("reftime", sm.reftime);
+          cmd_data.push_back(dc);
+        }
       } else if (pc->type() == VprofPlotCommand::DIAGRAM) {
         if (!cmd_diagram)
           cmd_diagram = pc;
@@ -302,19 +310,44 @@ void VprofManager::applyPlotCommands(const PlotCommand_cpv& vstr)
     box->addGraph(config);
   }
 
-  if (cmd_models) {
+  if (!cmd_data.empty()) {
     VprofSelectedModel_v models;
-    for (const std::string& m : cmd_models->items()) {
-      METLIBS_LOG_DEBUG(LOGVAL(m));
-      VprofSelectedModel selectedModel = VprofSelectedModel::fromSpaceText(m);
-      if (!selectedModel.model.empty())
-        models.push_back(selectedModel);
+
+    for (VprofPlotCommand_cp dc : cmd_data) {
+      VprofSelectedModel sm;
+      int refhour=-1, refoffset=0;
+      for (const miutil::KeyValue& kv : dc->all()) {
+        const std::string& key = kv.key();
+        if (key == "model" || key == "obs" || key=="name") {
+          sm.model = kv.value();
+        } else if (key == "reftime") {
+          sm.reftime = kv.value();
+        } else if (key == "refhour") {
+          refhour = kv.toInt();
+        } else if (key == "refoffset") {
+          refoffset = kv.toInt();
+        }
+      }
+      METLIBS_LOG_DEBUG(LOGVAL(sm.model) << LOGVAL(sm.reftime) << LOGVAL(refhour) << LOGVAL(refoffset));
+      if (sm.model.empty())
+        continue;
+      if (sm.reftime.empty()) {
+        const std::set<std::string> reftimes = getReferencetimes(sm.model);
+        if (!reftimes.empty()) {
+          if (refhour == -1) {
+            sm.reftime = *reftimes.rbegin();
+          } else {
+            sm.reftime = ::getBestReferenceTime(reftimes, refoffset, refhour);
+          }
+        }
+      }
+      models.push_back(sm);
     }
     setSelectedModels(models);
   }
   if (cmd_station)
     setStations(cmd_station->items());
-  if (cmd_models || cmd_station)
+  if (!cmd_data.empty() || cmd_station)
     setModel();
 }
 
@@ -514,10 +547,10 @@ const std::vector<std::string>& VprofManager::getModelNames()
 
 /***************************************************************************/
 
-std::vector<std::string> VprofManager::getReferencetimes(const string& modelName)
+std::set<std::string> VprofManager::getReferencetimes(const string& modelName)
 {
   METLIBS_LOG_SCOPE(LOGVAL(modelName));
-  std::vector<std::string> rf;
+  std::set<std::string> rf;
   if (VprofReader_p reader = getReader(modelName))
     rf = reader->getReferencetimes(modelName);
   return rf;

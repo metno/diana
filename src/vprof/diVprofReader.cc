@@ -51,7 +51,7 @@ VprofReader::~VprofReader()
 {
 }
 
-std::vector<std::string> VprofReader::getReferencetimes(const std::string&)
+std::set<std::string> VprofReader::getReferencetimes(const std::string&)
 {
-  return std::vector<std::string>();
+  return std::set<std::string>();
 }

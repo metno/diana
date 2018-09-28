@@ -136,7 +136,7 @@ public:
   int getRealizationCount() const { return realizationCount; }
   const std::vector<std::string>& getModelNames();
   const std::vector<std::string>& getModelFiles() { return dialogFileNames; }
-  std::vector<std::string> getReferencetimes(const std::string& model);
+  std::set<std::string> getReferencetimes(const std::string& model);
   void setSelectedModels(const VprofSelectedModel_v& models);
   const std::vector<VprofSelectedModel>& getSelectedModels() const { return selectedModels; }
 

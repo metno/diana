@@ -73,16 +73,15 @@ VprofSimpleData_p copy_vprof_values(Values_cp zvalues, const name2value_t& n2v, 
 
 } // namespace
 
-std::vector<std::string> VprofReaderFimex::getReferencetimes(const std::string& modelName)
+std::set<std::string> VprofReaderFimex::getReferencetimes(const std::string& modelName)
 {
-  std::vector<std::string> rf;
-
+  std::set<std::string> rf;
   vcross::Collector_p collector = std::make_shared<vcross::Collector>(setup);
   if (vcross::Source_p source = collector->getResolver()->getSource(modelName)) {
     source->update();
     const vcross::Time_s reftimes = source->getReferenceTimes();
     for (const vcross::Time& t : reftimes)
-      rf.push_back(vcross::util::to_miTime(t).isoTime("T"));
+      rf.insert(vcross::util::to_miTime(t).isoTime("T"));
   } else {
     METLIBS_LOG_WARN("no source for model '" << modelName << "'");
   }

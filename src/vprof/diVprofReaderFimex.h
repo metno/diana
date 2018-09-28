@@ -54,7 +54,7 @@ private:
 struct VprofReaderFimex : public VprofReader
 {
   vcross::Setup_p setup;
-  std::vector<std::string> getReferencetimes(const std::string& modelName) override;
+  std::set<std::string> getReferencetimes(const std::string& modelName) override;
   VprofData_p find(const VprofSelectedModel& vsm, const std::string& stationsfilename) override;
 
 private:
