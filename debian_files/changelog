@@ -1,3 +1,9 @@
+diana-3.48 (3.48.0~rc1-1) unstable; urgency=low
+
+  * vprof: VPROF_DATA reftime/refhour/refoffset
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Sat, 29 Sep 2018 22:12:24 +0200
+
 diana-3.48 (3.48.0~a3-1) unstable; urgency=low
 
   * bdiana: settime=referencetime/... for vprof, vcross, wavespec
