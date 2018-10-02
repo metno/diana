@@ -3754,7 +3754,7 @@ Type: %3</translation>
     <message>
         <location line="+2"/>
         <source>Wind speed in m/s</source>
-        <translation>Vind hastighet i m/s</translation>
+        <translation>Vindhastighet i m/s</translation>
     </message>
     <message>
         <location line="+2"/>
