@@ -88,6 +88,19 @@ public:
     : GlMatrixPushPop(gl)
     { gl->Translatef(translate.x(), translate.y(), 0); gl->Scalef(scale, scale, 1); }
 };
+
+std::string get_popup_text(const ObsData& dt, const std::string& key)
+{
+  ObsData::stringdata_t::const_iterator its = dt.stringdata.find(key);
+  if (its != dt.stringdata.end() && (int)miutil::to_float(its->second) != undef)
+    return its->second;
+
+  ObsData::fdata_t::const_iterator itf = dt.fdata.find(key);
+  if (itf != dt.fdata.end() && (int)itf->second != undef)
+    return miutil::from_number(itf->second);
+
+  return "X";
+}
 } // namespace /*anonymous*/
 
 void ObsPlotCollider::clear()
@@ -1137,10 +1150,7 @@ bool ObsPlot::getObsPopupText(int xx, int yy, std::string& setuptext)
         if (miutil::contains(token[j], "$")) {
           miutil::trim(token[j]);
           miutil::remove(token[j], '$');
-          if (miutil::to_int(dt.get_string(token[j])) != undef)
-            setuptext += dt.get_string(token[j]);
-          else
-            setuptext += "X";
+          setuptext += get_popup_text(dt, token[j]);
           setuptext += " ";
         } else if (miutil::contains(token[j], ":")) {
           vector<std::string> values = miutil::split(token[j], ":");
@@ -1176,10 +1186,7 @@ bool ObsPlot::getObsPopupText(int xx, int yy, std::string& setuptext)
         setuptext += "</td>";
         setuptext += "<td>";
         setuptext += "  ";
-        if (miutil::to_int(dt.get_string(param.name)) != undef)
-          setuptext += dt.get_string(param.name);
-        else
-          setuptext += "X";
+        setuptext += get_popup_text(dt, param.name);
         setuptext += " ";
         setuptext += "</td>";
         setuptext += "</tr>";
@@ -2333,8 +2340,9 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
   //Wind gust
   QPointF xyid = xytab(lpos + 4);
   if (pFlag.count("fmfm") && (f_p = dta.fdata.find("fmfm")) != fend) {
+    const float ff = unit_ms ? f_p->second : diutil::ms2knots(f_p->second);
     checkColourCriteria(gl, "fmfm", f_p->second);
-    printNumber(gl, f_p->second, xyid + QPointF(2, 2-dndx), "left", true);
+    printNumber(gl, ff, xyid + QPointF(2, 2 - dndx), "fill_2", true);
     //understrekes
     xyid += QPointF(20 + 15, -dndx + 8);
   } else {

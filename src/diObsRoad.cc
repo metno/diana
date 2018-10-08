@@ -64,20 +64,6 @@
 using namespace road;
 using namespace miutil;
 using namespace std;
-/*
-struct ObsDataRequest
-{
-  miutil::miTime obstime;
-  int timeDiff;
-  int level;
-  bool useArchive;
-  ObsDataRequest();
-};
-
-typedef std::shared_ptr<ObsDataRequest> ObsDataRequest_p;
-typedef std::shared_ptr<const ObsDataRequest> ObsDataRequest_cp;
-*/
-
 
 ObsRoad::ObsRoad(const std::string& filename, const std::string& databasefile, const std::string& stationfile, const std::string& headerfile,
                  const miTime& filetime, ObsDataRequest_cp request, bool breadData)
@@ -910,6 +896,11 @@ void ObsRoad::decodeData()
             if (miutil::is_number(pstr[i]))
               // Convert to malual synop dataspace
               obsData.fdata[m_columnName[i]] = convert2hft(miutil::to_float(pstr[i]));
+        } else if (m_columnName[i] == "fmfmk") {
+          if (pstr[i] != undef_string)
+            if (miutil::is_number(pstr[i]))
+              // Backward compatibility
+              obsData.fdata["fmfm"] = miutil::to_float(pstr[i]);
         } else {
           if (pstr[i] != undef_string)
             if (miutil::is_number(pstr[i]))
