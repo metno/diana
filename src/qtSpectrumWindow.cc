@@ -366,9 +366,12 @@ void SpectrumWindow::changeModel()
   Q_EMIT spectrumSetChanged();
   //update combobox lists of stations and time
   updateStationBox();
+  stationClicked(0);
   updateTimeBox();
   //get correct selection in comboboxes
   stationChanged();
+  if (!spectrumm->getTimeList().empty())
+    spectrumm->setTime(*spectrumm->getTimeList().begin());
   timeChanged();
   spectrumqw->update();
 }
