@@ -122,9 +122,9 @@ public:
   void setRealization(int r);
   void setStation(const std::string& station);
   void setTime(const miutil::miTime& time);
-  std::string setStation(int step);
-  miutil::miTime setTime(int step, int dir);
-  miutil::miTime setTime(int step);
+  void setStation(int step);
+  void setTime(int step, int dir);
+  void setTime(int step);
 
   const miutil::miTime& getTime(){return plotTime;}
   const std::string& getStation() { return plotStation; }

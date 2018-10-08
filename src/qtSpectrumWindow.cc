@@ -228,13 +228,13 @@ void SpectrumWindow::stationClicked(int i)
 
   stationBox->setCurrentIndex(index);
   const QString qs = stationBox->currentText();
-  const std::string s = qs.toStdString();
   spectrumm->setStation(qs.toStdString());
 
   Q_EMIT spectrumChanged(qs); //name of current stations (to mainWindow)
 
   spectrumqw->update();
 }
+
 void SpectrumWindow::leftTimeClicked()
 {
   timeClicked(-1);
@@ -285,8 +285,8 @@ void SpectrumWindow::stationChanged()
   raise();
 
   //get current station
-  const QString qs = spectrumm->getStation().c_str();
-  for (int i = 0;i<stationBox->count(); i++) {
+  const QString qs = QString::fromStdString(spectrumm->getStation());
+  for (int i = 0; i < stationBox->count(); i++) {
     if (qs == stationBox->itemText(i)) {
       stationBox->setCurrentIndex(i);
       break;
@@ -429,12 +429,8 @@ void SpectrumWindow::updateStationBox()
   METLIBS_LOG_SCOPE();
 
   stationBox->clear();
-  vector<std::string> stations= spectrumm->getStationList();
-
-  int n =stations.size();
-  for (int i=0; i<n; i++) {
-    stationBox->addItem(QString::fromStdString(stations[i]));
-  }
+  for (const std::string& station : spectrumm->getStationList())
+    stationBox->addItem(QString::fromStdString(station));
 }
 
 
@@ -583,8 +579,8 @@ void SpectrumWindow::readLog(const std::string& logpart, const vector<string>& v
 
       if (tokens.size()==3) {
 
-        int x= atoi(tokens[1].c_str());
-        int y= atoi(tokens[2].c_str());
+        const int x = miutil::to_int(tokens[1]);
+        const int y = miutil::to_int(tokens[2]);
         if (x>20 && y>20 && x<=displayWidth && y<=displayHeight) {
           if (tokens[0]=="SpectrumWindow.size")  this->resize(x,y);
         }

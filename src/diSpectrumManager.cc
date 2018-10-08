@@ -215,12 +215,12 @@ void SpectrumManager::setTime(const miTime& time)
   dataChange= true;
 }
 
-miTime SpectrumManager::setTime(int step, int dir)
+void SpectrumManager::setTime(int step, int dir)
 {
   METLIBS_LOG_DEBUG(LOGVAL(step) << LOGVAL(dir));
 
   if (timeList.empty())
-    return miTime::nowTime();
+    return;
 
   plottimes_t::const_iterator it;
   if (step == 0) {
@@ -234,16 +234,14 @@ miTime SpectrumManager::setTime(int step, int dir)
   plotTime = *it;
 
   dataChange= true;
-
-  return plotTime;
 }
 
-std::string SpectrumManager::setStation(int step)
+void SpectrumManager::setStation(int step)
 {
   METLIBS_LOG_SCOPE(step);
 
-  if (nameList.size()==0)
-    return "";
+  if (nameList.empty())
+    return;
 
   int i= 0;
   int n= nameList.size();
@@ -260,14 +258,12 @@ std::string SpectrumManager::setStation(int step)
 
   dataChange= true;
   plotStation= nameList[i];
-  return plotStation;
 }
 
-
-miTime SpectrumManager::setTime(int step)
+void SpectrumManager::setTime(int step)
 {
   METLIBS_LOG_SCOPE(step);
-  return setTime(0, step);
+  setTime(0, step);
 }
 
 bool SpectrumManager::plot(DiGLPainter* gl)
