@@ -879,7 +879,7 @@ void Bdiana::setTimeChoice(BdianaSource::TimeChoice tc)
 
 void Bdiana::set_ptime(BdianaSource& src)
 {
-  if (fixedtime.undef()) {
+  if (ptime.undef()) {
     fixedtime = src.getTime();
     if (verbose)
       METLIBS_LOG_INFO("using default time:" << format_time(fixedtime));
