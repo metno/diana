@@ -53,7 +53,7 @@ miutil::miTime BdianaSource::getTime()
   if (getTimeChoice() == USE_REFERENCETIME)
     return getReferenceTime();
 
-  const plottimes_t& times = getTimes();
+  const plottimes_t times = getTimes();
   if (times.empty())
     return miutil::miTime::nowTime();
 
