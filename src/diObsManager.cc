@@ -70,7 +70,7 @@ std::vector<ObsReader_p> ObsManager::readers(ObsPlot* oplot)
   return readers;
 }
 
-bool ObsManager::setPlotDefaults(ObsPlot* oplot)
+void ObsManager::setPlotDefaults(ObsPlot* oplot)
 {
   // Default for flags in misc is false
   for (const auto& spt : setupPlotTypes_) {

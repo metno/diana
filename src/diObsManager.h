@@ -102,7 +102,7 @@ public:
   ObsDialogInfo initDialog();
   void updateDialog(ObsDialogInfo::PlotType& pt, const std::string& readername);
 
-  bool setPlotDefaults(ObsPlot* oplot);
+  void setPlotDefaults(ObsPlot* oplot);
 
   //! read data into an obsplot
   bool prepare(ObsPlot*, const miutil::miTime&);
