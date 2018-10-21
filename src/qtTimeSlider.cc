@@ -197,7 +197,7 @@ bool TimeSlider::useDataType(const std::string& dt, bool ifUsed)
   if (it == tlist.end())
     return false;
   if (ifUsed) {
-    usetlist_t::const_iterator ut = usetlist.find(dataType);
+    usetlist_t::const_iterator ut = usetlist.find(dt);
     if (ut == usetlist.end() || !ut->second)
       return false;
   }
