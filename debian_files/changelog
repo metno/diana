@@ -1,3 +1,11 @@
+diana-3.48 (3.48.0-1) unstable; urgency=low
+
+  * TimeSlider - bugfix priority
+  * bdiana - bugfix:  time choice
+  * Spectrum - bugfix Update stationBox when selecting station on map
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Sun, 21 Oct 2018 22:02:02 +0200
+
 diana-3.48 (3.48.0~rc1-1) unstable; urgency=low
 
   * vprof: VPROF_DATA reftime/refhour/refoffset
