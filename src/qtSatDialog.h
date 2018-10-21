@@ -90,8 +90,6 @@ class SatDialog : public DataDialog
 
   ///return short name of current commonad
   std::string getShortname();
-  /// refresh list of files in timefilelist
-  void RefreshList();
   /// set mode to read files from archive
   void archiveMode(){emitSatTimes(true); updateTimefileList();}
 

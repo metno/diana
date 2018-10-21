@@ -636,44 +636,6 @@ bool Controller::isMosaic(const std::string & satellite, const std::string & fil
   return satm->isMosaic(satellite,file);
 }
 
-void Controller::SatRefresh(const std::string& satellite, const std::string& file){
-  // HK set flag to refresh all files
-  satm->updateFiles();
-  satm->getFiles(satellite,file,true);
-}
-
-
-
-
-bool Controller::satFileListChanged()
-{
-  // returns information about whether list of satellite files have changed
-  //hence dialog and timeSlider times should change as well
-  return satm->isFileListChanged();
-}
-
-void Controller::satFileListUpdated()
-{
-  //called when the dialog and timeSlider updated with info from satellite
-  //file list
-  satm->setFileListChanged(false);
-}
-
-bool Controller::obsTimeListChanged()
-{
-  // returns information about whether list of observation files have changed
-  //hence dialog and timeSlider times should change as well
-  return false; // FIXME obsm->timeListChanged;
-}
-
-void Controller::obsTimeListUpdated()
-{
-  //called when the dialog and timeSlider updated with info from observation
-  //file list
-  // FIXME obsm->timeListChanged = false;
-}
-
-
 void Controller::setSatAuto(bool autoFile,const std::string& satellite,
     const std::string& file)
 {

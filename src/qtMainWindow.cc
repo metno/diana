@@ -207,6 +207,9 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
   addStandardDialog(sm = new SatDialog(this, contr));
   addStandardDialog(stm = new StationDialog(this, contr));
   addStandardDialog(objm = new ObjectDialog(this, contr));
+  connect(timeNavigator, &TimeNavigator::lastStep, om, &ObsDialog::updateTimes);
+  connect(timeNavigator, &TimeNavigator::lastStep, sm, &SatDialog::updateTimes);
+  connect(timeNavigator, &TimeNavigator::lastStep, objm, &ObjectDialog::updateTimes);
 
   //-------- The Actions ---------------------------------
 
@@ -1919,41 +1922,8 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
   // show the latest timestep
   else if (command == qmstrings::directory_changed) {
     if (doAutoUpdate) {
-      // running animation
-      if (timeNavigator->isTimerOn() != 0) {
-        om->getTimes(true);
-        sm->RefreshList();
-        if (contr->satFileListChanged() || contr->obsTimeListChanged()) {
-          //METLIBS_LOG_DEBUG("new satfile or satfile deleted!");
-          //METLIBS_LOG_DEBUG("setPlotTime");
-          //	  METLIBS_LOG_DEBUG("doAutoUpdate  timer on");
-          contr->satFileListUpdated();
-          contr->obsTimeListUpdated();
-        }
-      }
-      else {
-        // Avoid not needed updates
-        diutil::OverrideCursor waitCursor;
-        // what to do with om->getTimes() ?
-        om->getTimes(false);
-        sm->RefreshList();
-        miutil::miTime tp = timeNavigator->selectedTime();
-        timeNavigator->setLastTimeStep();
-        miutil::miTime t= timeNavigator->selectedTime();
-        // Check if slider was not on latest timestep
-        // or new image file arrived.
-        // If t > tp force repaint...
-        if (contr->satFileListChanged() || contr->obsTimeListChanged() || (t > tp))
-        {
-          //METLIBS_LOG_DEBUG("new satfile or satfile deleted!");
-          //METLIBS_LOG_DEBUG("setPlotTime");
-          setPlotTime(t);
-          contr->satFileListUpdated();
-          contr->obsTimeListUpdated();
-        }
-        //METLIBS_LOG_DEBUG("stepforward");
-        timeNavigator->stepTimeForward();
-      }
+      om->updateTimes();
+      sm->updateTimes();
     }
   }
 
@@ -2086,7 +2056,6 @@ void DianaMainWindow::setPlotTime(const miutil::miTime& t)
 
   //to be done whenever time changes (step back/forward, MenuOK etc.)
   objm->commentUpdate();
-  satFileListUpdate();
   if (vpWindow) vpWindow->mainWindowTimeChanged(t);
   if (spWindow) spWindow->mainWindowTimeChanged(t);
   if (vcInterface.get()) vcInterface->mainWindowTimeChanged(t);
@@ -2881,18 +2850,6 @@ void DianaMainWindow::checkNews()
     }
 
     showNews();
-  }
-}
-
-
-void DianaMainWindow::satFileListUpdate()
-{
-  //refresh list of files in satDialog and timeslider
-  //called when a request for a satellite file from satManager
-  //discovers new or missing files
-  if (contr->satFileListChanged()){
-    sm->RefreshList();
-    contr->satFileListUpdated();
   }
 }
 

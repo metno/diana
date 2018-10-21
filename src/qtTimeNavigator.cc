@@ -125,6 +125,7 @@ void TimeNavigator::createUi(QWidget* parent)
   connect(tslider, &TimeSlider::valueChanged, this, &TimeNavigator::updateTimeLabelFromSlider);
   connect(tslider, &TimeSlider::sliderReleased, this, &TimeNavigator::timeSliderReleased);
   connect(tslider, &TimeSlider::sliderSet, this, &TimeNavigator::updateTimeLabelFromSlider);
+  connect(tslider, &TimeSlider::lastStep, this, &TimeNavigator::lastStep);
 
   timestep= new TimeStepSpinbox(parent);
   connect(tslider,SIGNAL(minInterval(int)),
@@ -191,11 +192,6 @@ void TimeNavigator::removeTimes(int id)
 void TimeNavigator::useData(const std::string& type, int id)
 {
   timecontrol->useData(type, id);
-}
-
-void TimeNavigator::setLastTimeStep()
-{
-  tslider->setLastTimeStep();
 }
 
 std::vector<miutil::miTime> TimeNavigator::animationTimes() const

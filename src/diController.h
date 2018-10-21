@@ -261,16 +261,6 @@ public:
       int index=-1);
   /// returns true if satellite picture is a mosaic
   bool isMosaic(const std::string &, const std::string &);
-  /// refresh list of satellite files
-  void SatRefresh(const std::string &, const std::string &);
-  /// returns information about whether list of satellite files have changed
-  void satFileListUpdated();
-  /// called when the dialog and timeSlider updated with info from satellite
-  bool satFileListChanged();
-  /// returns information about whether list of observation files have changed
-  void obsTimeListUpdated();
-  /// called when the dialog and timeSlider updated with info from obs
-  bool obsTimeListChanged();
   /// satellite follows main plot time
   void setSatAuto(bool,const std::string &, const std::string &);
   /// return button names for SatDialog

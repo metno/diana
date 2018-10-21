@@ -583,9 +583,12 @@ void SatDialog::picturesSlot(QListWidgetItem*)
 }
 
 /*********************************************/
-void SatDialog::RefreshList()
+
+void SatDialog::updateTimes()
 {
   METLIBS_LOG_SCOPE();
+  diutil::OverrideCursor waitCursor;
+
   // update the dialog and timeslider
   int old_picturesIndex = pictures->currentRow();
   updateTimefileList();
@@ -618,23 +621,6 @@ void SatDialog::RefreshList()
   }
 
   emitSatTimes();
-}
-
-/*********************************************/
-
-void SatDialog::updateTimes()
-{
-  METLIBS_LOG_SCOPE();
-  diutil::OverrideCursor waitCursor;
-
-  for (unsigned int i = 0; i < m_state.size(); i++) {
-    //    if(m_state[i].filename.empty()){
-    //auto option for this state
-    m_ctrl->SatRefresh(m_state[i].name, m_state[i].area);
-    //    }
-  }
-
-  RefreshList();
 }
 
 /*********************************************/

@@ -60,12 +60,8 @@ using namespace miutil;
 static const std::vector<SatFileInfo> emptyfile;
 
 SatManager::SatManager()
+    : useArchive(false)
 {
-  //new satellite files read
-  fileListChanged = false;
-  //zero time = 00:00:00 UTC Jan 1 1970
-  ztime = miTime(1970, 1, 1, 0, 0, 0);
-  useArchive=false;
 }
 
 void SatManager::prepareSat(const PlotCommand_cpv& inp)
@@ -721,16 +717,6 @@ int SatManager::getFileName(Sat* satdata, const miTime &time)
 
   subProdInfo &subp =Prod[satdata->satellite][satdata->filetype];
 
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG(LOGVAL(satdata->satellite) << LOGVAL(satdata->filetype));
-#endif
-
-  if (subp.file.empty() || !subp.updated || !subp.archiveFiles) {
-    listFiles(subp);
-    subp.updated = true;
-  } else
-    fileListChanged = false;
-
   const std::vector<SatFileInfo> &ft=subp.file;
   int fileno=-1;
   for (size_t i=0; i<ft.size(); i++) {
@@ -740,10 +726,6 @@ int SatManager::getFileName(Sat* satdata, const miTime &time)
       fileno=i;
     }
   }
-
-#ifdef DEBUGPRINT
-      METLIBS_LOG_DEBUG(LOGVAL(fileno) /* << LOGVAL(fileListChanged)*/);
-#endif
 
   if (fileno < 0 ) {
     METLIBS_LOG_WARN("Could not find data from "<<time.isoTime("T")<<" in inventory");
@@ -965,30 +947,24 @@ const std::vector<std::string>& SatManager::getChannels(const std::string &satel
 void SatManager::listFiles(subProdInfo &subp)
 {
   METLIBS_LOG_SCOPE();
-  if (subp.pattern.size()) {
-    METLIBS_LOG_DEBUG(LOGVAL(subp.pattern[0]));
-  }
 
-  miTime now = miTime::nowTime();
-  fileListChanged = false;
+  if (subp.archive && !useArchive)
+    return;
 
-  //if not in archiveMode and archive files are included, clear list
-  if (!useArchive && subp.archiveFiles)
-    subp.file.clear();
+  if (subp.archive && !subp.file.empty())
+    return;
+
+  METLIBS_LOG_DEBUG("updating file lists");
+
+  subp.file.clear();
 
   for (unsigned int j=0; j<subp.pattern.size() ;j++) {
-    //skip archive files if not in archive mode
-    if (subp.archive[j] && !useArchive)
-      continue;
 
     const diutil::string_v matches = diutil::glob(subp.pattern[j]);
     if (matches.empty()) {
-      METLIBS_LOG_ERROR("No files found! " << subp.pattern[j]);
+      METLIBS_LOG_WARN("No files found! " << subp.pattern[j]);
     }
     for (diutil::string_v::const_reverse_iterator it = matches.rbegin(); it != matches.rend(); ++it) {
-      //remember that archive files are read
-      if (subp.archive[j])
-        subp.archiveFiles=true;
       SatFileInfo ft;
       ft.name = *it;
       ft.formattype= subp.formattype;
@@ -997,79 +973,25 @@ void SatManager::listFiles(subProdInfo &subp)
       ft.channelinfo = subp.channelinfo;
       ft.paletteinfo = subp.paletteinfo;
       ft.hdf5type = subp.hdf5type;
+      METLIBS_LOG_DEBUG(LOGVAL(ft.name));
 
-      bool newfile = true;
-
-      //HK ??? forandret kode for at oppdatering skal virke
-      std::vector<SatFileInfo>::iterator p = subp.file.begin();
-      for (; p!=subp.file.end(); p++) {
-        if (ft.name == p->name) {
-          newfile=false;
-          //find out when this file was last updated
-          unsigned long modtime = _modtime(ft.name);
-          if (modtime >= subp.updateTime) {
-            //special case - file has been changed since last updated
-            //but read header
-            //	     METLIBS_LOG_DEBUG("SPECIAL CASE"<<ft.name);
-            ft.formattype= subp.formattype;
-            ft.metadata = subp.metadata;
-            ft.proj4string = subp.proj4string;
-            ft.channelinfo = subp.channelinfo;
-            ft.paletteinfo = subp.paletteinfo;
-            ft.hdf5type = subp.hdf5type;
-            readHeader(ft, subp.channel);
-            ft.opened = true;
-            //has time changed in header since last update ?
-            if (ft.time != p->time) {
-              //erase file, then put back in list
-              subp.file.erase(p);
-              newfile=true;
-            }
-          }
-          break;
-        }
+      if (subp.filter[j].getTime(ft.name, ft.time)) {
+        METLIBS_LOG_DEBUG("Time from filename:" << LOGVAL(ft.name) << LOGVAL(ft.time));
+        ft.opened = false;
+      } else {
+        // Open file if time not found from filename
+        readHeader(ft, subp.channel);
+        ft.opened = true;
+        METLIBS_LOG_DEBUG("Time from File:" LOGVAL(ft.time));
       }
 
-      if (newfile) {
-        fileListChanged = true;
-
-        //try to find time from filename
-        METLIBS_LOG_DEBUG(ft.name << " " << ft.time);
-        if (subp.filter[j].getTime(ft.name, ft.time) || true) {
-          METLIBS_LOG_DEBUG(ft.name << " Failed");
-
-          ft.opened = false;
-        } else {
-          //Open file if time not found from filename
-          ft.formattype= subp.formattype;
-          ft.metadata = subp.metadata;
-          ft.proj4string = subp.proj4string;
-          ft.channelinfo = subp.channelinfo;
-          ft.paletteinfo = subp.paletteinfo;
-          ft.hdf5type = subp.hdf5type;
-          readHeader(ft, subp.channel);
-          ft.opened=true;
-        }
-        METLIBS_LOG_DEBUG(ft.time << " time");
-
-        //put it in the sorted list
-        //Check if filelist is empty
-        if (subp.file.empty())
-          subp.file.push_back(ft);
-        else {
-          std::vector<SatFileInfo>::iterator p = subp.file.begin();
-          while (p!=subp.file.end() && p->time>ft.time)
-            p++;
-          //skip archive files which are already in list
-          if (!subp.archive[j] || p->time != ft.time)
-            subp.file.insert(p, ft);
-        }
-      }
+      // put it in the sorted list
+      std::vector<SatFileInfo>::iterator p =
+          std::lower_bound(subp.file.begin(), subp.file.end(), ft.time, [](const SatFileInfo& i, const miutil::miTime& t) { return t < i.time; });
+      subp.file.insert(p, ft);
     }
   }
 
-  //save time of last update
-  subp.updateTime = miTime::secDiff(now, ztime);
 
   if (subp.formattype == "mitiff") {
     //update Prod[satellite][file].colours
@@ -1077,8 +999,7 @@ void SatManager::listFiles(subProdInfo &subp)
     int n=subp.file.size();
     //check max 3 files,
     int i=0;
-    while (i<n && i<3 && !MItiff::readMItiffPalette(subp.file[i].name.c_str(),
-        subp.colours))
+    while (i < n && i < 3 && !MItiff::readMItiffPalette(subp.file[i].name, subp.colours))
       i++;
   }
 #ifdef HDF5FILE
@@ -1098,7 +1019,6 @@ void SatManager::listFiles(subProdInfo &subp)
     }
   }
 #endif
-  //METLIBS_LOG_DEBUG(fileListChanged);
 }
 
 const std::vector<SatFileInfo> &SatManager::getFiles(const std::string &satellite,
@@ -1106,32 +1026,22 @@ const std::vector<SatFileInfo> &SatManager::getFiles(const std::string &satellit
 {
   METLIBS_LOG_SCOPE();
   //check if satellite exists, (name occurs in prod)
-  if (Prod.find(satellite)==Prod.end()) {
-    METLIBS_LOG_ERROR("Product doesn't exist:"<<satellite);
+  const Prod_t::iterator itp = Prod.find(satellite);
+  if (itp == Prod.end()) {
+    METLIBS_LOG_WARN("Product doesn't exist:" << satellite);
     return emptyfile;
   }
   //check if filetype exist...
-  if (Prod[satellite].find(file)==Prod[satellite].end()) {
-    METLIBS_LOG_ERROR("Subproduct doesn't exist:"<<file);
+  const SubProd_t::iterator its = itp->second.find(file);
+  if (its == itp->second.end()) {
+    METLIBS_LOG_WARN("Subproduct doesn't exist:" << file);
     return emptyfile;
   }
 
-  //define new struct SubprodInfo
-  subProdInfo &subp = Prod[satellite][file];
-  // reset flag only if update
-  if (update) fileListChanged = false;
-  if (update) {
-    if (subp.file.size()==0 || subp.updated ==false || !useArchive) {
-      //update filelist
-      listFiles(subp);
-      subp.updated = true;
+  if (update)
+    listFiles(its->second);
 
-    }
-  }
-
-  // METLIBS_LOG_DEBUG("SatManager----> getFiles:  " << fileListChanged);
-  return Prod[satellite][file].file;
-
+  return its->second.file;
 }
 
 const std::vector<Colour> & SatManager::getColours(const std::string &satellite,
@@ -1186,7 +1096,7 @@ void SatManager::setSatAuto(bool autoFile, const std::string& satellite,
     vsp[j]->setSatAuto(autoFile, satellite, file);
 }
 
-plottimes_t SatManager::getSatTimes(bool updateFileList, bool openFiles)
+plottimes_t SatManager::getSatTimes()
 {
   //  * PURPOSE:   return times for list of PlotInfo's
   METLIBS_LOG_SCOPE();
@@ -1197,35 +1107,20 @@ plottimes_t SatManager::getSatTimes(bool updateFileList, bool openFiles)
     if (pinfo.size() < 2)
       continue;
 
-    const std::string& satellite= pinfo[0].key(); // FIXME is it 0 or 1?
-    const std::string& file = pinfo[1].key(); // FIXME
+    const std::string& satellite = pinfo[0].key();
+    const std::string& file = pinfo[1].key();
 
     if (Prod.find(satellite)==Prod.end()) {
-      METLIBS_LOG_ERROR("Product doesn't exist:"<<satellite);
+      METLIBS_LOG_WARN("Product doesn't exist:" << satellite);
       continue;
     }
 
     if (Prod[satellite].find(file)==Prod[satellite].end()) {
-      METLIBS_LOG_ERROR("Subproduct doesn't exist:"<<file);
+      METLIBS_LOG_WARN("Subproduct doesn't exist:" << file);
       continue;
     }
-
     subProdInfo &subp = Prod[satellite][file];
-    if (updateFileList || subp.file.size()==0) {
-      listFiles(subp);
-      subp.updated = true;
-    } else {
-      fileListChanged = false;
-    }
-
-    if (openFiles) {
-      int n=subp.file.size();
-      for (int i=0; i<n; i++)
-        if (!subp.file[i].opened) {
-          readHeader(subp.file[i], subp.channel);
-          subp.file[i].opened=true;
-        }
-    }
+    listFiles(subp);
 
     int nf= subp.file.size();
     for (int j=0; j<nf; j++) {
@@ -1266,29 +1161,6 @@ void SatManager::getCapabilitiesTime(plottimes_t& normalTimes, int& timediff, co
     for (int k=0; k<nfinfo; k++) {
       normalTimes.insert(finfo[k].time);
     }
-  }
-}
-
-
-/**
- * Sets flag to update filelists for all satellites
- */
-void SatManager::updateFiles()
-{
-  //  * PURPOSE: sets flag to update filelists for all satellites
-  METLIBS_LOG_SCOPE();
-
-  //loop over all satellites and filetypes
-
-  std::map<std::string, std::map<std::string, subProdInfo> >::iterator p = Prod.begin();
-  while (p !=Prod.end()) {
-    std::map<std::string,subProdInfo>::iterator q;
-    q= p->second.begin();
-    while (q !=p->second.end()) {
-      Prod[p->first][q->first].updated=false;
-      q++;
-    }
-    p++;
   }
 }
 
@@ -1443,23 +1315,20 @@ bool SatManager::parseSetup()
         SetupParser::errorMsg(sat_name, i, errmsg);
         return false;
       }
+      subProdInfo& sp = Prod[prod][subprod];
       // init time filter and replace yyyy etc. with *
       const miutil::TimeFilter tf(value); // modifies value!
-      Prod[prod][subprod].filter.push_back(tf);
-      Prod[prod][subprod].pattern.push_back(value);
-      Prod[prod][subprod].archive.push_back(key == "archivefile");
-      Prod[prod][subprod].channel = channels;
-      Prod[prod][subprod].mosaic = mosaic;
-      Prod[prod][subprod].updated = false;
-      Prod[prod][subprod].archiveFiles = false;
-      Prod[prod][subprod].updateTime = 0;
-      Prod[prod][subprod].formattype = formattype;
-      Prod[prod][subprod].metadata = metadata;
-      Prod[prod][subprod].proj4string = proj4string;
-      Prod[prod][subprod].channelinfo = channelinfo;
-      Prod[prod][subprod].paletteinfo = paletteinfo;
-
-      Prod[prod][subprod].hdf5type = hdf5type;
+      sp.filter.push_back(tf);
+      sp.pattern.push_back(value);
+      sp.channel = channels;
+      sp.mosaic = mosaic;
+      sp.archive = (key == "archivefile");
+      sp.formattype = formattype;
+      sp.metadata = metadata;
+      sp.proj4string = proj4string;
+      sp.channelinfo = channelinfo;
+      sp.paletteinfo = paletteinfo;
+      sp.hdf5type = hdf5type;
       hdf5type = 0; //> reset type
       metadata = ""; //> reset metadata
       proj4string = ""; //> reset proj4string

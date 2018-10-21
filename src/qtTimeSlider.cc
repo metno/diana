@@ -31,6 +31,8 @@
 
 #include "qtTimeSlider.h"
 #include <climits>
+#define MILOGGER_CATEGORY "diana.TimeSlider"
+#include <miLogger/miLogging.h>
 
 using namespace std;
 
@@ -79,13 +81,6 @@ bool TimeSlider::hasTime(const miutil::miTime& time) const
   return (std::find(times.begin(), times.end(), time) != times.end());
 }
 
-void TimeSlider::setLastTimeStep()
-{
-  if (setSliderValue(times.size()-1)) {
-    Q_EMIT sliderSet();
-  }
-}
-
 void TimeSlider::setInterval(int in)
 {
   interval= in;
@@ -130,6 +125,9 @@ bool TimeSlider::nextTime(const int dir, miutil::miTime& time)
 
   // start-stop indices
   int i1= 0, i2= n-1;
+
+  if (v == i2)
+    Q_EMIT lastStep();
 
   if (!loop && !startani) {
     if (dir>0 && v==i2)

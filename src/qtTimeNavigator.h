@@ -56,7 +56,6 @@ public:
   miutil::miTime selectedTime();
   void removeTimes(int id);
   void useData(const std::string& type, int id=-1);
-  void setLastTimeStep();
   bool isTimerOn() const
     { return animationDirection_ != 0; }
   std::vector<miutil::miTime> animationTimes() const;
@@ -69,6 +68,7 @@ protected:
 
 Q_SIGNALS:
   void timeSelected(const miutil::miTime& time);
+  void lastStep();
 
 public Q_SLOTS:
   ///add new times for datatype

@@ -52,7 +52,6 @@ public:
   
   TimeSlider(Qt::Orientation, QWidget*);
 
-  void setLastTimeStep();
   ///Current time
   miutil::miTime Value();
   //! return true iff given time is in time list
@@ -90,6 +89,7 @@ Q_SIGNALS:
   /// enable/disable spinbox
   void enableSpin(bool);
   void sliderSet();
+  void lastStep();
   /// emits times
   void newTimes(const plottimes_t&);
 

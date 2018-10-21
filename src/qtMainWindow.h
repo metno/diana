@@ -410,7 +410,6 @@ private:
   void readLog(const std::vector<std::string>& vstr,
       const std::string& thisVersion, std::string& logVersion);
   void getDisplaySize();
-  void satFileListUpdate();
   void vprofStartup();
   void spectrumStartup();
   void getPlotStrings(PlotCommand_cpv &pstr, std::vector<std::string> &shortnames);

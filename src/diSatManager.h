@@ -58,7 +58,6 @@ class SatManager {
 public:
   struct subProdInfo {
     std::vector<std::string> pattern;
-    std::vector<bool> archive;
     std::vector<miutil::TimeFilter> filter;
     std::string formattype; //holds mitiff or hdf5
     std::string metadata;
@@ -69,14 +68,8 @@ public:
     std::vector<SatFileInfo> file;
     std::vector<std::string> channel;
     std::vector<Colour> colours;
-    // HK variable to tell whether this list has been updated since
-    //last time we clicked "refresh"
-    bool updated;
-    //time of last update in seconds since Jan 1, 1970. 00:00:00
-    unsigned long updateTime;
-    //archive files read, files must be removed if useArchive=false
-    bool archiveFiles;
     bool mosaic; //ok to make mosaic
+    bool archive;
   };
 
   typedef std::map<std::string, subProdInfo> SubProd_t;
@@ -92,8 +85,6 @@ private:
   bool useArchive; //read archive files too.
 
 /************************************************************************/
-
-  miutil::miTime ztime;     //zero time = 00:00:00 UTC Jan 1 1970
 
   void getMosaicfiles(Sat* satdata, const miutil::miTime& t);
   void addMosaicfiles(Sat* satdata);
@@ -121,8 +112,6 @@ private:
   typedef std::vector<SatPlot*> SatPlot_xv;
   SatPlot_xv vsp;   // vector of satellite plots
 
-  bool fileListChanged;
-
   bool setData(SatPlot *satp);
   int getFileName(Sat* satdata, std::string &);
   int getFileName(Sat* satdata, const miutil::miTime&);
@@ -144,12 +133,7 @@ public:
   bool setData();
   bool getSatArea(Area& a) const;
 
-  bool isFileListChanged() const
-    { return fileListChanged; }
-  void setFileListChanged(bool flc)
-    { fileListChanged = flc; }
-
-  plottimes_t getSatTimes(bool updateFileList = false, bool openFiles = false);
+  plottimes_t getSatTimes();
 
   /// get name++ of current channels (with calibration)
   std::vector<std::string> getCalibChannels();
@@ -178,11 +162,7 @@ public:
     { return Dialog; }
   bool parseSetup();
 
-  //  Sat * findSatdata(const std::string & filename);//search vsatdata
-  void updateFiles();
-
-  void archiveMode(bool on)
-    { useArchive = on; updateFiles(); }
+  void archiveMode(bool on) { useArchive = on; }
 
   const Prod_t& getProductsInfo() const;
 
