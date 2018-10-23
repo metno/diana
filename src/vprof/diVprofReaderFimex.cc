@@ -259,15 +259,19 @@ VprofValues_cpv VprofDataFimex::getValues(const VprofValuesRequest& req)
   if (cachedRequest.time.undef() || cachedRequest != req) {
     cache.clear();
     cachedRequest = req;
+    VprofValuesRequest req_(req);
+    VprofSimpleValues::addCalculationInputVariables(req_.variables);
+    int i_begin, i_end;
     if (req.realization < 0) {
-      VprofValuesRequest req_r(req);
-      for (int i = 0; i < numRealizations; ++i) {
-        req_r.realization = i;
-        if (VprofValues_cp vv = readValues(req_r))
-          cache.push_back(vv);
-      }
+      i_begin = 0;
+      i_end = numRealizations;
     } else {
-      if (VprofValues_cp vv = readValues(req))
+      i_begin = req.realization;
+      i_end = i_begin + 1;
+    }
+    for (int i = i_begin; i < i_end; ++i) {
+      req_.realization = i;
+      if (VprofValues_cp vv = readValues(req_))
         cache.push_back(vv);
     }
   }
