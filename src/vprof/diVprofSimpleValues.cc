@@ -118,3 +118,23 @@ void VprofSimpleValues::calculate()
   text.kindexValue = vprof::kindex(tt, td);
   text.kindexFound = !vprof::is_invalid(text.kindexValue);
 }
+
+// static
+void VprofSimpleValues::addCalculationInputVariables(std::set<std::string>& variables)
+{
+  if (variables.count(vprof::VP_RELATIVE_HUMIDITY) || variables.count(vprof::VP_DUCTING_INDEX) || variables.count(vprof::VP_CLOUDBASE)) {
+    variables.insert(vprof::VP_AIR_TEMPERATURE);
+    variables.insert(vprof::VP_DEW_POINT_TEMPERATURE);
+  }
+  if (variables.count(vprof::VP_WIND_SIG)) {
+    variables.insert(vprof::VP_WIND_FF);
+  }
+  if (variables.count(vprof::VP_WIND_DD) || variables.count(vprof::VP_WIND_FF)) {
+    variables.insert(vprof::VP_WIND_X);
+    variables.insert(vprof::VP_WIND_Y);
+  }
+  if (variables.count(vprof::VP_WIND_X) || variables.count(vprof::VP_WIND_Y)) {
+    variables.insert(vprof::VP_WIND_DD);
+    variables.insert(vprof::VP_WIND_FF);
+  }
+}

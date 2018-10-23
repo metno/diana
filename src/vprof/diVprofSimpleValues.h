@@ -42,6 +42,7 @@ public:
 
   void add(VprofGraphData_cp s);
   void calculate();
+  static void addCalculationInputVariables(std::set<std::string>& variables);
 
   difield::ValuesDefined isDefined() const override { return defined_; }
   VprofGraphData_cp series(const std::string& id) const override;
