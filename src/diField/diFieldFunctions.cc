@@ -307,6 +307,7 @@ bool FieldFunctions::registerFunctions(functions_t& f)
   ok &= registerFunction(f, f_temp_c2k_possibly, "temp_c2k_possibly(tc)");
   ok &= registerFunction(f, f_tdk_tk_rh, "tdk.tk_rh(tk,rh)");
   ok &= registerFunction(f, f_tdc_tk_rh, "tdc.tk_rh(tk,rh)");
+  ok &= registerFunction(f, f_abshum_tk_rh, "abshum.tk_rh(tk,rh)");
   ok &= registerFunction(f, f_tdc_tc_rh, "tdc.tc_rh(tc,rh)");
   ok &= registerFunction(f, f_rh_tk_td, "rh.tk_tdk(tk,tdk)");
   ok &= registerFunction(f, f_rh_tc_td, "rh.tc_tdc(tc,tdc)");
@@ -1179,6 +1180,12 @@ bool FieldFunctions::fieldComputer(Function function,
     if (ninp != 2 || nout != 1)
       break;
     res = cvhum(compute, nx, ny, finp[0], finp[1], fout[0], fDefined, undef, unit);
+    break;
+
+  case f_abshum_tk_rh:
+    if (ninp != 2 || nout != 1)
+      break;
+    res = abshum(nx, ny, finp[0], finp[1], fout[0], fDefined, undef);
     break;
 
   case f_vector_abs:

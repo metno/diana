@@ -46,6 +46,20 @@ struct levelhum_params_t {
 };
 } // namespace
 
+TEST(FieldFunctionsTest, absHum)
+{
+  float out = 2 * UNDEF;
+  float t = 293.16;
+  float rh = 0.8;
+  float exp = 13.82;
+
+  difield::ValuesDefined fDefined = difield::ALL_DEFINED;
+
+  EXPECT_TRUE(FieldCalculations::abshum(1, 1, &t, &rh, &out, fDefined, UNDEF));
+  EXPECT_NEAR(exp, out, 0.1) << " t=" << t << " rh=" << rh << " abshum=" << out;
+  EXPECT_EQ(difield::ALL_DEFINED, fDefined);
+}
+
 TEST(FieldFunctionsTest, XLevelHum)
 {
   const levelhum_params_t levelhum_params[] = {

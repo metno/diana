@@ -258,15 +258,16 @@ public:
     f_sea_soundspeed_ozlevel_tk_salt, //!< f_sea_soundspeed_ozlevel_tk_salt
 
     // level independent functions
-    f_temp_k2c,                   //!< f_temp_k2c
-    f_temp_c2k,                   //!< f_temp_c2k
-    f_temp_k2c_possibly,          //!< f_temp_k2c_possibly
-    f_temp_c2k_possibly,          //!< f_temp_c2k_possibly
-    f_tdk_tk_rh,                  //!< f_tdk_tk_rh
-    f_tdc_tk_rh,                  //!< f_tdc_tk_rh
-    f_tdc_tc_rh,                  //!< f_tdc_tc_rh
-    f_rh_tk_td,                   //!< f_rh_tk_td
-    f_rh_tc_td,                   //!< f_rh_tc_td
+    f_temp_k2c,          //!< f_temp_k2c
+    f_temp_c2k,          //!< f_temp_c2k
+    f_temp_k2c_possibly, //!< f_temp_k2c_possibly
+    f_temp_c2k_possibly, //!< f_temp_c2k_possibly
+    f_tdk_tk_rh,         //!< f_tdk_tk_rh
+    f_tdc_tk_rh,         //!< f_tdc_tk_rh
+    f_tdc_tc_rh,         //!< f_tdc_tc_rh
+    f_rh_tk_td,          //!< f_rh_tk_td
+    f_rh_tc_td,          //!< f_rh_tc_td
+    f_abshum_tk_rh,
     f_vector_abs,                 //!< f_vector_abs
     f_rel_vorticity,              //!< f_rel_vorticity; geographic
     f_abs_vorticity,              //!< f_abs_vorticity; geographic
