@@ -220,6 +220,8 @@ bool cvtemp(int compute, int nx, int ny, const float *tinp, float *tout,
 bool cvhum(int compute, int nx, int ny, const float *t, const float *huminp,
     float *humout, difield::ValuesDefined& fDefined, float undef, const std::string& unit);
 
+bool abshum(int nx, int ny, const float* t, const float* rhum, float* abshumout, difield::ValuesDefined& fDefined, float undef);
+
 bool vectorabs(int nx, int ny, const float *u, const float *v, float *ff,
     difield::ValuesDefined& fDefined, float undef);
 

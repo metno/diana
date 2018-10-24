@@ -1699,14 +1699,75 @@ bool cvtemp(int compute, int nx, int ny, const float *tinp,
   return true;
 }
 
-bool cvhum(int compute, int nx, int ny, const float *t,
-    const float *huminp, float *humout, difield::ValuesDefined& fDefined, float undef, const std::string& unit)
+bool abshum(int nx, int ny, const float* t, const float* rhum, float* abshumout, difield::ValuesDefined& fDefined, float undef)
 {
-  //     compute=1 : temp. (Kelvin)  og rel. fukt.  -> duggpunkt, Td (Kelvin)
-  //     compute=2 : temp. (Kelvin)  og rel. fukt.  -> duggpunkt, Td (Celsius)
-  //     compute=3 : temp. (Celsius) og rel. fukt.  -> duggpunkt, Td (Celsius)
-  //     compute=4 : temp. og duggpunkt (Kelvin)    -> rel.fuktighet (%)
-  //     compute=5 : temp. og duggpunkt (Celsius)   -> rel.fuktighet (%)
+  // Equations from Vaisala publication:
+  // v = 1 - (T/Tc);
+  // ln(Pws/Pc) = (Tc/T) * (C1*v + C2*v^1.5 + C3*v^3 + C4*v^3.5 + C5*v^4 + C6*v^7.5);
+  // Pw = Pws * relhum/100;
+  // abshum = C * Pw/T;
+
+  // T   = Temperature (Kelvin)
+  // Pw  = Vapour pressure (Pa)
+  // Pws = Saturation vapor pressure (hPa)
+
+  // Example: T = 20 C, RH = 80%
+  // Pw = Pws(20°C) * 80/100 = 18.7 hPa
+  // A = 2.16679 * 1870/(273.16 + 20) = 13.82
+
+  // EK Oct. 2012
+
+  // function abshum_out = calc_abshum(in_airtmp,in_relhum)
+
+  // Set constants
+  const float C = 2.16679; //(gK/J)
+  const float C1 = -7.85951783;
+  const float C2 = 1.84408259;
+  const float C3 = -11.7866497;
+  const float C4 = 22.6807411;
+  const float C5 = -15.9618719;
+  const float C6 = 1.80122502;
+  const float Tc = 647.096; // Critical temperature, Kelvin
+  const float Pc = 220640;  // Critical pressure, hPa
+
+  const bool inAllDefined = fDefined == difield::ALL_DEFINED;
+  const int fsize = nx * ny;
+
+  size_t n_undefined = 0;
+  DIUTIL_OPENMP_PARALLEL(fsize, for reduction(+:n_undefined))
+  for (int i = 0; i < fsize; i++) {
+    if (calculations::is_defined(inAllDefined, t[i], rhum[i], undef)) {
+      // v = 1 - (T/Tc);
+      float v = 1 - ((t[i]) / Tc);
+
+      // ln(Pws/Pc) = (Tc/T) * (C1*v + C2*v^1.5 + C3*v^3 + C4*v^3.5 + C5*v^4 + C6*v^7.5);
+      // Solve for Pws:
+      // Pws/Pc = exp[(Tc/T) * (C1*v + C2*v^1.5 + C3*v^3 + C4*v^3.5 + C5*v^4 + C6*v^7.5)]
+      // Pws = Pc * exp[(Tc/T) * (C1*v + C2*v^1.5 + C3*v^3 + C4*v^3.5 + C5*v^4 + C6*v^7.5)]
+      float Pws = Pc * exp((Tc / (t[i])) * (C1 * v + C2 * pow(v, 1.5) + C3 * pow(v, 3) + C4 * pow(v, 3.5) + C5 * pow(v, 4) + C6 * pow(v, 7.5)));
+
+      // Pw = Pws * relhum/100;
+      float Pw = Pws * rhum[i];
+
+      // abshum = C * Pw/T;
+      abshumout[i] = C * (Pw * 100 / (t[i]));
+    } else {
+      abshumout[i] = undef;
+      n_undefined += 1;
+    }
+  }
+  fDefined = difield::checkDefined(n_undefined, fsize);
+  return true;
+}
+
+bool cvhum(int compute, int nx, int ny, const float* t, const float* huminp, float* humout, difield::ValuesDefined& fDefined, float undef,
+           const std::string& unit)
+{
+//     compute=1 : temp. (Kelvin)  og rel. fukt.  -> duggpunkt, Td (Kelvin)
+//     compute=2 : temp. (Kelvin)  og rel. fukt.  -> duggpunkt, Td (Celsius)
+//     compute=3 : temp. (Celsius) og rel. fukt.  -> duggpunkt, Td (Celsius)
+//     compute=4 : temp. og duggpunkt (Kelvin)    -> rel.fuktighet (%)
+//     compute=5 : temp. og duggpunkt (Celsius)   -> rel.fuktighet (%)
 #ifdef ENABLE_FIELDFUNCTIONS_TIMING
   METLIBS_LOG_TIME();
 #endif
