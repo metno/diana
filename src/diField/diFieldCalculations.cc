@@ -2802,7 +2802,7 @@ bool vesselIcingModStall(int nx, int ny,
           N = N1;
           j=j+1;
           if (j>1000) {
-            METLIBS_LOG_DEBUG("ModStall-Algorithm do not converge!");
+            METLIBS_LOG_DEBUG("ModStall-Algorithm does not converge!");
             N=0.0;
             break;
           }
