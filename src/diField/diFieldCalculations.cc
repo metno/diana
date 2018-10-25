@@ -2676,7 +2676,6 @@ bool vesselIcingModStall(int nx, int ny,
 
   const double num=zmax-zmin;
   const int number=(num*2+1);
-  double ice[number];
 
   if (zmax<zmin || fmod(num,1)!=0) {
     METLIBS_LOG_WARN("Set zmax >= zmin and zmax-zmin to a whole number");
@@ -2776,6 +2775,7 @@ bool vesselIcingModStall(int nx, int ny,
       /* section B2 Stallabrass, 1980 */
       /* Iterative method */
       /* From Ross Brown (1991,2011) */
+      double ice = 0;
       for (int counter = 0; counter < number; counter++) {
         /* Liquid water content, from Zakrweski spray cloud (1987) */
         /*  Spray flux: eq. 2.2 Henry, 1995 */
@@ -2815,18 +2815,11 @@ bool vesselIcingModStall(int nx, int ny,
           N = 1.0;
         }
         /* cm/hr */
-        ice[counter] = N * (rw / 890.0) * 3600.0 * 100.0;
+        ice += N * (rw / 890.0) * 3600.0 * 100.0;
 
       } /*end calculation over all z*/
 
-      /* calculationg icing from the mean of ice from z=3.5 to 9 m. */
-      double y = ice[0];
-      for (int counter = 0; counter < number-1; counter++) {
-        y += ice[counter + 1];
-      }
-
-      icing[i] = abs(y / number);
-
+      icing[i] = abs(ice / number);
 
     } else {
       icing[i] = undef;
