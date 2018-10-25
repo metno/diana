@@ -91,7 +91,7 @@ const FieldFunctions::Zaxis_info* FieldFunctions::findZaxisInfo(const std::strin
 }
 
 // static
-const FieldFunctions::VerticalType FieldFunctions::getVerticalType(const std::string& vctype)
+FieldFunctions::VerticalType FieldFunctions::getVerticalType(const std::string& vctype)
 {
   if ( vctype == "none" )
     return FieldFunctions::vctype_none;

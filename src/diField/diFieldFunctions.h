@@ -425,7 +425,7 @@ public:
 
   static const Zaxis_info* findZaxisInfo(const std::string& name);
 
-  static const FieldFunctions::VerticalType getVerticalType(const std::string& vctype);
+  static VerticalType getVerticalType(const std::string& vctype);
 
   /// read setup section for field computations
   static bool parseComputeSetup(const std::vector<std::string>& lines,
