@@ -51,6 +51,32 @@ using namespace MetNo::Constants;
 #define MILOGGER_CATEGORY "diField.FieldCalculations"
 #include "miLogger/miLogging.h"
 
+namespace {
+
+template <typename T>
+inline T pow2(T x)
+{
+  return x * x;
+}
+
+template <typename T>
+inline T pow4(T x)
+{
+  return pow2(pow2(x));
+}
+
+double icing_f1(double t)
+{
+  return 0.6112 * exp(17.67 * t / (t + 243.5));
+}
+
+inline double icing_f10(double t)
+{
+  return 10 * icing_f1(t);
+}
+
+} // namespace
+
 namespace FieldCalculations {
 
 namespace calculations {
@@ -2566,7 +2592,7 @@ bool vesselIcingOverland(int nx, int ny, const float *airtemp,
         && aice[i] < 0.4)
     {
       /* Freezing point of sea water from Stallabrass (1980) in Celcius*/
-      const double Tf = (-0.002 - 0.0524 * sal[i]) - 6.0E-5 * pow(sal[i],2);
+      const double Tf = (-0.002 - 0.0524 * sal[i]) - 6.0E-5 * pow2(sal[i]);
 
       if (seatemp[i] < Tf) {
         icing[i] = undef;
@@ -2735,10 +2761,10 @@ bool vesselIcingModStall(int nx, int ny,
       double Tf = (-0.002 - 0.0524 * sal[i]) - 6.0E-5 * (sal[i] * sal[i]);
 
       /*  eq. 2.15 Henry, 1995, based on 3m cylinder -5 deg. */
-      double ha = 5.17 * pow(v, 0.8);
+      const double ha_ = 5.17, ha = ha_ * pow(v, 0.8);
 
       /*  eq. 2.16 Henry, 1995, based on 3m cylinder -5 deg.  */
-      double ratio = 89.5 * pow(v, 0.8) / ha;
+      double ratio = 89.5 / ha_; // originally: * pow(v, 0.8) / ha
 
       /* Find water droplet temperature from eq: */
       /*  dTd/dt = 0.2 * (t-Td) *(1+0.622*(lv/P*CP)*(ea-etd)/(t-Td)); */
@@ -2751,7 +2777,7 @@ bool vesselIcingModStall(int nx, int ny,
       /* Low tau gives Td=sst */
       if (tau > 0.0) {
         double K = 311000.0 / ((p[i] / 10.0) * 1005.0);
-        double M = 0.2 * airtemp[i] + K * rh[i] * (0.6112 * exp(17.67 * airtemp[i] / (airtemp[i] + 243.5)));
+        double M = 0.2 * airtemp[i] + K * rh[i] * icing_f1(airtemp[i]);
         double h = tau / 50.0;
 
         double y = sst[i];
@@ -2759,14 +2785,13 @@ bool vesselIcingModStall(int nx, int ny,
         /* Use Runge Kutta method */
         for (int counter = 0; counter < 50; counter++) {
 
-          k1 = (M - 0.2 * y) - K * (0.6112 * exp(17.67 * y / (y + 243.5)));
+          k1 = (M - 0.2 * y) - K * icing_f1(y);
           double y2 = y + 0.5 * h * k1;
-          double k2 = (M - 0.2 * y2) - K * (0.6112 * exp(17.67 * y2 / (y2 + 243.5)));
+          double k2 = (M - 0.2 * y2) - K * icing_f1(y2);
           double y3 = y + 0.5 * h * k2;
-          y2 = (M - 0.2 * y3) - K * (0.6112 * exp(17.67 * y3 / (y3 + 243.5)));
+          y2 = (M - 0.2 * y3) - K * icing_f1(y3);
           double y4 = y + h * y2;
-          y += h * ((1.0/6.0) * (((k1 + 2.0 * k2) + 2.0 * y2) + ((M - 0.2 *
-              y4) - K * (0.6112 * exp(17.67 * y4 / (y4 + 243.5))))));
+          y += h * ((1.0 / 6.0) * (((k1 + 2.0 * k2) + 2.0 * y2) + ((M - 0.2 * y4) - K * icing_f1(y4))));
           k1 = y;
         }
       }
@@ -2794,9 +2819,7 @@ bool vesselIcingModStall(int nx, int ny,
         double ri=0;
         while (err >= 1.0E-5 && N>=0 && N<=1) {
           Ts = (1.0 + N) * Tf;
-          ri = (0.012012012 * rw * (Ts - k1) + (ha / 333000.0) * ((Ts - airtemp[i]) +
-              ratio * (0.6112 * exp(17.67 * Ts / (Ts + 243.5)) - rh[i] * (0.6112 *
-                  exp(17.67 * airtemp[i] / (airtemp[i] + 243.5))))));
+          ri = (0.012012012 * rw * (Ts - k1) + (ha / 333000.0) * ((Ts - airtemp[i]) + ratio * (icing_f1(Ts) - rh[i] * icing_f1(airtemp[i]))));
           N1 = (ri/rw);
           err = fabs(N1 - N);
           N = N1;
@@ -2830,50 +2853,37 @@ bool vesselIcingModStall(int nx, int ny,
   return true;
 }
 
-double freezefrac(double Sw, double Ta, double ha, double he, double ea, double RH, double rw, double Tsp, double N, double Lwdown, double Swdown)
+static double freezefrac(double Sw, double Ta, double ha, double he, double ea, double RH, double rw, double Tsp, double N, double Lwdown, double Swdown)
 {
   const double cw = 4000;
   const double sigma = 5.67e-8;
   const double lfs = 3.33e5 * 0.7;
   double Sb = Sw / (1 - N * (1 - 0.3));
   double Ts = -54.1126 * (Sb / (1000 - Sb));
-  double es = 6.112 * exp((17.67 * Ts) / (Ts + 243.5));
+  double es = icing_f10(Ts);
   double Qc = ha * (Ts - Ta);
   double Qe = he * (es - RH * ea);
   double Qd = rw * cw * (Ts - Tsp);
-  double Lwup = sigma * pow((Ts + 273.15), 4);
+  double Lwup = sigma * pow4(Ts + 273.15);
   double Qr = Lwup - Lwdown - 0.44 * Swdown;
   double ri = (1 / lfs) * (Qc + Qe + Qd + Qr);
   double N1 = (ri / rw);
   return N1;
 }
 
-double freezefraczero(double Sw, double Ta, double ha, double he, double ea, double RH, double rw, double Tsp, double N, double Lwdown, double Swdown)
+static double freezefraczero(double Sw, double Ta, double ha, double he, double ea, double RH, double rw, double Tsp, double N, double Lwdown, double Swdown)
 {
-  const double cw = 4000;
-  const double sigma = 5.67e-8;
-  const double lfs = 3.33e5 * 0.7;
-  double Sb = Sw / (1 - N * (1 - 0.3));
-  double Ts = -54.1126 * (Sb / (1000 - Sb));
-  double es = 6.112 * exp((17.67 * Ts) / (Ts + 243.5));
-  double Qc = ha * (Ts - Ta);
-  double Qe = he * (es - RH * ea);
-  double Qd = rw * cw * (Ts - Tsp);
-  double Lwup = sigma * pow((Ts + 273.15), 4);
-  double Qr = Lwup - Lwdown - 0.44 * Swdown;
-  double ri = (1 / lfs) * (Qc + Qe + Qd + Qr);
-  double N1zero = (ri / rw) - N;
-  return N1zero;
+  return freezefrac(Sw, Ta, ha, he, ea, RH, rw, Tsp, N, Lwdown, Swdown) - N;
 }
 
-int sgn(double d)
+static int sgn(double d)
 {
-  return d < 0 ? -1 : d > 0; // -1, 0, +1. FIXED
+  return d < 0 ? -1 : (d > 0 ? +1 : 0); // -1, 0, +1. FIXED
 }
 
 // Function used for final calculation of icing in vesselIcingMincog
-double bisection(double Sw, double Ta, double ha, double he, double ea, double RH, double rw, double Tsp, double Lwdown, double Swdown, double a, double b,
-                 double EPSILON)
+static double bisection(double Sw, double Ta, double ha, double he, double ea, double RH, double rw, double Tsp, double Lwdown, double Swdown, double a,
+                        double b, double EPSILON)
 {
   if (freezefraczero(Sw, Ta, ha, he, ea, RH, rw, Tsp, a, Lwdown, Swdown) * freezefraczero(Sw, Ta, ha, he, ea, RH, rw, Tsp, b, Lwdown, Swdown) >= 0) {
     // METLIBS_LOG_WARN( "You have not assumed right a and b");
@@ -2989,14 +2999,10 @@ bool vesselIcingMincog(int nx, int ny, const float* sal, const float* wave, cons
         double uy_ = v * sin(beta);
         double Wrx = fabs(ux_);
         double Wry = fabs(uy_);
-        double Wr = sqrtf(pow(ux_, 2) + pow(uy_, 2));
+        double Wr = diutil::absval(ux_, uy_);
         // Adding weights:
         double w1x = Wrx / (Wrx + Wry);
         double w2y = Wry / (Wrx + Wry);
-
-        // 13 March 2018. Changed Tf.
-        /* Freezing point of sea water from Forest et al. (2005) */
-        double Tf = -54.1126 * (sal[i] / (1000 - sal[i])); /* Valid for sal[i] < 124.7 ppt */
 
         // 13 March 2018. Changed ha:
         double hax = 6.0617 * pow(Wrx, 0.82);
@@ -3040,8 +3046,9 @@ bool vesselIcingMincog(int nx, int ny, const float* sal, const float* wave, cons
         const double r0 = 13.18;
         const double a0 = 32.88;
         const double b0 = 6.605;
-        double c0 = sqrtf(2) * a0 * b0 * sqrtf((pow(b0, 2) - pow(a0, 2)) * cos(2 * beta_r) + pow(a0, 2) + pow(b0, 2) - 2 * pow(r0, 2) * pow(sin(beta_r), 2));
-        double r = (r0 * 2 * pow(b0, 2) * cos(beta_r) + c0) / ((pow(b0, 2) - pow(a0, 2)) * cos(2 * beta_r) + pow(a0, 2) + pow(b0, 2));
+        const double a0_2 = pow2(a0), b0_2 = pow2(b0), r0_2 = pow2(r0);
+        double c0 = sqrtf(2) * a0 * b0 * sqrt((b0_2 - a0_2) * cos(2 * beta_r) + a0_2 + b0_2 - 2 * r0_2 * pow2(sin(beta_r)));
+        double r = (r0 * 2 * b0_2 * cos(beta_r) + c0) / ((b0_2 - a0_2) * cos(2 * beta_r) + a0_2 + b0_2);
         // Assuming that the droplets follow a straight line from initial position in coordinate system not following boat. In reality the droplets follows a
         // curved trajectory.
 
@@ -3054,7 +3061,7 @@ bool vesselIcingMincog(int nx, int ny, const float* sal, const float* wave, cons
         double tau = tau_const * drag;   // drag = t_flight/tau_const.
 
         double K = 0.2 * 0.622 * 2.5E6 / (p[i] * 1005.0);
-        double M = 0.2 * airtemp[i] + K * rh[i] * (6.112 * exp(17.67 * airtemp[i] / (airtemp[i] + 243.5)));
+        double M = 0.2 * airtemp[i] + K * rh[i] * icing_f10(airtemp[i]);
         double h = tau / 50.0;
 
         double y = sst[i];
@@ -3063,13 +3070,13 @@ bool vesselIcingMincog(int nx, int ny, const float* sal, const float* wave, cons
         /* Use Runge Kutta method */
         for (int counter = 0; counter < 50; counter++) {
 
-          k1 = (M - 0.2 * y) - K * (6.112 * exp(17.67 * y / (y + 243.5)));
+          k1 = (M - 0.2 * y) - K * icing_f10(y);
           double y2 = y + 0.5 * h * k1;
-          double k2 = (M - 0.2 * y2) - K * (6.112 * exp(17.67 * y2 / (y2 + 243.5)));
+          double k2 = (M - 0.2 * y2) - K * icing_f10(y2);
           double y3 = y + 0.5 * h * k2;
-          y2 = (M - 0.2 * y3) - K * (6.112 * exp(17.67 * y3 / (y3 + 243.5)));
+          y2 = (M - 0.2 * y3) - K * icing_f10(y3);
           double y4 = y + h * y2;
-          y += h * ((1.0 / 6.0) * (((k1 + 2.0 * k2) + 2.0 * y2) + ((M - 0.2 * y4) - K * (6.112 * exp(17.67 * y4 / (y4 + 243.5))))));
+          y += h * ((1.0 / 6.0) * (((k1 + 2.0 * k2) + 2.0 * y2) + ((M - 0.2 * y4) - K * icing_f10(y4))));
           k1 = y;
         }
 
@@ -3087,13 +3094,13 @@ bool vesselIcingMincog(int nx, int ny, const float* sal, const float* wave, cons
           /* Liquid water content, from Zakrweski spray cloud (1987), Samuelsen et al. (2015 */
 
           if (alt == 1) {
-            lwc = fabs(6.36E-5 * wave[i] * pow(Vr, 2) * exp(-0.55 * (zmin + 0.5 * counter))); // MINCOG org.
+            lwc = fabs(6.36E-5 * wave[i] * pow2(Vr) * exp(-0.55 * (zmin + 0.5 * counter))); // MINCOG org.
           } else {
             // MINCOG adj method.
             double lambda = c * Pw[i];
             double cg = (c / 2) * (1 + (4 * M_PI * depth[i] / lambda) / (sinh(4 * M_PI * depth[i] / lambda)));
             double Vgr = cg - vs * cos(alpha);
-            lwc = fabs(9.5205E-4 * pow(wave[i], 2.5) * pow(lambda, -0.5) * Vgr * exp(-0.55 * (zmin + 0.5 * counter)));
+            lwc = fabs(9.5205E-4 * pow(wave[i], 2.5) / sqrt(lambda) * Vgr * exp(-0.55 * (zmin + 0.5 * counter)));
           }
 
           /*  Spray flux: eq. 2.2 Henry (1995), Samuelsen et al. (2017) */
@@ -3101,40 +3108,22 @@ bool vesselIcingMincog(int nx, int ny, const float* sal, const float* wave, cons
 
           /* Setting N=0 in expression as a start */
           double N = 0.0;
-          double N1 = N;
-
-          /* Setting starterror */
-          double err = 1.0;
 
           // Setting start salinity
-          double Sb = sal[i];
-          double Ts = Tf;
-          const double lf = 3.33E5;
-          double lfs = lf * 0.7; // Spongy spray ice from Makkonen (1987) and Samuelsen et al. (2016)
-          double ea = 6.112 * exp((17.67 * airtemp[i]) / (airtemp[i] + 243.5));
-          double es = 6.112 * exp((17.67 * Ts) / (Ts + 243.5));
+          double ea = icing_f10(airtemp[i]);
           double he = ha * 1738.6 / p[i];
-          const double cw = 4000;
           double Ta = airtemp[i];
-          double ri = 0.0;
-          double Qc = 0;
-          double Qe = 0;
-          double Qd = 0;
-          double Qr = 0;
-          double Lwup = 0;
           const double sigma = 5.67e-8;               // Stefan-Boltzmanns const.
-          const double A = 0.56;                      // Ice albedo.
           double Vf = (1 + cos(85 * M_PI / 180)) / 2; // View factor
 
           // Simplification not using radiation from model.
           const double Swdown_model = 0; // May be commented out.
           const double eps_atm = 0.7;    // Emissivity of atmosphere.
           // double Lwdown = 0;
-          double Lwdown = eps_atm * sigma * pow((airtemp[i] + 273.15), 4); // May be raplaced by model
+          double Lwdown = eps_atm * sigma * pow4(airtemp[i] + 273.15); // May be raplaced by model
           double Swdown = Swdown_model * Vf;
 
           /* Running loop when error>=tolerance */
-          int j = 0, m = 0;
           if (rw <= 0) {
             rw = 0;
             N = 0;
@@ -3149,7 +3138,7 @@ bool vesselIcingMincog(int nx, int ny, const float* sal, const float* wave, cons
             x3 = freezefrac(Sw, Ta, ha, he, ea, RH, rw, Tsp, x2, Lwdown, Swdown);
             delx1 = x2 - x1;
             delx2 = x3 - x2;
-            R = x3 - pow(delx2, 2) / (delx2 - delx1);
+            R = x3 - pow2(delx2) / (delx2 - delx1);
 
             int mysign0, mysign1;
 
