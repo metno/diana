@@ -1738,19 +1738,20 @@ bool abshum(int nx, int ny, const float* t, const float* rhum, float* abshumout,
   for (int i = 0; i < fsize; i++) {
     if (calculations::is_defined(inAllDefined, t[i], rhum[i], undef)) {
       // v = 1 - (T/Tc);
-      float v = 1 - ((t[i]) / Tc);
+      const float v = 1 - t[i] / Tc, tii = 1 / t[i];
 
       // ln(Pws/Pc) = (Tc/T) * (C1*v + C2*v^1.5 + C3*v^3 + C4*v^3.5 + C5*v^4 + C6*v^7.5);
       // Solve for Pws:
       // Pws/Pc = exp[(Tc/T) * (C1*v + C2*v^1.5 + C3*v^3 + C4*v^3.5 + C5*v^4 + C6*v^7.5)]
       // Pws = Pc * exp[(Tc/T) * (C1*v + C2*v^1.5 + C3*v^3 + C4*v^3.5 + C5*v^4 + C6*v^7.5)]
-      float Pws = Pc * exp((Tc / (t[i])) * (C1 * v + C2 * pow(v, 1.5) + C3 * pow(v, 3) + C4 * pow(v, 3.5) + C5 * pow(v, 4) + C6 * pow(v, 7.5)));
+      const float v2 = v * v, v3 = v * v2, v4 = v2 * v2, v1_5 = v * sqrt(v), v3_5 = v2 * v1_5, v7_5 = v4 * v3_5;
+      float Pws = Pc * exp(Tc * tii * (C1 * v + C2 * v1_5 + C3 * v3 + C4 * v3_5 + C5 * v4 + C6 * v7_5));
 
       // Pw = Pws * relhum/100;
       float Pw = Pws * rhum[i];
 
       // abshum = C * Pw/T;
-      abshumout[i] = C * (Pw * 100 / (t[i]));
+      abshumout[i] = C * Pw * 100 * tii;
     } else {
       abshumout[i] = undef;
       n_undefined += 1;
