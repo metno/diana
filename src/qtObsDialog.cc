@@ -98,46 +98,18 @@ ObsDialog::ObsDialog(QWidget* parent, Controller* llctrl)
   m_action->setIconVisibleInMenu(true);
   helpFileName = "ug_obsdialogue.html";
 
-  dialog = m_ctrl->initObsDialog();
+  plotbox = new QComboBox(this);
+  plotbox->setToolTip(tr("select plot type"));
+  stackedWidget = new QStackedWidget;
 
-  vector<std::string> dialog_name;
-  nr_plot = dialog.plottype.size();
+  loadDialogInfo();
 
   if (nr_plot == 0)
     return;
 
-  plotbox = new QComboBox(this);
-  plotbox->setToolTip(tr("select plot type"));
-  for (const ObsDialogInfo::PlotType& plt : dialog.plottype) {
-    if (plt.plottype == OPT_OTHER)
-      plotbox->addItem(QString::fromStdString(plt.name));
-    else
-      plotbox->addItem(labelForObsPlotType(plt.plottype), (int)plt.plottype);
-  }
   plotbox->setCurrentIndex(0);
   savelog.clear();
   savelog.resize(nr_plot);
-
-  m_selected = 0;
-
-  stackedWidget = new QStackedWidget;
-
-  for (int i = 0; i < nr_plot; i++) {
-    ObsWidget* ow = new ObsWidget(this);
-    if (!dialog.plottype[i].button.empty()) {
-      ow->setDialogInfo(dialog.plottype[i]);
-      connect(ow, SIGNAL(getTimes(bool)), SLOT(getTimes(bool)));
-      connect(ow, SIGNAL(rightClicked(std::string)), SLOT(rightButtonClicked(std::string)));
-      connect(ow, SIGNAL(extensionToggled(bool)), SLOT(extensionToggled(bool)));
-      connect(ow, SIGNAL(criteriaOn()), SLOT(criteriaOn()));
-    }
-    stackedWidget->addWidget(ow);
-    obsWidget.push_back(ow);
-  }
-
-  for (int i = 1; i < nr_plot; i++)
-    if (obsWidget[i])
-      obsWidget[i]->hide();
 
   multiplot = false;
 
@@ -176,49 +148,50 @@ std::string ObsDialog::name() const
   return OBS_DATATYPE;
 }
 
-void ObsDialog::updateDialog()
+void ObsDialog::loadDialogInfo()
 {
-  //save selections
-  PlotCommand_cpv vstr = getOKString();
-
-  //remove old widgets
-  for (int i = 0; i < nr_plot; i++) {
-    stackedWidget->removeWidget(obsWidget[i]);
-    obsWidget[i]->close();
-    delete obsWidget[i];
-    obsWidget[i] = NULL;
-  }
-  obsWidget.clear();
-
-  //Make new widgets
   dialog = m_ctrl->initObsDialog();
-
   nr_plot = dialog.plottype.size();
 
   plotbox->clear();
-  for (const ObsDialogInfo::PlotType& plt : dialog.plottype)
-    plotbox->addItem(labelForObsPlotType(plt.plottype), (int)plt.plottype);
+  for (const ObsDialogInfo::PlotType& plt : dialog.plottype) {
+    if (plt.plottype == OPT_OTHER)
+      plotbox->addItem(QString::fromStdString(plt.name));
+    else
+      plotbox->addItem(labelForObsPlotType(plt.plottype), (int)plt.plottype);
+  }
 
   m_selected = 0;
 
-  for (int i = 0; i < nr_plot; i++) {
+  // remove old widgets
+  for (ObsWidget* ow : obsWidget) {
+    stackedWidget->removeWidget(ow);
+    ow->close();
+    delete ow;
+  }
+  obsWidget.clear();
+
+  // create new widgets
+  for (const ObsDialogInfo::PlotType& pt : dialog.plottype) {
     ObsWidget* ow = new ObsWidget(this);
-    if (!dialog.plottype[i].button.empty()) {
-      ow->setDialogInfo(dialog.plottype[i]);
-      connect(ow, SIGNAL(getTimes(bool)), SLOT(getTimes(bool)));
-      connect(ow, SIGNAL(rightClicked(std::string)), SLOT(rightButtonClicked(std::string)));
-      connect(ow, SIGNAL(extensionToggled(bool)), SLOT(extensionToggled(bool)));
-      connect(ow, SIGNAL(criteriaOn()), SLOT(criteriaOn()));
+    if (!pt.button.empty()) {
+      ow->setDialogInfo(pt);
+      connect(ow, &ObsWidget::getTimes, this, &ObsDialog::getTimes);
+      connect(ow, &ObsWidget::rightClicked, this, &ObsDialog::rightButtonClicked);
+      connect(ow, &ObsWidget::extensionToggled, this, &ObsDialog::extensionToggled);
+      connect(ow, &ObsWidget::criteriaOn, this, &ObsDialog::criteriaOn);
     }
     stackedWidget->addWidget(ow);
+    if (!obsWidget.empty()) // do not hide 1st
+      ow->hide();
     obsWidget.push_back(ow);
   }
+}
 
-  for (int i = 1; i < nr_plot; i++)
-    if (obsWidget[i])
-      obsWidget[i]->hide();
-
-  //reset selections
+void ObsDialog::updateDialog()
+{
+  PlotCommand_cpv vstr = getOKString();
+  loadDialogInfo();
   putOKString(vstr);
 }
 

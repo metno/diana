@@ -115,6 +115,7 @@ Q_SIGNALS:
   void setCriteria( std::string, bool );
 
 private:
+  void loadDialogInfo();
   void makeExtension();
   std::string makeCriteriaString();
   bool newCriteriaString();
@@ -122,7 +123,7 @@ private:
   void numberList( QComboBox* cBox, float number );
   int findPlotnr(const miutil::KeyValue_v&);
 
- //ATTRIBUTES
+private:
   int nr_plot;
   std::vector<miutil::KeyValue_v> savelog;
   int m_selected;
