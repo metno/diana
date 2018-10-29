@@ -68,9 +68,8 @@ private:
   typedef std::map<std::string, ProdInfo> string_ProdInfo_m;
   string_ProdInfo_m Prod;
 
-  ObsDialogInfo dialog;
+  ObsDialogInfo::PriorityList_v priority;
 
-  std::vector<ObsDialogInfo::PriorityList> priority;
   // one  criterialist pr plot type
   std::map<std::string, ObsDialogInfo::CriteriaList_v> criteriaList;
 

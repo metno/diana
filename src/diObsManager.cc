@@ -191,6 +191,9 @@ void ObsManager::addReaders(ObsDialogInfo::PlotType& dialogInfo)
 
 ObsDialogInfo ObsManager::initDialog()
 {
+  ObsDialogInfo dialog;
+  dialog.priority = priority;
+
   for (ObsDialogInfo::PlotType pt : setupPlotTypes_) { // make copies!
     const std::map<std::string, ObsDialogInfo::CriteriaList_v>::const_iterator it = criteriaList.find(pt.name);
     if (it != criteriaList.end())
@@ -238,9 +241,6 @@ void ObsManager::updateDialog(ObsDialogInfo::PlotType& pt, const std::string& re
 
 bool ObsManager::parseSetup()
 {
-  dialog.plottype.clear();
-  dialog.priority.clear();
-
   parseFilesSetup();
   parsePrioritySetup();
   parseCriteriaSetup();
@@ -335,7 +335,7 @@ bool ObsManager::parsePrioritySetup()
   std::string name;
   ObsDialogInfo::PriorityList pri;
 
-  dialog.priority.clear();
+  priority.clear();
 
   const std::string pri_name = "OBSERVATION_PRIORITY_LISTS";
   vector<std::string> sect_pri;
@@ -365,7 +365,7 @@ bool ObsManager::parsePrioritySetup()
       if (not name.empty() and not file.empty()) {
         pri.name = name;
         pri.file = file;
-        dialog.priority.push_back(pri);
+        priority.push_back(pri);
       } else {
         SetupParser::errorMsg(pri_name, i, "Incomplete observation priority specification");
         continue;

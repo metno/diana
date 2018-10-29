@@ -122,7 +122,8 @@ struct ObsDialogInfo
   void addPlotType(const ObsDialogInfo::PlotType& p, bool addIfNoReaders);
 
   PlotType_v plottype;
-  std::vector<PriorityList> priority;
+  typedef std::vector<PriorityList> PriorityList_v;
+  PriorityList_v priority;
 };
 
 #endif // DIOBSDIALOGINFO_H
