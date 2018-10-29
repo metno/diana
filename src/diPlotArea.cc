@@ -48,19 +48,26 @@ PlotArea::PlotArea()
 {
 }
 
-void PlotArea::setMapArea(const Area& a)
+bool PlotArea::setMapArea(const Area& a)
 {
-  if (!a.P().isDefined())
-    return;
-
-  area = a;
-  PlotAreaSetup();
+  if (!a.P().isDefined() || area == a) {
+    return false;
+  } else {
+    area = a;
+    PlotAreaSetup();
+    return true;
+  }
 }
 
-void PlotArea::setPhysSize(int w, int h)
+bool PlotArea::setPhysSize(int w, int h)
 {
-  mPhys = diutil::PointI(w, h);
-  PlotAreaSetup();
+  if (w != mPhys.x() || h != mPhys.y()) {
+    mPhys = diutil::PointI(w, h);
+    PlotAreaSetup();
+    return true;
+  } else {
+    return false;
+  }
 }
 
 XY PlotArea::PhysToMap(const XY& phys) const

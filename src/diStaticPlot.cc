@@ -73,14 +73,14 @@ float StaticPlot::getPhysDiagonal() const
 
 void StaticPlot::setMapArea(const Area& area)
 {
-  pa_.setMapArea(area);
-  setDirty(true);
+  if (pa_.setMapArea(area))
+    setDirty(true);
 }
 
 void StaticPlot::setPhysSize(int w, int h)
 {
-  pa_.setPhysSize(w, h);
-  setDirty(true);
+  if (pa_.setPhysSize(w, h))
+    setDirty(true);
 }
 
 Area StaticPlot::findBestMatch(const Area& newa)
@@ -116,7 +116,6 @@ Area StaticPlot::findBestMatch(const Area& newa)
 
 void StaticPlot::setDirty(bool f)
 {
-  // METLIBS_LOG_SCOPE(LOGVAL(f));
   dirty = f;
 }
 

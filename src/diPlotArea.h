@@ -50,7 +50,9 @@ public:
   const Projection& getMapProjection() const { return getMapArea().P(); }
 
   /// set area
-  void setMapArea(const Area&);
+  /*! \returns true if something has actually changed
+   */
+  bool setMapArea(const Area&);
 
   //! Get the size of the map plot area / data grid, excluding \ref mapborder, in coordinates of getMapProjection().
   /*! This is the rectangle from getMapArea() extended to the aspect ratio of getPhysSize().
@@ -73,7 +75,9 @@ public:
   XY MapToPhys(const XY& map) const;
 
   /// set the physical size of the map in pixels
-  void setPhysSize(int w, int h);
+  /*! \returns true if something has actually changed
+   */
+  bool setPhysSize(int w, int h);
 
   /// this is  the physical size of the map in pixels
   const diutil::PointI& getPhysSize() const { return mPhys; }
