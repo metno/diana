@@ -1983,7 +1983,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   if (not checkQuality(dta) or not checkWMOnumber(dta))
     return;
 
-  DiGLPainter::GLfloat radius = 7.0, x1, x2, x3, y1, y2, y3;
+  DiGLPainter::GLfloat radius = 7.0;
   int lpos;
   const map<string, float>::iterator fend = dta.fdata.end();
   map<string, float>::iterator f_p;
@@ -2007,18 +2007,6 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   PushPopTranslateScale pushpop1(gl, QPointF(x[index], y[index]));
   PushPopTranslateScale pushpop2(gl, scale);
 
-  drawCircle(gl);
-
-  // manned / automated station
-  if (dta.fdata.count("auto") && dta.fdata["auto"] == 0) {
-    y1 = y2 = -1.1 * radius;
-    x1 = y1 * sqrtf(3.0);
-    x2 = -1 * x1;
-    x3 = 0;
-    y3 = radius * 2.2;
-    gl->drawTriangle(false, QPointF(x1, y1), QPointF(x2, y2), QPointF(x3, y3));
-  }
-
   //wind - dd,ff
   if (pFlag.count("wind") && dta.fdata.count("dd") && dta.fdata.count("ff") && dta.fdata.count("dd_adjusted") && dta.fdata["dd"] != undef) {
     bool ddvar = false;
@@ -2037,13 +2025,17 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   } else
     lpos = vtab(1) + 10;
 
-  //Total cloud cover - N
-  if ((f_p = dta.fdata.find("N")) != fend) {
-    checkColourCriteria(gl, "N", f_p->second);
-    cloudCover(gl, f_p->second, radius);
-  } else {
-    gl->setColour(colour);
-    cloudCover(gl, undef, radius);
+  { // Total cloud cover - N
+    float fN = undef;
+    if ((f_p = dta.fdata.find("N")) != fend) {
+      fN = f_p->second;
+      checkColourCriteria(gl, "N", fN);
+    }
+    const bool is_auto = ((f_p = dta.fdata.find("auto")) != fend) && (f_p->second == 0);
+    if (is_auto)
+      cloudCoverAuto(gl, fN, radius);
+    else
+      cloudCover(gl, fN, radius);
   }
 
   //Weather - WW
@@ -3375,6 +3367,7 @@ void ObsPlot::cloudCover(DiGLPainter* gl, const float& fN, const float &radius)
   float x, y;
 
   // Total cloud cover N
+  drawCircle(gl);
 
   if (N < 0 || N > 9) { //cloud cover not observed
     x = radius * 1.1 / sqrt((float) 2);
@@ -3430,41 +3423,27 @@ void ObsPlot::cloudCover(DiGLPainter* gl, const float& fN, const float &radius)
 
 void ObsPlot::cloudCoverAuto(DiGLPainter* gl, const float& fN, const float &radius)
 {
-  int N = diutil::float2int(fN);
+  const float tmp_radius = 0.6 * radius;
+  const float y1 = -1.1 * tmp_radius;
+  const float y2 = y1;
+  const float x1 = y1 * sqrt(3);
+  const float x2 = -1 * x1;
+  const float x3 = 0;
+  const float y3 = tmp_radius * 2.2;
+  gl->drawTriangle(false, QPointF(x1, y1), QPointF(x2, y2), QPointF(x3, y3));
 
-  float x;
-  DiGLPainter::GLfloat x1, x2, x3, y1, y2, y3;
-
-  // Total cloud cover N
-  // Dont fill anything
-  if (N >= 0 && N <= 2)
-    return;
-
-  if (N < 0 || N > 9) { //cloud cover not observed
-    x = radius * 1.1 / sqrt((float) 2);
+  const int N = diutil::float2int(fN);
+  if (N < 0 || N > 9) { // cloud cover not observed
+    float x = tmp_radius * 1.1 / sqrt(2);
     gl->drawCross(0, 0, x, true);
   } else if (N == 9) {
     // some special code.., fog perhaps
-    x = radius / sqrt((float)2);
+    float x = tmp_radius / sqrt(2);
     gl->drawCross(0, 0, x, true);
   } else if (N >= 6 && N <= 8) {
-    DiGLPainter::GLfloat tmp_radius = 0.6 * radius;
-    y1 = y2 = -1.1 * tmp_radius;
-    x1 = y1 * sqrtf(3.0);
-    x2 = -1 * x1;
-    x3 = 0;
-    y3 = tmp_radius * 2.2;
     gl->drawTriangle(true, QPointF(x1, y1), QPointF(x2, y2), QPointF(x3, y3));
-
   } else if (N >= 3 && N <= 5) {
-    DiGLPainter::GLfloat tmp_radius = 0.6 * radius;
-    y1 = y2 = -1.1 * tmp_radius;
-    x1 = y1 * sqrtf(3.0);
-    x2 = -1 * x1;
-    x1 = 0;
-    x3 = 0;
-    y3 = tmp_radius * 2.2;
-    gl->drawTriangle(true,  QPointF(x1, y1), QPointF(x2, y2), QPointF(x3, y3));
+    gl->drawTriangle(true, QPointF(0, y1), QPointF(x2, y2), QPointF(x3, y3));
   }
 }
 
