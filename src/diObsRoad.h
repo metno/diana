@@ -127,6 +127,9 @@ public:
   float ms2code4451(float v);
   float percent2oktas(float v);
   float convertWW(float ww);
+  // from ObsPlot
+  void amountOfClouds_1_4(ObsData& dta, bool metar);
+  void amountOfClouds_1(ObsData& dta, bool metar);
 
   // from ObsAscii
   void yoyoPlot(const miutil::miTime& filetime, ObsDataRequest_cp request);

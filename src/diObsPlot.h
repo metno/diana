@@ -331,14 +331,6 @@ protected:
   // used only from plotSynop
   void amountOfClouds(DiGLPainter* gl, short int, short int, QPointF xypos);
 
-  // ROAD only used in plotDBMetar, plotDBSynop
-  void amountOfClouds_1(DiGLPainter* gl, short int Nh, short int h, QPointF xy,
-      bool metar = false);
-  // ROAD only, used in plotDBMetar, plotDBSynop
-  void amountOfClouds_1_4(DiGLPainter* gl, short int Ns1, short int hs1, short int Ns2,
-      short int hs2, short int Ns3, short int hs3, short int Ns4, short int hs4,
-      QPointF xy, bool metar = false);
-
   void checkAccumulationTime(ObsData &dta); // used in ::plot when testpos == true (ie updating text/symbol layers)
   void checkGustTime(ObsData &dta);
   void checkMaxWindTime(ObsData &dta);

@@ -767,6 +767,180 @@ float ObsRoad::convertWW(float ww)
   return ww;
 }
 
+void ObsRoad::amountOfClouds_1(ObsData& dta, bool metar)
+{
+  float Nh = undef;
+  float h = undef;
+  if (dta.fdata.count("Nh"))
+    Nh = dta.fdata["Nh"];
+  if (dta.fdata.count("h"))
+    h = dta.fdata["h"];
+  if (Nh != undef || h != undef) {
+    QString ost;
+    if (Nh > -1)
+      if (metar) {
+        if (Nh == 8)
+          ost = "O";
+        else if (Nh == 11)
+          ost = "S";
+        else if (Nh == 12)
+          ost = "B";
+        else if (Nh == 13)
+          ost = "F";
+        else
+          ost.setNum(Nh);
+      } else
+        ost.setNum(Nh);
+    else
+      ost = "x";
+
+    ost += "/";
+
+    if (h > -1)
+      ost += QString::number(h);
+    else
+      ost += "x";
+    dta.cloud.push_back(ost.toStdString());
+  }
+}
+
+void ObsRoad::amountOfClouds_1_4(ObsData& dta, bool metar)
+{
+  // This metod puts detailed cloud parameter in a cloud string
+  // and puts it in the vector cloud in ObsData.
+  int Ns1 = undef;
+  int hs1 = undef;
+  int Ns2 = undef;
+  int hs2 = undef;
+  int Ns3 = undef;
+  int hs3 = undef;
+  int Ns4 = undef;
+  int hs4 = undef;
+  // manned / automated station
+  if (dta.fdata.count("auto") && dta.fdata["auto"] == 0) {
+    // automated station
+    if (dta.fdata.count("NS_A1"))
+      Ns1 = dta.fdata["NS_A1"];
+    if (dta.fdata.count("NS_A2"))
+      Ns2 = dta.fdata["NS_A2"];
+    if (dta.fdata.count("NS_A3"))
+      Ns3 = dta.fdata["NS_A3"];
+    if (dta.fdata.count("NS_A4"))
+      Ns4 = dta.fdata["NS_A4"];
+    if (dta.fdata.count("HS_A1"))
+      hs1 = dta.fdata["HS_A1"];
+    if (dta.fdata.count("HS_A2"))
+      hs2 = dta.fdata["HS_A2"];
+    if (dta.fdata.count("HS_A3"))
+      hs3 = dta.fdata["HS_A3"];
+    if (dta.fdata.count("HS_A4"))
+      hs4 = dta.fdata["HS_A4"];
+
+  } else {
+    // manual station
+    if (dta.fdata.count("NS1"))
+      Ns1 = dta.fdata["NS1"];
+    if (dta.fdata.count("NS2"))
+      Ns2 = dta.fdata["NS2"];
+    if (dta.fdata.count("NS3"))
+      Ns3 = dta.fdata["NS3"];
+    if (dta.fdata.count("NS4"))
+      Ns4 = dta.fdata["NS4"];
+    if (dta.fdata.count("HS1"))
+      hs1 = dta.fdata["HS1"];
+    if (dta.fdata.count("HS2"))
+      hs2 = dta.fdata["HS2"];
+    if (dta.fdata.count("HS3"))
+      hs3 = dta.fdata["HS3"];
+    if (dta.fdata.count("HS4"))
+      hs4 = dta.fdata["HS4"];
+  }
+  // if metar station do not report Ns1 ... Ns4 and hs1 .. hs4 try Nh and h
+  if (metar) {
+    if (Ns1 == undef && hs1 == undef && Ns2 == undef && hs2 == undef && Ns3 == undef && hs3 == undef && Ns4 == undef && hs4 == undef) {
+      amountOfClouds_1(dta, metar);
+      return;
+    }
+  }
+
+  if (Ns4 != undef && Ns4 > 0 && hs4 != undef && hs4 > 0) {
+    QString ost;
+    if (metar) {
+      if (Ns4 == 8)
+        ost = "O";
+      else if (Ns4 == 11)
+        ost = "S";
+      else if (Ns4 == 12)
+        ost = "B";
+      else if (Ns4 == 13)
+        ost = "F";
+      else
+        ost.setNum(Ns4);
+    } else
+      ost.setNum(Ns4);
+    ost += "-";
+    ost += QString::number(hs4);
+    dta.cloud.push_back(ost.toStdString());
+  }
+  if (Ns3 != undef && Ns3 > 0 && hs3 != undef && hs3 > 0) {
+    QString ost;
+    if (metar) {
+      if (Ns3 == 8)
+        ost = "O";
+      else if (Ns3 == 11)
+        ost = "S";
+      else if (Ns3 == 12)
+        ost = "B";
+      else if (Ns3 == 13)
+        ost = "F";
+      else
+        ost.setNum(Ns3);
+    } else
+      ost.setNum(Ns3);
+    ost += "-";
+    ost += QString::number(hs3);
+    dta.cloud.push_back(ost.toStdString());
+  }
+  if (Ns2 != undef && Ns2 > 0 && hs2 != undef && hs2 > 0) {
+    QString ost;
+    if (metar) {
+      if (Ns2 == 8)
+        ost = "O";
+      else if (Ns2 == 11)
+        ost = "S";
+      else if (Ns2 == 12)
+        ost = "B";
+      else if (Ns2 == 13)
+        ost = "F";
+      else
+        ost.setNum(Ns2);
+    } else
+      ost.setNum(Ns2);
+    ost += "-";
+    ost += QString::number(hs2);
+    dta.cloud.push_back(ost.toStdString());
+  }
+  if (Ns1 != undef && Ns1 > 0 && hs1 != undef && hs1 > 0) {
+    QString ost;
+    if (metar) {
+      if (Ns1 == 8)
+        ost = "O";
+      else if (Ns1 == 11)
+        ost = "S";
+      else if (Ns1 == 12)
+        ost = "B";
+      else if (Ns1 == 13)
+        ost = "F";
+      else
+        ost.setNum(Ns1);
+    } else
+      ost.setNum(Ns1);
+    ost += "-";
+    ost += QString::number(hs1);
+    dta.cloud.push_back(ost.toStdString());
+  }
+}
+
 void ObsRoad::decodeData()
 {
   METLIBS_LOG_SCOPE();
@@ -908,6 +1082,11 @@ void ObsRoad::decodeData()
         }
       }
     }
+    // Format the cloud vector
+    bool metar = false;
+    if (obsData.stringdata["data_type"] == "ICAO")
+      metar = true;
+    amountOfClouds_1_4(obsData, metar);
 
     if (getColumnValue("x", pstr, value) || getColumnValue("Lon", pstr, value))
       if (value != _undef)

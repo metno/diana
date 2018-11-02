@@ -2147,6 +2147,14 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
     }
   }
 
+  // Clouds, detailed
+  if (pFlag.count("clouds")) {
+    checkColourCriteria(gl, "Clouds", 0);
+    int ncl = dta.cloud.size();
+    for (int i = 0; i < ncl; i++)
+      printString(gl, dta.cloud[i], xytab(lpos + 18) + QPointF(0, -i * 12));
+  }
+
   //Precipitation - RRR
   if (pFlag.count("rrr") && !(dta.ship_buoy && dta.fdata.count("ds") && dta.fdata.count("vs"))) {
     if ((f_p = dta.fdata.find("RRR")) != fend) {
@@ -3014,187 +3022,6 @@ void ObsPlot::amountOfClouds(DiGLPainter* gl, short int Nh, short int h, QPointF
     ost = "x";
 
   gl->drawText(ost, x * scale, y * scale, 0.0);
-}
-
-void ObsPlot::amountOfClouds_1(DiGLPainter* gl, short int Nh, short int h, QPointF xy, bool metar)
-{
-  float x = xy.x(), y = xy.y();
-
-  QString ost;
-  if (Nh > -1)
-    if (metar) {
-      if (Nh == 8)
-        ost = "O";
-      else if (Nh == 11)
-        ost = "S";
-      else if (Nh == 12)
-        ost = "B";
-      else if (Nh == 13)
-        ost = "F";
-      else
-        ost.setNum(Nh);
-    } else
-      ost.setNum(Nh);
-  else
-    ost = "x";
-
-  gl->drawText(ost, x * scale, y * scale, 0.0);
-
-  x += 8;
-  y -= 2;
-  gl->drawText("/", x * scale, y * scale, 0.0);
-
-  x += 6; // += 8;
-  y -= 2;
-  if (h > -1)
-    ost.setNum(h);
-  else
-    ost = "x";
-
-  gl->drawText(ost, x * scale, y * scale, 0.0);
-}
-
-void ObsPlot::amountOfClouds_1_4(DiGLPainter* gl, short int Ns1, short int hs1, short int Ns2,
-    short int hs2, short int Ns3, short int hs3, short int Ns4, short int hs4,
-    QPointF xy, bool metar)
-{
-  float x = xy.x(), y = xy.y();
-  const float x_org = x;
-
-  if (Ns4 != undef || hs4 != undef) {
-    x = x_org;
-    QString ost;
-    if (Ns4 > -1)
-      if (metar) {
-        if (Ns4 == 8)
-          ost = "O";
-        else if (Ns4 == 11)
-          ost = "S";
-        else if (Ns4 == 12)
-          ost = "B";
-        else if (Ns4 == 13)
-          ost = "F";
-        else
-          ost.setNum(Ns4);
-      } else
-        ost.setNum(Ns4);
-    else
-      ost = "x";
-
-    gl->drawText(ost, x * scale, y * scale, 0.0);
-    x += 10 * ost.size();
-    gl->drawText("-", x * scale, y * scale, 0.0);
-
-    x += 8;
-    if (hs4 != undef)
-      ost.setNum(hs4);
-    else
-      ost = "x";
-
-    gl->drawText(ost, x * scale, y * scale, 0.0);
-    y -= 12;
-  }
-  if (Ns3 != undef || hs3 != undef) {
-    x = x_org;
-    QString ost;
-    if (Ns3 > -1)
-      if (metar) {
-        if (Ns3 == 8)
-          ost = "O";
-        else if (Ns3 == 11)
-          ost = "S";
-        else if (Ns3 == 12)
-          ost = "B";
-        else if (Ns3 == 13)
-          ost = "F";
-        else
-          ost.setNum(Ns3);
-      } else
-        ost.setNum(Ns3);
-    else
-      ost = "x";
-
-    gl->drawText(ost, x * scale, y * scale, 0.0);
-
-    x += 10 * ost.size();
-    gl->drawText("-", x * scale, y * scale, 0.0);
-
-    x += 8;
-    if (hs3 != undef)
-      ost.setNum(hs3);
-    else
-      ost = "x";
-
-    gl->drawText(ost, x * scale, y * scale, 0.0);
-    y -= 12;
-  }
-  if (Ns2 != undef || hs2 != undef) {
-    x = x_org;
-    QString ost;
-    if (Ns2 > -1)
-      if (metar) {
-        if (Ns2 == 8)
-          ost = "O";
-        else if (Ns2 == 11)
-          ost = "S";
-        else if (Ns2 == 12)
-          ost = "B";
-        else if (Ns2 == 13)
-          ost = "F";
-        else
-          ost.setNum(Ns2);
-      } else
-        ost.setNum(Ns2);
-    else
-      ost = "x";
-
-    gl->drawText(ost, x * scale, y * scale, 0.0);
-
-    x += 10 * ost.size();
-    gl->drawText("-", x * scale, y * scale, 0.0);
-
-    x += 8;
-    if (hs2 != undef)
-      ost.setNum(hs2);
-    else
-      ost = "x";
-
-    gl->drawText(ost, x * scale, y * scale, 0.0);
-    y -= 12;
-  }
-  if (Ns1 != undef || hs1 != undef) {
-    x = x_org;
-    QString ost;
-    if (Ns1 > -1)
-      if (metar) {
-        if (Ns1 == 8)
-          ost = "O";
-        else if (Ns1 == 11)
-          ost = "S";
-        else if (Ns1 == 12)
-          ost = "B";
-        else if (Ns1 == 13)
-          ost = "F";
-        else
-          ost.setNum(Ns1);
-      } else
-        ost.setNum(Ns1);
-    else
-      ost = "x";
-
-    gl->drawText(ost, x * scale, y * scale, 0.0);
-
-    x += 10 * ost.size();
-    gl->drawText("-", x * scale, y * scale, 0.0);
-
-    x += 8;
-    if (hs1 != undef)
-      ost.setNum(hs1);
-    else
-      ost = "x";
-
-    gl->drawText(ost, x * scale, y * scale, 0.0);
-  }
 }
 
 void ObsPlot::checkAccumulationTime(ObsData &dta)
