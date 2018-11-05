@@ -35,12 +35,14 @@
 /**
    \brief metadata on one data layer (on map)
 */
-struct PlotElement
+class PlotElement
 {
+public:
   std::string type;
   std::string str;
   std::string icon;
   bool enabled;
+
   PlotElement()
       : enabled(false)
   {
