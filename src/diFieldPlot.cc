@@ -57,6 +57,8 @@
 
 #include <puTools/miStringFunctions.h>
 
+#include <sstream>
+
 #define MILOGGER_CATEGORY "diana.FieldPlot"
 #include <miLogger/miLogging.h>
 

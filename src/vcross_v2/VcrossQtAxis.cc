@@ -31,6 +31,8 @@
 
 #include <diField/VcrossUtil.h>
 
+#include <cmath>
+
 #define MILOGGER_CATEGORY "vcross.Axis"
 #include <miLogger/miLogging.h>
 
