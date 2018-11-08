@@ -91,14 +91,14 @@ const std::vector<ObsDialogInfo::Par> pars = {{"pos", ObsDialogInfo::pt_std, -1,
                                               {"PPPP", ObsDialogInfo::pt_std, -1, 1, "Pressure ", 100, 1050},
                                               {"PPPP_mslp", ObsDialogInfo::pt_std, -1, 1, "", -50, -50},
                                               {"ppp", ObsDialogInfo::pt_std, -1, 1, " 3 hour pressure change", -10, 10},
-                                              {"a", ObsDialogInfo::pt_std, 201, 1, "Characteristic of pressure tendency", 0, 9},
+                                              {"a", ObsDialogInfo::pt_std, 201, 0, "Characteristic of pressure tendency", 0, 9},
                                               {"h", ObsDialogInfo::pt_std, -1, 0, "height of base of cloud", 1, 9},
                                               {"VV", ObsDialogInfo::pt_std, -1, 0, "horizontal visibility", 0, 10000},
                                               {"N", ObsDialogInfo::pt_std, -1, 0, "total cloud cover", 0, 8},
                                               {"RRR", ObsDialogInfo::pt_rrr, -1, 1, "precipitation", -1, 100},
-                                              {"ww", ObsDialogInfo::pt_std, 0, 1, "Significant weather", 0, 0},
-                                              {"W1", ObsDialogInfo::pt_std, 0, 1, "past weather (1)", 3, 9},
-                                              {"W2", ObsDialogInfo::pt_std, 0, 1, "past weather (2)", 3, 9},
+                                              {"ww", ObsDialogInfo::pt_std, 0, 0, "Significant weather", 0, 0},
+                                              {"W1", ObsDialogInfo::pt_std, 0, 0, "past weather (1)", 3, 9},
+                                              {"W2", ObsDialogInfo::pt_std, 0, 0, "past weather (2)", 3, 9},
                                               {"Nh", ObsDialogInfo::pt_std, -1, 0, "cloud amount", 0, 9},
                                               {"Cl", ObsDialogInfo::pt_std, 170, 0, "cloud type, low", 1, 9},
                                               {"Cm", ObsDialogInfo::pt_std, 180, 0, "cloud type, medium", 1, 9},
@@ -213,5 +213,7 @@ ObsDialogInfo::Misc ObsDialogInfo::miscFromText(const std::string& text)
     return leveldiffs;
   if (text == "show_VV_as_code")
     return show_VV_as_code;
+  if (text == "plotundef")
+    return plotundef;
   return none;
 }

@@ -98,6 +98,7 @@ struct ObsDialogInfo
     asFieldButton = 1 << 10,
     leveldiffs = 1 << 11,
     show_VV_as_code = 1 << 12,
+    plotundef = 1 << 13,
   };
   static Misc miscFromText(const std::string& text);
 

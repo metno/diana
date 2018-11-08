@@ -1074,13 +1074,13 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
 
       //  20004 PAST WEATHER (1),  CODE TABLE  20004
     case 20004:
-      if (values[j] > 2 && values[j] < 20)
+      if (values[j] > 2 && values[j] < 20 && values[j] != 10)
         d.fdata["W1"] = values[j];
       break;
 
       //  20005  PAST WEATHER (2),  CODE TABLE  20005
     case 20005:
-      if (values[j] > 2 && values[j] < 20)
+      if (values[j] > 2 && values[j] < 20 && values[j] != 10)
         d.fdata["W2"] = values[j];
       break;
 

@@ -50,6 +50,7 @@
 #include <QTextCodec>
 
 #include <boost/range/adaptor/reversed.hpp>
+#include <boost/range.hpp>
 
 #include <fstream>
 #include <iomanip>
@@ -192,6 +193,7 @@ ObsPlot::ObsPlot(const std::string& dn, ObsPlotType plottype)
   tempPrecision = false;
   unit_ms = false;
   show_VV_as_code_ = true;
+  plotundef = false;
   vertical_orientation = true;
   left_alignment = true;
   showpos = false;
@@ -449,6 +451,8 @@ void ObsPlot::setPlotInfo(const miutil::KeyValue_v& pin)
       unit_ms = kv.toBool();
     } else if (key == "show_VV_as_code") {
       show_VV_as_code_ = kv.toBool();
+    } else if (key == "plotundef") {
+      plotundef = kv.toBool();
     } else if (key == "parametername") {
       parameterName = kv.toBool();
     } else if (key == "popup") {
@@ -1641,6 +1645,12 @@ void ObsPlot::printListParameter(DiGLPainter* gl, const ObsData& dta, const ObsD
     printListPos(gl, dta, xypos, yStep, align_right);
     return;
   }
+
+  const std::map<string, string>::const_iterator s_p = dta.stringdata.find(param.name);
+  const std::map<string, float>::const_iterator f_p = dta.fdata.find(param.name);
+  if (!plotundef && s_p == dta.stringdata.end() && f_p == dta.fdata.end())
+    return;
+
   xypos.ry() -= yStep;
 
   if (miutil::contains(param.name, "RRR")) {
@@ -1651,7 +1661,6 @@ void ObsPlot::printListParameter(DiGLPainter* gl, const ObsData& dta, const ObsD
     printListSymbol(gl, dta,param,xypos,yStep,align_right,xshift);
   } else {
     METLIBS_LOG_DEBUG(LOGVAL(param.name));
-    const std::map<string, string>::const_iterator s_p = dta.stringdata.find(param.name);
     if (s_p != dta.stringdata.end()) {
       checkColourCriteria(gl, param.name,undef);
       std::string str = s_p->second;
@@ -1661,7 +1670,6 @@ void ObsPlot::printListParameter(DiGLPainter* gl, const ObsData& dta, const ObsD
 
       printListString(gl, str, xypos, align_right);
     } else {
-      const std::map<string, float>::const_iterator f_p = dta.fdata.find(param.name);
       if (f_p != dta.fdata.end()) {
         checkColourCriteria(gl, param.name, f_p->second);
         if (param.name == "VV") {
@@ -1706,8 +1714,10 @@ void ObsPlot::printListSymbol(DiGLPainter* gl, const ObsData& dta, const ObsDial
     if (f_p != dta.fdata.end() ) {
       checkColourCriteria(gl, param.name, f_p->second);
       QPointF spos = xypos*scale - QPointF(xshift, 0);
-      if (param.symbol > 0 && f_p->second > 0 && f_p->second < 10) {
+      if (param.symbol == 201 && f_p->second > 0 && f_p->second < 9) {
         symbol(gl, vtab(param.symbol + (int) f_p->second), spos, 0.6 * scale, align_right);
+      } else if (param.symbol > 0 && f_p->second > 0 && f_p->second < 10) {
+        symbol(gl, vtab(param.symbol + (int)f_p->second), spos, 0.6 * scale, align_right);
       } else if ((param.name == "W1" || param.name == "W2") && f_p->second > 2) {
         pastWeather(gl, (int) f_p->second, spos, 0.6 * scale, align_right);
 
@@ -3332,8 +3342,12 @@ void ObsPlot::weather(DiGLPainter* gl, short int ww, float TTT, bool ship_buoy, 
       79, 79, 79, 0, 0, 0, 81, 80, 81, 82, 85, 86, 86, 0, 0, 0, 17, 17, 95, 96,
       17, 97, 99, 0, 0, 0 };
 
-  if (ww > 99)  {
-    ww = auto2man[ww - 100];
+  if (ww > 99) {
+    const int wwa = ww - 100;
+    if (wwa < boost::size(auto2man))
+      ww = auto2man[wwa];
+    else
+      return;
   }
 
   //do not plot ww<3
@@ -3374,12 +3388,20 @@ void ObsPlot::weather(DiGLPainter* gl, short int ww, float TTT, bool ship_buoy, 
 
 void ObsPlot::pastWeather(DiGLPainter* gl, int w, QPointF xypos, float scale, bool align_right)
 {
+
+  // manual codes - code table 4561, automatic codes - code table 4531
   const int auto2man[10] = { 0, 4, 3, 4, 6, 5, 6, 7, 8, 9 };
 
-  if (w > 9)
-    w = auto2man[w - 10];
+  if (w > 9) {
+    const int wa = w - 10;
+    if (wa < boost::size(auto2man))
+      w = auto2man[wa];
+    else
+      return;
+  }
 
-  if (w < 2)
+  // code figures 0, 1 and 2 of the W  code table shall be considered to represent phenomena without significance.
+  if (w < 3)
     return;
 
   symbol(gl, vtab(158 + w), xypos, scale);

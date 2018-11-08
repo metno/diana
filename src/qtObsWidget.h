@@ -131,6 +131,7 @@ private:
   QCheckBox* parameterNameCheckBox;
   QCheckBox* qualityCheckBox;
   QCheckBox* wmoCheckBox;
+  QCheckBox* plotundefCheckBox;
   QCheckBox* devFieldCheckBox;
   QComboBox* devColourBox1;
   QComboBox* devColourBox2;

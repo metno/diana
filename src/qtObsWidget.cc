@@ -129,6 +129,7 @@ void ObsWidget::setDialogInfo(ObsDialogInfo::PlotType dialoginfo)
   bool popupWindow = (dialogInfo.misc & ObsDialogInfo::popup) != 0;
   bool qualityFlag = (dialogInfo.misc & ObsDialogInfo::qualityflag) != 0;
   bool wmoFlag = (dialogInfo.misc & ObsDialogInfo::wmoflag) != 0;
+  bool plotundefFlag = (dialogInfo.misc & ObsDialogInfo::plotundef) != 0;
   markerboxVisible = (dialogInfo.misc & ObsDialogInfo::markerboxVisible) != 0;
   bool criteria = (dialogInfo.misc & ObsDialogInfo::criteria) != 0;
 
@@ -214,6 +215,9 @@ void ObsWidget::setDialogInfo(ObsDialogInfo::PlotType dialoginfo)
   if ( !qualityFlag ) qualityCheckBox->hide();
   wmoCheckBox= new QCheckBox(tr("WMO stations"),this);
   if ( !wmoFlag ) wmoCheckBox->hide();
+  plotundefCheckBox = new QCheckBox(tr("Show missing values"), this);
+  if (!plotundefFlag)
+    plotundefCheckBox->hide();
 
   //Onlypos & marker
   onlyposCheckBox= new QCheckBox(tr("Positions only"),this);
@@ -378,6 +382,7 @@ void ObsWidget::setDialogInfo(ObsDialogInfo::PlotType dialoginfo)
   vcommonlayout->addWidget( parameterNameCheckBox );
   vcommonlayout->addWidget( qualityCheckBox );
   vcommonlayout->addWidget( wmoCheckBox );
+  vcommonlayout->addWidget(plotundefCheckBox);
   vcommonlayout->addLayout( devLayout );
   vcommonlayout->addWidget( popupWindowCheckBox );
   vcommonlayout->addLayout( onlyposLayout);
@@ -412,6 +417,7 @@ void ObsWidget::ToolTip()
   devColourBox2->setToolTip(tr("PPPP-MSLP>0"));
   qualityCheckBox->setToolTip(tr("Only show stations with quality flag good."));
   wmoCheckBox->setToolTip(tr("Only show stations with wmo number"));
+  plotundefCheckBox->setToolTip(tr("Plot X if the value is missing"));
   diffLcdnum->setToolTip(tr("Max time difference"));
   diffComboBox->setToolTip(tr("Max value for the slider"));
   pricheckbox->setToolTip(tr("Show only observations in the priority list") );
@@ -458,7 +464,6 @@ void ObsWidget::displayDensity(int number)
   // This function is called when densitySlider sends a signal
   // valueChanged(int)
   // and changes the numerical value in the lcd display densityLcdnum
-
   double scalednumber= number* scaledensity;
   if (number == maxdensity) {
     densityLcdnum->display("ALLE");
@@ -627,6 +632,9 @@ KVListPlotCommand_cp ObsWidget::getOKString(bool forLog)
 
   if( wmoCheckBox->isChecked() )
     dVariables.misc["wmoflag"]="true";
+
+  if (plotundefCheckBox->isChecked())
+    dVariables.misc["plotundef"] = "true";
 
   if( orientCheckBox->isChecked() )
     dVariables.misc["orientation"]="horizontal";
@@ -798,45 +806,45 @@ void ObsWidget::updateDialog(bool setChecked)
     }
   }
 
+  std::map<std::string, std::string>::iterator it;
+  const std::map<std::string, std::string>::iterator end = dVariables.misc.end();
   //temp precision
-  if (dVariables.misc.count("tempprecision") &&
-      dVariables.misc["tempprecision"] == "true"){
+  if ((it = dVariables.misc.find("tempprecision")) != end && it->second == "true") {
     tempPrecisionCheckBox->setChecked(true);
   }
 
   //wind unit m/s
-  if (dVariables.misc.count("unit_ms") &&
-      dVariables.misc["unit_ms"] == "true"){
+  if ((it = dVariables.misc.find("unit_ms")) != end && it->second == "true") {
     unit_msCheckBox->setChecked(true);
   }
 
   //parameterName
-  if (dVariables.misc.count("parametername") &&
-      dVariables.misc["parametername"] == "true"){
+  if ((it = dVariables.misc.find("parametername")) != end && it->second == "true") {
     parameterNameCheckBox->setChecked(true);
   }
 
   //popupWindow
-  if (dVariables.misc.count("popup") &&
-      dVariables.misc["popup"] == "true"){
+  if ((it = dVariables.misc.find("popup")) != end && it->second == "true") {
     popupWindowCheckBox->setChecked(true);
   }
 
   //Quality flag
-  if (setChecked && dVariables.misc.count("qualityflag") &&
-      dVariables.misc["qualityflag"] == "true"){
+  if (setChecked && (it = dVariables.misc.find("qualityflag")) != end && it->second == "true") {
     qualityCheckBox->setChecked(true);
   }
 
   //WMO number
-  if (setChecked && dVariables.misc.count("wmoflag") &&
-      dVariables.misc["wmoflag"] == "true"){
+  if (setChecked && (it = dVariables.misc.find("wmoflag")) != end && it->second == "true") {
     wmoCheckBox->setChecked(true);
   }
 
+  // Show missing values
+  if (setChecked && (it = dVariables.misc.find("plotundef")) != end && it->second == "true") {
+    plotundefCheckBox->setChecked(true);
+  }
+
   //dev from field
-  if (dVariables.misc.count("devfield") &&
-      dVariables.misc["devfield"] == "true"){
+  if ((it = dVariables.misc.find("devfield")) != end && it->second == "true") {
     devFieldCheckBox->setChecked(true);
     devFieldChecked(true);
     number= getIndex( cInfo, dVariables.misc["devcolour1"]);
@@ -850,42 +858,38 @@ void ObsWidget::updateDialog(bool setChecked)
   }
 
   //orient
-  if (dVariables.misc.count("orientation") &&
-      dVariables.misc["orientation"] == "horizontal"){
+  if ((it = dVariables.misc.find("orientation")) != end && it->second == "horizontal") {
     orientCheckBox ->setChecked(true);
   }
 
   //alignment
-  if (dVariables.misc.count("alignment") &&
-      dVariables.misc["alignment"] == "right"){
+  if ((it = dVariables.misc.find("alignment")) != end && it->second == "right") {
     alignmentCheckBox ->setChecked(true);
   }
 
   //showpos
-  if (dVariables.misc.count("showpos") &&
-      dVariables.misc["showpos"] == "true"){
+  if ((it = dVariables.misc.find("showpos")) != end && it->second == "true") {
     showposCheckBox ->setChecked(true);
   }
 
   //criteria
-  if (dVariables.misc.count("criteria") &&
-      dVariables.misc["criteria"] == "true"){
+  if ((it = dVariables.misc.find("criteria")) != end && it->second == "true") {
     criteriaCheckBox ->setChecked(true);
   }
 
   //level
-  if (verticalLevels && dVariables.misc.count("level") && levelMap.count(dVariables.misc["level"])) {
-    number = levelMap[dVariables.misc["level"]];
+  if (verticalLevels && (it = dVariables.misc.find("level")) != end && levelMap.count(it->second)) {
+    number = levelMap[it->second];
     pressureComboBox->setCurrentIndex(number);
   }
 
   //density
-  if (dVariables.misc.count("density")){
-    if(dVariables.misc["density"]=="allobs") {
+  if ((it = dVariables.misc.find("density")) != end) {
+    if (it->second == "allobs") {
       allObs=true;
       number= maxdensity;
     } else {
-      scalednumber= atof(dVariables.misc["density"].c_str());
+      scalednumber = miutil::to_float(it->second);
       number= int(scalednumber/scaledensity + 0.5);
       allObs=false;
     }
@@ -897,8 +901,8 @@ void ObsWidget::updateDialog(bool setChecked)
   displayDensity(number);
 
   //scale
-  if (dVariables.misc.count("scale") ){
-    scalednumber= atof(dVariables.misc["scale"].c_str());
+  if ((it = dVariables.misc.find("scale")) != end) {
+    scalednumber = miutil::to_float(it->second);
   }else{
     scalednumber = 1.0;
   }
@@ -911,12 +915,12 @@ void ObsWidget::updateDialog(bool setChecked)
   int maxSliderValue = 13;
   int sliderStep = 15;
   number = 60/sliderStep;
-  if (dVariables.misc.count("timediff") ){
-    timediff_minutes= dVariables.misc["timediff"];
+  if ((it = dVariables.misc.find("timediff")) != end) {
+    timediff_minutes = it->second;
     if( timediff_minutes == "alltimes"){
       number=time_slider2lcd.size();
     } else {
-      int iminutes = atoi(timediff_minutes.c_str());
+      int iminutes = miutil::to_int(timediff_minutes);
       if(iminutes<3*60){
         i=0;
         maxSliderValue = 13;
@@ -943,15 +947,14 @@ void ObsWidget::updateDialog(bool setChecked)
   displayDiff(number);
 
   //onlypos
-  if (dVariables.misc.count("onlypos") &&
-      dVariables.misc["onlypos"] == "true"){
+  if ((it = dVariables.misc.find("onlypos")) != end && it->second == "true") {
     onlyposCheckBox ->setChecked(true);
     onlyposChecked(true);
   }
 
   //Image
-  if (dVariables.misc.count("image") ){
-    number = getIndex(markerName,dVariables.misc["image"]);
+  if ((it = dVariables.misc.find("image")) != end) {
+    number = getIndex(markerName, it->second);
     if(number>=0)
       markerBox->setCurrentIndex(number);
   }
@@ -959,8 +962,9 @@ void ObsWidget::updateDialog(bool setChecked)
   //priority
   m= priorityList.size();
   j= 0;
-  if(dVariables.misc.count("priority")){
-    while (j<m && dVariables.misc["priority"]!=priorityList[j].file) j++;
+  if ((it = dVariables.misc.find("priority")) != end) {
+    while (j < m && it->second != priorityList[j].file)
+      j++;
     if (j<m) {
       pri_selected= ++j;
       pribox->setCurrentIndex(pri_selected);
@@ -978,14 +982,13 @@ void ObsWidget::updateDialog(bool setChecked)
   }
 
   // show only prioritized
-  if (dVariables.misc.count("showonlyprioritized")
-      && dVariables.misc["showonlyprioritized"] == "true") {
+  if ((it = dVariables.misc.find("showonlyprioritized")) != end && it->second == "true") {
     pricheckbox->setChecked(true);
   }
 
   //Sort Criteria
-  if(dVariables.misc.count("sort")){
-    std::vector<std::string> sc = miutil::split(dVariables.misc["sort"], 0, ",");
+  if ((it = dVariables.misc.find("sort")) != end) {
+    std::vector<std::string> sc = miutil::split(it->second, 0, ",");
     int index = -1;
     for(unsigned int i=0; i<button.size(); i++) {
       if (sc[0]== button[i].name) {
@@ -1009,8 +1012,8 @@ void ObsWidget::updateDialog(bool setChecked)
   }
 
   //colour
-  if (dVariables.misc.count("colour") ){
-    number= getIndex( cInfo, dVariables.misc["colour"]);
+  if ((it = dVariables.misc.find("colour")) != end) {
+    number = getIndex(cInfo, it->second);
     if (number>=0)
       colourBox->setCurrentIndex(number);
   }
@@ -1075,6 +1078,8 @@ void ObsWidget::setFalse()
   qualityCheckBox->setChecked(false);
 
   wmoCheckBox->setChecked(false);
+
+  plotundefCheckBox->setChecked(false);
 
   orientCheckBox->setChecked(false);
 

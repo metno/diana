@@ -113,6 +113,7 @@ protected:
   bool tempPrecision; //temp and dewpoint in desidegrees or degrees
   bool unit_ms; //wind in m/s or knots
   bool show_VV_as_code_; // hor. visibility in km or WMO codevisib
+  bool plotundef;
   bool parameterName; // parameter name printed in front of value (ascii only), from plotAscii
   bool popupText; // selected parameters in popup window
 
@@ -363,6 +364,7 @@ public:
     { collider_ = collider; }
 
   void setShowVVAsCode(bool on) { show_VV_as_code_ = on; }
+  void setPlotundef(bool on) { plotundef = on; }
 
   // return the computed index in stationlist, ROADOBS only
   std::vector<int>& getStationsToPlot();
