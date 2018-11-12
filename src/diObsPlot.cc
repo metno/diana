@@ -1882,7 +1882,7 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
   float xShift = 0;
   float yShift = 0;
 
-  if (!pFlag.count("Wind")) {
+  if (!windOK) {
     ObsData::stringdata_t::const_iterator it = dta.stringdata.find("image");
     if (it != dta.stringdata.end()) {
       const std::string& thatImage = it->second;
@@ -1894,6 +1894,9 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
       yShift = ig.heightp(thisImage) / 2;
       ig.plotImage(gl, getStaticPlot()->plotArea(), thisImage, x[index], y[index], true, thisMarkerSize);
     }
+    if (vertical_orientation)
+      xypos.ry() += yShift;
+    xypos.rx() += xShift;
   }
 
   PushPopTranslateScale pushpop1(gl, QPointF(x[index], y[index]));
@@ -1924,14 +1927,6 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
     plotWind(gl, dd_adjusted, ff, ddvar, radius);
 
     advanceByDD(dd_adjusted, xypos);
-  } else  {
-    if (vertical_orientation)
-      xypos.ry() += yShift;
-    xypos.rx() += xShift;
-    if (pFlag.count("wind")) {
-      QPointF center(0, 0);
-      printUndef(gl, center, false); //undef wind, station position
-    }
   }
 
   if (!vertical_orientation) {
