@@ -1,3 +1,11 @@
+diana-3.49 (3.49.0~rc1-1) unstable; urgency=low
+
+  * various updates for OBS, SAT
+  * some code reorganisation
+  * faster abshum and vessel icing functions
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Mon, 19 Nov 2018 08:00:08 +0100
+
 diana-3.48 (3.48.0~rc1-1) unstable; urgency=low
 
   * vprof: VPROF_DATA reftime/refhour/refoffset
