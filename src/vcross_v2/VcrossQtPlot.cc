@@ -74,8 +74,6 @@ bool eq_LonLat(const LonLat& a, const LonLat& b)
       && EPS > fabs(a.lat() - b.lat());
 }
 
-const float FLTABLE[] = {25, 50, 100, 140, 180, 240, 300, 340, 390, 450, 600, 700, 800, 999};
-
 namespace Unit {
 const float m = 1;
 const float nm = 1852 * m; // nautical mile
