@@ -190,17 +190,6 @@ VprofValues_cp VprofDataFimex::readValues(const VprofValuesRequest& req)
   }
   collector->requireVertical(req.vertical_axis);
 
-  FieldData_cp var0 = std::dynamic_pointer_cast<const FieldData>(collector->getResolvedField(mr, *req.variables.begin()));
-  if (!var0) {
-    METLIBS_LOG_WARN("data for '" << *req.variables.begin() << "' not found");
-    return VprofValues_p();
-  }
-  ZAxisData_cp zaxis = var0->zaxis();
-  if (!zaxis) {
-    METLIBS_LOG_WARN("variable '" << *req.variables.begin() << "' has no vertical axis");
-    return VprofValues_cp();
-  }
-
   model_values_m model_values;
   try {
     model_values = vc_fetch_pointValues(collector, pos, user_time, req.realization);
@@ -222,12 +211,6 @@ VprofValues_cp VprofDataFimex::readValues(const VprofValuesRequest& req)
   const vcross::string_v fields(req.variables.begin(), req.variables.end());
   vc_evaluate_fields(collector, model_values, mr, fields);
 
-  Values_cp z_values = vc_evaluate_z(zaxis, req.vertical_axis, n2v);
-  if (!z_values) {
-    METLIBS_LOG_WARN("no z values for model='" << mr.model << " reftime=" << util::to_miTime(mr.reftime));
-    return VprofValues_cp();
-  }
-
   VprofSimpleValues_p vv = std::make_shared<VprofSimpleValues>();
   vv->text.index = -1;
   vv->text.prognostic = true;
@@ -240,6 +223,23 @@ VprofValues_cp VprofDataFimex::readValues(const VprofValuesRequest& req)
   vv->text.kindexFound = false;
   vv->text.realization = req.realization;
   for (const std::string& v : req.variables) {
+    FieldData_cp var = std::dynamic_pointer_cast<const FieldData>(collector->getResolvedField(mr, v));
+    if (!var) {
+      // this is okay for a derived variable
+      continue;
+    }
+    ZAxisData_cp zaxis = var->zaxis();
+    if (!zaxis) {
+      METLIBS_LOG_WARN("variable '" << v << "' has no vertical axis");
+      continue;
+    }
+
+    Values_cp z_values = vc_evaluate_z(zaxis, req.vertical_axis, n2v);
+    if (!z_values) {
+      METLIBS_LOG_WARN("no z values for model='" << mr.model << " reftime=" << util::to_miTime(mr.reftime) << " var='" << v << "'");
+      continue;
+    }
+
     vv->add(copy_vprof_values(z_values, n2v, v, zAxisUnit(req.vertical_axis), "FIXME"));
   }
 
