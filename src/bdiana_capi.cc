@@ -243,6 +243,7 @@ struct Bdiana
   int prepareInput(istream& is);
   bool ensureSetup();
   void setTimeChoice(BdianaSource::TimeChoice tc);
+  BdianaSource::TimeChoice getTimeChoice() const;
   void set_ptime(BdianaSource& src);
   void createJsonAnnotation();
   std::vector<std::string> FIND_END_COMMAND(int& k, const std::string& end1, const std::string& end2, bool* found_end = 0);
@@ -876,6 +877,11 @@ void Bdiana::setTimeChoice(BdianaSource::TimeChoice tc)
   wavespec.setTimeChoice(tc);
 }
 
+BdianaSource::TimeChoice Bdiana::getTimeChoice() const
+{
+  return main.getTimeChoice();
+}
+
 void Bdiana::set_ptime(BdianaSource& src)
 {
   if (fixedtime.undef()) {
@@ -1100,6 +1106,9 @@ int Bdiana::handlePlotCommand(int& k)
       }
     }
   }
+
+  if (getTimeChoice() != BdianaSource::USE_FIXEDTIME)
+    fixedtime = ptime = miutil::miTime();
 
   if (plottype == plot_standard) {
     // -- normal plot
