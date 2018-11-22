@@ -216,7 +216,6 @@ void SatManager::init(const PlotCommand_cpv& pinfo)
     }
   }
   vsp = new_vsp;
-
 }
 
 void SatManager::addPlotElements(std::vector<PlotElement>& pel)
@@ -312,7 +311,6 @@ bool SatManager::setData(SatPlot *satp)
 
   //not yet approved for plotting
   satdata->approved= false;
-//  sp=satp;
 
   int index;
   if (!satdata->filename.empty()) { //requested a specific filename
@@ -693,7 +691,7 @@ int SatManager::getFileName(Sat* satdata, std::string &name)
 {
   METLIBS_LOG_SCOPE(name);
 
-  std::vector<SatFileInfo> &ft = Prod[satdata->satellite][satdata->filetype].file;
+  const std::vector<SatFileInfo>& ft = Prod[satdata->satellite][satdata->filetype].file;
 
   int fileno=-1;
   int n=ft.size();
@@ -1109,27 +1107,28 @@ plottimes_t SatManager::getSatTimes()
   METLIBS_LOG_SCOPE();
 
   std::set<miTime> timeset;
-  for (size_t i = 0; i < vsp.size(); i++) {
-    SatPlotCommand_cp cmd = vsp[i]->command();
+  for (const SatPlot* sp : vsp) {
+    SatPlotCommand_cp cmd = sp->command();
 
     const std::string& satellite = cmd->satellite;
-    const std::string& file = cmd->filetype;
+    const std::string& filetype = cmd->filetype;
 
-    if (Prod.find(satellite)==Prod.end()) {
-      METLIBS_LOG_WARN("Product doesn't exist:" << satellite);
+    const Prod_t::iterator itS = Prod.find(satellite);
+    if (itS == Prod.end()) {
+      METLIBS_LOG_WARN("Product doesn't exist: '" << satellite << "'");
       continue;
     }
 
-    if (Prod[satellite].find(file)==Prod[satellite].end()) {
-      METLIBS_LOG_WARN("Subproduct doesn't exist:" << file);
+    const SubProd_t::iterator itF = itS->second.find(filetype);
+    if (itF == itS->second.end()) {
+      METLIBS_LOG_WARN("Subproduct doesn't exist: '" << filetype << "'");
       continue;
     }
-    subProdInfo &subp = Prod[satellite][file];
+    subProdInfo& subp = itF->second;
     listFiles(subp);
 
-    int nf= subp.file.size();
-    for (int j=0; j<nf; j++) {
-      timeset.insert(subp.file[j].time);
+    for (const auto& f : subp.file) {
+      timeset.insert(f.time);
     }
   }
 
