@@ -112,6 +112,7 @@ PlotModule::~PlotModule()
 void PlotModule::setCanvas(DiCanvas* canvas)
 {
   METLIBS_LOG_SCOPE();
+  staticPlot_->setDirty(true);
   // TODO set for all existing plots, and for new plots
   mCanvas = canvas;
   for (MapPlot* mp : vmp)
