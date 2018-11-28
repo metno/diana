@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SlippyMaps version="1.0.0">
+  <title>OpenStreetMap Slippy Maps</title>
+  <services>
+    <service id="osm_mapnik"
+             format="image/png"
+             url_template="https://a.tile.openstreetmap.org/{zoom}/{x}/{y}.png"
+             min_zoom="0"
+             max_zoom="17">
+      <title>OSM Mapnik</title>
+      <attribution>© OpenStreetMap (CC-BY-SA)</attribution>
+    </service>
+    <service id="osm_topo"
+             format="image/png"
+             url_template="https://b.tile.opentopomap.org/{zoom}/{x}/{y}.png"
+             min_zoom="0"
+             max_zoom="17">
+      <title>OSM OpenTopoMap</title>
+      <attribution>© OpenStreetMap, SRTM, OpenTopoMap (CC-BY-SA)</attribution>
+    </service>
+  </services>
+</SlippyMaps>

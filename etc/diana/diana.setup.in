@@ -2039,9 +2039,7 @@ tooltips-merge-identical="TimeSpan:begin|TimeSpan:end|time"
 </DRAWING>
 
 <WEBMAP_SERVICES>
-service.id=OSM service.type=slippy service.url=file:$(share_diana_dir)/products/slippy_maps.xml
-service.id=metno-vaerportal-wms service.type=wms service.url=http://public-wms.met.no/verportal/verportal.map?service=WMS&REQUEST=GetCapabilities&VERSION=1.3.0
-service.id=kartverket-wmts service.type=wmts service.url=http://opencache.statkart.no/gatekeeper/gk/gk.open_wmts?Version=1.0.0&service=wmts&request=getcapabilities
+service.id=OSM service.type=slippy service.url=file:$(share_diana_dir)/products/osm_slippy_maps.xml
 </WEBMAP_SERVICES>
 
 <EXPORT_COMMANDS>
