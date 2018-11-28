@@ -399,10 +399,11 @@ bool ObjectManager::getFileName(DisplayObjects& wObjects)
   const ObjFileInfo* best = 0;
   const miutil::miTime& t = wObjects.getTime();
   if (!t.undef()) {
-    int diff = 0;
+    int diff = wObjects.getTimeDiff() + 1;
+
     for (const auto& f : po->second.files) {
       const int d = abs(miTime::minDiff(t, f.time));
-      if (!best || d < diff) {
+      if (d < diff) {
         diff = d;
         best = &f;
       }
