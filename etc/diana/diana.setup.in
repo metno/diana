@@ -58,43 +58,33 @@ language=en
 <FONTS>
 #-----------------------------------------------------------------------------
 # font:        Family name
-# type:        Bitmap (screen fonts with postscript equivalent) |
-#              Scaleable (truetype rendered as polygons)
-# name:        X-fontdefinitions for bitmap fonts, name of fontfile for scaleable fonts
-# face:        NORMAL | ITALIC | BOLD | BOLD_ITALIC (for scaleable fonts)
-# postscript : For bitmap fonts, postscript-equivalent name (for postscript output)
-#-----------------------------------------------------------------------------
-# Scalable (truetype/polygon) fonts
-#-----------------------------------------------------------------------------
+# type:        tt_bitmap (screen fonts) | scaleable (truetype)
+# name:        name of fontfile
+# face:        NORMAL | ITALIC | BOLD | BOLD_ITALIC
 
+#-----------------------------------------------------------------------------
+# scalable fonts
+
+# weather symbols
 font=Symbol type=scaleable face=NORMAL name=metsymbols.ttf
 
+# text
 font=VeraPolygon  type=scaleable face=NORMAL name=Vera.ttf
 font=VeraPolygon  type=scaleable face=BOLD name=VeraBd.ttf
 font=VeraPolygon  type=scaleable face=ITALIC name=VeraIt.ttf
 font=VeraPolygon  type=scaleable face=BOLD_ITALIC name=VeraBI.ttf
 
 #-----------------------------------------------------------------------------
-# Bitmap (truetype/bitmap) fonts
-#-----------------------------------------------------------------------------
+# bitmap fonts
 
-font=VeraBitmap  type=tt_bitmap face=NORMAL name=Vera.ttf postscript=Helvetica ps-scale-x=1.0
-font=VeraBitmap  type=tt_bitmap face=BOLD name=VeraBd.ttf postscript=Helvetica ps-scale-x=1.0
-font=VeraBitmap  type=tt_bitmap face=ITALIC name=VeraIt.ttf postscript=Helvetica ps-scale-x=1.0
-font=VeraBitmap  type=tt_bitmap face=BOLD_ITALIC name=VeraBI.ttf postscript=Helvetica ps-scale-x=1.0
-
-#-----------------------------------------------------------------------------
-# Texture (Qt-based) fonts
-#-----------------------------------------------------------------------------
-
-#font=Helvetica type=texture face=NORMAL      name=Helvetica postscript=Helvetica
-#font=Helvetica type=texture face=BOLD        name=Helvetica postscript=Helvetica-Bold
-#font=Helvetica type=texture face=ITALIC      name=Helvetica postscript=Helvetica-Oblique
-#font=Helvetica type=texture face=BOLD_ITALIC name=Helvetica postscript=Helvetica-BoldOblique
+font=VeraBitmap  type=tt_bitmap face=NORMAL name=Vera.ttf
+font=VeraBitmap  type=tt_bitmap face=BOLD name=VeraBd.ttf
+font=VeraBitmap  type=tt_bitmap face=ITALIC name=VeraIt.ttf
+font=VeraBitmap  type=tt_bitmap face=BOLD_ITALIC name=VeraBI.ttf
 
 #-----------------------------------------------------------------------------
-# Defaults for 'magic' fontnames
-#-----------------------------------------------------------------------------
+# font aliases
+
 BITMAPFONT=VeraBitmap  # Use this as default bitmap font
 SCALEFONT=VeraPolygon  # Use this as default scaleable font
 METSYMBOLFONT=Symbol   # Use this as default font for meteorological symbols
@@ -619,9 +609,10 @@ tdiff.500-850=subtract(air_temperature_pl:level=500hPa,air_temperature_pl:level=
 
 tcmean.500-1000=tcmean.plevel_z1_z2(geopotential_height:level=500hPa,geopotential_height:level=1000hPa)
 
-#Icing - based on ff10m*(-1.7-tc2m)/(1+0.3*(sea_surface_temperature+1.7))   - Overland (1990)
-vessel_icing_mertins=vessel.icing.mertins(air_temperature_2m:unit=celsius,sea_surface_temperature:unit=celsius,x_wind_10m,y_wind_10m,-1.7)
-vessel_icing_overland=vessel.icing.overland(air_temperature_2m:unit=kelvin,sea_surface_temperature:unit=kelvin,x_wind_10m,y_wind_10m,-1.7)
+vessel_icing_overland=vessel.icing.overland(air_temperature_2m:units=celsius,temperature:level=0m,x_wind_10m,y_wind_10m,salinity:level=0m,aice)
+vessel_icing_mertins=vessel.icing.mertins(air_temperature_2m:units=celsius,temperature:level=0m,x_wind_10m,y_wind_10m,salinity:level=0m,aice)
+vessel_icing_modstall=vessel.icing.modstall(salinity:level=0m,significant_wave_height,x_wind_10m,y_wind_10m,air_temperature_2m:units=celsius,relative_humidity_2m_decimal,temperature:level=0m,air_pressure_at_sea_level:units=hectopascal,mean_wave_period,aice,h,5,3.14,3,9)
+vessel_icing_mincog=vessel.icing.mincog(salinity:level=0m,significant_wave_height,x_wind_10m,y_wind_10m,air_temperature_2m:units=celsius,relative_humidity_2m_decimal,temperature:level=0m,air_pressure_at_sea_level:units=hectopascal,mean_wave_period,aice,h,5,3.14,4,4,1)
 
 windcooling_minus=subtract(0,windcooling) 
 
@@ -834,29 +825,32 @@ prob_accumprecip.24h>150mm=probability_above(accumprecip.24h:ecoord=ensemble_mem
 prob_accumprecip.24h>200mm=probability_above(accumprecip.24h:ecoord=ensemble_member,200)
 
 #T2M_probabilities
-prob_t2m>+1=probability_above(air_temperature_2m:ecoord=ensemble_member,1)
-prob_t2m>+2=probability_above(air_temperature_2m:ecoord=ensemble_member,2)
-prob_t2m>+3=probability_above(air_temperature_2m:ecoord=ensemble_member,3)
-prob_t2m>+5=probability_above(air_temperature_2m:ecoord=ensemble_member,5)
-prob_t2m>+10=probability_above(air_temperature_2m:ecoord=ensemble_member,10)
-prob_t2m>+15=probability_above(air_temperature_2m:ecoord=ensemble_member,15)
-prob_t2m>+20=probability_above(air_temperature_2m:ecoord=ensemble_member,20)
-prob_t2m>+25=probability_above(air_temperature_2m:ecoord=ensemble_member,25)
-prob_t2m>+30=probability_above(air_temperature_2m:ecoord=ensemble_member,30)
+prob_t2m>+1=probability_above(air_temperature_2m:units=celsius:ecoord=ensemble_member,1)
+prob_t2m>+2=probability_above(air_temperature_2m:units=celsius:ecoord=ensemble_member,2)
+prob_t2m>+3=probability_above(air_temperature_2m:units=celsius:ecoord=ensemble_member,3)
+prob_t2m>+5=probability_above(air_temperature_2m:units=celsius:ecoord=ensemble_member,5)
+prob_t2m>+10=probability_above(air_temperature_2m:units=celsius:ecoord=ensemble_member,10)
+prob_t2m>+15=probability_above(air_temperature_2m:units=celsius:ecoord=ensemble_member,15)
+prob_t2m>+20=probability_above(air_temperature_2m:units=celsius:ecoord=ensemble_member,20)
+prob_t2m>+25=probability_above(air_temperature_2m:units=celsius:ecoord=ensemble_member,25)
+prob_t2m>+30=probability_above(air_temperature_2m:units=celsius:ecoord=ensemble_member,30)
+prob_t2m>+35=probability_above(air_temperature_2m:units=celsius:ecoord=ensemble_member,35)
+prob_t2m>+40=probability_above(air_temperature_2m:units=celsius:ecoord=ensemble_member,40)
+prob_t2m>+45=probability_above(air_temperature_2m:units=celsius:ecoord=ensemble_member,45)
 
-prob_t2m<0=probability_below(air_temperature_2m:ecoord=ensemble_member,0)
-prob_t2m<-1=probability_below(air_temperature_2m:ecoord=ensemble_member,-1)
-prob_t2m<-2=probability_below(air_temperature_2m:ecoord=ensemble_member,-2)
-prob_t2m<-3=probability_below(air_temperature_2m:ecoord=ensemble_member,-3)
-prob_t2m<-5=probability_below(air_temperature_2m:ecoord=ensemble_member,-5)
-prob_t2m<-10=probability_below(air_temperature_2m:ecoord=ensemble_member,-10)
-prob_t2m<-15=probability_below(air_temperature_2m:ecoord=ensemble_member,-15)
-prob_t2m<-20=probability_below(air_temperature_2m:ecoord=ensemble_member,-20)
-prob_t2m<-25=probability_below(air_temperature_2m:ecoord=ensemble_member,-25)
-prob_t2m<-30=probability_below(air_temperature_2m:ecoord=ensemble_member,-30)
-prob_t2m<-35=probability_below(air_temperature_2m:ecoord=ensemble_member,-35)
-prob_t2m<-40=probability_below(air_temperature_2m:ecoord=ensemble_member,-40)
-prob_t2m<-45=probability_below(air_temperature_2m:ecoord=ensemble_member,-45)
+prob_t2m<0=probability_below(air_temperature_2m:units=celsius:ecoord=ensemble_member,0)
+prob_t2m<-1=probability_below(air_temperature_2m:units=celsius:ecoord=ensemble_member,-1)
+prob_t2m<-2=probability_below(air_temperature_2m:units=celsius:ecoord=ensemble_member,-2)
+prob_t2m<-3=probability_below(air_temperature_2m:units=celsius:ecoord=ensemble_member,-3)
+prob_t2m<-5=probability_below(air_temperature_2m:units=celsius:ecoord=ensemble_member,-5)
+prob_t2m<-10=probability_below(air_temperature_2m:units=celsius:ecoord=ensemble_member,-10)
+prob_t2m<-15=probability_below(air_temperature_2m:units=celsius:ecoord=ensemble_member,-15)
+prob_t2m<-20=probability_below(air_temperature_2m:units=celsius:ecoord=ensemble_member,-20)
+prob_t2m<-25=probability_below(air_temperature_2m:units=celsius:ecoord=ensemble_member,-25)
+prob_t2m<-30=probability_below(air_temperature_2m:units=celsius:ecoord=ensemble_member,-30)
+prob_t2m<-35=probability_below(air_temperature_2m:units=celsius:ecoord=ensemble_member,-35)
+prob_t2m<-40=probability_below(air_temperature_2m:units=celsius:ecoord=ensemble_member,-40)
+prob_t2m<-45=probability_below(air_temperature_2m:units=celsius:ecoord=ensemble_member,-45)
 
 MSLP.min66=min_of_fields(air_pressure_at_sea_level:fchour=-66:unit=hectopascal)
 MSLP.min66index=index_of_fields_min(air_pressure_at_sea_level:fchour=-66:unit=hectopascal)
@@ -1425,10 +1419,13 @@ name=Surface group=height
 
 
 <FIELD_FILES>
+#-------------------------------------------------------------------------------
+# m=NAME          -- name as it will appear in the field dialog
+# t=netcdf|grbml  -- file type
+# f=filename|http -- path to file, or DAP url
+# c=....xml       -- config file for fimex (as in --input.config=...)
+#-------------------------------------------------------------------------------
 
-#-------------------------------------------------------------------------------
-#  m=NAME t=fimex format=netcdf|grib|ncml|wdb|metnofieldfile  f=filename|database-config|http
-#-------------------------------------------------------------------------------
 filegroup=MEPS
 m=meps_det_pp_2_5km_latest               t=netcdf f=http://thredds.met.no/thredds/dodsC/meps25files/meps_det_pp_2_5km_latest.nc
 m=meps_det_extracted_2_5km_latest        t=netcdf f=http://thredds.met.no/thredds/dodsC/meps25files/meps_det_extracted_2_5km_latest.nc
@@ -1585,8 +1582,6 @@ rectangle=-1e+07:1e+07:-1e+07:1e+07
 
 
 <MAP_TYPE>
-
- 
 #---------------------------------------------------------------------------
 # Maps are defined with  
 # map=NAME file=FILEPATH type=pland|triangles|lines_simple_text|shape
@@ -1594,27 +1589,29 @@ rectangle=-1e+07:1e+07:-1e+07:1e+07
 # type=pland|triangles|lines_simple_text|shape
 #---------------------------------------------------------------------------
 
+# these maps can be downloaded from
+# ftp://ftp.met.no/projects/diana/diana_maps.tar.gz
+# see https://wiki.met.no/diana/start
+
 map=Gshhs-Auto type=triangles
-limit=10  file=$(MAPDIR)/gshhs_25.map
-limit=2.5 file=$(MAPDIR)/gshhs_5.map
-limit=0.5 file=$(MAPDIR)/gshhs_1.map
-limit=0.1 file=$(MAPDIR)/gshhs_0.2.map
-limit=0	  file=$(MAPDIR)/gshhs_0.1.map
-contour=on cont.colour=black cont.linetype=solid cont.linewidth=1
-land=on land.colour=flesh
-#
+ limit=10  file=$(MAPDIR)/gshhs_25.map
+ limit=2.5 file=$(MAPDIR)/gshhs_5.map
+ limit=0.5 file=$(MAPDIR)/gshhs_1.map
+ limit=0.1 file=$(MAPDIR)/gshhs_0.2.map
+ limit=0	  file=$(MAPDIR)/gshhs_0.1.map
+ contour=on cont.colour=black cont.linetype=solid cont.linewidth=1
+ land=on land.colour=flesh
+
 map=Euro1    type=pland file=$(MAPDIR)/land4.dat    # emep(kyst)
 map=Euro2    type=pland file=$(MAPDIR)/land5.dat    # emep(grenser,elver)
-#
-map=Wvs-Auto type=pland
-limit=5.0 file=$(MAPDIR)/landwvs43m.dat # wvs(1:43mill)
-limit=1.0 file=$(MAPDIR)/landwvs12m.dat # wvs(1:12mill)
-limit=0.5 file=$(MAPDIR)/landwvs3m.dat  # wvs(1:3mill)
-limit=0.1 file=$(MAPDIR)/landwvs1m.dat  # wvs(1:1mill)
-limit=0   file=$(MAPDIR)/landwvs250k.dat# wvs(1:250.000)
-contour=on cont.colour=black cont.linetype=solid cont.linewidth=1
-#
 
+map=Wvs-Auto type=pland
+ limit=5.0 file=$(MAPDIR)/landwvs43m.dat # wvs(1:43mill)
+ limit=1.0 file=$(MAPDIR)/landwvs12m.dat # wvs(1:12mill)
+ limit=0.5 file=$(MAPDIR)/landwvs3m.dat  # wvs(1:3mill)
+ limit=0.1 file=$(MAPDIR)/landwvs1m.dat  # wvs(1:1mill)
+ limit=0   file=$(MAPDIR)/landwvs250k.dat# wvs(1:250.000)
+ contour=on cont.colour=black cont.linetype=solid cont.linewidth=1
 </MAP_TYPE>
 
 
