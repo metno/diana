@@ -2035,6 +2035,8 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
     if ((f_p = dta.fdata.find("N")) != fend) {
       fN = f_p->second;
       checkColourCriteria(gl, "N", fN);
+    } else {
+      gl->setColour(colour);
     }
     const bool is_auto = ((f_p = dta.fdata.find("auto")) != fend) && (f_p->second == 0);
     if (is_auto)
