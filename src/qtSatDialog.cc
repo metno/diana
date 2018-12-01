@@ -583,7 +583,7 @@ void SatDialog::updateTimes()
     if (m_state[i].filename.empty()) {
       found = true;
     } else {
-      vector<SatFileInfo> f = sdd_->getSatFiles(m_state[i].name, m_state[i].area, false);
+      vector<SatFileInfo> f = sdd_->getSatFiles(m_state[i].name, m_state[i].area, true);
       int n = f.size();
       for (int j = 0; j < n; j++)
         if (m_state[i].filename == f[j].name) {
