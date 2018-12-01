@@ -1,3 +1,10 @@
+diana-3.49 (3.49.0-1) unstable; urgency=low
+
+  * bugfix: Obs - colourCriteria
+  * Bugfix: Satdialog - updateTimes
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Sat, 01 Dec 2018 18:41:50 +0100
+
 diana-3.49 (3.49.0~rc3-1) unstable; urgency=low
 
   * Bugfix - ObjectManager - timediff
