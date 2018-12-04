@@ -461,7 +461,6 @@ int SatDialog::addSelectedPicture()
   //      }
   //   }
 
-
   if (!multiPicture->isChecked()) {
     int i = pictures->currentRow();
     if (i > -1 && i < int(m_state.size())) {
@@ -571,35 +570,14 @@ void SatDialog::updateTimes()
   METLIBS_LOG_SCOPE();
   diutil::OverrideCursor waitCursor;
 
-  // update the dialog and timeslider
-  int old_picturesIndex = pictures->currentRow();
-  updateTimefileList();
-  pictures->setCurrentRow(old_picturesIndex);
-
-  //check if m_state - "Valgte bilder" contains pictures no longer existing
-  //give a qmessagebox warning
+  // update times (files) of all selected pictures
   for (unsigned int i = 0; i < m_state.size(); i++) {
-    bool found = false;
-    if (m_state[i].filename.empty()) {
-      found = true;
-    } else {
-      vector<SatFileInfo> f = sdd_->getSatFiles(m_state[i].name, m_state[i].area, true);
-      int n = f.size();
-      for (int j = 0; j < n; j++)
-        if (m_state[i].filename == f[j].name) {
-          found = true;
-          break;
-        }
-      if (!found) {
-        QString tmp1 = "<nobr>" + tr("Chosen picture") + " <i>";
-        QString tmp2 = QString::fromStdString(pictureString(m_state[i], true));
-        QString tmp3 = " </i></nobr> <br>" + tr("No longer available on disk");
-        QString messagestring = tmp1 + tmp2 + tmp3;
-        QMessageBox::information(this, tr("Satellite dialog - info"),
-            messagestring);
-      }
-    }
+    sdd_->getSatFiles(m_state[i].name, m_state[i].area, true);
   }
+
+  // update the timefilelist if "time" og "file" is selected
+  if (!autoButton->isChecked())
+    updateTimefileList(false);
 
   emitSatTimes();
 }
@@ -955,7 +933,7 @@ void SatDialog::updateFileListWidget(int in)
 
 /**********************************************/
 
-void SatDialog::updateTimefileList()
+void SatDialog::updateTimefileList(bool update)
 {
   METLIBS_LOG_SCOPE();
 
@@ -968,7 +946,7 @@ void SatDialog::updateTimefileList()
 
   //get new list of sat files
   { diutil::OverrideCursor waitCursor;
-    files = sdd_->getSatFiles(namebox->currentText().toStdString(), fileListWidget->currentItem()->text().toStdString(), true);
+    files = sdd_->getSatFiles(namebox->currentText().toStdString(), fileListWidget->currentItem()->text().toStdString(), update);
   }
 
   if (autoButton->isChecked())
