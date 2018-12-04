@@ -108,7 +108,7 @@ protected:
 
 private:
   void updateFileListWidget(int);
-  void updateTimefileList();
+  void updateTimefileList(bool update = true);
   void updateChannelBox(bool select);
   void updatePictures(int index, bool updateAbove);
   void emitSatTimes(bool update=false);
