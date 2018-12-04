@@ -1,3 +1,9 @@
+diana-3.49 (3.49.1-1) unstable; urgency=low
+
+  * SAT - bugfix update times
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 04 Dec 2018 20:31:00 +0100
+
 diana-3.49 (3.49.0-1) unstable; urgency=low
 
   * bugfix: Obs - colourCriteria
