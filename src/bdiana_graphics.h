@@ -76,6 +76,7 @@ private:
   bool isPrinting() const;
   bool isSvg() const;
   bool isRaster() const;
+  bool isAnimation() const;
   bool render(ImageSource* is, ImageSink* sink);
   void createSink(const QSize& size);
   void beginMultiplePage();

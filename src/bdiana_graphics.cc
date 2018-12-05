@@ -82,7 +82,8 @@ bool BdianaGraphics::render(BdianaSource& src)
 
     if (!multiple_plots) {
       data_ok = render(src.imageSource(), sink.get());
-      endOutput();
+      if (!isAnimation())
+        endOutput();
     } else {
       QPictureSink pic(cellsize, isPrinting());
       data_ok = render(src.imageSource(), &pic);
@@ -130,6 +131,16 @@ bool BdianaGraphics::isRaster() const
   }
 }
 
+bool BdianaGraphics::isAnimation() const
+{
+  if (image_type == image_auto) {
+    return (diutil::endswith(outputfilename_, ".mp4") || diutil::endswith(outputfilename_, ".mpg") || diutil::endswith(outputfilename_, ".avi") ||
+            diutil::endswith(outputfilename_, ".gif"));
+  } else {
+    return image_type == image_movie;
+  }
+}
+
 void BdianaGraphics::createSink(const QSize& size)
 {
   endOutput();
@@ -142,6 +153,20 @@ void BdianaGraphics::createSink(const QSize& size)
     sink.reset(new SvgFileSink(size, filename));
   } else if (isRaster()) {
     sink.reset(new RasterFileSink(size, filename));
+  } else if (isAnimation()) {
+    QString fmt = "AVI";
+    if (image_type == image_auto) {
+      if (diutil::endswith(outputfilename_, ".mp4"))
+        fmt = "MP4";
+      else if (diutil::endswith(outputfilename_, ".mpg"))
+        fmt = "MPG";
+      else if (diutil::endswith(outputfilename_, ".gif"))
+        fmt = MovieMaker::format_animated;
+    } else if (image_type == image_movie) {
+      fmt = QString::fromStdString(movieFormat);
+    }
+    const float framerate = 0.2f;
+    sink.reset(new MovieMaker(filename, fmt, framerate, size));
   } else {
     METLIBS_LOG_ERROR("could not create sink for '" << outputfilename_ << "'");
   }
