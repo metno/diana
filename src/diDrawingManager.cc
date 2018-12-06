@@ -108,7 +108,7 @@ void DrawingManager::setNextJoinId(int val)
 void DrawingManager::separateJoinIds(const QList<DrawingItemBase *> &items)
 {
   int loAbsJoinId = 0;
-  foreach (DrawingItemBase *item, items) {
+  for (DrawingItemBase* item : items) {
     const int absJoinId = qAbs(item->joinId());
     if (absJoinId > 0)
       loAbsJoinId = (loAbsJoinId ? qMin(loAbsJoinId, absJoinId) : absJoinId);
@@ -116,7 +116,7 @@ void DrawingManager::separateJoinIds(const QList<DrawingItemBase *> &items)
 
   const int add = (DrawingManager::instance()->nextJoinId(false) - loAbsJoinId);
   int hiAbsJoinId = 0;
-  foreach (DrawingItemBase *item, items) {
+  for (DrawingItemBase* item : items) {
     const int joinId = item->joinId();
     if (joinId) {
       const int newAbsJoinId = qAbs(joinId) + add;
@@ -230,7 +230,7 @@ bool DrawingManager::processInput(const PlotCommand_cpv& inp)
   QMap<QString, EditItems::ItemGroup *> loaded;
   QMap<QString, EditItems::ItemGroup *>::const_iterator itl;
 
-  foreach (const QString &name, toLoad) {
+  for (const QString& name : toLoad) {
     // If the name corresponds to a key in the list of drawings then look up
     // associated file name.
     QString fileName;
@@ -268,7 +268,7 @@ bool DrawingManager::processInput(const PlotCommand_cpv& inp)
 
   // Emit a signal to inform other components that the list of layer groups
   // has been updated.
-  emit updated();
+  Q_EMIT updated();
 
   return true;
 }
@@ -276,7 +276,7 @@ bool DrawingManager::processInput(const PlotCommand_cpv& inp)
 std::vector<std::string> DrawingManager::getAnnotations() const
 {
   vector<string> output;
-  foreach (QString drawing, loaded_.keys())
+  for (QString drawing : loaded_.keys())
     output.push_back(drawing.toStdString());
   return output;
 }
@@ -347,7 +347,7 @@ QString DrawingManager::loadDrawing(const QString &name, const QString &fileName
 
   // Record the file name.
   drawings_[name] = fileName;
-  emit drawingLoaded(name);
+  Q_EMIT drawingLoaded(name);
 
   return error;
 }
@@ -416,7 +416,7 @@ plottimes_t DrawingManager::getTimes() const
   QMap<QString, EditItems::ItemGroup *>::const_iterator it;
   for (it = itemGroups_.begin(); it != itemGroups_.end(); ++it) {
     QSet<QString> groupTimes = it.value()->getTimes();
-    foreach (const QString &time, groupTimes)
+    for (const QString& time : groupTimes)
       times.insert(miutil::miTime(time.toStdString()));
   }
 
@@ -475,7 +475,7 @@ bool DrawingManager::prepare(const miutil::miTime &time)
     itemGroup->setTime(dateTime, allVisible);
   }
 
-  emit timesUpdated();
+  Q_EMIT timesUpdated();
   return found;
 }
 
@@ -507,7 +507,7 @@ void DrawingManager::plot(DiGLPainter* gl, bool under, bool over)
   gl->Scalef(PLOTM->getStaticPlot()->getPhysToMapScaleX(),
       PLOTM->getStaticPlot()->getPhysToMapScaleY(), 1.0);
 
-  foreach (DrawingItemBase *item, allItems()) {
+  for (DrawingItemBase* item : allItems()) {
 
     if (isItemVisible(item)) {
       applyPlotOptions(gl, item);
@@ -517,12 +517,12 @@ void DrawingManager::plot(DiGLPainter* gl, bool under, bool over)
   }
 }
 
-QMap<QString, QString> &DrawingManager::getDrawings()
+const QMap<QString, QString>& DrawingManager::getDrawings() const
 {
   return drawings_;
 }
 
-QMap<QString, QString> &DrawingManager::getLoaded()
+const QMap<QString, QString>& DrawingManager::getLoaded() const
 {
   return loaded_;
 }
@@ -640,7 +640,7 @@ std::vector<PlotElement> DrawingManager::getPlotElements()
   plotElements_.clear();
 
   int i = 0;
-  foreach (EditItems::ItemGroup *group, itemGroups_) {
+  for (EditItems::ItemGroup* group : itemGroups_) {
     if (group->isActive()) {
       QString str = QString("%1").arg(i);
       pel.push_back(PlotElement(plotElementTag().toStdString(), str.toStdString(),
@@ -684,7 +684,7 @@ void DrawingManager::sendMouseEvent(QMouseEvent* event, EventResult&)
     QHash<DrawingItemBase::HitType, QList<DrawingItemBase *> > hitItemTypes;
     QList<DrawingItemBase *> hit = findHitItems(event->pos(), hitItemTypes, missed);
     if (hit.size() > 0)
-      emit itemsHovered(hit);
+      Q_EMIT itemsHovered(hit);
   }
 }
 
@@ -701,7 +701,7 @@ QList<DrawingItemBase *> DrawingManager::findHitItems(const QPointF &pos,
 
   QMap<QString, EditItems::ItemGroup *>::const_iterator it;
   for (it = itemGroups_.begin(); it != itemGroups_.end(); ++it) {
-    foreach (DrawingItemBase *item, it.value()->items()) {
+    for (DrawingItemBase* item : it.value()->items()) {
       if (item->hit(pos, false) != DrawingItemBase::None)
         hitItems.append(item);
       else
@@ -725,11 +725,11 @@ vector<PolyLineInfo> DrawingManager::loadCoordsFromKML(const string &fileName)
   QList<DrawingItemBase *> items = KML::createFromFile(fname, fname, error);
 
   if (error.isEmpty()) {
-    foreach (DrawingItemBase *item, items) {
+    for (DrawingItemBase* item : items) {
       DrawingItem_PolyLine::PolyLine *polyLine = dynamic_cast<DrawingItem_PolyLine::PolyLine *>(item);
       if (polyLine) {
         vector<LonLat> coords;
-        foreach (QPointF p, polyLine->getLatLonPoints())
+        for (QPointF p : polyLine->getLatLonPoints())
           coords.push_back(LonLat::fromDegrees(p.y(), p.x()));
 
         info.push_back(PolyLineInfo(polyLine->id(), polyLine->property("Placemark:name").toString().toStdString(), coords));
@@ -787,7 +787,7 @@ bool DrawingManager::matchesFilter(DrawingItemBase *item) const
   // If it is missing properties that are found in the filter then it
   // automatically passes for those properties.
 
-  foreach (const QString &property, filter_.keys()) {
+  for (const QString& property : filter_.keys()) {
     QVariant value = item->property(property);
     if (value.isValid() && !filter_.value(property).contains(value.toString()))
       return false;
@@ -823,5 +823,5 @@ EditItems::ItemGroup *DrawingManager::itemGroup(const QString &name)
 void DrawingManager::removeItemGroup(const QString &name)
 {
   itemGroups_.remove(name);
-  emit updated();
+  Q_EMIT updated();
 }

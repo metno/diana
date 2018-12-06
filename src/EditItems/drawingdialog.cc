@@ -245,14 +245,12 @@ PlotCommand_cpv DrawingDialog::getOKString()
   if (!drawm_->isEnabled())
     return lines;
 
-  QMap<QString, QString> loaded = drawm_->getLoaded();
-  foreach (QString name, loaded.keys()) {
+  const QMap<QString, QString>& loaded = drawm_->getLoaded();
+  for (QMap<QString, QString>::const_iterator it = loaded.begin(); it != loaded.end(); ++it) {
     KVListPlotCommand_p cmd = std::make_shared<KVListPlotCommand>("DRAWING");
-    QString fileName = loaded[name];
-    if (fileName == name)
-      cmd->add("file", fileName.toStdString());
-    else
-      cmd->add("name", name.toStdString());
+    cmd->add("name", it.value().toStdString());
+    lines.push_back(cmd);
+  }
     lines.push_back(cmd);
   }
 

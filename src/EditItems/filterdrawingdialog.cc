@@ -50,7 +50,7 @@ FilterDrawingWidget::FilterDrawingWidget(QWidget *parent)
   : QWidget(parent)
 {
   drawm_ = DrawingManager::instance();
-  connect(drawm_, SIGNAL(updated()), SLOT(updateChoices()));
+  connect(drawm_, &DrawingManager::updated, this, &FilterDrawingWidget::updateChoices);
 
   editm_ = EditItemManager::instance();
   connect(editm_, SIGNAL(itemAdded(DrawingItemBase *)), SLOT(updateChoices()));
@@ -102,21 +102,21 @@ void FilterDrawingWidget::updateChoices()
 
   QHash<QString, QSet<QString> > choices;
 
-  foreach (DrawingItemBase *item, editm_->allItems() + drawm_->allItems()) {
+  for (DrawingItemBase* item : editm_->allItems() + drawm_->allItems()) {
 
     const QVariantMap &props = item->propertiesRef();
-    foreach (const QString &key, props.keys()) {
+    for (const QString& key : props.keys()) {
 
       bool keep = false;
       bool discard = false;
 
-      foreach (const QString &section, show) {
+      for (const QString& section : show) {
         if (key.startsWith(section)) {
           keep = true;
           break;
         }
       }
-      foreach (const QString &section, hide) {
+      for (const QString& section : hide) {
         if (key.startsWith(section)) {
           discard = true;
           break;
@@ -159,18 +159,13 @@ void FilterDrawingWidget::filterItems()
   drawm_->setFilter(filter);
   editm_->setFilter(filter);
 
-  emit updated();
+  Q_EMIT updated();
 }
 
 void FilterDrawingWidget::disableFilter(bool disable)
 {
   setDisabled(disable);
-  emit updated();
-}
-
-QStringList FilterDrawingWidget::properties() const
-{
-  return propertyModel_->properties();
+  Q_EMIT updated();
 }
 
 // ======================================================
@@ -295,7 +290,7 @@ bool FilterDrawingModel::setData(const QModelIndex &index, const QVariant &value
     QString name = order_.at(index.internalId());
     if (index.row() < checked_.value(name).size()) {
       checked_[name][index.row()] = Qt::CheckState(value.toInt());
-      emit dataChanged(index, index);
+      Q_EMIT dataChanged(index, index);
       return true;
     }
   }
@@ -325,14 +320,6 @@ Qt::ItemFlags FilterDrawingModel::flags(const QModelIndex &index) const
     return QAbstractItemModel::flags(index);
 }
 
-/**
- * Returns the property names in a well-defined order.
- */
-QStringList FilterDrawingModel::properties() const
-{
-  return order_;
-}
-
 void FilterDrawingModel::setProperties(const QHash<QString, QStringList> &choices,
                                        const QHash<QString, QList<Qt::CheckState> > &checked)
 {
@@ -360,13 +347,15 @@ QHash<QString, QStringList> FilterDrawingModel::checkedItems() const
 {
   QHash<QString, QStringList> items;
 
-  for (int i = 0; i < order_.size(); ++i) {
-    QString name = order_.value(i);
-    items[name] = QStringList();
-    for (int j = 0; j < checked_.value(name).size(); ++j) {
-      if (checked_.value(name).at(j) == Qt::Checked)
-        items[name].append(choices_.value(name).at(j));
+  for (const QString& name : order_) {
+    const QList<Qt::CheckState>& chk = checked_.value(name);
+    const QStringList& chc = choices_.value(name);
+    QStringList checkeditems;
+    for (int j = 0; j < chk.size(); ++j) {
+      if (chk.at(j) == Qt::Checked)
+        checkeditems.append(chc.at(j));
     }
+    items[name] = checkeditems;
   }
   return items;
 }

@@ -52,7 +52,6 @@ class QKeyEvent;
 class QMouseEvent;
 
 class DrawingStyleManager;
-struct PlotElement;
 
 /**
   \brief Manager for drawing areas and annotations.
@@ -102,8 +101,8 @@ public:
   bool loadSymbol(const QString &fileName, const QString &section, const QString &symbol = QString());
 
   // Dialog-related methods
-  QMap<QString, QString> &getDrawings();
-  QMap<QString, QString> &getLoaded();
+  const QMap<QString, QString>& getDrawings() const;
+  const QMap<QString, QString>& getLoaded() const;
 
   QString getWorkDir() const;
   void setWorkDir(const QString &dir);
