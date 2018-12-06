@@ -69,7 +69,7 @@ public:
   Qt::ItemFlags flags(const QModelIndex &index) const;
   bool removeRows(int row, int count, const QModelIndex &parent = QModelIndex());
 
-  QMap<QString, QString> items() const;
+  const QMap<QString, QString>& items() const;
   void setItems(const QMap<QString, QString> &items);
   void setTitle(const QString &title);
 
@@ -137,7 +137,9 @@ private:
   QSet<QPair<QString, QString> > itemProducts(const QList<DrawingItemBase *> &items);
   void updateFileInfo(const QList<DrawingItemBase *> &items, const QString &fileName);
   void saveFile(const QList<DrawingItemBase *> &items, const QString &fileName);
+  PlotCommand_cpv makeCommands(const QMap<QString, QString>& items);
 
+private:
   DrawingModel activeDrawingsModel_;
   DrawingModel drawingsModel_;
   DrawingModel editingModel_;

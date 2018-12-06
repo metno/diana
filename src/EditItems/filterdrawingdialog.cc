@@ -59,8 +59,8 @@ FilterDrawingWidget::FilterDrawingWidget(QWidget *parent)
   connect(editm_, SIGNAL(itemStatesReplaced()), SLOT(updateChoices()));
   connect(editm_, SIGNAL(editing(bool)), SLOT(updateChoices()));
 
-  propertyList_ = new QTreeView();
   propertyModel_ = new FilterDrawingModel(tr("Properties"), this);
+  propertyList_ = new QTreeView();
   propertyList_->setModel(propertyModel_);
   propertyList_->setSelectionMode(QAbstractItemView::NoSelection);
   propertyList_->setSortingEnabled(true);
@@ -128,20 +128,30 @@ void FilterDrawingWidget::updateChoices()
     }
   }
 
-  QHash<QString, QStringList> prepared;
-  QHash<QString, QList<Qt::CheckState> > checked;
+  FilterProperty_ql fpl;
+  QHash<QString, QStringList> filter = drawm_->getFilter();
   for (QHash<QString, QSet<QString> >::const_iterator it = choices.begin(); it != choices.end(); ++it) {
+    FilterProperty fp;
+    fp.property = it.key();
+
+    QHash<QString, QStringList>::const_iterator itF = filter.find(fp.property);
+    if (itF == filter.end())
+      fp.checked = Qt::Unchecked;
+    else
+      fp.checked = Qt::Checked;
+
     QStringList valueList = it.value().toList();
     valueList.sort();
-    prepared[it.key()] = valueList;
-    QList<Qt::CheckState> checkList;
-    for (int i = 0; i < valueList.size(); ++i)
-      checkList.append(Qt::Checked);
-    checked[it.key()] = checkList;
+    for (int i = 0; i < valueList.size(); ++i) {
+      const QString& v = valueList.at(i);
+      fp.values << FilterValue(v, (itF != filter.end() && itF.value().contains(v)) ? Qt::Checked : Qt::Unchecked);
+    }
+
+    fpl << fp;
   }
 
   // Replace the properties in the model with the ones for the current objects.
-  propertyModel_->setProperties(prepared, checked);
+  propertyModel_->setProperties(fpl);
 
   // The available properties may have changed, causing the filters to be
   // invalid, so ensure that they are updated.
@@ -172,6 +182,8 @@ void FilterDrawingWidget::disableFilter(bool disable)
 // Model for displaying item properties and their values.
 // ======================================================
 
+static const unsigned long long PROPERTY_ID = 0xFFFFFFFF;
+
 FilterDrawingModel::FilterDrawingModel(const QString &header, QObject *parent)
   : QAbstractItemModel(parent)
 {
@@ -186,11 +198,11 @@ QModelIndex FilterDrawingModel::index(int row, int column, const QModelIndex &pa
 {
   if (!parent.isValid()) {
     // Top level item - use an invalid row value as an identifier.
-    if (row < order_.size())
-      return createIndex(row, column, 0xffffffff);
+    if (row < filter_.size())
+      return createIndex(row, column, PROPERTY_ID);
   } else {
     // Child item - store the parent's row in the created index.
-    if (parent.row() >= 0 && parent.row() < order_.size())
+    if (parent.row() >= 0 && parent.row() < filter_.size())
       return createIndex(row, column, parent.row());
   }
 
@@ -200,11 +212,11 @@ QModelIndex FilterDrawingModel::index(int row, int column, const QModelIndex &pa
 QModelIndex FilterDrawingModel::parent(const QModelIndex &index) const
 {
   // The root item and top level items return an invalid index.
-  if (!index.isValid() || index.internalId() == 0xffffffff)
+  if (!index.isValid() || index.internalId() == PROPERTY_ID)
     return QModelIndex();
 
   // Child items return an index that refers to the relevant top level item.
-  return createIndex(index.internalId(), 0, 0xffffffff);
+  return createIndex(index.internalId(), 0, PROPERTY_ID);
 }
 
 bool FilterDrawingModel::hasChildren(const QModelIndex &index) const
@@ -213,15 +225,18 @@ bool FilterDrawingModel::hasChildren(const QModelIndex &index) const
   if (!index.isValid())
     return true;
 
+  if (index.column() != 0)
+    return false;
+
   // Child items have no children.
-  if (index.internalId() != 0xffffffff)
+  if (index.internalId() != PROPERTY_ID)
     return false;
 
   // All top level items have children.
   return true;
 }
 
-int FilterDrawingModel::columnCount(const QModelIndex &parent) const
+int FilterDrawingModel::columnCount(const QModelIndex&) const
 {
   return 1;
 }
@@ -230,45 +245,41 @@ int FilterDrawingModel::rowCount(const QModelIndex &parent) const
 {
   // The root item has rows corresponding to the available properties.
   if (!parent.isValid())
-    return order_.size();
+    return filter_.size();
 
   // Top level items have rows corresponding to the available values for
   // each property.
-  else if (parent.row() >= 0 && parent.row() < order_.size() && parent.column() == 0) {
-    QString key = order_.at(parent.row());
-    return choices_.value(key).size();
-
-  } else
+  if (parent.row() >= 0 && parent.row() < filter_.size() && parent.column() == 0) {
+    return filter_.at(parent.row()).values.size();
+  } else {
     return 0;
+  }
 }
 
 QVariant FilterDrawingModel::data(const QModelIndex &index, int role) const
 {
-  if (!index.isValid() || index.row() < 0 || index.column() != 0)
+  if (!index.isValid() || index.row() < 0 || index.column() > 1)
     return QVariant();
 
   // The values of top level items are obtained from the order list.
-  if (index.internalId() == 0xffffffff) {
-    if (role == Qt::DisplayRole) {
-      QString name = order_.at(index.row());
-      if (index.row() < order_.size())
-          return QVariant(name);
+  if (index.internalId() == PROPERTY_ID) {
+    if (index.row() < filter_.size()) {
+      const FilterProperty& fp = filter_.at(index.row());
+      if (role == Qt::DisplayRole)
+        return fp.property;
+      else if (role == Qt::CheckStateRole)
+        return fp.checked;
     }
 
   // The values of child items are obtained from the values of the hash.
-  } else if (index.internalId() < order_.size()) {
-    // Read the parent item's name.
-    QString name = order_.at(index.internalId());
-
-    if (role == Qt::DisplayRole) {
-      QStringList values = choices_.value(name);
-      if (index.row() < values.size())
-        return QVariant(values.at(index.row()));
-
-    } else if (role == Qt::CheckStateRole) {
-      QList<Qt::CheckState> values = checked_.value(name);
-      if (index.row() < values.size())
-        return QVariant(values.at(index.row()));
+  } else if (index.internalId() < (size_t)filter_.size()) {
+    const FilterProperty& fp = filter_.at(index.internalId());
+    if (index.row() < fp.values.size()) {
+      const FilterValue& fv = fp.values.at(index.row());
+      if (role == Qt::DisplayRole)
+        return fv.value;
+      else if (role == Qt::CheckStateRole)
+        return fv.checked;
     }
   }
 
@@ -281,15 +292,24 @@ bool FilterDrawingModel::setData(const QModelIndex &index, const QVariant &value
   if (!index.isValid() || index.row() < 0 || index.column() != 0 || role != Qt::CheckStateRole)
     return false;
 
-  // Do not process top level items.
-  if (index.internalId() == 0xffffffff)
-    return false;
+  if (index.internalId() == PROPERTY_ID) {
+    if (index.row() < filter_.size()) {
+      FilterProperty& fp = filter_[index.row()];
+      fp.checked = Qt::CheckState(value.toInt());
+      Q_EMIT dataChanged(index, index);
+      // change enabled state of children
+      const QModelIndex child0 = createIndex(0, 0, index.row());
+      const QModelIndex childN = createIndex(fp.values.size() - 1, 0, index.row());
+      Q_EMIT dataChanged(child0, childN);
+      return true;
+    }
+  }
 
-  if (index.internalId() < order_.size()) {
-    // Read the parent item's name.
-    QString name = order_.at(index.internalId());
-    if (index.row() < checked_.value(name).size()) {
-      checked_[name][index.row()] = Qt::CheckState(value.toInt());
+  if (index.internalId() < (size_t)filter_.size()) {
+    FilterProperty& fp = filter_[index.internalId()];
+    if (index.row() < fp.values.size()) {
+      FilterValue& fv = fp.values[index.row()];
+      fv.checked = Qt::CheckState(value.toInt());
       Q_EMIT dataChanged(index, index);
       return true;
     }
@@ -298,66 +318,48 @@ bool FilterDrawingModel::setData(const QModelIndex &index, const QVariant &value
   return false;
 }
 
-QVariant FilterDrawingModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant FilterDrawingModel::headerData(int section, Qt::Orientation, int role) const
 {
-  if (role != Qt::DisplayRole)
-    return QVariant();
-
-  if (section == 0)
+  if (role == Qt::DisplayRole && section == 0)
     return QVariant(header_);
-  else
-    return QVariant();
+  return QVariant();
 }
 
 Qt::ItemFlags FilterDrawingModel::flags(const QModelIndex &index) const
 {
-  if (index.isValid()) {
-    if (hasChildren(index))
-      return Qt::ItemIsEnabled;
-    else
-      return Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
-  } else
-    return QAbstractItemModel::flags(index);
+  if (!index.isValid())
+    return 0;
+
+  Qt::ItemFlags flags = Qt::ItemIsSelectable | Qt::ItemIsUserCheckable;
+  const unsigned long long id = index.internalId();
+  if (id == PROPERTY_ID || (id < (size_t)filter_.size() && filter_.at(id).checked == Qt::Checked))
+    flags |= Qt::ItemIsEnabled;
+  return flags;
 }
 
-void FilterDrawingModel::setProperties(const QHash<QString, QStringList> &choices,
-                                       const QHash<QString, QList<Qt::CheckState> > &checked)
+void FilterDrawingModel::setProperties(const FilterProperty_ql& filter)
 {
   beginResetModel();
-  choices_ = choices;
-  order_ = choices.keys();
-  checked_ = checked;
+  filter_ = filter;
   endResetModel();
-}
-
-QModelIndex FilterDrawingModel::find(const QString &name, const QString &value) const
-{
-  int i = order_.indexOf(name);
-  if (i == -1)
-    return QModelIndex();
-
-  int j = choices_.value(name).indexOf(value);
-  if (j == -1)
-    return QModelIndex();
-
-  return createIndex(j, 0, i);
 }
 
 QHash<QString, QStringList> FilterDrawingModel::checkedItems() const
 {
   QHash<QString, QStringList> items;
 
-  for (const QString& name : order_) {
-    const QList<Qt::CheckState>& chk = checked_.value(name);
-    const QStringList& chc = choices_.value(name);
-    QStringList checkeditems;
-    for (int j = 0; j < chk.size(); ++j) {
-      if (chk.at(j) == Qt::Checked)
-        checkeditems.append(chc.at(j));
+  for (const FilterProperty& fp : filter_) {
+    if (fp.checked == Qt::Checked) {
+      const QString& name = fp.property;
+      QStringList checkeditems;
+      for (const FilterValue& fv : fp.values) {
+        if (fv.checked == Qt::Checked)
+          checkeditems.append(fv.value);
+      }
+      items[name] = checkeditems;
     }
-    items[name] = checkeditems;
   }
   return items;
 }
 
-} // namespace
+} // namespace EditItems

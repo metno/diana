@@ -103,6 +103,7 @@ public:
   // Dialog-related methods
   const QMap<QString, QString>& getDrawings() const;
   const QMap<QString, QString>& getLoaded() const;
+  const QHash<QString, QStringList>& getFilter() const;
 
   QString getWorkDir() const;
   void setWorkDir(const QString &dir);

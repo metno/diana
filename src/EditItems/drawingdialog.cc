@@ -240,17 +240,31 @@ void DrawingDialog::updateDialog()
 
 PlotCommand_cpv DrawingDialog::getOKString()
 {
+  if (drawm_->isEnabled())
+    return makeCommands(drawm_->getLoaded());
+  else
+    return PlotCommand_cpv();
+}
+
+PlotCommand_cpv DrawingDialog::makeCommands(const QMap<QString, QString>& items)
+{
   PlotCommand_cpv lines;
 
-  if (!drawm_->isEnabled())
-    return lines;
-
-  const QMap<QString, QString>& loaded = drawm_->getLoaded();
-  for (QMap<QString, QString>::const_iterator it = loaded.begin(); it != loaded.end(); ++it) {
+  for (QMap<QString, QString>::const_iterator it = items.begin(); it != items.end(); ++it) {
     KVListPlotCommand_p cmd = std::make_shared<KVListPlotCommand>("DRAWING");
     cmd->add("name", it.value().toStdString());
     lines.push_back(cmd);
   }
+
+  const auto& filter = drawm_->getFilter();
+  if (!filter.empty()) {
+    KVListPlotCommand_p cmd = std::make_shared<KVListPlotCommand>("DRAWING");
+    cmd->add(miutil::KeyValue("filter.clear"));
+    for (QHash<QString, QStringList>::const_iterator it = filter.begin(); it != filter.end(); ++it) {
+      cmd->add("filter.key", it.key().toStdString());
+      for (const QString& v : it.value())
+        cmd->add("filter.value", v.toStdString());
+    }
     lines.push_back(cmd);
   }
 
@@ -265,6 +279,9 @@ void DrawingDialog::putOKString(const PlotCommand_cpv& vstr)
   // Update the display products list to reflect the loaded drawings.
   QMap<QString, QString> loaded = drawm_->getLoaded();
   activeDrawingsModel_.setItems(loaded);
+
+  // Update the available times.
+  updateTimes();
 }
 
 /**
@@ -299,20 +316,8 @@ void DrawingDialog::activateDrawing(const QItemSelection &selected, const QItemS
 void DrawingDialog::makeProduct()
 {
   // Compile a list of strings describing the files in use.
-  QMap<QString, QString> items = activeDrawingsModel_.items();
-  QMap<QString, QString>::const_iterator it;
-
-  PlotCommand_cpv inp;
-  for (it = items.constBegin(); it != items.constEnd(); ++it) {
-    KVListPlotCommand_p cmd = std::make_shared<KVListPlotCommand>("DRAWING");
-    cmd->add("name", it.key().toStdString());
-    inp.push_back(cmd);
-  }
-
+  PlotCommand_cpv inp = makeCommands(activeDrawingsModel_.items());
   putOKString(inp);
-
-  // Update the available times.
-  updateTimes();
 }
 
 void DrawingDialog::loadFile()
@@ -856,7 +861,7 @@ bool DrawingModel::removeRows(int row, int count, const QModelIndex &parent)
   return true;
 }
 
-QMap<QString, QString> DrawingModel::items() const
+const QMap<QString, QString>& DrawingModel::items() const
 {
   return items_;
 }

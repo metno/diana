@@ -219,11 +219,29 @@ bool DrawingManager::processInput(const PlotCommand_cpv& inp)
     if (!cmd)
       continue;
 
+    QString filter_key;
     for (const miutil::KeyValue& kv : cmd->all()) {
       // Read the specified file, skipping to the next line if successful,
       // but returning false to indicate an error if unsuccessful.
+      const QString qv = QString::fromStdString(kv.value());
       if (kv.key() == "file" || kv.key() == "name")
-        toLoad.append(QString::fromStdString(kv.value()));
+        toLoad.append(qv);
+      else if (kv.key() == "filter.clear") {
+        if (kv.value().empty())
+          filter_.clear();
+        else {
+          QHash<QString, QStringList>::iterator it = filter_.find(qv);
+          if (it != filter_.end())
+            filter_[qv].clear();
+        }
+      } else if (kv.key() == "filter.key") {
+        filter_key = qv;
+      } else if (kv.key() == "filter.value") {
+        if (!filter_key.isEmpty())
+          filter_[filter_key].append(qv);
+        else
+          METLIBS_LOG_WARN("filter.key must be non-empty to use filter.value");
+      }
     }
   }
 
@@ -525,6 +543,11 @@ const QMap<QString, QString>& DrawingManager::getDrawings() const
 const QMap<QString, QString>& DrawingManager::getLoaded() const
 {
   return loaded_;
+}
+
+const QHash<QString, QStringList>& DrawingManager::getFilter() const
+{
+  return filter_;
 }
 
 QString DrawingManager::getWorkDir() const

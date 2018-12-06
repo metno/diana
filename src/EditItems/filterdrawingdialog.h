@@ -39,6 +39,26 @@ class QTreeView;
 
 namespace EditItems {
 
+struct FilterValue
+{
+  QString value;
+  Qt::CheckState checked;
+  FilterValue(const QString& v, Qt::CheckState c)
+      : value(v)
+      , checked(c)
+  {
+  }
+};
+
+struct FilterProperty
+{
+  QString property;
+  Qt::CheckState checked;
+  QList<FilterValue> values;
+};
+
+typedef QList<FilterProperty> FilterProperty_ql;
+
 class FilterDrawingModel : public QAbstractItemModel
 {
   Q_OBJECT
@@ -58,17 +78,13 @@ public:
 
   Qt::ItemFlags flags(const QModelIndex &index) const;
 
-  void setProperties(const QHash<QString, QStringList> &choices,
-                     const QHash<QString, QList<Qt::CheckState> > &checked);
+  void setProperties(const FilterProperty_ql& filter);
 
-  QModelIndex find(const QString &name, const QString &value) const;
   QHash<QString, QStringList> checkedItems() const;
 
 private:
   QString header_;
-  QHash<QString, QStringList> choices_;
-  QHash<QString, QList<Qt::CheckState> > checked_;
-  QStringList order_;
+  FilterProperty_ql filter_;
 };
 
 class FilterDrawingWidget : public QWidget
