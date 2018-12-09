@@ -552,111 +552,101 @@ void SatManager::setRGB(Sat* satdata)
   //   * PURPOSE:   put data from 3 images into satdata.image,
   // in geotiff files the data are already sorted as rgba values
   // RGB stretch is performed in order to improve the contrast
-	METLIBS_LOG_SCOPE(satdata->filetype);
+  METLIBS_LOG_SCOPE(LOGVAL(satdata->filetype));
 
-	int nx=satdata->area.nx;
-	int ny=satdata->area.ny;
-	int size =nx*ny;
+  const int nx = satdata->area.nx;
+  const int ny = satdata->area.ny;
+  const int size = nx * ny;
 
-	if (size==0)
-		return;
+  if (size == 0)
+    return;
 
-	const int colmapsize=256;
+  const int colmapsize = 256;
   unsigned char colmap[3][colmapsize];
 
-  if (satdata->image)
-		delete[] satdata->image;
-	satdata->image= new unsigned char[size*4];
+  delete[] satdata->image;
+  satdata->image = nullptr;
 
-  if (satdata->rawimage[0] == NULL) {
-    for (int k=0; k<3; k++)
-      for (int i=0; i<size; i++)
-        satdata->image[i*4+k] = 0;
-    return;
+  if (satdata->formatType == "geotiff") {
+    satdata->image = satdata->rawimage[0];
+    satdata->rawimage[0] = nullptr;
+  } else {
+    satdata->image = new unsigned char[size * 4];
+    if (!satdata->rawimage[0]) {
+      for (int k = 0; k < 3; k++)
+        for (int i = 0; i < size; i++)
+          satdata->image[i * 4 + k] = 0;
+      return;
+    }
+
+    // Start in lower left corner instead of upper left.
+    // satdata->image = new unsigned char[size*4];
+    for (int k = 0; k < 3; k++)
+      for (int j = 0; j < ny; j++)
+        for (int i = 0; i < nx; i++)
+          satdata->image[(i + (ny - j - 1) * nx) * 4 + k] = satdata->rawimage[satdata->rgbindex[k]][j * nx + i];
   }
 
-	if (satdata->formatType == "geotiff")
-	  satdata->image = satdata->rawimage[0];
-	else {
-	  // Start in lower left corner instead of upper left.
-	  //satdata->image = new unsigned char[size*4];
-		for (int k=0; k<3; k++)
-		  for (int j=0; j<ny; j++)
-		    for (int i=0; i<nx; i++)
-		      satdata->image[(i+(ny-j-1)*nx)*4+k] = satdata->rawimage[satdata->rgbindex[k]][j*nx+i];
-	}
+  const bool dorgb = (satdata->noimages() || satdata->rgboperchanged);
+  const bool doalpha = (dorgb || satdata->alphaoperchanged);
 
-  bool dorgb= (satdata->noimages() || satdata->rgboperchanged);
-	bool doalpha= (satdata->noimages() || satdata->alphaoperchanged || dorgb);
+  if (dorgb) {
+    if (satdata->cut > -1) {
+      if (satdata->cut > -0.5) {
+        // if cut=-0.5, reuse stretch from first image
+        calcRGBstrech(satdata->image, size, satdata->cut);
+      }
+      // calc. colour map
+      for (int k = 0; k < 3; k++) {
+        const float factor = (float)(colmapsize - 1) / (colourStretchInfo[1 + k * 2] - colourStretchInfo[0 + k * 2] + 1);
+        const int shift = colourStretchInfo[0 + k * 2] - 1;
+        colmap[k][0] = (unsigned char)(0);
+        for (int i = 1; i < colmapsize; i++) {
+          int idx = (int)(float(i - shift) * factor + 0.5);
+          if (idx < 1)
+            idx = 1;
+          if (idx > 255)
+            idx = 255;
+          colmap[k][i] = (unsigned char)(idx);
+        }
+      }
+      // Put 1,2 or 3 different channels into satdata->image(RGBA).
+      for (int i = 0; i < size; i++) {
+        satdata->image[i * 4 + 0] = colmap[0][(unsigned int)(satdata->image[i * 4])];
+        satdata->image[i * 4 + 1] = colmap[1][(unsigned int)(satdata->image[i * 4 + 1])];
+        satdata->image[i * 4 + 2] = colmap[2][(unsigned int)(satdata->image[i * 4 + 2])];
+      }
+    } else { // set colourStretchInfo even if cut is off
+      for (int k = 0; k < 3; k++) {
+        colourStretchInfo[k * 2] = 0;
+        colourStretchInfo[k * 2 + 1] = 255;
+        satdata->commonColourStretch = true;
+      }
+    }
+  }
 
-	if (dorgb) {
+  if (doalpha) {
+    // set alpha values according to wanted blending
+    if (satdata->alphacut > 0) {
+      for (int i = 0; i < size; i++) {
+        // cut on pixelvalue
+        if ((int)satdata->image[i * 4] < satdata->alphacut)
+          satdata->image[i * 4 + 3] = (unsigned char)0;
+        else
+          // set alpha value to default or the one chosen in dialog
+          satdata->image[i * 4 + 3] = (unsigned char)satdata->alpha;
+      }
 
-	  if (satdata->cut > -1) {
-	    if (satdata->cut>-0.5) {
-	      //if cut=-0.5, reuse stretch from first image
-	      calcRGBstrech(satdata->image, size, satdata->cut);
-	    }
-	    //calc. colour map
-	    for (int k=0; k<3; k++) {
-	      float factor=(float)(colmapsize-1)/(colourStretchInfo[1+k*2]-colourStretchInfo[0+k*2]+1);
-	      int shift=colourStretchInfo[0+k*2]-1;
-	      colmap[k][0] = (unsigned char) (0);
-	      for (int i=1; i<colmapsize; i++) {
-	        int idx=(int)(float(i-shift)*factor + 0.5);
-	        if (idx<1)
-	          idx=1;
-	        if (idx>255)
-	          idx=255;
-	        colmap[k][i] = (unsigned char) (idx);
-	      }
-	    }
-	  } else { // set colourStretchInfo even if cut is off
-	    for (int k=0; k<3; k++) {
-	      colourStretchInfo[k*2]= 0;
-	      colourStretchInfo[k*2+1]= 255;
-	      satdata->commonColourStretch=true;
-	    }
-	  }
-
-	  // Put 1,2 or 3 different channels into satdata->image(RGBA).
-	  if (satdata->cut > -1 ) {
-	    for (int i=0; i<size; i++) {
-	      satdata->image[i*4+0] = colmap[0][(unsigned int)(satdata->image[i*4])];
-	      satdata->image[i*4+1] = colmap[1][(unsigned int)(satdata->image[i*4+1])];
-	      satdata->image[i*4+2] = colmap[2][(unsigned int)(satdata->image[i*4+2])];
-	    }
-
-	  }
-
-	  if (satdata->formatType == "geotiff")
-	    satdata->rawimage[0] = NULL;
-
-	}
-
-	if (doalpha) {
-	  //set alpha values according to wanted blending
-	  if (satdata->alphacut > 0) {
-	    for (int i=0; i<size; i++) {
-	      //cut on pixelvalue
-	      if ( (int) satdata->image[i*4] < satdata->alphacut)
-	        satdata->image[i*4+3] = (unsigned char) 0;
-	      else
-	        //set alpha value to default or the one chosen in dialog
-	        satdata->image[i*4+3] = (unsigned char) satdata->alpha;
-	    }
-
-	  } else {
-	    for (int i=0; i<size; i++) {
-	      //set alpha value to default or the one chosen in dialog
-	      satdata->image[i*4+3] = (unsigned char) satdata->alpha;
-	      //remove black pixels
-	      if (satdata->image[i*4] == 0 && satdata->image[i*4+1]== 0
-	          && satdata->image[i*4+2] == 0)
-	        satdata->image[i*4+3]=0;
-	    }
-	  }
-	}
-
+    } else {
+      for (int i = 0; i < size; i++) {
+        // set alpha value to default or the one chosen in dialog
+        satdata->image[i * 4 + 3] = (unsigned char)satdata->alpha;
+        // remove black pixels
+        if (satdata->image[i * 4] == 0 && satdata->image[i * 4 + 1] == 0 && satdata->image[i * 4 + 2] == 0)
+          satdata->image[i * 4 + 3] = 0;
+      }
+    }
+  }
 }
 
 void SatManager::calcRGBstrech(unsigned char *image, const int& size, const float& cut)
