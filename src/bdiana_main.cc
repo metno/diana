@@ -33,6 +33,7 @@
 #include "diPlotCommandFactory.h"
 #include "diQuickMenues.h"
 #include "export/DianaImageSource.h"
+#include "util/misc_util.h"
 
 #define MILOGGER_CATEGORY "diana.bdiana"
 #include <miLogger/miLogging.h>
@@ -128,8 +129,11 @@ plottimes_t BdianaMain::getTimes()
     it = find_times(times, "products");
   if (it != times.end())
     return it->second;
-  else
-    return plottimes_t();
+
+  plottimes_t merge;
+  for (const auto& tt : times)
+    diutil::insert_all(merge, tt.second);
+  return merge;
 }
 
 void BdianaMain::setTime(const miutil::miTime& time)
