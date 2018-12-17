@@ -523,7 +523,6 @@ void PlotModule::setAnnotations()
 bool PlotModule::updatePlots()
 {
   METLIBS_LOG_SCOPE();
-
   const miTime& t = staticPlot_->getTime();
 
   bool nodata = vmp.empty(); // false when data are found
@@ -1101,7 +1100,6 @@ void PlotModule::getPlotTimes(std::map<string, plottimes_t>& times)
 {
   times.clear();
 
-  insertTimes(times, "products", editm->getTimes());
   insertTimes(times, "fields", fieldplots_->getTimes());
   insertTimes(times, "satellites", satm->getSatTimes());
   insertTimes(times, "observations", obsplots_->getTimes());

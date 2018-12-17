@@ -178,10 +178,6 @@ public:
   void getPlotTimes(std::map<std::string, plottimes_t>& times);
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(plottimes_t& okTimes, const PlotCommand_cpv& pinfos, bool allTimes = true);
-  /// returns the current product time
-  bool getProductTime(miutil::miTime& t);
-  /// returns the current product name
-  std::string getProductName();
 
   /// set plottime
   void setPlotTime(const miutil::miTime&);

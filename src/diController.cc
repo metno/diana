@@ -261,21 +261,6 @@ void Controller::getPlotTimes(std::map<std::string, plottimes_t>& times)
   plotm->getPlotTimes(times);
 }
 
-bool Controller::getProductTime(miTime& t)
-{
-  return editm->getProductTime(t);
-}
-
-std::string Controller::getProductName()
-{
-  return editm->getProductName();
-}
-
-
-// vector<std::string> Controller::getProductLabels(){
-//   return editm->getProductLabels();
-// }
-
 // set plottime
 void Controller::setPlotTime(const miTime& t)
 {

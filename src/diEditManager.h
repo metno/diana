@@ -181,8 +181,6 @@ public:
 			const bool isapproved = false);
   /// returns the current product time
   bool getProductTime(miutil::miTime& t) const;
-  //! same as getProductTime, but result is wrapped in a vector
-  plottimes_t getTimes() const;
   /// returns the current product name
   std::string getProductName();
   /// save edited annotations in EditObjects

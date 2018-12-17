@@ -940,15 +940,6 @@ bool EditManager::getProductTime(miTime& t) const
     return false;
 }
 
-plottimes_t EditManager::getTimes() const
-{
-  plottimes_t times;
-  miutil::miTime t;
-  if (!getProductTime(t))
-    times.insert(t);
-  return times;
-}
-
 std::string EditManager::getProductName(){
   //METLIBS_LOG_DEBUG("EditManager::getProductName");
   //returns the current product time
