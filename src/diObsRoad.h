@@ -135,12 +135,6 @@ public:
   void yoyoPlot(const miutil::miTime& filetime, ObsDataRequest_cp request);
   void yoyoMetadata(ObsMetaData* metaData);
 
-  bool asciiOK() const { return fileOK; }
-  bool parameterType(const std::string& param) const { return asciiColumn.count(param); }
-  size_t columnCount() const { return m_columnName.size(); }
-  std::string columnName(int idx) const { return m_columnName.at(idx); }
-  std::string columnTooltip(int idx) const { return m_columnTooltip.at(idx); }
-
   VprofValues_p getVprofPlot(const std::string& modelName, const std::string& station, const miutil::miTime& time);
 
   void getStationList(vector<stationInfo>& stations);

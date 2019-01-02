@@ -95,17 +95,6 @@ public:
     { return m_columnName; }
 
   const std::vector<ObsData> &getObsData(const miutil::miTime &filetime, const miutil::miTime &time, int timeDiff);
-
-  bool asciiOK() const
-    { return fileOK; }
-  bool parameterType(const std::string& param) const
-    { return asciiColumn.count(param); }
-  size_t columnCount() const
-    { return m_columnName.size(); }
-  std::string columnName(int idx) const
-    { return m_columnName.at(idx); }
-  std::string columnTooltip(int idx) const
-    { return m_columnTooltip.at(idx); }
 };
 
 #endif
