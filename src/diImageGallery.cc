@@ -487,8 +487,14 @@ bool ImageGallery::plotMarker_(DiGLPainter* gl, const PlotArea& pa, const std::s
       if (il.circle) {
         if (il.radius > 0)
           gl->drawCircle(il.fill, 0, 0, il.radius);
-      } else {
-        if (il.fill)
+      } else if (il.points.size() >= 2) {
+        const bool loop = (il.points.first() == il.points.last());
+        const bool count = il.points.size() >= (loop ? 4 : 3);
+        if (il.fill && count)
+          gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
+        else
+          gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
+        if ((loop || il.fill) && count)
           gl->drawPolygon(il.points);
         else
           gl->drawPolyline(il.points);
