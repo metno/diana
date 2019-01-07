@@ -229,34 +229,52 @@ bool writeQuickMenu(const quickMenu& qm)
 
 bool readQuickMenu(quickMenu& qm)
 {
-  METLIBS_LOG_SCOPE();
-  quickMenuItem mi;
-  quickMenuOption op;
-  std::string value;
-  bool updates = false;
-
-  int numitems=0;
-  qm.menuitems.clear();
-  qm.opt.clear();
-  qm.item_index = 0;
-
   std::ifstream menufile(qm.filename.c_str());
   if (!menufile) { // menufile not ok
     METLIBS_LOG_WARN("Could not open quickmenu file '" << qm.filename << "'");
     return false;
   }
 
+  if (!readQuickMenu(qm, menufile))
+    return false;
+
+  menufile.close(); // close before writing
+
+  bool updates = false;
+  if (qm.name.empty()) {
+    updates = true;
+    qm.name = makeQuickMenuName(qm.filename);
+  }
+
+  for (quickMenuItem& qmi : qm.menuitems) {
+    if (updateCommandSyntax(qmi.command))
+      updates = true;
+  }
+
+  if (updates)
+    qm.write();
+
+  return true;
+}
+
+bool readQuickMenu(quickMenu& qm, std::istream& in)
+{
+  METLIBS_LOG_SCOPE();
+  quickMenuItem mi;
+  std::string value;
+
+  qm.menuitems.clear();
+  qm.opt.clear();
+  qm.item_index = 0;
+
   diutil::GetLineConverter convertline("#");
   std::string line;
-  while (convertline(menufile, line)) {
+  while (convertline(in, line)) {
     miutil::trim(line);
-    if (line.length()==0)
+    if (line.empty() || line[0] == '#')
       continue;
 
-    if (line[0]=='#')
-      continue;
-
-    if (line[0]=='"'){
+    if (line[0] == '"') {
       // name of quickmenu
       qm.name = diutil::start_end_mark_removed(line, '"', '"');
 
@@ -265,6 +283,7 @@ bool readQuickMenu(quickMenu& qm)
       diutil::remove_start_end_mark(line, '[', ']');
       vector<std::string> tokens = miutil::split(line, "=");
       if (tokens.size()>1){
+        quickMenuOption op;
         op.key= tokens[0];
         value= tokens[1];
         op.options = miutil::split_protected(value, '"','"',",", false); //Do not skip blank enteries
@@ -273,44 +292,36 @@ bool readQuickMenu(quickMenu& qm)
         qm.opt.push_back(op);
       } else {
         METLIBS_LOG_ERROR("QuickMenu Error: defined option without items in file " << qm.filename);
-        menufile.close();
         return false;
       }
     } else if (line[0]=='>'){
-      if (!qm.menuitems.empty()) {
-        if (updateCommandSyntax(qm.menuitems.back().command))
-          updates = true;
-      }
       // new menuitem
-      qm.menuitems.push_back(mi);
-      qm.menuitems[numitems].name= line.substr(1,line.length()-1);
-      qm.menuitems[numitems].command.clear();
-      numitems++;
+      qm.menuitems.push_back(quickMenuItem());
+      qm.menuitems.back().name = line.substr(1, line.length() - 1);
     } else {
       // commands
-      if (numitems>0) {
-        qm.menuitems[numitems-1].command.push_back(line);
+      if (!qm.menuitems.empty()) {
+        qm.menuitems.back().command.push_back(line);
       } else {
         METLIBS_LOG_ERROR("command line without defined menuitem in file '" << qm.filename << "'");
-        menufile.close();
         return false;
       }
     }
   }
-  menufile.close();
-  if (qm.name.empty())
-    qm.name= "Udefinert navn";
-
-  if (!qm.menuitems.empty()) {
-    if (updateCommandSyntax(qm.menuitems.back().command))
-      updates = true;
-  }
-
-  //if old syntax changed, update file
-  if (updates)
-    qm.write();
-
   return true;
+}
+
+std::string makeQuickMenuName(const std::string& qmfilename)
+{
+  size_t end = qmfilename.find_last_of(".");
+  if (end == std::string::npos)
+    end = qmfilename.size();
+  size_t start = qmfilename.find_last_of("/", end);
+  if (start == std::string::npos || start >= qmfilename.length() - 1)
+    start = 0;
+  else
+    start += 1;
+  return qmfilename.substr(start, end - start);
 }
 
 namespace {

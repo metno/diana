@@ -100,6 +100,12 @@ bool writeQuickMenu(const quickMenu& qm);
 /// read quick-menu file, and fill struct
 bool readQuickMenu(quickMenu& qm);
 
+/// read quick-menu from stream, and fill struct
+bool readQuickMenu(quickMenu& qm, std::istream& in);
+
+/// derive quickmenu name from filename
+std::string makeQuickMenuName(const std::string& qmfilename);
+
 //! write quickmenu log
 /*! Log contains option values. */
 std::vector<std::string> writeQuickMenuLog(const std::vector<quickMenu>& qm);

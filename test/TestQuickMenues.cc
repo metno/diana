@@ -246,3 +246,52 @@ TEST(TestQuickMenues, ExpandOptions)
   const std::vector<std::string> ex = {"PLOT claus", "MAP area=hello"};
   EXPECT_EQ(ex, cmd);
 }
+
+TEST(TestQuickMenues, ReadQuickMenu1)
+{
+  std::istringstream in("\"hei\n"
+                        "[OPT1=black,red,,blue\n" // empty value before end
+                        "[OPT12=on,off\n"
+                        ">quick 1\n"
+                        "AREA name=model/sat-area\n"
+                        ">quick 2\n"
+                        "AREA name=model/sat-area\n"
+                        "MAP backcolour=@OPT1 lon=off lat=off frame=@OPT12\n"
+                        "LABEL data font=BITMAPFONT fontsize=8\n");
+  quickMenu qm;
+  ASSERT_TRUE(readQuickMenu(qm, in));
+  EXPECT_EQ("hei", qm.name);
+
+  {
+    ASSERT_EQ(2, qm.opt.size());
+    const quickMenuOption& qmo0 = qm.opt[0];
+    EXPECT_EQ("OPT1", qmo0.key);
+    EXPECT_EQ(qmo0.def, qmo0.options.front());
+    ASSERT_EQ(4, qmo0.options.size());
+    EXPECT_EQ("red", qmo0.options[1]);
+    EXPECT_TRUE(qmo0.options[2].empty());
+
+    const quickMenuOption& qmo1 = qm.opt[1];
+    EXPECT_EQ("OPT12", qmo1.key);
+    EXPECT_EQ(qmo1.def, qmo1.options.front());
+    ASSERT_EQ(2, qmo1.options.size());
+  }
+  {
+    ASSERT_EQ(2, qm.menuitems.size());
+
+    const quickMenuItem& qmi0 = qm.menuitems[0];
+    EXPECT_EQ("quick 1", qmi0.name);
+    ASSERT_EQ(1, qmi0.command.size());
+
+    const quickMenuItem& qmi1 = qm.menuitems[1];
+    EXPECT_EQ("quick 2", qmi1.name);
+    ASSERT_EQ(3, qmi1.command.size());
+  }
+}
+
+TEST(TestQuickMenues, MakeQuickMenuName)
+{
+  EXPECT_EQ("moose", makeQuickMenuName("/forest/with/moose.quick"));
+  EXPECT_EQ("goose", makeQuickMenuName("goose.quick"));
+  EXPECT_EQ("mouse", makeQuickMenuName("/elephant/or/mouse"));
+}
