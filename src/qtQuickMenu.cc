@@ -291,12 +291,23 @@ void QuickMenu::addPlotToHistory(const std::string& name, const PlotCommand_cpv&
   quickMenu& q = qm[list];
   std::deque<quickMenuItem>& qi = q.menuitems;
 
-  // check for duplicate
-  bool no_duplicate = qi.empty() || (cmds != qi[0].command);
-  if (no_duplicate) {
+  // nothing to do if this is the same as the first (most recent) history item
+  const bool same_as_first = !qi.empty() && (cmds == qi[0].command);
+  if (!same_as_first) {
+    // remove any duplicates
+    std::deque<quickMenuItem>::iterator it = qi.begin();
+    while (it != qi.end()) {
+      const bool drop = it->command.empty() || (cmds == it->command);
+      if (drop)
+        it = qi.erase(it);
+      else
+        ++it;
+    }
+
     // keep stack within bounds
-    if (qi.size() >= maxplotsinstack)
+    while (qi.size() >= maxplotsinstack)
       qi.pop_back();
+
     // update pointer
     q.item_index = 0;
     // push plot on stack
