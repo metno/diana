@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2015 met.no
+ Copyright (C) 2015-2019 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -593,13 +593,9 @@ bool FieldFunctions::splitFieldSpecs(const std::string& paramName,FieldSpec& fs)
         fs.levelName.clear();
       }
     } else if ( vp[0]=="vcoord" ) {
-      if ( vp.size()==2 ) {
-        fs.vcoordName= miutil::to_lower(vp[1]);
-      } else {
-        fs.vcoordName.clear();
-      }
-    } else if ( vp.size()==2 && vp[0]=="ecoord" ) {
-      fs.ecoordName= vp[1];
+      fs.vcoord = true;
+    } else if ( vp[0]=="ecoord" ) {
+      fs.ecoord = true;
     } else if (vp.size()==2 && (vp[0]=="unit" || vp[0]=="units") ) {
       fs.unit =  vp[1];
     } else if (vp.size()==2 && vp[0]=="elevel") {

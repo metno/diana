@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2018 met.no
+  Copyright (C) 2017-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -704,7 +704,6 @@ Field* GridCollection::getField(const FieldRequest& fieldrequest)
     fieldrequest_new.standard_name = fs.use_standard_name; //functions use standard_name
     fieldrequest_new.unit = fs.unit;
     if (levelSpecified) {
-      fieldrequest_new.zaxis = fs.vcoordName;
       fieldrequest_new.plevel = fs.levelName;
     }
     if (!fs.elevel.empty()) {
@@ -760,7 +759,6 @@ Field* GridCollection::getField(const FieldRequest& fieldrequest)
       }
 
       if (levelSpecified) {
-        fieldrequest_new.zaxis = fs.vcoordName;
         fieldrequest_new.plevel = fs.levelName;
       }
       if (!fs.unit.empty()) {
@@ -770,7 +768,7 @@ Field* GridCollection::getField(const FieldRequest& fieldrequest)
         fieldrequest_new.elevel = fs.elevel;
       }
 
-      if (fs.ecoordName.empty() && fs.vcoordName.empty()) {
+      if (!fs.ecoord && !fs.vcoord) {
         Field * f = getField(fieldrequest_new);
         if (!f) {
           METLIBS_LOG_DEBUG("unable to read '" << inputParamName << "'");
@@ -782,12 +780,24 @@ Field* GridCollection::getField(const FieldRequest& fieldrequest)
 
       } else {
 
+        //vertical- and extra-axis functions.
+        gridinventory::GridParameter param_new;
+        if (!dataExists(fieldrequest.refTime, fieldrequest_new.paramName, param_new)) {
+          METLIBS_LOG_INFO("parameter '" << fieldrequest_new.paramName << "' not found by dataExists");
+          return 0;
+        }
+        set<gridinventory::GridParameter>::iterator pitr_new = ritr->second.parameters.find(param_new);
+        if (pitr_new == ritr->second.parameters.end()) {
+          METLIBS_LOG_INFO("parameter " << fieldrequest_new.paramName << "  not found in inventory");
+          return 0;
+        }
+
         vector<std::string> values;
-        if (!fs.ecoordName.empty()) {
-          gridinventory::ExtraAxis eaxs = ritr->second.getExtraAxis(fs.ecoordName);
+        if (fs.ecoord) {
+          gridinventory::ExtraAxis eaxs = ritr->second.getExtraAxis(pitr_new->key.extraaxis);
           values = eaxs.stringvalues;
-        } else if (!fs.vcoordName.empty()) {
-          gridinventory::Zaxis zaxs = ritr->second.getZaxis(fs.vcoordName);
+        } else if (fs.vcoord) {
+          gridinventory::Zaxis zaxs = ritr->second.getZaxis(pitr_new->key.zaxis);
           values = zaxs.stringvalues;
         }
         if (values.empty()) {
@@ -795,9 +805,10 @@ Field* GridCollection::getField(const FieldRequest& fieldrequest)
           return 0;
         }
         for (size_t i = 0; i < values.size(); i++) {
-          if (!fs.ecoordName.empty()) {
+          if (fs.ecoord) {
             fieldrequest_new.elevel = values[i];
-          } else if (!fs.vcoordName.empty()) {
+
+          } else if (fs.vcoord) {
             fieldrequest_new.plevel = values[i];
           }
           Field * f = getField(fieldrequest_new);
@@ -994,11 +1005,11 @@ void GridCollection::addComputedParameters()
           }
 
           //ask for axis which do not exists
-          if (!fs.ecoordName.empty() && pitr->key.extraaxis.empty()) {
+          if (fs.ecoord && pitr->key.extraaxis.empty()) {
             inputOk = false;
             break;
           }
-          if (fs.ecoordName.empty() && fs.elevel.empty() && pitr->key.extraaxis!="") {
+          if (!fs.ecoord && fs.elevel.empty() && pitr->key.extraaxis!="") {
             computeEaxis = pitr->key.extraaxis;
           }
 

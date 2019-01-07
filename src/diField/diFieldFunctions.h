@@ -2,7 +2,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2015 met.no
+ Copyright (C) 2006-2019 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -376,8 +376,8 @@ public:
 
   struct FieldSpec {
     std::string paramName;
-    std::string vcoordName;
-    std::string ecoordName;
+    bool vcoord;
+    bool ecoord;
     std::string levelName;
     bool use_standard_name;
     std::string unit;
@@ -386,7 +386,7 @@ public:
     std::string option;
 
     FieldSpec()
-      : use_standard_name(false) { }
+      : vcoord(false), ecoord(false), use_standard_name(false) { }
   };
 
   // Build operation types to read and compute fields
