@@ -304,6 +304,8 @@ void QuickMenu::addPlotToHistory(const std::string& name, const PlotCommand_cpv&
     qi[0].name = miutil::trimmed(name);
     qi[0].command = cmds;
 
+    fillMenuList();
+
     // switch to history-menu
     if (selected_list == list)
       selectList(list);
