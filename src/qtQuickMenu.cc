@@ -163,15 +163,15 @@ QuickMenu::QuickMenu(QWidget* parent, const std::vector<QuickMenuDefs>& qdefs)
   // buttons and stuff at the bottom
 
   QPushButton* quickhide = new QPushButton(tr("&Hide"), this);
-  connect( quickhide, SIGNAL(clicked()),SIGNAL( QuickHide()) );
+  connect(quickhide, &QPushButton::clicked, this, &QuickMenu::QuickHide);
 
   QPushButton* combut = new QPushButton(tr("&Command"), this);
   combut->setCheckable(true);
-  connect(combut, SIGNAL(toggled(bool)),SLOT(comButton(bool)));
+  connect(combut, &QPushButton::toggled, this, &QuickMenu::comButton);
 
   QPushButton* demobut = new QPushButton(tr("&Demo"), this);
   demobut->setCheckable(true);
-  connect(demobut, SIGNAL(toggled(bool)),SLOT(demoButton(bool)));
+  connect(demobut, &QPushButton::toggled, this, &QuickMenu::demoButton);
 
   QSpinBox* interval = new QSpinBox(this);
   interval->setMinimum(2);
@@ -179,18 +179,18 @@ QuickMenu::QuickMenu(QWidget* parent, const std::vector<QuickMenuDefs>& qdefs)
   interval->setSingleStep(2);
   interval->setValue(timerinterval);
   interval->setSuffix(" sec");
-  connect(interval, SIGNAL(valueChanged(int)),SLOT(intervalChanged(int)));
+  connect(interval, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &QuickMenu::intervalChanged);
 
   QPushButton* qhelp = new QPushButton(tr("&Help"), this);
-  connect( qhelp, SIGNAL(clicked()), SLOT( helpClicked() ));
+  connect(qhelp, &QPushButton::clicked, this, &QuickMenu::helpClicked);
 
   QPushButton* plothidebut = new QPushButton(tr("Apply+Hide"), this);
-  connect(plothidebut, SIGNAL(clicked()), SLOT(plotActiveMenu()));
-  connect(plothidebut, SIGNAL(clicked()),SIGNAL( QuickHide()) );
+  connect(plothidebut, &QPushButton::clicked, this, &QuickMenu::plotActiveMenu);
+  connect(plothidebut, &QPushButton::clicked, this, &QuickMenu::QuickHide);
 
   QPushButton* plotbut = new QPushButton(tr("&Apply"), this);
   plotbut->setDefault( true );
-  connect(plotbut, SIGNAL(clicked()), SLOT(plotActiveMenu()));
+  connect(plotbut, &QPushButton::clicked, this, &QuickMenu::plotActiveMenu);
 
   QBoxLayout* l = new QHBoxLayout();
   l->addWidget(quickhide);
@@ -921,10 +921,10 @@ void QuickMenu::optionChanged(int option)
 
 void QuickMenu::helpClicked()
 {
-  emit showsource("ug_quickmenu.html");
+  Q_EMIT showsource("ug_quickmenu.html");
 }
 
 void QuickMenu::closeEvent(QCloseEvent*)
 {
-  emit QuickHide();
+  Q_EMIT QuickHide();
 }

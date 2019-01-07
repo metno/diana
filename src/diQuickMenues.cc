@@ -149,9 +149,8 @@ std::set<int> quickMenu::used_options(const std::string& c) const
 
 void quickMenu::expand_options(std::vector<std::string>& com) const
 {
-  const vector<int> keys = sorted_keys();
-  for (size_t i = 0; i < opt.size(); i++) {
-    const quickMenuOption& o = opt[keys[i]];
+  for (const int sk : sorted_keys()) {
+    const quickMenuOption& o = opt[sk];
     for (std::string& c : com)
       miutil::replace(c, QM_DYNAMIC_OPTION_PREFIX + o.key, o.def);
   }
