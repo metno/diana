@@ -203,24 +203,3 @@ bool HDF5::readHDF5(const std::string& filename, Sat& sd, int index)
 
   return true;
 }
-
-/*
- bool HDF5::day_night(const std::string& filename, std::string& channels)
- {
-
-
- int aa = metno::satimgh5::day_night(filename);
-
- if(aa<0) return false;
-
- if(aa==0){       //twilight
- channels = "4";
- } else if(aa==2){ //day
- channels = "1+2+4";
- } else if(aa==1){ //night
- channels = "3+4+5";
- }
-
- return true;
- }
- */

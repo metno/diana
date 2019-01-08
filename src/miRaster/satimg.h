@@ -45,10 +45,9 @@ namespace satimg {
 
 typedef unsigned short int usi;
 
-/*
-   * Old structure to hold information for diana, this one was originally
-   * created for use with met.no/TIFF files.
-   */
+/* Old structure to hold information for diana, this one was originally
+ * created for use with met.no/TIFF files.
+ */
 struct dihead
 {
   std::string satellite;
@@ -82,32 +81,16 @@ struct dihead
   float nodata;
 };
 
-// structs dto and ucs are used only by SatManager day_night, in a
-// call to selalg
-
-struct dto
-{
-  usi ho; /* satellite hour */
-  usi mi; /* satellite minute */
-  usi dd; /* satellite day */
-  usi mm; /* satellite month */
-  usi yy; /* satellite year */
-};
-
-struct ucs
-{
-  float Bx;        /* UCS Bx */
-  float By;        /* UCS By */
-  float Ax;        /* UCS Ax */
-  float Ay;        /* UCS Ay */
-  unsigned int iw; /* image width (pixels) */
-  unsigned int ih; /* image height (pixels) */
-};
-
-// Functions
-short selalg(const dto& d, const ucs& upos, const float& hmax, const float& hmin);
 int JulianDay(usi yy, usi mm, usi dd);
+
 int day_night(const std::string& infile);
+
+/**
+ * Used to calculate if the image is taken during the day or night.
+ * This information is used to figure out if a visual image should be shown or not.
+ */
+int day_night(const satimg::dihead& sinfo);
+
 int MITIFF_read_diana(const std::string& infile, unsigned char* image[], int nchan, int chan[], dihead& ginfo);
 int MITIFF_head_diana(const std::string& infile, dihead& ginfo);
 

@@ -310,6 +310,30 @@ int fillhead_diana(const std::string& str, const std::string& tag, satimg::dihea
 
   return 0;
 }
+
+typedef unsigned short int usi;
+
+// structs dto and ucs are used only by SatManager day_night, in a call to selalg
+struct dto
+{
+  usi ho; /* satellite hour */
+  usi mi; /* satellite minute */
+  usi dd; /* satellite day */
+  usi mm; /* satellite month */
+  usi yy; /* satellite year */
+};
+
+struct ucs
+{
+  float Bx;        /* UCS Bx */
+  float By;        /* UCS By */
+  float Ax;        /* UCS Ax */
+  float Ay;        /* UCS Ay */
+  unsigned int iw; /* image width (pixels) */
+  unsigned int ih; /* image height (pixels) */
+};
+
+short selalg(const dto& d, const ucs& upos, const float& hmax, const float& hmin);
 } // namespace
 
 int satimg::day_night(const std::string& infile)
@@ -317,6 +341,11 @@ int satimg::day_night(const std::string& infile)
   dihead sinfo;
   if (MITIFF_head_diana(infile, sinfo) != 0)
     return -1;
+  return day_night(sinfo);
+}
+
+int satimg::day_night(const dihead& sinfo)
+{
   struct ucs upos;
   struct dto d;
   upos.Ax = sinfo.Ax;
@@ -331,9 +360,7 @@ int satimg::day_night(const std::string& infile)
   d.mm = sinfo.time.month();
   d.yy = sinfo.time.year();
 
-  int aa = selalg(d, upos, 5., -2.); //Why 5 and -2? From satsplit.c
-
-  return aa;
+  return selalg(d, upos, 5., -2.); // Why 5 and -2? From satsplit.c
 }
 
 /*
@@ -368,7 +395,7 @@ int satimg::JulianDay(usi yy, usi mm, usi dd)
   return dn;
 }
 
-
+namespace {
 /*
  * NAME:
  * selalg
@@ -384,81 +411,59 @@ int satimg::JulianDay(usi yy, usi mm, usi dd)
  * Oystein Godoy, met.no/FOU, 06/10/1998
  * Selection conditions changed. Error in nighttime test removed.
  */
-
-
-short satimg::selalg(const dto& d, const ucs& upos, const float& hmax, const float& hmin) {
-
-  int i, countx, county, overcompensated[2];
-  float inclination, hourangle, coszenith, sunh, xval, yval;
+short selalg(const dto& d, const ucs& upos, const float& hmax, const float& hmin)
+{
   float max = 0., min = 0.;
-  float northings,  eastings,  latitude,  longitude;
-  float DistPolEkv, daynr, gmttime;
-  float Pi = 3.141592654;
-  float TrueScaleLat = 60.;
-  float CentralMer = 0.;
-  float theta0, lat;
-  double radian, Rp, TrueLatRad;
 
-  radian = Pi/180.;
-  TrueLatRad = TrueScaleLat*radian;
-  DistPolEkv = 6378.*(1.+sin(TrueLatRad));
+  const float Pi = 3.141592654;
+  const double radian = Pi / 180.;
 
-  /*
-   * Decode day and time information for use in formulas.
-   */
-  daynr = (float) JulianDay((int) d.yy, (int) d.mm, (int) d.dd);
-  gmttime = (float) d.ho+((float) d.mi/60.);
+  const float CentralMer = 0.;
+  const float TrueScaleLat = 60.;
+  const double TrueLatRad = TrueScaleLat * radian;
+  const float DistPolEkv = 6378. * (1. + sin(TrueLatRad));
 
-  theta0 = (2*Pi*daynr)/365;
-  inclination = 0.006918-(0.399912*cos(theta0))+(0.070257*sin(theta0))
-  -(0.006758*cos(2*theta0))+(0.000907*sin(2*theta0))
-  -(0.002697*cos(3*theta0))+(0.001480*sin(3*theta0));
+  // Decode day and time information for use in formulas.
+  const float daynr = satimg::JulianDay(d.yy, d.mm, d.dd);
+  const float gmttime = d.ho + d.mi / 60.0;
 
-  for (i = 0; i < 2; i++) {
-    overcompensated[i] = 0;
-  }
+  const float theta0 = (2 * Pi * daynr) / 365;
+  const float inclination = 0.006918 - (0.399912 * cos(theta0)) + (0.070257 * sin(theta0)) - (0.006758 * cos(2 * theta0)) + (0.000907 * sin(2 * theta0)) -
+                            (0.002697 * cos(3 * theta0)) + (0.001480 * sin(3 * theta0));
 
-  /*
-   Estimates latitude and longitude for the corner pixels.
-   */
-  countx = 0;
-  county = 0;
-  for (i = 0; i < 4; i++) {
-    xval = upos.Bx + upos.Ax*((float) countx + 0.5);
-    yval = upos.By - fabsf(upos.Ay)*((float) county + 0.5);
+  //  Estimates latitude and longitude for the corner pixels.
+  unsigned int countx = 0, county = 0;
+  for (int i = 0; i < 4; i++) {
+    const float xval = upos.Bx + upos.Ax * ((float)countx + 0.5);
+    const float yval = upos.By - fabsf(upos.Ay) * ((float)county + 0.5);
 
     countx += upos.iw;
     if (countx > upos.iw) {
       countx = 0;
       county += upos.ih;
     }
-    northings = yval;
-    eastings  = xval;
+    const float northings = yval;
+    const float eastings = xval;
 
-    Rp = pow(double(eastings*eastings + northings*northings),0.5);
+    const double Rp = pow(double(eastings * eastings + northings * northings), 0.5);
 
-    latitude = 90.-(1./radian)*atan(Rp/DistPolEkv)*2.;
-    longitude = CentralMer+(1./radian)*atan2(eastings,-northings);
-
-    latitude=latitude*radian;
-    longitude=longitude*radian;
+    const float latitude = (90. - (1. / radian) * atan(Rp / DistPolEkv) * 2) * radian;
+    const float longitude = (CentralMer + (1. / radian) * atan2(eastings, -northings)) * radian;
 
     /*
      * Estimates zenith angle in the pixel.
      */
-    lat = gmttime+((longitude/radian)*0.0667);
-    hourangle = std::abs(lat-12.)*0.2618;
+    const float lat = gmttime + ((longitude / radian) * 0.0667);
+    const float hourangle = std::abs(lat - 12.) * 0.2618;
 
-    coszenith = (cos(latitude)*cos(hourangle)*cos(inclination)) +
-    (sin(latitude)*sin(inclination));
-    sunh = 90.-(acosf(coszenith)/radian);
+    const float coszenith = (cos(latitude) * cos(hourangle) * cos(inclination)) + (sin(latitude) * sin(inclination));
+    const float sunh = 90. - (acosf(coszenith) / radian);
 
     if (sunh < min) {
       min = sunh;
     } else if ( sunh > max) {
       max = sunh;
     }
-
   }
 
   /*
@@ -474,11 +479,11 @@ short satimg::selalg(const dto& d, const ucs& upos, const float& hmax, const flo
    2= daytime algorithm.
    */
   if (max > hmax && fabs(max) > (fabs(min)+hmax)) {
-    return(2);
+    return 2;
   } else if (min < hmin && fabs(min) > (fabs(max)+hmin)) {
-    return(1);
+    return 1;
   } else {
-    return(0);
+    return 0;
   }
-  return(0);
 }
+} // namespace

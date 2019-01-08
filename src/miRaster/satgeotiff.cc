@@ -570,15 +570,3 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
   else
     return 0;
 }
-
-int metno::GeoTiff::day_night(const std::string& infile)
-{
-  dihead sinfo;
-
-  if (head_diana(infile, sinfo)!= 0){
-    METLIBS_LOG_ERROR("Error reading met.no/TIFF file:" << infile);
-    return -1;
-  }
-
-  return 0;
-}

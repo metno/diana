@@ -1,7 +1,7 @@
 /*
  libdiHDF5 - SMHI HDF5 interface
 
- Copyright (C) 2006-2013 met.no
+ Copyright (C) 2006-2019 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -86,12 +86,6 @@ struct arrFloat {
 
 
 /**
- * Used to calculate if the image is taken during the day or night.
- * This information is used to figure out if a visual image should be shown or not.
- */
-static int day_night(satimg::dihead sinfo);
-
-/**
  * Reads the imagedata of the HDF5 file with the help of metadata read in HDF5_head_diana
  * @param infile - name of HDF5 file to read from
  * @param image - char array to be shown as image in diana
@@ -154,11 +148,6 @@ private:
  * Dump the values of the internal map structures to console. Used ony in development and debugging.
  */
   static  int getAllValuesFromMap();
-
-/**
- * Function to calculate how much light the image has. Used to determine whether to show a visual satellite channel.
- */
-  static  short selalg(const satimg::dto& d, const satimg::ucs& upos, const float& hmax, const float& hmin);
 
 /**
  * Fills the internal structure dihead with metadata from the HDF5 metadata.

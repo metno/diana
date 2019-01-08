@@ -44,9 +44,6 @@ namespace metno {
 class GeoTiff
 {
 public:
-  // Functions
-  //  short selalg(const dto& d, const ucs& upos, const float& hmax, const float& hmin);
-  static int day_night(const std::string& infile);
   static int read_diana(const std::string& infile, unsigned char* image[], int nchan, int chan[], satimg::dihead& ginfo);
   static int head_diana(const std::string& infile, satimg::dihead &ginfo);
 };

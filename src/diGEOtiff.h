@@ -49,8 +49,6 @@ public:
   static bool readGEOtiffHeader(SatFileInfo& file);
   ///read palette info
   static bool readGEOtiffPalette(const std::string& filename, std::vector<Colour>& col);
-  ///set channels depending on solar heigt
-  static bool day_night(const std::string& filename, std::string& channels);
 };
 
 #endif
