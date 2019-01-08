@@ -2,7 +2,7 @@
 /*
   libmiRaster - met.no tiff interface
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -25,7 +25,6 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-
 
 /* Changed by Lisbeth Bergholt 1999
  * RETURN VALUES:
@@ -67,9 +66,6 @@
 #include <puTools/miStringFunctions.h>
 #include <puTools/miTime.h>
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/time.h>
 #if defined(HAVE_GEOTIFF_GEOTIFF_H)
 #include <geotiff/geotiff.h>
 #include <geotiff/geotiffio.h>
@@ -88,7 +84,6 @@
 
 #include <tiffio.h>
 
-#include <cstdio>
 #include <sstream>
 #include <cstdlib>
 #include <cmath>
@@ -97,17 +92,12 @@ using namespace miutil;
 using namespace satimg;
 using namespace std;
 
-#define TIFFGetR(abgr)((abgr) & 0xff)
-#define TIFFGetG(abgr)(((abgr) >> 8) & 0xff)
-#define TIFFGetB(abgr)(((abgr) >> 16) & 0xff)
-#define TIFFGetA(abgr)(((abgr) >> 24) & 0xff)
-
 #define MILOGGER_CATEGORY "metno.GeoTiff"
 #include "miLogger/miLogging.h"
 
+static const int MAXCHANNELS = 16;
 
-int metno::GeoTiff::read_diana(const std::string& infile, unsigned char *image[],
-    int nchan, int chan[], dihead &ginfo)
+int metno::GeoTiff::read_diana(const std::string& infile, unsigned char* image[], int nchan, int /*chan*/[], dihead& ginfo)
 {
   METLIBS_LOG_TIME();
 
@@ -183,18 +173,6 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char *image[]
   }
   size = ginfo.xsize * ginfo.ysize;
 
-  // For proj4 tag, needs to be adjusted.....
-  if (ginfo.projection == "Geographic")
-  {
-    ginfo.proj_string += " +x_0=" + miutil::from_number(ginfo.Bx*-1.);
-    ginfo.proj_string += " +y_0=" + miutil::from_number((ginfo.By*-1.)+(ginfo.Ay*ginfo.ysize*1.));
-  }
-  else
-  {
-    ginfo.proj_string += " +x_0=" + miutil::from_number(ginfo.Bx*-1000.);
-    ginfo.proj_string += " +y_0=" + miutil::from_number((ginfo.By*-1000.)+(ginfo.Ay*ginfo.ysize*1000.));
-  }
-
   uint16  count;
   void    *data;
   // TIFFTAG_GDAL_METADATA 42112 defined in some projets
@@ -216,8 +194,6 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char *image[]
     ostringstream oss;
     oss << "T=(" << ginfo.BIr << ")+(" << ginfo.AIr << ")*C";
     ginfo.cal_ir = oss.str();
-    //       printf("Air = %f Bir = %f  %s\n",  ginfo.AIr,  ginfo.BIr, ginfo.cal_ir.c_str() );
-
 
     image[1] = (unsigned char *) malloc(ginfo.ysize*ginfo.xsize);
     int nStrips = TIFFNumberOfStrips(in);
@@ -230,7 +206,6 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char *image[]
       uint32 imageWidth,imageLength;
       uint32 x, y;
       tdata_t buf;
-      //cerr << "Tiled" << endl;
 
       imageWidth  = ginfo.xsize;
       imageLength = ginfo.ysize;
@@ -247,8 +222,7 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char *image[]
             for (int t=y*imageWidth + x, f=0;  f < tileSize; t += imageWidth, f += tileWidth) {
               memcpy(&image[1][t], (unsigned char *)buf + f, tileWidth);
             }
-          }
-          else {
+          } else {
             METLIBS_LOG_ERROR("TIFFReadTile Failed at tile: " << x << "," << y << " result: " << res);
           }
         }
@@ -297,6 +271,7 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char *image[]
   if ( !status ) {
     compression = COMPRESSION_NONE;
   }
+
   std::string file = infile.substr(infile.rfind("/") + 1);
   ImageCache* mImageCache = ImageCache::getInstance();
 
@@ -324,7 +299,6 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char *image[]
 
 int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
 {
-
   METLIBS_LOG_TIME();
 
   int status;
@@ -359,7 +333,6 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
 
   METLIBS_LOG_DEBUG("TIFFGetField (TIFFTAG_PHOTOMETRIC) status: " << status << " pmi: " << pmi);
 
-  ginfo.pmi = pmi;
   if(pmi==3){
     status = TIFFGetField(in, TIFFTAG_COLORMAP, &red, &green, &blue);
 
@@ -400,9 +373,7 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
   if ((status == 1)&&(datetime != 0)) {
     METLIBS_LOG_DEBUG("datetime: " << datetime);
 
-    int hour,minute,day,month,year,sec;
-    //Format hour:min day/month-year
-    // Format 2009:11:09 10:30:00
+    int year, month, day, hour, minute, sec;
     if (sscanf(datetime, "%4d-%2d-%2d %2d:%2d:%2d", &year, &month, &day, &hour, &minute, &sec) != 6) {
       if (sscanf(datetime, "%4d:%2d:%2d %2d:%2d:%2d", &year, &month, &day, &hour, &minute, &sec) != 6) {
          METLIBS_LOG_WARN("Invalid time in TIFFTAG_DATETIME '" << datetime << "'");
@@ -564,7 +535,6 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
 
     if (modeltype == 32767) {
       // User defined, assumed GEOS SATELLITE PROJ
-      ginfo.projection="User defined";
       cit_length = GTIFKeyInfo(gtifin,PCSCitationGeoKey,&cit_size,NULL);
       if (cit_length > 0) {
         citation = new char[cit_length];
@@ -647,7 +617,6 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
 
 
       ginfo.proj_string = tmp_proj_string.str();
-      ginfo.projection="Geographic";
       if (METLIBS_LOG_DEBUG_ENABLED()) {
         METLIBS_LOG_DEBUG("GTIFKeyGet: GTModelTypeGeoKey = " << modeltype);
         METLIBS_LOG_DEBUG("GTIFKeyGet: GeographicType = " << GeographicType);
@@ -665,7 +634,6 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
       GTIFKeyGet(gtifin, ProjFalseEastingGeoKey, &ProjFalseEasting , 0, 1);
       GTIFKeyGet(gtifin, ProjFalseNorthingGeoKey, &ProjFalseNorthing , 0, 1);
       GTIFKeyGet(gtifin, GeogPrimeMeridianLongGeoKey, &GeogPrimeMeridianLong , 0, 1);
-      ginfo.projection="Projected";
 
       if (ProjCoordTrans == CT_PolarStereographic ) {
         // polar_stereographic
@@ -769,8 +737,6 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
     return(0);
 }
 
-
-
 int metno::GeoTiff::day_night(const std::string& infile)
 {
   dihead sinfo;
@@ -782,124 +748,3 @@ int metno::GeoTiff::day_night(const std::string& infile)
 
   return 0;
 }
-
-
-/*
- * NAME:
- * selalg
- *
- * PURPOSE:
- * This file contains functions that are used for selecting the correct
- * algoritm according to the available daylight in a satellite scene.
- * The algoritm uses only corner values to chose from.
- *
- * AUTHOR:
- * Oystein Godoy, met.no/FOU, 23/07/1998
- * MODIFIED:
- * Oystein Godoy, met.no/FOU, 06/10/1998
- * Selection conditions changed. Error in nighttime test removed.
- */
-
-#if 0
-short GeoTiff::selalg(const dto& d, const ucs& upos, const float& hmax, const float& hmin) {
-
-  int i, ch, countx, county, elem, overcompensated[2];
-  int size;
-  float inclination, hourangle, coszenith, sunh, xval, yval;
-  float max = 0., min = 0.;
-  float northings,  eastings,  latitude,  longitude;
-  float RadPerDay =  0.01721420632;
-  float DistPolEkv, daynr, gmttime;
-  float Pi = 3.141592654;
-  float TrueScaleLat = 60.;
-  float CentralMer = 0.;
-  float tempvar;
-  float theta0, lat;
-  double radian, Rp, Pl, TrueLatRad;
-
-  radian = Pi/180.;
-  TrueLatRad = TrueScaleLat*radian;
-  DistPolEkv = 6378.*(1.+sin(TrueLatRad));
-  size = upos.iw*upos.ih;
-
-  /*
-   * Decode day and time information for use in formulas.
-   */
-  daynr = (float) satimg::JulianDay((int) d.yy, (int) d.mm, (int) d.dd);
-  gmttime = (float) d.ho+((float) d.mi/60.);
-
-  theta0 = (2*Pi*daynr)/365;
-  inclination = 0.006918-(0.399912*cos(theta0))+(0.070257*sin(theta0))
-                    -(0.006758*cos(2*theta0))+(0.000907*sin(2*theta0))
-                    -(0.002697*cos(3*theta0))+(0.001480*sin(3*theta0));
-
-  for (i = 0; i < 2; i++) {
-    overcompensated[i] = 0;
-  }
-
-  /*
-    Estimates latitude and longitude for the corner pixels.
-   */
-  countx = 0;
-  county = 0;
-  for (i = 0; i < 4; i++) {
-    xval = upos.Bx + upos.Ax*((float) countx + 0.5);
-    yval = upos.By - fabsf(upos.Ay)*((float) county + 0.5);
-
-    countx += upos.iw;
-    if (countx > upos.iw) {
-      countx = 0;
-      county += upos.ih;
-    }
-    northings = yval;
-    eastings  = xval;
-
-    Rp = pow(double(eastings*eastings + northings*northings),0.5);
-
-    latitude = 90.-(1./radian)*atan(Rp/DistPolEkv)*2.;
-    longitude = CentralMer+(1./radian)*atan2(eastings,-northings);
-
-    latitude=latitude*radian;
-    longitude=longitude*radian;
-
-    /*
-     * Estimates zenith angle in the pixel.
-     */
-    lat = gmttime+((longitude/radian)*0.0667);
-    hourangle = fabsf(lat-12.)*0.2618;
-
-    coszenith = (cos(latitude)*cos(hourangle)*cos(inclination)) +
-        (sin(latitude)*sin(inclination));
-    sunh = 90.-(acosf(coszenith)/radian);
-
-    if (sunh < min) {
-      min = sunh;
-    } else if ( sunh > max) {
-      max = sunh;
-    }
-
-  }
-
-  /*
-    hmax and hmin are input variables to the function determining
-    the maximum and minimum sunheights. A twilight scene is defined
-    as being in between these limits. During daytime scenes all corners
-    of the image have sunheights larger than hmax, during nighttime
-    all corners have sunheights below hmin (usually negative values).
-
-    Return values,
-    0= no algorithm chosen (twilight)
-    1= nighttime algorithm
-    2= daytime algorithm.
-   */
-  if (max > hmax && fabs(max) > (fabs(min)+hmax)) {
-    return(2);
-  } else if (min < hmin && fabs(min) > (fabs(max)+hmin)) {
-    return(1);
-  } else {
-    return(0);
-  }
-  return(0);
-}
-
-#endif // end if 0

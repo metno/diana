@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -78,7 +78,6 @@ public:
   std::string satellite_name; ///< name of satellite from file
   bool commonColourStretch;    /// other images can use stretch from this image
 
-  //grid
   float TrueLat; ///< grid true latitude
   float GridRot; ///< grid rotation
   float Ax;      ///< grid parameter
@@ -86,8 +85,6 @@ public:
   float Bx;      ///< grid parameter
   float By;      ///< grid parameter
 
-  //Projection
-  std::string projection;
   std::string proj_string;
 
   // calibration
@@ -143,17 +140,8 @@ public:
 
   std::map<int,char> hideColour;   ///< colour values to blend
 
-  /// set default values from a SatDialogInfo
-  static void setDefaultValues(const SatDialogInfo &);
-
 private:
-  // Copy members
   void memberCopy(const Sat& rhs);
-  static float defaultCut;
-  static int defaultAlphacut;
-  static int defaultAlpha;
-  static int defaultTimediff;
-  static bool defaultClasstable;
 
 public:
   Sat();

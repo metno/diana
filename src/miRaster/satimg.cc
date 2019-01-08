@@ -1,7 +1,7 @@
 /*
   libmiRaster - met.no tiff interface
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -24,7 +24,6 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-
 
 /* Changed by Lisbeth Bergholt 1999
  * RETURN VALUES:
@@ -58,45 +57,40 @@
 #include "diana_config.h"
 
 #include "satimg.h"
-#include <tiffio.h>
-#include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
 
 #include <puTools/miStringFunctions.h>
+#include <tiffio.h>
 
 using namespace std;
 using namespace miutil;
 
-int satimg::MITIFF_read_diana(const std::string& infile, unsigned char *image[],
-    int nchan, int chan[], dihead &ginfo)
+namespace {
+const int MAXCHANNELS = 16;
+
+int fillhead_diana(const std::string& str, const std::string& tag, satimg::dihead& ginfo);
+} // namespace
+
+int satimg::MITIFF_read_diana(const std::string& infile, unsigned char* image[], int nchan, int chan[], dihead& ginfo)
 {
-
-
   int i,status,size;
-  int pal;
   int compression = COMPRESSION_NONE;
 
   TIFF *in;
 
   ginfo.noofcl = 0;
 
-  // read header
-  pal = MITIFF_head_diana(infile,ginfo);
-  if(pal == -1)
-    return(-1);
+  const int pal = MITIFF_head_diana(infile, ginfo);
+  if (pal == -1)
+    return -1;
 
-  if( nchan == 0 ){
-    return(1);
+  if (nchan == 0) {
+    return 1;
   }
-
-  // Open TIFF files
 
   in=TIFFOpen(infile.c_str(), "rc");
   if (!in) {
     printf(" This is no TIFF file! (2)\n");
-    return(-1);
+    return -1;
   }
 
 
@@ -112,7 +106,7 @@ int satimg::MITIFF_read_diana(const std::string& infile, unsigned char *image[],
   if (ginfo.zsize > MAXCHANNELS) {
     printf("\n\tNOT ENOUGH POINTERS AVAILABLE TO HOLD DATA!\n");
     TIFFClose(in);
-    return(-1);
+    return -1;
   }
 
   for (i=0; i<nchan; i++) {
@@ -145,54 +139,46 @@ int satimg::MITIFF_read_diana(const std::string& infile, unsigned char *image[],
   }
 
   TIFFClose(in);
-
-  return(pal);
-
+  return pal;
 }
 
-
-int satimg::MITIFF_head_diana(const std::string& infile, dihead &ginfo) {
+int satimg::MITIFF_head_diana(const std::string& infile, dihead& ginfo)
+{
 
   int j,status;
   TIFF *in;
   short pmi;
   unsigned short int *red, *green, *blue;
   char *description;
-  char *description_o;
-  const std::string fieldname[FIELDS]={
-      "Satellite:",
-      "Date and Time:",
-      "SatDir:",
-      "Channels:",
-      "In this file:",
-      "Xsize:",
-      "Ysize:",
-      "Map projection:",
-      "Proj string:",
-      "TrueLat:",
-      "GridRot:",
-      "Xunit:",
-      "Yunit:",
-      "NPX:",
-      "NPY:",
-      "Ax:",
-      "Ay:",
-      "Bx:",
-      "By:",
-      "Calibration VIS:",
-      "Calibration IR:",
-      "Table_calibration:",
-      "COLOR INFO:",
-      "NWP INFO:"
-  };
+  const std::string fieldname[] = {"Satellite:",
+                                   "Date and Time:",
+                                   "SatDir:",
+                                   "Channels:",
+                                   "In this file:",
+                                   "Xsize:",
+                                   "Ysize:",
+                                   "Map projection:",
+                                   "Proj string:",
+                                   "TrueLat:",
+                                   "GridRot:",
+                                   "Xunit:",
+                                   "Yunit:",
+                                   "NPX:",
+                                   "NPY:",
+                                   "Ax:",
+                                   "Ay:",
+                                   "Bx:",
+                                   "By:",
+                                   "Calibration VIS:",
+                                   "Calibration IR:",
+                                   "Table_calibration:",
+                                   "COLOR INFO:",
+                                   "NWP INFO:"};
+  const size_t FIELDS = sizeof(fieldname) / sizeof(fieldname[0]);
 
   ginfo.trueLat= 60.0;
   ginfo.gridRot=  0.0;
   ginfo.noofcl = 0;
-
-
-  // Open TIFF files and initialize IFD
-
 
   in=TIFFOpen(infile.c_str(), "rc");
   if (!in) {
@@ -218,40 +204,32 @@ int satimg::MITIFF_head_diana(const std::string& infile, dihead &ginfo) {
     }
   }
 
-  description_o = (char *) malloc(TIFFHEAD*sizeof(char));
-  if (!description_o) {
-    TIFFClose(in);
-    return(-1);
-  }
-  description = description_o;
   TIFFGetField(in, 270, &description);
   std::string desc_str(description);
 
-
-
   // read all common fields
-
   while(true){
     //Find key word
-    int i= 0;
+    size_t i= 0;
     size_t nn = desc_str.npos;
     while (nn==desc_str.npos && i<FIELDS) {
       nn = desc_str.find(fieldname[i]);
       i++;
     }
-    if(i==FIELDS) break; //no key word found
+    if (i == FIELDS)
+      break; // no key word found
     i--;
     nn += fieldname[i].size();
     desc_str = desc_str.substr(nn,desc_str.size()-nn+1);
     //find next key word
-    j= 0;
-    size_t mm = desc_str.npos;
-    while (mm==desc_str.npos && j<FIELDS) {
+    size_t j = 0;
+    size_t mm = std::string::npos;
+    while (mm == std::string::npos && j < FIELDS) {
       mm = desc_str.find(fieldname[j]);
       j++;
     }
     std::string value;
-    if(j<FIELDS+1)
+    if (j < FIELDS + 1)
       value = desc_str.substr(0,mm);
     else
       value = desc_str;
@@ -261,22 +239,19 @@ int satimg::MITIFF_head_diana(const std::string& infile, dihead &ginfo) {
   }
 
 
-  free(description_o);
   TIFFClose(in);
-
-  if(pmi==3)
-    return(2);
-  else
-    return(0);
+  return (pmi == 3) ? 2 : 0;
 }
 
+namespace {
 /*
  * PURPOSE:
  * Fillhead extracts the standard information in the header.
  */
-int satimg::fillhead_diana(const std::string& str, const std::string& tag, dihead &ginfo) {
-
-  if (tag == "Satellite:")  ginfo.satellite = str;
+int fillhead_diana(const std::string& str, const std::string& tag, satimg::dihead& ginfo)
+{
+  if (tag == "Satellite:")
+    ginfo.satellite = str;
 
   else if (tag == "Date and Time:") {
     //Format hour:min day/month-year
@@ -299,7 +274,6 @@ int satimg::fillhead_diana(const std::string& str, const std::string& tag, dihea
 
   else if (tag == "Xsize:") ginfo.xsize = atoi(str.c_str());
   else if (tag == "Ysize:") ginfo.ysize = atoi(str.c_str());
-  else if (tag == "Map projection:") ginfo.projection = str;
   else if (tag == "Proj string:") ginfo.proj_string = str;
   else if (tag == "TrueLat:") {
     ginfo.trueLat= (float) atof(str.c_str());
@@ -314,32 +288,29 @@ int satimg::fillhead_diana(const std::string& str, const std::string& tag, dihea
   else if (tag == "Calibration IR:")  ginfo.cal_ir  = str;
   else if (tag == "Table_calibration:")  ginfo.cal_table.push_back(str);
   else if (tag == "COLOR INFO:"){
-    vector<std::string> token = miutil::split(str, "\n",false);
+    const std::vector<std::string> token = miutil::split(str, "\n", false);
     int ntoken=token.size();
-    if(ntoken<3) return 1;
+    if (ntoken < 3)
+      return 1;
     ginfo.name = token[0];
     ginfo.noofcl = atoi(token[1].c_str());
-    if(ntoken-2<ginfo.noofcl) ginfo.noofcl = ntoken-2;
-    if(ntoken-2>ginfo.noofcl) ntoken = ginfo.noofcl+2;
+    if (ntoken - 2 < ginfo.noofcl)
+      ginfo.noofcl = ntoken - 2;
+    if (ntoken - 2 > ginfo.noofcl)
+      ntoken = ginfo.noofcl + 2;
     for (int i=2; i<ntoken; i++)
       ginfo.clname.push_back(token[i]);
   }
 
-  return(0);
+  return 0;
 }
-
+} // namespace
 
 int satimg::day_night(const std::string& infile)
 {
-
   dihead sinfo;
-
-  if( MITIFF_head_diana(infile, sinfo)!= 0){
-    cerr <<" satimg: Error reading met.no/TIFF file:" << infile << endl;
+  if (MITIFF_head_diana(infile, sinfo) != 0)
     return -1;
-  }
-  ;
-
 
   struct ucs upos;
   struct dto d;

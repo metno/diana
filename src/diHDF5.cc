@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2008 met.no
+ Copyright (C) 2008-2019 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -27,8 +27,6 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-//#define DEBUGPRINT
-
 #include "diana_config.h"
 
 #include "diHDF5.h"
@@ -45,7 +43,6 @@ HDF5::HDF5()
 {
 }
 
-
 bool HDF5::readHDF5Palette(SatFileInfo& file, std::vector<Colour>& col)
 {
   satimg::dihead ginfo;
@@ -61,11 +58,10 @@ bool HDF5::readHDF5Palette(SatFileInfo& file, std::vector<Colour>& col)
 #endif
 
   // if not colour palette image
-  //if (hdf5api.HDF5_head_diana(file.name, ginfo)!= 2)
-  if (file.name == "") {
+  if (file.name.empty())
     return false;
-  }
-  if(metno::satimgh5::HDF5_head_diana(file.name, ginfo)!= 2)
+
+  if (metno::satimgh5::HDF5_head_diana(file.name, ginfo) != 2)
     return false;
 
   // index -> RGB
@@ -84,14 +80,11 @@ bool HDF5::readHDF5Palette(SatFileInfo& file, std::vector<Colour>& col)
     col.push_back(Colour(colmap[0][j], colmap[1][j], colmap[2][j]));
 
   return true;
-
 }
 
 bool HDF5::readHDF5Header(SatFileInfo& file)
 {
-#if 1 // def DEBUGPRINT
-  METLIBS_LOG_SCOPE("file.name: " << file.name << " hdf5type: " << file.hdf5type << " time: " <<file.time);
-#endif
+  METLIBS_LOG_SCOPE(LOGVAL(file.name) << LOGVAL(file.hdf5type) << LOGVAL(file.time));
 
   satimg::dihead ginfo;
 
@@ -116,14 +109,12 @@ bool HDF5::readHDF5Header(SatFileInfo& file)
     file.time = ginfo.time;
   file.opened = true;
 
-  std::string ch=ginfo.channel;
-  file.channel=miutil::split(ch, " ");
+  file.channel = miutil::split(ginfo.channel, " ");
   return true;
 }
 
 bool HDF5::readHDF5(const std::string& filename, Sat& sd, int index)
 {
-
   //Read HDF5-file using libsatimgh5, HDF5_read_diana returns the images
   //for each channel (index[i]) in rawimage[i], and  information about the
   // satellite pictures in the structure ginfo
@@ -188,8 +179,6 @@ bool HDF5::readHDF5(const std::string& filename, Sat& sd, int index)
   sd.satellite_name = ginfo.satellite;
 
   //time
-  if (!ginfo.time.undef())
-    sd.time = ginfo.time;
   sd.time = ginfo.time;
 
   //dimension
@@ -204,8 +193,6 @@ bool HDF5::readHDF5(const std::string& filename, Sat& sd, int index)
   sd.Bx = ginfo.Bx;
   sd.By = ginfo.By;
 
-  //Projection
-  sd.projection = ginfo.projection;
   // Use proj4string from setupfile if present
   if ( sd.proj_string.empty() ) {
     sd.proj_string = ginfo.proj_string;
@@ -217,7 +204,6 @@ bool HDF5::readHDF5(const std::string& filename, Sat& sd, int index)
   sd.cal_table = ginfo.cal_table;
 
   return true;
-
 }
 
 /*

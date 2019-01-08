@@ -392,7 +392,7 @@ bool SatManager::setData(SatPlot *satp)
 }
 
 /***********************************************************************/
-bool SatManager::parseChannels(Sat* satdata, SatFileInfo &fInfo)
+bool SatManager::parseChannels(Sat* satdata, const SatFileInfo &fInfo)
 {
   //returns in satdata->index the channels to be plotted
 
@@ -870,22 +870,13 @@ bool SatManager::readHeader(SatFileInfo &file, std::vector<std::string> &channel
 
 #ifdef HDF5FILE
   if (file.formattype=="hdf5" || file.formattype=="hdf5-standalone") {
-#ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("readHDF5Header");
-#endif
     HDF5::readHDF5Header(file);
   }
 #endif
 
 #ifdef GEOTIFF
   if (file.formattype=="geotiff") {
-#ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("reading geotiff "<<file.name);
-#endif
     GEOtiff::readGEOtiffHeader(file);
-#ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("finished reading geotiff "<<file.name);
-#endif
   }
 #endif
 
@@ -1020,7 +1011,7 @@ void SatManager::listFiles(subProdInfo &subp)
     //update Prod[satellite][file].colours
     //Asumes that all files have same palette
     if (subp.file.size() > 0 && subp.file[0].name != "") {
-      GEOtiff::readGEOtiffPalette(subp.file[0].name.c_str(), subp.colours);
+      GEOtiff::readGEOtiffPalette(subp.file[0].name, subp.colours);
     }
   }
 #endif

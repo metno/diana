@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,8 +31,6 @@
 
 #include "diSat.h"
 
-#include <miRaster/satimg.h>
-
 #include <vector>
 
 /**
@@ -53,7 +51,7 @@ public:
   ///read palette info
   static bool readMItiffPalette(const std::string& filename, std::vector<Colour>& col);
   ///set channels depending on solar heigt
-  static bool day_night(SatFileInfo& file, std::string& channels);
+  static bool day_night(const SatFileInfo& file, std::string& channels);
 };
 
 #endif

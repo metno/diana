@@ -1,7 +1,7 @@
 /*
   ImageCache
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -24,7 +24,6 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
 
 /*
  * PURPOSE:
@@ -49,7 +48,7 @@ private:
   struct Item {
     uint8_t* data;
     int length;
-	time_t time_stamp;
+    time_t time_stamp;
   };
 
   volatile bool stop;
@@ -62,7 +61,6 @@ private:
   static bool init;
   static ImageCache* instance;
 
-
   ImageCache(std::string path);
   void cleanCache();
 
@@ -74,24 +72,18 @@ private:
 
 
 public:
-    ~ImageCache();
+  ~ImageCache();
 
-    /**
-     * Set cacheFilPath
-     */
-    void setCacheFilePath(const std::string& path);
-/**
- * Read file from cache
- */
-    bool getFromCache(const std::string& fileName, uint8_t* image);
-/**
- * Put file in cache.
- */
+  /** Set cacheFilPath    */
+  void setCacheFilePath(const std::string& path);
+
+  /** Read file from cache */
+  bool getFromCache(const std::string& fileName, uint8_t* image);
+
+  /** Put file in cache. */
   bool putInCache(const std::string& fileName, uint8_t* data, int length);
 
   static ImageCache* getInstance();
 };
 
-
-#endif	/* _IMAGECACHE_H */
-
+#endif /* _IMAGECACHE_H */

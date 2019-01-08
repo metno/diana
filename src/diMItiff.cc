@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -30,6 +30,7 @@
 #include "diana_config.h"
 
 #include "diMItiff.h"
+#include "miRaster/satimg.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -70,7 +71,7 @@ bool MItiff::readMItiffHeader(SatFileInfo& file)
 {
   satimg::dihead ginfo;
 
-  int rres =satimg::MITIFF_head_diana(file.name, ginfo);
+  int rres = satimg::MITIFF_head_diana(file.name, ginfo);
 
   if (rres ==2)
     file.palette=true;
@@ -99,7 +100,7 @@ bool MItiff::readMItiff(const std::string& filename, Sat& sd, int index)
 
   satimg::dihead    ginfo;
 
-  int rres= satimg::MITIFF_read_diana(filename,&sd.rawimage[index], sd.no,sd.index, ginfo);
+  int rres = satimg::MITIFF_read_diana(filename, &sd.rawimage[index], sd.no, sd.index, ginfo);
   if (rres == -1) {
     METLIBS_LOG_ERROR("MITIFF_read_diana returned false:" << filename);
     return false;
@@ -135,8 +136,6 @@ bool MItiff::readMItiff(const std::string& filename, Sat& sd, int index)
   sd.Bx = ginfo.Bx;
   sd.By = ginfo.By;
 
-  //Projection
-  sd.projection = ginfo.projection;
   // Use proj4string from setupfile if present
   if ( sd.proj_string.empty() ) {
     sd.proj_string = ginfo.proj_string;
@@ -162,7 +161,7 @@ static std::string fi_channel(const SatFileInfo& fi, int idxPlus1)
   }
 }
 
-bool  MItiff::day_night(SatFileInfo &fInfo, std::string& channels)
+bool MItiff::day_night(const SatFileInfo& fInfo, std::string& channels)
 {
   int aa = satimg::day_night(fInfo.name);
 

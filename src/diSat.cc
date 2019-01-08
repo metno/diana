@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2018 met.no
+ Copyright (C) 2006-2019 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -43,11 +43,13 @@
 using namespace::miutil;
 
 //static values that should be set from SatManager
-float Sat::defaultCut = -1;
-int Sat::defaultAlphacut = 0;
-int Sat::defaultAlpha = 255;
-int Sat::defaultTimediff = 60;
-bool Sat::defaultClasstable = false;
+namespace {
+const float defaultCut = -1;
+const int defaultAlphacut = 0;
+const int defaultAlpha = 255;
+const int defaultTimediff = 60;
+const bool defaultClasstable = false;
+} // namespace
 
 Sat::Sat()
     : approved(false)
@@ -159,7 +161,7 @@ Sat& Sat::operator=(const Sat &rhs)
   return *this;
 }
 
-bool Sat::operator==(const Sat &rhs) const
+bool Sat::operator==(const Sat&) const
 {
   return false;
 }
@@ -231,17 +233,6 @@ void Sat::memberCopy(const Sat& rhs)
     }
   }
 
-}
-
-void Sat::setDefaultValues(const SatDialogInfo & Dialog)
-{
-  //default values used if nothing is set in OKstring
-  defaultCut=Dialog.cut.value*Dialog.cut.scale;
-  defaultAlphacut = int (Dialog.alphacut.value*Dialog.alphacut.scale*255);
-  defaultAlpha=int (Dialog.alpha.value*Dialog.alpha.scale*255);
-  defaultTimediff=int (Dialog.timediff.value*Dialog.timediff.scale);
-  defaultClasstable=true;
-  //defaultHideColor;
 }
 
 /* * PURPOSE:   calculate and print the temperature or the albedo of
@@ -497,23 +488,23 @@ void Sat::setPlotName()
 
 void Sat::setArea()
 {
-  METLIBS_LOG_SCOPE(Ax<<" : "<<Ay<<" : "<<Bx<<" : "<<By << " : " << proj_string);
+  METLIBS_LOG_SCOPE(LOGVAL(Ax) << LOGVAL(Ay) << LOGVAL(Bx) << LOGVAL(By) << LOGVAL(proj_string));
 
   // If the mitiff image contains no proj string, it is probably transformed to +R=6371000
   // and adjusted to fit nwp-data and maps.
   //These adjustments require no conversion between +R=6371000 and ellps=WGS84,
   // and therefore no +datum or +towgs84 are given.
-  if (proj_string == "") {
-    std::stringstream tmp_proj_string;
-    tmp_proj_string << "+proj=stere";
-    tmp_proj_string << " +lon_0=" << GridRot;
-    tmp_proj_string << " +lat_ts=" << TrueLat;
-    tmp_proj_string << " +lat_0=90";
-    tmp_proj_string << " +R=6371000";
-    tmp_proj_string << " +units=km";
-    tmp_proj_string << " +x_0=" << (Bx*-1000.);
-    tmp_proj_string << " +y_0=" << (By*-1000.)+(Ay*area.ny*1000.);
-    proj_string = tmp_proj_string.str();
+  if (proj_string.empty()) {
+    std::ostringstream proj4;
+    proj4 << "+proj=stere";
+    proj4 << " +lon_0=" << GridRot;
+    proj4 << " +lat_ts=" << TrueLat;
+    proj4 << " +lat_0=90";
+    proj4 << " +R=6371000";
+    proj4 << " +units=km";
+    proj4 << " +x_0=" << (Bx * -1000.);
+    proj4 << " +y_0=" << (By * -1000.) + (Ay * area.ny * 1000.);
+    proj_string = proj4.str();
   }
   Projection p(proj_string);
   area.setP(p);

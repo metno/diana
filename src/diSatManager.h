@@ -93,7 +93,7 @@ private:
   void listFiles(subProdInfo &subp);
   bool readHeader(SatFileInfo &, std::vector<std::string> &);
 
-  bool parseChannels(Sat* satdata, SatFileInfo &info);
+  bool parseChannels(Sat* satdata, const SatFileInfo& info);
   bool readSatFile(Sat* satdata, const miutil::miTime& t);
 
   void init(const PlotCommand_cpv&);

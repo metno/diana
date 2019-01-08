@@ -1,7 +1,7 @@
 /*!
  libmiRaster - met.no hdf5 interface
 
- Copyright (C) 2006-2013 met.no
+ Copyright (C) 2006-2019 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -2296,18 +2296,16 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead &ginfo)
 
   if (hdf5map.count("projdef")) {
     METLIBS_LOG_DEBUG("projdef: " <<  hdf5map["projdef"]);
-    ginfo.projection = hdf5map["projdef"];
+    ginfo.proj_string = hdf5map["projdef"];
   }
   else
-	ginfo.projection = "";
-
-  ginfo.proj_string = ginfo.projection;
+    ginfo.proj_string.clear();
 
   if (ginfo.hdf5type == radar) {
     PJ *ref;
 
-    if ( ! (ref = pj_init_plus(ginfo.projection.c_str()))) {
-    	METLIBS_LOG_ERROR("Bad proj string: " << ginfo.projection);
+    if (!(ref = pj_init_plus(ginfo.proj_string.c_str()))) {
+      METLIBS_LOG_ERROR("Bad proj string: " << ginfo.proj_string);
       return -1;
     }
 
@@ -2371,8 +2369,6 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead &ginfo)
 		ginfo.By = 0;
   }
 
-  ginfo.AVis = 0;
-  ginfo.BVis = 0;
   ginfo.AIr = 0;
   ginfo.BIr = 0;
 
@@ -2390,7 +2386,7 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead &ginfo)
 
 	  ginfo.proj_string=tmp_proj_string.str();
   }
- 
+
   METLIBS_LOG_DEBUG("ginfo.Ax: " << ginfo.Ax);
   METLIBS_LOG_DEBUG("ginfo.Ay: " << ginfo.Ay);
   METLIBS_LOG_DEBUG("ginfo.Bx: " << ginfo.Bx);

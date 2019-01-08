@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -30,13 +30,15 @@
 #include "diana_config.h"
 
 #include "diGEOtiff.h"
+#include "miRaster/satgeotiff.h"
 
 #include <puTools/miStringFunctions.h>
 
 #define MILOGGER_CATEGORY "diana.GEOtiff"
 #include <miLogger/miLogging.h>
 
-GEOtiff::GEOtiff(){
+GEOtiff::GEOtiff()
+{
 }
 
 bool GEOtiff::readGEOtiffPalette(const std::string& filename, std::vector<Colour>& col)
@@ -63,15 +65,11 @@ bool GEOtiff::readGEOtiffPalette(const std::string& filename, std::vector<Colour
     col.push_back(Colour(colmap[0][j],colmap[1][j],colmap[2][j]));
 
   return true;
-
 }
 
 bool GEOtiff::readGEOtiffHeader(SatFileInfo& file)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("GEOtiff::readGEOtiffHeader: inside the GEOtiff"<<file.name);
-#endif
-
+  METLIBS_LOG_SCOPE(LOGVAL(file.name));
   satimg::dihead ginfo;
 
   int rres = metno::GeoTiff::head_diana(file.name, ginfo);
@@ -90,20 +88,19 @@ bool GEOtiff::readGEOtiffHeader(SatFileInfo& file)
   }
   file.opened = true;
 
-  std::string ch=ginfo.channel;
-  file.channel=miutil::split(ch, " ");
+  file.channel = miutil::split(ginfo.channel, " ");
   return true;
 }
 
 bool GEOtiff::readGEOtiff(const std::string& filename, Sat& sd, int index)
 {
   //Read TIFF-file using libsatgeotiff, GEOTIFF_read_diana returns the images
-  //for each channel (index[i]) in rawimage[i], and  information about the 
+  // for each channel (index[i]) in rawimage[i], and  information about the
   // satellite pictures in the structure ginfo
 
   satimg::dihead    ginfo;
 
-  int rres= metno::GeoTiff::read_diana(filename,&sd.rawimage[index], sd.no,sd.index, ginfo);
+  int rres = metno::GeoTiff::read_diana(filename, &sd.rawimage[index], sd.no, sd.index, ginfo);
   if (rres == -1) {
     METLIBS_LOG_ERROR("GEOTIFF_read_diana returned false:" << filename);
     return false;
@@ -139,8 +136,6 @@ bool GEOtiff::readGEOtiff(const std::string& filename, Sat& sd, int index)
   sd.Bx = ginfo.Bx;
   sd.By = ginfo.By;
 
-  //Projection
-  sd.projection = ginfo.projection;
   // Use proj4string from setupfile if present
   if ( sd.proj_string.empty() ) {
     sd.proj_string = ginfo.proj_string;
