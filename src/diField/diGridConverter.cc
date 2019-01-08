@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -328,7 +328,7 @@ bool GridConverter::getVectorRotationElements(const Area& data_area,
   const int n = anglebuffer->size();
   for (int i=0; i < n; ++i) {
     const Points& pi = (*anglebuffer)[i];
-    if (pi.area == data_area && pi.map_proj == map_proj && pi.npos == nvec) {
+    if ((Area)pi.area == data_area && pi.map_proj == map_proj && pi.npos == nvec) {
       *cosx = pi.x;
       *sinx = pi.y;
       return true;

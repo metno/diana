@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013-2018 met.no
+  Copyright (C) 2013-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -75,7 +75,7 @@ bool Area::operator==(const Area &rhs) const
 
 bool Area::operator!=(const Area &rhs) const
 {
-  return ((proj != rhs.proj) || (rect != rhs.rect));
+  return !(this->operator==(rhs));
 }
 
 std::ostream& operator<<(std::ostream& output, const Area& a)
@@ -170,6 +170,11 @@ GridArea GridArea::scaled(int factor) const
   s.nx /= factor;
   s.ny /= factor;
   return s;
+}
+
+bool GridArea::operator==(const GridArea& rhs) const
+{
+  return Area::operator==(rhs) && nx == rhs.nx && ny == rhs.ny && resolutionX == rhs.resolutionX && resolutionY == rhs.resolutionY;
 }
 
 std::ostream& operator<<(std::ostream& output, const GridArea& ga)

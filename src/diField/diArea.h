@@ -2,7 +2,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013 met.no
+  Copyright (C) 2013-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -107,6 +107,8 @@ public:
 
   float fromGridY(float ygrid) const
     { return ygrid*resolutionY + R().y1; }
+
+  bool operator==(const GridArea& rhs) const;
 
 public:
   int nx;
