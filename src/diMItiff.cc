@@ -129,8 +129,6 @@ bool MItiff::readMItiff(const std::string& filename, Sat& sd, int index)
   sd.area.ny=ginfo.ysize;
 
   //grid
-  sd.TrueLat= ginfo.trueLat;
-  sd.GridRot= ginfo.gridRot;
   sd.Ax = ginfo.Ax;
   sd.Ay = ginfo.Ay;
   sd.Bx = ginfo.Bx;

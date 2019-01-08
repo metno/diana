@@ -186,12 +186,10 @@ bool HDF5::readHDF5(const std::string& filename, Sat& sd, int index)
   sd.area.ny=ginfo.ysize;
 
   //grid
-  sd.TrueLat= ginfo.trueLat;
-  sd.GridRot= ginfo.gridRot;
   sd.Ax = ginfo.Ax;
   sd.Ay = ginfo.Ay;
-  sd.Bx = ginfo.Bx;
-  sd.By = ginfo.By;
+  sd.Bx = 0;
+  sd.By = 0;
 
   // Use proj4string from setupfile if present
   if ( sd.proj_string.empty() ) {

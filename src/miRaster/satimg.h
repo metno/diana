@@ -58,12 +58,10 @@ struct dihead
   unsigned int xsize;
   unsigned int ysize;
   std::string proj_string;
-  float trueLat;
-  float gridRot;
-  float Ax;
-  float Ay;
-  float Bx;
-  float By;
+  float Ax; ///< === Sat::area.resolutionX
+  float Ay; ///< === Sat::area.resolutionY
+  float Bx; ///< === Sat::area.rect.x1
+  float By; ///< === Sat::area.rect.y1
   // calibration for visual and infrared channels
   std::string cal_vis;
   std::string cal_ir;

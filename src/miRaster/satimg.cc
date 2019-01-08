@@ -59,24 +59,27 @@
 #include "satimg.h"
 
 #include <puTools/miStringFunctions.h>
+#include <sstream>
 #include <tiffio.h>
 
-using namespace std;
+#define MILOGGER_CATEGORY "metno.MiTiff"
+#include "miLogger/miLogging.h"
+
 using namespace miutil;
 
 namespace {
 const int MAXCHANNELS = 16;
 
-int fillhead_diana(const std::string& str, const std::string& tag, satimg::dihead& ginfo);
+int fillhead_diana(const std::string& str, const std::string& tag, satimg::dihead& ginfo, float& gridRot, float& trueLat);
+
+struct CloseTIFF
+{
+  void operator()(TIFF* tiff) { TIFFClose(tiff); }
+};
 } // namespace
 
 int satimg::MITIFF_read_diana(const std::string& infile, unsigned char* image[], int nchan, int chan[], dihead& ginfo)
 {
-  int i,status,size;
-  int compression = COMPRESSION_NONE;
-
-  TIFF *in;
-
   ginfo.noofcl = 0;
 
   const int pal = MITIFF_head_diana(infile, ginfo);
@@ -87,69 +90,60 @@ int satimg::MITIFF_read_diana(const std::string& infile, unsigned char* image[],
     return 1;
   }
 
-  in=TIFFOpen(infile.c_str(), "rc");
+  std::unique_ptr<TIFF, CloseTIFF> in(TIFFOpen(infile.c_str(), "rc"));
   if (!in) {
-    printf(" This is no TIFF file! (2)\n");
+    METLIBS_LOG_ERROR("TIFFOpen failed, probably not a TIFF file: '" << infile << "'");
     return -1;
   }
 
-
   // Read image data into matrix.
-  TIFFGetField(in, 256, &ginfo.xsize);
-  TIFFGetField(in, 257, &ginfo.ysize);
-  size = ginfo.xsize*ginfo.ysize;
+  TIFFGetField(in.get(), 256, &ginfo.xsize);
+  TIFFGetField(in.get(), 257, &ginfo.ysize);
+  const int size = ginfo.xsize * ginfo.ysize;
 
   /*
    * Memory allocated for image data in this function (*image) is freed
    * in function main process.
    */
   if (ginfo.zsize > MAXCHANNELS) {
-    printf("\n\tNOT ENOUGH POINTERS AVAILABLE TO HOLD DATA!\n");
-    TIFFClose(in);
+    METLIBS_LOG_ERROR("NOT ENOUGH POINTERS AVAILABLE TO HOLD DATA!");
     return -1;
   }
 
-  for (i=0; i<nchan; i++) {
+  for (int i = 0; i < nchan; i++) {
     if(i!=0 || chan[0]!=0){ /*TIFFsetDirectory chrashes if chan[0]=0,why??*/
-      if (TIFFSetDirectory(in, chan[i]) == 0) {
-        TIFFClose(in);
-        return(-1);
-      }
+      if (!TIFFSetDirectory(in.get(), chan[i]))
+        return -1;
     }
     image[i] = new unsigned char [size+1];
-    if (!image[i]) {
-      TIFFClose(in);
-      return(-1);
-    }
+    if (!image[i])
+      return -1;
 
-    status = TIFFGetField(in, TIFFTAG_COMPRESSION, &compression);
-    if ( !status ) {
+    int compression = COMPRESSION_NONE;
+    if (!TIFFGetField(in.get(), TIFFTAG_COMPRESSION, &compression))
       compression = COMPRESSION_NONE;
-    }
 
-    if ( compression == COMPRESSION_NONE ) {
-      status = TIFFReadRawStrip(in, 0, image[i], size);
-    } else {
-      status = TIFFReadEncodedStrip(in, 0, image[i], size);
-    }
-    if (status == -1) {
-      TIFFClose(in);
-      return(-1);
-    }
+    int status;
+    if (compression == COMPRESSION_NONE)
+      status = TIFFReadRawStrip(in.get(), 0, image[i], size);
+    else
+      status = TIFFReadEncodedStrip(in.get(), 0, image[i], size);
+    if (status == -1)
+      return -1;
   }
 
-  TIFFClose(in);
   return pal;
 }
 
 int satimg::MITIFF_head_diana(const std::string& infile, dihead& ginfo)
 {
+  METLIBS_LOG_SCOPE();
+  std::unique_ptr<TIFF, CloseTIFF> in(TIFFOpen(infile.c_str(), "rc"));
+  if (!in) {
+    METLIBS_LOG_ERROR("TIFFOpen failed, probably not a TIFF file: '" << infile << "'");
+    return -1;
+  }
 
-  int j,status;
-  TIFF *in;
-  short pmi;
-  unsigned short int *red, *green, *blue;
-  char *description;
   const std::string fieldname[] = {"Satellite:",
                                    "Date and Time:",
                                    "SatDir:",
@@ -176,26 +170,15 @@ int satimg::MITIFF_head_diana(const std::string& infile, dihead& ginfo)
                                    "NWP INFO:"};
   const size_t FIELDS = sizeof(fieldname) / sizeof(fieldname[0]);
 
-  ginfo.trueLat= 60.0;
-  ginfo.gridRot=  0.0;
+  float gridRot = 60, trueLat = 0;
   ginfo.noofcl = 0;
 
-  in=TIFFOpen(infile.c_str(), "rc");
-  if (!in) {
-    printf(" This is no TIFF file! (2)\n");
-    return(-1);
-  }
-
-  //    Test whether this is a color palette image or not.
-  //    pmi= 3 : color palette
-
-  status = TIFFGetField(in, 262, &pmi);
-  if(pmi==3){
-
-    status = TIFFGetField(in, 320, &red, &green, &blue);
-    if (status != 1) {
-      TIFFClose(in);
-      return(2);
+  // Test whether this is a color palette image or not. pmi==3 => color palette
+  short pmi;
+  if (TIFFGetField(in.get(), 262, &pmi) && pmi == 3) {
+    unsigned short int *red, *green, *blue;
+    if (!TIFFGetField(in.get(), 320, &red, &green, &blue)) {
+      return 2;
     }
     for (int i=0; i<256; i++) {
       ginfo.cmap[0][i] = red[i];
@@ -204,7 +187,9 @@ int satimg::MITIFF_head_diana(const std::string& infile, dihead& ginfo)
     }
   }
 
-  TIFFGetField(in, 270, &description);
+  char* description = 0;
+  if (!TIFFGetField(in.get(), 270, &description) || !description)
+    return -1;
   std::string desc_str(description);
 
   // read all common fields
@@ -235,11 +220,29 @@ int satimg::MITIFF_head_diana(const std::string& infile, dihead& ginfo)
       value = desc_str;
 
     miutil::trim(value);
-    fillhead_diana(value, fieldname[i], ginfo);
+    if (fillhead_diana(value, fieldname[i], ginfo, gridRot, trueLat) != 0)
+      return -1;
   }
 
+  // If the mitiff image contains no proj string, it is probably transformed to +R=6371000
+  // and adjusted to fit nwp-data and maps.
+  // These adjustments require no conversion between +R=6371000 and ellps=WGS84,
+  // and therefore no +datum or +towgs84 are given.
+  if (ginfo.proj_string.empty()) {
+    std::ostringstream proj4;
+    proj4 << "+proj=stere";
+    proj4 << " +lon_0=" << gridRot;
+    proj4 << " +lat_ts=" << trueLat;
+    proj4 << " +lat_0=90";
+    proj4 << " +R=6371000";
+    proj4 << " +units=km";
+    proj4 << " +x_0=" << (ginfo.Bx * -1000.);
+    proj4 << " +y_0=" << (ginfo.By * -1000.) + (ginfo.Ay * ginfo.ysize * 1000.);
+    ginfo.proj_string = proj4.str();
+  }
 
-  TIFFClose(in);
+  ginfo.Bx = ginfo.By = 0;
+
   return (pmi == 3) ? 2 : 0;
 }
 
@@ -248,7 +251,7 @@ namespace {
  * PURPOSE:
  * Fillhead extracts the standard information in the header.
  */
-int fillhead_diana(const std::string& str, const std::string& tag, satimg::dihead& ginfo)
+int fillhead_diana(const std::string& str, const std::string& tag, satimg::dihead& ginfo, float& gridRot, float& trueLat)
 {
   if (tag == "Satellite:")
     ginfo.satellite = str;
@@ -256,15 +259,17 @@ int fillhead_diana(const std::string& str, const std::string& tag, satimg::dihea
   else if (tag == "Date and Time:") {
     //Format hour:min day/month-year
     int hour,minute,day,month,year;
-    if(sscanf(str.c_str(), "%2d:%2d %2d/%2d-%4d", &hour,&minute,&day, &month,&year)!=5)
-      return 0;//invalid time
-    if( hour == 24 ){
+    if (sscanf(str.c_str(), "%2d:%2d %2d/%2d-%4d", &hour, &minute, &day, &month, &year) != 5)
+      return 1; // invalid time
+    if (year == 0)
+      year = 2000;
+    if (hour == 24) {
       hour = 0;
-      ginfo.time = miTime(year,month,day,hour,minute,0);
+      ginfo.time = miTime(year, month, day, hour, minute, 0);
       ginfo.time.addDay(1);
+    } else {
+      ginfo.time = miTime(year, month, day, hour, minute, 0);
     }
-    if( year == 0 ) year = 2000;
-    ginfo.time = miTime(year,month,day,hour,minute,0);
   }
 
   else if (tag =="Channels:")
@@ -276,10 +281,11 @@ int fillhead_diana(const std::string& str, const std::string& tag, satimg::dihea
   else if (tag == "Ysize:") ginfo.ysize = atoi(str.c_str());
   else if (tag == "Proj string:") ginfo.proj_string = str;
   else if (tag == "TrueLat:") {
-    ginfo.trueLat= (float) atof(str.c_str());
-    if (miutil::contains(str, "S")) ginfo.trueLat *= -1.0;
-  }
-  else if (tag == "GridRot:") ginfo.gridRot= (float) atof(str.c_str());
+    trueLat = miutil::to_float(str);
+    if (miutil::contains(str, "S"))
+      trueLat *= -1.0;
+  } else if (tag == "GridRot:")
+    gridRot = miutil::to_float(str);
   else if (tag == "Bx:") ginfo.Bx = (float) atof(str.c_str());
   else if (tag == "By:") ginfo.By = (float) atof(str.c_str());
   else if (tag == "Ax:") ginfo.Ax = (float) atof(str.c_str());
@@ -311,7 +317,6 @@ int satimg::day_night(const std::string& infile)
   dihead sinfo;
   if (MITIFF_head_diana(infile, sinfo) != 0)
     return -1;
-
   struct ucs upos;
   struct dto d;
   upos.Ax = sinfo.Ax;

@@ -2285,21 +2285,20 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead &ginfo)
   }
   ginfo.zsize = 0;
   // TODO: defaults correct ?
+  float gridRot = 60, trueLat = 14;
   if (hdf5map.count("lon_0"))
-	ginfo.gridRot = to_float(hdf5map["lon_0"]);
-  else
-	ginfo.gridRot = 14.0;
+    gridRot = to_float(hdf5map["lon_0"]);
   if (hdf5map.count("lat_ts"))
-	ginfo.trueLat = to_float(hdf5map["lat_ts"]);
-  else
-	ginfo.trueLat = 60.0;
+    trueLat = to_float(hdf5map["lat_ts"]);
 
   if (hdf5map.count("projdef")) {
     METLIBS_LOG_DEBUG("projdef: " <<  hdf5map["projdef"]);
     ginfo.proj_string = hdf5map["projdef"];
-  }
-  else
+  } else {
+    // FIXME this does not work, +units=km +x_0=.. +y_0=.. will be
+    // added below to an otherwise empty proj4 string
     ginfo.proj_string.clear();
+  }
 
   if (ginfo.hdf5type == radar) {
     PJ *ref;
@@ -2373,27 +2372,21 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead &ginfo)
   ginfo.BIr = 0;
 
   // Dont add x_0 or y_0 if they are already there!
-  if (ginfo.proj_string.find("+x_0=") == string::npos)
-  {
-	  std::stringstream tmp_proj_string;
-	  tmp_proj_string <<  ginfo.proj_string;
-	  if (denominator == 1000.0)
-		tmp_proj_string << " +units=km";
-	  else
-		tmp_proj_string << " +units=m";
-	  tmp_proj_string << " +x_0=" << ginfo.Bx * -denominator;
-	  tmp_proj_string << " +y_0=" << (ginfo.By*-denominator)+(ginfo.Ay*ginfo.ysize*denominator) + 15;
+  if (ginfo.proj_string.find("+x_0=") == string::npos) {
+    std::ostringstream tmp_proj_string;
+    tmp_proj_string << ginfo.proj_string;
+    if (denominator == 1000.0)
+      tmp_proj_string << " +units=km";
+    else
+      tmp_proj_string << " +units=m";
+    tmp_proj_string << " +x_0=" << ginfo.Bx * -denominator;
+    tmp_proj_string << " +y_0=" << (ginfo.By * -denominator) + (ginfo.Ay * ginfo.ysize * denominator) + 15; // FIXME why add 15 ???
 
-	  ginfo.proj_string=tmp_proj_string.str();
+    ginfo.proj_string = tmp_proj_string.str();
   }
 
-  METLIBS_LOG_DEBUG("ginfo.Ax: " << ginfo.Ax);
-  METLIBS_LOG_DEBUG("ginfo.Ay: " << ginfo.Ay);
-  METLIBS_LOG_DEBUG("ginfo.Bx: " << ginfo.Bx);
-  METLIBS_LOG_DEBUG("ginfo.By: " << ginfo.By);
-  METLIBS_LOG_DEBUG("ginfo.trueLat: " << ginfo.trueLat);
-  METLIBS_LOG_DEBUG("ginfo.gridRot: " << ginfo.gridRot);
-  METLIBS_LOG_DEBUG("ginfo.proj_string: " << ginfo.proj_string);
+  METLIBS_LOG_DEBUG(LOGVAL(ginfo.Ax) << LOGVAL(ginfo.Ay) << LOGVAL(ginfo.Bx) << LOGVAL(ginfo.By) << LOGVAL(trueLat) << LOGVAL(gridRot)
+                                     << LOGVAL(ginfo.proj_string));
 
   if (havePalette) // Return color palette
     return 2;

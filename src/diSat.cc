@@ -489,28 +489,17 @@ void Sat::setPlotName()
 void Sat::setArea()
 {
   METLIBS_LOG_SCOPE(LOGVAL(Ax) << LOGVAL(Ay) << LOGVAL(Bx) << LOGVAL(By) << LOGVAL(proj_string));
-
-  // If the mitiff image contains no proj string, it is probably transformed to +R=6371000
-  // and adjusted to fit nwp-data and maps.
-  //These adjustments require no conversion between +R=6371000 and ellps=WGS84,
-  // and therefore no +datum or +towgs84 are given.
-  if (proj_string.empty()) {
-    std::ostringstream proj4;
-    proj4 << "+proj=stere";
-    proj4 << " +lon_0=" << GridRot;
-    proj4 << " +lat_ts=" << TrueLat;
-    proj4 << " +lat_0=90";
-    proj4 << " +R=6371000";
-    proj4 << " +units=km";
-    proj4 << " +x_0=" << (Bx * -1000.);
-    proj4 << " +y_0=" << (By * -1000.) + (Ay * area.ny * 1000.);
-    proj_string = proj4.str();
-  }
   Projection p(proj_string);
   area.setP(p);
+  float x0 = Bx, y0 = By;
+  float x1 = x0 + area.nx * Ax, y1 = y0 + area.ny * Ay;
+  if (Ay < 0) {
+    std::swap(y0, y1);
+    Ay = -Ay;
+  }
   area.resolutionX = Ax;
   area.resolutionY = Ay;
-  Rectangle r(0., 0., area.nx*area.resolutionX, area.ny*area.resolutionY);
+  const Rectangle r(x0, y0, x1, y1);
   area.setR(r);
 }
 

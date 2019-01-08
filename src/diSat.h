@@ -65,8 +65,6 @@ public:
   int maxDiff;          ///< max allowed timedifference in minutes
   bool classtable;      ///< use classtable
 
-  GridArea area;            ///< Satellite area/projection
-
   miutil::miTime time;          ///< valid time
   std::string annotation;  ///< annotation string
   std::string plotname;    ///< unique plotname
@@ -78,13 +76,11 @@ public:
   std::string satellite_name; ///< name of satellite from file
   bool commonColourStretch;    /// other images can use stretch from this image
 
-  float TrueLat; ///< grid true latitude
-  float GridRot; ///< grid rotation
-  float Ax;      ///< grid parameter
-  float Ay;      ///< grid parameter
-  float Bx;      ///< grid parameter
-  float By;      ///< grid parameter
-
+  GridArea area; ///< Satellite area/projection
+  float Ax;      ///< === area.resolutionX
+  float Ay;      ///< === area.resolutionY
+  float Bx;      ///< === area.rect.x1
+  float By;      ///< === area.rect.y1
   std::string proj_string;
 
   // calibration
