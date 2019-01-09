@@ -72,23 +72,6 @@ Depends: diana-@METNO_VERSION@ (= ${binary:Version}),
 Description: debugging symbols for diana-@METNO_VERSION@
  This package contains the debugging symbols for diana-@METNO_VERSION@
 
-Package: diana-dev
-Architecture: any
-Section: libdevel
-Depends: diana-@METNO_VERSION@ (= ${binary:Version}),
- ${misc:Depends}
-Conflicts: diana-nogl-dev
-Description: Meteorological visualisation tool
- Diana is the core visualisation tool from met.no (Norwegian
- Meteorological Institute) and is distributed under the GPL
- license. See gpl.txt for details concerning the GPL license.
- Diana is a graphical viewer and editor developed for use with
- meteorological and oceanographic data.
- .
- This package provides development files required to build
- additional libraries and tools against a version of Diana for
- batched generation of products.
-
 Package: libmetno-bdiana-perl-@METNO_VERSION@
 Architecture: any
 Section: perl

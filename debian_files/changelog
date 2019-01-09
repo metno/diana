@@ -1,3 +1,9 @@
+diana-3.49 (3.49.2-2) unstable; urgency=low
+
+  * drop package diana-dev
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Wed, 09 Jan 2019 08:00:08 +0100
+
 diana-3.49 (3.49.2-1) unstable; urgency=low
 
   * bugfix quickmenu dialog
