@@ -385,8 +385,7 @@ public:
     std::string fcHour;
     std::string option;
 
-    FieldSpec()
-      : vcoord(false), ecoord(false), use_standard_name(false) { }
+    FieldSpec() : vcoord(false), ecoord(false), use_standard_name(false) {}
   };
 
   // Build operation types to read and compute fields

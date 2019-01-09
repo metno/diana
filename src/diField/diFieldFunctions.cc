@@ -594,7 +594,7 @@ bool FieldFunctions::splitFieldSpecs(const std::string& paramName,FieldSpec& fs)
       }
     } else if ( vp[0]=="vcoord" ) {
       fs.vcoord = true;
-    } else if ( vp[0]=="ecoord" ) {
+    } else if (vp[0] == "ecoord") {
       fs.ecoord = true;
     } else if (vp.size()==2 && (vp[0]=="unit" || vp[0]=="units") ) {
       fs.unit =  vp[1];

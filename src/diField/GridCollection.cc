@@ -780,24 +780,30 @@ Field* GridCollection::getField(const FieldRequest& fieldrequest)
 
       } else {
 
-        //vertical- and extra-axis functions.
+        // vertical- and extra-axis functions.
         gridinventory::GridParameter param_new;
-        if (!dataExists(fieldrequest.refTime, fieldrequest_new.paramName, param_new)) {
-          METLIBS_LOG_INFO("parameter '" << fieldrequest_new.paramName << "' not found by dataExists");
+        if (!dataExists(fieldrequest.refTime, fieldrequest_new.paramName,
+                        param_new)) {
+          METLIBS_LOG_INFO("parameter '" << fieldrequest_new.paramName
+                                         << "' not found by dataExists");
           return 0;
         }
-        set<gridinventory::GridParameter>::iterator pitr_new = ritr->second.parameters.find(param_new);
+        set<gridinventory::GridParameter>::iterator pitr_new =
+            ritr->second.parameters.find(param_new);
         if (pitr_new == ritr->second.parameters.end()) {
-          METLIBS_LOG_INFO("parameter " << fieldrequest_new.paramName << "  not found in inventory");
+          METLIBS_LOG_INFO("parameter " << fieldrequest_new.paramName
+                                        << "  not found in inventory");
           return 0;
         }
 
         vector<std::string> values;
         if (fs.ecoord) {
-          gridinventory::ExtraAxis eaxs = ritr->second.getExtraAxis(pitr_new->key.extraaxis);
+          gridinventory::ExtraAxis eaxs =
+              ritr->second.getExtraAxis(pitr_new->key.extraaxis);
           values = eaxs.stringvalues;
         } else if (fs.vcoord) {
-          gridinventory::Zaxis zaxs = ritr->second.getZaxis(pitr_new->key.zaxis);
+          gridinventory::Zaxis zaxs =
+              ritr->second.getZaxis(pitr_new->key.zaxis);
           values = zaxs.stringvalues;
         }
         if (values.empty()) {
@@ -1009,7 +1015,7 @@ void GridCollection::addComputedParameters()
             inputOk = false;
             break;
           }
-          if (!fs.ecoord && fs.elevel.empty() && pitr->key.extraaxis!="") {
+          if (!fs.ecoord && fs.elevel.empty() && pitr->key.extraaxis != "") {
             computeEaxis = pitr->key.extraaxis;
           }
 
