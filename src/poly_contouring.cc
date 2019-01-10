@@ -12,6 +12,10 @@
 
 //#define CONTOURING_ENABLE_DEBUG 1
 
+#ifdef USE_ALLOCATOR
+#include <boost/pool/object_pool.hpp>
+#endif
+
 #ifdef CONTOURING_ENABLE_DEBUG
 #include <iostream>
 extern size_t debug_level;
