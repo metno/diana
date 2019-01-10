@@ -1,3 +1,14 @@
+diana-3.50 (3.50.0-1) unstable; urgency=low
+
+  * rework geotiff reading
+  * drop debian package diana-dev
+  * FieldFunctions - simplified handling of v/e-coordinates
+  * DRAWING filters
+  * bdiana animations
+  * bugfixes bdiana, ImageGallery, quickmenu dialog, sat, ...
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Thu, 10 Jan 2019 08:00:08 +0100
+
 diana-3.49 (3.49.0-1) unstable; urgency=low
 
   * bugfix: Obs - colourCriteria
