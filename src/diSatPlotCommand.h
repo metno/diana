@@ -40,7 +40,7 @@ public:
   std::string toString() const override;
 
   std::string satellite;    ///< main product name
-  std::string filetype;     ///< subproduct
+  std::string filetype;     ///< subproduct / area
   std::string filename;     ///< filename
   std::string plotChannels; ///< channelname for annotation
 

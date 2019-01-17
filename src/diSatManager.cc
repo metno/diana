@@ -1133,8 +1133,8 @@ void SatManager::getCapabilitiesTime(plottimes_t& normalTimes, int& timediff, co
 
   timediff=0;
 
-  KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pinfo);
-  if (!cmd || cmd->size() < 2)
+  SatPlotCommand_cp cmd = std::dynamic_pointer_cast<const SatPlotCommand>(pinfo);
+  if (!cmd)
     return;
 
   std::string filename;
@@ -1148,14 +1148,8 @@ void SatManager::getCapabilitiesTime(plottimes_t& normalTimes, int& timediff, co
 
   //Product with prog times
   if (filename.empty()) {
-    const std::string& satellite= cmd->get(0).key(); // FIXME is it 0 or 1?
-    const std::string& file = cmd->get(1).key(); // FIXME
-
-    const std::vector<SatFileInfo> finfo = getFiles(satellite, file, true);
-    int nfinfo=finfo.size();
-    for (int k=0; k<nfinfo; k++) {
-      normalTimes.insert(finfo[k].time);
-    }
+    for (const SatFileInfo& fi : getFiles(cmd->satellite, cmd->filetype, true))
+      normalTimes.insert(fi.time);
   }
 }
 
