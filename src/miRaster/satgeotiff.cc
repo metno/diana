@@ -325,7 +325,7 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
   }
 
   char* datetime = 0;
-  if (!TIFFGetField(in.get(), TIFFTAG_DATETIME, &datetime) && datetime) {
+  if (TIFFGetField(in.get(), TIFFTAG_DATETIME, &datetime) && datetime) {
     METLIBS_LOG_DEBUG(LOGVAL(datetime));
 
     int year, month, day, hour, minute, sec;
