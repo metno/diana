@@ -29,12 +29,22 @@
 
 #include "diSatPlotCommand.h"
 
+#include "util/time_util.h"
+
+#include <puTools/miStringFunctions.h>
+
 #include <sstream>
 
 static const std::string SAT = "SAT";
 
 SatPlotCommand::SatPlotCommand()
     : KVListPlotCommand(SAT)
+    , mosaic(false)
+    , timediff(0)
+    , cut(0.02)
+    , alphacut(0)
+    , alpha(1)
+    , classtable(false)
 {
 }
 
@@ -43,8 +53,31 @@ std::string SatPlotCommand::toString() const
   std::ostringstream s;
   s << SAT << ' ' << satellite // may contain spaces -- no quotes here!
     << ' ' << filetype << ' ' << plotChannels;
-  if (!filename.empty())
+  if (hasFileName())
     s << ' ' << miutil::kv("file", filename);
+  else if (hasFileTime())
+    s << ' ' << miutil::kv("time", filetime.isoTime());
+
+  s << ' ' << miutil::kv("timediff", timediff);
+  s << ' ' << miutil::kv("mosaic", mosaic);
+  s << ' ' << miutil::kv("cut", cut);
+  s << ' ' << miutil::kv("alphacut", alphacut);
+  s << ' ' << miutil::kv("alpha", alpha);
+  s << ' ' << miutil::kv("table", classtable);
+  if (!coloursToHideInLegend.empty()) {
+    std::ostringstream ostr;
+    bool first = true;
+    for (const auto& cv : coloursToHideInLegend) {
+      if (!first)
+        ostr << ',';
+      ostr << cv.first;
+      if (cv.second != 0)
+        ostr << ':' << cv.second;
+      first = false;
+    }
+    s << ' ' << miutil::kv("hide", ostr.str());
+  }
+
   if (!all().empty())
     s << ' ' << all();
   return s.str();
@@ -53,24 +86,72 @@ std::string SatPlotCommand::toString() const
 // static
 SatPlotCommand_cp SatPlotCommand::fromString(const std::string& line)
 {
-  SatPlotCommand_p cmd;
-
   miutil::KeyValue_v pin = miutil::splitKeyValue(line);
-  if (pin.size() >= 3) {
-    cmd = std::make_shared<SatPlotCommand>();
+  if (pin.size() < 3)
+    return SatPlotCommand_p();
 
-    cmd->satellite = pin[0].key();
-    cmd->filetype = pin[1].key();
-    cmd->plotChannels = pin[2].key();
+  SatPlotCommand_p cmd = std::make_shared<SatPlotCommand>();
 
-    size_t skip = 3;
-    if (pin.size() > skip && pin[skip].key() == "file") {
-      cmd->filename = pin[skip].value();
-      skip += 1;
+  miutil::KeyValue_v::const_iterator it = pin.begin();
+
+  // satellite name
+  if (it->hasValue())
+    return SatPlotCommand_cp();
+  cmd->satellite = it->key();
+  ++it;
+
+  // satellite area / subproduct / filetype
+  if (it->hasValue())
+    return SatPlotCommand_cp();
+  cmd->filetype = it->key();
+  ++it;
+
+  if (cmd->satellite.empty() || cmd->filetype.empty())
+    return SatPlotCommand_cp();
+
+  // channels
+  if (it->hasValue())
+    return SatPlotCommand_cp();
+  cmd->plotChannels = it->key();
+  ++it;
+
+  if (it != pin.end() && it->key() == "file") {
+    cmd->filename = it->value();
+    ++it;
+  }
+
+  cmd->timediff = -1;
+  cmd->mosaic = false;
+
+  for (; it != pin.end(); ++it) {
+    const std::string& key = it->key();
+    const std::string& value = it->value();
+    if (key == "time") {
+      cmd->filetime = miutil::timeFromString(value);
+    } else if (key == "timediff") {
+      cmd->timediff = it->toInt();
+    } else if (key == "mosaic") {
+      cmd->mosaic = it->toBool();
+    } else if (key == "cut") {
+      cmd->cut = it->toFloat();
+    } else if (key == "alphacut" | key == "alfacut") {
+      cmd->alphacut = it->toFloat();
+    } else if (key == "alpha" | key == "alfa") {
+      cmd->alpha = it->toFloat();
+    } else if (key == "table") {
+      cmd->classtable = it->toBool();
+    } else if (key == "hide") {
+      cmd->coloursToHideInLegend.clear();
+      const std::vector<std::string> stokens = miutil::split(value, 0, ",");
+      for (const std::string& tok : stokens) {
+        const std::vector<std::string> sstokens = miutil::split(tok, 0, ":");
+        const int c = miutil::to_int(sstokens[0]);
+        const int v = (sstokens.size() > 1) ? miutil::to_int(sstokens[1]) : 0;
+        cmd->coloursToHideInLegend[c] = v;
+      }
+    } else if (key != "font" && key != "face") { // ignore keys "font" and "face"
+      cmd->add(*it);
     }
-
-    pin.erase(pin.begin(), pin.begin() + skip);
-    cmd->add(pin);
   }
 
   return cmd;

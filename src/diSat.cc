@@ -113,36 +113,13 @@ Sat::Sat(SatPlotCommand_cp cmd)
   filename = cmd->filename;
   if (!filename.empty())
     autoFile = false;
-
-  for (const miutil::KeyValue& kv : cmd->all()) { // search through plotinfo
-    if (kv.hasValue()) {
-      const std::string& key = kv.key();
-      const std::string& value = kv.value();
-      if (key == "mosaic")
-        mosaic = kv.toBool();
-      else if (key=="cut")
-        cut = kv.toFloat();
-      else if (key == "timediff")
-        maxDiff = kv.toInt();
-      else if (key=="alphacut" || key=="alfacut")
-        alphacut = int(kv.toFloat()*255);
-      else if (key == "alpha")
-        alpha = (int) (kv.toFloat()*255);
-      else if (key=="table")
-        classtable = kv.toBool();
-      else if (key=="hide") {
-        const std::vector<std::string> stokens = miutil::split(value, 0, ",");
-        for (const std::string& tok : stokens) {
-          std::vector <std::string> sstokens=miutil::split(tok, 0, ":");
-          if(sstokens.size()==1) {
-            hideColour[atoi(sstokens[0].c_str())] = 0;
-          } else {
-            hideColour[atoi(sstokens[0].c_str())] = atoi(sstokens[1].c_str());
-          }
-        }
-      }
-    }
-  }
+  mosaic = cmd->mosaic;
+  cut = cmd->cut;
+  maxDiff = cmd->timediff;
+  alphacut = int(cmd->alphacut * 255);
+  alpha = (int)(cmd->alpha * 255);
+  classtable = cmd->classtable;
+  hideColour = cmd->coloursToHideInLegend;
 
   METLIBS_LOG_DEBUG(LOGVAL(cut) << LOGVAL(alphacut) << LOGVAL(alpha) << LOGVAL(maxDiff) << LOGVAL(classtable));
 }

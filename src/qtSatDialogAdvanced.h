@@ -29,8 +29,8 @@
 #ifndef _satdialogadvanced_h
 #define _satdialogadvanced_h
 
-#include "util/diKeyValue.h"
 #include "diColour.h"
+#include "diSatPlotCommand.h"
 #include "diSliderValues.h"
 
 #include <qlabel.h>
@@ -58,10 +58,13 @@ class SatDialogAdvanced: public QWidget
 
 public:
   SatDialogAdvanced(QWidget* parent, const SatDialogInfo& info);
-  /// the plot info strings
-  miutil::KeyValue_v getOKString();
-  /// set the dialogue elements from a plot info string
-  miutil::KeyValue_v putOKString(const miutil::KeyValue_v &);
+
+  /// put settings from widgets into plot command
+  void applyToCommand(SatPlotCommand_p cmd);
+
+  /// set the dialogue elements from a plot command
+  void setFromCommand(SatPlotCommand_cp cmd);
+
   /// set picture string
   void setPictures(const std::string&);
   /// set colours from palette in colourlist (to hide colours in picture)

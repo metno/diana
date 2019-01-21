@@ -143,7 +143,7 @@ TEST(TestSatDialog, PutGetOKStringRaw)
   TestSatDialogData* data = new TestSatDialogData;
   std::unique_ptr<SatDialog> dialog(new SatDialog(data));
 
-  const std::string cmd = "SAT NOAA N-Europa day_night timediff=60 mosaic=0 alpha=1 table=true font=BITMAPFONT face=normal cut=0.02 alphacut=0";
+  const std::string cmd = "SAT NOAA N-Europa day_night timediff=60 mosaic=false cut=0.02 alphacut=0 alpha=1 table=true enabled=false";
   const PlotCommand_cpv cmds_put = makeCommands({cmd});
   dialog->putOKString(cmds_put);
 
@@ -151,4 +151,45 @@ TEST(TestSatDialog, PutGetOKStringRaw)
   ASSERT_EQ(cmds_get.size(), 1);
 
   EXPECT_EQ(cmd, cmds_get[0]->toString());
+}
+
+TEST(TestSatDialog, ReadGarbageSatOptionsLog)
+{
+  std::vector<std::string> vstr;
+  vstr.push_back("SAT ARCHIVE radar PSC timediff=60 mosaic=0 alpha=1");
+  vstr.push_back("UK Analysis FAX timediff=60 alpha=1 mosaic=1 cut=0.25");
+  vstr.push_back("meteosat overview timediff=60");
+  vstr.push_back("timediff=60 mosaic=0 cut=0.125 alphacut=0 alpha=1 font=BITMAPFONT face=normal");
+
+  SatDialog::satoptions_t satoptions;
+  SatDialog::readSatOptionsLog(vstr, satoptions);
+  EXPECT_EQ(2, satoptions.size());
+
+  {
+    SatDialog::satoptions_t::const_iterator itn = satoptions.find("ARCHIVE");
+    ASSERT_NE(satoptions.end(), itn);
+    SatDialog::areaoptions_t::const_iterator ita = itn->second.find("radar");
+    ASSERT_NE(itn->second.end(), ita);
+    SatPlotCommand_cp cmd = ita->second;
+    EXPECT_EQ("ARCHIVE", cmd->satellite);
+    EXPECT_EQ("radar", cmd->filetype);
+    EXPECT_EQ("PSC", cmd->plotChannels);
+    EXPECT_EQ(60, cmd->timediff);
+    EXPECT_EQ(1.0, cmd->alpha);
+    EXPECT_EQ(false, cmd->mosaic);
+  }
+  {
+    SatDialog::satoptions_t::const_iterator itn = satoptions.find("UK");
+    ASSERT_NE(satoptions.end(), itn);
+    SatDialog::areaoptions_t::const_iterator ita = itn->second.find("Analysis");
+    ASSERT_NE(itn->second.end(), ita);
+    SatPlotCommand_cp cmd = ita->second;
+    EXPECT_EQ("UK", cmd->satellite);
+    EXPECT_EQ("Analysis", cmd->filetype);
+    EXPECT_EQ("FAX", cmd->plotChannels);
+    EXPECT_EQ(1, cmd->alpha);
+    EXPECT_EQ(60, cmd->timediff);
+    EXPECT_EQ(1.0, cmd->alpha);
+    EXPECT_EQ(true, cmd->mosaic);
+  }
 }

@@ -1120,17 +1120,10 @@ void SatManager::getCapabilitiesTime(plottimes_t& normalTimes, int& timediff, co
   if (!cmd)
     return;
 
-  std::string filename;
-  for (const KeyValue& kv : cmd->all()) {
-    if (kv.key() == "file") {
-      filename = kv.value();
-    } else if (kv.key() == "timediff") {
-      timediff = kv.toInt();
-    }
-  }
+  timediff = cmd->timediff;
 
   //Product with prog times
-  if (filename.empty()) {
+  if (!cmd->hasFileName()) {
     for (const SatFileInfo& fi : getFiles(cmd->satellite, cmd->filetype, true))
       normalTimes.insert(fi.time);
   }

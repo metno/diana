@@ -49,33 +49,15 @@ class SatDialogAdvanced;
 class SatDialogData;
 
 /**
-  \brief Dialogue for plotting satellite and radar pictures 
+  \brief Dialogue for plotting satellite and radar pictures
 */
 class SatDialog : public DataDialog
 {
-    Q_OBJECT
+  Q_OBJECT
 
-  public:
-    /**
-      \brief struct state describing selected picture
-    */
-    struct state
-    {
-      int iname;
-      int iarea;
-      int ifiletime;
-      int ichannel;
-      int iautotimefile;
-      std::string name;            ///<satellite name
-      std::string area;            ///>filetype
-      miutil::miTime filetime;     ///<time
-      std::string channel;         ///<selected channel
-      std::string filename;        ///<filename
-      miutil::KeyValue_v advanced; ///<plotting options
-      miutil::KeyValue_v external; ///<nothing to do whith the dialog
-      bool mosaic;                 ///<plot mosaic of pictures
-      int totalminutes;            ///<timediff
-  };
+public:
+  typedef std::map<std::string, SatPlotCommand_cp> areaoptions_t;
+  typedef std::map<std::string, areaoptions_t> satoptions_t;
 
   SatDialog(SatDialogData* sdd, QWidget* parent = 0);
   ~SatDialog();
@@ -98,6 +80,7 @@ class SatDialog : public DataDialog
 
   /// read log string
   void readLog(const std::vector<std::string>& vstr, const std::string& thisVersion, const std::string& logVersion);
+  static void readSatOptionsLog(const std::vector<std::string>& vstr, satoptions_t& satoptions);
 
 public /*Q_SLOTS*/:
   void updateTimes() override;
@@ -113,15 +96,12 @@ private:
   void updateChannelBox(bool select);
   void updatePictures(int index, bool updateAbove);
   void enableUpDownButtons();
-  void emitSatTimes(bool update=false);
+  void emitSatTimes(bool update);
   int addSelectedPicture();
-  //decode part of OK string
-  state decodeString(const miutil::KeyValue_v &tokens);
-  // make string from state
-  SatPlotCommand_p makeOKString(state& okVar);
-  void putOptions(const state& okVar);
 
-  std::string pictureString(const state&, bool);
+  void putOptions(SatPlotCommand_cp cmd);
+
+  std::string pictureString(SatPlotCommand_cp cmd, bool);
 
 private Q_SLOTS:
   void DeleteClicked();
@@ -142,10 +122,8 @@ private Q_SLOTS:
 private:
   std::unique_ptr<SatDialogData> sdd_;
 
-  typedef std::map<std::string, miutil::KeyValue_v> areaoptions_t;
-  typedef std::map<std::string, areaoptions_t> satoptions_t;
   satoptions_t satoptions;
-  std::vector<state> m_state; // pictures to plot
+  std::vector<SatPlotCommand_p> m_state; // pictures to plot
 
   std::string m_channelstr;
   miutil::miTime m_time;

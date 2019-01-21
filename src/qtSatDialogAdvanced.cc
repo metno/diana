@@ -43,7 +43,6 @@
 #include <QPixmap>
 #include <QVBoxLayout>
 
-#include <sstream>
 SatDialogAdvanced::SatDialogAdvanced(QWidget* parent, const SatDialogInfo& info)
     : QWidget(parent)
     , m_cut(info.cut)
@@ -246,44 +245,43 @@ void SatDialogAdvanced::colourcutClicked(bool on)
     Q_EMIT getSatColours();
 }
 
-miutil::KeyValue_v SatDialogAdvanced::getOKString()
+void SatDialogAdvanced::applyToCommand(SatPlotCommand_p cmd)
 {
-  miutil::KeyValue_v str;
-
   if (!palette) {
     if (cutCheckBox->isChecked())
-      miutil::add(str, "cut", "-0.5");
+      cmd->cut = -0.5;
     else if (cut->isChecked())
-      miutil::add(str, "cut", m_cutnr);
+      cmd->cut = m_cutnr;
     else
-      miutil::add(str, "cut", "-1");
+      cmd->cut = -1;
 
-    miutil::add(str, "alphacut", alphacut->isChecked() ? m_alphacutnr : 0);
+    cmd->alphacut = (alphacut->isChecked() ? m_alphacutnr : 0);
   }
 
-  miutil::add(str, "alpha", alpha->isChecked() ? m_alphanr : 1);
+  cmd->alpha = (alpha->isChecked() ? m_alphanr : 1);
 
   if (palette){
-    miutil::add(str, "table", legendButton->isChecked());
+    cmd->classtable = legendButton->isChecked();
 
-    //colours to hide
+    cmd->coloursToHideInLegend.clear();
     if (colourcut->isChecked()) {
-      std::ostringstream ostr;
-      int n = colourList->count();
+      const int n = colourList->count();
       for (int i = 0; i < n; i++) {
-        if (colourList->item(i) != 0 && colourList->item(i)->isSelected()) {
-          ostr << i;
-          if (!colourList->item(i)->text().isEmpty()) {
-            ostr << ":" << colourList->item(i)->text().toStdString();
-          }
-          ostr << ",";
+        const QListWidgetItem* item = colourList->item(i);
+        if (item && item->isSelected()) {
+          const int c = i;
+          bool v_ok = false;
+          int v = item->text().toInt(&v_ok);
+          if (!v_ok)
+            v = 0;
+          cmd->coloursToHideInLegend[c] = v;
         }
       }
-      miutil::add(str, "hide", ostr.str());
     }
+  } else {
+    cmd->classtable = false;
+    cmd->coloursToHideInLegend.clear();
   }
-
-  return str;
 }
 
 void SatDialogAdvanced::setPictures(const std::string& str)
@@ -334,86 +332,66 @@ void SatDialogAdvanced::setColours(const std::vector<Colour>& colours)
   }
 }
 
-miutil::KeyValue_v SatDialogAdvanced::putOKString(const miutil::KeyValue_v& str)
+void SatDialogAdvanced::setFromCommand(SatPlotCommand_cp cmd)
 {
   setStandard();
   blockSignals(true);
 
-  miutil::KeyValue_v external;
-
-  for (const miutil::KeyValue& kv : str) { // search through plotinfo
-    if (kv.hasValue()) {
-      const std::string& key = kv.key();
-      const std::string& value = kv.value();
-      if (key == "cut" && !palette) {
-        m_cutnr = kv.toFloat();
-        if (m_cutnr < 0) {
-          if (m_cutnr == -0.5) {
-            cutCheckBox->setChecked(true);
-            cutCheckBoxSlot(true);
-          } else {
-            cut->setChecked(false);
-            greyCut(false);
-          }
-        } else {
-          int cutvalue = int(m_cutnr / m_cut.scale + m_cut.scale / 2);
-          scut->setValue(cutvalue);
-          cut->setChecked(true);
-          greyCut(true);
-        }
-      } else if ((key == "alphacut" || key == "alfacut") && !palette) {
-        if (value != "0") {
-          m_alphacutnr = kv.toFloat();
-          int m_alphacutvalue = int(m_alphacutnr/m_alphacut.scale+m_alphacut.scale/2);
-          salphacut->setValue(m_alphacutvalue);
-          alphacut->setChecked(true);
-          greyAlphaCut(true);
-        }else{
-          alphacut->setChecked(false);
-          greyAlphaCut(false);
-        }
-      } else if (key == "alpha" || key == "alfa") {
-        if (value != "1") {
-          m_alphanr = kv.toFloat();
-          int m_alphavalue = int(m_alphanr/m_alpha.scale+m_alpha.scale/2);
-          salpha->setValue(m_alphavalue);
-          alpha->setChecked(true);
-          greyAlpha(true);
-        } else {
-          alpha->setChecked(false);
-          greyAlpha(false);
-        }
-      } else if (key == "table" && palette) {
-        legendButton->setChecked(kv.toBool());
-      } else if (key == "hide" && palette) {
-        colourcut->setChecked(true);
-        //set selected colours
-        std::vector<std::string> stokens=miutil::split(value, 0, ",");
-        int m= stokens.size();
-        for (int j = 0; j < m; j++) {
-          std::vector<std::string> sstokens=miutil::split(stokens[j], 0, ":");
-          int icol = miutil::to_int(sstokens[0]);
-          if (icol < colourList->count()) {
-            colourList->item(icol)->setSelected(true);
-          }
-          if (sstokens.size() == 2) {
-            colourList->item(icol)->setText(sstokens[1].c_str());
-          }
-        }
-      } else {
-        //anything unknown, add to external string
-        external.push_back(kv);
-      }
-    } else if (!kv.hasValue() && kv.key() == "hide") {
-      //colourList should be visible
-      colourcut->setChecked(true);
+  m_cutnr = cmd->cut;
+  if (m_cutnr < 0) {
+    if (m_cutnr == -0.5) {
+      cutCheckBox->setChecked(true);
+      cutCheckBoxSlot(true);
     } else {
-      //anything unknown, add to external string
-      external.push_back(kv);
+      cut->setChecked(false);
+      greyCut(false);
+    }
+  } else {
+    int cutvalue = int(m_cutnr / m_cut.scale + m_cut.scale / 2);
+    scut->setValue(cutvalue);
+    cut->setChecked(true);
+    greyCut(true);
+  }
+
+  if (!palette) {
+    m_alphacutnr = cmd->alphacut;
+    if (m_alphacutnr != 0) {
+      int m_alphacutvalue = int(m_alphacutnr / m_alphacut.scale + m_alphacut.scale / 2);
+      salphacut->setValue(m_alphacutvalue);
+      alphacut->setChecked(true);
+      greyAlphaCut(true);
+    } else {
+      alphacut->setChecked(false);
+      greyAlphaCut(false);
     }
   }
+
+  m_alphanr = cmd->alpha;
+  if (m_alphanr != 1) {
+    int m_alphavalue = int(m_alphanr / m_alpha.scale + m_alpha.scale / 2);
+    salpha->setValue(m_alphavalue);
+    alpha->setChecked(true);
+    greyAlpha(true);
+  } else {
+    alpha->setChecked(false);
+    greyAlpha(false);
+  }
+
+  legendButton->setChecked(cmd->classtable);
+
+  if (palette) {
+    colourcut->setChecked(true);
+    // set selected colours
+    for (const auto& cv : cmd->coloursToHideInLegend) {
+      int icol = cv.first;
+      if (icol < colourList->count())
+        colourList->item(icol)->setSelected(true);
+      if (cv.second != 0)
+        colourList->item(icol)->setText(QString::number(cv.second));
+    }
+  }
+
   blockSignals(false);
-  return external;
 }
 
 void SatDialogAdvanced::blockSignals(bool b)

@@ -32,6 +32,10 @@
 
 #include "diKVListPlotCommand.h"
 
+#include <puTools/miTime.h>
+
+#include <map>
+
 class SatPlotCommand : public KVListPlotCommand
 {
 public:
@@ -41,8 +45,23 @@ public:
 
   std::string satellite;    ///< main product name
   std::string filetype;     ///< subproduct / area
-  std::string filename;     ///< filename
   std::string plotChannels; ///< channelname for annotation
+  std::string filename;     ///< filename
+  miutil::miTime filetime;  ///< time
+
+  bool mosaic;             ///<plot mosaic of pictures
+  int timediff;            ///< timediff in minutes
+
+  float cut;      ///< image cut/stretch factor
+  float alphacut; ///< alpha-blending cutoff value
+  float alpha;    ///< alpha-blending value
+
+  bool classtable; ///< show colour table in legend
+  std::map<int, char> coloursToHideInLegend;
+
+  bool hasFileName() const { return !filename.empty(); }
+  bool hasFileTime() const { return !filetime.undef(); }
+  bool isAuto() const { return !hasFileName() && !hasFileTime(); }
 
   static std::shared_ptr<const SatPlotCommand> fromString(const std::string& line);
 };
