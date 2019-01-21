@@ -90,8 +90,9 @@ class SatDialog : public DataDialog
 
   ///return short name of current commonad
   std::string getShortname();
+
   /// set mode to read files from archive
-  void archiveMode(){emitSatTimes(true); updateTimefileList();}
+  void archiveMode();
 
   std::vector<std::string> writeLog();
 
@@ -108,9 +109,10 @@ protected:
 
 private:
   void updateFileListWidget(int);
-  void updateTimefileList(bool update = true);
+  void updateTimefileList(bool update);
   void updateChannelBox(bool select);
   void updatePictures(int index, bool updateAbove);
+  void enableUpDownButtons();
   void emitSatTimes(bool update=false);
   int addSelectedPicture();
   //decode part of OK string
@@ -144,15 +146,10 @@ private:
   typedef std::map<std::string, areaoptions_t> satoptions_t;
   satoptions_t satoptions;
   std::vector<state> m_state; // pictures to plot
-  plottimes_t times;          // emitted to TimeSlider
-
-  int m_nr_image;
 
   std::string m_channelstr;
   miutil::miTime m_time;
   std::vector<SatFileInfo> files;
-
-  float m_scalediff;
 
   SatDialogInfo dialogInfo;
 

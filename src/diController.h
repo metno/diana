@@ -210,8 +210,6 @@ public:
   std::vector<std::string> getCalibChannels();
   /// show pixel values in status bar
   std::vector<SatValues> showValues(float, float);
-  /// get satellite name from all SatPlots
-  std::vector<std::string> getSatnames();
   //show or hide all annotations (for fields, observations, satellite etc.)
   void showAnnotations(bool);
   /// mark editable annotationPlot if x,y inside plot

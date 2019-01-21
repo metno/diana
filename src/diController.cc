@@ -340,19 +340,6 @@ vector<SatValues> Controller::showValues(float x, float y){
   return satm->showValues(x,y);
 }
 
-// show or hide satelitte classificiation table
-// void Controller::showSatTable(int x,int y){
-//   plotm->showSatTable(x,y);
-// }
-
-// bool Controller::inSatTable(int x,int y){
-//   return plotm->inSatTable(x,y);
-// }
-
-vector<string> Controller::getSatnames()
-{
-  return satm->getSatnames();
-}
 
 void Controller::showAnnotations(bool on)
 {

@@ -1047,11 +1047,6 @@ const std::vector<Colour> & SatManager::getColours(const std::string &satellite,
   return Prod[satellite][file].colours;
 }
 
-bool SatManager::isMosaic(const std::string &satellite, const std::string & file)
-{
-  return Prod[satellite][file].mosaic;
-}
-
 std::vector<std::string> SatManager::getCalibChannels()
 {
   std::vector<std::string> channels;
@@ -1071,18 +1066,6 @@ std::vector<SatValues> SatManager::showValues(float x, float y)
     }
   }
   return satval;
-}
-
-std::vector<std::string> SatManager::getSatnames()
-{
-  std::vector<std::string> satnames;
-  for (size_t j = 0; j < vsp.size(); j++) {
-    std::string str;
-    vsp[j]->getSatName(str);
-    if (!str.empty())
-      satnames.push_back(str);
-  }
-  return satnames;
 }
 
 void SatManager::setSatAuto(bool autoFile, const std::string& satellite,

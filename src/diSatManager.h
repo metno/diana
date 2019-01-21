@@ -133,8 +133,6 @@ public:
   std::vector<std::string> getCalibChannels();
   ///show pixel values in status bar
   std::vector<SatValues> showValues(float x, float y);
-  ///get satellite name from all SatPlots
-  std::vector <std::string> getSatnames();
   ///satellite follows main plot time
   void setSatAuto(bool, const std::string&, const std::string&);
 
@@ -150,7 +148,6 @@ public:
   const std::vector<std::string>& getChannels(const std::string &satellite,
 				      const std::string & file,
 				      int index=-1);
-  bool isMosaic(const std::string &satellite, const std::string & file);
 
   const SatDialogInfo& initDialog() { return Dialog; }
   bool parseSetup();

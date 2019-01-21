@@ -29,19 +29,19 @@
 #ifndef _satdialogadvanced_h
 #define _satdialogadvanced_h
 
-#include <diColour.h>
-#include "qtToggleButton.h"
-#include "diController.h"
 #include "util/diKeyValue.h"
+#include "diColour.h"
+#include "diSliderValues.h"
 
-#include <qdialog.h>
-#include <qfont.h>
 #include <qlabel.h>
 #include <qlayout.h>
 #include <QListWidget>
 
 #include <vector>
 
+class SatDialogInfo;
+
+class ToggleButton;
 class QCheckBox;
 class QSlider;
 class QPushButton;
@@ -68,22 +68,17 @@ public:
   void setColours(const std::vector<Colour>&);
   /// disable/enable options according to type of picture
   void greyOptions();
- // true if selected picture is palette file
-  bool palette;
-  /// true if colourcut button pressed
-  bool colourCutOn(){return (colourcut->isChecked());}
 
-protected:
-  ///called when the dialog is closed by the window manager
-  void closeEvent(QCloseEvent*);
+  void setOff();
 
 Q_SIGNALS:
-  /// emit when close selected
-  void SatHide();
   ///emitted when dialog changed
   void SatChanged();
   ///emitted when colourcut clicked
   void getSatColours();
+
+public Q_SLOTS:
+  void setStandard();
 
 private Q_SLOTS:
   void cutCheckBoxSlot( bool on );
@@ -96,18 +91,22 @@ private Q_SLOTS:
   void colourcutClicked(bool);
   void colourcutOn();
 
-public Q_SLOTS:
-  void setStandard();
-  void setOff();
+private:
+  void blockSignals(bool b);
 
 private:
-  float m_cutscale;
-  float m_alphacutscale;
-  float m_alphascale;
+  SliderValues m_cut;
+  SliderValues m_alphacut;
+  SliderValues m_alpha;
 
   float m_cutnr;
   float m_alphacutnr;
   float m_alphanr;
+
+  // true if selected picture is palette file
+  bool palette;
+
+  std::string picturestring; // string describing selected picture
 
   QLCDNumber* cutlcd;
   QLCDNumber* alphacutlcd;
@@ -126,15 +125,7 @@ private:
 
   QPushButton* standard;
 
-  SliderValues m_cut;
-  SliderValues m_alphacut;
-  SliderValues m_alpha;
-
   QListWidget * colourList;
-
-  std::string picturestring; //string describing selected picture
-
-  void blockSignals(bool b);
 };
 
 #endif
