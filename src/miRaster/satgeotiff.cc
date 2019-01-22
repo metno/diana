@@ -94,7 +94,7 @@ using namespace satimg;
 #include "miLogger/miLogging.h"
 
 namespace {
-const int MAXCHANNELS = 16;
+const int MAXCHANNELS = 64;
 
 struct CloseTIFF
 {

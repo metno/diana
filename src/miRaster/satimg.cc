@@ -68,7 +68,7 @@
 using namespace miutil;
 
 namespace {
-const int MAXCHANNELS = 16;
+const int MAXCHANNELS = 64;
 
 int fillhead_diana(const std::string& str, const std::string& tag, satimg::dihead& ginfo, float& gridRot, float& trueLat);
 
