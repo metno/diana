@@ -310,7 +310,7 @@ protected:
   void cloudCoverAuto(DiGLPainter* gl, const float& fN, const float &radius);
 
   // from plotList, plotAscii, plotSynop, ROAD/plotDBSynop
-  void plotWind(DiGLPainter* gl, int dd, float ff_ms, bool ddvar, float radius);
+  void plotWind(DiGLPainter* gl, int dd, float ff_ms, bool ddvar, float radius, bool northernHemisphere);
 
   // used from plotList, plotSynop, ROAD/plotDBSynop, ROAD/plotDBMetar (commented out)
   virtual void weather(DiGLPainter* gl, short int ww, float TTT, bool show_time_id, QPointF xy,

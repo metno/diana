@@ -1924,7 +1924,7 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
 
     checkColourCriteria(gl, "dd", dd);
     checkColourCriteria(gl, "ff", ff);
-    plotWind(gl, dd_adjusted, ff, ddvar, radius);
+    plotWind(gl, dd_adjusted, ff, ddvar, radius, dta.ypos > 0);
 
     advanceByDD(dd_adjusted, xypos);
   }
@@ -2026,7 +2026,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
     lpos = vtab((dd / 10 + 3) / 2) + 10;
     checkColourCriteria(gl, "dd", dd);
     checkColourCriteria(gl, "ff", dta.fdata["ff"]);
-    plotWind(gl, dd_adjusted, dta.fdata["ff"], ddvar, radius);
+    plotWind(gl, dd_adjusted, dta.fdata["ff"], ddvar, radius, dta.ypos > 0);
   } else
     lpos = vtab(1) + 10;
 
@@ -3281,7 +3281,7 @@ void ObsPlot::cloudCoverAuto(DiGLPainter* gl, const float& fN, const float &radi
   }
 }
 
-void ObsPlot::plotWind(DiGLPainter* gl, int dd, float ff_ms, bool ddvar, float radius)
+void ObsPlot::plotWind(DiGLPainter* gl, int dd, float ff_ms, bool ddvar, float radius, bool northernHemisphere)
 {
   METLIBS_LOG_SCOPE();
 
@@ -3326,7 +3326,7 @@ void ObsPlot::plotWind(DiGLPainter* gl, int dd, float ff_ms, bool ddvar, float r
 
     const float angle = (270-dd)*DEG_TO_RAD, ac = std::cos(angle), as = std::sin(angle);
     const float u = ff*ac, v = ff*as;
-    gl->drawWindArrow(u, v, -r*ac, -r*as, 47-r, arrow, 1);
+    gl->drawWindArrow(u, v, -r * ac, -r * as, 47 - r, arrow, northernHemisphere ? 1 : -1);
   }
 }
 
