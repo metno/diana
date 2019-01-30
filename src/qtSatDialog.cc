@@ -466,6 +466,7 @@ void SatDialog::picturesSlot(QListWidgetItem*)
     sdd_->setSatAuto(cmd->isAuto(), cmd->satellite, cmd->filetype);
     if (cmd->isAuto()) {
       autoButton->setChecked(true);
+      updateTimefileList(true);
     } else {
       if (cmd->hasFileTime())
         timeButton->setChecked(true);
@@ -669,7 +670,7 @@ void SatDialog::putOKString(const PlotCommand_cpv& vstr)
       continue;
     }
 
-    SatPlotCommand_p ccmd = std::make_shared<SatPlotCommand>(*cmd); // make a editable copy
+    SatPlotCommand_p ccmd = std::make_shared<SatPlotCommand>(*cmd); // make an editable copy
     // update list of files/times
     const std::vector<SatFileInfo> cmdfiles = sdd_->getSatFiles(ccmd->satellite, ccmd->filetype, true);
     if (ccmd->hasFileName() && !ccmd->hasFileTime()) {
