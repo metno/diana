@@ -281,7 +281,7 @@ int fillhead_diana(const std::string& str, const std::string& tag, satimg::dihea
   else if (tag == "Ysize:") ginfo.ysize = atoi(str.c_str());
   else if (tag == "Proj string:") ginfo.proj_string = str;
   else if (tag == "TrueLat:") {
-    trueLat = miutil::to_float(str);
+    trueLat = (float)atof(str.c_str()); // no miutil::to_float as the text is like "60 N"
     if (miutil::contains(str, "S"))
       trueLat *= -1.0;
   } else if (tag == "GridRot:")
