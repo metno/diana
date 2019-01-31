@@ -110,6 +110,9 @@ private:
   int getFileName(Sat* satdata, std::string &);
   int getFileName(Sat* satdata, const miutil::miTime&);
 
+  /*! Find product, \returns nullptr if not found. */
+  subProdInfo* findProduct(const std::string& image, const std::string& subtype);
+
 public:
   SatManager();
 
@@ -139,9 +142,9 @@ public:
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(plottimes_t& progTimes, int& timediff, const PlotCommand_cp& pinfo);
 
-  const std::vector<SatFileInfo> & getFiles(const std::string &,
-				       const std::string &,
-				       bool =false);
+  const std::vector<SatFileInfo>& getFiles(const std::string& image, const std::string& subtype, bool update = false);
+
+  //! Returns colour palette for this subproduct.
   const std::vector<Colour> & getColours(const std::string &,
 				       const std::string &);
 

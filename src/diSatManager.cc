@@ -59,7 +59,6 @@
 using namespace miutil;
 
 namespace {
-const std::vector<SatFileInfo> emptyfile;
 
 int _filestat(const std::string fname, pu_struct_stat& filestat)
 {
@@ -328,10 +327,14 @@ bool SatManager::setData(SatPlot *satp)
   }
 
   //Read header if not opened
-  subProdInfo& spi = Prod[satdata->satellite][satdata->filetype];
-  SatFileInfo& fInfo = spi.file[index];
+
+  subProdInfo* spi = findProduct(satdata->satellite, satdata->filetype);
+  if (!spi)
+    return false;
+
+  SatFileInfo& fInfo = spi->file[index];
   if (!fInfo.opened) {
-    readHeader(fInfo, spi.channel);
+    readHeader(fInfo, spi->channel);
     fInfo.opened = true;
   }
 
@@ -686,28 +689,23 @@ void SatManager::calcRGBstrech(unsigned char *image, const int& size, const floa
   }
 }
 
-
 int SatManager::getFileName(Sat* satdata, std::string &name)
 {
   METLIBS_LOG_SCOPE(name);
 
-  const std::vector<SatFileInfo>& ft = Prod[satdata->satellite][satdata->filetype].file;
+  if (subProdInfo* subp = findProduct(satdata->satellite, satdata->filetype)) {
+    const std::vector<SatFileInfo>& ft = subp->file;
+    if (ft.empty())
+      listFiles(*subp);
 
-  int fileno=-1;
-  int n=ft.size();
-
-  for (int i=0; i<n; i++) {
-    if (name == ft[i].name) {
-      fileno=i;
-      break;
+    for (size_t i = 0; i < ft.size(); i++) {
+      if (name == ft[i].name)
+        return i;
     }
   }
 
-  if (fileno < 0 ) {
-    METLIBS_LOG_WARN("Could not find "<<name<<" in inventory");
-  }
-
-  return fileno;
+  METLIBS_LOG_WARN("Could not find " << name << " in inventory");
+  return -1;
 }
 
 int SatManager::getFileName(Sat* satdata, const miTime &time)
@@ -719,23 +717,24 @@ int SatManager::getFileName(Sat* satdata, const miTime &time)
   }
   METLIBS_LOG_DEBUG(LOGVAL(time));
 
-  int diff= satdata->maxDiff+1;
-
-  subProdInfo &subp =Prod[satdata->satellite][satdata->filetype];
-
-  const std::vector<SatFileInfo> &ft=subp.file;
   int fileno=-1;
-  for (size_t i=0; i<ft.size(); i++) {
-    const int d = abs(miTime::minDiff(ft[i].time, time));
-    if (d<diff) {
-      diff=d;
-      fileno=i;
+  if (subProdInfo* subp = findProduct(satdata->satellite, satdata->filetype)) {
+    const std::vector<SatFileInfo>& ft = subp->file;
+    if (ft.empty())
+      listFiles(*subp);
+
+    int diff = satdata->maxDiff + 1;
+    for (size_t i = 0; i < ft.size(); i++) {
+      const int d = abs(miTime::minDiff(ft[i].time, time));
+      if (d < diff) {
+        diff = d;
+        fileno = i;
+      }
     }
   }
 
-  if (fileno < 0 ) {
+  if (fileno < 0)
     METLIBS_LOG_WARN("Could not find data from "<<time.isoTime("T")<<" in inventory");
-  }
   return fileno;
 }
 
@@ -833,30 +832,25 @@ void SatManager::addMosaicfiles(Sat* satdata)
 void SatManager::getMosaicfiles(Sat* satdata, const miutil::miTime& t)
 {
   METLIBS_LOG_SCOPE();
-
-  int satdiff, plotdiff, diff= satdata->maxDiff+1;
-  const miutil::miTime& plottime = (satdata->autoFile) ? t : satdata->time;
-
-  subProdInfo &subp =Prod[satdata->satellite][satdata->filetype];
-
   mosaicfiles. clear();
-  std::vector<int> vdiff;
-
-  std::vector<SatFileInfo>::iterator p = subp.file.begin();
-  while (p!=subp.file.end()) {
-    satdiff = abs(miTime::minDiff(p->time, satdata->time)); //diff from current sat time
-    plotdiff = abs(miTime::minDiff(p->time, plottime)); //diff from current plottime
-    if (plotdiff<diff && satdiff<diff && satdiff!=0) {
-      std::vector<SatFileInfo>::iterator q = mosaicfiles.begin();
-      std::vector<int>::iterator i=vdiff.begin();
-      while (q!=mosaicfiles.end() && i!=vdiff.end() && satdiff>=*i) {
-        q++;
-        i++;
+  if (subProdInfo* subp = findProduct(satdata->satellite, satdata->filetype)) {
+    const miutil::miTime& plottime = (satdata->autoFile) ? t : satdata->time;
+    std::vector<int> vdiff;
+    const int diff = satdata->maxDiff + 1;
+    for (const SatFileInfo& si : subp->file) {
+      int satdiff = abs(miTime::minDiff(si.time, satdata->time)); // diff from current sat time
+      int plotdiff = abs(miTime::minDiff(si.time, plottime));     // diff from current plottime
+      if (plotdiff < diff && satdiff < diff && satdiff != 0) {
+        std::vector<SatFileInfo>::iterator q = mosaicfiles.begin();
+        std::vector<int>::iterator i = vdiff.begin();
+        while (q != mosaicfiles.end() && i != vdiff.end() && satdiff >= *i) {
+          q++;
+          i++;
+        }
+        mosaicfiles.insert(q, si);
+        vdiff.insert(i, satdiff);
       }
-      mosaicfiles.insert(q, *p);
-      vdiff.insert(i, satdiff);
     }
-    p++;
   }
 }
 
@@ -927,18 +921,20 @@ bool SatManager::readHeader(SatFileInfo &file, std::vector<std::string> &channel
 const std::vector<std::string>& SatManager::getChannels(const std::string &satellite,
     const std::string & file, int index)
 {
-  if (index<0 || index>=int (Prod[satellite][file].file.size()))
-    return Prod[satellite][file].channel;
+  if (subProdInfo* subp = findProduct(satellite, file)) {
+    if (index < 0 || index >= int(subp->file.size()))
+      return subp->channel;
 
-  if (Prod[satellite][file].file[index].opened)
-    return Prod[satellite][file].file[index].channel;
-  if (readHeader(Prod[satellite][file].file[index],
-      Prod[satellite][file].channel)) {
-    Prod[satellite][file].file[index].opened=true;
-    return Prod[satellite][file].file[index].channel;
+    if (subp->file[index].opened)
+      return subp->file[index].channel;
+    if (readHeader(subp->file[index], subp->channel)) {
+      subp->file[index].opened = true;
+      return subp->file[index].channel;
+    }
   }
 
-  return Prod[satellite][file].channel;
+  static const std::vector<std::string> empty;
+  return empty;
 }
 
 void SatManager::listFiles(subProdInfo &subp)
@@ -1017,34 +1013,47 @@ void SatManager::listFiles(subProdInfo &subp)
 #endif
 }
 
-const std::vector<SatFileInfo> &SatManager::getFiles(const std::string &satellite,
-    const std::string & file, bool update)
+SatManager::subProdInfo* SatManager::findProduct(const std::string& image, const std::string& subtype)
 {
   METLIBS_LOG_SCOPE();
-  //check if satellite exists, (name occurs in prod)
-  const Prod_t::iterator itp = Prod.find(satellite);
+
+  const Prod_t::iterator itp = Prod.find(image);
   if (itp == Prod.end()) {
-    METLIBS_LOG_WARN("Product doesn't exist:" << satellite);
-    return emptyfile;
+    METLIBS_LOG_WARN("Product doesn't exist:" << image);
+    return nullptr;
   }
-  //check if filetype exist...
-  const SubProd_t::iterator its = itp->second.find(file);
+
+  const SubProd_t::iterator its = itp->second.find(subtype);
   if (its == itp->second.end()) {
-    METLIBS_LOG_WARN("Subproduct doesn't exist:" << file);
-    return emptyfile;
+    METLIBS_LOG_WARN("Subproduct doesn't exist:" << subtype);
+    return nullptr;
   }
 
-  if (update)
-    listFiles(its->second);
+  return &its->second;
+}
 
-  return its->second.file;
+const std::vector<SatFileInfo>& SatManager::getFiles(const std::string& image, const std::string& subtype, bool update)
+{
+  METLIBS_LOG_SCOPE();
+  if (subProdInfo* subp = findProduct(image, subtype)) {
+    if (update)
+      listFiles(*subp);
+
+    return subp->file;
+  }
+
+  static const std::vector<SatFileInfo> empty;
+  return empty;
 }
 
 const std::vector<Colour> & SatManager::getColours(const std::string &satellite,
     const std::string & file)
 {
-  //Returns colour palette for this subproduct.
-  return Prod[satellite][file].colours;
+  if (subProdInfo* subp = findProduct(satellite, file))
+    return subp->colours;
+
+  static const std::vector<Colour> empty;
+  return empty;
 }
 
 std::vector<std::string> SatManager::getCalibChannels()
@@ -1280,7 +1289,7 @@ bool SatManager::parseSetup()
         SetupParser::errorMsg(sat_name, i, errmsg);
         return false;
       }
-      subProdInfo& sp = Prod[prod][subprod];
+      subProdInfo& sp = Prod[prod][subprod]; // insert if not yet defined
       // init time filter and replace yyyy etc. with *
       const miutil::TimeFilter tf(value); // modifies value!
       sp.filter.push_back(tf);
