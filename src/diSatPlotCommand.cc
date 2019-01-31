@@ -40,7 +40,7 @@ static const std::string SAT = "SAT";
 SatPlotCommand::SatPlotCommand()
     : KVListPlotCommand(SAT)
     , mosaic(false)
-    , timediff(0)
+    , timediff(60)
     , cut(0.02)
     , alphacut(0)
     , alpha(1)
@@ -119,9 +119,6 @@ SatPlotCommand_cp SatPlotCommand::fromString(const std::string& line)
     cmd->filename = it->value();
     ++it;
   }
-
-  cmd->timediff = -1;
-  cmd->mosaic = false;
 
   for (; it != pin.end(); ++it) {
     const std::string& key = it->key();
