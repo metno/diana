@@ -58,6 +58,8 @@
 
 #include "satimg.h"
 
+#include "diProjection.h"
+
 #include <puTools/miStringFunctions.h>
 #include <sstream>
 #include <tiffio.h>
@@ -325,12 +327,8 @@ struct dto
 
 struct ucs
 {
-  float Bx;        /* UCS Bx */
-  float By;        /* UCS By */
-  float Ax;        /* UCS Ax */
-  float Ay;        /* UCS Ay */
-  unsigned int iw; /* image width (pixels) */
-  unsigned int ih; /* image height (pixels) */
+  float corner_x[4]; //!< x => lon_deg
+  float corner_y[4]; //!< y => lat_deg
 };
 
 short selalg(const dto& d, const ucs& upos, const float& hmax, const float& hmin);
@@ -346,14 +344,22 @@ int satimg::day_night(const std::string& infile)
 
 int satimg::day_night(const dihead& sinfo)
 {
-  struct ucs upos;
+  ucs upos;
+  unsigned int countx = 0, county = 0;
+  for (int i = 0; i < 4; i++) {
+    upos.corner_x[i] = sinfo.Bx + sinfo.Ax * countx;
+    upos.corner_y[i] = sinfo.By + sinfo.Ay * county;
+
+    countx += sinfo.xsize;
+    if (countx > sinfo.xsize) {
+      countx = 0;
+      county += sinfo.ysize;
+    }
+  }
+  Projection proj(sinfo.proj_string);
+  proj.convertToGeographic(4, upos.corner_x, upos.corner_y);
+
   struct dto d;
-  upos.Ax = sinfo.Ax;
-  upos.Ay = sinfo.Ay;
-  upos.Bx = sinfo.Bx;
-  upos.By = sinfo.By;
-  upos.iw = sinfo.xsize;
-  upos.ih = sinfo.ysize;
   d.ho = sinfo.time.hour();
   d.mi = sinfo.time.min();
   d.dd = sinfo.time.day();
@@ -413,51 +419,26 @@ namespace {
  */
 short selalg(const dto& d, const ucs& upos, const float& hmax, const float& hmin)
 {
-  float max = 0., min = 0.;
-
-  const float Pi = 3.141592654;
-  const double radian = Pi / 180.;
-
-  const float CentralMer = 0.;
-  const float TrueScaleLat = 60.;
-  const double TrueLatRad = TrueScaleLat * radian;
-  const float DistPolEkv = 6378. * (1. + sin(TrueLatRad));
+  float max = 0, min = 0;
 
   // Decode day and time information for use in formulas.
   const float daynr = satimg::JulianDay(d.yy, d.mm, d.dd);
   const float gmttime = d.ho + d.mi / 60.0;
 
-  const float theta0 = (2 * Pi * daynr) / 365;
+  const float theta0 = (2 * M_PI * daynr) / 365;
   const float inclination = 0.006918 - (0.399912 * cos(theta0)) + (0.070257 * sin(theta0)) - (0.006758 * cos(2 * theta0)) + (0.000907 * sin(2 * theta0)) -
                             (0.002697 * cos(3 * theta0)) + (0.001480 * sin(3 * theta0));
 
-  //  Estimates latitude and longitude for the corner pixels.
-  unsigned int countx = 0, county = 0;
   for (int i = 0; i < 4; i++) {
-    const float xval = upos.Bx + upos.Ax * ((float)countx + 0.5);
-    const float yval = upos.By - fabsf(upos.Ay) * ((float)county + 0.5);
+    const float lon_deg = upos.corner_x[i];
+    const float lat_deg = upos.corner_y[i], lat_rad = lat_deg * DEG_TO_RAD;
 
-    countx += upos.iw;
-    if (countx > upos.iw) {
-      countx = 0;
-      county += upos.ih;
-    }
-    const float northings = yval;
-    const float eastings = xval;
-
-    const double Rp = pow(double(eastings * eastings + northings * northings), 0.5);
-
-    const float latitude = (90. - (1. / radian) * atan(Rp / DistPolEkv) * 2) * radian;
-    const float longitude = (CentralMer + (1. / radian) * atan2(eastings, -northings)) * radian;
-
-    /*
-     * Estimates zenith angle in the pixel.
-     */
-    const float lat = gmttime + ((longitude / radian) * 0.0667);
+    // Estimates zenith angle in the pixel
+    const float lat = gmttime + lon_deg * 0.0667;
     const float hourangle = std::abs(lat - 12.) * 0.2618;
 
-    const float coszenith = (cos(latitude) * cos(hourangle) * cos(inclination)) + (sin(latitude) * sin(inclination));
-    const float sunh = 90. - (acosf(coszenith) / radian);
+    const float coszenith = (cos(lat_rad) * cos(hourangle) * cos(inclination)) + (sin(lat_rad) * sin(inclination));
+    const float sunh = 90. - acosf(coszenith) * RAD_TO_DEG;
 
     if (sunh < min) {
       min = sunh;
