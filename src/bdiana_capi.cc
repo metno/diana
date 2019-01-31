@@ -1698,7 +1698,9 @@ int Bdiana::parseAndProcess(istream& is)
     } else if (key == com_addminute) {
       addminute = atoi(value.c_str());
 
-    } else if (key == com_settime) {
+    } else if (key == com_settime &&
+               getTimeChoice() != BdianaSource::USE_FIXEDTIME) // FIXME breaks bdiana.input files with multiple settime=<fixedtime> commands
+    {
       ptime = miTime(); // undef
       if (value == "nowtime" || value == "current" || value == "currenttime") {
         setTimeChoice(BdianaSource::USE_NOWTIME);
@@ -1943,6 +1945,7 @@ int diana_init(int _argc, char** _argv)
       // temporary: force plottime
       if (tmp.key == "TIME") {
         if (miTime::isValid(tmp.value)) {
+          bdiana()->setTimeChoice(BdianaSource::USE_FIXEDTIME);
           bdiana()->fixedtime = miTime(tmp.value);
         } else {
           cerr << "ERROR, invalid TIME-variable on commandline: '" << tmp.value << "'" << endl;
