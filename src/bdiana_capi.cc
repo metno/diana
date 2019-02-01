@@ -215,6 +215,8 @@ struct Bdiana
   bool time_union;
   std::string time_format;
   miTime fixedtime, ptime;
+  bool commandline_time_enabled = false; //!< true iff time specified on commandline
+  miTime commandline_time;               //!< fixed TIME from commandline
   int addhour, addminute;
 
   map<std::string, map<std::string, std::string>> outputTextMaps; // output text for cases where output data is XML/JSON
@@ -884,6 +886,9 @@ BdianaSource::TimeChoice Bdiana::getTimeChoice() const
 
 void Bdiana::set_ptime(BdianaSource& src)
 {
+  if (commandline_time_enabled) {
+    fixedtime = commandline_time;
+  }
   if (fixedtime.undef()) {
     fixedtime = src.getTime();
     if (verbose)
@@ -1698,11 +1703,11 @@ int Bdiana::parseAndProcess(istream& is)
     } else if (key == com_addminute) {
       addminute = atoi(value.c_str());
 
-    } else if (key == com_settime &&
-               getTimeChoice() != BdianaSource::USE_FIXEDTIME) // FIXME breaks bdiana.input files with multiple settime=<fixedtime> commands
-    {
+    } else if (key == com_settime) {
       ptime = miTime(); // undef
-      if (value == "nowtime" || value == "current" || value == "currenttime") {
+      if (commandline_time_enabled) {
+        // ignore settime command if time is given on commandline
+      } else if (value == "nowtime" || value == "current" || value == "currenttime") {
         setTimeChoice(BdianaSource::USE_NOWTIME);
       } else if (value == "firsttime") {
         setTimeChoice(BdianaSource::USE_FIRSTTIME);
@@ -1897,6 +1902,8 @@ int diana_init(int _argc, char** _argv)
       // Use time closest to the current time even if there exists a field
       // and not the timestamps for the future. This corresponds to the
       // default value when using the gui.
+      bdiana()->commandline_time_enabled = true;
+      bdiana()->commandline_time = miutil::miTime();
       bdiana()->setTimeChoice(BdianaSource::USE_NOWTIME);
 
     } else if (sarg.find("-address=") == 0) {
@@ -1945,8 +1952,9 @@ int diana_init(int _argc, char** _argv)
       // temporary: force plottime
       if (tmp.key == "TIME") {
         if (miTime::isValid(tmp.value)) {
+          bdiana()->commandline_time_enabled = true;
+          bdiana()->commandline_time = miTime(tmp.value);
           bdiana()->setTimeChoice(BdianaSource::USE_FIXEDTIME);
-          bdiana()->fixedtime = miTime(tmp.value);
         } else {
           cerr << "ERROR, invalid TIME-variable on commandline: '" << tmp.value << "'" << endl;
           return 1;
