@@ -235,7 +235,7 @@ void QuickMenu::addMenu(const std::string& name)
   std::vector<quickMenu>::iterator itq = qm.begin();
   while (itq != qm.end() && itq->is_history())
     ++itq;
-  qm.insert(itq, qtmp);
+  itq = qm.insert(itq, qtmp);
 
   // update indexes
   const int insert = itq - qm.begin();
