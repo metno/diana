@@ -252,7 +252,7 @@ PlotCommand_cpv DrawingDialog::makeCommands(const QMap<QString, QString>& items)
 
   for (QMap<QString, QString>::const_iterator it = items.begin(); it != items.end(); ++it) {
     KVListPlotCommand_p cmd = std::make_shared<KVListPlotCommand>("DRAWING");
-    cmd->add("name", it.value().toStdString());
+    cmd->add("name", it.key().toStdString());
     lines.push_back(cmd);
   }
 
