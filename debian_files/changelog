@@ -1,3 +1,11 @@
+diana-3.50 (3.50.6-1) unstable; urgency=low
+
+  * hide dock widgets before exit
+  * add QuickMenu collapse all button
+  * bugfix DRAWING
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 12 Feb 2019 08:00:08 +0100
+
 diana-3.50 (3.50.5-1) unstable; urgency=low
 
   * bugfix QuickMenu::addMenu
