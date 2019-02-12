@@ -2683,6 +2683,10 @@ vector<string> DianaMainWindow::writeLog(const string& thisVersion, const string
 
 std::string DianaMainWindow::saveDocState()
 {
+  // FIXME hide all floatable dock widgets
+  editDrawingToolBar->hide();
+  mmdock->setVisible(false);
+
   QByteArray state = saveState();
   ostringstream ost;
   int n= state.count();

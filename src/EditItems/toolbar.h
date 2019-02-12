@@ -57,6 +57,7 @@ class ToolBar : public QToolBar
 
 public:
   static ToolBar *instance(QWidget * parent);
+  void setVisible(bool visible) override;
 
 public Q_SLOTS:
   void setSelectAction();

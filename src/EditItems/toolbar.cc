@@ -467,12 +467,16 @@ void ToolBar::show_hide_all()
     count_visible++;
 
   bool show = count_visible < 2;
+  setVisible(show);
+}
 
-  polyLineWidget->setVisible(show);
-  symbolWidget->setVisible(show);
-  textWidget->setVisible(show);
-  compositeWidget_->setVisible(show);
-
+void ToolBar::setVisible(bool visible)
+{
+  QToolBar::setVisible(visible);
+  polyLineWidget->setVisible(visible);
+  symbolWidget->setVisible(visible);
+  textWidget->setVisible(visible);
+  compositeWidget_->setVisible(visible);
 }
 
 } // namespace EditItems
