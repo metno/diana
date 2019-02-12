@@ -57,9 +57,12 @@
 #include <QStringList>
 #include <QTextEdit>
 #include <QTimerEvent>
+#include <QToolButton>
 #include <QToolTip>
 #include <QTreeView>
 #include <QVBoxLayout>
+
+#include "minus12x12.xpm"
 
 #define MILOGGER_CATEGORY "diana.QuickMenu"
 #include <miLogger/miLogging.h>
@@ -104,6 +107,11 @@ QuickMenu::QuickMenu(QWidget* parent, const std::vector<QuickMenuDefs>& qdefs)
   connect(menuFilterEdit, &QLineEdit::textChanged, this, &QuickMenu::filterMenus);
   menulistlabel->setBuddy(menuFilterEdit);
 
+  QToolButton* collapseAll = new QToolButton(this);
+  collapseAll->setIcon(QIcon(QPixmap(minus12x12_xpm)));
+  collapseAll->setToolTip(tr("Collapse all"));
+  connect(collapseAll, &QToolButton::clicked, menubox, &QTreeView::collapseAll);
+
   QPushButton* adminbut = new QPushButton(tr("&Edit menus.."), this);
   adminbut->setToolTip(tr("Menu editor: Copy, change name and sortorder etc. on your own menus") );
   connect(adminbut, &QPushButton::clicked, this, &QuickMenu::adminButton);
@@ -115,6 +123,7 @@ QuickMenu::QuickMenu(QWidget* parent, const std::vector<QuickMenuDefs>& qdefs)
   QBoxLayout* l2 = new QHBoxLayout();
   l2->addWidget(menulistlabel);
   l2->addWidget(menuFilterEdit, 1);
+  l2->addWidget(collapseAll);
   l2->addWidget(updatebut);
   l2->addWidget(adminbut);
 
