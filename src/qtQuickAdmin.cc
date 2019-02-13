@@ -99,8 +99,7 @@ QuickAdmin::QuickAdmin(QWidget* parent, vector<quickMenu>& qm)
 {
   setModal(true);
 
-  QLabel* mainlabel = new QLabel("<em><b>" + tr("Edit quickmenus") + "</b></em>", this);
-  mainlabel->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
+  setWindowTitle(tr("Edit quickmenus"));
 
   menutree = new QTreeWidget(this);
   menutree->setRootIsDecorated(true);
@@ -214,8 +213,6 @@ QuickAdmin::QuickAdmin(QWidget* parent, vector<quickMenu>& qm)
 
   // top layout
   QVBoxLayout* vlayout = new QVBoxLayout(this);
-
-  vlayout->addWidget(mainlabel);
   vlayout->addLayout(hl1);
   vlayout->addLayout(gl);
   vlayout->addWidget(line);
