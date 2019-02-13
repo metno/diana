@@ -1691,55 +1691,35 @@ void ObsPlot::printListParameter(DiGLPainter* gl, const ObsData& dta, const ObsD
 void ObsPlot::printListSymbol(DiGLPainter* gl, const ObsData& dta, const ObsDialogInfo::Par& param, QPointF& xypos, float yStep, bool align_right,
                               const float& xshift)
 {
-  if (param.name == "PwaHwa" || param.name == "Pw1Hw1") {
-    ObsData::fdata_t::const_iterator p, q;
-    if (param.name == "PwaHwa") {
-      p = dta.fdata.find("HwaHwa");
-      q = dta.fdata.find("PwaPwa");
-    } else if (param.name == "Pw1Hw1") {
-      p = dta.fdata.find("Hw1Hw1");
-      q = dta.fdata.find("Pw1Pw1");
+  const std::map<string, float>::const_iterator f_p = dta.fdata.find(param.name);
+  if (f_p != dta.fdata.end()) {
+    checkColourCriteria(gl, param.name, f_p->second);
+    QPointF spos = xypos * scale - QPointF(xshift, 0);
+    if (param.symbol == 201 && f_p->second > 0 && f_p->second < 9) {
+      symbol(gl, vtab(param.symbol + (int)f_p->second), spos, 0.6 * scale, align_right);
+    } else if (param.symbol > 0 && f_p->second > 0 && f_p->second < 10) {
+      symbol(gl, vtab(param.symbol + (int)f_p->second), spos, 0.6 * scale, align_right);
+    } else if ((param.name == "W1" || param.name == "W2") && f_p->second > 2) {
+      pastWeather(gl, (int)f_p->second, spos, 0.6 * scale, align_right);
+
+    } else if (param.name == "ww") {
+
+      const std::map<string, float>::const_iterator ttt_p = dta.fdata.find("TTT");
+      if (ttt_p != dta.fdata.end()) {
+        weather(gl, (short int)f_p->second, ttt_p->second, dta.ship_buoy, spos - QPointF(0, 0.2 * yStep * scale), scale * 0.6, align_right);
+      } else {
+        printUndef(gl, xypos, align_right);
+      }
+    } else if (param.name == "ds") {
+      arrow(gl, f_p->second, spos, scale * 0.6);
+    } else if (param.name == "dw1dw1") {
+      zigzagArrow(gl, f_p->second, spos, scale * 0.6);
     }
-    if (p != dta.fdata.end() && q != dta.fdata.end()) {
-      checkColourCriteria(gl, param.name, p->second);
-      wave(gl, q->second, p->second, xypos, align_right);
-      const std::string str = "00/00";
-      advanceByStringWidth(gl, str, xypos);
-    } else {
-      printUndef(gl, xypos, align_right);
-    }
+    if (!vertical_orientation)
+      xypos.rx() += 20;
 
   } else {
-    const std::map<string, float>::const_iterator f_p = dta.fdata.find(param.name);
-    if (f_p != dta.fdata.end() ) {
-      checkColourCriteria(gl, param.name, f_p->second);
-      QPointF spos = xypos*scale - QPointF(xshift, 0);
-      if (param.symbol == 201 && f_p->second > 0 && f_p->second < 9) {
-        symbol(gl, vtab(param.symbol + (int) f_p->second), spos, 0.6 * scale, align_right);
-      } else if (param.symbol > 0 && f_p->second > 0 && f_p->second < 10) {
-        symbol(gl, vtab(param.symbol + (int)f_p->second), spos, 0.6 * scale, align_right);
-      } else if ((param.name == "W1" || param.name == "W2") && f_p->second > 2) {
-        pastWeather(gl, (int) f_p->second, spos, 0.6 * scale, align_right);
-
-      } else if (param.name == "ww") {
-
-        const std::map<string, float>::const_iterator ttt_p = dta.fdata.find("TTT");
-        if (ttt_p != dta.fdata.end()) {
-          weather(gl, (short int)f_p->second, ttt_p->second, dta.ship_buoy, spos - QPointF(0, 0.2 * yStep * scale), scale * 0.6, align_right);
-        } else {
-          printUndef(gl, xypos, align_right);
-        }
-      } else if (param.name == "ds") {
-        arrow(gl, f_p->second, spos, scale * 0.6);
-      } else if (param.name == "dw1dw1") {
-        zigzagArrow(gl, f_p->second, spos, scale * 0.6);
-      }
-      if (!vertical_orientation)
-        xypos.rx() += 20;
-
-    } else {
-      printUndef(gl, xypos, align_right);
-    }
+    printUndef(gl, xypos, align_right);
   }
 }
 
@@ -3742,10 +3722,6 @@ void ObsPlot::parameterDecode(const std::string& parameter, bool add)
   std::string par;
   if (parameter == "txtxtx" || parameter == "tntntn")
     par = "txtn";
-  else if (parameter == "pwapwa" || parameter == "hwahwa")
-    par = "hwahwa";
-  else if (parameter == "hw1Pw1" || parameter == "hw1hw1")
-    par = "pw1hw1";
   else if (parameter == "dd_ff" || parameter == "vind")
     par = "vind";
   else if (parameter == "kjtegn")

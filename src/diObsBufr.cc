@@ -1176,20 +1176,19 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
         d.fdata["HwaHwa"] = values[j];
       break;
 
-      // Not used in synop plot
-      //       // 022012 PERIOD OF WIND WAVES, s
-      //     case 22012:
-      //       if (values[j]<bufrMissing)
-      //         d.fdata["PwPw"] = values[j];
-      //       break;
+    // 022012 PERIOD OF WIND WAVES, s
+    case 22012:
+      if (values[j] < bufrMissing)
+        d.fdata["PwPw"] = values[j];
+      break;
 
-      //       // 022022 HEIGHT OF WIND WAVES, m
-      //     case 22022:
-      //       if (values[j]<bufrMissing)
-      //         d.fdata["HwHw"] = values[j];
-      //       break;
+    // 022022 HEIGHT OF WIND WAVES, m
+    case 22022:
+      if (values[j] < bufrMissing)
+        d.fdata["HwHw"] = values[j];
+      break;
 
-      // 022013 PERIOD OF SWELL WAVES, s (first system of swell)
+    // 022013 PERIOD OF SWELL WAVES, s (first system of swell)
     case 22013:
       if (!d.fdata.count("Pw1Pw1") && values[j] < bufrMissing)
         d.fdata["Pw1Pw1"] = values[j];
@@ -1201,7 +1200,13 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
         d.fdata["Hw1Hw1"] = values[j];
       break;
 
-      // 022003 DIRECTION OF SWELL WAVES, DEGREE
+    // 022070 SIGNIFICANT WAVE HEIGHT, m
+    case 22070:
+      if (!d.fdata.count("SWH") && values[j] < bufrMissing)
+        d.fdata["SWH"] = values[j];
+      break;
+
+    // 022003 DIRECTION OF SWELL WAVES, DEGREE
     case 22003:
       if (!d.fdata.count("dw1dw1") && values[j] > 0 && values[j] < bufrMissing)
         d.fdata["dw1dw1"] = values[j];
