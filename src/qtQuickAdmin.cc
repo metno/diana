@@ -330,6 +330,8 @@ void QuickAdmin::updateWidgets()
     active->setSelected(true);
     menutree->scrollToItem(active, QAbstractItemView::EnsureVisible);
     selectionChanged( active, 0 );
+  } else {
+    comedit->setEnabled(false);
   }
 }
 
