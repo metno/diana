@@ -1,3 +1,10 @@
+diana-3.50 (3.50.7-1) unstable; urgency=low
+
+  * ObsAscii - remove quotes
+  * ObsPlot - waves
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 13 Feb 2019 11:16:36 +0100
+
 diana-3.50 (3.50.6-1) unstable; urgency=low
 
   * hide dock widgets before exit
