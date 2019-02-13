@@ -79,7 +79,7 @@ private:
   void updateButtonTexts();
 
 public:
-  QuickAdmin(QWidget*, std::vector<quickMenu>& qm);
+  QuickAdmin(QWidget*, const std::vector<quickMenu>& qm);
 
   const std::vector<quickMenu>& getMenus() const;
 

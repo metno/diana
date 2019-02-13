@@ -88,7 +88,7 @@ public:
   }
 };
 
-QuickAdmin::QuickAdmin(QWidget* parent, vector<quickMenu>& qm)
+QuickAdmin::QuickAdmin(QWidget* parent, const vector<quickMenu>& qm)
     : QDialog(parent)
     , menus(qm)
     , autochange(false)
@@ -222,8 +222,6 @@ QuickAdmin::QuickAdmin(QWidget* parent, vector<quickMenu>& qm)
   vlayout->addWidget(line2);
   vlayout->addLayout(hl4);
 
-  vlayout->activate();
-
   updateWidgets();
   resize(500, 550);
 }
@@ -301,21 +299,20 @@ void QuickAdmin::selectionChanged(QTreeWidgetItem* p, int)
 
 void QuickAdmin::updateWidgets()
 {
-
   menutree->clear();
+  QTreeWidgetItem* active = nullptr;
 
-  int n = menus.size();
-
-  QTreeWidgetItem *active = 0;
-
+  const int n = menus.size();
   for (int i = 0; i < n; i++) {
-    QString mname(menus[i].name.c_str());
+    const quickMenu& qm = menus[i];
+    QString mname = QString::fromStdString(qm.name);
     QuickTreeWidgetItem* pp = new QuickTreeWidgetItem(menutree, QStringList(mname), i, -1);
     if (active_list == i && active_item == -1)
       active = pp;
-    int m = menus[i].menuitems.size();
+    const int m = qm.menuitems.size();
     for (int j = 0; j < m; j++) {
-      QString qstr = QString::fromStdString(menus[i].menuitems[j].name);
+      const quickMenuItem& qmi = qm.menuitems[j];
+      QString qstr = QString::fromStdString(qmi.name);
       qstr.replace(QRegExp("</*font[^>]*>"), "");
       QTreeWidgetItem *tmp = new QuickTreeWidgetItem(pp, QStringList(qstr), i, j);
       if (active_list == i && active_item == j)
