@@ -1,8 +1,13 @@
 
 #include "diFlightLevel.h"
 
+#include "diField/VcrossUtil.h"
 #include "diMetConstants.h"
+#include "util/string_util.h"
 
+#include "puTools/miStringFunctions.h"
+
+#include <cmath>
 #include <iomanip>
 #include <map>
 #include <sstream>
@@ -27,14 +32,13 @@ void buildPLevelsToFlightLevelsTable()
   using namespace MetNo::Constants;
   for (int i=0; i<nLevelTable; i++) {
     std::ostringstream pstr, fstr, fstr_old;
-    pstr << pLevelTable[i];
-    fstr << std::setw(3) << std::setfill('0') << fLevelTable[i];
-    fstr_old << std::setw(3) << std::setfill('0') << fLevelTable_old[i];
+    pstr << pLevelTable[i] << "hPa";
+    fstr << "FL" << std::setw(3) << std::setfill('0') << fLevelTable[i];
+    fstr_old << "FL" << std::setw(3) << std::setfill('0') << fLevelTable_old[i];
 
-    pLevel2flightLevel[pstr.str()+"hPa"] = "FL"+fstr.str();
-    flightLevel2pLevel["FL"+fstr.str() ] = pstr.str()+"hPa";
-    //obsolete table
-    flightLevel2pLevel["FL"+fstr_old.str()] = pstr.str()+"hPa";
+    pLevel2flightLevel[pstr.str()] = fstr.str();
+    flightLevel2pLevel[fstr.str()] = pstr.str();
+    flightLevel2pLevel[fstr_old.str()] = pstr.str(); // obsolete table
   }
 }
 } // anonymous namespace
@@ -50,7 +54,14 @@ std::string getPressureLevel(const std::string& flightlevel)
   if (it != flightLevel2pLevel.end())
     return it->second;
 
-  METLIBS_LOG_WARN(" Flightlevel: "<<flightlevel<<". No pressure level found.");
+  if (flightlevel.size() >= 5 && diutil::startswith(flightlevel, "FL")) {
+    const float FL = miutil::to_float(flightlevel.substr(2));
+    const float ROUND = 5;
+    const float hPa = ROUND * std::round(vcross::util::FL_to_hPa(FL) / ROUND + 0.5f);
+    return miutil::from_number(hPa) + "hPa";
+  } else {
+    METLIBS_LOG_WARN("Flightlevel: " << flightlevel << ". No pressure level found.");
+  }
   return flightlevel;
 }
 
@@ -63,7 +74,12 @@ std::string getFlightLevel(const std::string& pressurelevel)
   if (it != pLevel2flightLevel.end())
     return it->second;
 
-  METLIBS_LOG_WARN(" pressurelevel: "<<pressurelevel<<". No pressure level found.");
+  if (diutil::endswith(pressurelevel, "hPa")) {
+    const float hPa = miutil::to_float(pressurelevel.substr(0, pressurelevel.size() - 3));
+    return "FL" + miutil::from_number(vcross::util::hPa_to_FL(hPa));
+  } else {
+    METLIBS_LOG_WARN("Pressure level: " << pressurelevel << ". No flightlevel found.");
+  }
   return pressurelevel;
 }
 

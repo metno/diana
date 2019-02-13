@@ -108,6 +108,7 @@ SET (diFieldTest_SOURCES
   DataReshapeTest.cc
   FieldManagerTest.cc
   FimexSourceTest.cc
+  FlightLevelTest.cc
   MetConstantsTest.cc
   RectangleTest.cc
   ShapeTest.cc
