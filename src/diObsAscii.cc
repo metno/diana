@@ -34,6 +34,7 @@
 #include "diLabelPlotCommand.h"
 #include "diObsMetaData.h"
 #include "diUtilities.h"
+#include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -148,7 +149,7 @@ void ObsAscii::parseHeaderBrackets(const std::string& str)
     if (not separator.empty())
       pstr= miutil::split(str, separator);
     for (size_t j=1; j<pstr.size(); j++) {
-      miutil::remove(pstr[j], '"');
+      diutil::remove_quote(pstr[j]);
       const vector<std::string> vs = miutil::split(pstr[j], ":");
       if (vs.size()>1) {
         m_columnName.push_back(vs[0]);
@@ -351,6 +352,7 @@ void ObsAscii::decodeData()
 
     const size_t tmp_nColumn = std::min(pstr.size(), m_columnType.size());
     for (size_t i=0; i<tmp_nColumn; i++) {
+      diutil::remove_quote(pstr[i]);
       if (not asciiColumnUndefined.count(pstr[i]))
         obsData.stringdata[m_columnName[i]] = pstr[i];
     }
