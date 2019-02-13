@@ -500,6 +500,8 @@ void QuickMenu::adminButton()
     // get updated list of menus
     qm = admin->getMenus();
 
+    old_list = old_item = -1;
+
     if (!isValidList(plotted_list)) { // previous plot now bad
       plotted_list = -1;
       plotted_item = -1;
