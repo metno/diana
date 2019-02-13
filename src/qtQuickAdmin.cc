@@ -102,7 +102,7 @@ QuickAdmin::QuickAdmin(QWidget* parent, vector<quickMenu>& qm)
   setWindowTitle(tr("Edit quickmenus"));
 
   menutree = new QTreeWidget(this);
-  menutree->setRootIsDecorated(true);
+  menutree->setHeaderHidden(true);
   menutree->setSortingEnabled(false);
   menutree->setColumnCount(1);
 
