@@ -1003,8 +1003,8 @@ void DianaMainWindow::recallPlot(const PlotCommand_cpv& vstr, bool replace)
     if (pre=="MAP") mapcom.push_back(c);
     else if (pre=="AREA") mapcom.push_back(c);
     else if (pre=="FIELD") fldcom.push_back(c);
-    else if (pre=="OBS") obscom.push_back(c);
     else if (pre=="SAT") satcom.push_back(c);
+    else if (pre=="OBS") obscom.push_back(c);
     else if (pre=="STATION") statcom.push_back(c);
     else if (pre=="OBJECTS") objcom.push_back(c);
     else if (pre=="LABEL") labelcom.push_back(c);
@@ -1016,8 +1016,8 @@ void DianaMainWindow::recallPlot(const PlotCommand_cpv& vstr, bool replace)
   // feed strings to dialogs
   if (replace || mapcom.size()) mm->putOKString(mapcom);
   if (replace || fldcom.size()) fm->putOKString(fldcom);
-  if (replace || obscom.size()) om->putOKString(obscom);
   if (replace || satcom.size()) sm->putOKString(satcom);
+  if (replace || obscom.size()) om->putOKString(obscom);
   if (replace || statcom.size()) stm->putOKString(statcom);
   if (replace || objcom.size()) objm->putOKString(objcom);
   if (replace || labelcom.size()) annom->putOKString(labelcom);
