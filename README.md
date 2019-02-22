@@ -50,6 +50,12 @@ You might want to pass other options to cmake depending on the
 features you want to enable in Diana. Please consult the
 `CMakeLists.txt` files.
 
+To read maps from ESRI shape files, libshp and GDAL (`gdalsrsinfo`)
+are required.
+
+For video export, `avconv` is required to merge single frames into a
+video.
+
 If you use an IDE like [QtCreator](https://wiki.qt.io/Qt_Creator), you
 might want to change the generator for `cmake` with the `-G` option
 (see `cmake --help`), e.g. `-G "CodeBlocks - Unix Makefiles"` or
@@ -75,16 +81,17 @@ before starting `bdiana`.
 
 The current version supports following file formats:
 
-* Fields
+* Fields are read via [fimex](http://fimex.met.no)
   * MetnoFieldFile (proprietary met.no)
   * NetCDF
-  * Grib
+  * GRIB
 * Observations
   * MetnoObs (proprietary met.no)
-  * BUFR
-  * ascii
+  * BUFR (using libemos or [ecCodes](https://confluence.ecmwf.int/display/ECC/ecCodes+Home))
+  * ASCII
 * Image (satellite, radar)
-  * mitiff (proprietary met.no)
+  * [mitiff](http://diana.met.no/mitiff/mitiff.html) (proprietary met.no)
+  * geotiff
   * HDF5
 * Prognostic sounding
   * NetCDF
@@ -93,9 +100,9 @@ The current version supports following file formats:
 * Wave spectrum
   * NetCDF (met.no structure)
 * Maps
-  * shape
-  * ascii
-  * metno-format (documentation available)
+  * ESRI shape (via libshp and GDAL)
+  * ASCII
+  * [metno-format](https://wiki.met.no/diana/triangle_map_format)
 
 ## Resource files
 
