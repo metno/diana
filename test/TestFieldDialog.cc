@@ -145,6 +145,33 @@ TEST(TestFieldDialog, PutGetOKStringRaw)
   EXPECT_EQ(expect.str(), cmds_get[0]->toString());
 }
 
+TEST(TestFieldDialog, PutGetOKStringMinus)
+{
+  initLinesAndColours();
+  TestFieldDialogData* data = new TestFieldDialogData;
+  std::unique_ptr<FieldDialog> dialog(new FieldDialog(0, data));
+
+  // clang-format off
+  const PlotCommand_cpv cmds_put = makeCommands({"FIELD ( model=" + MODEL1 + " parameter=" + PARAM1
+                                                    + " - model=" + MODEL1 + " parameter=" + PARAM1
+                                                    + " ) refhour=0 plottype=contour"});
+  // clang-format on
+  dialog->putOKString(cmds_put);
+
+  const PlotCommand_cpv cmds_get = dialog->getOKString();
+  ASSERT_EQ(cmds_get.size(), 1);
+
+  std::ostringstream expect;
+  // clang-format off
+  expect << "FIELD ( "
+         << "model=" << MODEL1 << " reftime=" << *(data->getFieldReferenceTimes(MODEL1).begin()) << " parameter=" << PARAM1
+         << " - "
+         << "model=" << MODEL1 << " reftime=" << *(data->getFieldReferenceTimes(MODEL1).begin()) << " parameter=" << PARAM1
+         << " ) " << PlotOptions().toKeyValueList();
+  // clang-format on
+  EXPECT_EQ(expect.str(), cmds_get[0]->toString());
+}
+
 TEST(TestFieldDialog, PutGetOKStringLog)
 {
   initLinesAndColours();

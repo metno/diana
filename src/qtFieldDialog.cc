@@ -3074,12 +3074,11 @@ void FieldDialog::putOKString(const PlotCommand_cpv& vstr)
       addSelectedField(sf);
 
     if (cmd->hasMinusField()) {
-      minusField(true);
       SelectedField sfsubtract;
       sfsubtract.external = true;
       if (decodeCommand(cmd, cmd->minus, sfsubtract, allTimeSteps)) {
-        sf.minus = true;
         addSelectedField(sfsubtract);
+        minusField(true);
       }
     }
   }
