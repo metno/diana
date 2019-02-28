@@ -43,3 +43,15 @@ TEST(TestSatImg, JulianDay)
   EXPECT_EQ(31 + 28 + 7, satimg::JulianDay(2001, 3, 7));
   EXPECT_EQ(31 + 29 + 7, satimg::JulianDay(2004, 3, 7));
 }
+
+TEST(TestSatImg, MiTiffProj4FalseNE)
+{
+  const std::string proj4_nooffset = "+proj=stere +lon_0=0 +lat_0=90 +lat_ts=60 +ellps=WGS84 +towgs84=0,0,0 +units=km "; // space at end
+  std::string proj4 = proj4_nooffset + "+x_0=1936001.860000 +y_0=4564248.000000";
+  double value = 0;
+  EXPECT_TRUE(satimg::proj4_value(proj4, "+x_0=", value, true));
+  EXPECT_NEAR(1936001.86, value, 1);
+  EXPECT_TRUE(satimg::proj4_value(proj4, "+y_0=", value, true));
+  EXPECT_NEAR(4564248.0, value, 1);
+  EXPECT_EQ(proj4_nooffset, proj4);
+}

@@ -69,6 +69,23 @@
 
 using namespace miutil;
 
+bool satimg::proj4_value(std::string& proj4, const std::string& key, double& value, bool remove_key)
+{
+  const size_t pos = proj4.find(key);
+  if (pos == std::string::npos)
+    return false;
+
+  value = atof(proj4.c_str() + pos + key.size());
+  if (remove_key) {
+    size_t pos_end = proj4.find(" ", pos);
+    if (pos_end == std::string::npos)
+      pos_end = proj4.size() - 1; // proj4 cannot be not empty
+    proj4.erase(pos, pos_end - pos + 1);
+  }
+
+  return true;
+}
+
 namespace {
 const int MAXCHANNELS = 64;
 
@@ -238,12 +255,15 @@ int satimg::MITIFF_head_diana(const std::string& infile, dihead& ginfo)
     proj4 << " +lat_0=90";
     proj4 << " +R=6371000";
     proj4 << " +units=km";
-    proj4 << " +x_0=" << (ginfo.Bx * -1000.);
-    proj4 << " +y_0=" << (ginfo.By * -1000.) + (ginfo.Ay * ginfo.ysize * 1000.);
     ginfo.proj_string = proj4.str();
+    ginfo.By -= ginfo.Ay * ginfo.ysize;
+  } else {
+    double x_0, y_0;
+    if (proj4_value(ginfo.proj_string, "+x_0=", x_0, true))
+      ginfo.Bx = x_0 / -1000;
+    if (proj4_value(ginfo.proj_string, "+y_0=", y_0, true))
+      ginfo.By = y_0 / -1000;
   }
-
-  ginfo.Bx = ginfo.By = 0;
 
   return (pmi == 3) ? 2 : 0;
 }

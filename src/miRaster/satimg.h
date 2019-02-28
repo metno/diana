@@ -81,6 +81,8 @@ struct dihead
   float nodata;
 };
 
+bool proj4_value(std::string& proj4, const std::string& key, double& value, bool remove_key = false);
+
 int JulianDay(usi yy, usi mm, usi dd);
 
 int day_night(const std::string& infile);
