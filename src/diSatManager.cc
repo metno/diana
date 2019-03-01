@@ -780,7 +780,9 @@ void SatManager::addMosaicfiles(Sat* satdata)
 
     if (sd.area.nx!=satdata->area.nx || sd.area.ny!=satdata->area.ny
         || sd.Ax!=satdata->Ax || sd.Ay!=satdata->Ay
-        || sd.Bx!=satdata->Bx || sd.By!=satdata->By) {
+        || sd.Bx!=satdata->Bx || sd.By!=satdata->By
+        || sd.proj_string != satdata->proj_string)
+    {
       METLIBS_LOG_WARN("File "<<mosaicfiles[i].name <<" not added to mosaic, area not ok");
       continue;
     }
