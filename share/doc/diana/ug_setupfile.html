@@ -127,6 +127,8 @@
 	  <td>lists files or other sources for field data </td></tr>
 	 <tr><td><a href="#FIMEX_SETUP">FIMEX_SETUP</a></td>
 	  <td>options to fimexreader, for example reprojection of fields </td></tr>
+	<tr><td><a href="#OBSERVATION_PLOTTYPES">OBSERVATION_PLOTTYPES</a></td>
+	  <td>defines available plottypes </td></tr>
 	<tr><td><a href="#OBSERVATION_FILES">OBSERVATION_FILES</a></td>
 	  <td>defines available observations for plotting </td></tr>
 	<tr><td><a href="#OBSERVATION_PRIORITY_LISTS">OBSERVATION_PRIORITY_LISTS</a></td>
@@ -469,17 +471,41 @@ CLEAR_FILEGROUP
 
       <!-- PAGEBREAK -->
 
+    <a name="OBSERVATION_PLOTTYPES"></a><h3>Section OBSERVATION_PLOTTTYPES</h3>
+    defines the available plottypes.
+
+    <table border="1" cellpadding="1" cellspacing="0" >
+	<tr><td>Key</td><td>Value</td><td>Comment</td></tr>
+	<tr><td>type=</td><td>synop</td><td>Exception: Datatype ascii is not defined in setup, but in the ascii file </td></tr>
+	<tr><td>parameters=</td>
+	  <td>Wind,TTT,TdTdTd</td><td>List of parameters that will appear in the dialog </td>
+	</tr>
+	<tr><td>misc=</td><td>tempPrecision,unit_ms</td>
+	  <td>List of checkboxes that will appear in the dialog</td>
+	</tr>
+	<tr><td>vertical_levels=</td><td>700,850,925,1000</td>
+	  <td>Used for the pressure and ocean plottypes</td>
+	</tr>
+  	</tr>
+    </table>
+    <p>
+
+    <br>Example:
+    <pre>
+       type=pressure \
+       parameters=Pos,dd,ff,TTT,TdTdTd,PPPP,Id,Date,Time,HHH,QI,QI_NM,QI_RFF \
+       misc=markerboxVisible,asFieldButton,orientation,parameterName,criteria \
+       vertical_levels=10,30,50,70,100,150,200,250,300,400,500,700,850,925,1000
+    </pre>
+    <p>
+
     <a name="OBSERVATION_FILES"></a><h3>Section OBSERVATION_FILES</h3>
     defines available observations for plotting.
 
     <table border="1" cellpadding="1" cellspacing="0" >
 	<tr><td>Key</td><td>Value</td><td>Comment</td></tr>
-	<tr><td>PROD=</td><td>data type : name appearing in
-	menu</td><td></td></tr>
-	<tr><td>metnoobs=</td>
-	  <td>filename</td><td>met.no observation format, filename may
-	  include <a href="#TIME.INFO">time information</a></td>
-	</tr>
+	<tr><td>PROD=</td><td>plottype : name appearing in
+	dialog</td><td>Could be several plottypes for each datatype</td></tr>
 	<tr><td>bufr=</td><td>filename</td>
 	  <td>bufr format, filename may include <a href="#TIME.INFO">time
 	    information</a></td>
@@ -496,6 +522,8 @@ CLEAR_FILEGROUP
 	</tr>
 	<tr><td>timerange=</td><td>min,max</td>
 	  <td>Files include data from time range [time-min,time+max] (minutes)</td></tr>
+	<tr><td>synoptic=</td><td>true/false</td>
+	  <td>For synoptic data types, only one datafile will be read (synop, metar, temp)</td></tr>
 	<tr><td>current=</td><td>scale</td>
 	  <td>Plotting arrow with feathers, not wind. Scale = one
 	  full feather.</td></tr>
@@ -504,7 +532,8 @@ CLEAR_FILEGROUP
 
     <br>Example:
     <pre>
-     PROD=synop:Surf
+     PROD=synop:Synop
+     PROD=list:Synop
      bufr=/opdata/obs_dec/rdb/syno/surf[yyyymmddHH]*.bufr
      timerange=-30,30
     </pre>
