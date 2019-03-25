@@ -167,6 +167,26 @@ Date:d      Time:t:"some text"     Lon:lon     Lat:lat      RRR:r   Station:s   
 </pre>
 </td></tr></table>
 
+An simple example using DeltaTime in observation ascii file is given below, note that DeltaTime is computed by Diana every time the observation is plotted:
+
+<p>
+
+<table bgcolor="lightgrey" width="95%">
+<tr><td>
+<pre>
+[COLUMNS
+Date:d      Time:t:"some text"     Lon:lon     Lat:lat      RRR:r   Station:s   Icon:image DeltaTime]
+
+[DATA]
+2004-11-20  12:00:00               10.86     59.55        0.4      "Dear home" wbkz_green
+2004-11-20  12:11:00               10.51     59.89        0.1      Home        wbkz_red
+2004-11-20  12:15:00                9.99     59.19        6.3      Somewhere   wbkz_white
+  
+
+
+</pre>
+</td></tr></table>
+
 
 <h3>Header</h3>
 <table border="1" cellpadding="1" cellspacing="0" >

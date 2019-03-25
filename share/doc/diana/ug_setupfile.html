@@ -498,6 +498,20 @@ CLEAR_FILEGROUP
        vertical_levels=10,30,50,70,100,150,200,250,300,400,500,700,850,925,1000
     </pre>
     <p>
+    <p>
+
+    <br>Parameter DeltaTime:
+    <pre>
+       If you define a parameter called DeltaTime, in the ascii file header or in the setupfile under OBSERVATION_PLOTTYPES,
+       then the difference between nowTIme and obsTIme in seconds will bee computed and stored in DeltaTime,
+       if obsTIme is defined for the observation. DeltaTime vill be computed for every replot.  
+       example:
+       type=pressure \
+       parameters=Pos,dd,ff,TTT,TdTdTd,PPPP,Id,Date,Time,HHH,QI,QI_NM,QI_RFF,DeltaTime \
+       misc=markerboxVisible,asFieldButton,orientation,parameterName,criteria \
+       vertical_levels=10,30,50,70,100,150,200,250,300,400,500,700,850,925,1000
+    </pre>
+    <p>
 
     <a name="OBSERVATION_FILES"></a><h3>Section OBSERVATION_FILES</h3>
     defines available observations for plotting.
@@ -582,6 +596,22 @@ CLEAR_FILEGROUP
     TTT&gt;0   plot
     TTT&gt;10 $(0!;(Bred
     TTT&gt;20 $(0!;(Bred total
+    </pre>
+    <p>
+    <br>Example with DeltaTime:
+    <pre>
+    plottype=Ascii
+    name=Flashcolor_15min
+    Pk>0 x marker
+    Pk<=0 lyn marker
+    DeltaTime>0 0:255:0 total
+    DeltaTime>60 255:0:51 total
+    DeltaTime>120 255:0:153 total
+    DeltaTime>180 255:0:255 total
+    DeltaTime>240 253:0:255 total
+    DeltaTime>300 51:0:255 total
+    DeltaTime>600 0:0:204 total
+    DeltaTime>1200 0:0:102 total
     </pre>
     <p>
     <table border="1" cellpadding="1" cellspacing="0" >
