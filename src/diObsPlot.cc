@@ -3059,15 +3059,20 @@ void ObsPlot::checkGustTime(ObsData &dta)
 
 bool ObsPlot::updateDeltaTimes()
 {
-  if (!pFlag.count("DeltaTime")) {
-    return false;
-  }
-
   bool updated = false;
-  miutil::miTime nowTime = miutil::miTime::nowTime();
-  for (ObsData& dta : obsp) {
-    if (updateDeltaTime(dta, nowTime))
-      updated = true;
+  bool deltatime_found = false;
+  for (ObsDialogInfo::Par& par : vparam) {
+    if (par.name == "DeltaTime") {
+      deltatime_found = true;
+      break;
+    }
+  }
+  if (deltatime_found) {
+    miutil::miTime nowTime = miutil::miTime::nowTime();
+    for (ObsData& dta : obsp) {
+      if (updateDeltaTime(dta, nowTime))
+        updated = true;
+    }
   }
   return updated;
 }
