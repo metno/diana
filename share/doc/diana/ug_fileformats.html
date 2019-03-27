@@ -161,12 +161,23 @@ Date:d      Time:t:"some text"     Lon:lon     Lat:lat      RRR:r   Station:s   
 2004-11-20  12:00:00               10.86     59.55        0.4      "Dear home" wbkz_green
 2004-11-20  12:00:00               10.51     59.89        0.1      Home        wbkz_red
 2004-11-20  12:00:00                9.99     59.19        6.3      Somewhere   wbkz_white
-  
-
-
 </pre>
 </td></tr></table>
 
+<p>
+  <b> DeltaTime</b> - special parameter showing the difference between nowtime
+  and obstime. When adding DeltaTime in COLUMNS, DeltaTime will be calculated for every replot.
+<table bgcolor="lightgrey" width="95%">
+<tr><td>
+<pre>
+[COLUMNS
+Date:d      Time:t     Lon:lon     Lat:lat DeltaTime:r]
+
+[DATA]
+2004-11-20  12:00:00  10.86     59.55
+2004-11-20  12:10:00  10.51     59.89
+</pre>
+</td></tr></table>
 
 <h3>Header</h3>
 <table border="1" cellpadding="1" cellspacing="0" >
