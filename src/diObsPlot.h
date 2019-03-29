@@ -132,6 +132,7 @@ protected:
   std::map<std::string, std::vector<std::string> > popupSpec;
   bool firstplot;
   bool beendisabled; // obsplot was disabled while area changed
+  bool has_deltatime; // obsplot has the DeltaTime parameter
 
   // Criteria
   enum Sign {
