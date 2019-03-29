@@ -3070,8 +3070,8 @@ bool ObsPlot::updateDeltaTimes()
   if (has_deltatime) {
     miutil::miTime nowTime = miutil::miTime::nowTime();
     for (ObsData& dta : obsp) {
-    if (updateDeltaTime(dta, nowTime))
-      updated = true;
+      if (updateDeltaTime(dta, nowTime))
+        updated = true;
     }
   }
   return updated;
