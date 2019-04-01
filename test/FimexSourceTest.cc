@@ -12,8 +12,6 @@
 
 using namespace vcross;
 
-typedef boost::shared_ptr<FimexSource> FimexSource_p;
-
 static const char SIMRA_FILE[] = "simra_vc.nc";
 static const int SIMRA_N_CS = 2;
 static const int SIMRA_CS_LEN[SIMRA_N_CS] = { 64, 167 };
