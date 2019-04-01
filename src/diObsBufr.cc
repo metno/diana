@@ -38,12 +38,11 @@
 #include <puTools/miStringFunctions.h>
 #include <puTools/miTime.h>
 
-#include <boost/shared_array.hpp>
-
 #include <algorithm>
 #include <cstdio>
 #include <iomanip>
 #include <map>
+#include <memory>
 #include <sstream>
 
 #define MILOGGER_CATEGORY "diana.ObsBufr"
@@ -438,10 +437,10 @@ bool ObsBufr::BUFRdecode(int* ibuff, int ilen)
   const int kelem = 80000; //length of subsection
   const int kvals = 440000;
 
-  boost::shared_array<char> cnames(new char[kelem * len_cnames]);
-  boost::shared_array<char> cunits(new char[kelem * len_cunits]);
-  boost::shared_array<char> cvals (new char[kvals * len_cvals]);
-  boost::shared_array<double> values(new double[kvals]);
+  std::unique_ptr<char[]> cnames(new char[kelem * len_cnames]);
+  std::unique_ptr<char[]> cunits(new char[kelem * len_cunits]);
+  std::unique_ptr<char[]> cvals (new char[kvals * len_cvals]);
+  std::unique_ptr<double[]> values(new double[kvals]);
 
   int kkvals = kvals;
   int kxelem = std::min(kvals / ksup[5], kelem);
@@ -467,7 +466,7 @@ bool ObsBufr::BUFRdecode(int* ibuff, int ilen)
   // Return list of Data Descriptors from Section 3 of Bufr message, and
   // total/requested list of elements. BUFREX must have been called before BUSEL.
 
-  boost::shared_array<int> ktdlst(new int[kelem]), ktdexp(new int[kelem]);
+  std::unique_ptr<int[]> ktdlst(new int[kelem]), ktdexp(new int[kelem]);
   for (int i = 1; i < nsubset + 1; i++) {
     busel2_(&i, &kxelem, &ktdlen, ktdlst.get(), &ktdexl, ktdexp.get(), cnames.get(), cunits.get(), &kerr);
     if (kerr > 0) {
