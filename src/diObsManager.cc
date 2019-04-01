@@ -201,7 +201,7 @@ ObsDialogInfo ObsManager::initDialog()
 
       pother.misc =
           ObsDialogInfo::markerboxVisible | ObsDialogInfo::orientation | ObsDialogInfo::parameterName | ObsDialogInfo::popup | ObsDialogInfo::criteria;
-      pother.criteriaList = criteriaList[pother.name];
+      pother.criteriaList = criteriaList[pr.second.name];
       dialog.plottype.push_back(pother);
     }
   }
@@ -294,7 +294,7 @@ bool ObsManager::parseFilesSetup()
         sort_order++;
       }
       pip = &itp->second;
-
+      pip->name = plottype;
       pip->plottypes.insert(obsPlotTypeFromText(plottype));
     } else if (pip) {
       ObsReader_p& reader = pip->reader;

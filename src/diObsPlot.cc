@@ -214,6 +214,7 @@ ObsPlot::ObsPlot(const std::string& dn, ObsPlotType plottype)
   qualityFlag = false;
   wmoFlag = false;
   annotations = true;
+  has_deltatime = false;
 }
 
 ObsPlot::~ObsPlot()
@@ -570,6 +571,12 @@ void ObsPlot::setParameters(const std::vector<ObsDialogInfo::Par>& vp)
     return;
 
   vparam = vp;
+  for (ObsDialogInfo::Par& par : vparam) {
+    if (par.name == "DeltaTime") {
+      has_deltatime = true;
+      break;
+    }
+  }
 }
 
 bool ObsPlot::setData()
@@ -3059,15 +3066,13 @@ void ObsPlot::checkGustTime(ObsData &dta)
 
 bool ObsPlot::updateDeltaTimes()
 {
-  if (!pFlag.count("DeltaTime")) {
-    return false;
-  }
-
   bool updated = false;
-  miutil::miTime nowTime = miutil::miTime::nowTime();
-  for (ObsData& dta : obsp) {
-    if (updateDeltaTime(dta, nowTime))
-      updated = true;
+  if (has_deltatime) {
+    miutil::miTime nowTime = miutil::miTime::nowTime();
+    for (ObsData& dta : obsp) {
+      if (updateDeltaTime(dta, nowTime))
+        updated = true;
+    }
   }
   return updated;
 }
