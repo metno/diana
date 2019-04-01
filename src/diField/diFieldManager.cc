@@ -557,7 +557,7 @@ gridinventory::Grid FieldManager::getGrid(const std::string& modelName)
 {
   std::string reftime = getBestReferenceTime(modelName, 0, -1);
   gridinventory::Grid grid;
-  GridCollectionPtr pgc = getGridCollection(modelName, reftime, false);
+  GridCollectionPtr pgc = getGridCollection(modelName, reftime, false, false);
 
   if (pgc) {
     grid = pgc->getGrids();
@@ -578,7 +578,7 @@ plottimes_t FieldManager::getFieldTime(const std::vector<FieldRequest>& fieldreq
 
     METLIBS_LOG_DEBUG(LOGVAL(frq.modelName) << LOGVAL(frq.refTime) << LOGVAL(frq.paramName) << LOGVAL(frq.zaxis) << LOGVAL(frq.plevel));
 
-    GridCollectionPtr pgc = getGridCollection(frq.modelName, frq.refTime, updateSource);
+    GridCollectionPtr pgc = getGridCollection(frq.modelName, frq.refTime, false, false);
     if (pgc) {
 
       std::string refTimeStr = frq.refTime;
@@ -648,7 +648,7 @@ bool FieldManager::makeField(Field*& fout, FieldRequest frq)
     frq.refTime = getBestReferenceTime(frq.modelName, frq.refoffset, frq.refhour);
   }
 
-  GridCollectionPtr pgc = getGridCollection(frq.modelName, frq.refTime, false, frq.checkSourceChanged);
+  GridCollectionPtr pgc = getGridCollection(frq.modelName, frq.refTime, false, false);
   if (!pgc) {
     METLIBS_LOG_WARN("could not find grid collection for model=" << frq.modelName << " reftime=" << frq.refTime);
     return false;
