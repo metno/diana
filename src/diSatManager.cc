@@ -38,6 +38,7 @@
 #include "miSetupParser.h"
 #include "util/time_util.h"
 #include "util/was_enabled.h"
+#include "util/openmp_tools.h"
 
 #include <puTools/miStringFunctions.h>
 #include <puCtools/stat.h>
@@ -533,6 +534,7 @@ void SatManager::setPalette(Sat* satdata, SatFileInfo &fInfo)
       colmap[k][i]= satdata->paletteInfo.cmap[k][i];
 
   //convert image from palette to RGBA
+  DIUTIL_OPENMP_PARALLEL(nx*ny*3, for)
   for (int j=0; j<ny; j++) {
     for (int i=0; i<nx; i++) {
       int rawIndex = (int)satdata->rawimage[0][j*nx+i]; //raw image index
@@ -574,18 +576,22 @@ void SatManager::setRGB(Sat* satdata)
   } else {
     satdata->image = new unsigned char[size * 4];
     if (!satdata->rawimage[0]) {
-      for (int k = 0; k < 3; k++)
+      DIUTIL_OPENMP_PARALLEL(size*3, for)
+      for (int k = 0; k < 3; k++) {    
         for (int i = 0; i < size; i++)
           satdata->image[i * 4 + k] = 0;
+      }
       return;
     }
 
     // Start in lower left corner instead of upper left.
     // satdata->image = new unsigned char[size*4];
-    for (int k = 0; k < 3; k++)
+    DIUTIL_OPENMP_PARALLEL(nx*ny*3, for)
+    for (int k = 0; k < 3; k++) {
       for (int j = 0; j < ny; j++)
         for (int i = 0; i < nx; i++)
           satdata->image[(i + (ny - j - 1) * nx) * 4 + k] = satdata->rawimage[satdata->rgbindex[k]][j * nx + i];
+    }
   }
 
   const bool dorgb = (satdata->noimages() || satdata->rgboperchanged);
@@ -612,6 +618,7 @@ void SatManager::setRGB(Sat* satdata)
         }
       }
       // Put 1,2 or 3 different channels into satdata->image(RGBA).
+      DIUTIL_OPENMP_PARALLEL(size, for)
       for (int i = 0; i < size; i++) {
         satdata->image[i * 4 + 0] = colmap[0][(unsigned int)(satdata->image[i * 4])];
         satdata->image[i * 4 + 1] = colmap[1][(unsigned int)(satdata->image[i * 4 + 1])];
@@ -629,6 +636,7 @@ void SatManager::setRGB(Sat* satdata)
   if (doalpha) {
     // set alpha values according to wanted blending
     if (satdata->alphacut > 0) {
+      DIUTIL_OPENMP_PARALLEL(size, for)
       for (int i = 0; i < size; i++) {
         // cut on pixelvalue
         if ((int)satdata->image[i * 4] < satdata->alphacut)
@@ -639,6 +647,7 @@ void SatManager::setRGB(Sat* satdata)
       }
 
     } else {
+      DIUTIL_OPENMP_PARALLEL(size, for)
       for (int i = 0; i < size; i++) {
         // set alpha value to default or the one chosen in dialog
         satdata->image[i * 4 + 3] = (unsigned char)satdata->alpha;
@@ -661,7 +670,7 @@ void SatManager::calcRGBstrech(unsigned char *image, const int& size, const floa
       nindex[k][i]=0;
     }
   }
-
+  
   for (int i=0; i<size; i++) {
     for (int k=0; k<3; k++) {
       nindex[k][(int)image[4*i+k]]++;
