@@ -382,7 +382,7 @@ void FieldPlot::getTableAnnotations(vector<string>& annos)
           }
           float min = poptions.linevalues[ncodes - 1];
           ostringstream ostr;
-          ostr << ">" << min << unit;
+          ostr << "> " << min << unit;
           vtable[ncodes - 1].text = ostr.str();
         } else {
           for (size_t i = 0; i < ncodes; i++) {
@@ -410,7 +410,7 @@ void FieldPlot::getTableAnnotations(vector<string>& annos)
           }
           float min = vlog[ncodes - 1];
           ostringstream ostr;
-          ostr << ">" << min << unit;
+          ostr << "> " << min << unit;
           vtable[ncodes - 1].text = ostr.str();
         } else {
           for (size_t i = 0; i < ncodes; i++) {
@@ -421,11 +421,22 @@ void FieldPlot::getTableAnnotations(vector<string>& annos)
         }
 
       } else {
+        float max = poptions.base + poptions.lineinterval * (ncodes - 1);
+        if (max < poptions.maxvalue) {
+          ostringstream ostr;
+          ostr << "> " << max << unit;
+          vtable[ncodes + ncold - 1].text = ostr.str();
+        }
+        float min = poptions.base - poptions.lineinterval * (int(ncold) - 1);
+        if (min > poptions.minvalue) {
+          ostringstream ostr;
+          ostr << "< " << min << unit;
+          vtable[0].text = ostr.str();
+        }
 
         //cold colours
-        float max = poptions.base;
-        float min;
-        for (int i = ncold - 1; i > -1; i--) {
+        max = poptions.base;
+        for (int i = ncold - 1; i > 0; i--) {
           min = max - poptions.lineinterval;
           ostringstream ostr;
           if (fabs(min) < poptions.lineinterval / 10)
@@ -451,9 +462,15 @@ void FieldPlot::getTableAnnotations(vector<string>& annos)
           if (cmax + cmin > 2 * (min + step))
             min += step;
         } else {
-          min = poptions.base;
+          min = poptions.base + poptions.lineinterval;
         }
-        for (size_t i = ncold; i < ncodes + ncold; i++) {
+
+        size_t i = 1;
+        if (ncold > 0) {
+          i = ncold;
+          min -= poptions.lineinterval;
+        }
+        for (; i < ncodes + ncold - 1; i++) {
           max = min + poptions.lineinterval;
           ostringstream ostr;
           ostr << min << " - " << max << unit;
