@@ -209,7 +209,6 @@ struct Bdiana
   output_format_t output_format;
   std::string outputfilename; // except for graphics output
 
-  plot_type plottype; // current plot_type
   bool failOnMissingData;
   bool useArchive;
   bool time_union;
@@ -275,7 +274,6 @@ Bdiana::Bdiana()
     , setupread(false)
     , output_format(output_graphics)
     , outputfilename("tmp_diana.png")
-    , plottype(plot_none)
     , failOnMissingData(false)
     , useArchive(false)
     , time_union(false)
@@ -1065,6 +1063,7 @@ int Bdiana::handlePlotCommand(int& k)
 {
   // --- START PLOT ---
   const std::string command = miutil::to_lower(lines[k]);
+  plot_type plottype;
   if (command == com_plot) {
     plottype = plot_standard;
     if (verbose)
@@ -1084,6 +1083,9 @@ int Bdiana::handlePlotCommand(int& k)
     plottype = plot_spectrum;
     if (verbose)
       METLIBS_LOG_INFO("Preparing new spectrum-plot");
+  } else {
+    METLIBS_LOG_ERROR("Unknown plot type");
+    return 99;
   }
 
   if (output_format == output_shape && plottype != plot_standard) {
