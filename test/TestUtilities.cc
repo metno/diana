@@ -287,7 +287,7 @@ TEST(TestUtilities, GreatCircleDistance)
 TEST(TestUtilities, Execute)
 {
   QByteArray output;
-  EXPECT_EQ(1, diutil::execute("thIs_c0mm&_Is_unlIkely_t0_be_f0und_anywheRe", QStringList(), &output));
+  EXPECT_NE(0, diutil::execute("thIs_c0mm&_Is_unlIkely_t0_be_f0und_anywheRe", QStringList(), &output));
   EXPECT_TRUE(output.isEmpty());
 
   EXPECT_EQ(0, diutil::execute("true", QStringList(), &output));
