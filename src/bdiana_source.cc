@@ -72,6 +72,15 @@ miutil::miTime BdianaSource::getTime()
   return *times.rbegin();
 }
 
+bool BdianaSource::selectTime(const miutil::miTime& time)
+{
+  setTime(time);
+  if (time.undef())
+    return false;
+  const plottimes_t times = getTimes();
+  return (times.find(time) != times.end());
+}
+
 void BdianaSource::setTimeChoice(TimeChoice tc)
 {
   use_time_ = tc;

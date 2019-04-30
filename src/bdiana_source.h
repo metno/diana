@@ -52,6 +52,7 @@ public:
   virtual miutil::miTime getTime();
 
   virtual void setTime(const miutil::miTime& time) = 0;
+  virtual bool selectTime(const miutil::miTime& time);
 
   TimeChoice getTimeChoice() const { return use_time_; }
   virtual void setTimeChoice(TimeChoice tc);

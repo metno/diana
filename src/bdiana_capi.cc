@@ -163,6 +163,12 @@ enum plot_type {
   plot_spectrum = 4, // wave spectrum
 };
 
+enum command_result {
+  cmd_success = 0, //!< command succeeded
+  cmd_fail, //!< command failed, but bdiana should continue
+  cmd_abort //!< command failed, and bdiana should abort
+};
+
 /*
  key/value pairs from commandline-parameters
  */
@@ -241,11 +247,11 @@ struct Bdiana
                    vector<std::string>& final, // final setup
                    vector<int>& finallines);   // final list of linenumbers
 
-  int prepareInput(istream& is);
+  command_result prepareInput(istream& is);
   bool ensureSetup();
   void setTimeChoice(BdianaSource::TimeChoice tc);
   BdianaSource::TimeChoice getTimeChoice() const;
-  void set_ptime(BdianaSource& src);
+  bool set_ptime(BdianaSource& src);
   void createJsonAnnotation();
   std::vector<std::string> FIND_END_COMMAND(int& k, const std::string& end1, const std::string& end2, bool* found_end = 0);
   std::vector<std::string> FIND_END_COMMAND(int& k, const std::string& end, bool* found_end = 0);
@@ -253,20 +259,20 @@ struct Bdiana
   void handleVprofOpt(int& k);
   void handleVcrossOpt(int& k);
   void handleSpectrumOpt(int& k);
-  int handlePlotCommand(int& k);
-  int handleTimeCommand(int& k);
-  int handleLevelCommand(int& k);
-  int handleTimeVprofCommand(int& k);
-  int handleTimeSpectrumCommand(int& k);
-  int handleFieldFilesCommand(int& k);
-  int handleDescribeCommand(int& k);
-  int handleDescribeSpectrumCommand(int& k);
-  int handleBuffersize(int& k, const std::string& value);
-  int handleOutputCommand(int& k, const std::string& value);
-  int handleMultiplePlotsCommand(int& k, const std::string& value);
-  int handlePlotCellCommand(int& k, const std::string& value);
+  command_result handlePlotCommand(int& k);
+  command_result handleTimeCommand(int& k);
+  command_result handleLevelCommand(int& k);
+  command_result handleTimeVprofCommand(int& k);
+  command_result handleTimeSpectrumCommand(int& k);
+  command_result handleFieldFilesCommand(int& k);
+  command_result handleDescribeCommand(int& k);
+  command_result handleDescribeSpectrumCommand(int& k);
+  command_result handleBuffersize(int& k, const std::string& value);
+  command_result handleOutputCommand(int& k, const std::string& value);
+  command_result handleMultiplePlotsCommand(int& k, const std::string& value);
+  command_result handlePlotCellCommand(int& k, const std::string& value);
 
-  int parseAndProcess(istream& is);
+  command_result parseAndProcess(istream& is);
 };
 
 Bdiana::Bdiana()
@@ -477,7 +483,7 @@ void Bdiana::unpackinput(vector<std::string>& orig,  // original setup
   }
 }
 
-int Bdiana::prepareInput(istream& is)
+command_result Bdiana::prepareInput(istream& is)
 {
   vector<std::string> tmplines;
   vector<int> tmplinenumbers;
@@ -514,7 +520,7 @@ int Bdiana::prepareInput(istream& is)
     for (const keyvalue& kv : keys)
       miutil::replace(line, "$" + kv.key, kv.value);
   }
-  return 0;
+  return cmd_success;
 }
 
 /*
@@ -882,7 +888,7 @@ BdianaSource::TimeChoice Bdiana::getTimeChoice() const
   return main.getTimeChoice();
 }
 
-void Bdiana::set_ptime(BdianaSource& src)
+bool Bdiana::set_ptime(BdianaSource& src)
 {
   if (commandline_time_enabled) {
     fixedtime = commandline_time;
@@ -899,7 +905,10 @@ void Bdiana::set_ptime(BdianaSource& src)
   }
   if (verbose)
     METLIBS_LOG_INFO("- using time: " << format_time(ptime));
-  src.setTime(ptime);
+  const bool found = src.selectTime(ptime);
+  if (!found)
+    METLIBS_LOG_WARN("- time not found: " << format_time(ptime));
+  return found;
 }
 
 void Bdiana::createJsonAnnotation()
@@ -1059,7 +1068,7 @@ void Bdiana::handleSpectrumOpt(int& k)
   wavespec.set_options(pcom);
 }
 
-int Bdiana::handlePlotCommand(int& k)
+command_result Bdiana::handlePlotCommand(int& k)
 {
   // --- START PLOT ---
   const std::string command = miutil::to_lower(lines[k]);
@@ -1085,17 +1094,17 @@ int Bdiana::handlePlotCommand(int& k)
       METLIBS_LOG_INFO("Preparing new spectrum-plot");
   } else {
     METLIBS_LOG_ERROR("Unknown plot type");
-    return 99;
+    return cmd_abort;
   }
 
   if (output_format == output_shape && plottype != plot_standard) {
     METLIBS_LOG_ERROR("ERROR, you can only use plottype STANDARD when using shape option"
         << "..Exiting..");
-    return 1;
+    return cmd_abort;
   }
 
   if (!ensureSetup())
-    return 99;
+    return cmd_abort;
 
   std::vector<std::string> pcom = FIND_END_COMMAND(k, com_endplot, com_plotend);
   if (output_format == output_shape) {
@@ -1109,7 +1118,7 @@ int Bdiana::handlePlotCommand(int& k)
           line += " shapefile=1";
       } else {
         METLIBS_LOG_ERROR("Error, Shape option cannot be used for OBS/OBJECTS/SAT/TRAJECTORY/EDITFIELD.. exiting");
-        return 1;
+        return cmd_abort;
       }
     }
   }
@@ -1121,7 +1130,7 @@ int Bdiana::handlePlotCommand(int& k)
     // -- normal plot
 
     if (not main.MAKE_CONTROLLER())
-      return 99;
+      return cmd_abort;
 
     vector<std::string> field_errors;
     if (!main.controller->updateFieldFileSetup(main.extra_field_lines, field_errors)) {
@@ -1143,14 +1152,14 @@ int Bdiana::handlePlotCommand(int& k)
     main.controller->setPlotTime(thetime);
     main.commands(pcom);
 
-    set_ptime(main);
+    if (!set_ptime(main))
+      return cmd_fail;
 
     if (verbose)
       METLIBS_LOG_INFO("- updatePlots");
     if (!main.controller->updatePlots() && failOnMissingData) {
       METLIBS_LOG_WARN("Failed to update plots.");
-      go.endOutput();
-      return 99;
+      return cmd_abort;
     }
     METLIBS_LOG_INFO("map area = " << main.controller->getMapArea());
 
@@ -1200,7 +1209,8 @@ int Bdiana::handlePlotCommand(int& k)
       METLIBS_LOG_INFO("- sending vcross plot commands");
     vc.commands(pcom);
 
-    set_ptime(vc);
+    if (!set_ptime(vc))
+      return cmd_fail;
 
     expandTime(outputfilename, ptime);
     go.setOutputFile(outputfilename);
@@ -1217,7 +1227,8 @@ int Bdiana::handlePlotCommand(int& k)
       METLIBS_LOG_INFO("- sending plotCommands");
     vprof.commands(pcom);
 
-    set_ptime(vprof);
+    if (!set_ptime(vprof))
+      return cmd_fail;
 
     expandTime(outputfilename, ptime);
     go.setOutputFile(outputfilename);
@@ -1226,7 +1237,7 @@ int Bdiana::handlePlotCommand(int& k)
       METLIBS_LOG_INFO("- plot");
     if (!go.render(vprof) && failOnMissingData) {
       METLIBS_LOG_WARN("Failed to plot vprofdata.");
-      return 99;
+      return cmd_abort;
     }
 
     // --------------------------------------------------------
@@ -1235,7 +1246,8 @@ int Bdiana::handlePlotCommand(int& k)
     wavespec.MAKE_SPECTRUM();
     wavespec.set_spectrum(pcom);
 
-    set_ptime(wavespec);
+    if (!set_ptime(wavespec))
+      return cmd_fail;
 
     wavespec.set_station();
 
@@ -1286,16 +1298,16 @@ int Bdiana::handlePlotCommand(int& k)
       outputFile.close();
     }
   }
-  return 0;
+  return cmd_success;
 }
 
-int Bdiana::handleTimeCommand(int& k)
+command_result Bdiana::handleTimeCommand(int& k)
 {
   if (!ensureSetup())
-    return 99;
+    return cmd_abort;
 
-  if (not main.MAKE_CONTROLLER())
-    return 99;
+  if (!main.MAKE_CONTROLLER())
+    return cmd_abort;
 
   if (verbose)
     METLIBS_LOG_INFO("- finding times");
@@ -1307,20 +1319,20 @@ int Bdiana::handleTimeCommand(int& k)
   ofstream file(outputfilename.c_str());
   if (!file) {
     METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << outputfilename << "'");
-    return 1;
+    return cmd_abort;
   }
   file << "PROG" << endl;
   writeTimes(file, okTimes);
-  return 0;
+  return cmd_success;
 }
 
-int Bdiana::handleLevelCommand(int& k)
+command_result Bdiana::handleLevelCommand(int& k)
 {
   if (!ensureSetup())
-    return 99;
+    return cmd_abort;
 
-  if (not main.MAKE_CONTROLLER())
-    return 99;
+  if (! main.MAKE_CONTROLLER())
+    return cmd_abort;
 
   if (verbose)
     METLIBS_LOG_INFO("- finding levels");
@@ -1330,7 +1342,7 @@ int Bdiana::handleLevelCommand(int& k)
   ofstream file(outputfilename.c_str());
   if (!file) {
     METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << outputfilename << "'");
-    return 1;
+    return cmd_abort;
   }
 
   for (const std::string& pcs : pcom) {
@@ -1339,10 +1351,10 @@ int Bdiana::handleLevelCommand(int& k)
     file << endl;
   }
 
-  return 0;
+  return cmd_success;
 }
 
-int Bdiana::handleTimeVprofCommand(int& k)
+command_result Bdiana::handleTimeVprofCommand(int& k)
 {
   if (verbose)
     METLIBS_LOG_INFO("- finding times");
@@ -1353,18 +1365,18 @@ int Bdiana::handleTimeVprofCommand(int& k)
   ofstream file(outputfilename.c_str());
   if (!file) {
     METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << outputfilename << "'");
-    return 1;
+    return cmd_abort;
   }
   file << "PROG" << endl;
   writeTimes(file, vprof.manager->getTimeList());
-  return 0;
+  return cmd_success;
 }
 
-int Bdiana::handleTimeSpectrumCommand(int& k)
+command_result Bdiana::handleTimeSpectrumCommand(int& k)
 {
   // read setup
   if (!ensureSetup())
-    return 99;
+    return cmd_abort;
 
   if (verbose)
     METLIBS_LOG_INFO("- finding times");
@@ -1379,29 +1391,29 @@ int Bdiana::handleTimeSpectrumCommand(int& k)
   ofstream file(outputfilename.c_str());
   if (!file) {
     METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << outputfilename << "'");
-    return 1;
+    return cmd_abort;
   }
   file << "PROG" << endl;
   writeTimes(file, wavespec.manager->getTimeList());
 
   file << "CONST" << endl;
   /* writeTimes(file, constTimes); */
-  return 0;
+  return cmd_success;
 }
 
-int Bdiana::handleFieldFilesCommand(int& k)
+command_result Bdiana::handleFieldFilesCommand(int& k)
 {
   bool found_end = false;
   const std::vector<std::string> pcom = FIND_END_COMMAND(k, com_field_files_end, &found_end);
   if (!found_end) {
     METLIBS_LOG_ERROR("no " << com_field_files_end << " found:" << lines[k] << " Linenumber:" << linenumbers[k]);
-    return 1;
+    return cmd_abort;
   }
   diutil::insert_all(main.extra_field_lines, pcom);
-  return 0;
+  return cmd_success;
 }
 
-int Bdiana::handleDescribeCommand(int& k)
+command_result Bdiana::handleDescribeCommand(int& k)
 {
   if (verbose)
     METLIBS_LOG_INFO("- finding information about data sources");
@@ -1410,11 +1422,12 @@ int Bdiana::handleDescribeCommand(int& k)
   std::vector<std::string> pcom = FIND_END_COMMAND(k, com_describe_end);
 
   if (not main.MAKE_CONTROLLER())
-    return 99;
+    return cmd_abort;
 
   main.commands(pcom);
 
-  set_ptime(main);
+  if (!set_ptime(main))
+    return cmd_fail;
 
   if (verbose)
     METLIBS_LOG_INFO("- updatePlots");
@@ -1428,7 +1441,7 @@ int Bdiana::handleDescribeCommand(int& k)
     ofstream file(outputfilename.c_str());
     if (!file) {
       METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << outputfilename << "'");
-      return 1;
+      return cmd_abort;
     }
 
     const SatManager::Prod_t& satProducts = main.controller->getSatelliteManager()->getProductsInfo();
@@ -1456,13 +1469,11 @@ int Bdiana::handleDescribeCommand(int& k)
       file << p << endl;
     for (const std::string& p : satPatterns)
       file << p << endl;
-
-    file.close();
   }
-  return 0;
+  return cmd_abort;
 }
 
-int Bdiana::handleDescribeSpectrumCommand(int& k)
+command_result Bdiana::handleDescribeSpectrumCommand(int& k)
 {
   if (verbose)
     METLIBS_LOG_INFO("- finding information about data sources");
@@ -1470,7 +1481,9 @@ int Bdiana::handleDescribeSpectrumCommand(int& k)
   wavespec.MAKE_SPECTRUM();
   wavespec.set_spectrum(FIND_END_COMMAND(k, com_describe_end));
 
-  set_ptime(wavespec);
+  if (!set_ptime(wavespec))
+    return cmd_fail;
+
   wavespec.set_station();
 
   if (verbose)
@@ -1480,30 +1493,30 @@ int Bdiana::handleDescribeSpectrumCommand(int& k)
   ofstream file(outputfilename.c_str());
   if (!file) {
     METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << outputfilename << "'");
-    return 1;
+    return cmd_abort;
   }
 
   file << "FILES" << endl;
   for (const std::string& f : wavespec.manager->getModelFiles())
     file << f << endl;
 
-  return 0;
+  return cmd_success;
 }
 
-int Bdiana::handleBuffersize(int& k, const std::string& value)
+command_result Bdiana::handleBuffersize(int& k, const std::string& value)
 {
   const std::vector<std::string> vvs = miutil::split(value, "x");
   if (vvs.size() < 2) {
     METLIBS_LOG_ERROR("ERROR, buffersize should be WxH:" << lines[k]
         << " Linenumber:" << linenumbers[k]);
-    return 1;
+    return cmd_abort;
   }
   const int w = miutil::to_int(vvs[0]);
   const int h = miutil::to_int(vvs[1]);
-  return go.setBufferSize(w, h) ? 0 : 1;
+  return go.setBufferSize(w, h) ? cmd_success : cmd_abort;
 }
 
-int Bdiana::handleOutputCommand(int& k, const std::string& value)
+command_result Bdiana::handleOutputCommand(int& k, const std::string& value)
 {
   const std::string lvalue = miutil::to_lower(value);
   output_format = output_graphics;
@@ -1533,13 +1546,13 @@ int Bdiana::handleOutputCommand(int& k, const std::string& value)
     outputTextMapOrder.clear();
   } else {
     METLIBS_LOG_ERROR("ERROR, unknown output-format:" << lines[k] << " Linenumber:" << linenumbers[k]);
-    return 1;
+    return cmd_abort;
   }
 
-  return 0;
+  return cmd_success;
 }
 
-int Bdiana::handleMultiplePlotsCommand(int& k, const std::string& value)
+command_result Bdiana::handleMultiplePlotsCommand(int& k, const std::string& value)
 {
   if (miutil::to_lower(value) == "off") {
     go.disableMultiPlot();
@@ -1548,7 +1561,7 @@ int Bdiana::handleMultiplePlotsCommand(int& k, const std::string& value)
     const vector<std::string> v1 = miutil::split(value, ",");
     if (v1.size() < 2) {
       METLIBS_LOG_WARN("WARNING, illegal values to multiple.plots:" << lines[k] << " Linenumber:" << linenumbers[k]);
-      return 1;
+      return cmd_abort;
     }
     const int rows = miutil::to_int(v1[0]);
     const int cols = miutil::to_int(v1[1]);
@@ -1561,30 +1574,30 @@ int Bdiana::handleMultiplePlotsCommand(int& k, const std::string& value)
     go.enableMultiPlot(rows, cols, fspacing, fmargin);
   }
 
-  return 0;
+  return cmd_success;
 }
 
-int Bdiana::handlePlotCellCommand(int& k, const std::string& value)
+command_result Bdiana::handlePlotCellCommand(int& k, const std::string& value)
 {
   vector<std::string> v1 = miutil::split(value, ",");
   if (v1.size() != 2) {
     METLIBS_LOG_WARN("WARNING, illegal values to plotcell:" << lines[k] << " Linenumber:" << linenumbers[k]);
-    return 1;
+    return cmd_abort;
   }
   const int row = miutil::to_int(v1[0]);
   const int col = miutil::to_int(v1[1]);
   if (!go.setPlotCell(row, col)) {
     METLIBS_LOG_WARN("WARNING, illegal values to plotcell:" << lines[k] << " Linenumber:" << linenumbers[k]);
-    return 1;
+    return cmd_abort;
   }
-  return 0;
+  return cmd_success;
 }
 
-int Bdiana::parseAndProcess(istream& is)
+command_result Bdiana::parseAndProcess(istream& is)
 {
   // unpack loops, make lists, merge lines etc.
-  int res = prepareInput(is);
-  if (res != 0)
+  command_result res = prepareInput(is);
+  if (res == cmd_abort)
     return res;
 
   const int linenum = lines.size();
@@ -1606,49 +1619,49 @@ int Bdiana::parseAndProcess(istream& is)
       continue;
 
     } else if (command == com_plot || command == com_vcross_plot || command == com_vprof_plot || command == com_spectrum_plot) {
-      if (handlePlotCommand(k))
-        return 99;
+      if (handlePlotCommand(k) == cmd_abort)
+        return cmd_abort;
       continue;
 
     } else if (command == com_time) {
-      if (handleTimeCommand(k))
-        return 99;
+      if (handleTimeCommand(k) == cmd_abort)
+        return cmd_abort;
       continue;
 
     } else if (command == com_time_vprof) {
-      if (handleTimeVprofCommand(k))
-        return 99;
+      if (handleTimeVprofCommand(k) == cmd_abort)
+        return cmd_abort;
       continue;
 
     } else if (command == com_time_spectrum) {
-      if (handleTimeSpectrumCommand(k) != 0)
-        return 99;
+      if (handleTimeSpectrumCommand(k) == cmd_abort)
+        return cmd_abort;
       continue;
 
     } else if (command == com_level) {
-      if (handleLevelCommand(k))
-        return 99;
+      if (handleLevelCommand(k) == cmd_abort)
+        return cmd_abort;
       continue;
 
     } else if (command == com_field_files) {
 
-      if (handleFieldFilesCommand(k) != 0)
-        return 99;
+      if (handleFieldFilesCommand(k) == cmd_abort)
+        return cmd_abort;
       continue;
 
     } else if (command == com_describe) {
-      if (handleDescribeCommand(k) != 0)
-        return 99;
+      if (handleDescribeCommand(k) == cmd_abort)
+        return cmd_abort;
       continue;
 
     } else if (command == com_describe_spectrum) {
-      if (handleDescribeSpectrumCommand(k) != 0)
-        return 99;
+      if (handleDescribeSpectrumCommand(k) == cmd_abort)
+        return cmd_abort;
       continue;
 
     } else if (command == com_print_document) {
       METLIBS_LOG_ERROR("the bdiana command '" << command << "' is not valid any more");
-      return 99;
+      return cmd_abort;
 
     } else if (command == com_field_files_end || command == com_describe_end) {
       METLIBS_LOG_ERROR("WARNING, " << command << " found:" << lines[k] << " Linenumber:" << linenumbers[k]);
@@ -1662,7 +1675,7 @@ int Bdiana::parseAndProcess(istream& is)
     if (nv < 2) {
       METLIBS_LOG_ERROR("ERROR, unknown command:" << lines[k] << " Linenumber:"
              << linenumbers[k]);
-      return 1;
+      return cmd_abort;
     }
     std::string key = miutil::to_lower(vs[0]);
     int ieq = lines[k].find_first_of("=");
@@ -1676,12 +1689,12 @@ int Bdiana::parseAndProcess(istream& is)
       } else {
         setupfile = value;
         if (!ensureSetup())
-          return 99;
+          return cmd_abort;
       }
 
     } else if (key == com_buffersize) {
-      if (handleBuffersize(k, value))
-        return 99;
+      if (handleBuffersize(k, value) == cmd_abort)
+        return cmd_abort;
 
     } else if (key == com_papersize || key == com_toprinter || key == com_printer || key == com_colour || key == com_drawbackground || key == com_orientation ||
                key == com_antialiasing) {
@@ -1691,13 +1704,13 @@ int Bdiana::parseAndProcess(istream& is)
       if (value.empty()) {
         METLIBS_LOG_ERROR("ERROR, illegal filename in:" << lines[k] << " Linenumber:"
                << linenumbers[k]);
-        return 1;
+        return cmd_abort;
       } else
         outputfilename = value;
 
     } else if (key == com_output) {
-      if (handleOutputCommand(k, value))
-        return 99;
+      if (handleOutputCommand(k, value) == cmd_abort)
+        return cmd_abort;
 
     } else if (key == com_addhour) {
       addhour=atoi(value.c_str());
@@ -1739,12 +1752,12 @@ int Bdiana::parseAndProcess(istream& is)
       failOnMissingData = (miutil::to_lower(value) == "yes");
 
     } else if (key == com_multiple_plots) {
-      if (handleMultiplePlotsCommand(k, value))
-        return 99;
+      if (handleMultiplePlotsCommand(k, value) == cmd_abort)
+        return cmd_abort;
 
     } else if (key == com_plotcell) {
-      if (handlePlotCellCommand(k, value))
-        return 99;
+      if (handlePlotCellCommand(k, value) == cmd_abort)
+        return cmd_abort;
 
     } else if (key == com_trajectory) {
       if (miutil::to_lower(value) == "on") {
@@ -1772,7 +1785,7 @@ int Bdiana::parseAndProcess(istream& is)
     }
   }
 
-  return 0;
+  return cmd_success;
 }
 
 static std::unique_ptr<Bdiana> bdiana_instance;
@@ -1810,7 +1823,7 @@ int diana_parseAndProcessString(const char* string)
   stringstream ss;
   ss << string;
   METLIBS_LOG_INFO("start processing");
-  if (bdiana()->parseAndProcess(ss) == 0)
+  if (bdiana()->parseAndProcess(ss) == cmd_success)
     return DIANA_OK;
   else
     return DIANA_ERROR;
@@ -1989,8 +2002,8 @@ int diana_init(int _argc, char** _argv)
         METLIBS_LOG_ERROR("ERROR, cannot open inputfile " << batchinput);
       return 99;
     }
-    int res = bdiana()->parseAndProcess(is);
-    if (res != 0)
+    command_result res = bdiana()->parseAndProcess(is);
+    if (res != cmd_success)
       return 99;
   }
 
