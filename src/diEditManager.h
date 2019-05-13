@@ -115,10 +115,7 @@ private:
 
   void cleanCombineData(bool cleanData);
 
-  void findSavedProducts(std::vector<savedProduct>& prods,
-			 const std::string fileString,
-			 bool localSource, int element,
-			 int autoremove=-1);
+  void findSavedProducts(std::vector<savedProduct>& prods, const std::string fileString, bool localSource, int element);
 
   std::vector<std::string> findAcceptedCombine(int ibegin, int iend,
 				       const EditProduct& ep,
@@ -187,6 +184,9 @@ public:
   void saveProductLabels(const PlotCommand_cpv& labels);
   bool fileExists(const EditProduct& ep, const EditProductId& ci, const miutil::miTime& time, QString& message);
   bool makeNewFile(int fnum, bool local, QString& message);
+  /// remove old files
+  void removeEditFiles(const EditProduct& ep);
+  void removeFiles(const std::string& fileString, int autoremove);
   /// start editing product
   bool startEdit(const EditProduct& ep,
 		 const EditProductId& ei,
