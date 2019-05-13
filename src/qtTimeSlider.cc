@@ -118,74 +118,65 @@ void TimeSlider::setLoop(bool b)
 
 bool TimeSlider::nextTime(const int dir, miutil::miTime& time)
 {
-  int v= value();
-  int n= times.size();
-  if (n==0 || v>=n)
+  if (dir == 0)
     return false;
 
-  // start-stop indices
-  int i1= 0, i2= n-1;
-
-  if (v == i2)
-    Q_EMIT lastStep();
-
-  if (!loop && !startani) {
-    if (dir>0 && v==i2)
+  {
+    const int v = value(), n = times.size();
+    if (n == 0 || v < 0 || v >= n)
       return false;
-    if (dir<0 && v==i1)
+    if (v == n - 1)
+      Q_EMIT lastStep(); // might change 'times'
+  }
+
+  const int n = times.size(), last = n - 1;
+  int v = value();
+  if (n == 0 || v < 0 || v >= n) // check again, 'times' might have changed
+    return false;
+
+  const bool wrap = loop || startani;
+  if (!wrap) {
+    if (dir > 0 && v == last)
+      return false;
+    if (dir < 0 && v == 0)
       return false;
   }
 
   const miutil::miTime& current = times[v];
-  miutil::miTime t = current;
-  t.addMin(int(dir*interval*60));
-
-  if (dir>0){
-    // if interval==0: pick next time
-    if (t==current) {
-      if (v<i2)
-        time= times[v+1];
-      else if (loop || startani)
-        time= times[i1];
-      else return false;
-      // interval!=0
-    } else {
-      while (t>times[v] && v<i2)
+  if (interval == 0) {
+    if (dir > 0) {
+      if (v < last)
+        v += 1;
+      else if (wrap)
+        v = 0;
+      else
+        return false;
+    } else { // dir < 0
+      if (v > 0)
+        v -= 1;
+      else if (wrap)
+        v = last;
+      else
+        return false;
+    }
+  } else {
+    miutil::miTime t = current;
+    t.addMin(int(dir * interval * 60));
+    if (dir > 0) {
+      while (t > times[v] && v < last)
         v++;
-      if (t>times[v]) {
-        if (loop || startani)
-          v = i1;
-        else
-          v = i2;
-      }
-      time= times[v];
-    }
-
-    // backwards timestep
-  } else if (dir<0) {
-    // if interval==0: pick previous time
-    if (t==current) {
-      if (v>i1)
-	time= times[v-1];
-      else if (loop || startani)
-	time= times[i2];
-      else return false;
-      // interval!=0
-    } else {
-      while (t<times[v] && v>i1)
+      if (wrap && t > times[v])
+        v = 0;
+    } else { // dir < 0
+      while (t < times[v] && v > 0)
         v--;
-      if (t<times[v]) {
-        if (loop || startani)
-          v = i2;
-        else
-          v = i1;
-      }
-      time= times[v];
+      if (wrap && t < times[v])
+        v = last;
     }
-  } else
-    time= current;
+  }
 
-  startani= false;
+  startani = false;
+  time = times[v];
   return time != current;
 }
 
