@@ -55,7 +55,6 @@
 #include <fimex/coordSys/verticalTransform/ToVLevelConverter.h>
 #include <fimex/Units.h>
 
-#include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -332,6 +331,21 @@ void addTimeAxis(CoordinateSystem::ConstAxisPtr tAxis,
   reftime.taxes.insert(taxis);
   inventory.reftimes[reftime.referencetime] = reftime;
 }
+
+typedef std::map<std::string, std::string> reproj_config_t;
+
+const std::string& get_string(const reproj_config_t& rc, const std::string& key)
+{
+  reproj_config_t::const_iterator it = rc.find(key);
+  static const std::string EMPTY;
+  return it != rc.end() ? it->second : EMPTY;
+}
+
+float get_float(const reproj_config_t& rc, const std::string& key)
+{
+  return atof(get_string(rc, key).c_str());
+}
+
 } // namespace anonymous
 
 FimexIO::CDMReaderPtr FimexIO::createReader()
@@ -367,30 +381,31 @@ FimexIO::CDMReaderPtr FimexIO::createReader()
 
     if (!reproj_name.empty()) {
       // get the reprojection data from optionMap
-      std::map<std::string, std::map<std::string, std::string> >::iterator reproj_data_it = setup->optionMap.find(reproj_name);
+      const auto reproj_data_it = setup->optionMap.find(reproj_name);
       if (reproj_data_it != setup->optionMap.end()) {
-        std::map<std::string, std::string> reproj_data = reproj_data_it->second;
+        const std::map<std::string, std::string>& reproj_data = reproj_data_it->second;
         // Valid keys name, type, projString, xAxisValues, yAxisValues, xAxisUnit, yAxisUnit,
         // method = nearestneighbor, bilinear,bicubic, forward_max, forward_min, forward_mean, forward_median, forward_sum, coord_nearestneighbor, coord_kdtree
-        if (reproj_data["type"] == REPROJECTION) {
+        if (get_string(reproj_data, "type") == REPROJECTION) {
           boost::shared_ptr<CDMInterpolator> interpolator( new CDMInterpolator(feltReader) );
-          int method = mifi_string_to_interpolation_method( reproj_data["method"].c_str() );
+          int method = mifi_string_to_interpolation_method(get_string(reproj_data, "method").c_str());
           if ( method == MIFI_INTERPOL_UNKNOWN ) {
             /* Parse error, log and use default interpolation type.*/
-            METLIBS_LOG_WARN("Invalid interpolation type in setup file: " << reproj_data["method"]);
+            METLIBS_LOG_WARN("Invalid interpolation type in setup file: " << get_string(reproj_data, "method"));
             METLIBS_LOG_WARN("Using default interpolation type: MIFI_INTERPOL_NEAREST_NEIGHBOR");
             method = MIFI_INTERPOL_NEAREST_NEIGHBOR;
           }
-          interpolator->changeProjection(method, reproj_data["projString"], reproj_data["xAxisValues"], reproj_data["yAxisValues"],
-              reproj_data["xAxisUnit"], reproj_data["yAxisUnit"]);
-          return boost::shared_ptr<CDMReader>(interpolator);
-        } else if (reproj_data["type"] == EXTRACT) {
+          interpolator->changeProjection(method, get_string(reproj_data, "projString"),
+                                         get_string(reproj_data, "xAxisValues"), get_string(reproj_data, "yAxisValues"),
+                                         get_string(reproj_data, "xAxisUnit"), get_string(reproj_data, "yAxisUnit"));
+          return interpolator;
+        } else if (get_string(reproj_data, "type") == EXTRACT) {
             boost::shared_ptr<CDMExtractor> extractor( new CDMExtractor(feltReader) );
-            extractor->reduceLatLonBoundingBox(atof(reproj_data["south"].c_str()),atof(reproj_data["north"].c_str()),
-            atof(reproj_data["west"].c_str()),atof(reproj_data["east"].c_str()));
-            return boost::shared_ptr<CDMReader>(extractor);
+            extractor->reduceLatLonBoundingBox(get_float(reproj_data, "south"), get_float(reproj_data, "north"),
+                                               get_float(reproj_data, "west"), get_float(reproj_data, "east"));
+            return extractor;
         } else {
-          METLIBS_LOG_WARN("Invalid option type in FimexIO::createReader: " << reproj_data["type"]);
+          METLIBS_LOG_WARN("Invalid option type in FimexIO::createReader: " << get_string(reproj_data, "type"));
         }
       } else {
         METLIBS_LOG_WARN("reprojection data not found in FimexIO::createReader: " << reproj_name);
