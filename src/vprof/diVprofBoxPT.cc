@@ -32,11 +32,13 @@
 #include "diVprofBoxPT.h"
 
 #include "diField/VcrossUtil.h"
-#include "diField/diMetConstants.h"
 #include "diVprofAxesPT.h"
 #include "diVprofOptions.h"
 #include "diVprofPainter.h"
 #include "diVprofUtils.h"
+
+#include <mi_fieldcalc/MetConstants.h>
+#include <mi_fieldcalc/math_util.h>
 
 #include <iomanip>
 #include <sstream>
@@ -57,7 +59,7 @@ const float DEG_TO_RAD = M_PI / 180;
  */
 float mixingRatioT(float qsat, float p)
 {
-  using namespace MetNo::Constants;
+  using namespace miutil::constants;
   const float esat = qsat * p / eps;
   int n = 1;
   while (ewt[n] < esat && n < N_EWT - 1)
@@ -100,7 +102,7 @@ vprof::PointF_v mixingRatioLine(float qsat, float pmin, float pmax, float pstep,
 // TODO this is almost the same code as FieldCalculations showalterIndex
 float iterateWetAdiabat(float pa, float ta_celsius, float pb)
 {
-  using namespace MetNo::Constants;
+  using namespace miutil::constants;
 
   const ewt_calculator ewt(ta_celsius);
   float esat = (ewt.defined()) ? ewt.value() : 0;
@@ -493,14 +495,14 @@ void VprofBoxPT::updateLayout()
 
   if (plabelq && pmixingratio) {
     // space for mixing ratio labels
-    vcross::util::maximize(margin.y1, vprof::chybas * 0.8 * 1.5);
+    miutil::maximize(margin.y1, vprof::chybas * 0.8 * 1.5);
   }
 }
 
 void VprofBoxPT::configureXAxisLabelSpace()
 {
   if (x_ticks_showtext_ && x_grid_) {
-    using vcross::util::maximize;
+    using miutil::maximize;
     if (useTiltedTemperatureLabels()) {
       float sintan = sinf(tangle_ * DEG_TO_RAD);
       float costan = cosf(tangle_ * DEG_TO_RAD);
@@ -538,7 +540,7 @@ void VprofBoxPT::plotXAxisGrid(VprofPainter* p)
   vcross::detail::AxisCPtr axis_z = axes->z;
 
   // min,max temperature on diagram
-  const float tmin = std::max(-MetNo::Constants::t0, axes->paint2value(PointF(area.x1, area.y2)).x());
+  const float tmin = std::max(-miutil::constants::t0, axes->paint2value(PointF(area.x1, area.y2)).x());
   const float tmax = axes->paint2value(PointF(area.x2, area.y1)).x();
   METLIBS_LOG_DEBUG(LOGVAL(tmin) << LOGVAL(tmax) << LOGVAL(tstep_));
   const int itmin = std::ceil(tmin);
@@ -567,7 +569,7 @@ void VprofBoxPT::plotXAxisGrid(VprofPainter* p)
 
   p->setLineStyle(x_grid_linestyle_minor_);
   const int itstep = std::max((tmax - tmin < 75) ? 5 : 10, tstep_);
-  const int itlim = std::floor(std::max(-MetNo::Constants::t0, axes->paint2value(PointF(area.x2, area.y2)).x()));
+  const int itlim = std::floor(std::max(-miutil::constants::t0, axes->paint2value(PointF(area.x2, area.y2)).x()));
 
   // t numbers at the diagram top
   int itl1 = (itmin / itstep) * itstep;
@@ -671,8 +673,8 @@ void VprofBoxPT::plotDryAdiabats(VprofPainter* p)
 
   // find first and last dry adiabat to be drawn (at 1000 hPa, pi=cp)
   const float tmax = axes->paint2value(PointF(area.x1, area.y1)).x();
-  const float tmin = std::max(-MetNo::Constants::t0, axes->paint2value(PointF(area.x2, area.y2)).x());
-  using namespace MetNo::Constants;
+  const float tmin = std::max(-miutil::constants::t0, axes->paint2value(PointF(area.x2, area.y2)).x());
+  using namespace miutil::constants;
   const float thmax = cp * (tmax + t0) / vcross::util::exnerFunction(pmaxDiagram);
   const float thmin = cp * (tmin + t0) / vcross::util::exnerFunction(pminDiagram);
   const int itt1 = int(thmax - t0);

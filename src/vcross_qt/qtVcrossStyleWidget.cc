@@ -6,7 +6,7 @@
 #include "diPlotOptions.h"
 #include "qtUtility.h"
 
-#include <diField/diMetConstants.h>
+#include <mi_fieldcalc/MetConstants.h>
 #include <puTools/miStringFunctions.h>
 
 #include <QApplication>
@@ -176,8 +176,8 @@ void VcrossStyleWidget::setupUi()
 
 #ifndef DISABLE_EXTREME_LIMITS
   extremeLimits<<"Off";
-  for (int i=0; i<MetNo::Constants::nLevelTable; i++)
-    extremeLimits << QString::number(MetNo::Constants::pLevelTable[i]);
+  for (int i = 0; i < miutil::constants::nLevelTable; i++)
+    extremeLimits << QString::number(miutil::constants::pLevelTable[i]);
 
   QLabel* extremeLimitMinLabel = new QLabel(tr("Level low"), advFrame);
   extremeLimitMinComboBox= new QComboBox(advFrame);

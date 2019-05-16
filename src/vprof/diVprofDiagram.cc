@@ -37,10 +37,11 @@
 #include "diVprofOptions.h"
 #include "diVprofPainter.h"
 #include "diVprofUtils.h"
-
 #include "diField/VcrossUtil.h"
 #include "diField/diPoint.h"
 #include "util/misc_util.h"
+
+#include <mi_fieldcalc/math_util.h>
 
 #include <iomanip>
 #include <sstream>
@@ -238,7 +239,7 @@ void VprofDiagram::configureDiagram(const miutil::KeyValue_v& config)
 
 void VprofDiagram::updateLayout()
 {
-  using vcross::util::maximize;
+  using miutil::maximize;
 
   for (auto b : boxes)
     b->updateLayout();
@@ -371,7 +372,7 @@ void VprofDiagram::plotDiagramFrame(VprofPainter* painter)
 void VprofDiagram::plotText(VprofPainter* painter)
 {
   METLIBS_LOG_SCOPE();
-  using vcross::util::maximize;
+  using miutil::maximize;
 
   if (ptext) {
     const int n = vptext.size();

@@ -35,12 +35,13 @@
 #include "diFieldManager.h"
 
 #include "GridCollection.h"
-#include "diMetConstants.h"
 #include "miSetupParser.h"
 
 #include "../diFieldUtil.h"
 #include "../diUtilities.h"
 #include "util/misc_util.h"
+
+#include <mi_fieldcalc/MetConstants.h>
 
 #include <puTools/miStringFunctions.h>
 
@@ -68,7 +69,7 @@
 
 using namespace std;
 using namespace miutil;
-using namespace MetNo::Constants;
+using namespace miutil::constants;
 
 namespace {
 

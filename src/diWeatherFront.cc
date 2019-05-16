@@ -34,7 +34,7 @@
 #include "diGLPainter.h"
 #include "diGlUtilities.h"
 #include "diStaticPlot.h"
-#include "util/math_util.h"
+#include <mi_fieldcalc/math_util.h>
 
 #include <puTools/miStringFunctions.h>
 #include <sstream>
@@ -403,7 +403,7 @@ void WeatherFront::drawColds(DiGLPainter* gl)
       sprev= s;
       dxs= x_s[i] - x_s[i-1];
       dys= y_s[i] - y_s[i-1];
-      s+= diutil::absval(dxs, dys);
+      s += miutil::absval(dxs, dys);
       i++;
     }
     if (s<slim) break;
@@ -419,7 +419,7 @@ void WeatherFront::drawColds(DiGLPainter* gl)
       dxs= x_s[i] - xstart;
       dys= y_s[i] - ystart;
       sprev= s;
-      s= diutil::absval(dxs, dys);
+      s = miutil::absval(dxs, dys);
       i++;
     }
     if (s<slim) break;
@@ -432,13 +432,13 @@ void WeatherFront::drawColds(DiGLPainter* gl)
     } else {
       x1= x_s[i-1];
       y1= y_s[i-1];
-      s1= diutil::absval((x1-xstart), (y1-ystart));
+      s1 = miutil::absval((x1 - xstart), (y1 - ystart));
       x2= x_s[i];
       y2= y_s[i];
       for (j=0; j<10; j++) {
         xm= (x1+x2)*0.5;
         ym= (y1+y2)*0.5;
-        sm= diutil::absval((xm-xstart), (ym-ystart));
+        sm = miutil::absval((xm - xstart), (ym - ystart));
         if ((s1-slim)*(sm-slim)<=0.) {
           x2= xm;
           y2= ym;
@@ -465,7 +465,7 @@ void WeatherFront::drawColds(DiGLPainter* gl)
 
     dxs= xend - x_s[i-1];
     dys= yend - y_s[i-1];
-    slim= diutil::absval(dxs, dys) + r*1.5;
+    slim = miutil::absval(dxs, dys) + r * 1.5;
     s= 0.;
 
   }
@@ -503,7 +503,7 @@ void WeatherFront::drawWarms(DiGLPainter* gl)
       sprev= s;
       dxs= x_s[i] - x_s[i-1];
       dys= y_s[i] - y_s[i-1];
-      s+= diutil::absval(dxs, dys);
+      s += miutil::absval(dxs, dys);
       i++;
     }
     if (s<slim) break;
@@ -520,7 +520,7 @@ void WeatherFront::drawWarms(DiGLPainter* gl)
       dxs= x_s[i] - xstart;
       dys= y_s[i] - ystart;
       sprev= s;
-      s= diutil::absval(dxs, dys);
+      s = miutil::absval(dxs, dys);
       i++;
     }
     if (s<slim) break;
@@ -533,13 +533,13 @@ void WeatherFront::drawWarms(DiGLPainter* gl)
     } else {
       x1= x_s[i-1];
       y1= y_s[i-1];
-      s1= diutil::absval((x1-xstart), (y1-ystart));
+      s1 = miutil::absval((x1 - xstart), (y1 - ystart));
       x2= x_s[i];
       y2= y_s[i];
       for (j=0; j<10; j++) {
         xm= (x1+x2)*0.5;
         ym= (y1+y2)*0.5;
-        sm= diutil::absval((xm-xstart), (ym-ystart));
+        sm = miutil::absval((xm - xstart), (ym - ystart));
         if ((s1-slim)*(sm-slim)<=0.) {
           x2= xm;
           y2= ym;
@@ -564,7 +564,7 @@ void WeatherFront::drawWarms(DiGLPainter* gl)
 
     dxs= xend - x_s[i-1];
     dys= yend - y_s[i-1];
-    slim= diutil::absval(dxs, dys) + r*1.5;
+    slim = miutil::absval(dxs, dys) + r * 1.5;
     s= 0.;
   }
 
@@ -600,7 +600,7 @@ void WeatherFront::drawOccluded(DiGLPainter* gl)
       sprev= s;
       dxs= x_s[i] - x_s[i-1];
       dys= y_s[i] - y_s[i-1];
-      s+= diutil::absval(dxs, dys);
+      s += miutil::absval(dxs, dys);
       i++;
     }
     if (s<slim) break;
@@ -618,7 +618,7 @@ void WeatherFront::drawOccluded(DiGLPainter* gl)
       dxs= x_s[i] - xstart;
       dys= y_s[i] - ystart;
       sprev= s;
-      s= diutil::absval(dxs, dys);
+      s = miutil::absval(dxs, dys);
       i++;
     }
     if (s<slim) break;
@@ -631,13 +631,13 @@ void WeatherFront::drawOccluded(DiGLPainter* gl)
     } else {
       x1= x_s[i-1];
       y1= y_s[i-1];
-      s1= diutil::absval((x1-xstart), (y1-ystart));
+      s1 = miutil::absval((x1 - xstart), (y1 - ystart));
       x2= x_s[i];
       y2= y_s[i];
       for (j=0; j<10; j++) {
         xm= (x1+x2)*0.5;
         ym= (y1+y2)*0.5;
-        sm= diutil::absval((xm-xstart), (ym-ystart));
+        sm = miutil::absval((xm - xstart), (ym - ystart));
         if ((s1-slim)*(sm-slim)<=0.) {
           x2= xm;
           y2= ym;
@@ -684,7 +684,7 @@ void WeatherFront::drawOccluded(DiGLPainter* gl)
 
     dxs= xend - x_s[i-1];
     dys= yend - y_s[i-1];
-    slim= diutil::absval(dxs, dys);
+    slim = miutil::absval(dxs, dys);
     if (ndrawflag==0)
       slim+= r*1.5;
     s= 0.;
@@ -724,7 +724,7 @@ void WeatherFront::drawStationary(DiGLPainter* gl)
       sprev= s;
       dxs= x_s[i] - x_s[i-1];
       dys= y_s[i] - y_s[i-1];
-      s+= diutil::absval(dxs, dys);
+      s += miutil::absval(dxs, dys);
       i++;
     }
     if (s<slim) break;
@@ -742,7 +742,7 @@ void WeatherFront::drawStationary(DiGLPainter* gl)
       dxs= x_s[i] - xstart;
       dys= y_s[i] - ystart;
       sprev= s;
-      s= diutil::absval(dxs, dys);
+      s = miutil::absval(dxs, dys);
       i++;
     }
     if (s<slim) break;
@@ -755,13 +755,13 @@ void WeatherFront::drawStationary(DiGLPainter* gl)
     } else {
       x1= x_s[i-1];
       y1= y_s[i-1];
-      s1= diutil::absval((x1-xstart), (y1-ystart));
+      s1 = miutil::absval((x1 - xstart), (y1 - ystart));
       x2= x_s[i];
       y2= y_s[i];
       for (j=0; j<10; j++) {
         xm= (x1+x2)*0.5;
         ym= (y1+y2)*0.5;
-        sm= diutil::absval((xm-xstart), (ym-ystart));
+        sm = miutil::absval((xm - xstart), (ym - ystart));
         if ((s1-slim)*(sm-slim)<=0.) {
           x2= xm;
           y2= ym;
@@ -806,7 +806,7 @@ void WeatherFront::drawStationary(DiGLPainter* gl)
 
     dxs= xend - x_s[i-1];
     dys= yend - y_s[i-1];
-    slim= diutil::absval(dxs, dys) + r;
+    slim = miutil::absval(dxs, dys) + r;
     s= 0.;
   }
 
@@ -844,7 +844,7 @@ void WeatherFront::drawSquallLine(DiGLPainter* gl)
       sprev= s;
       dxs= x_s[i] - x_s[i-1];
       dys= y_s[i] - y_s[i-1];
-      s+= diutil::absval(dxs, dys);
+      s += miutil::absval(dxs, dys);
       i++;
     }
     if (s<slim) break;
@@ -865,7 +865,7 @@ void WeatherFront::drawSquallLine(DiGLPainter* gl)
 
     dxs= xm - x_s[i-1];
     dys= ym - y_s[i-1];
-    slim= diutil::absval(dxs, dys) + r*4.;
+    slim = miutil::absval(dxs, dys) + r * 4.;
     s= 0.;
   }
 }
@@ -895,8 +895,8 @@ void WeatherFront::drawArrowLine(DiGLPainter* gl)
       sprev= s;
       dxs= x_s[i] - x_s[i-1];
       dys= y_s[i] - y_s[i-1];
-      s+= diutil::absval(dxs, dys);
-    //METLIBS_LOG_DEBUG("********** s1 =   " << s);
+      s += miutil::absval(dxs, dys);
+      // METLIBS_LOG_DEBUG("********** s1 =   " << s);
       i--;
       ncount++;
     }
@@ -912,7 +912,7 @@ void WeatherFront::drawArrowLine(DiGLPainter* gl)
       dxs= x_s[i] - x_s[i-1];
       dys= y_s[i] - y_s[i-1];
       sprev= s;
-      s= diutil::absval(dxs, dys);
+      s = miutil::absval(dxs, dys);
       i--;
     }
     //METLIBS_LOG_DEBUG("********** i2 =   " << i);
@@ -965,8 +965,8 @@ void WeatherFront::drawTroughLine(DiGLPainter* gl)
       sprev= s;
       dxs= x_s[i] - x_s[i-1];
       dys= y_s[i] - y_s[i-1];
-      s+= diutil::absval(dxs, dys);
-    //METLIBS_LOG_DEBUG("********** s1 =   " << s);
+      s += miutil::absval(dxs, dys);
+      // METLIBS_LOG_DEBUG("********** s1 =   " << s);
       i++;
     }
     if (s<slim)
@@ -983,7 +983,7 @@ void WeatherFront::drawTroughLine(DiGLPainter* gl)
       dxs= x_s[i] - xstart;
       dys= y_s[i] - ystart;
       sprev= s;
-      s= diutil::absval(dxs, dys);
+      s = miutil::absval(dxs, dys);
       i++;
     }
     if (s<slim)
@@ -997,13 +997,13 @@ void WeatherFront::drawTroughLine(DiGLPainter* gl)
     } else {
       x1= x_s[i-1];
       y1= y_s[i-1];
-      s1= diutil::absval((x1-xstart), (y1-ystart));
+      s1 = miutil::absval((x1 - xstart), (y1 - ystart));
       x2= x_s[i];
       y2= y_s[i];
       for (j=0; j<10; j++) {
         xm= (x1+x2)*0.5;
         ym= (y1+y2)*0.5;
-        sm= diutil::absval((xm-xstart), (ym-ystart));
+        sm = miutil::absval((xm - xstart), (ym - ystart));
         if ((s1-slim)*(sm-slim)<=0.) {
           x2= xm;
           y2= ym;
@@ -1037,7 +1037,7 @@ void WeatherFront::drawTroughLine(DiGLPainter* gl)
 
     dxs= xend - x_s[i-1];
     dys= yend - y_s[i-1];
-    slim= diutil::absval(dxs, dys) + r*1.5;
+    slim = miutil::absval(dxs, dys) + r * 1.5;
     s= 0.;
   }
 }
@@ -1145,7 +1145,7 @@ void WeatherFront::drawSigweather(DiGLPainter* gl)
   for (int i = 0; i < npoints-1; i++){
     const float deltay = yplot[i+1]-yplot[i];
     const float deltax = xplot[i+1]-xplot[i];
-    const float hyp = diutil::absval(deltay, deltax);
+    const float hyp = miutil::absval(deltay, deltax);
     const QPointF xxyy(xplot[i]+deltax/2, yplot[i]+deltay/2);
     drawHalfCircle(gl, false, xxyy, atan2(deltay,deltax)*RAD_TO_DEG, hyp / 2);
   }
@@ -1164,7 +1164,7 @@ bool WeatherFront::smooth()
   for (int i = 0; i < s_length - 1; i++) {
     float deltay = y_s[i + 1] - y_s[i];
     float deltax = x_s[i + 1] - x_s[i];
-    float hyp = diutil::absval(deltay , deltax);
+    float hyp = miutil::absval(deltay, deltax);
     totalLength += hyp;
   }
   int nplot;
@@ -1195,7 +1195,7 @@ bool WeatherFront::smooth()
       i++;
       float deltay = y_s[i] - ystart;
       float deltax = x_s[i] - xstart;
-      float hyp = diutil::absval(deltay , deltax);
+      float hyp = miutil::absval(deltay, deltax);
       dist += hyp;
       //next step
       xstart = x_s[i];
@@ -1204,14 +1204,14 @@ bool WeatherFront::smooth()
     float deltax, deltay, hyp;
     deltay = ystart - yplot[j - 1];
     deltax = xstart - xplot[j - 1];
-    hyp = diutil::absval(deltay , deltax);
+    hyp = miutil::absval(deltay, deltax);
     float cosalfa = deltax / hyp;
     float sinalfa = deltay / hyp;
     xplot[j] = xplot[j - 1] + radius * cosalfa;
     yplot[j] = yplot[j - 1] + radius * sinalfa;
     deltay = yplot[j] - yplot[j - 1];
     deltax = xplot[j] - xplot[j - 1];
-    hyp = diutil::absval(deltay , deltax);
+    hyp = miutil::absval(deltay, deltax);
     totalDist += hyp;
     i_s = i - 1;
   }

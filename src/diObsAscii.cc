@@ -36,6 +36,8 @@
 #include "diUtilities.h"
 #include "util/string_util.h"
 
+#include <mi_fieldcalc/MetConstants.h>
+
 #include <puTools/miStringFunctions.h>
 
 #define MILOGGER_CATEGORY "diana.ObsAscii"
@@ -366,7 +368,7 @@ void ObsAscii::decodeData()
     if (getColumnValue("Name", pstr, text))
       obsData.id = text;
     if (getColumnValue("ff", pstr, value))
-      obsData.fdata["ff"] = knots ? diutil::knots2ms(value) : value;
+      obsData.fdata["ff"] = knots ? miutil::knots2ms(value) : value;
     if (getColumnValue("dd", pstr, value))
       obsData.fdata["dd"] = value;
     if (getColumnValue("image", pstr, text))

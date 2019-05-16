@@ -38,7 +38,7 @@
 #include <miLogger/miLogging.h>
 
 VprofSimpleValues::VprofSimpleValues()
-    : defined_(difield::NONE_DEFINED)
+    : defined_(miutil::NONE_DEFINED)
 {
 }
 
@@ -52,7 +52,7 @@ void VprofSimpleValues::add(VprofGraphData_cp series)
     if (series_.empty()) {
       defined_ = series->defined();
     } else {
-      defined_ = difield::combineDefined(defined_, series->defined());
+      defined_ = miutil::combineDefined(defined_, series->defined());
     }
 
     series_.push_back(series);
@@ -64,7 +64,7 @@ void VprofSimpleValues::add(VprofGraphData_cp series)
     if (recheck_defined) {
       defined_ = series->defined();
       for (VprofGraphData_cp s : series_)
-        defined_ = difield::combineDefined(defined_, series->defined());
+        defined_ = miutil::combineDefined(defined_, series->defined());
     }
   }
 }

@@ -37,12 +37,15 @@
 #include "diPlotOptions.h"
 #include "diSpectrumOptions.h"
 #include "diUtilities.h"
+#include "diField/diField.h"
+
+#include <mi_fieldcalc/MetConstants.h>
+#include <mi_fieldcalc/math_util.h>
+
+#include <puTools/miStringFunctions.h>
 
 #include <QPolygonF>
 #include <QString>
-
-#include <diField/diField.h>
-#include <puTools/miStringFunctions.h>
 
 #include <iomanip>
 #include <sstream>
@@ -485,7 +488,7 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt, DiGLPainter* gl)
   // wind .....................................................
   if (spopt->pWind && wspeed>0.001){
     const float dd_rad = wdir*DEG_TO_RAD;
-    const float ff_knots = diutil::ms2knots(wspeed);
+    const float ff_knots = miutil::ms2knots(wspeed);
     gl->setLineStyle(Colour(spopt->windColour), spopt->windLinewidth);
     gl->drawWindArrow(ff_knots * sin(dd_rad), ff_knots * cos(dd_rad), xwind, ywind, rwind * 0.85, false);
   }

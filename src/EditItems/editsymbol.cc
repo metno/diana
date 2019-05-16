@@ -27,12 +27,13 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "drawingsymbol.h"
 #include "editsymbol.h"
-#include "diGLPainter.h"
-#include "util/math_util.h"
 
-#include <EditItems/drawingstylemanager.h>
+#include "EditItems/drawingstylemanager.h"
+#include "diGLPainter.h"
+#include "drawingsymbol.h"
+
+#include <mi_fieldcalc/math_util.h>
 
 #include <QAction>
 #include <QMenu>
@@ -113,7 +114,7 @@ void Symbol::incompleteKeyPress(QKeyEvent *event, bool &repaintNeeded, bool &com
 void Symbol::resize(const QPointF &pos)
 {
   const QPointF delta = pos - points_.at(0);
-  properties_["size"] = diutil::absval(delta.x(), delta.y());
+  properties_["size"] = miutil::absval(delta.x(), delta.y());
   updateControlPoints();
 }
 

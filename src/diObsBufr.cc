@@ -29,11 +29,12 @@
 
 #include "diana_config.h"
 
-#include "diField/diMetConstants.h"
 #include "diObsBufr.h"
 #include "diObsData.h"
 #include "util/format_int.h"
 #include "vprof/diVprofValues.h"
+
+#include <mi_fieldcalc/MetConstants.h>
 
 #include <puTools/miStringFunctions.h>
 #include <puTools/miTime.h>
@@ -208,7 +209,7 @@ void cloud_type(ObsData& d, double v)
 
 float ms2code4451(float v)
 {
-  using MetNo::Constants::knots2ms;
+  using miutil::constants::knots2ms;
   if (v < knots2ms)
     return 0.0;
   if (v < 5 * knots2ms)
@@ -511,7 +512,7 @@ bool ObsDataBufr::timeOK(const miutil::miTime& t) const
 bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* values,
                                  const char* cvals, int subset, int kelem, ObsData &d)
 {
-  using MetNo::Constants::t0;
+  using miutil::constants::t0;
 
   d.fdata.clear();
 
@@ -785,7 +786,7 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
     case 10008:
     case 10003:
       if (values[j] < bufrMissing) {
-        d.fdata["HHH"] = values[j] / MetNo::Constants::g;
+        d.fdata["HHH"] = values[j] / miutil::constants::g;
       }
       break;
       // 010009 GEOPOTENTIAL HEIGHT
@@ -1400,7 +1401,7 @@ void StationBufr::get_station_info(int ktdexl, const int *ktdexp, const double* 
 bool ObsDataBufr::get_diana_data_level(int ktdexl, const int *ktdexp, const double* values,
                                        const char* cvals, int subset, int kelem, ObsData &d)
 {
-  using MetNo::Constants::t0;
+  using miutil::constants::t0;
 
   d.fdata.clear();
   d.id.clear();
@@ -1636,7 +1637,7 @@ bool ObsDataBufr::get_diana_data_level(int ktdexl, const int *ktdexp, const doub
       case 10008:
       case 10003:
         if (values[j] < bufrMissing)
-          d.fdata["HHH"] = values[j] / MetNo::Constants::g;
+          d.fdata["HHH"] = values[j] / miutil::constants::g;
         break;
         //   10009 GEOPOTENTIAL HEIGHT
       case 10009:
@@ -1737,7 +1738,7 @@ bool VprofBufr::get_data_level(int ktdexl, const int *ktdexp, const double* valu
                                const char* cvals, int subset, int kelem)
 {
   METLIBS_LOG_SCOPE();
-  using MetNo::Constants::t0;
+  using miutil::constants::t0;
 
   //  int wmoBlock = 0;
   //  int wmoStation = 0;
@@ -1888,7 +1889,7 @@ bool VprofBufr::get_data_level(int ktdexl, const int *ktdexp, const double* valu
       case 10008: // GEOPOTENTIAL (non-coordinate, HIGHER PRECISION)
         // value in  m**2/s**2, convert to m (approximate)
         if (vertical_axis_ == ALTITUDE)
-          vertical_ok = setVerticalValue(vertical, bufr_value, 1 / MetNo::Constants::g);
+          vertical_ok = setVerticalValue(vertical, bufr_value, 1 / miutil::constants::g);
         break;
 
       case 7009:  // GEOPOTENTIAL HEIGHT / m

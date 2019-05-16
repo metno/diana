@@ -53,9 +53,11 @@
 #include "diWeatherSymbol.h"
 #include "miSetupParser.h"
 #include "util/charsets.h"
-#include "util/math_util.h"
 #include "util/misc_util.h"
 #include "util/subprocess.h"
+
+#include <mi_fieldcalc/math_util.h>
+
 #include <puTools/miDirtools.h>
 #include <puTools/miStringFunctions.h>
 
@@ -2523,7 +2525,7 @@ bool EditManager::recalcCombineMatrix(){
       float dy1= yc[0] - ypos[p];
       float dx2= xc[1] - xpos[p];
       float dy2= yc[1] - ypos[p];
-      if (diutil::absval2(dx1, dy1) < diutil::absval2(dx2, dy2))
+      if (miutil::absval2(dx1, dy1) < miutil::absval2(dx2, dy2))
         nc = 1;
     }
     nc--;
@@ -2858,7 +2860,7 @@ void EditManager::plot(DiGLPainter* gl, PlotOrder zorder)
         for (int j=0; j<npos; j+=2) {
           float dx= x[j] - x[j+1];
           float dy= y[j] - y[j+1];
-          s+= diutil::absval(dx, dy)/sqrtf(2.0);
+          s += miutil::absval(dx, dy) / sqrtf(2.0);
         }
         scale= npos*0.5*gridResolutionX/s;
       } else {

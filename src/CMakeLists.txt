@@ -56,15 +56,12 @@ SET (DIFIELD_SOURCES
   diField/diArea.cc
   diField/diCommonFieldTypes.cc
   diField/diField.cc
-  diField/diFieldCalculations.cc
-  diField/diFieldDefined.cc
   diField/diFieldFunctions.cc
   diField/diFieldManager.cc
   diField/diFieldUtil.cc
   diField/diFlightLevel.cc
   diField/diGridConverter.cc
   diField/diGridReprojection.cc
-  diField/diMetConstants.cc
   diField/diPoint.cc
   diField/diProjection.cc
   diField/diRectangle.cc
@@ -217,8 +214,7 @@ SET (LIBDIANA_SOURCES
   util/diLineMerger.cc
   util/fimex_logging.cc
   util/format_int.cc
-  util/math_util.cc
-  util/openmp_tools.cc
+  util/geo_util.cc
   util/plotoptions_util.cc
   util/polygon_util.cc
   util/qstring_util.cc
@@ -773,6 +769,7 @@ TARGET_LINK_LIBRARIES(libdiana
   ${udunits2_LIB}
   ${QT_LIBRARIES} # includes Qt5::Gui :-(
   ${Boost_LIBRARIES}
+  mi-fieldcalc
 )
 TARGET_LINK_LIBRARIES(libdianaui libdiana ${PCUI_LIBRARIES})
 TARGET_LINK_LIBRARIES(libbdiana libdiana)

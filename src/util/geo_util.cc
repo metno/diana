@@ -1,7 +1,11 @@
 
-#include "math_util.h"
+#include "geo_util.h"
+
+#include <mi_fieldcalc/math_util.h>
 
 #include <puDatatypes/miCoordinates.h>
+
+#include <cmath> // hope for M_PI
 
 namespace diutil {
 
@@ -10,7 +14,7 @@ static const double DEG_TO_RAD = M_PI/180;
 //! haversine function
 double hav(double theta)
 {
-  return square(std::sin(theta/2));
+  return miutil::square(std::sin(theta / 2));
 }
 
 float GreatCircleDistance(float lat1_deg, float lat2_deg, float lon1_deg, float lon2_deg)

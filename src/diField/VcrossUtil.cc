@@ -32,8 +32,10 @@
 #include "../util/string_util.h"
 #include "../util/time_util.h"
 
-#include "diMetConstants.h"
+#include <mi_fieldcalc/MetConstants.h>
+
 #include <udunits2.h>
+
 #include <cmath>
 #include <istream>
 
@@ -65,13 +67,13 @@ float ambleFunctionInverse(float x)
 float exnerFunction(float p)
 {
   // cp, p0inv, and kappa are defined in metlibs/diField/diMetConstants.h
-  return MetNo::Constants::cp * std::pow(p * MetNo::Constants::p0inv, MetNo::Constants::kappa);
+  return miutil::constants::cp * std::pow(p * miutil::constants::p0inv, miutil::constants::kappa);
 }
 
 float exnerFunctionInverse(float e)
 {
   // invert e=cp*exp(kappa*log(p*p0inv))
-  return std::exp(std::log(e/MetNo::Constants::cp)/MetNo::Constants::kappa)*MetNo::Constants::p0;
+  return std::exp(std::log(e / miutil::constants::cp) / miutil::constants::kappa) * miutil::constants::p0;
 }
 
 float coriolisFactor(float lat /* radian */)
@@ -316,14 +318,14 @@ WindArrowFeathers countFeathers(float ff /* knots */)
 
 float FL_to_hPa(float fl)
 {
-  const double a = MetNo::Constants::geo_altitude_from_FL(fl);
-  return MetNo::Constants::ICAO_pressure_from_geo_altitude(a);
+  const double a = miutil::constants::geo_altitude_from_FL(fl);
+  return miutil::constants::ICAO_pressure_from_geo_altitude(a);
 }
 
 float hPa_to_FL(float hPa)
 {
-  const double a = MetNo::Constants::ICAO_geo_altitude_from_pressure(hPa);
-  return MetNo::Constants::FL_from_geo_altitude(a);
+  const double a = miutil::constants::ICAO_geo_altitude_from_pressure(hPa);
+  return miutil::constants::FL_from_geo_altitude(a);
 }
 
 } // namespace util

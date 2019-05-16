@@ -30,14 +30,15 @@
 #include "diana_config.h"
 
 #include "diVprofReaderFimex.h"
+
 #include "diVprofSimpleData.h"
 #include "diVprofSimpleValues.h"
 #include "diVprofUtils.h"
-
 #include "diField/VcrossUtil.h"
-#include "util/math_util.h"
 #include "vcross_v2/VcrossComputer.h"
 #include "vcross_v2/VcrossEvaluate.h"
+
+#include <mi_fieldcalc/math_util.h>
 
 #define MILOGGER_CATEGORY "diana.VprofReaderFimex"
 #include <miLogger/miLogging.h>
@@ -244,7 +245,7 @@ VprofValues_cp VprofDataFimex::readValues(const VprofValuesRequest& req)
   }
 
   vv->calculate();
-  if (vv->isDefined() == difield::NONE_DEFINED) {
+  if (vv->isDefined() == miutil::NONE_DEFINED) {
     METLIBS_LOG_WARN("no defined values");
     return VprofValues_cp();
   }

@@ -38,10 +38,12 @@
 #include "diStaticPlot.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
-#include "util/math_util.h"
 #include "util/misc_util.h"
 #include "util/qstring_util.h"
 #include "util/string_util.h"
+
+#include <mi_fieldcalc/MetConstants.h>
+#include <mi_fieldcalc/math_util.h>
 
 #include <puTools/miStringFunctions.h>
 
@@ -1027,7 +1029,7 @@ void ObsPlot::updateFromEditField()
 int ObsPlot::findObs(int xx, int yy, const std::string& type)
 {
   METLIBS_LOG_SCOPE();
-  using diutil::square;
+  using miutil::square;
 
   float min_r = square(10 * getStaticPlot()->getPhysToMapScaleX());
   float r;
@@ -1682,7 +1684,7 @@ void ObsPlot::printListParameter(DiGLPainter* gl, const ObsData& dta, const ObsD
         if (param.name == "VV") {
           printVisibility(gl, f_p->second, dta.ship_buoy, xypos, align_right);
         } else if (param.type == ObsDialogInfo::pt_knot && !unit_ms) {
-          printList(gl, diutil::ms2knots(f_p->second), xypos, param.precision, align_right);
+          printList(gl, miutil::ms2knots(f_p->second), xypos, param.precision, align_right);
         } else if (param.type == ObsDialogInfo::pt_temp && tempPrecision) {
           printList(gl, f_p->second, xypos, 0, align_right);
         } else {
@@ -2008,7 +2010,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
       ddvar = true;
       dd_adjusted = 270;
     }
-    if (diutil::ms2knots(dta.fdata["ff"]) < 1.)
+    if (miutil::ms2knots(dta.fdata["ff"]) < 1.)
       dd = 0;
     lpos = vtab((dd / 10 + 3) / 2) + 10;
     checkColourCriteria(gl, "dd", dd);
@@ -2197,7 +2199,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   if (pFlag.count("911ff")) {
     if ((f_p = dta.fdata.find("911ff")) != fend) {
       checkColourCriteria(gl, "911ff", f_p->second);
-      float ff = unit_ms ? f_p->second : diutil::ms2knots(f_p->second);
+      float ff = unit_ms ? f_p->second : miutil::ms2knots(f_p->second);
       printNumber(gl, ff, xytab(lpos + 38), "fill_2", true);
     }
   }
@@ -2215,7 +2217,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   if (pFlag.count("fxfx")) {
     if ((f_p = dta.fdata.find("fxfx")) != fend && !dta.ship_buoy) {
       checkColourCriteria(gl, "fxfx", f_p->second);
-      float ff = unit_ms ? f_p->second : diutil::ms2knots(f_p->second);
+      float ff = unit_ms ? f_p->second : miutil::ms2knots(f_p->second);
       if (TxTnFlag)
         printNumber(gl, ff, xytab(lpos + 6) + QPointF(10, 0), "fill_2", true);
       else
@@ -2317,8 +2319,7 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
   if (pFlag.count("wind") && dta.fdata.count("dd") && dta.fdata.count("ff")) {
     checkColourCriteria(gl, "dd", dta.fdata["dd"]);
     checkColourCriteria(gl, "ff", dta.fdata["ff"]);
-    metarWind(gl, (int) dta.fdata["dd_adjusted"], diutil::ms2knots(dta.fdata["ff"]),
-        radius, lpos);
+    metarWind(gl, (int)dta.fdata["dd_adjusted"], miutil::ms2knots(dta.fdata["ff"]), radius, lpos);
   }
 
   //limit of variable wind direction
@@ -2334,7 +2335,7 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
   //Wind gust
   QPointF xyid = xytab(lpos + 4);
   if (pFlag.count("fmfm") && (f_p = dta.fdata.find("fmfm")) != fend) {
-    const float ff = unit_ms ? f_p->second : diutil::ms2knots(f_p->second);
+    const float ff = unit_ms ? f_p->second : miutil::ms2knots(f_p->second);
     checkColourCriteria(gl, "fmfm", f_p->second);
     printNumber(gl, ff, xyid + QPointF(2, 2 - dndx), "fill_2", true);
     //understrekes
@@ -3277,7 +3278,7 @@ void ObsPlot::plotWind(DiGLPainter* gl, int dd, float ff_ms, bool ddvar, float r
     ff = int(ff_ms * 10.0 / wind_scale);
   } else {
     // wind
-    ff = diutil::ms2knots(ff_ms);
+    ff = miutil::ms2knots(ff_ms);
   }
 
   // just a guess of the max possible in plotting below
@@ -3529,7 +3530,7 @@ void ObsPlot::decodeCriteria(const std::string& critStr)
       parameter = sstr[0];
       limit = atof(sstr[1].c_str());
       if (!unit_ms && ObsDialogInfo::findPar(parameter).type == ObsDialogInfo::pt_knot) {
-        limit = diutil::knots2ms(limit);
+        limit = miutil::knots2ms(limit);
       }
     } else {
       parameter = vcrit[0];

@@ -33,9 +33,9 @@
 
 #include "diLocalSetupParser.h"
 #include "miSetupParser.h"
-
 #include "diField/diRectangle.h"
-#include "util/math_util.h"
+
+#include <mi_fieldcalc/math_util.h>
 
 #include <puTools/miStringFunctions.h>
 
@@ -364,7 +364,7 @@ void DiPainter::drawArrowHead(float x1, float y1, float x2, float y2, float head
     return;
 
   if (headsize != 0) {
-    const float scale = headsize/diutil::absval(dx, dy);
+    const float scale = headsize / miutil::absval(dx, dy);
     dx *= scale;
     dy *= scale;
   }

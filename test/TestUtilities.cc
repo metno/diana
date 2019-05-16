@@ -31,15 +31,17 @@
 #include <util/charsets.h>
 #include <util/diLineMerger.h>
 #include <util/format_int.h>
-#include <util/math_util.h>
 #include <util/nearest_element.h>
 #include <util/polygon_util.h>
 #include <util/string_util.h>
 #include <util/subprocess.h>
 #include <util/time_util.h>
-
 #include <diField/diRectangle.h>
+
+#include "util/geo_util.h"
+
 #include <puCtools/puCglob.h> // for GLOB_BRACE
+
 #include <gtest/gtest.h>
 
 #include <cstring>

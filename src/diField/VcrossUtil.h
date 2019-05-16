@@ -66,58 +66,6 @@ void from_set(std::vector<T>& v, const std::set<T>& s)
   v.insert(v.end(), s.begin(), s.end());
 }
 
-template<typename T1, typename T2>
-void minimize(T1& a, const T2& b)
-{
-  if (b < a)
-    a = b;
-}
-
-template<typename T1, typename T2>
-void maximize(T1& a, const T2& b)
-{
-  if (b > a)
-    a = b;
-}
-
-template<typename T1, typename T2>
-void minimaximize(T1& mi, T1& ma, const T2& b)
-{
-  if (b > ma)
-    ma = b;
-  if (b < mi)
-    mi = b;
-}
-
-template<typename T1>
-bool value_between(const T1& v, const T1& lim0, const T1& lim1)
-{
-  if (lim0 <= lim1)
-    return lim0 <= v and v <= lim1;
-  else
-    return lim1 <= v and v <= lim0;
-}
-
-template<typename T1>
-T1 constrain_value(const T1& v, const T1& lim0, const T1& lim1)
-{
-  if (lim0 <= lim1) {
-    if (v < lim0)
-      return lim0;
-    else if (lim1 < v)
-      return lim1;
-    else
-      return v;
-  } else {
-    if (v < lim1)
-      return lim1;
-    else if (lim0 < v)
-      return lim0;
-    else
-      return v;
-  }
-}
-
 enum UnitConvertibility {
   UNITS_MISMATCH=0,  //! no unit conversion known
   UNITS_CONVERTIBLE, //! units are convertible with a function

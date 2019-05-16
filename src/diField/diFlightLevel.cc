@@ -2,10 +2,11 @@
 #include "diFlightLevel.h"
 
 #include "diField/VcrossUtil.h"
-#include "diMetConstants.h"
 #include "util/string_util.h"
 
-#include "puTools/miStringFunctions.h"
+#include <mi_fieldcalc/MetConstants.h>
+
+#include <puTools/miStringFunctions.h>
 
 #include <cmath>
 #include <iomanip>
@@ -29,7 +30,7 @@ void buildPLevelsToFlightLevelsTable()
   flightLevel2pLevel.clear();
 
   // make conversion tables between pressureLevels and flightLevels
-  using namespace MetNo::Constants;
+  using namespace miutil::constants;
   for (int i=0; i<nLevelTable; i++) {
     std::ostringstream pstr, fstr, fstr_old;
     pstr << pLevelTable[i] << "hPa";

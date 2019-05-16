@@ -31,9 +31,10 @@
 
 #include "diLocationPlot.h"
 #include "diStaticPlot.h"
-#include "util/math_util.h"
 
 #include "diGLPainter.h"
+
+#include <mi_fieldcalc/math_util.h>
 
 #include <QPolygonF>
 
@@ -195,7 +196,7 @@ bool LocationPlot::changeProjection()
     for (int n=n1+1; n<n2; n++) {
       dx= px[n-1]-px[n];
       dy= py[n-1]-py[n];
-      float d2 = diutil::absval2(dx, dy);
+      float d2 = miutil::absval2(dx, dy);
       if (dmax < d2)
         dmax=d2;
       if      (xmin>px[n]) xmin= px[n];
@@ -238,9 +239,9 @@ std::string LocationPlot::find(int x, int y)
 	for (int n=n1; n<n2; n++) {
 	  dx= px[n]-pos.x();
 	  dy= py[n]-pos.y();
-	  float d2 = diutil::absval2(dx, dy);
-	  if (dmin2 > d2) {
-	    dmin2 = d2;
+          float d2 = miutil::absval2(dx, dy);
+          if (dmin2 > d2) {
+            dmin2 = d2;
 	    lmin= l;
 	  }
 	}
@@ -253,9 +254,9 @@ std::string LocationPlot::find(int x, int y)
 	  for (int j=0; j<ndiv; j++) {
 	    dx= px[n-1]+sx*float(j)-pos.x();
 	    dy= py[n-1]+sy*float(j)-pos.y();
-	    float d2 = diutil::absval2(dx, dy);
-	    if (dmin2 > d2) {
-	      dmin2 = d2;
+            float d2 = miutil::absval2(dx, dy);
+            if (dmin2 > d2) {
+              dmin2 = d2;
 	      lmin= l;
 	    }
 	  }

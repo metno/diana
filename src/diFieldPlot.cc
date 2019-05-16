@@ -50,10 +50,12 @@
 #include "diRasterUtil.h"
 #include "diStaticPlot.h"
 #include "diUtilities.h"
-#include "util/math_util.h"
 #include "util/misc_util.h"
 #include "util/plotoptions_util.h"
 #include "util/string_util.h"
+
+#include <mi_fieldcalc/MetConstants.h>
+#include <mi_fieldcalc/math_util.h>
 
 #include <puTools/miStringFunctions.h>
 
@@ -779,10 +781,10 @@ void FieldPlot::setAutoStep(float* x, float* y, int& ixx1, int ix2, int& iyy1,
         continue;
       dx = x[i + 1] - x[i];
       dy = y[i + 1] - y[i];
-      adx += diutil::absval(dx , dy);
+      adx += miutil::absval(dx, dy);
       dx = x[i + nx] - x[i];
       dy = y[i + nx] - y[i];
-      ady += diutil::absval(dx , dy);
+      ady += miutil::absval(dx, dy);
     }
   }
 
@@ -854,7 +856,7 @@ int FieldPlot::xAutoStep(float* x, float* y, int& ixx1, int ix2, int iy,
     }
     const float dx = x[i + 1] - x[i];
     const float dy = y[i + 1] - y[i];
-    adx += diutil::absval(dx , dy);
+    adx += miutil::absval(dx, dy);
   }
 
   adx /= float(mx);
@@ -973,7 +975,7 @@ bool FieldPlot::plotWind(DiGLPainter* gl)
       float xx = x[i], yy = y[i];
       projection.convertToGeographic(1, &xx, &yy);
       const int turnBarbs = (yy < 0) ? -1 : 1;
-      gl->drawWindArrow(diutil::ms2knots(u[i]), diutil::ms2knots(v[i]), x[i], y[i], flagl, poptions.arrowstyle == arrow_wind_arrow, turnBarbs);
+      gl->drawWindArrow(miutil::ms2knots(u[i]), miutil::ms2knots(v[i]), x[i], y[i], flagl, poptions.arrowstyle == arrow_wind_arrow, turnBarbs);
     }
   }
   gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
@@ -1229,13 +1231,13 @@ bool FieldPlot::plotWindAndValue(DiGLPainter* gl, bool flightlevelChart)
       gx = x[i];
       gy = y[i];
       if (u[i] != fieldUndef && v[i] != fieldUndef && msex.isinside(gx, gy) && t[i] >= poptions.minvalue && t[i] <= poptions.maxvalue) {
-        ff = diutil::absval(u[i] , v[i]);
+        ff = miutil::absval(u[i], v[i]);
         if (ff > 0.00001) {
 
           gu = u[i] / ff;
           gv = v[i] / ff;
 
-          ff = diutil::ms2knots(ff);
+          ff = miutil::ms2knots(ff);
 
           const vcross::util::WindArrowFeathers waf = vcross::util::countFeathers(ff);
 
@@ -1386,7 +1388,7 @@ bool FieldPlot::plotWindAndValue(DiGLPainter* gl, bool flightlevelChart)
           && t[i] >= poptions.minvalue && t[i] <= poptions.maxvalue) {
 
         if (u[i] != fieldUndef && v[i] != fieldUndef)
-          ff = diutil::absval(u[i] , v[i]);
+          ff = miutil::absval(u[i], v[i]);
         else
           ff = 0.0f;
         if (ff > 0.00001) {
@@ -2395,10 +2397,10 @@ bool FieldPlot::markExtreme(DiGLPainter* gl)
       int i = iy * nx + ix;
       float dx = x[i + 1] - x[i];
       float dy = y[i + 1] - y[i];
-      avgdist += diutil::absval(dx , dy);
+      avgdist += miutil::absval(dx, dy);
       dx = x[i + nx] - x[i];
       dy = y[i + nx] - y[i];
-      avgdist += diutil::absval(dx , dy);
+      avgdist += miutil::absval(dx, dy);
       navg += 2;
     }
   }
@@ -2446,14 +2448,14 @@ bool FieldPlot::markExtreme(DiGLPainter* gl)
 
   const float radius = 3.0 * size * poptions.extremeRadius;
   const int nscan = std::max(int(radius / avgdist), 2);
-  const float rg = float(nscan), rg2 = diutil::square(rg);
+  const float rg = float(nscan), rg2 = miutil::square(rg);
 
   // for scan of surrounding positions
   const int mscan = nscan * 2 + 1;
   std::unique_ptr<int[]> iscan(new int[mscan]);
   iscan[nscan] = nscan;
   for (int j = 1; j <= nscan; j++) {
-    float dx = sqrtf(rg2 - diutil::square(j));
+    float dx = sqrtf(rg2 - miutil::square(j));
     int i = int(dx + 0.5);
     iscan[nscan - j] = i;
     iscan[nscan + j] = i;

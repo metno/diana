@@ -42,11 +42,11 @@
 #include "FimexIO.h"
 #endif
 #include "../diUtilities.h"
-#include "VcrossUtil.h"
 #include "diFieldFunctions.h"
-
 #include "util/misc_util.h"
 #include "util/nearest_element.h"
+
+#include <mi_fieldcalc/math_util.h>
 
 #include <puCtools/puCglob.h>
 #include <puTools/miTime.h>
@@ -913,7 +913,7 @@ long getMinStep(const std::set<miutil::miTime>& sorted)
   if (itr2 != sorted.end())
     ++itr2;
   for (; itr2 != sorted.end(); ++itr1, ++itr2) {
-    vcross::util::minimize(minValue, miutil::miTime::hourDiff(*itr2, *itr1));
+    miutil::minimize(minValue, miutil::miTime::hourDiff(*itr2, *itr1));
   }
 
   return minValue;

@@ -33,14 +33,14 @@
 
 #include "diColour.h"
 #include "diColourShading.h"
+#include "diField/VcrossUtil.h" // minimize + maximize
 #include "diGLPainter.h"
 #include "diPlotOptions.h"
-#include "util/math_util.h"
 #include "util/misc_util.h"
 #include "util/plotoptions_util.h"
 #include "util/string_util.h"
 
-#include <diField/VcrossUtil.h> // minimize + maximize
+#include <mi_fieldcalc/math_util.h>
 
 #include <puTools/miStringFunctions.h>
 
@@ -119,27 +119,27 @@ void RasterAlarmBox::pixelQuad(const diutil::PointI& s, const diutil::PointD& px
 
     const float SAFETY = 0.1f;
     int ix_min = int(c00.x() - SAFETY);
-    vcross::util::minimize(ix_min, int(c10.x() - SAFETY));
-    vcross::util::minimize(ix_min, int(c01.x() - SAFETY));
-    vcross::util::minimize(ix_min, int(c11.x() - SAFETY));
+    miutil::minimize(ix_min, int(c10.x() - SAFETY));
+    miutil::minimize(ix_min, int(c01.x() - SAFETY));
+    miutil::minimize(ix_min, int(c11.x() - SAFETY));
     int ix_max = int(c00.x() + SAFETY);
-    vcross::util::maximize(ix_max, int(c10.x() + SAFETY));
-    vcross::util::maximize(ix_max, int(c01.x() + SAFETY));
-    vcross::util::maximize(ix_max, int(c11.x() + SAFETY));
+    miutil::maximize(ix_max, int(c10.x() + SAFETY));
+    miutil::maximize(ix_max, int(c01.x() + SAFETY));
+    miutil::maximize(ix_max, int(c11.x() + SAFETY));
 
     int iy_min = int(c00.y() - SAFETY);
-    vcross::util::minimize(iy_min, int(c10.y() - SAFETY));
-    vcross::util::minimize(iy_min, int(c01.y() - SAFETY));
-    vcross::util::minimize(iy_min, int(c11.y() - SAFETY));
+    miutil::minimize(iy_min, int(c10.y() - SAFETY));
+    miutil::minimize(iy_min, int(c01.y() - SAFETY));
+    miutil::minimize(iy_min, int(c11.y() - SAFETY));
     int iy_max = int(c00.y() + SAFETY);
-    vcross::util::maximize(iy_max, int(c10.y() + SAFETY));
-    vcross::util::maximize(iy_max, int(c01.y() + SAFETY));
-    vcross::util::maximize(iy_max, int(c11.y() + SAFETY));
+    miutil::maximize(iy_max, int(c10.y() + SAFETY));
+    miutil::maximize(iy_max, int(c01.y() + SAFETY));
+    miutil::maximize(iy_max, int(c11.y() + SAFETY));
 
-    vcross::util::maximize(ix_min, 0);
-    vcross::util::minimize(ix_max, nx - 1);
-    vcross::util::maximize(iy_min, 0);
-    vcross::util::minimize(iy_max, ny - 1);
+    miutil::maximize(ix_min, 0);
+    miutil::minimize(ix_max, nx - 1);
+    miutil::maximize(iy_min, 0);
+    miutil::minimize(iy_max, ny - 1);
 
     bool is_alarm = false;
     // this box is a square in the field projection, but we need only the points

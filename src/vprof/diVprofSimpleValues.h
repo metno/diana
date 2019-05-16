@@ -44,11 +44,11 @@ public:
   void calculate();
   static void addCalculationInputVariables(std::set<std::string>& variables);
 
-  difield::ValuesDefined isDefined() const override { return defined_; }
+  miutil::ValuesDefined isDefined() const override { return defined_; }
   VprofGraphData_cp series(const std::string& id) const override;
 
 private:
-  difield::ValuesDefined defined_;
+  miutil::ValuesDefined defined_;
   series_v series_;
 };
 

@@ -30,7 +30,7 @@
 #ifndef diVprofGraphData_h
 #define diVprofGraphData_h
 
-#include "diField/diFieldDefined.h"
+#include <mi_fieldcalc/FieldDefined.h>
 
 #include <memory>
 #include <string>
@@ -51,7 +51,7 @@ public:
 
   virtual bool empty() const { return length() == 0; }
   virtual size_t length() const = 0;
-  virtual difield::ValuesDefined defined() const = 0;
+  virtual miutil::ValuesDefined defined() const = 0;
 
 private:
   std::string id_;

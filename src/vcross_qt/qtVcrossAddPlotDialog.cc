@@ -39,12 +39,13 @@
 #include "diUtilities.h"
 #include "qtUtility.h"
 
-#include <diField/diMetConstants.h>
 #include <puTools/miStringFunctions.h>
 
 #include <QSortFilterProxyModel>
 #include <QStringList>
 #include <QStringListModel>
+
+#include <mi_fieldcalc/MetConstants.h>
 
 #define MILOGGER_CATEGORY "diana.VcrossAddPlotDialog"
 #include <miLogger/miLogging.h>

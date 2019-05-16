@@ -3,7 +3,6 @@
 
 #include "util/string_util.h"
 
-#include "diField/diMetConstants.h"
 #include "diField/diRectangle.h"
 
 #include <puCtools/glob_cache.h>
@@ -136,16 +135,6 @@ bool getFromAny(const std::string &uof, string_v& lines)
     return getFromFile(uof.substr(7), lines);
 
   return diutil::getFromFile(uof, lines);
-}
-
-float ms2knots(float ff)
-{
-  return ff * MetNo::Constants::ms2knots;
-}
-
-float knots2ms(float ff)
-{
-  return ff * MetNo::Constants::knots2ms;
 }
 
 // only used from qtQuickMenu -- and from unit test, that's why it's here

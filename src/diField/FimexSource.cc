@@ -8,6 +8,8 @@
 #include "../util/string_util.h"
 #include "../util/charsets.h"
 
+#include <mi_fieldcalc/math_util.h>
+
 #include <puCtools/puCglob.h>
 
 #include <puTools/miStringBuilder.h>
@@ -822,7 +824,7 @@ bool FimexReftimeSource::makeInventory()
         }
 
         if (CoordinateSystem::ConstAxisPtr rAxis = cs->findAxisOfType(CoordinateAxis::Realization))
-          util::maximize(mInventory->realizationCount, cdm.getDimension(rAxis->getShape().front()).getLength());
+          miutil::maximize(mInventory->realizationCount, cdm.getDimension(rAxis->getShape().front()).getLength());
 
         CoordinateSystem::ConstAxisPtr zAxis = cs->getGeoZAxis();
         if (zAxis) {

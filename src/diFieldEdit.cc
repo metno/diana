@@ -41,7 +41,8 @@
 #include "diPlotModule.h"
 #include "diStaticPlot.h"
 #include "util/diKeyValue.h"
-#include "util/math_util.h"
+
+#include <mi_fieldcalc/math_util.h>
 
 #include <cmath>
 
@@ -51,9 +52,9 @@
 using namespace miutil;
 using namespace std;
 
-using diutil::absval;
-using diutil::absval2;
-using diutil::square;
+using miutil::absval;
+using miutil::absval2;
+using miutil::square;
 
 // static class members
 editType FieldEdit::editstate= edit_value;
@@ -422,7 +423,7 @@ void FieldEdit::makeWorkfield()
 
       delete[] indx;
 
-      workfield->forceDefined(difield::ALL_DEFINED);
+      workfield->forceDefined(miutil::ALL_DEFINED);
     }
   }
 
@@ -3361,7 +3362,7 @@ void FieldEdit::drawInfluence(DiGLPainter* gl)
     gl->Vertex2f(x,y);
     for (i=1; i<36; ++i) {
       ey= b*float(18-i)/18.;
-      ex= a*sqrtf(1.-diutil::square(ey/b));
+      ex = a * sqrtf(1. - miutil::square(ey / b));
       x= posx + ex*ecos - ey*esin;
       y= posy + ex*esin + ey*ecos;
       gl->Vertex2f(x,y);
@@ -3371,7 +3372,7 @@ void FieldEdit::drawInfluence(DiGLPainter* gl)
     gl->Vertex2f(x,y);
     for (i=35; i>0; --i) {
       ey= b*float(18-i)/18.;
-      ex= -a*sqrtf(1.-diutil::square(ey/b));
+      ex = -a * sqrtf(1. - miutil::square(ey / b));
       x= posx + ex*ecos - ey*esin;
       y= posy + ex*esin + ey*ecos;
       gl->Vertex2f(x,y);

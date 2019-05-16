@@ -68,14 +68,14 @@ public:
 
   bool empty() const override { return points_.empty(); }
   size_t length() const override { return points_.size(); }
-  difield::ValuesDefined defined() const override { return defined_; }
+  miutil::ValuesDefined defined() const override { return defined_; }
 
 private:
   std::string z_unit_;
   std::string x_unit_;
 
   ZX_v points_;
-  difield::ValuesDefined defined_;
+  miutil::ValuesDefined defined_;
 };
 
 typedef std::shared_ptr<VprofSimpleData> VprofSimpleData_p;

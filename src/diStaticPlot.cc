@@ -32,8 +32,10 @@
 #include "diana_config.h"
 
 #include "diField/VcrossUtil.h"
+#include "util/geo_util.h"
 #include "diGLPainter.h"
-#include "util/math_util.h"
+
+#include <mi_fieldcalc/math_util.h>
 
 #define MILOGGER_CATEGORY "diana.StaticPlot"
 #include <miLogger/miLogging.h>
@@ -68,7 +70,7 @@ const Colour& StaticPlot::notBackgroundColour(const Colour& c) const
 
 float StaticPlot::getPhysDiagonal() const
 {
-  return diutil::absval(getPhysWidth(), getPhysHeight());
+  return miutil::absval(getPhysWidth(), getPhysHeight());
 }
 
 void StaticPlot::setMapArea(const Area& area)
@@ -107,8 +109,8 @@ Area StaticPlot::findBestMatch(const Area& newa)
     if (xpos[i] < -MAX || xpos[i] > MAX || ypos[i] < -MAX || ypos[i] > MAX) {
       return newa;
     }
-    vcross::util::minimaximize(minx, maxx, xpos[i]);
-    vcross::util::minimaximize(miny, maxy, ypos[i]);
+    miutil::minimaximize(minx, maxx, xpos[i]);
+    miutil::minimaximize(miny, maxy, ypos[i]);
   }
 
   return Area(newa.P(), Rectangle(minx, miny, maxx, maxy));
@@ -132,9 +134,9 @@ void StaticPlot::updateGcd(DiGLPainter* gl)
   float x1, y1, x2, y2;
   GeoToPhys(lat1, lon1, x1, y1);
   GeoToPhys(lat2, lon2, x2, y2);
-  float distGeoSq = diutil::absval2(x2 - x1, y2 - y1);
+  float distGeoSq = miutil::absval2(x2 - x1, y2 - y1);
   float width = getPhysWidth(), height = getPhysHeight();
-  float distWindowSq = diutil::absval2(width, height);
+  float distWindowSq = miutil::absval2(width, height);
   float ratio = sqrtf(distWindowSq / distGeoSq);
   gcd = ngcd * ratio;
 }

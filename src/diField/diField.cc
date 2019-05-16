@@ -39,15 +39,15 @@ using namespace std;
 using namespace miutil;
 
 Field::Field()
-  : data(0)
-  , level(0)
-  , idnum(0)
-  , forecastHour(0)
-  , aHybrid(-1.)
-  , bHybrid(-1.)
-  , numSmoothed(0)
-  , turnWaveDirection(false)
-  , defined_(difield::NONE_DEFINED)
+    : data(0)
+    , level(0)
+    , idnum(0)
+    , forecastHour(0)
+    , aHybrid(-1.)
+    , bHybrid(-1.)
+    , numSmoothed(0)
+    , turnWaveDirection(false)
+    , defined_(miutil::NONE_DEFINED)
 {
   METLIBS_LOG_SCOPE();
 }
@@ -139,7 +139,7 @@ void Field::memberCopy(const Field& rhs)
 
 void Field::checkDefined()
 {
-  defined_ = difield::checkDefined(data, area.gridSize());
+  defined_ = miutil::checkDefined(data, area.gridSize());
 }
 
 
@@ -180,18 +180,18 @@ void Field::reserve(int xdim, int ydim)
   area.nx = xdim;
   area.ny = ydim;
 
-  fill(difield::UNDEF);
+  fill(miutil::UNDEF);
 }
 
 void Field::fill(float v)
 {
-  defined_ = (v == difield::UNDEF) ? difield::NONE_DEFINED : difield::ALL_DEFINED;
+  defined_ = (v == miutil::UNDEF) ? miutil::NONE_DEFINED : miutil::ALL_DEFINED;
   if (area.nx>0 && area.ny>0) {
     if (!data)
       data = new float[area.gridSize()];
     std::fill(data, data+area.gridSize(), v);
   } else {
-    defined_ = difield::NONE_DEFINED;
+    defined_ = miutil::NONE_DEFINED;
     delete[] data;
     data = 0;
   }
@@ -205,7 +205,7 @@ void Field::cleanup()
   delete[] data;
   data= 0;
 
-  defined_ = difield::NONE_DEFINED;
+  defined_ = miutil::NONE_DEFINED;
   numSmoothed= 0;
 }
 
@@ -214,26 +214,26 @@ bool Field::subtract(const Field &rhs)
   if (area != rhs.area)
     return false;
 
-  if (defined_ == difield::NONE_DEFINED)
+  if (defined_ == miutil::NONE_DEFINED)
     return true; // no change
 
   const size_t fsize = area.gridSize();
-  if (rhs.defined_ == difield::NONE_DEFINED) {
-    fill(difield::UNDEF);
+  if (rhs.defined_ == miutil::NONE_DEFINED) {
+    fill(miutil::UNDEF);
     return true;
   }
 
   const bool ad = (allDefined() && rhs.allDefined());
   size_t n_undefined = 0;
   for (size_t i=0; i<fsize; i++) {
-    if (ad || (data[i] != difield::UNDEF && rhs.data[i] != difield::UNDEF)) {
+    if (ad || (data[i] != miutil::UNDEF && rhs.data[i] != miutil::UNDEF)) {
       data[i] -= rhs.data[i];
     } else {
-      data[i] = difield::UNDEF;
+      data[i] = miutil::UNDEF;
       n_undefined += 1;
     }
   }
-  defined_ = difield::checkDefined(n_undefined, fsize);
+  defined_ = miutil::checkDefined(n_undefined, fsize);
   return true;
 }
 

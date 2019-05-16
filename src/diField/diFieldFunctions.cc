@@ -31,13 +31,12 @@
 
 #include "diFieldFunctions.h"
 
-#include "../util/openmp_tools.h"
-
 #include "diArea.h"
 #include "diGridConverter.h"
 #include "diField.h"
-#include "diFieldCalculations.h"
 #include "diFlightLevel.h"
+
+#include <mi_fieldcalc/FieldCalculations.h>
 
 #include <puTools/miStringFunctions.h>
 
@@ -657,7 +656,8 @@ bool FieldFunctions::fieldComputer(Function function,
     const std::vector<float>& constants, const std::vector<Field*>& vfinput,
     const std::vector<Field*>& vfres, GridConverter& gc)
 {
-  using namespace FieldCalculations;
+  using namespace miutil;
+  using namespace miutil::fieldcalc;
 
 #ifdef ENABLE_FIELDFUNCTIONS_TIMING
   METLIBS_LOG_TIME();
@@ -678,7 +678,7 @@ bool FieldFunctions::fieldComputer(Function function,
   int fsize = nx * ny;
 
   vector<float*> finp;
-  vector<difield::ValuesDefined> fdefin;
+  vector<miutil::ValuesDefined> fdefin;
   vector<float*> fout;
 
   bool ok = true;
@@ -687,17 +687,17 @@ bool FieldFunctions::fieldComputer(Function function,
   int nout = vfres.size();
   int nconst = constants.size();
 
-  difield::ValuesDefined fDefined = (ninp > 0) ? vfinput.front()->defined() : difield::NONE_DEFINED;
+  miutil::ValuesDefined fDefined = (ninp > 0) ? vfinput.front()->defined() : miutil::NONE_DEFINED;
 
   std::string unit;
 
   for (Field* fi : vfinput) {
     finp.push_back(fi->data);
     fdefin.push_back(fi->defined());
-    if (fi->defined() == difield::NONE_DEFINED)
-      fDefined = difield::NONE_DEFINED;
-    if (fi->defined() == difield::SOME_DEFINED)
-      fDefined = difield::SOME_DEFINED; // not perfectly correct
+    if (fi->defined() == miutil::NONE_DEFINED)
+      fDefined = miutil::NONE_DEFINED;
+    if (fi->defined() == miutil::SOME_DEFINED)
+      fDefined = miutil::SOME_DEFINED; // not perfectly correct
     if (fi->area.nx != nx || fi->area.ny != ny)
       ok = false;
   }
@@ -714,12 +714,12 @@ bool FieldFunctions::fieldComputer(Function function,
     return false;
   }
 
-  const float undef = difield::UNDEF;
+  const float undef = miutil::UNDEF;
 
   int nsmooth;
   const float *xmapr = 0, *ymapr = 0, *fcoriolis = 0;
   float plevel, plevel1, plevel2, plevel3, alevel, blevel, odepth;
-  float hours, constant, precipMin, snowRateMax, tcMax, fcoriolisMin;
+  float hours, precipMin, snowRateMax, tcMax, fcoriolisMin;
 
   int compute = 0;
 
@@ -750,8 +750,7 @@ bool FieldFunctions::fieldComputer(Function function,
     if (ninp != 1 || nout != 1)
       break;
     plevel = vfinput[0]->level;
-    res = pleveltemp(compute, nx, ny, finp[0], fout[0], plevel, fDefined,
-        undef,unit);
+    res = pleveltemp(nx, ny, finp[0], plevel, unit, compute, fout[0], fDefined, undef);
     break;
 
   case f_the_plevel_tk_rh:
@@ -763,8 +762,7 @@ bool FieldFunctions::fieldComputer(Function function,
     if (ninp != 2 || nout != 1)
       break;
     plevel = vfinput[0]->level;
-    res = plevelthe(compute, nx, ny, finp[0], finp[1], fout[0], plevel,
-        fDefined, undef);
+    res = plevelthe(nx, ny, finp[0], finp[1], plevel, compute, fout[0], fDefined, undef);
     break;
 
   case f_rh_plevel_tk_q:
@@ -806,8 +804,7 @@ bool FieldFunctions::fieldComputer(Function function,
     if (ninp != 2 || nout != 1)
       break;
     plevel = vfinput[0]->level;
-    res = plevelhum(compute, nx, ny, finp[0], finp[1], fout[0], plevel,
-        fDefined, undef, unit);
+    res = plevelhum(nx, ny, finp[0], finp[1], plevel, unit, compute, fout[0], fDefined, undef);
     break;
 
   case f_tcmean_plevel_z1_z2:
@@ -823,8 +820,7 @@ bool FieldFunctions::fieldComputer(Function function,
       break;
     plevel1 = vfinput[0]->level;
     plevel2 = vfinput[1]->level;
-    res = pleveldz2tmean(compute, nx, ny, finp[0], finp[1], fout[0], plevel1,
-        plevel2, fDefined, undef);
+    res = pleveldz2tmean(nx, ny, finp[0], finp[1], plevel1, plevel2, compute, fout[0], fDefined, undef);
     break;
 
   case f_ducting_plevel_tk_q:
@@ -842,8 +838,7 @@ bool FieldFunctions::fieldComputer(Function function,
     if (ninp != 2 || nout != 1)
       break;
     plevel = vfinput[0]->level;
-    res = plevelducting(compute, nx, ny, finp[0], finp[1], fout[0], plevel,
-        fDefined, undef);
+    res = plevelducting(nx, ny, finp[0], finp[1], plevel, compute, fout[0], fDefined, undef);
     break;
 
   case f_kindex_plevel_tk_rh:
@@ -857,8 +852,7 @@ bool FieldFunctions::fieldComputer(Function function,
     plevel1 = vfinput[0]->level;
     plevel2 = vfinput[1]->level;
     plevel3 = vfinput[3]->level;
-    res = kIndex(compute, nx, ny, finp[0], finp[1], finp[2], finp[3], finp[4],
-        fout[0], plevel1, plevel2, plevel3, fDefined, undef);
+    res = kIndex(nx, ny, finp[0], finp[1], finp[2], finp[3], finp[4], plevel1, plevel2, plevel3, compute, fout[0], fDefined, undef);
     break;
 
   case f_ductingindex_plevel_tk_rh:
@@ -870,8 +864,7 @@ bool FieldFunctions::fieldComputer(Function function,
     if (ninp != 2 || nout != 1)
       break;
     plevel = vfinput[0]->level;
-    res = ductingIndex(compute, nx, ny, finp[0], finp[1], fout[0], plevel,
-        fDefined, undef);
+    res = ductingIndex(nx, ny, finp[0], finp[1], plevel, compute, fout[0], fDefined, undef);
     break;
 
   case f_showalterindex_plevel_tk_rh:
@@ -884,8 +877,7 @@ bool FieldFunctions::fieldComputer(Function function,
       break;
     plevel1 = vfinput[0]->level;
     plevel2 = vfinput[1]->level;
-    res = showalterIndex(compute, nx, ny, finp[0], finp[1], finp[2], fout[0],
-        plevel1, plevel2, fDefined, undef);
+    res = showalterIndex(nx, ny, finp[0], finp[1], finp[2], plevel1, plevel2, compute, fout[0], fDefined, undef);
     break;
 
   case f_boydenindex_plevel_tk_z:
@@ -898,15 +890,13 @@ bool FieldFunctions::fieldComputer(Function function,
       break;
     plevel1 = vfinput[1]->level;
     plevel2 = vfinput[2]->level;
-    res = boydenIndex(compute, nx, ny, finp[0], finp[1], finp[2], fout[0],
-        plevel1, plevel2, fDefined, undef);
+    res = boydenIndex(nx, ny, finp[0], finp[1], finp[2], plevel1, plevel2, compute, fout[0], fDefined, undef);
     break;
 
   case f_sweatindex_plevel:
     if (ninp != 8 || nout != 1)
       break;
-    res = sweatIndex(compute, nx, ny, finp[0], finp[1], finp[2], finp[3],
-        finp[4], finp[5], finp[6], finp[7], fout[0], fDefined, undef);
+    res = sweatIndex(nx, ny, finp[0], finp[1], finp[2], finp[3], finp[4], finp[5], finp[6], finp[7], fout[0], fDefined, undef);
     break;
 
     //---------------------------------------------------
@@ -932,8 +922,7 @@ bool FieldFunctions::fieldComputer(Function function,
       break;
     alevel = vfinput[0]->aHybrid;
     blevel = vfinput[0]->bHybrid;
-    res = hleveltemp(compute, nx, ny, finp[0], finp[1], fout[0], alevel,
-        blevel, fDefined, undef,unit);
+    res = hleveltemp(nx, ny, finp[0], finp[1], alevel, blevel, unit, compute, fout[0], fDefined, undef);
     break;
 
   case f_the_hlevel_tk_q_psurf:
@@ -946,8 +935,7 @@ bool FieldFunctions::fieldComputer(Function function,
       break;
     alevel = vfinput[0]->aHybrid;
     blevel = vfinput[0]->bHybrid;
-    res = hlevelthe(compute, nx, ny, finp[0], finp[1], finp[2], fout[0],
-        alevel, blevel, fDefined, undef);
+    res = hlevelthe(nx, ny, finp[0], finp[1], finp[2], alevel, blevel, compute, fout[0], fDefined, undef);
     break;
 
   case f_rh_hlevel_tk_q_psurf:
@@ -990,8 +978,7 @@ bool FieldFunctions::fieldComputer(Function function,
       break;
     alevel = vfinput[0]->aHybrid;
     blevel = vfinput[0]->bHybrid;
-    res = hlevelhum(compute, nx, ny, finp[0], finp[1], finp[2], fout[0],
-        alevel, blevel, fDefined, undef, unit);
+    res = hlevelhum(nx, ny, finp[0], finp[1], finp[2], alevel, blevel, unit, compute, fout[0], fDefined, undef);
     break;
 
   case f_ducting_hlevel_tk_q_psurf:
@@ -1010,8 +997,7 @@ bool FieldFunctions::fieldComputer(Function function,
       break;
     alevel = vfinput[0]->aHybrid;
     blevel = vfinput[0]->bHybrid;
-    res = hlevelducting(compute, nx, ny, finp[0], finp[1], finp[2], fout[0],
-        alevel, blevel, fDefined, undef);
+    res = hlevelducting(nx, ny, finp[0], finp[1], finp[2], alevel, blevel, compute, fout[0], fDefined, undef);
     break;
 
   case f_pressure_hlevel_xx_psurf:
@@ -1019,8 +1005,7 @@ bool FieldFunctions::fieldComputer(Function function,
       break;
     alevel = vfinput[0]->aHybrid;
     blevel = vfinput[0]->bHybrid;
-    res = hlevelpressure(nx, ny, finp[1], fout[0], alevel, blevel, fDefined,
-        undef);
+    res = hlevelpressure(nx, ny, finp[1], alevel, blevel, fout[0], fDefined, undef);
     break;
 
     //---------------------------------------------------
@@ -1044,8 +1029,7 @@ bool FieldFunctions::fieldComputer(Function function,
       compute = 5;
     if (ninp != 2 || nout != 1)
       break;
-    res = aleveltemp(compute, nx, ny, finp[0], finp[1], fout[0], fDefined,
-        undef, unit);
+    res = aleveltemp(nx, ny, finp[0], finp[1], unit, compute, fout[0], fDefined, undef);
     break;
 
   case f_the_alevel_tk_q_p:
@@ -1056,8 +1040,7 @@ bool FieldFunctions::fieldComputer(Function function,
       compute = 2;
     if (ninp != 3 || nout != 1)
       break;
-    res = alevelthe(compute, nx, ny, finp[0], finp[1], finp[2], fout[0],
-        fDefined, undef);
+    res = alevelthe(nx, ny, finp[0], finp[1], finp[2], compute, fout[0], fDefined, undef);
     break;
 
   case f_rh_alevel_tk_q_p:
@@ -1098,8 +1081,7 @@ bool FieldFunctions::fieldComputer(Function function,
       compute = 12;
     if (ninp != 3 || nout != 1)
       break;
-    res = alevelhum(compute, nx, ny, finp[0], finp[1], finp[2], fout[0],
-        fDefined, undef, unit);
+    res = alevelhum(nx, ny, finp[0], finp[1], finp[2], unit, compute, fout[0], fDefined, undef);
     break;
 
   case f_ducting_alevel_tk_q_p:
@@ -1116,8 +1098,7 @@ bool FieldFunctions::fieldComputer(Function function,
       compute = 4;
     if (ninp != 3 || nout != 1)
       break;
-    res = alevelducting(compute, nx, ny, finp[0], finp[1], finp[2], fout[0],
-        fDefined, undef);
+    res = alevelducting(nx, ny, finp[0], finp[1], finp[2], compute, fout[0], fDefined, undef);
     break;
 
     //---------------------------------------------------
@@ -1133,8 +1114,7 @@ bool FieldFunctions::fieldComputer(Function function,
     if (ninp != 2 || nout != 1)
       break;
     odepth = vfinput[0]->level;
-    res = seaSoundSpeed(compute, nx, ny, finp[0], finp[1], fout[0], odepth,
-        fDefined, undef);
+    res = seaSoundSpeed(nx, ny, finp[0], finp[1], odepth, compute, fout[0], fDefined, undef);
     break;
 
     //---------------------------------------------------
@@ -1155,7 +1135,7 @@ bool FieldFunctions::fieldComputer(Function function,
       compute = 4;
     if (ninp != 1 || nout != 1)
       break;
-    res = cvtemp(compute, nx, ny, finp[0], fout[0], fDefined, undef);
+    res = cvtemp(nx, ny, finp[0], compute, fout[0], fDefined, undef);
     break;
 
   case f_tdk_tk_rh:
@@ -1175,7 +1155,7 @@ bool FieldFunctions::fieldComputer(Function function,
       compute = 5;
     if (ninp != 2 || nout != 1)
       break;
-    res = cvhum(compute, nx, ny, finp[0], finp[1], fout[0], fDefined, undef, unit);
+    res = cvhum(nx, ny, finp[0], finp[1], unit, compute, fout[0], fDefined, undef);
     break;
 
   case f_abshum_tk_rh:
@@ -1193,154 +1173,71 @@ bool FieldFunctions::fieldComputer(Function function,
   case f_minvalue_fields:
     if (ninp != 2 || nout != 1)
       break;
-    DIUTIL_OPENMP_PARALLEL(fsize, for)
-    for (int i = 0; i < fsize; i++) {
-      if (calculations::is_defined(fDefined, finp[0][i], finp[1][i], difield::UNDEF))
-        fout[0][i] = std::min(finp[0][i], finp[1][i]);
-      else
-        fout[0][i] = difield::UNDEF;
-    }
+    minvalueFields(nx, ny, finp[0], finp[1], fout[0], fDefined, UNDEF);
     res = true;
     break;
 
   case f_maxvalue_fields:
     if (ninp != 2 || nout != 1)
       break;
-    DIUTIL_OPENMP_PARALLEL(fsize, for)
-    for (int i = 0; i < fsize; i++) {
-      if (calculations::is_defined(fDefined, finp[0][i], finp[1][i], difield::UNDEF))
-        fout[0][i] = std::max(finp[0][i], finp[1][i]);
-      else
-        fout[0][i] = difield::UNDEF;
-    }
+    maxvalueFields(nx, ny, finp[0], finp[1], fout[0], fDefined, UNDEF);
     res = true;
     break;
 
   case f_minvalue_field_const:
     if (ninp != 1 || nout != 1 || nconst != 1)
       break;
-    constant = constants[0];
-    if (constant != difield::UNDEF) {
-      DIUTIL_OPENMP_PARALLEL(fsize, for)
-      for (int i = 0; i < fsize; i++) {
-        if (calculations::is_defined(fDefined, finp[0][i], difield::UNDEF))
-          fout[0][i] = std::min(finp[0][i], constant);
-        else
-          fout[0][i] = difield::UNDEF;
-      }
-    } else {
-      fDefined = difield::NONE_DEFINED;
-      DIUTIL_OPENMP_PARALLEL(fsize, for)
-      for (int i = 0; i < fsize; i++)
-        fout[0][i] = difield::UNDEF;
-    }
+    minvalueFieldConst(nx, ny, finp[0], constants[0], fout[0], fDefined, UNDEF);
     res = true;
     break;
 
   case f_maxvalue_field_const:
     if (ninp != 1 || nout != 1 || nconst != 1)
       break;
-    constant = constants[0];
-    if (constant != difield::UNDEF) {
-      DIUTIL_OPENMP_PARALLEL(fsize, for)
-      for (int i = 0; i < fsize; i++) {
-        if (calculations::is_defined(fDefined, finp[0][i], difield::UNDEF))
-          fout[0][i] = std::max(finp[0][i], constant);
-        else
-          fout[0][i] = difield::UNDEF;
-      }
-    } else {
-      fDefined = difield::NONE_DEFINED;
-      DIUTIL_OPENMP_PARALLEL(fsize, for)
-      for (int i = 0; i < fsize; i++)
-        fout[0][i] = difield::UNDEF;
-    }
+    maxvalueFieldConst(nx, ny, finp[0], constants[0], fout[0], fDefined, UNDEF);
     res = true;
     break;
 
   case f_abs:
     if (ninp != 1 || nout != 1)
       break;
-    DIUTIL_OPENMP_PARALLEL(fsize, for)
-    for (int i = 0; i < fsize; i++) {
-      if (calculations::is_defined(fDefined, finp[0][i], difield::UNDEF))
-        fout[0][i] = fabs(finp[0][i]);
-      else
-        fout[0][i] = difield::UNDEF;
-    }
+    absvalueField(nx, ny, finp[0], fout[0], fDefined, miutil::UNDEF);
     res = true;
     break;
 
   case f_log10:
     if (ninp != 1 || nout != 1)
       break;
-    DIUTIL_OPENMP_PARALLEL(fsize, for)
-    for (int i = 0; i < fsize; i++) {
-      if (calculations::is_defined(fDefined, finp[0][i], difield::UNDEF))
-        fout[0][i] = std::log10(finp[0][i]);
-      else
-        fout[0][i] = difield::UNDEF;
-    }
+    log10Field(nx, ny, finp[0], fout[0], fDefined, miutil::UNDEF);
     res = true;
     break;
 
   case f_pow10:
     if (ninp != 1 || nout != 1)
       break;
-    DIUTIL_OPENMP_PARALLEL(fsize, for)
-    for (int i = 0; i < fsize; i++) {
-      if (calculations::is_defined(fDefined, finp[0][i], difield::UNDEF))
-        fout[0][i] = std::pow(10, finp[0][i]);
-      else
-        fout[0][i] = difield::UNDEF;
-    }
+    pow10Field(nx, ny, finp[0], fout[0], fDefined, miutil::UNDEF);
     res = true;
     break;
 
   case f_log:
     if (ninp != 1 || nout != 1)
       break;
-    DIUTIL_OPENMP_PARALLEL(fsize, for)
-    for (int i = 0; i < fsize; i++) {
-      if (calculations::is_defined(fDefined, finp[0][i], difield::UNDEF))
-        fout[0][i] = std::log(finp[0][i]);
-      else
-        fout[0][i] = difield::UNDEF;
-    }
+    logField(nx, ny, finp[0], fout[0], fDefined, miutil::UNDEF);
     res = true;
     break;
 
   case f_exp:
     if (ninp != 1 || nout != 1)
       break;
-    DIUTIL_OPENMP_PARALLEL(fsize, for)
-    for (int i = 0; i < fsize; i++) {
-      if (calculations::is_defined(fDefined, finp[0][i], difield::UNDEF))
-        fout[0][i] = exp(finp[0][i]);
-      else
-        fout[0][i] = difield::UNDEF;
-    }
+    expField(nx, ny, finp[0], fout[0], fDefined, miutil::UNDEF);
     res = true;
     break;
 
   case f_power:
     if (ninp != 1 || nout != 1 || nconst != 1)
       break;
-    constant = constants[0];
-    if (constant != difield::UNDEF) {
-      DIUTIL_OPENMP_PARALLEL(fsize, for)
-      for (int i = 0; i < fsize; i++) {
-        if (calculations::is_defined(fDefined, finp[0][i], difield::UNDEF))
-          fout[0][i] = powf(finp[0][i], constant);
-        else
-          fout[0][i] = difield::UNDEF;
-      }
-    } else {
-      fDefined = difield::NONE_DEFINED;
-      DIUTIL_OPENMP_PARALLEL(fsize, for)
-      for (int i = 0; i < fsize; i++)
-        fout[0][i] = difield::UNDEF;
-    }
+
+    powerField(nx, ny, finp[0], constants[0], fout[0], fDefined, miutil::UNDEF);
     res = true;
     break;
 
@@ -1354,7 +1251,7 @@ bool FieldFunctions::fieldComputer(Function function,
     if (ninp != 1 || nout != 1 || nconst != 1)
       break;
     nsmooth = int(constants[0] + 0.5);
-    calculations::copy_field(fout[0], finp[0], fsize);
+    fieldcalc::copy_field(fout[0], finp[0], fsize);
     res = vfres[0]->smooth(nsmooth);
     break;
 
@@ -1366,8 +1263,7 @@ bool FieldFunctions::fieldComputer(Function function,
       compute = 2;
     if (ninp != 3 || nout != 1)
       break;
-    res = windCooling(compute, nx, ny, finp[0], finp[1], finp[2], fout[0],
-        fDefined, undef);
+    res = windCooling(nx, ny, finp[0], finp[1], finp[2], compute, fout[0], fDefined, undef);
     break;
 
   case f_undercooled_rain:
@@ -1376,8 +1272,7 @@ bool FieldFunctions::fieldComputer(Function function,
     precipMin = constants[0];
     snowRateMax = constants[1];
     tcMax = constants[2];
-    res = underCooledRain(nx, ny, finp[0], finp[1], finp[2], fout[0],
-        precipMin, snowRateMax, tcMax, fDefined, undef);
+    res = underCooledRain(nx, ny, finp[0], finp[1], finp[2], precipMin, snowRateMax, tcMax, fout[0], fDefined, undef);
     break;
 
   case f_pressure2flightlevel:
@@ -1401,42 +1296,28 @@ bool FieldFunctions::fieldComputer(Function function,
   case f_vessel_icing_modstall:
     if (ninp != 11 || nout != 1 || nconst != 4)
       break;
-    res = vesselIcingModStall(nx, ny, finp[0], finp[1], finp[2], finp[3], finp[4],
-        finp[5], finp[6], finp[7], finp[8], finp[9], finp[10], fout[0],
-        constants[0], constants[1], constants[2], constants[3], fDefined, undef);
+    res = vesselIcingModStall(nx, ny, finp[0], finp[1], finp[2], finp[3], finp[4], finp[5], finp[6], finp[7], finp[8], finp[9], finp[10], constants[0],
+                              constants[1], constants[2], constants[3], fout[0], fDefined, undef);
     break;
 
   case f_vessel_icing_mincog:
     if (ninp != 11 || nout != 1 || nconst != 5)
       break;
-    res = vesselIcingMincog(nx, ny, finp[0], finp[1], finp[2], finp[3], finp[4], finp[5], finp[6], finp[7], finp[8], finp[9], finp[10], fout[0], constants[0],
-                            constants[1], constants[2], constants[3], constants[4], fDefined, undef);
+    res = vesselIcingMincog(nx, ny, finp[0], finp[1], finp[2], finp[3], finp[4], finp[5], finp[6], finp[7], finp[8], finp[9], finp[10], constants[0],
+                            constants[1], constants[2], constants[3], constants[4], fout[0], fDefined, undef);
     break;
 
   case f_replace_undefined:
     if (ninp != 1 || nout != 1 || nconst != 1)
       break;
-    constant = constants[0];
-    DIUTIL_OPENMP_PARALLEL(fsize, for)
-    for (int i = 0; i < fsize; i++)
-      if (finp[0][i] != difield::UNDEF)
-        fout[0][i] = finp[0][i];
-      else
-        fout[0][i] = constant;
-    vfres[0]->checkDefined();
+    replaceUndefined(nx, ny, finp[0], constants[0], fout[0], fDefined, miutil::UNDEF);
     res = true;
     break;
 
   case f_replace_defined:
     if (ninp != 1 || nout != 1 || nconst != 1)
       break;
-    constant = constants[0];
-    DIUTIL_OPENMP_PARALLEL(fsize, for)
-    for (int i = 0; i < fsize; i++)
-      if (finp[0][i] != difield::UNDEF)
-        fout[0][i] = constant;
-      else
-        fout[0][i] = difield::UNDEF;
+    replaceDefined(nx, ny, finp[0], constants[0], fout[0], fDefined, miutil::UNDEF);
     res = true;
     break;
 
@@ -1451,8 +1332,7 @@ bool FieldFunctions::fieldComputer(Function function,
     if (ninp != 1 || nout != 1 || nconst < 2)
       break;
     // constants has at least low_value and high_value
-    res = values2classes(nx, ny, finp[0], fout[0], constants,
-        fDefined, undef);
+    res = values2classes(nx, ny, finp[0], fout[0], constants, fDefined, undef);
     break;
 
   // time step functions
@@ -1487,8 +1367,7 @@ bool FieldFunctions::fieldComputer(Function function,
 
   case f_sum_f:
     // field + field + field +
-    res = sumFields(nx, ny, finp, fout[0],
-        fDefined, undef);
+    res = sumFields(nx, ny, finp, fout[0], fDefined, undef);
     break;
 
   case f_add_f_c:
@@ -1505,8 +1384,7 @@ bool FieldFunctions::fieldComputer(Function function,
       compute = 4; // field / constant
     if (ninp != 1 || nout != 1 || nconst != 1)
       break;
-    res = fieldOPERconstant(compute, nx, ny, finp[0], constants[0], fout[0],
-        fDefined, undef);
+    res = fieldOPERconstant(compute, nx, ny, finp[0], constants[0], fout[0], fDefined, undef);
     break;
 
   case f_add_c_f:
@@ -1523,14 +1401,13 @@ bool FieldFunctions::fieldComputer(Function function,
       compute = 4; // constant / field
     if (ninp != 1 || nout != 1 || nconst != 1)
       break;
-    res = constantOPERfield(compute, nx, ny, constants[0], finp[0], fout[0],
-        fDefined, undef);
+    res = constantOPERfield(compute, nx, ny, constants[0], finp[0], fout[0], fDefined, undef);
     break;
 
   case f_equivalent_to :
     if (ninp != 1 || nout != 1)
       break;
-    calculations::copy_field(fout[0], finp[0], fsize);
+    fieldcalc::copy_field(fout[0], finp[0], fsize);
     res = true;
     break;
 
@@ -1546,8 +1423,7 @@ bool FieldFunctions::fieldComputer(Function function,
   case f_min_index:
     if (compute == 0)
       compute = 4;
-    res = extremeValue(compute, nx, ny, finp, fout[0],
-        fDefined, undef);
+    res = extremeValue(compute, nx, ny, finp, fout[0], fDefined, undef);
     break;
 
 
@@ -1583,8 +1459,7 @@ bool FieldFunctions::fieldComputer(Function function,
       compute = 6;
     if (nout != 1 || nconst < 1)
       break;
-    res = probability(compute, nx, ny, finp, fdefin, constants,  fout[0],
-        fDefined, undef);
+    res = probability(compute, nx, ny, finp, fdefin, constants, fout[0], fDefined, undef);
     break;
 
   case f_neighbour_probability_above:
@@ -1608,8 +1483,7 @@ bool FieldFunctions::fieldComputer(Function function,
       compute = 1;
     if (ninp != 1 || nout != 1 || nconst < 1)
       break;
-    res = neighbourFunctions(nx, ny, finp[0], constants, compute, fout[0],
-        fDefined, undef);
+    res = neighbourFunctions(nx, ny, finp[0], constants, compute, fout[0], fDefined, undef);
     break;
 
   case f_neighbour_probability_above2:
@@ -1647,40 +1521,35 @@ bool FieldFunctions::fieldComputer(Function function,
       break;
     plevel = vfinput[0]->level;
     if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, &fcoriolis))
-      res = FieldCalculations::plevelqvector(compute, nx, ny, finp[0], finp[1], fout[0],
-          xmapr, ymapr, fcoriolis, plevel, fDefined, undef);
+      res = plevelqvector(nx, ny, finp[0], finp[1], xmapr, ymapr, fcoriolis, plevel, compute, fout[0], fDefined, undef);
     break;
 
   case f_geostrophic_wind_plevel_z_xcomp:
     if (ninp != 1 || nout != 1)
       break;
     if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, &fcoriolis))
-      res = FieldCalculations::plevelgwind_xcomp(nx, ny, finp[0], fout[0], xmapr, ymapr,
-          fcoriolis, fDefined, undef);
+      res = plevelgwind_xcomp(nx, ny, finp[0], xmapr, ymapr, fcoriolis, fout[0], fDefined, undef);
     break;
 
   case f_geostrophic_wind_plevel_z_ycomp:
     if (ninp != 1 || nout != 1)
       break;
     if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, &fcoriolis))
-      res = FieldCalculations::plevelgwind_ycomp(nx, ny, finp[0], fout[0], xmapr, ymapr,
-          fcoriolis, fDefined, undef);
+      res = plevelgwind_ycomp(nx, ny, finp[0], xmapr, ymapr, fcoriolis, fout[0], fDefined, undef);
     break;
 
   case f_geostrophic_vorticity_plevel_z:
     if (ninp != 1 || nout != 1)
       break;
     if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, &fcoriolis))
-      res = FieldCalculations::plevelgvort(nx, ny, finp[0], fout[0], xmapr, ymapr, fcoriolis,
-          fDefined, undef);
+      res = plevelgvort(nx, ny, finp[0], xmapr, ymapr, fcoriolis, fout[0], fDefined, undef);
     break;
 
   case f_geostrophic_wind_ilevel_mpot:
     if (ninp != 1 || nout != 2)
       break;
     if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, &fcoriolis))
-      res = FieldCalculations::ilevelgwind(nx, ny, finp[0], fout[0], fout[1], xmapr, ymapr,
-          fcoriolis, fDefined, undef);
+      res = ilevelgwind(nx, ny, finp[0], xmapr, ymapr, fcoriolis, fout[0], fout[1], fDefined, undef);
     break;
 
     //---------------------------------------------------
@@ -1702,31 +1571,28 @@ bool FieldFunctions::fieldComputer(Function function,
     if (ninp != 1 || nout != 1)
       break;
     if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, 0))
-      res = gradient(compute, nx, ny, finp[0], fout[0], xmapr, ymapr, fDefined, undef);
+      res = gradient(nx, ny, finp[0], xmapr, ymapr, compute, fout[0], fDefined, undef);
     break;
 
   case f_rel_vorticity:
     if (ninp != 2 || nout != 1)
       break;
     if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, 0))
-      res = FieldCalculations::relvort(nx, ny, finp[0], finp[1], fout[0], xmapr, ymapr,
-          fDefined, undef);
+      res = relvort(nx, ny, finp[0], finp[1], xmapr, ymapr, fout[0], fDefined, undef);
     break;
 
   case f_abs_vorticity:
     if (ninp != 2 || nout != 1)
       break;
     if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, &fcoriolis))
-      res = FieldCalculations::absvort(nx, ny, finp[0], finp[1], fout[0], xmapr, ymapr, fcoriolis,
-          fDefined, undef);
+      res = absvort(nx, ny, finp[0], finp[1], xmapr, ymapr, fcoriolis, fout[0], fDefined, undef);
     break;
 
   case f_divergence:
     if (ninp != 2 || nout != 1)
       break;
     if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, 0))
-      res = FieldCalculations::divergence(nx, ny, finp[0], finp[1], fout[0], xmapr, ymapr,
-          fDefined, undef);
+      res = divergence(nx, ny, finp[0], finp[1], xmapr, ymapr, fout[0], fDefined, undef);
     break;
 
   case f_advection:
@@ -1734,16 +1600,14 @@ bool FieldFunctions::fieldComputer(Function function,
       break;
     hours = constants[0];
     if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, 0))
-      res = FieldCalculations::advection(nx, ny, finp[0], finp[1], finp[2], fout[0], xmapr, ymapr,
-          hours, fDefined, undef);
+      res = advection(nx, ny, finp[0], finp[1], finp[2], xmapr, ymapr, hours, fout[0], fDefined, undef);
     break;
 
   case f_thermal_front_parameter_tx:
     if (ninp != 1 || nout != 1)
       break;
     if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, 0))
-      res = FieldCalculations::thermalFrontParameter(nx, ny, finp[0], fout[0], xmapr, ymapr,
-          fDefined, undef);
+      res = thermalFrontParameter(nx, ny, finp[0], xmapr, ymapr, fout[0], fDefined, undef);
     break;
 
   case f_momentum_x_coordinate:
@@ -1751,8 +1615,7 @@ bool FieldFunctions::fieldComputer(Function function,
       break;
     fcoriolisMin = constants[0];
     if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, &fcoriolis))
-      res = FieldCalculations::momentumXcoordinate(nx, ny, finp[0], fout[0], xmapr, fcoriolis,
-          fcoriolisMin, fDefined, undef);
+      res = momentumXcoordinate(nx, ny, finp[0], xmapr, fcoriolis, fcoriolisMin, fout[0], fDefined, undef);
     break;
 
   case f_momentum_y_coordinate:
@@ -1760,16 +1623,14 @@ bool FieldFunctions::fieldComputer(Function function,
       break;
     fcoriolisMin = constants[0];
     if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, &fcoriolis))
-      res = FieldCalculations::momentumYcoordinate(nx, ny, finp[0], fout[0], ymapr, fcoriolis,
-          fcoriolisMin, fDefined, undef);
+      res = momentumYcoordinate(nx, ny, finp[0], ymapr, fcoriolis, fcoriolisMin, fout[0], fDefined, undef);
     break;
 
   case f_jacobian:
     if (ninp != 2 || nout != 1)
       break;
     if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, 0))
-      res = FieldCalculations::jacobian(nx, ny, finp[0], finp[1], fout[0], xmapr, ymapr,
-          fDefined, undef);
+      res = jacobian(nx, ny, finp[0], finp[1], xmapr, ymapr, fout[0], fDefined, undef);
     break;
 
     // ==================== end geographic functions

@@ -38,7 +38,7 @@ VprofSimpleData::VprofSimpleData(const std::string& id, const std::string& z_uni
     : VprofGraphData(id)
     , z_unit_(z_unit)
     , x_unit_(x_unit)
-    , defined_(difield::ALL_DEFINED)
+    , defined_(miutil::ALL_DEFINED)
 {
 }
 
@@ -47,8 +47,8 @@ void VprofSimpleData::add(float z, float x)
   points_.push_back(ZX(z, x));
   const bool invalid = points_.back().is_invalid();
   if (points_.size() == 1) {
-    defined_ = invalid ? difield::NONE_DEFINED : difield::ALL_DEFINED;
-  } else if ((invalid && defined_ == difield::ALL_DEFINED) || (!invalid && defined_ == difield::NONE_DEFINED)) {
-    defined_ = difield::SOME_DEFINED;
+    defined_ = invalid ? miutil::NONE_DEFINED : miutil::ALL_DEFINED;
+  } else if ((invalid && defined_ == miutil::ALL_DEFINED) || (!invalid && defined_ == miutil::NONE_DEFINED)) {
+    defined_ = miutil::SOME_DEFINED;
   }
 }

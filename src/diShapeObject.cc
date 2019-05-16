@@ -32,13 +32,15 @@
 #include "diShapeObject.h"
 
 #include "diColourShading.h"
+#include "diField/diPoint.h"
 #include "diGLPainter.h"
 #include "diPoint.h"
 #include "diStaticPlot.h"
 #include "util/polygon_util.h"
 #include "util/subprocess.h"
 
-#include <diField/VcrossUtil.h> // minimize + maximize
+#include <mi_fieldcalc/math_util.h>
+
 #include <puTools/miStringFunctions.h>
 
 #include <QFile>
@@ -251,16 +253,16 @@ bool ShapeObject::changeProj()
 
       for (int v=pb+1; v<pe; v++) {
         polygon << QPointF(tx[v], ty[v]);
-        vcross::util::minimaximize(pr.x1, pr.x2, tx[v]);
-        vcross::util::minimaximize(pr.y1, pr.y2, ty[v]);
+        miutil::minimaximize(pr.x1, pr.x2, tx[v]);
+        miutil::minimaximize(pr.y1, pr.y2, ty[v]);
       }
 
       s->contours << polygon;
 
-      vcross::util::minimize(s->rect.x1, pr.x1);
-      vcross::util::minimize(s->rect.y1, pr.y1);
-      vcross::util::maximize(s->rect.x2, pr.x2);
-      vcross::util::maximize(s->rect.y2, pr.y2);
+      miutil::minimize(s->rect.x1, pr.x1);
+      miutil::minimize(s->rect.y1, pr.y1);
+      miutil::maximize(s->rect.x2, pr.x2);
+      miutil::maximize(s->rect.y2, pr.y2);
     }
   }
 

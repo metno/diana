@@ -38,6 +38,8 @@
 #include "diVprofPainter.h"
 #include "diVprofUtils.h"
 
+#include <mi_fieldcalc/MetConstants.h>
+
 #include <iomanip>
 #include <sstream>
 
@@ -137,7 +139,7 @@ void VprofBoxSigWind::plotValues(VprofPainter* p, VprofValues_cp values, const V
         if (i == used.size()) {
           used.push_back(yy);
           int idd = int(dd->x(k) + 5) / 10;
-          const float iff = diutil::float2int(diutil::ms2knots(ff->x(k)));
+          const float iff = diutil::float2int(miutil::ms2knots(ff->x(k)));
           if (idd == 0 && iff > 0)
             idd = 36;
           std::ostringstream ostr;

@@ -35,19 +35,18 @@
 
 #include "diColour.h"
 #include "diColourShading.h"
+#include "diField/diField.h"
 #include "diGLPainter.h"
 #include "diGlUtilities.h"
 #include "diPaintGLPainter.h"
 #include "diPlotOptions.h"
 #include "diRasterPlot.h"
 #include "diUtilities.h"
-#include "util/math_util.h"
 #include "util/misc_util.h"
 #include "util/plotoptions_util.h"
 #include "util/string_util.h"
 
-#include <diField/VcrossUtil.h> // minimize + maximize
-#include <diField/diField.h>
+#include <mi_fieldcalc/math_util.h>
 
 #include <QPainter>
 

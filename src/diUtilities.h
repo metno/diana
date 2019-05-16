@@ -69,10 +69,6 @@ bool getFromAny(const std::string &url_or_filename, string_v& lines);
 inline int float2int(float f)
 { return (int)(f > 0.0 ? f + 0.5 : f - 0.5); }
 
-float ms2knots(float ff);
-
-float knots2ms(float ff);
-
 /*! replace reftime by refhour and refoffset
   refoffset is 0 today, -1 yesterday etc independent of time of the day
 */

@@ -33,7 +33,8 @@
 
 #include "diGLPainter.h"
 #include "diStaticPlot.h"
-#include "util/math_util.h"
+
+#include <mi_fieldcalc/math_util.h>
 
 #include <puTools/miStringFunctions.h>
 
@@ -591,7 +592,7 @@ bool ObjectPlot::rotateLine(float d_x, float d_y)
   for (i=1; i<n; i++) {
     dx= nodePoints[i].x()-nodePoints[i-1].x();
     dy= nodePoints[i].y()-nodePoints[i-1].y();
-    s[i]= s[i-1] + diutil::absval(dx, dy);
+    s[i] = s[i - 1] + miutil::absval(dx, dy);
   }
   for (int m=0; m < n; m++){
     if (!nodePoints[m].marked())
@@ -1112,7 +1113,7 @@ bool ObjectPlot::isInsideBox(float x, float y,float x1,float y1,float x2,float y
   if (x2!=x1){
     float  dy = y2-y1;
     float  dx = x2-x1;
-    float hyp = diutil::absval(dy, dx);
+    float hyp = miutil::absval(dy, dx);
     int sign=1;
     if (dy*dx < 0) sign = -1;
     salpha = sign*fabsf(dy)/hyp;
@@ -1203,10 +1204,10 @@ int ObjectPlot::smoothline(int npos, float x[], float y[], int nfirst, int nlast
   {
     xl1 = x[n]-x[n-1];
     yl1 = y[n]-y[n-1];
-    s1  = diutil::absval(xl1, yl1);
+    s1 = miutil::absval(xl1, yl1);
     xl2 = x[n+1]-x[n];
     yl2 = y[n+1]-y[n];
-    s2  = diutil::absval(xl2, yl2);
+    s2 = miutil::absval(xl2, yl2);
     dx2 = (xl1*(s2/s1)+xl2*(s1/s2))/(s1+s2);
     dy2 = (yl1*(s2/s1)+yl2*(s1/s2))/(s1+s2);
   }
@@ -1214,7 +1215,7 @@ int ObjectPlot::smoothline(int npos, float x[], float y[], int nfirst, int nlast
   {
     xl2 = x[n+1]-x[n];
     yl2 = y[n+1]-y[n];
-    s2  = diutil::absval(xl2, yl2);
+    s2 = miutil::absval(xl2, yl2);
     dx2 = xl2/s2;
     dy2 = yl2/s2;
   }
@@ -1234,7 +1235,7 @@ int ObjectPlot::smoothline(int npos, float x[], float y[], int nfirst, int nlast
     if (n < npos-1) {
       xl2 = x[n+1]-x[n];
       yl2 = y[n+1]-y[n];
-      s2  = diutil::absval(xl2, yl2);
+      s2 = miutil::absval(xl2, yl2);
       dx2 = (xl1*(s2/s1)+xl2*(s1/s2))/(s1+s2);
       dy2 = (yl1*(s2/s1)+yl2*(s1/s2))/(s1+s2);
     }

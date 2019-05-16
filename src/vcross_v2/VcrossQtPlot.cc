@@ -34,16 +34,14 @@
 #include "VcrossQtContour.h"
 #include "VcrossQtPaint.h"
 #include "VcrossQtUtil.h"
-
 #include "diLinetype.h"
 #include "diPoint.h"
 #include "diUtilities.h"
-
-#include "util/math_util.h"
 #include "util/qstring_util.h"
-
-#include "diField/diMetConstants.h"
 #include "diField/VcrossUtil.h"
+
+#include <mi_fieldcalc/MetConstants.h>
+#include <mi_fieldcalc/math_util.h>
 
 #include <puTools/miStringBuilder.h>
 #include <puTools/miStringFunctions.h>
@@ -259,7 +257,7 @@ QString QtPlot::axisPosition(int x, int y)
 
   QString text;
   { // always show y
-    using namespace MetNo::Constants;
+    using namespace miutil::constants;
 
     QString unit = QString::fromStdString(mAxisY->label());
     tick_to_axis_f tta = identity;
@@ -599,7 +597,7 @@ void QtPlot::prepareYAxisRange()
         const float zax_value = z_values->value(idx);
         if (!std::isnan(zax_value)) {
           have_z = true;
-          vcross::util::minimaximize(yax_min, yax_max, zax_value);
+          miutil::minimaximize(yax_min, yax_max, zax_value);
         }
       }
     }
@@ -638,8 +636,8 @@ void QtPlot::prepareAxesForAspectRatio()
     float ymax = mAxisY->getValueMax(), ymin = mAxisY->getValueMin();
     if (mAxisY->quantity() == vcross::detail::Axis::PRESSURE) {
       // use the ICAO standard atmosphere
-      ymax = MetNo::Constants::ICAO_geo_altitude_from_pressure(ymax);
-      ymin = MetNo::Constants::ICAO_geo_altitude_from_pressure(ymin);
+      ymax = miutil::constants::ICAO_geo_altitude_from_pressure(ymax);
+      ymin = miutil::constants::ICAO_geo_altitude_from_pressure(ymin);
     }
     const float rangeY = std::abs(ymax-ymin);
     if (rangeY > 0) {
@@ -668,13 +666,13 @@ void QtPlot::computeMaxPlotArea(QPainter& painter)
   if (not isTimeGraph()) {
     if (mOptions->pDistance) {
       linesYbot += LINES_1;
-      vcross::util::maximize(charsXleft, CHARS_DISTANCE);
+      miutil::maximize(charsXleft, CHARS_DISTANCE);
       charsXrght = charsXleft;
     }
     if (mOptions->pGeoPos) {
       linesYbot += mOptions->pCompass ? LINES_3 : LINES_2;
-      vcross::util::maximize(charsXleft, CHARS_POS_LEFT);
-      vcross::util::maximize(charsXrght, CHARS_POS_RIGHT);
+      miutil::maximize(charsXleft, CHARS_POS_LEFT);
+      miutil::maximize(charsXrght, CHARS_POS_RIGHT);
     }
     linesLabel = 2; // crossection label and time
   } else /* timeGraph */ {
@@ -683,7 +681,7 @@ void QtPlot::computeMaxPlotArea(QPainter& painter)
       linesYbot += LINES_2;
       // TODO extra line to show forecast hour
       // linesYbot += LINES_1;
-      vcross::util::maximize(charsXleft, CHARS_TIME);
+      miutil::maximize(charsXleft, CHARS_TIME);
       charsXrght = charsXleft;
     }
     linesLabel = 1; // timegraph position
@@ -707,8 +705,8 @@ void QtPlot::computeMaxPlotArea(QPainter& painter)
   const float maxFramePixelsX = mTotalSize.width() * MAX_FRAMETEXT, maxFramePixelsY = mTotalSize.height() * MAX_FRAMETEXT;
   if (framePixelsX > maxFramePixelsX or framePixelsY > maxFramePixelsY) {
     const float bigFramePixelsX = framePixelsX, bigFramePixelsY = framePixelsY;
-    vcross::util::minimize(framePixelsX, maxFramePixelsX);
-    vcross::util::minimize(framePixelsY, maxFramePixelsY);
+    miutil::minimize(framePixelsX, maxFramePixelsX);
+    miutil::minimize(framePixelsY, maxFramePixelsY);
     mFontSize *= std::min(framePixelsX / bigFramePixelsX, framePixelsY / bigFramePixelsY);
     updateCharSize(painter);
     framePixelsX = (charsXleft + charsXrght) * mCharSize.width();
@@ -737,7 +735,7 @@ void QtPlot::calculateContrastColour()
 
 int QtPlot::getNearestPos(int px)
 {
-  using diutil::square;
+  using miutil::square;
   METLIBS_LOG_SCOPE();
 
   const float valueX = mAxisX->paint2value(px);
@@ -1432,7 +1430,7 @@ float QtPlot::absValue(OptionPlot_cp plot, int ix, int iy, bool timegraph)
     Values::ShapeIndex idx_vi(plot->evaluated->values(i)->shape());
     idx_vi.set(H_COORD, ix);
     idx_vi.set(Values::GEO_Z, iy);
-    v += diutil::square(plot->evaluated->values(i)->value(idx_vi));
+    v += miutil::square(plot->evaluated->values(i)->value(idx_vi));
   }
   return sqrt(v);
 }
@@ -1442,12 +1440,12 @@ std::string QtPlot::formatExtremeAnnotationValue(float value, float y)
   std::string text = miutil::from_number(value) + " (";
 
   if (mAxisY->quantity() == vcross::detail::Axis::PRESSURE && mAxisY->label() == "FL") {
-    const double a_m = MetNo::Constants::ICAO_geo_altitude_from_pressure(y);
-    const double FL = MetNo::Constants::FL_from_geo_altitude(a_m);
+    const double a_m = miutil::constants::ICAO_geo_altitude_from_pressure(y);
+    const double FL = miutil::constants::FL_from_geo_altitude(a_m);
     text += "FL" + miutil::from_number(FL);
   } else {
     if (mAxisY->quantity() == vcross::detail::Axis::ALTITUDE && mAxisY->label() == "Ft")
-      y *= MetNo::Constants::ft_per_m;
+      y *= miutil::constants::ft_per_m;
     text += miutil::from_number(y) + mAxisY->label();
   }
   return text + ")";

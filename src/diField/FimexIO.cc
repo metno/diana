@@ -1026,7 +1026,7 @@ Field* FimexIO::getData(const std::string& reftime, const gridinventory::GridPar
     const size_t dataSize = data->size(), fieldSize = field->area.gridSize();
     if (dataSize != fieldSize) {
       METLIBS_LOG_DEBUG("getDataSlice returned " << dataSize << " datapoints, but nx*ny =" << fieldSize );
-      field->fill(difield::UNDEF);
+      field->fill(miutil::UNDEF);
     } else {
       boost::shared_array<float> fdata = data->asFloat();
       mifi_nanf2bad(&fdata[0], &fdata[0]+dataSize, fieldUndef);

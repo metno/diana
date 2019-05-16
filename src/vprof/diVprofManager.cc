@@ -47,7 +47,7 @@
 #include "util/time_util.h"
 #include "vcross_v2/VcrossSetup.h"
 
-#include "diField/VcrossUtil.h"
+#include <mi_fieldcalc/math_util.h>
 
 #include <puCtools/stat.h>
 #include <puTools/TimeFilter.h>
@@ -646,7 +646,7 @@ void VprofManager::initTimes()
 
   timeList.clear();
   for (VprofData_p vp : vpdata) {
-    vcross::util::maximize(realizationCount, vp->getRealizationCount());
+    miutil::maximize(realizationCount, vp->getRealizationCount());
     diutil::insert_all(timeList, vp->getTimes());
   }
 

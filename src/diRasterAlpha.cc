@@ -33,13 +33,13 @@
 
 #include "diColour.h"
 #include "diColourShading.h"
+#include "diField/diField.h"
 #include "diPlotOptions.h"
 #include "diRasterUtil.h"
-#include "util/math_util.h"
 #include "util/misc_util.h"
 #include "util/plotoptions_util.h"
 
-#include <diField/diField.h>
+#include <mi_fieldcalc/math_util.h>
 
 #define MILOGGER_CATEGORY "diana.FieldRenderer"
 #include <miLogger/miLogging.h>

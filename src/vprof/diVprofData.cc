@@ -38,13 +38,13 @@
 #include "diField/VcrossData.h"
 #include "diField/VcrossUtil.h"
 #include "diLocalSetupParser.h"
-
 #include "diUtilities.h"
 #include "util/charsets.h"
-#include "util/math_util.h"
 #include "util/string_util.h"
 #include "vcross_v2/VcrossComputer.h"
 #include "vcross_v2/VcrossEvaluate.h"
+
+#include <mi_fieldcalc/math_util.h>
 
 #include <puTools/TimeFilter.h>
 #include <puTools/miStringFunctions.h>
@@ -151,7 +151,7 @@ void VprofData::renameStations()
     for (int j = 0; j < m; j++) {
       float dx = mStations[i].lon - stationLongitude[j];
       float dy = mStations[i].lat - stationLatitude[j];
-      float s = diutil::absval2(dx, dy);
+      float s = miutil::absval2(dx, dy);
       if (s < smin) {
         smin = s;
         jmin = j;

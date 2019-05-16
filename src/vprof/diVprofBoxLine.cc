@@ -31,6 +31,8 @@
 
 #include "diVprofBoxLine.h"
 
+#include "diField/VcrossUtil.h"
+#include "diField/diPoint.h"
 #include "diUtilities.h"
 #include "diVprofAxesStandard.h"
 #include "diVprofCalculations.h"
@@ -41,9 +43,8 @@
 #include "diVprofValues.h"
 #include "vcross_v2/VcrossVerticalTicks.h"
 
-#include "diField/VcrossUtil.h"
-#include "diField/diMetConstants.h"
-#include "diField/diPoint.h"
+#include <mi_fieldcalc/MetConstants.h>
+#include <mi_fieldcalc/math_util.h>
 
 #include <puTools/miStringFunctions.h>
 
@@ -215,7 +216,7 @@ void VprofBoxLine::updateLayout()
 
 void VprofBoxLine::configureZAxisLabelSpace()
 {
-  using vcross::util::maximize;
+  using miutil::maximize;
   if (z_grid_ & z_ticks_showtext_)
     maximize(margin.x1, vprof::chxbas * 5.5); // space for zlabels
   if (z_ticks_showtext_)
@@ -224,7 +225,7 @@ void VprofBoxLine::configureZAxisLabelSpace()
 
 void VprofBoxLine::configureXAxisLabelSpace()
 {
-  using vcross::util::maximize;
+  using miutil::maximize;
   if (x_ticks_showtext_) {
     const float yspace = vprof::chybas * 2.5;
     maximize(margin.y1, yspace);
@@ -495,6 +496,7 @@ bool VprofBoxLine::addGraph(const miutil::KeyValue_v& options)
     }
   }
   graphs_.push_back(g);
+  return true;
 }
 
 size_t VprofBoxLine::graphCount()

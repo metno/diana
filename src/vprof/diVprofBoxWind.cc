@@ -29,12 +29,13 @@
 
 #include "diVprofBoxWind.h"
 
-#include "diField/diMetConstants.h"
 #include "diVprofAxesStandard.h"
 #include "diVprofCalculations.h"
 #include "diVprofModelSettings.h"
 #include "diVprofPainter.h"
 #include "diVprofUtils.h"
+
+#include <mi_fieldcalc/MetConstants.h>
 
 #include <algorithm>
 
@@ -115,7 +116,7 @@ void VprofBoxWind::plotValues(VprofPainter* p, VprofValues_cp values, const Vpro
   for (unsigned int k = 0; k < u->length(); k++) {
     const float yy = axis_z->value2paint(u->z(k), false);
     if (spc.accept(yy)) {
-      p->drawWindArrow(PointF(u->x(k), v->x(k)) * MetNo::Constants::ms2knots, PointF(x0, yy), flagl, false);
+      p->drawWindArrow(PointF(u->x(k), v->x(k)) * miutil::constants::ms2knots, PointF(x0, yy), flagl, false);
     }
   }
 }

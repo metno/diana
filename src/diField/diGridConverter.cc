@@ -31,8 +31,8 @@
 
 #include "diGridConverter.h"
 
-#include "../util/openmp_tools.h"
-#include <VcrossUtil.h> // minimize / maximize
+#include <mi_fieldcalc/math_util.h>
+#include <mi_fieldcalc/openmp_tools.h>
 
 #include <cmath>
 #include <memory.h>
@@ -155,7 +155,7 @@ bool GridConverter::doGetGridPoints(const GridArea& area, const Projection& map_
 
   const float gdxy = gridboxes ? 0.5 : 0; // offset by half cell iff using gridboxes
 
-  DIUTIL_OPENMP_PARALLEL(npos, for)
+  MIUTIL_OPENMP_PARALLEL(npos, for)
   for (int iy = 0; iy < ny; iy++) {
     for (int ix = 0; ix < (nx-1); ix++) {
       int i = ix + iy*nx;
@@ -261,7 +261,7 @@ void GridConverter::doFindGridLimits(const GridArea& area, const Rectangle& mapr
     int left = was_inside ? 0 : -1;
     int right = -1;
     if (was_inside)
-      vcross::util::minimaximize(iy1, iy2, iy);
+      miutil::minimaximize(iy1, iy2, iy);
     IFDEBUG(METLIBS_LOG_DEBUG(LOGVAL(iy) << LOGVAL(was_inside)
             << LOGVAL(left) << LOGVAL(right) << LOGVAL(iy1) << LOGVAL(iy2)));
 
@@ -269,7 +269,7 @@ void GridConverter::doFindGridLimits(const GridArea& area, const Rectangle& mapr
       idx += xy_offset;
       const bool inside = maprect.isinside(x[idx], y[idx]);
       if (inside) {
-        vcross::util::minimaximize(iy1, iy2, iy);
+        miutil::minimaximize(iy1, iy2, iy);
         if (left == -1)
           left = ix;
         IFDEBUG(METLIBS_LOG_DEBUG(LOGVAL(ix) << LOGVAL(left) << LOGVAL(iy1) << LOGVAL(iy2)));
@@ -294,12 +294,12 @@ void GridConverter::doFindGridLimits(const GridArea& area, const Rectangle& mapr
 
     // Expand to the left.
     if (left != -1) {
-      vcross::util::minimize(ix1, left);
+      miutil::minimize(ix1, left);
       IFDEBUG(METLIBS_LOG_DEBUG(LOGVAL(ix1)));
     }
     // Expand to the right.
     if (right != -1) {
-      vcross::util::maximize(ix2, right);
+      miutil::maximize(ix2, right);
       IFDEBUG(METLIBS_LOG_DEBUG(LOGVAL(ix2)));
     }
   }
@@ -310,10 +310,10 @@ void GridConverter::doFindGridLimits(const GridArea& area, const Rectangle& mapr
   iy1-=2;
   iy2+=2;
 
-  vcross::util::maximize(ix1, 0);
-  vcross::util::maximize(iy1, 0);
-  vcross::util::minimize(ix2, nx - 1 - gdxy); // FIXME old GridConverter, excludes last column iff gridboxes
-  vcross::util::minimize(iy2, ny - 1 - gdxy);
+  miutil::maximize(ix1, 0);
+  miutil::maximize(iy1, 0);
+  miutil::minimize(ix2, nx - 1 - gdxy); // FIXME old GridConverter, excludes last column iff gridboxes
+  miutil::minimize(iy2, ny - 1 - gdxy);
 }
 
 // get arrays of vector rotation elements
@@ -362,7 +362,7 @@ bool GridConverter::getVectors(const Area& data_area, const Projection& map_proj
   if (!getVectorRotationElements(data_area, map_proj, nvec, x, y, &cosx, &sinx))
     return false;
 
-  DIUTIL_OPENMP_PARALLEL(nvec, for)
+  MIUTIL_OPENMP_PARALLEL(nvec, for)
   for (int i = 0; i < nvec; ++i) {
     if (u[i] != undef && v[i] != undef) {
       if (cosx[i] == HUGE_VAL || sinx[i] == HUGE_VAL) {
@@ -391,7 +391,7 @@ bool GridConverter::getDirectionVectors(const Area& map_area, const bool turn,
   // to be rotated to the map grid
   // u,v is dd,ff coming in
   const float zturn = turn ? -1 : 1;
-  DIUTIL_OPENMP_PARALLEL(nvec, for)
+  MIUTIL_OPENMP_PARALLEL(nvec, for)
   for (int i=0; i<nvec; ++i) {
     if (u[i] != undef && v[i] != undef) {
       float dd   = u[i] * DEG_TO_RAD;

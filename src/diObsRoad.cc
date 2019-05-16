@@ -31,7 +31,6 @@
 
 #include "diObsRoad.h"
 
-#include "diField/diMetConstants.h"
 #include "diLabelPlotCommand.h"
 #include "diUtilities.h"
 
@@ -45,9 +44,10 @@
 #include <roadAPI/diRoaddata.h>
 #include <roadAPI/diStation.h>
 #endif
-#include <puTools/miStringFunctions.h>
 
-#include <boost/bind/bind.hpp>
+#include <mi_fieldcalc/MetConstants.h>
+
+#include <puTools/miStringFunctions.h>
 
 #include <algorithm>
 #include <fstream>
@@ -702,7 +702,7 @@ float ObsRoad::convert2hft(double height)
   METLIBS_LOG_SCOPE(height);
 
   // return (height*3.2808399)/100.0;
-  return (height * MetNo::Constants::ft_per_m) / 100.0;
+  return (height * miutil::constants::ft_per_m) / 100.0;
 }
 
 float ObsRoad::ms2code4451(float v)
@@ -1098,7 +1098,7 @@ void ObsRoad::decodeData()
       obsData.id = text;
     if (getColumnValue("ff", pstr, value))
       if (value != _undef)
-        obsData.fdata["ff"] = knots ? diutil::knots2ms(value) : value;
+        obsData.fdata["ff"] = knots ? miutil::knots2ms(value) : value;
     if (getColumnValue("dd", pstr, value))
       if (value != _undef)
         obsData.fdata["dd"] = value;

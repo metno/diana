@@ -30,8 +30,9 @@
 #include "VcrossVerticalTicks.h"
 
 #include "diField/VcrossUtil.h"
-#include "diField/diMetConstants.h"
 #include "vcross_v2/VcrossQtAxis.h"
+
+#include <mi_fieldcalc/MetConstants.h>
 
 #include <boost/range/size.hpp>
 
@@ -78,12 +79,12 @@ float identity(float x)
 
 float foot_to_meter(float ft)
 {
-  return ft / MetNo::Constants::ft_per_m;
+  return ft / miutil::constants::ft_per_m;
 }
 
 float meter_to_foot(float m)
 {
-  return m * MetNo::Constants::ft_per_m;
+  return m * miutil::constants::ft_per_m;
 }
 
 void generateVerticalTicks(vcross::detail::AxisCPtr zAxis, ticks_t& tickValues, tick_to_axis_f& tta)
@@ -94,7 +95,7 @@ void generateVerticalTicks(vcross::detail::AxisCPtr zAxis, ticks_t& tickValues, 
 void generateVerticalTicks(vcross::detail::AxisCPtr zAxis, const std::string& zLabel, ticks_t& tickValues, tick_to_axis_f& tta)
 {
   METLIBS_LOG_SCOPE(LOGVAL(zAxis->quantity()) << LOGVAL(zLabel));
-  using namespace MetNo::Constants;
+  using namespace miutil::constants;
 
   tickValues.clear();
   tta = identity;

@@ -34,7 +34,8 @@
 #include "diEventResult.h"
 #include "diMapAreaSetup.h"
 #include "diPlotModule.h"
-#include "util/math_util.h"
+
+#include <mi_fieldcalc/math_util.h>
 
 #include <puTools/miStringFunctions.h>
 
@@ -185,8 +186,8 @@ void MapAreaNavigator::stopRubberOrClick(int x, int y, EventResult& res)
   if (fabsf(x2 - x1) > RUBBER_LIMIT && fabsf(y2 - y1) > RUBBER_LIMIT) {
     if (plotm->isRubberband()) {
       // define new plotarea, first save the old one
-      diutil::sort2(x1, x2);
-      diutil::sort2(y1, y2);
+      miutil::sort2(x1, x2);
+      miutil::sort2(y1, y2);
       areaInsert(true);
       plotm->setMapAreaFromPhys(Rectangle(x1, y1, x2, y2));
 

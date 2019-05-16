@@ -36,10 +36,10 @@
 #include "diGLPainter.h"
 #include "diPlotOptions.h"
 #include "diRasterUtil.h"
-#include "util/math_util.h"
 #include "util/misc_util.h"
 #include "util/plotoptions_util.h"
-#include <diField/VcrossUtil.h>
+
+#include <mi_fieldcalc/math_util.h>
 
 #define MILOGGER_CATEGORY "diana.RasterRGB"
 #include <miLogger/miLogging.h>
@@ -77,7 +77,7 @@ void RasterRGB::colorizePixel(QRgb& pixel, const diutil::PointI& i)
     const float v0 = fields[k]->data[i.x() + i.y() * nx];
     if (v0 != fieldUndef) {
       const long val = std::lround((v0 - value_min[k]) * value_div[k]);
-      const int col = vcross::util::constrain_value(val, 0L, 255L);
+      const int col = miutil::constrain_value(val, 0L, 255L);
       ch[k] = (unsigned char)col;
     } else {
       ch[k] = 0;

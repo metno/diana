@@ -1,7 +1,8 @@
 
 #include "VcrossQtUtil.h"
 
-#include <diField/VcrossUtil.h>
+#include <mi_fieldcalc/math_util.h>
+
 #include <QtGui/QPainter>
 
 namespace vcross {
@@ -10,7 +11,7 @@ namespace util {
 void updateMaxStringWidth(QPainter& painter, float& w, const std::string& txt)
 {
   const float txt_w = painter.fontMetrics().width(QString::fromStdString(txt));
-  maximize(w, txt_w);
+  miutil::maximize(w, txt_w);
 }
 
 void setDash(QPen& pen, bool stipple, int factor, unsigned short pattern)

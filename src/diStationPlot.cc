@@ -33,8 +33,9 @@
 #include "diPlotModule.h"
 #include "diStaticPlot.h"
 #include "diStationPlot.h"
-#include "util/math_util.h"
 #include "util/misc_util.h"
+
+#include <mi_fieldcalc/math_util.h>
 
 #include <puTools/miStringFunctions.h>
 
@@ -532,7 +533,7 @@ vector<Station*> StationPlot::getStations() const
 
 Station* StationPlot::stationAt(int phys_x, int phys_y)
 {
-  using diutil::square;
+  using miutil::square;
 
   const float radius = 100;
   vector<Station*> found = stationsAt(phys_x, phys_y, radius);
@@ -564,7 +565,7 @@ vector<Station*> StationPlot::stationsAt(int phys_x, int phys_y, float radius, b
 {
   const XY pos = getStaticPlot()->PhysToMap(XY(phys_x, phys_y));
 
-  float min_r = diutil::square(radius * getStaticPlot()->getPhysToMapScaleX());
+  float min_r = miutil::square(radius * getStaticPlot()->getPhysToMapScaleX());
 
   vector<Station*> within;
 
@@ -581,7 +582,7 @@ vector<Station*> StationPlot::stationsAt(int phys_x, int phys_y, float radius, b
       if (found[i]->isVisible) {
         float sx = found[i]->lon(), sy = found[i]->lat();
         if (getStaticPlot()->GeoToMap(1, &sx, &sy)) {
-          float r = diutil::absval2(pos.x() - sx, pos.y() - sy);
+          float r = miutil::absval2(pos.x() - sx, pos.y() - sy);
           if (r < min_r) {
             within.push_back(found[i]);
           }

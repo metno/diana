@@ -52,7 +52,7 @@ bool valid_content(VprofGraphData_cp data);
 
 inline bool all_valid(VprofGraphData_cp s)
 {
-  return s && s->defined() == difield::ALL_DEFINED;
+  return s && s->defined() == miutil::ALL_DEFINED;
 }
 
 bool check_same_z(VprofGraphData_cp a, VprofGraphData_cp b);

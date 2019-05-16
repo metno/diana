@@ -30,11 +30,13 @@
 #ifndef diField_h
 #define diField_h
 
-#include "diFieldDefined.h"
 #include "diArea.h"
 #include "VcrossData.h"
 
+#include <mi_fieldcalc/FieldDefined.h>
+
 #include <puTools/miTime.h>
+
 #include <iosfwd>
 
 /**
@@ -53,12 +55,12 @@ public:
   GridArea area;
 
   void checkDefined();
-  void forceDefined(difield::ValuesDefined d)
+  void forceDefined(miutil::ValuesDefined d)
     { defined_ = d; }
-  difield::ValuesDefined defined() const
+  miutil::ValuesDefined defined() const
     { return defined_; }
   bool allDefined() const // true if none undefined/missing values in the field
-    { return defined_ == difield::ALL_DEFINED; }
+    { return defined_ == miutil::ALL_DEFINED; }
 
   int  level;            // vertical level
   int  idnum;            // level2, used for EPS clusters and members
@@ -100,7 +102,7 @@ private:
   // Copy members
   void memberCopy(const Field& rhs);
 
-  difield::ValuesDefined defined_;
+  miutil::ValuesDefined defined_;
 
 public:
   Field();

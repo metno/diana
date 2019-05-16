@@ -34,9 +34,9 @@
 #include "diGlUtilities.h"
 #include "diLinetype.h"
 #include "diUtilities.h"
-
-#include "diField/VcrossUtil.h"
 #include "diField/diPoint.h"
+
+#include <mi_fieldcalc/math_util.h>
 
 using diutil::PointF;
 
@@ -188,7 +188,7 @@ float VprofPainter::getTextWidth(const std::string& text) const
 void VprofPainter::setFontsize(float chy)
 {
   chy *= 0.8;
-  const float fs = vcross::util::constrain_value(chy * full.y2, 5.0f, 35.0f);
+  const float fs = miutil::constrain_value(chy * full.y2, 5.0f, 35.0f);
   gl->setFontSize(fs);
 }
 

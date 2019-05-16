@@ -32,7 +32,8 @@
 #include "diAreaBorder.h"
 #include "diGLPainter.h"
 #include "diGlUtilities.h"
-#include "util/math_util.h"
+
+#include <mi_fieldcalc/math_util.h>
 
 #include <sstream>
 
@@ -168,7 +169,7 @@ void AreaBorder::drawThickLine(DiGLPainter* gl)
   for (i=0; i<p_length; i++) {
     float dx= x_s[i+1]-x_s[i];
     float dy= y_s[i+1]-y_s[i];
-    float ds= diutil::absval(dx, dy);
+    float ds = miutil::absval(dx, dy);
     float dxp= -dy * w / ds;
     float dyp=  dx * w / ds;
     x1[i]= x_s[i] + dxp;

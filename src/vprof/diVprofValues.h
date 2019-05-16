@@ -43,7 +43,7 @@ public:
   VprofValues();
   virtual ~VprofValues();
 
-  virtual difield::ValuesDefined isDefined() const = 0;
+  virtual miutil::ValuesDefined isDefined() const = 0;
   virtual VprofGraphData_cp series(const std::string& id) const = 0;
 
   VprofText text;

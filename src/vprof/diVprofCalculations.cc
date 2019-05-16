@@ -31,12 +31,12 @@
 
 #include "diVprofSimpleData.h"
 #include "diVprofUtils.h"
-
 #include "diField/VcrossUtil.h"
-#include "diField/diFieldCalculations.h"
-#include "diField/diMetConstants.h"
 #include "diUtilities.h"
-#include "util/math_util.h"
+
+#include <mi_fieldcalc/FieldCalculations.h>
+#include <mi_fieldcalc/MetConstants.h>
+#include <mi_fieldcalc/math_util.h>
 
 #include <algorithm>
 #include <cmath>
@@ -64,7 +64,7 @@ bool check_same_z(VprofGraphData_cp a, VprofGraphData_cp b)
 VprofGraphData_cp relhum(VprofGraphData_cp tt, VprofGraphData_cp td)
 {
   METLIBS_LOG_SCOPE();
-  using namespace MetNo::Constants;
+  using namespace miutil::constants;
 
   if (!all_valid(tt) || !all_valid(td) || !check_same_z(tt, td))
     return VprofGraphData_cp();
@@ -78,8 +78,8 @@ VprofGraphData_cp relhum(VprofGraphData_cp tt, VprofGraphData_cp td)
     v_td[k] = vprof::invalid_to_undef(td->x(k));
   }
   const int compute = 5;
-  difield::ValuesDefined defined = difield::combineDefined(tt->defined(), td->defined());
-  FieldCalculations::cvhum(compute, nlev, 1, v_tt.get(), v_td.get(), v_rh.get(), defined, vprof::UNDEF, "celsius");
+  miutil::ValuesDefined defined = miutil::combineDefined(tt->defined(), td->defined());
+  miutil::fieldcalc::cvhum(nlev, 1, v_tt.get(), v_td.get(), "celsius", compute, v_rh.get(), defined, vprof::UNDEF);
 
   VprofSimpleData_p rh = std::make_shared<VprofSimpleData>(vprof::VP_RELATIVE_HUMIDITY, tt->zUnit(), "%");
   rh->reserve(nlev);
@@ -139,7 +139,7 @@ VprofGraphData_cp ducting(VprofGraphData_cp tt, VprofGraphData_cp td)
   //
   // output: duct(k) = (ducting(k+1)-ducting(k))/(dz*0.001) + 157.
 
-  using namespace MetNo::Constants;
+  using namespace miutil::constants;
   const float ginv = 1. / g;
   const float rcp = r / cp;
   const float p0inv = 1. / p0;
@@ -154,13 +154,13 @@ VprofGraphData_cp ducting(VprofGraphData_cp tt, VprofGraphData_cp td)
   float tk, pi1, pi2, th1, th2, dz;
 
   for (size_t k = 0; k < nlev; k++) {
-    const MetNo::Constants::ewt_calculator ewt(td->x(k));
+    const miutil::constants::ewt_calculator ewt(td->x(k));
     float di = 0;
     if (ewt.defined()) {
       const float etd = ewt.value();
       tk = tt->x(k) + t0;
       ////duct[k]= 77.6*(pp[k]/tk) + 373000.*etd/(tk*tk);
-      di = 77.6 * (tt->z(k) / tk) + 373256. * etd / diutil::square(tk);
+      di = 77.6 * (tt->z(k) / tk) + 373256. * etd / miutil::square(tk);
     }
     duct.add(tt->z(k), di);
   }
@@ -222,7 +222,7 @@ std::tuple<VprofGraphData_cp, VprofGraphData_cp> wind_dd_ff(VprofGraphData_cp wi
     const float z = wind_u->z(k);
     const float uew = wind_u->x(k);
     const float vns = wind_v->x(k);
-    const float ff = diutil::absval(uew, vns);
+    const float ff = miutil::absval(uew, vns);
     int dd = diutil::float2int(270. - RAD_TO_DEG * atan2f(vns, uew)); // convert math angle to compass degrees
     if (dd > 360)
       dd -= 360;
@@ -351,7 +351,7 @@ bool is_empty(VprofGraphData_cp data)
 
 bool valid_content(VprofGraphData_cp data)
 {
-  return !is_empty(data) && (data->defined() == difield::ALL_DEFINED);
+  return !is_empty(data) && (data->defined() == miutil::ALL_DEFINED);
 }
 
 } // namespace vprof

@@ -31,15 +31,16 @@
 
 #include "diContouring.h"
 
+#include "diField/diArea.h"
 #include "diGLPainter.h"
 #include "diGridConverter.h"
 #include "diImageGallery.h"
 #include "diPlotOptions.h"
 #include "polyStipMasks.h"
-#include "util/math_util.h"
 #include "util/plotoptions_util.h"
 
-#include <diField/diArea.h>
+#include <mi_fieldcalc/math_util.h>
+
 #include <puTools/miStringFunctions.h>
 
 #include <QPolygonF>
@@ -566,8 +567,8 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
       nlabx = int(dylabh+0.5);
       nlaby = nlabx;
     } else if (iconv==1) {
-      nlabx = int(dylabh/diutil::absval(cxy[1], cxy[4])+0.5);
-      nlaby = int(dylabh/diutil::absval(cxy[2], cxy[5])+0.5);
+      nlabx = int(dylabh / miutil::absval(cxy[1], cxy[4]) + 0.5);
+      nlaby = int(dylabh / miutil::absval(cxy[2], cxy[5]) + 0.5);
     }
   }
 
@@ -2341,7 +2342,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
       for (n=2; n<=npos; ++n) {
         dxx = x[n]-x[n-1];
         dyy = y[n]-y[n-1];
-        s[n] = s[n-1] + diutil::absval(dxx, dyy);
+        s[n] = s[n - 1] + miutil::absval(dxx, dyy);
       }
 
       smax=  s[npos]-dxlab*2.0;
@@ -2353,7 +2354,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
       } else {
         dxx = x[npos]-x[1];
         dyy = y[npos]-y[1];
-        if (diutil::absval(dxx, dyy)/(s[npos]-s[1])<0.90)
+        if (miutil::absval(dxx, dyy) / (s[npos] - s[1]) < 0.90)
           dxylab=0.40;
         else
           dxylab=0.00;
@@ -2422,13 +2423,13 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
                 dxx = (xz[ij+1]-xz[ij]+xz[ij+1+nx]-xz[ij+nx])*0.5;
                 dyy = (yz[ij+1]-yz[ij]+yz[ij+1+nx]-yz[ij+nx])*0.5;
                 if (dxx != 0. || dyy != 0.)
-                  nlabx = int(dylabh/diutil::absval(dxx, dyy) + 0.5);
+                  nlabx = int(dylabh / miutil::absval(dxx, dyy) + 0.5);
                 else nlabx=0;
 
                 dxx = (xz[ij+nx]-xz[ij]+xz[ij+1+nx]-xz[ij+1])*0.5;
                 dyy = (yz[ij+nx]-yz[ij]+yz[ij+1+nx]-yz[ij+1])*0.5;
                 if(dxx != 0. || dyy != 0.)
-                  nlaby = int(dylabh/diutil::absval(dxx, dyy) + 0.5);
+                  nlaby = int(dylabh / miutil::absval(dxx, dyy) + 0.5);
                 else nlaby = 0;
               }
 
@@ -2789,7 +2790,7 @@ bool contour(int nx, int ny, float z[], float xz[], float yz[],
         // for next label
         dxx = x[n3]-xend;
         dyy = y[n3]-yend;
-        stest = diutil::absval(dxx, dyy);
+        stest = miutil::absval(dxx, dyy);
 
       }  // end while (n3<npos)
 
@@ -3153,10 +3154,10 @@ int smoothline(int npos, float x[], float y[], int nfirst, int nlast,
   {
     xl1 = x[n]-x[n-1];
     yl1 = y[n]-y[n-1];
-    s1  = diutil::absval(xl1, yl1);
+    s1 = miutil::absval(xl1, yl1);
     xl2 = x[n+1]-x[n];
     yl2 = y[n+1]-y[n];
-    s2  = diutil::absval(xl2, yl2);
+    s2 = miutil::absval(xl2, yl2);
     dx2 = (xl1*(s2/s1)+xl2*(s1/s2))/(s1+s2);
     dy2 = (yl1*(s2/s1)+yl2*(s1/s2))/(s1+s2);
   }
@@ -3164,7 +3165,7 @@ int smoothline(int npos, float x[], float y[], int nfirst, int nlast,
   {
     xl2 = x[n+1]-x[n];
     yl2 = y[n+1]-y[n];
-    s2  = diutil::absval(xl2, yl2);
+    s2 = miutil::absval(xl2, yl2);
     dx2 = xl2/s2;
     dy2 = yl2/s2;
   }
@@ -3184,7 +3185,7 @@ int smoothline(int npos, float x[], float y[], int nfirst, int nlast,
     if (n < npos-1) {
       xl2 = x[n+1]-x[n];
       yl2 = y[n+1]-y[n];
-      s2  = diutil::absval(xl2, yl2);
+      s2 = miutil::absval(xl2, yl2);
       dx2 = (xl1*(s2/s1)+xl2*(s1/s2))/(s1+s2);
       dy2 = (yl1*(s2/s1)+yl2*(s1/s2))/(s1+s2);
     }

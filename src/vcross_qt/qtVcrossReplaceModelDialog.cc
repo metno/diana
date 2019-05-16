@@ -38,7 +38,7 @@
 #include "diUtilities.h"
 #include "qtUtility.h"
 
-#include <diField/diMetConstants.h>
+#include <mi_fieldcalc/MetConstants.h>
 #include <puTools/miStringFunctions.h>
 
 #include <QSortFilterProxyModel>

@@ -29,7 +29,9 @@
 
 #include "VcrossQtAxis.h"
 
-#include <diField/VcrossUtil.h>
+#include "diField/VcrossUtil.h"
+
+#include <mi_fieldcalc/math_util.h>
 
 #include <cmath>
 
@@ -56,17 +58,17 @@ Axis::Axis(bool h)
 
 bool Axis::legalPaint(float p) const
 {
-  return vcross::util::value_between(p, paintMin, paintMax);
+  return miutil::value_between(p, paintMin, paintMax);
 }
 
 bool Axis::legalValue(float v) const
 {
-  return vcross::util::value_between(v, valueMin, valueMax);
+  return miutil::value_between(v, valueMin, valueMax);
 }
 
 bool Axis::legalData(float d) const
 {
-  return vcross::util::value_between(d, dataMin, dataMax);
+  return miutil::value_between(d, dataMin, dataMax);
 }
 
 float Axis::function(float x) const
@@ -154,8 +156,8 @@ bool Axis::zoomIn(float paint0, float paint1)
 bool Axis::zoomOut()
 {
   const float delta = (valueMax - valueMin) * 0.3 * 0.5;
-  const float vmin = vcross::util::constrain_value(valueMin - delta, dataMin, dataMax);
-  const float vmax = vcross::util::constrain_value(valueMax + delta, dataMin, dataMax);
+  const float vmin = miutil::constrain_value(valueMin - delta, dataMin, dataMax);
+  const float vmax = miutil::constrain_value(valueMax + delta, dataMin, dataMax);
   if (vmin != valueMin or vmax != valueMax) {
     setValueRange(vmin, vmax);
     return true;

@@ -33,7 +33,7 @@
 
 #include "diObjectPoint.h"
 
-#include "util/math_util.h"
+#include <mi_fieldcalc/math_util.h>
 
 #define MILOGGER_CATEGORY "diana.ObjectPoint"
 #include <miLogger/miLogging.h>
@@ -61,7 +61,7 @@ bool ObjectPoint::operator==(const ObjectPoint &rhs) const
 
 float ObjectPoint::distSquared(float xm, float ym) const
 {
-  return diutil::absval2(mXY.x() - xm, mXY.y() - ym);
+  return miutil::absval2(mXY.x() - xm, mXY.y() - ym);
 }
 
 bool ObjectPoint::isInRectangle(float xm, float ym, float fdeltaw) const

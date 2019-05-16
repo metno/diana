@@ -2,11 +2,11 @@
 #include "VcrossComputer.h"
 #include "diField/VcrossUtil.h"
 
-#include "util/math_util.h"
-#include "diField/diFieldCalculations.h"
-#include "diField/diMetConstants.h"
-
 #include <puTools/miStringFunctions.h>
+
+#include <mi_fieldcalc/FieldCalculations.h>
+#include <mi_fieldcalc/MetConstants.h>
+#include <mi_fieldcalc/math_util.h>
 
 #define MILOGGER_CATEGORY "vcross.Computer"
 #include "miLogger/miLogging.h"
@@ -250,7 +250,7 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
 
   const float *f0 = av0->values().get(), *f1 = (av1 ? av1->values().get() : 0);
   float* fo = out->values().get();
-  difield::ValuesDefined fDefined = difield::SOME_DEFINED;
+  miutil::ValuesDefined fDefined = miutil::SOME_DEFINED;
 
   int compute = 0;
   switch(function()) {
@@ -267,13 +267,13 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
     if (compute == 0) compute = 4;
 
     if (mNumericArgIndex < 0) {
-      if (!FieldCalculations::fieldOPERfield(compute, np, nl, f0, f1, fo, fDefined, ud0))
+      if (!miutil::fieldcalc::fieldOPERfield(compute, np, nl, f0, f1, fo, fDefined, ud0))
         return Values_p();
     } else if (mNumericArgIndex == 0) {
-      if (!FieldCalculations::constantOPERfield(compute, np, nl, mNumericArg, f0, fo, fDefined, ud0))
+      if (!miutil::fieldcalc::constantOPERfield(compute, np, nl, mNumericArg, f0, fo, fDefined, ud0))
         return Values_p();
     } else if (mNumericArgIndex == 1) {
-      if (!FieldCalculations::fieldOPERconstant(compute, np, nl, f0, mNumericArg, fo, fDefined, ud0))
+      if (!miutil::fieldcalc::fieldOPERconstant(compute, np, nl, f0, mNumericArg, fo, fDefined, ud0))
         return Values_p();
     } else {
       return Values_p();
@@ -307,7 +307,7 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
     for (size_t l = 0; l < nl; l++) {
       for (size_t p = 0; p < np; p++) {
         const float v0 = av0->value(p, l), v1 = av1->value(p, l);
-        const float v = (v0 != ud0 and v1 != ud1) ? diutil::absval(v0, v1) : ud0;
+        const float v = (v0 != ud0 and v1 != ud1) ? miutil::absval(v0, v1) : ud0;
         out->setValue(v, p, l);
       }
     }
@@ -332,7 +332,7 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
       return Values_cp();
     }
 
-    if (not FieldCalculations::aleveltemp(compute, np, nl, f0, f_pp.get(), fo, fDefined, ud0, "kelvin"))
+    if (not miutil::fieldcalc::aleveltemp(np, nl, f0, f_pp.get(), "kelvin", compute, fo, fDefined, ud0))
       return Values_cp();
     break; }
 
@@ -345,7 +345,7 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
     if (not f_pp)
       return Values_cp();
 
-    if (not FieldCalculations::alevelthe(compute, np, nl, f0, f1, f_pp.get(), fo, fDefined, ud0))
+    if (not miutil::fieldcalc::alevelthe(np, nl, f0, f1, f_pp.get(), compute, fo, fDefined, ud0))
       return Values_cp();
     break; }
 
@@ -380,13 +380,13 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
       return Values_p();
     }
 
-    if (not FieldCalculations::alevelhum(compute, np, nl, f0, f1, f_pp.get(), fo, fDefined, ud0, "kelvin"))
+    if (not miutil::fieldcalc::alevelhum(np, nl, f0, f1, f_pp.get(), "kelvin", compute, fo, fDefined, ud0))
       return Values_p();
     break; }
 
   case vcf_height_above_msl_from_surface_geopotential: {
     compute = 3;
-    if (!FieldCalculations::fieldOPERconstant(compute, out->npoint(), out->nlevel(), f0, MetNo::Constants::ginv, fo, fDefined, ud0))
+    if (!miutil::fieldcalc::fieldOPERconstant(compute, out->npoint(), out->nlevel(), f0, miutil::constants::ginv, fo, fDefined, ud0))
       return Values_p();
     break; }
 

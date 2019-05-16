@@ -38,8 +38,9 @@
 #include "diUtilities.h"
 #include "miSetupParser.h"
 #include "util/string_util.h"
-
 #include "diField/VcrossUtil.h"
+
+#include <mi_fieldcalc/math_util.h>
 
 #include <puTools/miStringFunctions.h>
 
@@ -533,7 +534,7 @@ void QtManager::handleChangedTimeList(const vctime_t& oldTime)
       if (Inventory_cp inv = src->getInventory(model1.reftime)) {
         for (Times::timevalue_v::const_iterator itT = inv->times.values.begin(); itT != inv->times.values.end(); ++itT)
           times.insert(util::to_miTime(inv->times.unit, *itT));
-        util::maximize(mRealizationCount, inv->realizationCount);
+        miutil::maximize(mRealizationCount, inv->realizationCount);
       }
     }
   }

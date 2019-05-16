@@ -4,7 +4,7 @@
 #include "VcrossQtAxis.h"
 #include "VcrossQtUtil.h"
 #include "diField/VcrossUtil.h"
-#include "util/math_util.h"
+#include <mi_fieldcalc/math_util.h>
 
 #include <cmath>
 
@@ -165,7 +165,7 @@ void VCLines::drawLabels(const QPolygonF& points, contouring::level_t li)
     for (idx += 1; idx < points.size(); ++idx) {
       p1 = points.at(idx);
       const float dy = p1.y() - p0.y(), dx = p1.x() - p0.x();
-      if (diutil::absval2(dx, dy) >= lbl_w2)
+      if (miutil::absval2(dx, dy) >= lbl_w2)
         break;
     }
     if (idx >= points.size())
