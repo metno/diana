@@ -13,21 +13,17 @@ namespace vcross {
 
 class FimexReftimeSource : public ReftimeSource {
 public:
-  typedef boost::shared_ptr<MetNoFimex::CDMReader> CDMReader_p;
-  typedef boost::shared_ptr<const MetNoFimex::CoordinateSystem> CoordinateSystem_p;
-  typedef std::vector<CoordinateSystem_p> CoordinateSystem_pv;
-
   class FimexCrossection : public Crossection {
   public:
     FimexCrossection(const std::string& label, const LonLat_v& points,
-        const LonLat_v& requestedPoints, size_t si, CDMReader_p r = CDMReader_p())
+        const LonLat_v& requestedPoints, size_t si, MetNoFimex::CDMReader_p r = MetNoFimex::CDMReader_p())
       : Crossection(label, points, requestedPoints) , start_index(si), reader(r) { }
 
     bool dynamic() const
       { return !!reader; }
 
     size_t start_index;
-    CDMReader_p reader;
+    MetNoFimex::CDMReader_p reader;
   };
   typedef std::shared_ptr<FimexCrossection> FimexCrossection_p;
   typedef std::shared_ptr<const FimexCrossection> FimexCrossection_cp;
@@ -69,30 +65,30 @@ private:
   /**
    * Returns a CDMInterpolator if cs is dynamic, or mReader.
    */
-  CDMReader_p makeReader(FimexCrossection_cp cs);
+  MetNoFimex::CDMReader_p makeReader(FimexCrossection_cp cs);
 
   bool makeInventory();
   void makeCrossectionInventory();
 
   void prepareGetValues(Crossection_cp cs,
-      FimexCrossection_cp& fcs, CDMReader_p& reader, CoordinateSystem_pv& coordinateSystems);
-  Values_p getSlicedValues(CDMReader_p reader, CoordinateSystem_p cs,
+      FimexCrossection_cp& fcs, MetNoFimex::CDMReader_p& reader, MetNoFimex::CoordinateSystem_cp_v& coordinateSystems);
+  Values_p getSlicedValues(MetNoFimex::CDMReader_p reader, MetNoFimex::CoordinateSystem_cp cs,
       const Values::ShapeSlice& sliceCdm, const Values::Shape& shapeOut, InventoryBase_cp b);
-  Values_p getSlicedValuesGeoZTransformed(CDMReader_p csReader, CoordinateSystem_p cs,
+  Values_p getSlicedValuesGeoZTransformed(MetNoFimex::CDMReader_p csReader, MetNoFimex::CoordinateSystem_cp cs,
       const Values::ShapeSlice& slice, const Values::Shape& shapeOut, InventoryBase_cp b);
-  CoordinateSystem_p findCsForVariable(const MetNoFimex::CDM& cdm,
-      const CoordinateSystem_pv& coordinateSystems, InventoryBase_cp v);
+  MetNoFimex::CoordinateSystem_cp findCsForVariable(const MetNoFimex::CDM& cdm,
+      const MetNoFimex::CoordinateSystem_cp_v& coordinateSystems, InventoryBase_cp v);
 
 private:
   std::string mFileName, mFileType, mFileConfig;
   diutil::CharsetConverter_p mCsNameCharsetConverter;
   long mModificationTime;
   Time mReftime;
-  CDMReader_p mReader;
+  MetNoFimex::CDMReader_p mReader;
   Inventory_p mInventory;
   typedef std::map<std::string, std::string> zaxis_cs_m;
   zaxis_cs_m zaxis_cs;
-  CoordinateSystem_pv mCoordinateSystems;
+  MetNoFimex::CoordinateSystem_cp_v mCoordinateSystems;
   bool mSupportsDynamic;
 };
 

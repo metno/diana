@@ -3,6 +3,8 @@
 
 #include "VcrossUtil.h"
 
+#include <algorithm>
+#include <cassert>
 #include <cmath>
 #include <numeric> // std::accumulate
 
@@ -279,7 +281,7 @@ Values::Values(const Shape& shape, bool fill)
 
 Values_p reshape(Values_p valuesIn, const Values::Shape& shapeOut)
 {
-  return Values_p(new Values(shapeOut, reshape(valuesIn->shape(), shapeOut, valuesIn->values())));
+  return std::make_shared<Values>(shapeOut, reshape(valuesIn->shape(), shapeOut, valuesIn->values()));
 }
 
 // ================================================================================

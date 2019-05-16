@@ -58,6 +58,7 @@ OPTION(ENABLE_HDF5 "Enable HDF5 file support" OFF)
 FIND_PACKAGE(Boost COMPONENTS date_time locale system REQUIRED)
 
 FIND_PACKAGE(mi-fieldcalc "0.1.0" REQUIRED)
+FIND_PACKAGE(fimex "1.2" REQUIRED)
 
 METNO_FIND_QT(Gui Network OpenGL PrintSupport Svg Xml XmlPatterns)
 
@@ -69,8 +70,6 @@ SET(PKGS
   libtiff-4
   libpng>=1.2
   libcurl>=7
-
-  fimex>=0.65
 )
 
 IF (ENABLE_GEOTIFF)

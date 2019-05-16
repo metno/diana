@@ -17,11 +17,13 @@
 #include <puTools/TimeFilter.h>
 
 #include <fimex/CDM.h>
+#include <fimex/CDMException.h>
 #include <fimex/CDMExtractor.h>
 #include <fimex/CDMFileReaderFactory.h>
 #include <fimex/CDMInterpolator.h>
 #include <fimex/Data.h>
 #include <fimex/CoordinateSystemSliceBuilder.h>
+#include <fimex/UnitsConverter.h>
 
 #if MIFI_VERSION_CURRENT_INT >= MIFI_VERSION_INT(0, 64, 0)
 #define FIMEX_HAS_VERTICALCONVERTER 1
@@ -95,7 +97,7 @@ int findTimeIndex(vcross::Inventory_p inv, const vcross::Time& time)
   const vcross::Times& times = inv->times;
   vcross::Time::timevalue_t t = time.value;
   if (not vcross::util::unitsIdentical(time.unit, times.unit)) {
-    vcross::util::UnitsConverterPtr uconv = vcross::util::unitConverter(time.unit, times.unit);
+    MetNoFimex::UnitsConverter_p uconv = vcross::util::unitConverter(time.unit, times.unit);
     if (not uconv) {
       METLIBS_LOG_DEBUG("unit mismatch: '" << time.unit << "' -- '" << times.unit << "'");
       return -1;
@@ -138,9 +140,6 @@ std::string transformedZAxisName(const std::string& id)
   return id.substr(0, doubleslash);
 }
 
-typedef boost::shared_ptr<const VerticalTransformation> VerticalTransformation_cp;
-typedef boost::shared_ptr<ToVLevelConverter> ToVLevelConverter_p;
-
 vcross::Values::Shape shapeFromCDM(const CDM& cdm, const std::string& vName)
 {
   METLIBS_LOG_SCOPE(LOGVAL(vName));
@@ -159,13 +158,13 @@ vcross::Values::Shape shapeFromCDM(const CDM& cdm, const std::string& vName)
   return shape;
 }
 
-void addAxisToShape(vcross::Values::Shape& shape, const CDM& cdm, CoordinateSystem::ConstAxisPtr ax)
+void addAxisToShape(vcross::Values::Shape& shape, const CDM& cdm, CoordinateAxis_cp ax)
 {
   if (ax)
     shape.add(ax->getName(), cdm.getDimension(ax->getName()).getLength());
 }
 
-vcross::Values::Shape shapeFromCS(const CDM& cdm, vcross::FimexReftimeSource::CoordinateSystem_p cs)
+vcross::Values::Shape shapeFromCS(const CDM& cdm, CoordinateSystem_cp cs)
 {
   METLIBS_LOG_SCOPE();
 
@@ -177,7 +176,7 @@ vcross::Values::Shape shapeFromCS(const CDM& cdm, vcross::FimexReftimeSource::Co
   return shape;
 }
 
-vcross::Values::Shape shapeFromCDM(const CDM& cdm, vcross::FimexReftimeSource::CoordinateSystem_p cs, vcross::InventoryBase_cp v)
+vcross::Values::Shape shapeFromCDM(const CDM& cdm, CoordinateSystem_cp cs, vcross::InventoryBase_cp v)
 {
   METLIBS_LOG_SCOPE(LOGVAL(v->id()));
   if (cs and verticalTypeFromId(v->id()) >= 0)
@@ -185,40 +184,40 @@ vcross::Values::Shape shapeFromCDM(const CDM& cdm, vcross::FimexReftimeSource::C
   return shapeFromCDM(cdm, v->id());
 }
 
-vcross::FimexReftimeSource::CoordinateSystem_p findGeoZTransformed(const vcross::FimexReftimeSource::CoordinateSystem_pv& coordinateSystems,
+CoordinateSystem_cp findGeoZTransformed(const CoordinateSystem_cp_v& coordinateSystems,
     const std::string& ztid, const std::string& csid)
 {
   METLIBS_LOG_SCOPE(LOGVAL(ztid) << LOGVAL(csid));
-  for (vcross::FimexReftimeSource::CoordinateSystem_p cs : coordinateSystems) {
+  for (CoordinateSystem_cp cs : coordinateSystems) {
     if (not (cs->isSimpleSpatialGridded()))
       continue;
     if (cs->id() == csid) {
       return cs;
     }
 
-    CoordinateSystem::ConstAxisPtr zAxis = cs->getGeoZAxis();
+    CoordinateAxis_cp zAxis = cs->getGeoZAxis();
     if (not zAxis or zAxis->getName() != ztid)
       continue;
     if (!cs->getGeoXAxis() || !cs->getTimeAxis())
       continue;
 
-    if (VerticalTransformation_cp vt = cs->getVerticalTransformation())
+    if (MetNoFimex::VerticalTransformation_cp vt = cs->getVerticalTransformation())
       return cs;
   }
-  return vcross::FimexReftimeSource::CoordinateSystem_p();
+  return CoordinateSystem_cp();
 }
 
-vcross::FimexReftimeSource::CoordinateSystem_p findCsForVariable(const CDM& cdm,
-    const vcross::FimexReftimeSource::CoordinateSystem_pv& coordinateSystems, const std::string& vName)
+CoordinateSystem_cp findCsForVariable(const CDM& cdm,
+    const CoordinateSystem_cp_v& coordinateSystems, const std::string& vName)
 {
   METLIBS_LOG_SCOPE(LOGVAL(vName));
-  const std::vector<vcross::FimexReftimeSource::CoordinateSystem_p>::const_iterator it =
+  const std::vector<CoordinateSystem_cp>::const_iterator it =
       std::find_if(coordinateSystems.begin(), coordinateSystems.end(),
           MetNoFimex::CompleteCoordinateSystemForComparator(vName));
   if (it == coordinateSystems.end()) {
     if (cdm.hasDimension(vName)) {
       METLIBS_LOG_DEBUG("has dimension '" << vName << "'");
-      return vcross::FimexReftimeSource::CoordinateSystem_p();
+      return CoordinateSystem_cp();
     }
     THROW(std::runtime_error, "no cs found for '" << vName << "'");
   }
@@ -228,7 +227,7 @@ vcross::FimexReftimeSource::CoordinateSystem_p findCsForVariable(const CDM& cdm,
   return *it;
 }
 
-CoordinateSystem::ConstAxisPtr findAxisOfType(vcross::FimexReftimeSource::CoordinateSystem_p cs, CoordinateAxis::AxisType axisType)
+CoordinateAxis_cp findAxisOfType(CoordinateSystem_cp cs, CoordinateAxis::AxisType axisType)
 {
   if (axisType == CoordinateAxis::GeoX)
     return cs->getGeoXAxis();
@@ -242,17 +241,17 @@ CoordinateSystem::ConstAxisPtr findAxisOfType(vcross::FimexReftimeSource::Coordi
   return cs->findAxisOfType(axisType);
 }
 
-int findShapeIndex(CoordinateAxis::AxisType type, vcross::FimexReftimeSource::CoordinateSystem_p cs, const vcross::Values::Shape& shapeCdm)
+int findShapeIndex(CoordinateAxis::AxisType type, CoordinateSystem_cp cs, const vcross::Values::Shape& shapeCdm)
 {
   if (not cs)
     return -1;
-  CoordinateSystem::ConstAxisPtr axisCdm = findAxisOfType(cs, type);
+  CoordinateAxis_cp axisCdm = findAxisOfType(cs, type);
   if (not axisCdm)
     return -1;
   return shapeCdm.position(axisCdm->getName());
 }
 
-vcross::Values::Shape translateAxisNames(const vcross::Values::Shape& shapeReq, const CDM& cdm, vcross::FimexReftimeSource::CoordinateSystem_p cs)
+vcross::Values::Shape translateAxisNames(const vcross::Values::Shape& shapeReq, const CDM& cdm, CoordinateSystem_cp cs)
 {
   const int N_AXES = 5;
   const CoordinateAxis::AxisType axesCDM[N_AXES] = { CoordinateAxis::GeoX,  CoordinateAxis::GeoY,  CoordinateAxis::GeoZ,  CoordinateAxis::Time, CoordinateAxis::Realization };
@@ -265,7 +264,7 @@ vcross::Values::Shape translateAxisNames(const vcross::Values::Shape& shapeReq, 
     const int i = std::find(axesV, axesV + N_AXES, name) - axesV;
     if (i != N_AXES) {
       // standard axis, replace name
-      CoordinateSystem::ConstAxisPtr axisCdm = findAxisOfType(cs, axesCDM[i]);
+      CoordinateAxis_cp axisCdm = findAxisOfType(cs, axesCDM[i]);
       if (axisCdm) {
         name = axisCdm->getName();
       } else if (length != 1) {
@@ -305,7 +304,7 @@ std::string findVariableByStandardNameOrName(const CDM& cdm, const std::string& 
     return std::string();
 }
 
-vcross::LonLat_v makeCrossectionPoints(const boost::shared_array<float> vLon, const boost::shared_array<float> vLat,
+vcross::LonLat_v makeCrossectionPoints(const MetNoFimex::shared_array<float> vLon, const MetNoFimex::shared_array<float> vLat,
     size_t lola_begin, size_t lola_end)
 {
   vcross::LonLat_v points;
@@ -386,7 +385,7 @@ ReftimeSource::Update_t FimexReftimeSource::update()
         METLIBS_LOG_DEBUG("using variable '" << reftime_var << "' to extract reference time");
         if (DataPtr rtData = mReader->getScaledData(reftime_var)) {
           if (rtData->size() > 0) {
-            if (boost::shared_array<Time::timevalue_t> rtValues = rtData->asDouble()) {
+            if (MetNoFimex::shared_array<Time::timevalue_t> rtValues = rtData->asDouble()) {
               mReferenceTime = Time(mReader->getCDM().getUnits(reftime_var), rtValues[0]);
               METLIBS_LOG_DEBUG(LOGVAL(util::to_miTime(mReferenceTime)));
             }
@@ -406,11 +405,11 @@ Inventory_cp FimexReftimeSource::getInventory()
   return mInventory;
 }
 
-FimexReftimeSource::CoordinateSystem_p FimexReftimeSource::findCsForVariable(const CDM& cdm,
-    const vcross::FimexReftimeSource::CoordinateSystem_pv& coordinateSystems, vcross::InventoryBase_cp v)
+CoordinateSystem_cp FimexReftimeSource::findCsForVariable(const CDM& cdm,
+    const CoordinateSystem_cp_v& coordinateSystems, vcross::InventoryBase_cp v)
 {
   METLIBS_LOG_SCOPE(LOGVAL(v->id()) << LOGVAL(v->dataType()));
-  vcross::FimexReftimeSource::CoordinateSystem_p cs;
+  CoordinateSystem_cp cs;
   const int verticalType = verticalTypeFromId(v->id());
   if (verticalType >= 0) {
     const std::string& ztid = transformedZAxisName(v->id());
@@ -426,7 +425,7 @@ FimexReftimeSource::CoordinateSystem_p FimexReftimeSource::findCsForVariable(con
 
 
 void FimexReftimeSource::prepareGetValues(Crossection_cp cs,
-    FimexCrossection_cp& fcs, CDMReader_p& reader, CoordinateSystem_pv& coordinateSystems)
+    FimexCrossection_cp& fcs, CDMReader_p& reader, CoordinateSystem_cp_v& coordinateSystems)
 {
   METLIBS_LOG_TIME();
   if (not mInventory and not makeInventory())
@@ -449,7 +448,7 @@ void FimexReftimeSource::getCrossectionValues(Crossection_cp crossection, const 
   METLIBS_LOG_TIME();
   FimexCrossection_cp fcs;
   CDMReader_p reader;
-  CoordinateSystem_pv coordinateSystems;
+  CoordinateSystem_cp_v coordinateSystems;
   prepareGetValues(crossection, fcs, reader, coordinateSystems);
   const CDM& cdm = reader->getCDM();
 
@@ -458,7 +457,7 @@ void FimexReftimeSource::getCrossectionValues(Crossection_cp crossection, const 
   for (InventoryBase_cp b : data) {
     METLIBS_LOG_DEBUG(LOGVAL(b->id()) << LOGVAL(b->nlevel()));
     try {
-      CoordinateSystem_p cs = findCsForVariable(cdm, coordinateSystems, b);
+      CoordinateSystem_cp cs = findCsForVariable(cdm, coordinateSystems, b);
       Values::Shape shapeCdm = shapeFromCDM(cdm, cs, b);
       Values::ShapeSlice sliceCdm(shapeCdm);
       sliceCdm.cut(findShapeIndex(CoordinateAxis::GeoX, cs, shapeCdm), fcs->start_index, fcs->length()) // cut on x axis
@@ -481,13 +480,13 @@ void FimexReftimeSource::getTimegraphValues(Crossection_cp crossection,
   METLIBS_LOG_TIME();
   FimexCrossection_cp fcs;
   CDMReader_p reader;
-  CoordinateSystem_pv coordinateSystems;
+  CoordinateSystem_cp_v coordinateSystems;
   prepareGetValues(crossection, fcs, reader, coordinateSystems);
   const CDM& cdm = reader->getCDM();
 
   for (InventoryBase_cp b : data) {
     try {
-      CoordinateSystem_p cs = findCsForVariable(cdm, coordinateSystems, b);
+      CoordinateSystem_cp cs = findCsForVariable(cdm, coordinateSystems, b);
       Values::Shape shapeCdm = shapeFromCDM(cdm, cs, b);
       Values::ShapeSlice sliceCdm(shapeCdm);
       sliceCdm.cut(findShapeIndex(CoordinateAxis::GeoX, cs, shapeCdm), fcs->start_index + crossection_index, 1) // single point on x axis
@@ -511,7 +510,7 @@ void FimexReftimeSource::getPointValues(Crossection_cp crossection,
   METLIBS_LOG_TIME();
   FimexCrossection_cp fcs;
   CDMReader_p reader;
-  CoordinateSystem_pv coordinateSystems;
+  CoordinateSystem_cp_v coordinateSystems;
   prepareGetValues(crossection, fcs, reader, coordinateSystems);
   const CDM& cdm = reader->getCDM();
 
@@ -519,7 +518,7 @@ void FimexReftimeSource::getPointValues(Crossection_cp crossection,
 
   for (InventoryBase_cp b : data) {
     try {
-      CoordinateSystem_p cs = findCsForVariable(cdm, coordinateSystems, b);
+      CoordinateSystem_cp cs = findCsForVariable(cdm, coordinateSystems, b);
       Values::Shape shapeCdm = shapeFromCDM(cdm, cs, b);
       Values::ShapeSlice sliceCdm(shapeCdm);
       sliceCdm.cut(findShapeIndex(CoordinateAxis::GeoX, cs, shapeCdm), fcs->start_index + crossection_index, 1) // single point on x axis
@@ -542,7 +541,7 @@ void FimexReftimeSource::getWaveSpectrumValues(Crossection_cp crossection, size_
   METLIBS_LOG_TIME();
   FimexCrossection_cp fcs;
   CDMReader_p reader;
-  CoordinateSystem_pv coordinateSystems;
+  CoordinateSystem_cp_v coordinateSystems;
   prepareGetValues(crossection, fcs, reader, coordinateSystems);
   const CDM& cdm = reader->getCDM();
 
@@ -550,7 +549,7 @@ void FimexReftimeSource::getWaveSpectrumValues(Crossection_cp crossection, size_
 
   for (InventoryBase_cp b : data) {
     try {
-      CoordinateSystem_p cs = findCsForVariable(cdm, coordinateSystems, b);
+      CoordinateSystem_cp cs = findCsForVariable(cdm, coordinateSystems, b);
       Values::Shape shapeCdm = shapeFromCDM(reader->getCDM(), cs, b);
       Values::ShapeSlice sliceCdm(shapeCdm);
       Values::Shape shapeOut;
@@ -572,7 +571,7 @@ void FimexReftimeSource::getWaveSpectrumValues(Crossection_cp crossection, size_
 }
 
 // converted must be one of zaxis->getField(...)
-Values_p FimexReftimeSource::getSlicedValuesGeoZTransformed(CDMReader_p reader, CoordinateSystem_p cs,
+Values_p FimexReftimeSource::getSlicedValuesGeoZTransformed(CDMReader_p reader, CoordinateSystem_cp cs,
     const Values::ShapeSlice& sliceCdm, const Values::Shape& shapeOut, InventoryBase_cp converted)
 {
   METLIBS_LOG_TIME();
@@ -617,7 +616,7 @@ Values_p FimexReftimeSource::getSlicedValuesGeoZTransformed(CDMReader_p reader, 
       << LOGVAL(y_begin) << LOGVAL(y_length)
       << LOGVAL(z_begin) << LOGVAL(z_length));
 
-  boost::shared_ptr<CDMExtractor> extractor(new CDMExtractor(reader));
+  std::shared_ptr<CDMExtractor> extractor = std::make_shared<CDMExtractor>(reader);
   if (cs->getTimeAxis())
     extractor->reduceDimension(cs->getTimeAxis()->getName(), t_begin, t_length);
   if (cs->getGeoXAxis())
@@ -626,7 +625,7 @@ Values_p FimexReftimeSource::getSlicedValuesGeoZTransformed(CDMReader_p reader, 
     extractor->reduceDimension(cs->getGeoYAxis()->getName(), y_begin, y_length);
   if (cs->getGeoZAxis())
     extractor->reduceDimension(cs->getGeoZAxis()->getName(), z_begin, z_length);
-  if (CoordinateSystem::ConstAxisPtr rAxis = cs->findAxisOfType(CoordinateAxis::Realization)) {
+  if (CoordinateAxis_cp rAxis = cs->findAxisOfType(CoordinateAxis::Realization)) {
     const int pcr = findShapeIndex(CoordinateAxis::Realization, cs, sliceCdm.shape());
     const size_t r_begin = sliceCdm.start(pcr), r_length = sliceCdm.length(pcr);
     extractor->reduceDimension(rAxis->getName(), r_begin, r_length);
@@ -638,7 +637,7 @@ Values_p FimexReftimeSource::getSlicedValuesGeoZTransformed(CDMReader_p reader, 
     return Values_p();
 
   // this is almost the same as cs, except that it may be for a different CDMReader
-  CoordinateSystem_p ex_cs = findGeoZTransformed
+  CoordinateSystem_cp ex_cs = findGeoZTransformed
       (MetNoFimex::listCoordinateSystems(extractor), ztid, itCsId->second);
   if (!ex_cs)
     return Values_p();
@@ -650,10 +649,10 @@ Values_p FimexReftimeSource::getSlicedValuesGeoZTransformed(CDMReader_p reader, 
   METLIBS_LOG_DEBUG(LOGVAL(ex_vt->getName()));
 
 #ifdef FIMEX_HAS_VERTICALCONVERTER
-  if (VerticalConverterPtr vc_p = ex_vt->getConverter(extractor, ex_cs, verticalType)) {
+  if (VerticalConverter_p vc_p = ex_vt->getConverter(extractor, ex_cs, verticalType)) {
     const SliceBuilder sb = createSliceBuilder(extractor->getCDM(), vc_p);
     DataPtr dataCdm = vc_p->getDataSlice(sb);
-    boost::shared_array<float> floats = dataCdm->asFloat();
+    MetNoFimex::shared_array<float> floats = dataCdm->asFloat();
 
     const Values::Shape shapeVC(vc_p->getShape(), getDimSizes(extractor->getCDM(), vc_p->getShape()));
     const Values::Shape shapeCdmOut = translateAxisNames(shapeOut, extractor->getCDM(), cs);
@@ -689,7 +688,7 @@ Values_p FimexReftimeSource::getSlicedValuesGeoZTransformed(CDMReader_p reader, 
   return v;
 }
 
-Values_p FimexReftimeSource::getSlicedValues(CDMReader_p reader, CoordinateSystem_p cs,
+Values_p FimexReftimeSource::getSlicedValues(CDMReader_p reader, CoordinateSystem_cp cs,
     const Values::ShapeSlice& sliceCdm, const Values::Shape& shapeOut, InventoryBase_cp b)
 {
   METLIBS_LOG_SCOPE(LOGVAL(b->id()) << LOGVAL(b->dataType()));
@@ -722,7 +721,7 @@ Values_p FimexReftimeSource::getSlicedValues(CDMReader_p reader, CoordinateSyste
   if (not dataCdm)
     THROW(std::runtime_error, "no sliced data for '" << b->id() << "'");
 
-  boost::shared_array<float> floatsReshaped = reshape(sliceCdm, shapeCdmOut, dataCdm->asFloat());
+  MetNoFimex::shared_array<float> floatsReshaped = reshape(sliceCdm, shapeCdmOut, dataCdm->asFloat());
   return std::make_shared<Values>(shapeOut, floatsReshaped);
 }
 
@@ -730,13 +729,7 @@ bool FimexReftimeSource::makeReader()
 {
   METLIBS_LOG_SCOPE(LOGVAL(mFileName) << LOGVAL(mFileType) << LOGVAL(mFileConfig));
   try {
-    int ftype = mifi_get_filetype(mFileType.c_str());
-    if (ftype == MIFI_FILETYPE_UNKNOWN) {
-      METLIBS_LOG_ERROR("unknown source_type:" << mFileType);
-      return false;
-    }
-
-    mReader = CDMReader_p(CDMFileReaderFactory::create(ftype, mFileName, mFileConfig));
+    mReader = CDMFileReaderFactory::create(mFileType, mFileName, mFileConfig);
     return true;
   } catch (std::exception& ex) {
     METLIBS_LOG_WARN("Problem creating reader for '" << mFileName << "': " << ex.what());
@@ -745,7 +738,7 @@ bool FimexReftimeSource::makeReader()
   }
 }
 
-FimexReftimeSource::CDMReader_p FimexReftimeSource::makeReader(FimexCrossection_cp cs)
+CDMReader_p FimexReftimeSource::makeReader(FimexCrossection_cp cs)
 {
   METLIBS_LOG_SCOPE();
   if (not (cs and cs->reader)) {
@@ -787,11 +780,11 @@ bool FimexReftimeSource::makeInventory()
 
       FieldData_p field(new FieldData(vName, cdm.getUnits(vName)));
 
-      const std::vector<CoordinateSystem_p>::const_iterator itVarCS =
+      const std::vector<CoordinateSystem_cp>::const_iterator itVarCS =
           std::find_if(mCoordinateSystems.begin(), mCoordinateSystems.end(),
               MetNoFimex::CompleteCoordinateSystemForComparator(vName));
       if (itVarCS != mCoordinateSystems.end()) {
-        CoordinateSystem_p cs = *itVarCS;
+        CoordinateSystem_cp cs = *itVarCS;
 
 #if 0
         if (!cs->getGeoXAxis() || !cs->getGeoYAxis()) {
@@ -802,7 +795,7 @@ bool FimexReftimeSource::makeInventory()
 
         METLIBS_LOG_DEBUG("variable '" << vName << "' looks good");
 
-        CoordinateSystem::ConstAxisPtr tAxis = cs->getTimeAxis();
+        CoordinateAxis_cp tAxis = cs->getTimeAxis();
         if (tAxis) {
           if (not knownTAxis.empty() and tAxis->getName() != knownTAxis) {
             METLIBS_LOG_DEBUG("variable '" << vName << "' has different time axis, ignoring");
@@ -816,17 +809,17 @@ bool FimexReftimeSource::makeInventory()
             mInventory->times.unit = tUnit;
 
             if (DataPtr tData = mReader->getScaledData(tAxis->getName())) {
-              if (boost::shared_array<Time::timevalue_t> tValues = tData->asDouble()) {
+              if (MetNoFimex::shared_array<Time::timevalue_t> tValues = tData->asDouble()) {
                 times.values.insert(times.values.end(), tValues.get(), tValues.get()+tData->size());
               }
             }
           }
         }
 
-        if (CoordinateSystem::ConstAxisPtr rAxis = cs->findAxisOfType(CoordinateAxis::Realization))
+        if (CoordinateAxis_cp rAxis = cs->findAxisOfType(CoordinateAxis::Realization))
           miutil::maximize(mInventory->realizationCount, cdm.getDimension(rAxis->getShape().front()).getLength());
 
-        CoordinateSystem::ConstAxisPtr zAxis = cs->getGeoZAxis();
+        CoordinateAxis_cp zAxis = cs->getGeoZAxis();
         if (zAxis) {
           const std::string& zName = zAxis->getName();
           METLIBS_LOG_DEBUG("variable '" << vName << "' has z axis '" << zName << "'");
@@ -910,7 +903,7 @@ void FimexReftimeSource::makeCrossectionInventory()
 
   bool has_longitude_latitude = false;
   DataPtr dataLon, dataLat;
-  boost::shared_array<float> vLon, vLat;
+  MetNoFimex::shared_array<float> vLon, vLat;
   if (!longitude.empty() && !latitude.empty()) {
     dataLon = mReader->getScaledData(longitude);
     dataLat = mReader->getScaledData(latitude);
@@ -940,7 +933,7 @@ void FimexReftimeSource::makeCrossectionInventory()
         METLIBS_LOG_WARN(vc_bounds << " size != 2");
         continue;
       }
-      boost::shared_array<int> valuesBounds = dataBounds->asInt();
+      MetNoFimex::shared_array<int> valuesBounds = dataBounds->asInt();
       if (not valuesBounds) {
         METLIBS_LOG_WARN(vc_bounds << " values missing");
         continue;
@@ -954,17 +947,13 @@ void FimexReftimeSource::makeCrossectionInventory()
 
       SliceBuilder sb_name(cdm, vc_name);
       sb_name.setStartAndSize(vc_shape.back(), ivc, 1);
-      DataPtr dataName = mReader->getScaledDataSlice(vc_name, sb_name);
+      DataPtr dataName = mReader->getDataSlice(vc_name, sb_name);
       if (not dataName) {
         METLIBS_LOG_WARN(vc_name << " data missing");
         continue;
       }
-      boost::shared_array<char> valuesName = dataName->asChar();
-      if (not valuesName) {
-        METLIBS_LOG_WARN(vc_name << " values missing");
-        continue;
-      }
-      const std::string csname = mCsNameCharsetConverter->convert(valuesName.get());
+      const std::string csname_encoded = dataName->asString();
+      const std::string csname = mCsNameCharsetConverter->convert(&csname_encoded[0]);
 
       const LonLat_v csPoints = makeCrossectionPoints(vLon, vLat, lola_begin, lola_end);
       FimexCrossection_p cs = std::make_shared<FimexCrossection>
@@ -1001,7 +990,7 @@ Crossection_cp FimexReftimeSource::addDynamicCrossection(std::string label, cons
   for (LonLat_v::const_iterator it = positions.begin(); it != positions.end(); ++it)
     lonLatCoordinates.push_back(LonLatPair(it->lonDeg(), it->latDeg()));
 
-  boost::shared_ptr<CDMInterpolator> interpolator(new CDMInterpolator(mReader));
+  CDMInterpolator_p interpolator = std::make_shared<CDMInterpolator>(mReader);
   const std::vector<CrossSectionDefinition> csd1(1, CrossSectionDefinition(label, lonLatCoordinates));
   interpolator->changeProjectionToCrossSections(MIFI_INTERPOL_BILINEAR, csd1);
 
@@ -1011,7 +1000,7 @@ Crossection_cp FimexReftimeSource::addDynamicCrossection(std::string label, cons
   const DataPtr dataLat = interpolator->getScaledData(LATITUDE);
   if (not (dataLon and dataLat and dataLon->size() == dataLat->size()))
     return Crossection_cp();
-  const boost::shared_array<float> vLon = dataLon->asFloat(), vLat = dataLat->asFloat();
+  const MetNoFimex::shared_array<float> vLon = dataLon->asFloat(), vLat = dataLat->asFloat();
   LonLat_v actualPoints;
   actualPoints.reserve(dataLon->size());
   for (size_t i=0; i<dataLon->size(); ++i)

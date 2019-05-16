@@ -770,6 +770,7 @@ TARGET_LINK_LIBRARIES(libdiana
   ${QT_LIBRARIES} # includes Qt5::Gui :-(
   ${Boost_LIBRARIES}
   mi-fieldcalc
+  libfimex
 )
 TARGET_LINK_LIBRARIES(libdianaui libdiana ${PCUI_LIBRARIES})
 TARGET_LINK_LIBRARIES(libbdiana libdiana)

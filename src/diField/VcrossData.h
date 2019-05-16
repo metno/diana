@@ -4,11 +4,9 @@
 
 #include "DataReshape.h"
 
+#include <fimex/SharedArray.h>
 #include <puDatatypes/miCoordinates.h>
 #include <puCtools/deprecated.h>
-
-#include <boost/shared_array.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <map>
 #include <set>
@@ -172,7 +170,7 @@ class Values
 {
 public:
   typedef float value_t;
-  typedef boost::shared_array<value_t> ValueArray;
+  typedef MetNoFimex::shared_array<value_t> ValueArray;
 
 public:
   class Shape {
@@ -314,13 +312,13 @@ typedef std::vector<Values_cp> Values_cpv;
 typedef std::map<std::string, Values_cp> name2value_t;
 
 template<typename T>
-boost::shared_array<T> reshape(const Values::Shape& shapeIn, const Values::Shape& shapeOut, boost::shared_array<T> dataIn)
+MetNoFimex::shared_array<T> reshape(const Values::Shape& shapeIn, const Values::Shape& shapeOut, MetNoFimex::shared_array<T> dataIn)
 {
   return ::reshape(shapeIn.names(), shapeIn.lengths(), shapeOut.names(), shapeOut.lengths(), dataIn);
 }
 
 template<typename T>
-boost::shared_array<T> reshape(const Values::ShapeSlice& sliceIn, const Values::Shape& shapeOut, boost::shared_array<T> dataIn)
+MetNoFimex::shared_array<T> reshape(const Values::ShapeSlice& sliceIn, const Values::Shape& shapeOut, MetNoFimex::shared_array<T> dataIn)
 {
   return ::reshape(sliceIn.shape().names(), sliceIn.lengths(), shapeOut.names(), shapeOut.lengths(), dataIn);
 }

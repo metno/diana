@@ -2,7 +2,7 @@
 #ifndef DATARESHAPE_HH
 #define DATARESHAPE_HH 1
 
-#include <boost/shared_array.hpp>
+#include <fimex/SharedArray.h>
 
 #include <numeric>
 #include <stdexcept>
@@ -70,16 +70,16 @@ void reshape(const std::vector<std::string>& shapeIn, const std::vector<std::siz
 }
 
 template<typename T>
-boost::shared_array<T> reshape(const std::vector<std::string>& shapeIn, const std::vector<std::size_t>& lengthsIn,
+MetNoFimex::shared_array<T> reshape(const std::vector<std::string>& shapeIn, const std::vector<std::size_t>& lengthsIn,
     const std::vector<std::string>& shapeOut, const std::vector<std::size_t>& lengthsOut,
-    boost::shared_array<T> dataIn)
+    MetNoFimex::shared_array<T> dataIn)
 {
   size_t sameIn=0, sameOut=0, sameSize=1; // TODO remove sameSize == sliceIn[sameIn] ?!
   if (count_identical_dimensions(shapeIn, lengthsIn, shapeOut, lengthsOut, sameIn, sameOut, sameSize)) {
     // all same, nothing to do, just return input array
     return dataIn;
   } else {
-    boost::shared_array<T> dataOut(new T[calculate_volume(lengthsOut)]);
+    MetNoFimex::shared_array<T> dataOut(new T[calculate_volume(lengthsOut)]);
     
     const std::vector<int> positionOutIn = map_dimensions(shapeIn, lengthsIn, shapeOut, lengthsOut, sameIn, sameOut);
     copy_values(lengthsIn, lengthsOut, sameOut, sameSize, positionOutIn, dataIn.get(), dataOut.get());

@@ -80,12 +80,6 @@ public:
 };
 
 class FimexIO: public GridIO {
-public:
-  typedef boost::shared_ptr<const MetNoFimex::CoordinateSystem> CoordinateSystemPtr;
-  typedef std::vector<CoordinateSystemPtr> CoordinateSystems_t;
-  typedef boost::shared_ptr<MetNoFimex::CDMReader> CDMReaderPtr;
-
-
 private:
   //! begin and end indices of a named cross-section
   struct VcrossBeginEnd {
@@ -104,19 +98,19 @@ private:
   std::string reftime_from_file; //! reference time from filename or from file
 
   std::string projDef; //proj4 definition from setup. If defined, use this projection.
-  CoordinateSystems_t coordSys;
+  MetNoFimex::CoordinateSystem_cp_v coordSys;
   bool singleTimeStep;
   int noOfClimateTimes;
   bool writeable;
   bool turnWaveDirection;
-  CDMReaderPtr feltReader;
+  MetNoFimex::CDMReader_p feltReader;
 
   FimexIOsetup* setup;
 
-  MetNoFimex::CoordinateSystemSliceBuilder createSliceBuilder(CDMReaderPtr reader, const CoordinateSystemPtr& varCS,
+  MetNoFimex::CoordinateSystemSliceBuilder createSliceBuilder(MetNoFimex::CDMReader_p reader, const MetNoFimex::CoordinateSystem_cp& varCS,
       const std::string& reftime, const gridinventory::GridParameter& param,
       const std::string& zlevel, const miutil::miTime& time, const std::string& elevel, size_t& zaxis_index);
-  MetNoFimex::CoordinateSystemSliceBuilder createSliceBuilder(const CoordinateSystemPtr& varCS,
+  MetNoFimex::CoordinateSystemSliceBuilder createSliceBuilder(const MetNoFimex::CoordinateSystem_cp& varCS,
       const std::string& reftime, const gridinventory::GridParameter& param,
       const std::string& zlevel, const miutil::miTime& time, const std::string& elevel, size_t& zaxis_index);
   bool paramExists(const std::string& reftime, const gridinventory::GridParameter& param);
@@ -126,26 +120,26 @@ private:
 
   typedef std::map<std::string, std::string> name2id_t;
 
-  CDMReaderPtr createReader();
+  MetNoFimex::CDMReader_p createReader();
 
   size_t findTimeIndex(const gridinventory::Taxis& taxis, const miutil::miTime& time);
   size_t findZIndex(const gridinventory::Zaxis& zaxis, const std::string& zlevel);
   size_t findExtraIndex(const gridinventory::ExtraAxis& extraaxis, const std::string& elevel);
 
   //! helper function for inventoryExtractGrid
-  void inventoryExtractGridProjection(boost::shared_ptr<const MetNoFimex::Projection> projection, gridinventory::Grid& grid,
-      MetNoFimex::CoordinateSystem::ConstAxisPtr xAxis, MetNoFimex::CoordinateSystem::ConstAxisPtr yAxis);
+  void inventoryExtractGridProjection(MetNoFimex::Projection_cp projection, gridinventory::Grid& grid,
+      MetNoFimex::CoordinateAxis_cp xAxis, MetNoFimex::CoordinateAxis_cp yAxis);
 
   //! helper function for makeInventory
-  void inventoryExtractGrid(std::set<gridinventory::Grid>& grids, CoordinateSystemPtr cs,
-      MetNoFimex::CoordinateSystem::ConstAxisPtr xAxis, MetNoFimex::CoordinateSystem::ConstAxisPtr yAxis);
+  void inventoryExtractGrid(std::set<gridinventory::Grid>& grids, MetNoFimex::CoordinateSystem_cp cs,
+      MetNoFimex::CoordinateAxis_cp xAxis, MetNoFimex::CoordinateAxis_cp yAxis);
 
   //! helper function for makeInventory
   void inventoryExtractVAxis(std::set<gridinventory::Zaxis>& zaxes, name2id_t& name2id,
-      MetNoFimex::CoordinateSystem::ConstAxisPtr vAxis, CoordinateSystemPtr& cs);
+      MetNoFimex::CoordinateAxis_cp vAxis, MetNoFimex::CoordinateSystem_cp& cs);
 
   void inventoryExtractExtraAxes(std::set<gridinventory::ExtraAxis>& extraaxes, name2id_t& name2id,
-      const std::vector<std::string>& unsetList, const MetNoFimex::CoordinateSystem::ConstAxisList axes);
+      const std::vector<std::string>& unsetList, const MetNoFimex::CoordinateAxis_cp_v axes);
 
   std::string fallbackGetReferenceTime();
 
@@ -153,7 +147,7 @@ private:
    * Also checks that it is a simple spatial grid and that both X/Lon and Y/Lat
    * axes are present.
    */
-  CoordinateSystemPtr findCoordinateSystem(const gridinventory::GridParameter& param);
+  MetNoFimex::CoordinateSystem_cp findCoordinateSystem(const gridinventory::GridParameter& param);
   const std::string& extractVariableName(const gridinventory::GridParameter& param);
 
   std::string reproj_name;

@@ -117,12 +117,12 @@ TEST(DataReshapeTest, ReshapeArrayIdentical)
   const size_v size_b = (size_v() << 3 << 2);
   const string_v name_b = (string_v() << "z" << "x");
 
-  boost::shared_array<float> array_in(new float[6]);
+  MetNoFimex::shared_array<float> array_in(new float[6]);
   const float floats_in[6] = { 11, 21, 31, 12, 22, 32 };
   for (int i=0; i<6; ++i)
     array_in[i] = floats_in[i];
 
-  boost::shared_array<float> array_out = reshape(name_a, size_a, name_b, size_b, array_in);
+  MetNoFimex::shared_array<float> array_out = reshape(name_a, size_a, name_b, size_b, array_in);
   EXPECT_EQ(array_in, array_out);
 }
 

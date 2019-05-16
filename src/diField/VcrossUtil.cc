@@ -34,6 +34,9 @@
 
 #include <mi_fieldcalc/MetConstants.h>
 
+#include <fimex/UnitsConverter.h>
+#include <fimex/UnitsException.h>
+
 #include <udunits2.h>
 
 #include <cmath>
@@ -117,7 +120,7 @@ UnitConvertibility unitConvertibility(const std::string& ua, const std::string& 
   if (not units.areConvertible(ua, ub))
     return UNITS_MISMATCH;
 
-  boost::shared_ptr<MetNoFimex::UnitsConverter> uconv = units.getConverter(ua, ub);
+  MetNoFimex::UnitsConverter_p uconv = units.getConverter(ua, ub);
   if (not uconv)
     return UNITS_MISMATCH;
   if (not uconv->isLinear())
@@ -148,11 +151,11 @@ std::string unitsMultiplyDivide(const std::string& ua, const std::string& ub, bo
   try {
     getUtSystem();
 
-    boost::shared_ptr<ut_unit> aUnit(ut_parse(utSystem, ua.empty() ? "1" : ua.c_str(), UT_UTF8), ut_free);
+    std::shared_ptr<ut_unit> aUnit(ut_parse(utSystem, ua.empty() ? "1" : ua.c_str(), UT_UTF8), ut_free);
     MetNoFimex::handleUdUnitError(ut_get_status(), ua);
-    boost::shared_ptr<ut_unit> bUnit(ut_parse(utSystem, ub.c_str(), UT_UTF8), ut_free);
+    std::shared_ptr<ut_unit> bUnit(ut_parse(utSystem, ub.c_str(), UT_UTF8), ut_free);
     MetNoFimex::handleUdUnitError(ut_get_status(), ub);
-    boost::shared_ptr<ut_unit> mUnit((multiply ? ut_multiply : ut_divide)(aUnit.get(), bUnit.get()), ut_free);
+    std::shared_ptr<ut_unit> mUnit((multiply ? ut_multiply : ut_divide)(aUnit.get(), bUnit.get()), ut_free);
     MetNoFimex::handleUdUnitError(ut_get_status(), "result");
 
     char buf[128];
@@ -173,9 +176,9 @@ std::string unitsRoot(const std::string& u, int root)
   try {
     getUtSystem();
 
-    boost::shared_ptr<ut_unit> iUnit(ut_parse(utSystem, u.c_str(), UT_UTF8), ut_free);
+    std::shared_ptr<ut_unit> iUnit(ut_parse(utSystem, u.c_str(), UT_UTF8), ut_free);
     MetNoFimex::handleUdUnitError(ut_get_status(), u);
-    boost::shared_ptr<ut_unit> rUnit(ut_root(iUnit.get(), root), ut_free);
+    std::shared_ptr<ut_unit> rUnit(ut_root(iUnit.get(), root), ut_free);
     MetNoFimex::handleUdUnitError(ut_get_status(), "result");
 
     char buf[128];
@@ -190,9 +193,9 @@ std::string unitsRoot(const std::string& u, int root)
 
 // ------------------------------------------------------------------------
 
-UnitsConverterPtr unitConverter(const std::string& ua, const std::string& ub)
+MetNoFimex::UnitsConverter_p unitConverter(const std::string& ua, const std::string& ub)
 {
-  return UnitsConverterPtr(MetNoFimex::Units().getConverter(ua, ub));
+  return MetNoFimex::Units().getConverter(ua, ub);
 }
 
 // ------------------------------------------------------------------------
@@ -201,7 +204,7 @@ Values_cp unitConversion(Values_cp valuesIn, const std::string& unitIn, const st
 {
   if (not valuesIn or unitsIdentical(unitIn, unitOut))
     return valuesIn;
-  util::UnitsConverterPtr uconv = util::unitConverter(unitIn, unitOut);
+  MetNoFimex::UnitsConverter_p uconv = util::unitConverter(unitIn, unitOut);
   if (not uconv)
     return Values_cp();
   const float udI = valuesIn->undefValue();
@@ -224,7 +227,7 @@ float unitConversion(float valueIn, const std::string& unitIn, const std::string
 {
   if (unitsIdentical(unitIn, unitOut))
     return valueIn;
-  util::UnitsConverterPtr uconv = util::unitConverter(unitIn, unitOut);
+  MetNoFimex::UnitsConverter_p uconv = util::unitConverter(unitIn, unitOut);
   if (not uconv)
     return valueIn;
   return uconv->convert(valueIn);
@@ -282,10 +285,10 @@ miutil::miTime to_miTime(const std::string& unit, Time::timevalue_t value)
 {
   if (!unit.empty()) {
     if (diutil::startswith(unit, "days")) {
-      if (UnitsConverterPtr uconv = unitConverter(unit, DAYS_SINCE_1900))
+      if (MetNoFimex::UnitsConverter_p uconv = unitConverter(unit, DAYS_SINCE_1900))
         return miutil::addHour(day0, 24 * uconv->convert(value));
     }
-    if (UnitsConverterPtr uconv = unitConverter(unit, SECONDS_SINCE_1970))
+    if (MetNoFimex::UnitsConverter_p uconv = unitConverter(unit, SECONDS_SINCE_1970))
       return miutil::addSec(time0, uconv->convert(value));
   }
   return miutil::miTime();

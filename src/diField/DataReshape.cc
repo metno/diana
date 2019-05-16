@@ -3,6 +3,8 @@
 
 #include <puTools/miStringBuilder.h>
 
+#include <algorithm>
+
 #define MILOGGER_CATEGORY "vcross.DataReshape"
 #include "miLogger/miLogging.h"
 

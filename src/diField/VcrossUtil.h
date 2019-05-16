@@ -87,8 +87,7 @@ std::string unitsMultiplyDivide(const std::string& ua, const std::string& ub, bo
 //! result unit after taking root
 std::string unitsRoot(const std::string& u, int root=2);
 
-typedef boost::shared_ptr<MetNoFimex::UnitsConverter> UnitsConverterPtr;
-UnitsConverterPtr unitConverter(const std::string& ua, const std::string& ub);
+MetNoFimex::UnitsConverter_p unitConverter(const std::string& ua, const std::string& ub);
 
 Values_cp unitConversion(Values_cp valuesIn, const std::string& unitIn, const std::string& unitOut);
 float unitConversion(float valueIn, const std::string& unitIn, const std::string& unitOut);
