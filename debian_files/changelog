@@ -1,3 +1,14 @@
+diana-3.50 (3.51.0~a1-1) unstable; urgency=low
+
+  * using fimex-1.2
+  * use mi-fieldcalc library
+  * EditManager - fixed autoremove old files
+  * bugfix TimeSlider & lastStep
+  * bdiana: improve handling of missing times
+  * Field annotations  Changed to "<min" and ">max"    when using line.interval
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 21 May 2019 11:52:52 +0200
+
 diana-3.50 (3.50.10-1) unstable; urgency=low
 
   * bugfix mitiff
