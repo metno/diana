@@ -769,13 +769,13 @@ float ObsRoad::convertWW(float ww)
 
 void ObsRoad::amountOfClouds_1(ObsData& dta, bool metar)
 {
-  float Nh = undef;
-  float h = undef;
+  float Nh = _undef;
+  float h = _undef;
   if (dta.fdata.count("Nh"))
     Nh = dta.fdata["Nh"];
   if (dta.fdata.count("h"))
     h = dta.fdata["h"];
-  if (Nh != undef || h != undef) {
+  if (Nh != _undef || h != _undef) {
     QString ost;
     if (Nh > -1)
       if (metar) {
@@ -808,14 +808,14 @@ void ObsRoad::amountOfClouds_1_4(ObsData& dta, bool metar)
 {
   // This metod puts detailed cloud parameter in a cloud string
   // and puts it in the vector cloud in ObsData.
-  int Ns1 = undef;
-  int hs1 = undef;
-  int Ns2 = undef;
-  int hs2 = undef;
-  int Ns3 = undef;
-  int hs3 = undef;
-  int Ns4 = undef;
-  int hs4 = undef;
+  int Ns1 = _undef;
+  int hs1 = _undef;
+  int Ns2 = _undef;
+  int hs2 = _undef;
+  int Ns3 = _undef;
+  int hs3 = _undef;
+  int Ns4 = _undef;
+  int hs4 = _undef;
   // manned / automated station
   if (dta.fdata.count("auto") && dta.fdata["auto"] == 0) {
     // automated station
@@ -857,13 +857,13 @@ void ObsRoad::amountOfClouds_1_4(ObsData& dta, bool metar)
   }
   // if metar station do not report Ns1 ... Ns4 and hs1 .. hs4 try Nh and h
   if (metar) {
-    if (Ns1 == undef && hs1 == undef && Ns2 == undef && hs2 == undef && Ns3 == undef && hs3 == undef && Ns4 == undef && hs4 == undef) {
+    if (Ns1 == _undef && hs1 == _undef && Ns2 == _undef && hs2 == _undef && Ns3 == _undef && hs3 == _undef && Ns4 == _undef && hs4 == _undef) {
       amountOfClouds_1(dta, metar);
       return;
     }
   }
 
-  if (Ns4 != undef && Ns4 > 0 && hs4 != undef && hs4 > 0) {
+  if (Ns4 != _undef && Ns4 > 0 && hs4 != _undef && hs4 > 0) {
     QString ost;
     if (metar) {
       if (Ns4 == 8)
@@ -882,7 +882,7 @@ void ObsRoad::amountOfClouds_1_4(ObsData& dta, bool metar)
     ost += QString::number(hs4);
     dta.cloud.push_back(ost.toStdString());
   }
-  if (Ns3 != undef && Ns3 > 0 && hs3 != undef && hs3 > 0) {
+  if (Ns3 != _undef && Ns3 > 0 && hs3 != _undef && hs3 > 0) {
     QString ost;
     if (metar) {
       if (Ns3 == 8)
@@ -901,7 +901,7 @@ void ObsRoad::amountOfClouds_1_4(ObsData& dta, bool metar)
     ost += QString::number(hs3);
     dta.cloud.push_back(ost.toStdString());
   }
-  if (Ns2 != undef && Ns2 > 0 && hs2 != undef && hs2 > 0) {
+  if (Ns2 != _undef && Ns2 > 0 && hs2 != _undef && hs2 > 0) {
     QString ost;
     if (metar) {
       if (Ns2 == 8)
@@ -920,7 +920,7 @@ void ObsRoad::amountOfClouds_1_4(ObsData& dta, bool metar)
     ost += QString::number(hs2);
     dta.cloud.push_back(ost.toStdString());
   }
-  if (Ns1 != undef && Ns1 > 0 && hs1 != undef && hs1 > 0) {
+  if (Ns1 != _undef && Ns1 > 0 && hs1 != _undef && hs1 > 0) {
     QString ost;
     if (metar) {
       if (Ns1 == 8)
