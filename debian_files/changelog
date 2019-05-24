@@ -1,3 +1,9 @@
+diana-3.50 (3.51.0~rc1-1) unstable; urgency=low
+
+  * Bugfix - conflict showpos vs DeltaTime
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Fri, 24 May 2019 20:26:33 +0200
+
 diana-3.50 (3.51.0~a1-1) unstable; urgency=low
 
   * using fimex-1.2
