@@ -165,8 +165,7 @@ const std::vector<ObsDialogInfo::Par> pars = {{"pos", ObsDialogInfo::pt_std, -1,
                                               {"dndndn", ObsDialogInfo::pt_std, -1, 0, "Extreme counterclockwise wind direction of a variable wind", 0, 360},
                                               {"PHPHPHPH", ObsDialogInfo::pt_std, -1, 1, "Altimeter setting (QNH)", 100, 1050},
                                               {"QWSG", ObsDialogInfo::pt_std, -1, 0, "?", 0, 1},
-                                              {"GWI", ObsDialogInfo::pt_std, -1, 0, "General weather indicator", 0, 1},
-                                              {"DeltaTime", ObsDialogInfo::pt_std, -1, 0, "Time from now to time stamp of observation", 0, 1}};
+                                              {"GWI", ObsDialogInfo::pt_std, -1, 0, "General weather indicator", 0, 1}};
 
 void ObsDialogInfo::addPlotType(const ObsDialogInfo::PlotType& p, bool addIfNoReaders)
 {
