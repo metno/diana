@@ -163,7 +163,7 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char* image[]
   }
   const int size = ginfo.xsize * ginfo.ysize;
 
-  uint16  count;
+  uint32  count;
   void    *data;
   // TIFFTAG_GDAL_METADATA 42112 defined in some projets
   if (samplesperpixel == 1 && TIFFGetField(in.get(), 42112, &count, &data)) {
