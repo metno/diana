@@ -1728,7 +1728,8 @@ void ObsPlot::printListSymbol(DiGLPainter* gl, const ObsData& dta, const ObsDial
       xypos.rx() += 20;
 
   } else {
-    printUndef(gl, xypos, align_right);
+    if (plotundef)
+      printUndef(gl, xypos, align_right);
   }
 }
 
