@@ -2271,6 +2271,22 @@ void DianaMainWindow::catchMouseDoubleClick(QMouseEvent* mev)
 {
 }
 
+void DianaMainWindow::showStationOrObsText(int x, int y)
+{
+  QString stationText = contr->getStationManager()->getStationsText(x, y);
+  QString obsText = QString::fromStdString(contr->getObsPopupText(x, y));
+  if (!stationText.isEmpty() || !obsText.isEmpty()) {
+    // undo reverted y coordinate from MainPaintable::handleMouseEvents
+    QPoint popupPos = w->mapToGlobal(QPoint(x, w->height() - y));
+    if (!stationText.isEmpty()) {
+      QWhatsThis::showText(popupPos, stationText, this);
+    }
+    if (!obsText.isEmpty()) {
+      QToolTip::showText(popupPos, obsText, this);
+    }
+  }
+}
+
 
 void DianaMainWindow::catchElement(QMouseEvent* mev)
 {
@@ -2285,6 +2301,8 @@ void DianaMainWindow::catchElement(QMouseEvent* mev)
   if (contr->findObs(x,y)) {
     needupdate= true;
   }
+  
+  showStationOrObsText(x, y);
 
   //find the name of stations clicked/pointed at
   vector<std::string> stations = contr->findStations(x,y,"vprof");
