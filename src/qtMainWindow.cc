@@ -2212,18 +2212,6 @@ void DianaMainWindow::catchMouseGridPos(QMouseEvent* mev)
     sendLetter(letter);
   }
 
-  QString stationText = contr->getStationManager()->getStationsText(x, y);
-  QString obsText = QString::fromStdString(contr->getObsPopupText(x, y));
-  if (!stationText.isEmpty() || !obsText.isEmpty()) {
-    // undo reverted y coordinate from MainPaintable::handleMouseEvents
-    QPoint popupPos = w->mapToGlobal(QPoint(x, w->height() - y));
-    if (!stationText.isEmpty()) {
-      QWhatsThis::showText(popupPos, stationText, this);
-    }
-    if (!obsText.isEmpty()) {
-      QToolTip::showText(popupPos, obsText, this);
-    }
-  }
 }
 
 
