@@ -177,6 +177,7 @@ private Q_SLOTS:
   void catchKeyPress(QKeyEvent*);
   void catchMouseDoubleClick(QMouseEvent*);
   void catchElement(QMouseEvent*);
+  void showStationOrObsText(int x, int y);
   void undo();
   void redo();
   void save();
