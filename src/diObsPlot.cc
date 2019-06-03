@@ -1717,7 +1717,8 @@ void ObsPlot::printListSymbol(DiGLPainter* gl, const ObsData& dta, const ObsDial
       if (ttt_p != dta.fdata.end()) {
         weather(gl, (short int)f_p->second, ttt_p->second, dta.ship_buoy, spos - QPointF(0, 0.2 * yStep * scale), scale * 0.6, align_right);
       } else {
-        printUndef(gl, xypos, align_right);
+        if (plotundef)
+          printUndef(gl, xypos, align_right);
       }
     } else if (param.name == "ds") {
       arrow(gl, f_p->second, spos, scale * 0.6);
