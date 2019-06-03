@@ -122,7 +122,7 @@ TimeControl::TimeControl(QWidget* parent)
 
   QLabel* timeoutLabel = new QLabel(tr("Animation speed (sec):"), this);
   timeoutBox= new QComboBox(this);
-  for (int f10=2; f10<21; ++f10) {
+  for (int f10 = 0; f10 < 21; ++f10) {
     timeoutBox->addItem(QString::number(0.1*f10, ' ', 1));
   }
 
@@ -254,7 +254,7 @@ void TimeControl::OffsetValue(int v)
 
 void TimeControl::timeoutSlot(int i)
 {
-  float val= i/10.+0.2;
+  float val = i / 10.;
   emit timeoutChanged(val);
 }
 
