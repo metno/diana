@@ -78,7 +78,7 @@ bool BdianaSource::selectTime(const miutil::miTime& time)
   if (time.undef())
     return false;
   const plottimes_t times = getTimes();
-  return (times.find(time) != times.end());
+  return (times.size() == 0 || times.find(time) != times.end());
 }
 
 void BdianaSource::setTimeChoice(TimeChoice tc)
