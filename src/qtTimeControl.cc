@@ -125,6 +125,7 @@ TimeControl::TimeControl(QWidget* parent)
   for (int f10 = 0; f10 < 21; ++f10) {
     timeoutBox->addItem(QString::number(0.1*f10, ' ', 1));
   }
+  timeoutBox->setCurrentIndex(2);
 
   connect(timeoutBox, SIGNAL(highlighted(int)), SLOT(timeoutSlot(int)));
 
