@@ -1,3 +1,13 @@
+diana-3.50 (3.51.0~rc2-1) unstable; urgency=low
+
+  * Bugfix - bdiana - accepting plots with no time
+  * TimeControl - animation speed - more options
+  * ObsPlot - Bugfix in plotList
+  * ObsPopupSpec and catch element
+  * Fixed TIFFGetField memory curroption
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 04 Jun 2019 19:26:58 +0200
+
 diana-3.50 (3.51.0~rc1-1) unstable; urgency=low
 
   * Bugfix - conflict showpos vs DeltaTime
