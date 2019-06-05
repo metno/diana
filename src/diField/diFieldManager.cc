@@ -463,19 +463,11 @@ bool FieldManager::addModels(const std::vector<std::string>& configInfo)
   return updateFileSetup(lines, errors, clearsources, top);
 }
 
-bool FieldManager::modelOK(const std::string& modelName)
-{
-  GridCollectionPtr pgc = getGridCollection(modelName, "");
-  if (not pgc)
-    return false;
-  return true;
-}
-
 std::map<std::string,std::string> FieldManager::getGlobalAttributes(const std::string& modelName, const std::string& refTime)
 {
   METLIBS_LOG_SCOPE(LOGVAL(modelName)<<LOGVAL(refTime));
 
-  if (GridCollectionPtr pgc = getGridCollection(modelName, refTime, false, false))
+  if (GridCollectionPtr pgc = getGridCollection(modelName, refTime, false))
     return pgc->getGlobalAttributes(refTime);
   else
     return std::map<std::string,std::string>();
@@ -487,14 +479,13 @@ void FieldManager::getFieldPlotInfo(const std::string& modelName, const std::str
 
   fieldInfo.clear();
 
-  if (GridCollectionPtr pgc = getGridCollection(modelName, refTime, false, false))
+  if (GridCollectionPtr pgc = getGridCollection(modelName, refTime, false))
     pgc->getFieldPlotInfo(refTime, fieldInfo);
 }
 
 
 FieldManager::GridCollectionPtr FieldManager::getGridCollection(
-    const std::string& modelName, const std::string& refTime, bool rescan,
-    bool checkSourceChanged)
+    const std::string& modelName, const std::string& refTime, bool rescan)
 {
   METLIBS_LOG_TIME();
 
@@ -505,9 +496,6 @@ FieldManager::GridCollectionPtr FieldManager::getGridCollection(
   }
 
   GridCollectionPtr pgc = p->second;
-  if (checkSourceChanged && pgc->sourcesChanged()) {
-    rescan = true;
-  }
 
   if (!rescan && pgc->inventoryOk(refTime))
     return pgc;
@@ -649,7 +637,7 @@ bool FieldManager::makeField(Field*& fout, FieldRequest frq)
     frq.refTime = getBestReferenceTime(frq.modelName, frq.refoffset, frq.refhour);
   }
 
-  GridCollectionPtr pgc = getGridCollection(frq.modelName, frq.refTime, false, frq.checkSourceChanged);
+  GridCollectionPtr pgc = getGridCollection(frq.modelName, frq.refTime, false);
   if (!pgc) {
     METLIBS_LOG_WARN("could not find grid collection for model=" << frq.modelName << " reftime=" << frq.refTime);
     return false;
@@ -750,7 +738,7 @@ bool FieldManager::writeField(const FieldRequest& fieldrequest, const Field* fie
       << LOGVAL(fieldrequest.elevel) << LOGVAL(fieldrequest.unit));
 
   GridCollectionPtr pgc = getGridCollection(fieldrequest.modelName,
-      fieldrequest.refTime, false, fieldrequest.checkSourceChanged);
+      fieldrequest.refTime, false);
 
   if (not pgc) {
     METLIBS_LOG_WARN(LOGVAL(fieldrequest.modelName) << LOGVAL(fieldrequest.refTime) << "' not found");
@@ -761,21 +749,4 @@ bool FieldManager::writeField(const FieldRequest& fieldrequest, const Field* fie
       fieldrequest.paramName, fieldrequest.plevel, fieldrequest.ptime,
       fieldrequest.elevel, fieldrequest.unit, fieldrequest.output_time,
       field);
-}
-
-void FieldManager::updateSources()
-{
-  for (GridSources_t::iterator it_gs = gridSources.begin();
-      it_gs != gridSources.end(); ++it_gs)
-    it_gs->second->updateSources();
-}
-
-std::vector<std::string> FieldManager::getFileNames(const std::string& modelName)
-{
-  METLIBS_LOG_SCOPE();
-  std::vector<std::string> filenames;
-  GridCollectionPtr gridCollection = getGridCollection(modelName, "", true);
-  if (gridCollection)
-    filenames = gridCollection->getRawSources();
-  return filenames;
 }

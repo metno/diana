@@ -69,7 +69,6 @@ FieldRequest::FieldRequest()
     , allTimeSteps(false)
     , standard_name(false)
     , predefinedPlot(true)
-    , checkSourceChanged(true)
     , flightlevel(false)
 {
 }

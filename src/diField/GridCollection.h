@@ -74,7 +74,7 @@ public:
    * @param reftime, reference time to make inventory for. Use empty string for none
    * @return status
    */
-  bool makeInventory(const std::string& refTime, bool updateSourceList=false);
+  bool makeInventory(const std::string& refTime);
 
   /**
    * check if any sources has changed

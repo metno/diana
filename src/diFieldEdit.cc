@@ -527,7 +527,6 @@ bool FieldEdit::writeEditFieldFile(const std::string& filename)
   unsavedChanges = false;
   FieldRequest fieldrequest;
 
-  fieldrequest.checkSourceChanged = false;
   fieldrequest.modelName = filename;
   fieldrequest.paramName = editfield->paramName;
   fieldrequest.zaxis= vcoord;

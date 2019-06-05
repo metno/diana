@@ -85,9 +85,6 @@ public:
   /// return info about model/file groups (to FieldDialog)
   const FieldModelGroupInfo_v& getFieldModelGroups() const { return fieldModelGroups; }
 
-  /// check if model exists
-  bool modelOK(const std::string& modelName);
-
   std::map<std::string,std::string> getGlobalAttributes(const std::string& modelName, const std::string& refTime);
 
   /// return all variables/levels for one model/file (to FieldDialog)
@@ -113,10 +110,6 @@ public:
 
   /// read and compute a difference field (fv1 = fv1-fv2)
   bool makeDifferenceFields(std::vector<Field*>& fv1, std::vector<Field*>& fv2);
-
-  void updateSources();
-
-  std::vector<std::string> getFileNames(const std::string& modelName);
 
 protected:
   static GridConverter gc;   // gridconverter class
@@ -145,8 +138,7 @@ private:
   gridio_sections_t gridio_sections;
 
   GridCollectionPtr getGridCollection(const std::string& modelName,
-      const std::string& refTime = "", bool rescan = false,
-      bool checkSourceChanged = true);
+      const std::string& refTime = "", bool rescan = false);
 };
 
 #endif

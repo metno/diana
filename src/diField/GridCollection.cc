@@ -218,14 +218,13 @@ bool GridCollection::makeGridIOinstances()
   return ok;
 }
 
-bool GridCollection::makeInventory(const std::string& refTime,
-    bool updateSourceList)
+bool GridCollection::makeInventory(const std::string& refTime)
 {
-  METLIBS_LOG_TIME(LOGVAL(refTime) << LOGVAL(updateSourceList));
+  METLIBS_LOG_TIME(LOGVAL(refTime));
 
   bool ok = true;
   // decide if we should make new GridIO instances
-  if (gridsources.empty() || updateSourceList) {
+  if (gridsources.empty()) {
     ok = makeGridIOinstances();
   }
   // make inventory on all sources and make a combined inventory for the whole collection

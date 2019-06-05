@@ -109,7 +109,6 @@ struct FieldRequest {
   std::string refTime;
   int refhour;
   int refoffset;
-  bool checkSourceChanged;
 
   std::string paramName;
   bool standard_name;
