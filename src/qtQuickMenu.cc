@@ -292,10 +292,9 @@ void QuickMenu::addPlotToHistory(const std::string& name, const PlotCommand_cpv&
   for (PlotCommand_cp cmd : commands)
     cmds.push_back(cmd->toString());
 
-  const miutil::miDate nowDate = miutil::miTime::nowTime().date();
   for (std::string& c : cmds)
     while (miutil::contains(c, "reftime"))
-      diutil::replace_reftime_with_offset(c, nowDate);
+      c.erase(c.find("reftime="), 28);
 
   quickMenu& q = qm[list];
   std::deque<quickMenuItem>& qi = q.menuitems;

@@ -106,25 +106,6 @@ TEST(TestUtilities, GlobTimeFilter)
   }
 }
 
-TEST(TestUtilities, replace_reftime_with_offset)
-{
-  const miutil::miDate nowDate = miutil::miTime("2014-10-10 01:23:45").date();
-
-  { const std::string pstr_in = "fish swims reftime=2014-10-09 00:00:00 fast";
-    const std::string pstr_ex = "fish swims refhour=0 refoffset=-1 fast";
-    std::string pstr = pstr_in;
-    diutil::replace_reftime_with_offset(pstr, nowDate);
-    EXPECT_EQ(pstr_ex, pstr);
-  }
-
-  { const std::string pstr_in = "fish swims reftime=2014-10-10 06:00:00 fast";
-    const std::string pstr_ex = "fish swims refhour=6 fast";
-    std::string pstr = pstr_in;
-    diutil::replace_reftime_with_offset(pstr, nowDate);
-    EXPECT_EQ(pstr_ex, pstr);
-  }
-}
-
 TEST(TestUtilities, format_int)
 {
   int month = 7, day = 24;

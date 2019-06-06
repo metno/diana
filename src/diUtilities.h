@@ -69,11 +69,6 @@ bool getFromAny(const std::string &url_or_filename, string_v& lines);
 inline int float2int(float f)
 { return (int)(f > 0.0 ? f + 0.5 : f - 0.5); }
 
-/*! replace reftime by refhour and refoffset
-  refoffset is 0 today, -1 yesterday etc independent of time of the day
-*/
-void replace_reftime_with_offset(std::string& pstr, const miutil::miDate& nowdate);
-
 /*! Make list of numbers around 'number'.
  */
 std::vector<std::string> numberList(float number, const float* enormal);

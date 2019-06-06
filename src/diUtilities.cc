@@ -137,30 +137,6 @@ bool getFromAny(const std::string &uof, string_v& lines)
   return diutil::getFromFile(uof, lines);
 }
 
-// only used from qtQuickMenu -- and from unit test, that's why it's here
-void replace_reftime_with_offset(std::string& pstr, const miutil::miDate& nowdate)
-{
-  const size_t refpos = pstr.find("reftime=");
-  if (refpos == std::string::npos)
-    return;
-
-  std::string refstr = pstr.substr(refpos+8,19);
-  miutil::miTime reftime(refstr);
-  if (reftime.undef())
-    return;
-
-  const miutil::miDate refdate = reftime.date();
-  const miutil::miClock clock(0,0,0);
-
-  const int daydiff = miutil::miTime::hourDiff(miutil::miTime(refdate,clock),miutil::miTime(nowdate,clock))/24;
-  const int hour = reftime.hour();
-
-  std::string replacement = "refhour=" + miutil::from_number(hour);
-  if (daydiff < 0)
-    replacement += " refoffset=" + miutil::from_number(daydiff);
-  pstr = pstr.substr(0, refpos) + replacement + pstr.substr(refpos+27);
-}
-
 std::vector<std::string> numberList(float number, const float* enormal)
 {
   int nenormal = 0;
