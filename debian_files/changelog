@@ -1,3 +1,9 @@
+diana-3.50 (3.51.0~rc3-1) unstable; urgency=low
+
+  * QuickMenu - No longer convert reftime to refhour and refoffset
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 06 Jun 2019 09:27:27 +0200
+
 diana-3.50 (3.51.0~rc2-1) unstable; urgency=low
 
   * Bugfix - bdiana - accepting plots with no time
