@@ -167,6 +167,7 @@
 #include <drawing.xpm>
 #include <editdrawing.xpm>
 
+#define DIANA_RESTORE_DIALOG_POSITIONS
 //#define DISABLE_VPROF 1
 //#define DISABLE_VCROSS 1
 //#define DISABLE_WAVESPEC 1
