@@ -535,10 +535,10 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
   unsigned int wind_speed_selection_count = 1;
   unsigned int wind_dir_selection_count = 1;
 
-  bool skip_time = false; // Will be set to true if 008021 is encountered
-  // with value 26, which means 'Time of last
-  // known position', used for buoys. The date/time
-  // descriptors following this will be skipped.
+  bool skip_time = false;
+  // Will be set to true if 008021 is encountered with value 26,
+  // which means 'Time of last known position', used for buoys.
+  // The date/time descriptors following this will be skipped.
 
   d.CAVOK = false;
   d.xpos = -32767;
@@ -548,10 +548,10 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
   for (int i = 0, j = kelem * subset; i < ktdexl; i++, j++) {
     //METLIBS_LOG_DEBUG(ktdexp[i]<<" : "<<values[j]);
     switch (ktdexp[i]) {
+
     //   8021  TIME SIGNIFICANCE
     case 8021:
-      if (int(values[j]) == 26) // 'Time of last known position', present
-        skip_time = true; // in buoy reports after observation time
+      skip_time = (int(values[j]) == 26);
       break;
 
       //   1001  WMO BLOCK NUMBER
@@ -1280,7 +1280,6 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
   if ( d.xpos > -32767 && d.ypos > -32767 && !d.obsTime.undef()) {
     return true;
   }
-
   return false;
 }
 
