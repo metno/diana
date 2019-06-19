@@ -50,8 +50,8 @@ Time_s Source::getReferenceTimes()
 {
   updateIfNoReftimeSources();
   Time_s rt;
-  for (ReftimeSource_pv::const_iterator it = mReftimeSources.begin(); it != mReftimeSources.end(); ++it)
-    rt.insert((*it)->getReferenceTime());
+  for (const auto& rts : mReftimeSources)
+    rt.insert(rts->getReferenceTime());
   return rt;
 }
 

@@ -89,8 +89,8 @@ bool Collector::removePlot(int index)
 
 bool Collector::hasVisiblePlot() const
 {
-  for (SelectedPlot_pv::const_iterator itSP = mSelectedPlots.begin(); itSP != mSelectedPlots.end(); ++itSP)
-    if ((*itSP)->visible)
+  for (const SelectedPlot_p sp : mSelectedPlots)
+    if (sp->visible)
       return true;
   return false;
 }
@@ -98,9 +98,9 @@ bool Collector::hasVisiblePlot() const
 
 ModelReftime Collector::getFirstModel() const
 {
-  for (SelectedPlot_pv::const_iterator itSP = mSelectedPlots.begin(); itSP != mSelectedPlots.end(); ++itSP)
-    if ((*itSP)->visible)
-      return (*itSP)->model;
+  for (const SelectedPlot_p sp : mSelectedPlots)
+    if (sp->visible)
+      return sp->model;
   return ModelReftime();
 }
 
@@ -127,11 +127,11 @@ void Collector::requireField(const ModelReftime& model, InventoryBase_cp field)
 
 void Collector::requireVertical(Z_AXIS_TYPE zType)
 {
-  for (model_required_m::iterator it = mModelRequired.begin(); it != mModelRequired.end(); ++it) {
-    InventoryBase_cps& required = it->second;
-    const InventoryBase_cps fields = it->second; // take copy, not reference, as we modify it->second in the following loop
-    for (InventoryBase_cps::const_iterator it = fields.begin(); it != fields.end(); ++it)
-      vcross::collectRequiredVertical(required, *it, zType);
+  for (auto& mr : mModelRequired) {
+    InventoryBase_cps& required = mr.second;
+    const InventoryBase_cps fields = mr.second; // take copy, not reference, as we modify it->second in the following loop
+    for (InventoryBase_cp f : fields)
+      vcross::collectRequiredVertical(required, f, zType);
   }
 }
 
@@ -149,9 +149,8 @@ void Collector::requirePlot(SelectedPlot_p sp)
     return;
 
   InventoryBase_cps& required = mModelRequired[sp->model];
-  const FieldData_cpv& args = sp->resolved->arguments;
-  for (FieldData_cpv::const_iterator it = args.begin(); it != args.end(); ++it)
-    collectRequired(required, *it);
+  for (FieldData_cp fd : sp->resolved->arguments)
+    collectRequired(required, fd);
 }
 
 

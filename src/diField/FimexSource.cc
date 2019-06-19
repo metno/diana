@@ -331,14 +331,14 @@ vcross::LonLat_v makePointsRequested(const vcross::LonLat_v& points)
 
 namespace vcross {
 
-FimexReftimeSource::FimexReftimeSource(std::string filename, std::string filetype, std::string fileconfig,
-  diutil::CharsetConverter_p csNameCharsetConverter, const Time& reftime)
-  : mFileName(filename)
-  , mFileType(filetype)
-  , mFileConfig(fileconfig)
-  , mCsNameCharsetConverter(csNameCharsetConverter)
-  , mModificationTime(0)
-  , mSupportsDynamic(false)
+FimexReftimeSource::FimexReftimeSource(const std::string& filename, const std::string& filetype, const std::string& fileconfig,
+                                       diutil::CharsetConverter_p csNameCharsetConverter, const Time& reftime)
+    : mFileName(filename)
+    , mFileType(filetype)
+    , mFileConfig(fileconfig)
+    , mCsNameCharsetConverter(csNameCharsetConverter)
+    , mModificationTime(0)
+    , mSupportsDynamic(false)
 {
   METLIBS_LOG_SCOPE(LOGVAL(filename) << LOGVAL(filetype) << LOGVAL(fileconfig));
 
@@ -1080,20 +1080,20 @@ Source::ReftimeUpdate FimexSource::update()
 
   ReftimeSource_pv sources;
 
-  for (ReftimeSource_pv::const_iterator it = mReftimeSources.begin(); it != mReftimeSources.end(); ++it) {
-    METLIBS_LOG_DEBUG(LOGVAL(util::to_miTime((*it)->getReferenceTime())));
-    ReftimeSource::Update_t ru = (*it)->update();
+  for (ReftimeSource_p rts : mReftimeSources) {
+    METLIBS_LOG_DEBUG(LOGVAL(util::to_miTime(rts->getReferenceTime())));
+    ReftimeSource::Update_t ru = rts->update();
     METLIBS_LOG_DEBUG(LOGVAL(u));
     if (ru == ReftimeSource::GONE) {
       // file disappeared
-      u.gone.insert((*it)->getReferenceTime());
+      u.gone.insert(rts->getReferenceTime());
       continue;
     }
     if (ru == ReftimeSource::CHANGED) {
       // file modified
-      u.changed.insert((*it)->getReferenceTime());
+      u.changed.insert(rts->getReferenceTime());
     }
-    sources.push_back(*it);
+    sources.push_back(rts);
   }
   std::swap(mReftimeSources, sources);
 
@@ -1117,8 +1117,7 @@ Source::ReftimeUpdate FimexSource::update()
 
     // expand filenames, even if there is no wildcard
     const diutil::string_v matches = diutil::glob(pattern, GLOB_BRACE);
-    for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {
-      const std::string& path = *it;
+    for (const std::string& path : matches) {
       Time reftime;
       miutil::miTime rt;
       if (tf.getTime(path, rt)) {

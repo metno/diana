@@ -402,8 +402,7 @@ void QtManager::updateLocationData()
   locationData.linetypeSelected =  mOptions->vcSelectedOnMapLinetype;
   locationData.linewidthSelected = mOptions->vcSelectedOnMapLinewidth;
   locationData.elements.clear();
-  for (CS_v::const_iterator itCS = mCrossections.begin(); itCS!= mCrossections.end(); ++itCS) {
-    const CS& cs = *itCS;
+  for (const CS& cs : mCrossections) {
     LocationElement el;
     el.name = cs.label();
     for (size_t i = 0; i<cs.length(); ++i) {
@@ -532,8 +531,8 @@ void QtManager::handleChangedTimeList(const vctime_t& oldTime)
   if (!model1.model.empty()) {
     if (Source_p src = mCollector->getSetup()->findSource(model1.model)) {
       if (Inventory_cp inv = src->getInventory(model1.reftime)) {
-        for (Times::timevalue_v::const_iterator itT = inv->times.values.begin(); itT != inv->times.values.end(); ++itT)
-          times.insert(util::to_miTime(inv->times.unit, *itT));
+        for (const auto& tv : inv->times.values)
+          times.insert(util::to_miTime(inv->times.unit, tv));
         miutil::maximize(mRealizationCount, inv->realizationCount);
       }
     }

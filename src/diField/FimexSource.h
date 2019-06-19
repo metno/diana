@@ -29,7 +29,8 @@ public:
   typedef std::shared_ptr<const FimexCrossection> FimexCrossection_cp;
 
 public:
-  FimexReftimeSource(std::string filename, std::string filetype, std::string config, diutil::CharsetConverter_p csNameCharsetConverter, const Time& reftime);
+  FimexReftimeSource(const std::string& filename, const std::string& filetype, const std::string& config, diutil::CharsetConverter_p csNameCharsetConverter,
+                     const Time& reftime);
   ~FimexReftimeSource();
 
   Update_t update() override;
