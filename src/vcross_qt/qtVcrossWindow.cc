@@ -210,29 +210,18 @@ VcrossWindow::VcrossWindow(vcross::QtManager_p vcm)
   //connected dialogboxes
 
   { vcross::QtManager* m = vcrossm.get();
-    connect(m, SIGNAL(fieldChangeBegin(bool)),
-        this, SLOT(onFieldChangeBegin(bool)));
-    connect(m, SIGNAL(fieldAdded(int)),
-        this, SLOT(onFieldAdded(int)));
-    connect(m, SIGNAL(fieldRemoved(int)),
-        this, SLOT(onFieldRemoved(int)));
-    connect(m, SIGNAL(fieldOptionsChanged(int)),
-        this, SLOT(onFieldOptionsChanged(int)));
-    connect(m, SIGNAL(fieldVisibilityChanged(int)),
-        this, SLOT(onFieldVisibilityChanged(int)));
-    connect(m, SIGNAL(fieldChangeEnd()),
-        this, SLOT(onFieldChangeEnd()));
+    connect(m, &vcross::QtManager::fieldChangeBegin, this, &VcrossWindow::onFieldChangeBegin);
+    connect(m, &vcross::QtManager::fieldAdded, this, &VcrossWindow::onFieldAdded);
+    connect(m, &vcross::QtManager::fieldRemoved, this, &VcrossWindow::onFieldRemoved);
+    connect(m, &vcross::QtManager::fieldOptionsChanged, this, &VcrossWindow::onFieldOptionsChanged);
+    connect(m, &vcross::QtManager::fieldVisibilityChanged, this, &VcrossWindow::onFieldVisibilityChanged);
+    connect(m, &vcross::QtManager::fieldChangeEnd, this, &VcrossWindow::onFieldChangeEnd);
 
-    connect(m, SIGNAL(crossectionListChanged()),
-        this, SLOT(crossectionListChangedSlot()));
-    connect(m, SIGNAL(crossectionIndexChanged(int)),
-        this, SLOT(crossectionChangedSlot(int)));
-    connect(m, SIGNAL(timeListChanged()),
-        this, SLOT(timeListChangedSlot()));
-    connect(m, SIGNAL(timeIndexChanged(int)),
-        this, SLOT(timeChangedSlot(int)));
-    connect(m, SIGNAL(timeGraphModeChanged(bool)),
-        this, SLOT(timeGraphModeChangedSlot(bool)));
+    connect(m, &vcross::QtManager::crossectionListChanged, this, &VcrossWindow::crossectionListChangedSlot);
+    connect(m, &vcross::QtManager::crossectionIndexChanged, this, &VcrossWindow::crossectionChangedSlot);
+    connect(m, &vcross::QtManager::timeListChanged, this, &VcrossWindow::timeListChangedSlot);
+    connect(m, &vcross::QtManager::timeIndexChanged, this, &VcrossWindow::timeChangedSlot);
+    connect(m, &vcross::QtManager::timeGraphModeChanged, this, &VcrossWindow::timeGraphModeChangedSlot);
   }
 
   enableTimeGraphIfSupported();

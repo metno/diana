@@ -79,7 +79,7 @@ public Q_SLOTS:
   void setTime(const miutil::miTime&);
 
   /// force new value if datatype match
-  void setTime( const std::string& datatype, const miutil::miTime&);
+  void setTimeForDataType(const std::string& datatype, const miutil::miTime&);
 
   void timecontrolslot();
   void timeoutChanged(float value);

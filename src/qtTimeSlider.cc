@@ -315,7 +315,7 @@ void TimeSlider::setTime(const miutil::miTime& t)
   set(t);
 }
 
-bool TimeSlider::setTime(const std::string& datatype, const miutil::miTime& t)
+bool TimeSlider::setTimeForDataType(const std::string& datatype, const miutil::miTime& t)
 {
   if (datatype != dataTypeUsed)
     return false;

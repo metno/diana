@@ -48,14 +48,10 @@ VcrossWindowInterface::VcrossWindowInterface()
       this, &VcrossWindowInterface::quickMenuStrings);
 
   { vcross::QtManager* m = vcrossm.get();
-    connect(m, SIGNAL(crossectionListChanged()),
-        this, SLOT(crossectionListChangedSlot()));
-    connect(m, SIGNAL(crossectionIndexChanged(int)),
-        this, SLOT(crossectionChangedSlot(int)));
-    connect(m, SIGNAL(timeListChanged()),
-        this, SLOT(timeListChangedSlot()));
-    connect(m, SIGNAL(timeIndexChanged(int)),
-        this, SLOT(timeChangedSlot(int)));
+    connect(m, &vcross::QtManager::crossectionListChanged, this, &VcrossWindowInterface::crossectionListChangedSlot);
+    connect(m, &vcross::QtManager::crossectionIndexChanged, this, &VcrossWindowInterface::crossectionChangedSlot);
+    connect(m, &vcross::QtManager::timeListChanged, this, &VcrossWindowInterface::timeListChangedSlot);
+    connect(m, &vcross::QtManager::timeIndexChanged, this, &VcrossWindowInterface::timeChangedSlot);
   }
 }
 
@@ -69,20 +65,15 @@ bool VcrossWindowInterface::checkWindow()
   if (!window) {
     window = new VcrossWindow(vcrossm);
 
-    connect(window, SIGNAL(VcrossHide()),
-        this, SLOT(onVcrossHide()));
+    connect(window, &VcrossWindow::VcrossHide, this, &VcrossWindowInterface::onVcrossHide);
 
-    connect(window, SIGNAL(requestHelpPage(const std::string&, const std::string&)),
-        this, SIGNAL(requestHelpPage(const std::string&, const std::string&)));
+    connect(window, &VcrossWindow::requestHelpPage, this, &VcrossWindowInterface::requestHelpPage);
 
-    connect(window, SIGNAL(requestVcrossEditor(bool, bool)),
-      this, SIGNAL(requestVcrossEditor(bool, bool)));
+    connect(window, &VcrossWindow::requestVcrossEditor, this, &VcrossWindowInterface::requestVcrossEditor);
 
-    connect(window, SIGNAL(vcrossHistoryPrevious()),
-        this, SIGNAL(vcrossHistoryPrevious()));
+    connect(window, &VcrossWindow::vcrossHistoryPrevious, this, &VcrossWindowInterface::vcrossHistoryPrevious);
 
-    connect(window, SIGNAL(vcrossHistoryNext()),
-        this, SIGNAL(vcrossHistoryNext()));
+    connect(window, &VcrossWindow::vcrossHistoryNext, this, &VcrossWindowInterface::vcrossHistoryNext);
   }
   return window != 0;
 }

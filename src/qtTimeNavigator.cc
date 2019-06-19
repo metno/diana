@@ -250,9 +250,9 @@ void TimeNavigator::setTime(const miutil::miTime& t)
   Q_EMIT timeSelected(t);
 }
 
-void TimeNavigator::setTime(const std::string& datatype, const miutil::miTime& t)
+void TimeNavigator::setTimeForDataType(const std::string& datatype, const miutil::miTime& t)
 {
-  if (tslider->setTime(datatype, t)) {
+  if (tslider->setTimeForDataType(datatype, t)) {
     updateTimeLabelFromTime(t);
     Q_EMIT timeSelected(t);
   }

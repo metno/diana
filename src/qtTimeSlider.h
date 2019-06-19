@@ -75,7 +75,7 @@ public Q_SLOTS:
   /// force new value
   void setTime(const miutil::miTime&);
   /// force new value if datatype match
-  bool setTime(const std::string& datatype, const miutil::miTime&);
+  bool setTimeForDataType(const std::string& datatype, const miutil::miTime&);
   /// time-interval changed
   void setInterval(int);
   ///use times from datatype(field, sat, obs ..)

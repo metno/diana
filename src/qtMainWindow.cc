@@ -810,38 +810,27 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
   // create a new main window
 #ifndef DISABLE_VCROSS
   vcInterface.reset(new VcrossWindowInterface);
-  if (vcInterface.get()) {
-    connect(vcInterface.get(), SIGNAL(VcrossHide()),
-        SLOT(hideVcrossWindow()));
-    connect(vcInterface.get(), SIGNAL(requestHelpPage(const std::string&, const std::string&)),
-        help, SLOT(showsource(const std::string&, const std::string&)));
-    connect(vcInterface.get(), SIGNAL(requestVcrossEditor(bool, bool)),
-        SLOT(onVcrossRequestEditManager(bool, bool)));
-    connect(vcInterface.get(), SIGNAL(crossectionChanged(const QString &)),
-        SLOT(crossectionChangedSlot(const QString &)));
-    connect(vcInterface.get(), SIGNAL(crossectionSetChanged(const LocationData&)),
-        SLOT(crossectionSetChangedSlot(const LocationData&)));
-    connect(vcInterface.get(), &VcrossInterface::quickMenuStrings,
-        this, &DianaMainWindow::updateVcrossQuickMenuHistory);
-    connect (vcInterface.get(), SIGNAL(vcrossHistoryPrevious()),
-        SLOT(prevHVcrossPlot()));
-    connect (vcInterface.get(), SIGNAL(vcrossHistoryNext()),
-        SLOT(nextHVcrossPlot()));
+  if (VcrossInterface* vc = vcInterface.get()) {
+    connect(vc, &VcrossInterface::VcrossHide, this, &DianaMainWindow::hideVcrossWindow);
+    connect(vc, &VcrossInterface::requestHelpPage, help, &HelpDialog::showsource);
+    connect(vc, &VcrossInterface::requestVcrossEditor, this, &DianaMainWindow::onVcrossRequestEditManager);
+    connect(vc, &VcrossInterface::crossectionChanged, this, &DianaMainWindow::crossectionChangedSlot);
+    connect(vc, &VcrossInterface::crossectionSetChanged, this, &DianaMainWindow::crossectionSetChangedSlot);
+    connect(vc, &VcrossInterface::quickMenuStrings, this, &DianaMainWindow::updateVcrossQuickMenuHistory);
+    connect(vc, &VcrossInterface::vcrossHistoryPrevious, this, &DianaMainWindow::prevHVcrossPlot);
+    connect(vc, &VcrossInterface::vcrossHistoryNext, this, &DianaMainWindow::nextHVcrossPlot);
   }
-  mainToolbar->addAction( showCrossSectionDialogAction);
+  mainToolbar->addAction(showCrossSectionDialogAction);
 #endif
 
   // Wave spectrum
   // create a new main window
 #ifndef DISABLE_WAVESPEC
   spWindow = new SpectrumWindow();
-  connect(spWindow,SIGNAL(SpectrumHide()),SLOT(hideSpectrumWindow()));
-  connect(spWindow,SIGNAL(showsource(const std::string, const std::string)),
-      help,SLOT(showsource(const std::string, const std::string)));
-  connect(spWindow,SIGNAL(spectrumChanged(const QString &)),
-      SLOT(spectrumChangedSlot(const QString &)));
-  connect(spWindow,SIGNAL(spectrumSetChanged()),
-      SLOT(spectrumSetChangedSlot()));
+  connect(spWindow, &SpectrumWindow::SpectrumHide, this, &DianaMainWindow::hideSpectrumWindow);
+  connect(spWindow, &SpectrumWindow::showsource, help, &HelpDialog::showsource);
+  connect(spWindow, &SpectrumWindow::spectrumChanged, this, &DianaMainWindow::spectrumChangedSlot);
+  connect(spWindow, &SpectrumWindow::spectrumSetChanged, this, &DianaMainWindow::spectrumSetChangedSlot);
   mainToolbar->addAction( showWaveSpectrumDialogAction);
 #endif
 
@@ -862,18 +851,15 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
   connect(objm, &ObjectDialog::sendTimes, timeNavigator, &TimeNavigator::insert);
   if (vpWindow) {
     connect(vpWindow, &VprofWindow::emitTimes, timeNavigator, &TimeNavigator::insertAndUse);
-    connect(vpWindow, SIGNAL(setTime(const std::string&, const miutil::miTime&)),
-            timeNavigator, SLOT(setTime(const std::string&, const miutil::miTime&)));
+    connect(vpWindow, &VprofWindow::setTime, timeNavigator, &TimeNavigator::setTimeForDataType);
   }
-  if (vcInterface.get()) {
-    connect(vcInterface.get(), &VcrossInterface::emitTimes, timeNavigator, &TimeNavigator::insertAndUse);
-    connect(vcInterface.get(), SIGNAL(setTime(const std::string&, const miutil::miTime&)),
-        timeNavigator, SLOT(setTime(const std::string&, const miutil::miTime&)));
+  if (VcrossInterface* vc = vcInterface.get()) {
+    connect(vc, &VcrossInterface::emitTimes, timeNavigator, &TimeNavigator::insertAndUse);
+    connect(vc, &VcrossInterface::setTime, timeNavigator, &TimeNavigator::setTimeForDataType);
   }
   if (spWindow) {
     connect(spWindow, &SpectrumWindow::emitTimes, timeNavigator, &TimeNavigator::insertAndUse);
-    connect( spWindow ,SIGNAL(setTime(const std::string&, const miutil::miTime&)),
-        timeNavigator,SLOT(setTime(const std::string&, const miutil::miTime&)));
+    connect(spWindow, &SpectrumWindow::setTime, timeNavigator, &TimeNavigator::setTimeForDataType);
   }
 
   mainToolbar->addSeparator();

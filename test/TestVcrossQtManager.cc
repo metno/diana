@@ -40,27 +40,17 @@ namespace test {
 
 ManagerSlots::ManagerSlots(vcross::QtManager* manager)
 {
-  connect(manager, SIGNAL(fieldChangeBegin(bool)),
-      this, SLOT(onFieldChangeBegin(bool)));
-  connect(manager, SIGNAL(fieldAdded(int)),
-      this, SLOT(onFieldAdded(int)));
-  connect(manager, SIGNAL(fieldRemoved(int)),
-      this, SLOT(onFieldRemoved(int)));
-  connect(manager, SIGNAL(fieldOptionsChanged(int)),
-      this, SLOT(onFieldOptionsChanged(int)));
-  connect(manager, SIGNAL(fieldVisibilityChanged(int)),
-      this, SLOT(onFieldVisibilityChanged(int)));
-  connect(manager, SIGNAL(fieldChangeEnd()),
-      this, SLOT(onFieldChangeEnd()));
+  connect(manager, &vcross::QtManager::fieldChangeBegin, this, &ManagerSlots::onFieldChangeBegin);
+  connect(manager, &vcross::QtManager::fieldAdded, this, &ManagerSlots::onFieldAdded);
+  connect(manager, &vcross::QtManager::fieldRemoved, this, &ManagerSlots::onFieldRemoved);
+  connect(manager, &vcross::QtManager::fieldOptionsChanged, this, &ManagerSlots::onFieldOptionsChanged);
+  connect(manager, &vcross::QtManager::fieldVisibilityChanged, this, &ManagerSlots::onFieldVisibilityChanged);
+  connect(manager, &vcross::QtManager::fieldChangeEnd, this, &ManagerSlots::onFieldChangeEnd);
 
-  connect(manager, SIGNAL(crossectionListChanged()),
-      this, SLOT(onCrossectionListChanged()));
-  connect(manager, SIGNAL(crossectionIndexChanged(int)),
-      this, SLOT(onCrossectionIndexChanged(int)));
-  connect(manager, SIGNAL(timeListChanged()),
-      this, SLOT(onTimeListChanged()));
-  connect(manager, SIGNAL(timeIndexChanged(int)),
-      this, SLOT(onTimeIndexChanged(int)));
+  connect(manager, &vcross::QtManager::crossectionListChanged, this, &ManagerSlots::onCrossectionListChanged);
+  connect(manager, &vcross::QtManager::crossectionIndexChanged, this, &ManagerSlots::onCrossectionIndexChanged);
+  connect(manager, &vcross::QtManager::timeListChanged, this, &ManagerSlots::onTimeListChanged);
+  connect(manager, &vcross::QtManager::timeIndexChanged, this, &ManagerSlots::onTimeIndexChanged);
 
   reset();
 }
