@@ -1,3 +1,9 @@
+diana-3.50 (3.51.0-1) unstable; urgency=low
+
+  * Bugfix ObsBufr - TIME SIGNIFICANCE
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 19 Jun 2019 12:15:49 +0200
+
 diana-3.50 (3.51.0~rc4-1) unstable; urgency=low
 
   * DIANA_RESTORE_DIALOG_POSITIONS
