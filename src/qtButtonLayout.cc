@@ -27,10 +27,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "diana_config.h"
-
 #include "qtButtonLayout.h"
-#include "qtUtility.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -42,115 +39,91 @@
 
 using namespace std;
 
-ButtonLayout::ButtonLayout(QWidget* parent, vector<ObsDialogInfo::Button>& buttons, int nr_col)
-  : QWidget(parent)
+ButtonLayout::ButtonLayout(QWidget* parent, const std::vector<ObsDialogInfo::Button>& button_infos, int nr_col)
+    : QWidget(parent)
+    , bgroup(new QButtonGroup(this))
+    , button_infos_(button_infos)
 {
-  buttonList  =  buttons;
-  int nr_buttons = buttonList.size();
-
-  // number of lines of buttons
-  int nr_lines = nr_buttons/nr_col;
-  if( nr_buttons % nr_col )
-    nr_lines++;
-
-  bgroup = new QButtonGroup( this );
-  b      = new ToggleButton*[nr_buttons];
-
-  for( int i=0; i< nr_buttons; i++ ){
-    b[i] = new ToggleButton(this, QString::fromStdString(buttonList[i].name));
-    connect(b[i], SIGNAL(rightButtonClicked(ToggleButton*)), SLOT(rightButtonClicked(ToggleButton*)));
-    bgroup->addButton( b[i] ,i);
-    if(!buttonList[i].tooltip.empty())
-      b[i]->setToolTip(buttonList[i].tooltip.c_str());
-  }
-
-  bgroup->setExclusive(false);
-  for( int i=0; i< nr_buttons; i++ ){
-    b[i]->setCheckable(true);
-    b[i]->setEnabled(true);
-  }
-
   QGridLayout *layoutgrid = new QGridLayout(this);
   layoutgrid->setSpacing(1);
-  for( int k=0; k<nr_lines; k++){
-    for( int i=0; i<nr_col;i++ ){
-      int index = i + k*nr_col;
-      if( index >= nr_buttons )
-        break;
-      layoutgrid->addWidget(b[index], k, i );
+
+  bgroup->setExclusive(false);
+  togglebuttons_.reserve(button_infos_.size());
+
+  int col = 0, row = 0, id = 0;
+  for (const ObsDialogInfo::Button& binfo : button_infos_) {
+    ToggleButton* tb = new ToggleButton(this, QString::fromStdString(binfo.name));
+    connect(tb, &ToggleButton::rightButtonClicked, this, &ButtonLayout::rightButtonClicked);
+    bgroup->addButton(tb, id++);
+    tb->setToolTip(QString::fromStdString(binfo.tooltip));
+    tb->setCheckable(true);
+    tb->setEnabled(true);
+    togglebuttons_.push_back(tb);
+
+    layoutgrid->addWidget(tb, row, col);
+    col += 1;
+    if (col >= nr_col) {
+      col = 0;
+      row += 1;
     }
   }
 
-  connect(bgroup, SIGNAL(buttonClicked(int)), SIGNAL(buttonClicked(int)));
+  connect(bgroup, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, &ButtonLayout::buttonClicked);
 }
 
 void ButtonLayout::setEnabled(bool enabled)
 {
-
-  int nr_buttons = buttonList.size();
-
-  for (int i = 0; i < nr_buttons; i++)
-    b[i]->setEnabled(enabled);
+  for (ToggleButton* tb : togglebuttons_)
+    tb->setEnabled(enabled);
 }
 
 void ButtonLayout::ALLClicked()
 {
-  int nr_buttons = buttonList.size();
-  for( int k=0; k< nr_buttons; k++ ){
-      b[k]->setChecked(true);
-  }
+  for (ToggleButton* tb : togglebuttons_)
+    tb->setChecked(true);
 }
 
-void ButtonLayout::NONEClicked(){
-  // A call to this function pushes all the buttons out
-
-  int nr_buttons = buttonList.size();
-  for( int k=0; k< nr_buttons; k++ ){
-    b[k]->setChecked(false);
-  }
+void ButtonLayout::NONEClicked()
+{
+  for (ToggleButton* tb : togglebuttons_)
+    tb->setChecked(false);
 }
 
 bool ButtonLayout::noneChecked()
 {
-  const size_t nr_buttons = buttonList.size();
-  for (size_t k = 0; k < nr_buttons; k++)
-    if (b[k]->isChecked())
+  for (ToggleButton* tb : togglebuttons_) {
+    if (tb->isChecked())
       return false;
+  }
   return true;
 }
 
-int ButtonLayout::setButtonOn( std::string buttonName ){
-
-  int n = buttonList.size();
-
-  for( int j=0; j<n; j++){
-    if(miutil::to_lower(buttonName)==miutil::to_lower(buttonList[j].name)){
-        b[j]->setChecked( true );
-      return j;
+void ButtonLayout::setButtonOn(const std::string& buttonName)
+{
+  const std::string buttonName_l = miutil::to_lower(buttonName);
+  for (size_t j = 0; j < button_infos_.size(); ++j) {
+    if (buttonName_l == miutil::to_lower(button_infos_[j].name)) {
+      togglebuttons_[j]->setChecked(true);
+      break;
     }
   }
-
-  return -1;
 }
 
-std::vector<std::string> ButtonLayout::getOKString(bool forLog)
+std::vector<std::string> ButtonLayout::getOKString()
 {
   std::vector<std::string> str;
-  const size_t nr_buttons = buttonList.size();
-  for (size_t k=0; k < nr_buttons; k++)
-    if (b[k]->isChecked())
-      str.push_back(buttonList[k].name);
+  for (size_t j = 0; j < button_infos_.size(); ++j) {
+    if (togglebuttons_[j]->isChecked())
+      str.push_back(button_infos_[j].name);
+  }
   return str;
 }
 
 void ButtonLayout::rightButtonClicked(ToggleButton* butto  )
 {
-
-  unsigned int id = bgroup->id(butto);
-  if(buttonList.size() > id){
-    std::string name = buttonList[id].name;
-    emit rightClickedOn(name);
+  const int id = bgroup->id(butto);
+  if (id >= 0 && id < (int)button_infos_.size()) {
+    const std::string& name = button_infos_[id].name;
+    Q_EMIT rightClickedOn(name);
   }
-
 }
-

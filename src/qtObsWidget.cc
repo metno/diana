@@ -73,25 +73,23 @@ using namespace std;
 
 ObsWidget::ObsWidget(QWidget* parent)
     : QWidget(parent)
+    , initOK(false)
     , moreButton(0)
 {
   METLIBS_LOG_SCOPE();
-  initOK = false;
 }
 
-void ObsWidget::setDialogInfo(ObsDialogInfo::PlotType dialoginfo)
+void ObsWidget::setDialogInfo(const ObsDialogInfo::PlotType& dialogInfo)
 {
   METLIBS_LOG_SCOPE();
 
   initOK = true;
 
-  ObsDialogInfo::PlotType& dialogInfo = dialoginfo;
-
   plotType = dialogInfo.name;
 
   // Button names
   std::vector<ObsDialogInfo::Button> dataTypeButton;
-  nr_dataTypes = dialogInfo.readernames.size();
+  dataTypeButton.reserve(dialogInfo.readernames.size());
   for (const std::string& rn : dialogInfo.readernames) {
     ObsDialogInfo::Button b;
     b.name = rn;
@@ -99,19 +97,15 @@ void ObsWidget::setDialogInfo(ObsDialogInfo::PlotType dialoginfo)
   }
 
   // Info about sliders, check boxes etc.
-  int density_minValue = 5;
-  int density_value = 10;
+  const int density_minValue = 5;
+  const int density_value = 10;
   scaledensity = 0.1;
   maxdensity = 25;
 
-  int size_minValue = 1;
-  int size_maxValue = 35;
-  int size_value = 10;
+  const int size_minValue = 1;
+  const int size_maxValue = 35;
+  const int size_value = 10;
   scalesize = 0.1;
-
-  // timer
-  int timediff_minValue = 0;
-  int timediff_maxValue = 48;
 
   verticalLevels = dialogInfo.verticalLevels.size();
 
@@ -137,30 +131,25 @@ void ObsWidget::setDialogInfo(ObsDialogInfo::PlotType dialoginfo)
 
   datatypeButtons = new ButtonLayout(this, dataTypeButton, 3);
 
-  dialoginfo.addExtraParameterButtons();
   button = dialogInfo.button;
-  parameterButtons = new ButtonLayout(this, dialogInfo.button, 3);
+  parameterButtons = new ButtonLayout(this, button, 3);
 
   QScrollArea* scrollArea = new QScrollArea(this);
   scrollArea->setWidget(parameterButtons);
   scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-  connect(datatypeButtons, SIGNAL(buttonClicked(int)), SLOT(datatypeButtonClicked(int)));
-  connect( datatypeButtons, SIGNAL(rightClickedOn(std::string)),
-      SLOT(rightClickedSlot(std::string)));
-  connect( parameterButtons, SIGNAL(rightClickedOn(std::string)),
-      SLOT(rightClickedSlot(std::string)));
+  connect(datatypeButtons, &ButtonLayout::buttonClicked, this, &ObsWidget::datatypeButtonClicked);
+  connect(datatypeButtons, &ButtonLayout::rightClickedOn, this, &ObsWidget::rightClickedSlot);
+  connect(parameterButtons, &ButtonLayout::rightClickedOn, this, &ObsWidget::rightClickedSlot);
 
   //AND-Buttons
-  allButton  = NormalPushButton(tr("All"),this);
-  noneButton = NormalPushButton(tr("None"),this);
+  QPushButton* allButton = NormalPushButton(tr("All"), this);
+  QPushButton* noneButton = NormalPushButton(tr("None"), this);
   QHBoxLayout* andLayout = new QHBoxLayout();
-  andLayout->addWidget( allButton  );
-  andLayout->addWidget( noneButton );
-  connect( allButton,SIGNAL(clicked()),
-      parameterButtons,SLOT(ALLClicked()));
-  connect( noneButton,SIGNAL(clicked()),
-      parameterButtons,SLOT(NONEClicked()));
+  andLayout->addWidget(allButton);
+  andLayout->addWidget(noneButton);
+  connect(allButton, &QPushButton::clicked, parameterButtons, &ButtonLayout::ALLClicked);
+  connect(noneButton, &QPushButton::clicked, parameterButtons, &ButtonLayout::NONEClicked);
 
   // PRESSURE LEVELS
   QHBoxLayout* pressureLayout = new QHBoxLayout();
@@ -173,15 +162,14 @@ void ObsWidget::setDialogInfo(ObsDialogInfo::PlotType dialoginfo)
     levelMap["asfield"] = 0;
     int psize = dialogInfo.verticalLevels.size();
     for(int i=1; i<psize+1; i++){
-      std::string str = miutil::from_number(dialogInfo.verticalLevels[psize - i]);
-      pressureComboBox->addItem(str.c_str());
-      levelMap[str]=i;
+      QString str = QString::number(dialogInfo.verticalLevels[psize - i]);
+      pressureComboBox->addItem(str);
+      levelMap[str.toStdString()] = i;
     }
 
     pressureLayout->addWidget( pressureLabel );
     pressureLayout->addWidget( pressureComboBox );
     pressureLayout->addStretch();
-
   }
 
   //checkboxes
@@ -256,11 +244,10 @@ void ObsWidget::setDialogInfo(ObsDialogInfo::PlotType dialoginfo)
   criteriaLayout->addWidget( criteriaCheckBox );
   criteriaLayout->addWidget( moreButton );
 
-
-  connect( moreButton, SIGNAL( toggled(bool)),SLOT( extensionSlot( bool ) ));
-  connect(criteriaCheckBox,SIGNAL(toggled(bool)),SLOT(criteriaChecked(bool)));
-  connect(devFieldCheckBox, SIGNAL(toggled(bool)),SLOT(devFieldChecked(bool)));
-  connect(onlyposCheckBox, SIGNAL(toggled(bool)), SLOT(onlyposChecked(bool)));
+  connect(moreButton, &QPushButton::toggled, this, &ObsWidget::extensionSlot);
+  connect(criteriaCheckBox, &QPushButton::toggled, this, &ObsWidget::criteriaChecked);
+  connect(devFieldCheckBox, &QPushButton::toggled, this, &ObsWidget::devFieldChecked);
+  connect(onlyposCheckBox, &QPushButton::toggled, this, &ObsWidget::onlyposChecked);
 
   tempPrecisionCheckBox->setChecked( true );
   unit_msCheckBox->setChecked( false );
@@ -281,8 +268,7 @@ void ObsWidget::setDialogInfo(ObsDialogInfo::PlotType dialoginfo)
 
   densitySlider = Slider(density_minValue, maxdensity, 1, density_value, Qt::Horizontal, this);
   sizeSlider = Slider(size_minValue, size_maxValue, 1, size_value, Qt::Horizontal, this);
-  diffSlider= Slider( 0,time_slider2lcd.size(), 1, 4,
-      Qt::Horizontal, this);
+  diffSlider = Slider(0, time_slider2lcd.size(), 1, 4, Qt::Horizontal, this);
 
   diffComboBox = new QComboBox(this);
   diffComboBox->addItem("3t");
@@ -306,8 +292,9 @@ void ObsWidget::setDialogInfo(ObsDialogInfo::PlotType dialoginfo)
 
   //Priority list
   vector<std::string> priName;
-  for(unsigned int i=0; i<priorityList.size(); i++)
-    priName.push_back(priorityList[i].name);
+  priName.reserve(priorityList.size());
+  for (const auto& pl : priorityList)
+    priName.push_back(pl.name);
   pribox = ComboBox( this,priName,true);
   pribox->insertItem(0,tr("No priority list"));
   QLabel *priLabel = new QLabel( tr("Priority "), this);
@@ -315,8 +302,9 @@ void ObsWidget::setDialogInfo(ObsDialogInfo::PlotType dialoginfo)
 
   //Parameter sort
   std::vector<std::string> buttonNames;
-  for (unsigned int i = 0; i < dialogInfo.button.size(); i++)
-    buttonNames.push_back(dialogInfo.button[i].name);
+  buttonNames.reserve(dialogInfo.button.size());
+  for (const auto& b : dialogInfo.button)
+    buttonNames.push_back(b.name);
 
   QLabel *sortLabel = new QLabel( tr("Sort "), this);
   sortBox = ComboBox( this,buttonNames,true);
@@ -333,11 +321,11 @@ void ObsWidget::setDialogInfo(ObsDialogInfo::PlotType dialoginfo)
   colourBox = ColourBox( this, cInfo, true, colIndex );
 
   // CONNECT
-  connect( densitySlider,SIGNAL( valueChanged(int)),SLOT(displayDensity(int)));
-  connect( sizeSlider,SIGNAL(valueChanged(int)),SLOT(displaySize(int)));
-  connect( diffSlider,SIGNAL(valueChanged(int)),SLOT(displayDiff(int)));
-  connect( diffComboBox,SIGNAL(activated(int)),SLOT(diffComboBoxSlot(int)));
-  connect( pribox, SIGNAL( activated(int) ), SLOT( priSelected(int) ) );
+  connect(densitySlider, &QSlider::valueChanged, this, &ObsWidget::displayDensity);
+  connect(sizeSlider, &QSlider::valueChanged, this, &ObsWidget::displaySize);
+  connect(diffSlider, &QSlider::valueChanged, this, &ObsWidget::displayDiff);
+  connect(diffComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &ObsWidget::diffComboBoxSlot);
+  connect(pribox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &ObsWidget::priSelected);
 
   // Layout for priority list, sort, colours, criteria and extension
   QGridLayout* prilayout = new QGridLayout();
@@ -407,11 +395,6 @@ void ObsWidget::setDialogInfo(ObsDialogInfo::PlotType dialoginfo)
 
   parameterButtons->setEnabled(false);
 
-  ToolTip();
-}
-
-void ObsWidget::ToolTip()
-{
   datatypeButtons->setToolTip(tr("Data type") );
   devColourBox1->setToolTip(tr("PPPP-MSLP<0"));
   devColourBox2->setToolTip(tr("PPPP-MSLP>0"));
@@ -550,7 +533,7 @@ void ObsWidget::diffComboBoxSlot(int number)
 }
 /***************************************************************************/
 
-void ObsWidget::datatypeButtonClicked(int id)
+void ObsWidget::datatypeButtonClicked(int)
 {
   parameterButtons->setEnabled(!datatypeButtons->noneChecked());
 
@@ -616,7 +599,7 @@ KVListPlotCommand_cp ObsWidget::getOKString(bool forLog)
     return KVListPlotCommand_cp();
 
   if(parameterButtons)
-    dVariables.parameter = parameterButtons->getOKString(forLog);
+    dVariables.parameter = parameterButtons->getOKString();
 
   if( tempPrecisionCheckBox->isChecked() )
     dVariables.misc["tempprecision"]="true";
@@ -768,41 +751,34 @@ void ObsWidget::readLog(const miutil::KeyValue_v& kvs)
 
 void ObsWidget::updateDialog(bool setChecked)
 {
-  int number,m,j;
-  double scalednumber;
-
   //plotType
   plotType = dVariables.plotType;
   METLIBS_LOG_DEBUG(LOGVAL(plotType));
 
   //data types
-  if ( setChecked ){
-    m = dVariables.data.size();
-    for(j=0; j<m; j++){
-      //METLIBS_LOG_DEBUG("updateDialog: "<<dVariables.data[j]);
-      int index = datatypeButtons->setButtonOn(dVariables.data[j]);
-    }
+  if (setChecked) {
+    for (const auto& d : dVariables.data)
+      datatypeButtons->setButtonOn(d);
     parameterButtons->setEnabled(!datatypeButtons->noneChecked());
   }
 
   //parameter
   if(parameterButtons) {
     parameterButtons->NONEClicked();
-    m = dVariables.parameter.size();
-    for(j=0; j<m; j++){
+    for (std::string& p : dVariables.parameter) {
       //old syntax
-      std::string para = miutil::to_lower(dVariables.parameter[j]);
+      std::string para = miutil::to_lower(p);
       if(para == "dd_ff" || para == "vind")
-        dVariables.parameter[j] = "wind";
-      if(para == "kjtegn")
-        dVariables.parameter[j] = "id";
-      if(para == "dato")
-        dVariables.parameter[j] = "date";
-      if(para == "tid")
-        dVariables.parameter[j] = "time";
-      if(para == "h�yde")
-        dVariables.parameter[j] = "height";
-      parameterButtons->setButtonOn(dVariables.parameter[j]);
+        p = "wind";
+      else if (para == "kjtegn")
+        p = "id";
+      else if (para == "dato")
+        p = "date";
+      else if (para == "tid")
+        p = "time";
+      else if (para == "h�yde")
+        p = "height";
+      parameterButtons->setButtonOn(p);
     }
   }
 
@@ -847,7 +823,7 @@ void ObsWidget::updateDialog(bool setChecked)
   if ((it = dVariables.misc.find("devfield")) != end && it->second == "true") {
     devFieldCheckBox->setChecked(true);
     devFieldChecked(true);
-    number= getIndex( cInfo, dVariables.misc["devcolour1"]);
+    int number = getIndex(cInfo, dVariables.misc["devcolour1"]);
     if (number>=0) {
       devColourBox1->setCurrentIndex(number);
     }
@@ -879,11 +855,13 @@ void ObsWidget::updateDialog(bool setChecked)
 
   //level
   if (verticalLevels && (it = dVariables.misc.find("level")) != end && levelMap.count(it->second)) {
-    number = levelMap[it->second];
+    int number = levelMap[it->second];
     pressureComboBox->setCurrentIndex(number);
   }
 
   //density
+  int number;
+  double scalednumber;
   if ((it = dVariables.misc.find("density")) != end) {
     if (it->second == "allobs") {
       allObs=true;
@@ -960,8 +938,8 @@ void ObsWidget::updateDialog(bool setChecked)
   }
 
   //priority
-  m= priorityList.size();
-  j= 0;
+  const int m = priorityList.size();
+  int j = 0;
   if ((it = dVariables.misc.find("priority")) != end) {
     while (j < m && it->second != priorityList[j].file)
       j++;
@@ -996,11 +974,7 @@ void ObsWidget::updateDialog(bool setChecked)
         break;
       }
     }
-    if ( index != -1 ) { // -1 for not found
-      sortBox->setCurrentIndex(index);
-    } else {
-      sortBox->setCurrentIndex(0);
-    }
+    sortBox->setCurrentIndex(std::max(index, 0)); // -1 for not found
     if(sc.size() > 1 && sc[1] == "desc") {
       descsortButton->setChecked(true);
     } else {
@@ -1109,9 +1083,8 @@ void ObsWidget::extensionSlot(bool on)
 
 ObsDialogInfo::CriteriaList ObsWidget::getCriteriaList()
 {
-  if(criteriaList.size()==0 || currentCriteria < 0){
-    ObsDialogInfo::CriteriaList cl;
-    return cl;
+  if (criteriaList.empty() || currentCriteria < 0) {
+    return ObsDialogInfo::CriteriaList();
   }
 
   savedCriteria = criteriaList[currentCriteria];
@@ -1120,7 +1093,7 @@ ObsDialogInfo::CriteriaList ObsWidget::getCriteriaList()
 
 bool ObsWidget::setCurrentCriteria(int i)
 {
-  if (i < int(criteriaList.size())) {
+  if (i >= 0 && i < int(criteriaList.size())) {
     currentCriteria=i;
     return true;
   }
@@ -1142,13 +1115,15 @@ bool ObsWidget::saveCriteria(const vector<std::string>& vstr,
   }
 
   //find list
-  int n = criteriaList.size();
+  const int n = criteriaList.size();
   int i=0;
-  while(i<n && criteriaList[i].name != name) i++;
+  while (i < n && criteriaList[i].name != name)
+    i++;
 
   //list not found, make new list
   if(i==n){
-    if(vstr.size()==0) return false;  //no list
+    if (vstr.empty())
+      return false; // no list
     //    METLIBS_LOG_DEBUG("Ny liste:"<<name);
     ObsDialogInfo::CriteriaList clist;
     clist.name=name;
@@ -1158,7 +1133,7 @@ bool ObsWidget::saveCriteria(const vector<std::string>& vstr,
   }
 
   //list found
-  if(vstr.size()==0) {  //delete list
+  if (vstr.empty()) { // delete list
     criteriaList.erase(criteriaList.begin()+i);
     return false;
   }
@@ -1170,14 +1145,13 @@ bool ObsWidget::saveCriteria(const vector<std::string>& vstr,
 
 bool ObsWidget::getCriteriaLimits(const std::string& name, int& low, int&high)
 {
-  int n = button.size();
-  for(int i=0; i<n; i++)
-    if(button[i].name  == name){
-      low = button[i].low;
-      high = button[i].high;
-      if(high==low) return false;
-      return true;
+  for (const auto& b : button) {
+    if (b.name == name) {
+      low = b.low;
+      high = b.high;
+      return (high != low);
     }
+  }
 
   if (name == "dd") {
     low = 0;
@@ -1201,7 +1175,7 @@ vector<std::string> ObsWidget::getCriteriaNames()
 {
   vector<std::string> critName;
   critName.reserve(criteriaList.size());
-  for(unsigned int i=0; i<criteriaList.size(); i++)
-    critName.push_back(criteriaList[i].name);
+  for (const auto& c : criteriaList)
+    critName.push_back(c.name);
   return critName;
 }

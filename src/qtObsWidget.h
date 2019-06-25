@@ -68,7 +68,7 @@ public:
 
   ObsWidget(QWidget* parent );
   ///init dialog
-  void setDialogInfo(ObsDialogInfo::PlotType);
+  void setDialogInfo(const ObsDialogInfo::PlotType&);
   ///initialized?
   bool initialized() {return initOK;}
   ///return command strings
@@ -91,7 +91,7 @@ public:
   bool saveCriteria(const std::vector<std::string>& criteria, const std::string& name);
   bool getCriteriaLimits(const std::string& name, int& low, int& high);
 
-private slots:
+private Q_SLOTS:
   void priSelected( int index);
   void datatypeButtonClicked(int id);
   void displayDensity( int number );
@@ -104,17 +104,13 @@ private slots:
   void extensionSlot(bool on);
   void rightClickedSlot(std::string str);
 
-signals:
+Q_SIGNALS:
   void getTimes(bool);
-  void rightClicked(std::string);
-  void setRightClicked(std::string,bool);
+  void rightClicked(const std::string&);
   void extensionToggled(bool);
   void criteriaOn();
-  void newCriteriaList(ObsDialogInfo::CriteriaList);
 
 private:
-  void ToolTip();
-
   bool initOK;
 
   std::vector<Colour::ColourInfo> cInfo;
@@ -123,9 +119,6 @@ private:
   ButtonLayout* datatypeButtons;
   ButtonLayout* parameterButtons;
 
-  QPushButton* allButton;
-  QPushButton* noneButton;
-  QPushButton* defButton;
   QCheckBox* tempPrecisionCheckBox;
   QCheckBox* unit_msCheckBox;
   QCheckBox* parameterNameCheckBox;
@@ -143,7 +136,6 @@ private:
   QComboBox* markerBox;
 
   QComboBox* pressureComboBox;
-  QComboBox* leveldiffComboBox;
 
   QLCDNumber* densityLcdnum;
   QLCDNumber* sizeLcdnum;
@@ -170,7 +162,6 @@ private:
   ObsDialogInfo::CriteriaList savedCriteria;
   int currentCriteria;
 
-  int nr_dataTypes;
   std::vector<ObsDialogInfo::Button> button;
   std::vector<int> time_slider2lcd;
 

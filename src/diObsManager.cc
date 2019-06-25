@@ -189,6 +189,7 @@ ObsDialogInfo ObsManager::initDialog()
     if (it != criteriaList.end())
       pt.criteriaList = it->second;
     addReaders(pt);
+    pt.addExtraParameterButtons();
     dialog.addPlotType(pt, pt.plottype == OPT_OTHER);
   }
 
@@ -202,6 +203,7 @@ ObsDialogInfo ObsManager::initDialog()
       pother.misc =
           ObsDialogInfo::markerboxVisible | ObsDialogInfo::orientation | ObsDialogInfo::parameterName | ObsDialogInfo::popup | ObsDialogInfo::criteria;
       pother.criteriaList = criteriaList[pr.second.name];
+      pother.addExtraParameterButtons();
       dialog.plottype.push_back(pother);
     }
   }

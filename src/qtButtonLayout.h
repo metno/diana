@@ -50,15 +50,15 @@ class ButtonLayout : public QWidget
   Q_OBJECT
 
 public:
-  ButtonLayout(QWidget* parent, std::vector<ObsDialogInfo::Button>& button,
+  ButtonLayout(QWidget* parent, const std::vector<ObsDialogInfo::Button>& button_infos,
                int nr_col = 3 // number of columns
-               );
+  );
 
   void setEnabled(bool enabled);
   bool noneChecked();
-  int setButtonOn(std::string buttonName);
+  void setButtonOn(const std::string& buttonName);
 
-  std::vector<std::string> getOKString(bool forLog = false);
+  std::vector<std::string> getOKString();
 
 public Q_SLOTS:
   void ALLClicked();
@@ -68,14 +68,13 @@ private Q_SLOTS:
   void rightButtonClicked(ToggleButton* butto);
 
 Q_SIGNALS:
-  void rightClickedOn(std::string);
+  void rightClickedOn(const std::string&);
   void buttonClicked(int id);
 
 private:
-  ToggleButton** b;
   QButtonGroup* bgroup;
-
-  std::vector<ObsDialogInfo::Button> buttonList;
+  std::vector<ObsDialogInfo::Button> button_infos_;
+  std::vector<ToggleButton*> togglebuttons_;
 };
 
 #endif

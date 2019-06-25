@@ -77,8 +77,7 @@ public:
   ///return short name of current command
   std::string getShortname();
 
-  ///change plottype
-  bool setPlottype(const std::string& name, bool on);
+  void archiveMode(bool on);
 
   std::vector<std::string> writeLog();
 
@@ -89,18 +88,17 @@ public /*Q_SLOTS*/:
   void updateTimes() override;
 
 public Q_SLOTS:
-  void archiveMode( bool on );
   void getTimes(bool update = true);
 
 protected:
   void doShowMore(bool show) override;
 
 private Q_SLOTS:
-  void plotSelected( int index , bool sendTimes=true);
+  void plotSelected(int index);
   void multiplotClicked(bool);
   void extensionToggled(bool);
   void criteriaOn();
-  void rightButtonClicked(std::string);
+  void rightButtonClicked(const std::string&);
   void criteriaListSelected(int);
   void criteriaSelected(QListWidgetItem* );
   void signSlot(int);
@@ -120,19 +118,15 @@ private:
   std::string makeCriteriaString();
   bool newCriteriaString();
   void updateExtension();
-  void numberList( QComboBox* cBox, float number );
   int findPlotnr(const miutil::KeyValue_v&);
 
 private:
   int nr_plot;
   std::vector<miutil::KeyValue_v> savelog;
   int m_selected;
-  QColor* colour;
   QComboBox* plotbox;
   QStackedWidget* stackedWidget;
   std::vector<ObsWidget*> obsWidget;
-  std::string parameterSelected;
-  QLabel * label;
   bool multiplot;
   ToggleButton* multiplotButton;
 

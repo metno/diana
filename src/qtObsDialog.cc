@@ -88,6 +88,13 @@ static QString labelForObsPlotType(ObsPlotType opt)
   }
 }
 
+static void numberList(QComboBox* cBox, float number)
+{
+  const float enormal[] = {0.001, 0.01, 0.1, 1.0, 10., 100., 1000., 10000., -1};
+  diutil::numberList(cBox, number, enormal, false);
+  cBox->setEnabled(true);
+}
+
 ObsDialog::ObsDialog(QWidget* parent, Controller* llctrl)
     : DataDialog(parent, llctrl)
 {
@@ -116,7 +123,7 @@ ObsDialog::ObsDialog(QWidget* parent, Controller* llctrl)
   multiplotButton = new ToggleButton(this, tr("Show all"));
   multiplotButton->setToolTip(tr("Show all plot types"));
 
-  connect(multiplotButton, SIGNAL(toggled(bool)), SLOT(multiplotClicked(bool)));
+  connect(multiplotButton, &QPushButton::toggled, this, &ObsDialog::multiplotClicked);
 
   QHBoxLayout* helplayout = new QHBoxLayout();
   helplayout->addWidget(multiplotButton);
@@ -130,12 +137,11 @@ ObsDialog::ObsDialog(QWidget* parent, Controller* llctrl)
   vlayout->addLayout(helplayout);
   vlayout->addLayout(applylayout);
 
-  connect(plotbox, SIGNAL(activated(int)), SLOT(plotSelected(int)));
+  connect(plotbox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &ObsDialog::plotSelected);
 
   plotbox->setFocus();
 
   this->hide();
-  //  setOrientation(Horizontal);
   setOrientation(Qt::Horizontal);
   makeExtension();
   setExtension(extension);
@@ -195,7 +201,7 @@ void ObsDialog::updateDialog()
   putOKString(vstr);
 }
 
-void ObsDialog::plotSelected(int index, bool sendTimes)
+void ObsDialog::plotSelected(int index)
 {
   METLIBS_LOG_SCOPE();
   /* This function is called when a new plottype is selected and builds
@@ -209,10 +215,10 @@ void ObsDialog::plotSelected(int index, bool sendTimes)
     m_ctrl->updateObsDialog(dialog.plottype[index], plotbox->itemText(index).toStdString());
 
     ow->setDialogInfo(dialog.plottype[index]);
-    connect(ow, SIGNAL(getTimes(bool)), SLOT(getTimes(bool)));
-    connect(ow, SIGNAL(rightClicked(std::string)), SLOT(rightButtonClicked(std::string)));
-    connect(ow, SIGNAL(extensionToggled(bool)), SLOT(extensionToggled(bool)));
-    connect(ow, SIGNAL(criteriaOn()), SLOT(criteriaOn()));
+    connect(ow, &ObsWidget::getTimes, this, &ObsDialog::getTimes);
+    connect(ow, &ObsWidget::rightClicked, this, &ObsDialog::rightButtonClicked);
+    connect(ow, &ObsWidget::extensionToggled, this, &ObsDialog::extensionToggled);
+    connect(ow, &ObsWidget::criteriaOn, this, &ObsDialog::criteriaOn);
 
     if (index < (int)savelog.size() && !savelog[index].empty()) {
       ow->readLog(savelog[index]);
@@ -239,8 +245,7 @@ void ObsDialog::plotSelected(int index, bool sendTimes)
 
   updateExtension();
 
-  if (sendTimes)
-    getTimes(false);
+  getTimes(false);
 }
 
 void ObsDialog::updateTimes()
@@ -259,9 +264,9 @@ void ObsDialog::getTimes(bool update)
   if (multiplot) {
 
     set<std::string> nameset;
-    for (int i = 0; i < nr_plot; i++) {
-      if (obsWidget[i]->initialized()) {
-        diutil::insert_all(nameset, obsWidget[i]->getDataTypes());
+    for (ObsWidget* ow : obsWidget) {
+      if (ow->initialized()) {
+        diutil::insert_all(nameset, ow->getDataTypes());
       }
     }
     dataName = std::vector<std::string>(nameset.begin(), nameset.end());
@@ -297,7 +302,7 @@ void ObsDialog::criteriaOn()
   updateExtension();
 }
 
-void ObsDialog::archiveMode(bool on)
+void ObsDialog::archiveMode(bool)
 {
   getTimes(true);
 }
@@ -333,9 +338,7 @@ vector<string> ObsDialog::writeLog()
   if (nr_plot == 0)
     return vstr;
 
-  std::string str;
-
-  //first write the plot type selected now
+  // first write the plot type selected now
   if (KVListPlotCommand_cp cmd = obsWidget[m_selected]->getOKString(true))
     vstr.push_back(miutil::mergeKeyValue(cmd->all()));
 
@@ -345,7 +348,7 @@ vector<string> ObsDialog::writeLog()
       if (obsWidget[i]->initialized()) {
         if (KVListPlotCommand_cp cmd = obsWidget[i]->getOKString(true))
           vstr.push_back(miutil::mergeKeyValue(cmd->all()));
-      } else if (i < savelog.size() && savelog[i].size() > 0) {
+      } else if (i < (int)savelog.size() && !savelog[i].empty()) {
         // ascii obs dialog not activated
         vstr.push_back(miutil::mergeKeyValue(savelog[i]));
       }
@@ -438,52 +441,11 @@ int ObsDialog::findPlotnr(const miutil::KeyValue_v& str)
 {
   const size_t i_plot = miutil::rfind(str, "plot");
   if (i_plot != size_t(-1)) {
-    std::string value = (miutil::to_lower(str.at(i_plot).value()));
-    int l = 0;
-    while (l < nr_plot && miutil::to_lower(plotbox->itemText(l).toStdString()) != value)
-      l++;
-    return l;
+    const int l = plotbox->findText(QString::fromStdString(str.at(i_plot).value()), Qt::MatchFixedString); // case insensitive
+    if (l >= 0)
+      return l;
   }
   return nr_plot; // not found
-}
-
-bool ObsDialog::setPlottype(const std::string& name, bool on)
-{
-  METLIBS_LOG_SCOPE();
-
-  int l=0;
-  while (l < nr_plot && miutil::to_lower(plotbox->itemText(l).toStdString()) != name)
-    l++;
-  if (l == nr_plot)
-    return false;
-
-  if (on) {
-    plotbox->setCurrentIndex(l);
-    ObsWidget* ow = new ObsWidget( this );
-    PlotCommand_cp str;
-    if (obsWidget[l]->initialized()) {
-      str = obsWidget[l]->getOKString();
-    } else if (l < savelog.size() && !savelog[l].empty()) {
-      KVListPlotCommand_p cmd = std::make_shared<KVListPlotCommand>("OBS");
-      cmd->add(savelog[l]);
-      str = cmd;
-    }
-    stackedWidget->removeWidget(obsWidget[l]);
-    obsWidget[l]->close();
-    delete obsWidget[l];
-    obsWidget[l]=ow;
-    stackedWidget->insertWidget(l,obsWidget[l]);
-
-    plotSelected(l,false);
-    if (str)
-      obsWidget[l]->putOKString(str);
-
-  } else if (obsWidget[l]->initialized()) {
-    obsWidget[l]->setFalse();
-    getTimes(false);
-  }
-
-  return true;
 }
 
 void ObsDialog::makeExtension()
@@ -505,14 +467,10 @@ void ObsDialog::makeExtension()
   delallButton->setToolTip( tr("Delete all criteria") );
 
   radiogroup  = new QButtonGroup(extension);
-  plotButton =
-    new QRadioButton(tr("Plot"),this);
-  colourButton =
-    new QRadioButton(tr("Colour - parameter"),this);
-  totalColourButton =
-    new QRadioButton(tr("Colour - observation"),this);
-  markerButton =
-    new QRadioButton(tr("Marker"),this);
+  plotButton = new QRadioButton(tr("Plot"), this);
+  colourButton = new QRadioButton(tr("Colour - parameter"), this);
+  totalColourButton = new QRadioButton(tr("Colour - observation"), this);
+  markerButton = new QRadioButton(tr("Marker"), this);
   radiogroup->addButton(plotButton);
   radiogroup->addButton(colourButton);
   radiogroup->addButton(totalColourButton);
@@ -573,27 +531,22 @@ void ObsDialog::makeExtension()
   lineedit = new QLineEdit(extension);
   lineedit->setToolTip(tr("Name of list to save") );
 
-
-  connect(criteriaBox,SIGNAL(activated(int)),
-      SLOT(criteriaListSelected(int)));
-  connect( criteriaListbox, SIGNAL(itemClicked(QListWidgetItem*)),
-      SLOT(criteriaSelected(QListWidgetItem*)));
-  connect(signBox, SIGNAL(activated(int)),SLOT(signSlot(int)));
-  connect(colourButton,SIGNAL(toggled(bool)),colourBox,SLOT(setEnabled(bool)));
-  connect(totalColourButton,SIGNAL(toggled(bool)),
-      colourBox,SLOT(setEnabled(bool)));
-  connect(markerButton,SIGNAL(toggled(bool)),markerBox,SLOT(setEnabled(bool)));
-  connect(colourButton,SIGNAL(toggled(bool)),SLOT(changeCriteriaString()));
-  connect(colourBox, SIGNAL(activated(int)),SLOT(changeCriteriaString()));
-  connect(markerBox, SIGNAL(activated(int)),SLOT(changeCriteriaString()));
-  connect(totalColourButton, SIGNAL(toggled(bool)),
-      SLOT(changeCriteriaString()));
-  connect(markerButton, SIGNAL(toggled(bool)),SLOT(changeCriteriaString()));
-  connect( limitSlider, SIGNAL(valueChanged(int)),SLOT(sliderSlot(int)));
-  connect( stepComboBox, SIGNAL(activated(int)),SLOT(stepSlot(int)));
-  connect( delButton, SIGNAL(clicked()),SLOT(deleteSlot()));
-  connect( delallButton, SIGNAL(clicked()),SLOT(deleteAllSlot()));
-  connect( saveButton, SIGNAL(clicked()),SLOT(saveSlot()));
+  connect(criteriaBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &ObsDialog::criteriaListSelected);
+  connect(criteriaListbox, &QListWidget::itemClicked, this, &ObsDialog::criteriaSelected);
+  connect(signBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &ObsDialog::signSlot);
+  connect(colourButton, &QPushButton::toggled, colourBox, &QComboBox::setEnabled);
+  connect(totalColourButton, &QPushButton::toggled, colourBox, &QComboBox::setEnabled);
+  connect(markerButton, &QPushButton::toggled, markerBox, &QComboBox::setEnabled);
+  connect(colourButton, &QPushButton::toggled, this, &ObsDialog::changeCriteriaString);
+  connect(colourBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &ObsDialog::changeCriteriaString);
+  connect(markerBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &ObsDialog::changeCriteriaString);
+  connect(totalColourButton, &QPushButton::toggled, this, &ObsDialog::changeCriteriaString);
+  connect(markerButton, &QPushButton::toggled, this, &ObsDialog::changeCriteriaString);
+  connect(limitSlider, &QSlider::valueChanged, this, &ObsDialog::sliderSlot);
+  connect(stepComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &ObsDialog::stepSlot);
+  connect(delButton, &QPushButton::clicked, this, &ObsDialog::deleteSlot);
+  connect(delallButton, &QPushButton::clicked, this, &ObsDialog::deleteAllSlot);
+  connect(saveButton, &QPushButton::clicked, this, &ObsDialog::saveSlot);
 
   QFrame *line0 = new QFrame( extension );
   line0->setFrameStyle( QFrame::HLine | QFrame::Sunken );
@@ -618,12 +571,8 @@ void ObsDialog::makeExtension()
   verticalsep->setLineWidth( 5 );
 
   QHBoxLayout *hLayout = new QHBoxLayout( extension);
-
   hLayout->addWidget(verticalsep);
   hLayout->addLayout(exLayout);
-
-
-  return;
 }
 
 void ObsDialog::criteriaListSelected(int index)
@@ -636,18 +585,15 @@ void ObsDialog::criteriaListSelected(int index)
 
   lineedit->clear();
 
-  int n = critList.criteria.size();
-  if (n == 0)
+  if (critList.criteria.empty())
     return;
 
-  lineedit->setText(critList.name.c_str());
-  for (int j = 0; j < n; j++) {
-    criteriaListbox->addItem(QString(critList.criteria[j].c_str()));
-  }
-  if (criteriaListbox->count()) {
-    criteriaListbox->item(0)->setSelected(true);
-    criteriaSelected(criteriaListbox->item(0));
-  }
+  lineedit->setText(QString::fromStdString(critList.name));
+  for (const auto& c : critList.criteria)
+    criteriaListbox->addItem(QString::fromStdString(c));
+
+  criteriaListbox->item(0)->setSelected(true);
+  criteriaSelected(criteriaListbox->item(0));
 }
 
 void ObsDialog::signSlot(int number)
@@ -665,7 +611,7 @@ void ObsDialog::sliderSlot(int number)
   changeCriteriaString();
 }
 
-void ObsDialog::stepSlot(int number)
+void ObsDialog::stepSlot(int)
 {
 //todo: smarter slider limits
   float scalesize = stepComboBox->currentText().toFloat();
@@ -951,7 +897,7 @@ void ObsDialog::saveSlot()
   }
 }
 
-void ObsDialog::rightButtonClicked(std::string name)
+void ObsDialog::rightButtonClicked(const std::string& name)
 {
   // Wind
   if (name == "Wind") {
@@ -1032,11 +978,4 @@ void ObsDialog::updateExtension()
     criteriaListbox->setCurrentRow(0);
     criteriaSelected(criteriaListbox->item(0));
   }
-}
-
-void ObsDialog::numberList(QComboBox* cBox, float number)
-{
-  const float enormal[] = {0.001, 0.01, 0.1, 1.0, 10., 100., 1000., 10000., -1};
-  diutil::numberList(cBox, number, enormal, false);
-  cBox->setEnabled(true);
 }
