@@ -85,7 +85,7 @@ void VcrossQuickmenues::parse(const PlotCommand_cpv& qm_lines)
 }
 
 // static
-void VcrossQuickmenues::parse(QtManager_p manager, const PlotCommand_cpv& qm_lines)
+bool VcrossQuickmenues::parse(QtManager_p manager, const PlotCommand_cpv& qm_lines)
 {
   METLIBS_LOG_SCOPE();
 
@@ -157,6 +157,7 @@ void VcrossQuickmenues::parse(QtManager_p manager, const PlotCommand_cpv& qm_lin
   }
   manager->fieldChangeDone();
   manager->updateOptions();
+  return manager->hasValidCsIndex();
 }
 
 

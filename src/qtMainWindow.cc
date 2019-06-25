@@ -1399,7 +1399,7 @@ void DianaMainWindow::vcrossMenu()
     return;
 
   const miutil::miTime& t = contr->getPlotTime();
-  vcInterface->mainWindowTimeChanged(t);
+  vcInterface->mainWindowTimeChanged(!t.undef() ? t : miutil::miTime::nowTime());
   vcInterface->makeVisible(true);
 }
 

@@ -99,8 +99,14 @@ TEST(TestVcrossQuickmenues, Script)
   EXPECT_EQ(0, qmslots.qmenues.size());
   qmslots.reset();
 
+  // select a missing crossection => expect qm update
+  manager->setCrossectionIndex(manager->findCrossectionIndex("Nosbyen X"));
+  EXPECT_FALSE(manager->hasValidCsIndex());
+  qmslots.reset();
+
   // select a different crossection => expect qm update
   manager->setCrossectionIndex(manager->findCrossectionIndex("Nesbyen 7"));
+  EXPECT_TRUE(manager->hasValidCsIndex());
   EXPECT_EQ(1, qmslots.titles.size());
   EXPECT_EQ(1, qmslots.qmenues.size());
   qmslots.reset();

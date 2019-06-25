@@ -200,6 +200,7 @@ public:
     { return mMarkers.at(idx).colour; }
 
   int getCrossectionIndex() const;
+  bool hasValidCsIndex() const { return isValidCsIndex(mCrossectionCurrent); }
   void setCrossectionIndex(int index);
   int findCrossectionIndex(const QString& label);
   QString getCrossectionLabel(int index) const;
@@ -293,7 +294,8 @@ private:
   // update crossection points, emit signal
   void handleChangedCrossection();
 
-  void handleChangedTimeList(const vctime_t& oldTime);
+  void setTimeIndexToBestMatch();
+  void handleChangedTimeList();
   void handleChangedTime(int plotTimeIndex);
 
   void updateCrossectionsTimes();
@@ -312,8 +314,6 @@ private:
   LonLat_v crossectionPointsRequested() const;
   bool isValidCsIndex(int i) const
     { return i >= 0 && i < getCrossectionCount(); }
-  bool hasValidCsIndex() const
-    { return isValidCsIndex(mCrossectionCurrent); }
 
   void saveZoom();
   void restoreZoom();
@@ -334,6 +334,7 @@ private:
   LocationData locationData; //! kind of duplicate of mCrossections in a different structure
 
   vctime_v mCrossectionTimes;
+  vctime_t mRequestedTime;
   int mPlotTime; //! mCrossectionTimes index of current plot time
 
   int mRealizationCount;

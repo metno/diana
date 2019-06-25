@@ -273,7 +273,9 @@ static const miutil::miTime time0 = miutil::unix_t0, day0("1900-01-01 00:00:00")
 
 Time from_miTime(const miutil::miTime& mitime)
 {
-  if (mitime >= time0)
+  if (mitime.undef())
+    return Time();
+  else if (mitime >= time0)
     return Time(SECONDS_SINCE_1970, miutil::miTime::secDiff(mitime, time0));
   else
     return Time(DAYS_SINCE_1900, miutil::miTime::hourDiff(mitime, day0)/24);

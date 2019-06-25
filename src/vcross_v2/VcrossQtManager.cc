@@ -185,7 +185,7 @@ void QtManager::updateOptions()
   Q_EMIT vcrossOptionsChanged();
 
   mCollector->setUpdateRequiredNeeded(); // might (no longer) need to request inflight
-  preparePlot();
+  dataChange |= CHANGED_CS | CHANGED_SEL | CHANGED_TIME;
 }
 
 
@@ -198,8 +198,11 @@ int QtManager::getCrossectionIndex() const
 void QtManager::setCrossectionIndex(int index)
 {
   METLIBS_LOG_SCOPE(LOGVAL(index));
-  if (index != mCrossectionCurrent && isValidCsIndex(index)) {
-    mCrossectionCurrent = index;
+  if (index == mCrossectionCurrent && index >= 0 && mCrossectionCurrent >= 0)
+    return;
+
+  mCrossectionCurrent = index;
+  if (isValidCsIndex(mCrossectionCurrent)) {
     CS& mcs = crossection();
     if (!mcs.hasSourceCS()) {
       const ModelReftime model1 = mCollector->getFirstModel();
@@ -215,17 +218,18 @@ void QtManager::setCrossectionIndex(int index)
         }
       }
     }
-    handleChangedCrossection();
   }
+  handleChangedCrossection();
 }
 
 
 int QtManager::findCrossectionIndex(const QString& label)
 {
   METLIBS_LOG_SCOPE(LOGVAL(label.toStdString()));
-  for (int i=0; i<getCrossectionCount(); ++i) {
-    if (label == getCrossectionLabel(i))
-      return i;
+  if (!label.isEmpty()) {
+    for (int i = 0; i < getCrossectionCount(); ++i)
+      if (label == getCrossectionLabel(i))
+        return i;
   }
   return -1;
 }
@@ -356,7 +360,7 @@ void QtManager::handleChangedCrossectionList(const QString& oldLabel)
 
     Q_EMIT crossectionListChanged();
     if (getCrossectionCount() > 0)
-      setCrossectionIndex(std::max(0, findCrossectionIndex(oldLabel)));
+      setCrossectionIndex(findCrossectionIndex(oldLabel));
   }
 }
 
@@ -464,27 +468,35 @@ LonLat_v QtManager::crossectionPointsRequested() const
 
 void QtManager::setTimeIndex(int index)
 {
-  if (index >= 0 && index < getTimeCount())
-    handleChangedTime(index);
+  if (isTimeGraph())
+    return;
+  if (index != mPlotTime) {
+    if (index >= 0 && index < (int)mCrossectionTimes.size())
+      mRequestedTime = getTimeValue(index);
+    else
+      mRequestedTime = miutil::miTime();
+  }
+  handleChangedTime(index);
 }
 
 
 void QtManager::setTimeToBestMatch(const QtManager::vctime_t& time)
 {
-  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_SCOPE(LOGVAL(time));
+  mRequestedTime = time;
+  setTimeIndexToBestMatch();
+}
 
+void QtManager::setTimeIndexToBestMatch()
+{
   int bestTime = -1;
-  if (getTimeCount()>0) {
-    bestTime = 0;
-    if (!time.undef()) {
-      METLIBS_LOG_DEBUG(LOGVAL(time));
-      int bestDiff = std::abs(miutil::miTime::minDiff(getTimeValue(0), time));
-      for (int i=1; i<getTimeCount(); i++) {
-        const int diff = std::abs(miutil::miTime::minDiff(getTimeValue(i), time));
-        if (diff < bestDiff) {
-          bestDiff = diff;
-          bestTime = i;
-        }
+  if (getTimeCount() > 0 && !mRequestedTime.undef()) {
+    int bestDiff = -1;
+    for (int i = 0; i < (int)mCrossectionTimes.size(); i++) {
+      const int diff = std::abs(miutil::miTime::secDiff(mCrossectionTimes[i], mRequestedTime));
+      if (bestDiff < 0 || diff < bestDiff) {
+        bestDiff = diff;
+        bestTime = i;
       }
     }
   }
@@ -515,14 +527,14 @@ int QtManager::getTimeCount() const
 
 QtManager::vctime_t QtManager::getTimeValue(int index) const
 {
-  if (!isTimeGraph() && index >= 0 && index < getTimeCount())
-    return mCrossectionTimes.at(index);
+  if (!isTimeGraph() && index >= 0 && index < (int)mCrossectionTimes.size())
+    return mCrossectionTimes[index];
   else
     return vctime_t();
 }
 
 
-void QtManager::handleChangedTimeList(const vctime_t& oldTime)
+void QtManager::handleChangedTimeList()
 {
   METLIBS_LOG_SCOPE();
   const ModelReftime model1 = mCollector->getFirstModel();
@@ -549,14 +561,14 @@ void QtManager::handleChangedTimeList(const vctime_t& oldTime)
 
     dataChange |= CHANGED_TIME;
     Q_EMIT timeListChanged();
-    setTimeToBestMatch(oldTime);
+    setTimeIndexToBestMatch();
   }
 }
 
 
 void QtManager::handleChangedTime(int plotTimeIndex)
 {
-  if (plotTimeIndex != mPlotTime) {
+  if (plotTimeIndex != mPlotTime || plotTimeIndex < 0 || mPlotTime < 0) {
     mPlotTime = plotTimeIndex;
     dataChange |= CHANGED_TIME;
     Q_EMIT timeIndexChanged(mPlotTime);
@@ -657,7 +669,7 @@ void QtManager::preparePlot()
   METLIBS_LOG_SCOPE(LOGVAL(mCrossectionCurrent) << LOGVAL(isTimeGraph()));
 
   const ModelReftime model1 = mCollector->getFirstModel();
-  if (!hasValidCsIndex() || model1.model.empty()) {
+  if (!hasValidCsIndex() || (!isTimeGraph() && getTimeIndex() < 0) || model1.model.empty()) {
     mPlot->clear();
     return;
   }
@@ -908,7 +920,7 @@ void QtManager::updateCrossectionsTimes()
   if (dataChange & CHANGED_SEL) {
     // FIXME getCrossectionLabel call is too late, we have to remember the crossection label before changing the crossection list
     handleChangedCrossectionList(getCrossectionLabel());
-    handleChangedTimeList(getTimeValue());
+    handleChangedTimeList();
   }
 }
 
@@ -1152,8 +1164,8 @@ void QtManager::switchTimeGraph(bool on)
   // not actually change; what changes is only the return value of
   // getTimeCount(), which checks isTimeGraph()
   Q_EMIT timeListChanged();
-  if (!mCrossectionTimes.empty())
-    setTimeToBestMatch(mCrossectionTimes[0]);
+  mPlotTime = -1;
+  setTimeIndexToBestMatch();
 
   dataChange |= CHANGED_SEL | CHANGED_TIME;
 }

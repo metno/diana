@@ -50,7 +50,7 @@ public:
 
   void selectFields(const string_v& fields);
 
-  static void parse(QtManager_p manager, const PlotCommand_cpv& vstr);
+  static bool parse(QtManager_p manager, const PlotCommand_cpv& vstr);
 
   void parse(const PlotCommand_cpv& vstr);
   PlotCommand_cpv get() const;

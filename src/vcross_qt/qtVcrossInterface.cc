@@ -179,7 +179,8 @@ void VcrossWindowInterface::timeListChangedSlot()
 
 void VcrossWindowInterface::timeChangedSlot(int current)
 {
-  Q_EMIT setTime("vcross", vcrossm->getTimeValue(current));
+  if (current >= 0)
+    Q_EMIT setTime("vcross", vcrossm->getTimeValue(current));
 }
 
 
@@ -196,5 +197,6 @@ void VcrossWindowInterface::crossectionChangedSlot(int current)
 {
   METLIBS_LOG_SCOPE();
   // send name of current crossection (to mainWindow)
-  Q_EMIT crossectionChanged(vcrossm->getCrossectionLabel());
+  if (current >= 0)
+    Q_EMIT crossectionChanged(vcrossm->getCrossectionLabel());
 }
