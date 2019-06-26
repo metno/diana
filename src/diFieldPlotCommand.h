@@ -44,6 +44,8 @@ public:
   {
     std::string model;
     std::string reftime;
+    int refoffset;    //! if reftime is not set, use refoffset and refhour to guess best reftime
+    int refhour;      //! if reftime is not set, use refoffset and refhour to guess best reftime
     std::string plot; // "plot" is used if requesting a predefined plot, else "parameters" is/are used
     std::vector<std::string> parameters;
     bool isPredefinedPlot() const { return parameters.empty(); }

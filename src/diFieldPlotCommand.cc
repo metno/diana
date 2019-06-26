@@ -48,6 +48,12 @@ void extractFieldSpec(const miutil::KeyValue_v& kvs, FieldPlotCommand::FieldSpec
       fs.model = kv.value();
     } else if (kv.key() == "reftime") {
       fs.reftime = kv.value();
+    } else if (kv.key() == "refoffset") {
+      if (CommandParser::isInt(kv.value()))
+        fs.refoffset = kv.toInt();
+    } else if (kv.key() == "refhour") {
+      if (CommandParser::isInt(kv.value()))
+        fs.refhour = kv.toInt();
     } else if (kv.key() == "plot") {
       fs.plot = kv.value();
     } else if (kv.key() == "parameter") {
@@ -74,7 +80,9 @@ void extractFieldSpec(const miutil::KeyValue_v& kvs, FieldPlotCommand::FieldSpec
 } // namespace
 
 FieldPlotCommand::FieldSpec::FieldSpec()
-    : hourOffset(0)
+    : refoffset(0)
+    , refhour(-1)
+    , hourOffset(0)
     , hourDiff(0)
 {
 }

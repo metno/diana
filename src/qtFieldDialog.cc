@@ -3116,6 +3116,8 @@ bool FieldDialog::decodeCommand(FieldPlotCommand_cp cmd, const FieldPlotCommand:
     return false;
   sf.predefinedPlot = fs.isPredefinedPlot();
   sf.refTime = fs.reftime;
+  if (sf.refTime.empty())
+    sf.refTime = m_data->getBestFieldReferenceTime(sf.modelName, fs.refoffset, fs.refhour);
 
   sf.zaxis = fs.vcoord;
   sf.level = fs.vlevel;
@@ -3131,29 +3133,10 @@ bool FieldDialog::decodeCommand(FieldPlotCommand_cp cmd, const FieldPlotCommand:
   // merge with options from setup/logfile for this fieldname
   mergeFieldOptions(sf.fieldOpts, getFieldOptions(fs.name(), true));
 
-  int refOffset = 0;
-  int refHour = -1;
-
-  for (miutil::KeyValue_v::iterator it = sf.fieldOpts.begin(); it != sf.fieldOpts.end(); /* nothing */) {
-    const miutil::KeyValue& kv = *it;
-    if (kv.key() == "refoffset") {
-      if (CommandParser::isInt(kv.value()))
-        refOffset = kv.toInt();
-      it = sf.fieldOpts.erase(it);
-    } else if (kv.key() == "refhour") {
-      if (CommandParser::isInt(kv.value()))
-        refHour = kv.toInt();
-      it = sf.fieldOpts.erase(it);
-    } else {
-      if (kv.key() == "alltimesteps")
-        allTimeSteps |= kv.toBool();
-      ++it;
-    }
+  for (const miutil::KeyValue& kv : sf.fieldOpts) {
+    if (kv.key() == "alltimesteps")
+      allTimeSteps |= kv.toBool();
   }
-
-  // find referencetime
-  if (sf.refTime.empty())
-    sf.refTime = m_data->getBestFieldReferenceTime(sf.modelName, refOffset, refHour);
 
   METLIBS_LOG_DEBUG(LOGVAL(sf.modelName) << LOGVAL(sf.fieldName) << LOGVAL(sf.level) << LOGVAL(sf.idnum));
 

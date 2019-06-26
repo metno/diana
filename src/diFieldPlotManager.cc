@@ -836,6 +836,8 @@ void FieldPlotManager::parseString(FieldPlotCommand_cp cmd, const FieldPlotComma
 
   fieldrequest.modelName = fs.model;
   fieldrequest.refTime = fs.reftime;
+  fieldrequest.refoffset = fs.refoffset;
+  fieldrequest.refhour = fs.refhour;
   if (fs.isPredefinedPlot()) {
     plotName = fs.plot;
     fieldrequest.predefinedPlot = true;
@@ -860,10 +862,6 @@ void FieldPlotManager::parseString(FieldPlotCommand_cp cmd, const FieldPlotComma
         fieldrequest.taxis = kv.value();
       } else if (key == "vunit" && kv.value() == "FL") {
         fieldrequest.flightlevel=true;
-      } else if (key == "refhour") {
-        fieldrequest.refhour = kv.toInt();
-      } else if (key == "refoffset") {
-        fieldrequest.refoffset = kv.toInt();
       } else if (key == "min.offset") {
         fieldrequest.minOffset = kv.toInt();
       } else if (key == "alltimesteps") {
