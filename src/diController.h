@@ -295,8 +295,6 @@ public:
       const std::string& misc="");
   void stationCommand(const std::string& Command,
       const std::string& name="", int id=-1);
-  float getStationsScale();
-  void setStationsScale(float new_scale);
 
   //areas
   ///put area into list of area objects

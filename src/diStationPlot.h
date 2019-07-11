@@ -78,7 +78,6 @@ struct Station {
   bool isSelected;
   int dd,ff,north;
   int alpha;
-  float scale;
   Colour colour;
   int height; /**< station height */
   int barHeight; /**< barometer height */
@@ -89,8 +88,9 @@ struct Station {
   Type type;
   miutil::miTime time;
 
-  Station() {
-    scale = 1; alpha=255;
+  Station()
+      : alpha(255)
+  {
   }
 
   float lon() const
@@ -216,18 +216,10 @@ public:
   /// return id
   int getId() const
     { return id; }
-  /**
-   * Get image scale for a station
-   * @param i Index of station
-   * @return Current image scale for station i
-   */
-  float getImageScale(int i);
   /// set normal and selected image to im1
   void setImage(std::string im1);
   /// set normal image to im1, selected image to im2
   void setImage(std::string im1,std::string im2);
-  /// set new scale for all images
-  void setImageScale(float new_scale);
   /// clears all text
   void clearText();
   /// if normal=true write name on all plotted stations, if selected=true write name on all selected stations
@@ -256,8 +248,7 @@ private:
   std::vector<StationArea> stationAreas;  // areas containing stations
 
   //  void addStation(const std::string names);
-  void addStation(float lon, float lat, const std::string& name="",
-      const std::string& image="", int alpha=255, float scale=1.0);
+  void addStation(float lon, float lat, const std::string& name = "", const std::string& image = "", int alpha = 255);
   void addStation(Station* station);
   void defineCoordinates();
   void init();

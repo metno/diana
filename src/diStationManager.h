@@ -53,19 +53,6 @@ public:
 
   StationPlot* importStations(const std::string& name, const std::string& url);
 
-  // Stations
-  /**
-   * This method is only sound as long as all Stations in all StationPlots have the same scale.
-   * @return Current scale for the first Station in the first StationPlot
-   */
-  float getStationsScale();
-
-  /**
-   * Set new scale for all Stations.
-   * @param new_scale New scale (1.0 original size)
-   */
-  void setStationsScale(float new_scale);
-
   ///put StationPlot in list of StationPlots
   void putStations(StationPlot*);
   ///make StationPlot and put it in list of StationPlots

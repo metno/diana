@@ -252,8 +252,7 @@ StationPlot::~StationPlot()
   stationAreas.clear();
 }
 
-void StationPlot::addStation(float lon, float lat, const std::string& newname,
-    const std::string& newimage, int alpha, float scale)
+void StationPlot::addStation(float lon, float lat, const std::string& newname, const std::string& newimage, int alpha)
 {
   //at the moment, this should only be called from constructor, since
   //define coordinates must be called to actually plot stations
@@ -266,7 +265,6 @@ void StationPlot::addStation(float lon, float lat, const std::string& newname,
   }
   newStation->pos = miCoordinates(lon, lat);
   newStation->alpha = alpha;
-  newStation->scale = scale;
   newStation->isSelected = false;
   if (newimage == "HIDE") {
     newStation->isVisible = false;
@@ -349,7 +347,7 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
         plotWind(gl, i, x, y);
       } else {
         h = ig.height_(stations[i]->image) * getStaticPlot()->getPhysToMapScaleY();
-        if (!ig.plotImage(gl, getStaticPlot()->plotArea(), stations[i]->image, x, y, true, stations[i]->scale, stations[i]->alpha))
+        if (!ig.plotImage(gl, getStaticPlot()->plotArea(), stations[i]->image, x, y, true, 1, stations[i]->alpha))
           plotted = false;
       }
       if (stations[i]->isSelected && stations[i]->image != "wind")
@@ -363,20 +361,20 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
       float w2 = ig.width_(stations[i]->image2);
       gl->Color3ub(128, 128, 128); //grey
       glPlot(gl, Station::noStatus, x, y);
-      if (!ig.plotImage(gl, getStaticPlot()->plotArea(), stations[i]->image, x - w1 / 2, y, true, stations[i]->scale, stations[i]->alpha))
+      if (!ig.plotImage(gl, getStaticPlot()->plotArea(), stations[i]->image, x - w1 / 2, y, true, 1, stations[i]->alpha))
         plotted = false;
-      if (!ig.plotImage(gl, getStaticPlot()->plotArea(), stations[i]->image2, x + w2 / 2, y, true, stations[i]->scale, stations[i]->alpha))
+      if (!ig.plotImage(gl, getStaticPlot()->plotArea(), stations[i]->image2, x + w2 / 2, y, true, 1, stations[i]->alpha))
         plotted = false;
       if (stations[i]->isSelected)
         gl->Color3ub(255, 0, 0); //red
       glPlot(gl, Station::noStatus, x, y);
     } else if (!stations[i]->isSelected && !imageNormal.empty()) {
       //otherwise plot images for selected/normal stations
-      if (!ig.plotImage(gl, getStaticPlot()->plotArea(), imageNormal, x, y, true, stations[i]->scale, stations[i]->alpha))
+      if (!ig.plotImage(gl, getStaticPlot()->plotArea(), imageNormal, x, y, true, 1, stations[i]->alpha))
         plotted = false;
       h = ig.height_(imageNormal) * getStaticPlot()->getPhysToMapScaleY();
     } else if (stations[i]->isSelected && !imageSelected.empty()) {
-      if (!ig.plotImage(gl, getStaticPlot()->plotArea(), imageSelected, x, y, true, stations[i]->scale, stations[i]->alpha))
+      if (!ig.plotImage(gl, getStaticPlot()->plotArea(), imageSelected, x, y, true, 1, stations[i]->alpha))
         plotted = false;
       h = ig.height_(imageSelected) * getStaticPlot()->getPhysToMapScaleY();
     } else {
@@ -632,11 +630,6 @@ vector<std::string> StationPlot::findStations(int x, int y)
   return stationstring;
 }
 
-float StationPlot::getImageScale(int i)
-{
-  return stations[i]->scale;
-}
-
 vector<Station*> StationPlot::getSelectedStations() const
 {
   vector<Station*> selected;
@@ -744,17 +737,6 @@ void StationPlot::setImage(std::string im1, std::string im2)
   imageNormal = im1;
   imageSelected = im2;
   useImage = true;
-}
-
-void StationPlot::setImageScale(float new_scale)
-{
-#ifdef DEBUGPRINT
-  METLIBS_LOG_SCOPE();
-#endif
-  int n = stations.size();
-  for (int i = 0; i < n; i++) {
-    stations[i]->scale = new_scale;
-  }
 }
 
 void StationPlot::clearText()

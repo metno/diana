@@ -343,20 +343,6 @@ Station* StationManager::parseSMHI(const std::string& miLine, const std::string&
   return st;
 }
 
-float StationManager::getStationsScale()
-{
-  if (!stationPlots.empty()) {
-    return stationPlots.front()->getImageScale(0);
-  } else
-    return 0;
-}
-
-void StationManager::setStationsScale(float new_scale)
-{
-  for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it)
-    (*it)->setImageScale(new_scale);
-}
-
 //********** plotting and selecting stations on the map***************
 
 void StationManager::putStations(StationPlot* stationPlot)

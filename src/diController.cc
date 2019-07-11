@@ -699,16 +699,6 @@ void Controller::stationCommand(const string& command,
   plotm->setAnnotations();
 }
 
-float Controller::getStationsScale()
-{
-  return stam->getStationsScale();
-}
-
-void Controller::setStationsScale(float new_scale)
-{
-  stam->setStationsScale(new_scale);
-}
-
 // area objects
 void Controller::makeAreaObjects(const std::string& name, std::string areastring, int id)
 {
