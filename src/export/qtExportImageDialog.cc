@@ -641,7 +641,7 @@ void ExportImageDialog::enableStartButton()
   bool enable = false;
   if (exporting > 0) {
     ui->buttonExport->setText(tr("Exporting..."));
-  } else {
+  } else if (imageSource && imageSource->count() > 0) {
     ui->buttonExport->setText(tr("Export"));
     const Product product = static_cast<Product>(ui->comboProduct->currentIndex());
     const int saveTo = ui->comboSaveTo->currentIndex();
