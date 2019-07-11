@@ -703,12 +703,6 @@ void Controller::putLocation(const LocationData& locationdata)
   plotm->putLocation(locationdata);
 }
 
-void Controller::updateLocation(const LocationData& locationdata)
-{
-  METLIBS_LOG_SCOPE();
-  plotm->updateLocation(locationdata);
-}
-
 void Controller::deleteLocation(const std::string& name)
 {
   METLIBS_LOG_SCOPE(LOGVAL(name));

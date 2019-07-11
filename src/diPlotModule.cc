@@ -1202,19 +1202,6 @@ void PlotModule::putLocation(const LocationData& locationdata)
   setAnnotations();
 }
 
-void PlotModule::updateLocation(const LocationData& locationdata)
-{
-#ifdef DEBUGPRINT
-  METLIBS_LOG_SCOPE();
-#endif
-  const std::string& name = locationdata.name;
-  for (size_t i = 0; i < locationPlots.size(); i++) {
-    if (name == locationPlots[i]->getName()) {
-      locationPlots[i]->updateOptions(locationdata);
-    }
-  }
-}
-
 void PlotModule::deleteLocation(const std::string& name)
 {
   vector<LocationPlot*>::iterator p = locationPlots.begin();

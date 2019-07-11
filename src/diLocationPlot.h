@@ -50,7 +50,6 @@ public:
   virtual ~LocationPlot();
 
   bool setData(const LocationData& locationdata);
-  void updateOptions(const LocationData& locationdata);
 
   void setSelected(const std::string& name)
 	{ selectedName= name; }

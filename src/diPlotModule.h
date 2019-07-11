@@ -241,7 +241,6 @@ public:
 
   // locationPlot (vcross,...)
   void putLocation(const LocationData& locationdata);
-  void updateLocation(const LocationData& locationdata);
   void deleteLocation(const std::string& name);
   void setSelectedLocation(const std::string& name,
       const std::string& elementname);

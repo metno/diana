@@ -144,21 +144,6 @@ bool LocationPlot::setData(const LocationData& locationdata)
   return true;
 }
 
-
-void LocationPlot::updateOptions(const LocationData& locationdata)
-{
-  METLIBS_LOG_SCOPE();
-
-  // change colour etc. (not positions, name,...)
-  locdata.colour=            locationdata.colour;
-  locdata.linetype=          locationdata.linetype;
-  locdata.linewidth=         locationdata.linewidth;
-  locdata.colourSelected=    locationdata.colourSelected;
-  locdata.linetypeSelected=  locationdata.linetypeSelected;
-  locdata.linewidthSelected= locationdata.linewidthSelected;
-}
-
-
 bool LocationPlot::changeProjection()
 {
   METLIBS_LOG_SCOPE();
