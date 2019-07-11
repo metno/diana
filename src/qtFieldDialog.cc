@@ -3105,7 +3105,7 @@ void FieldDialog::addSelectedField(const SelectedField& sf)
 
 bool FieldDialog::decodeCommand(FieldPlotCommand_cp cmd, const FieldPlotCommand::FieldSpec& fs, SelectedField& sf, bool& allTimeSteps)
 {
-  sf.inEdit = false;
+  sf.inEdit = cmd->isEdit;
 
   sf.modelName = fs.model;
   sf.fieldName = fs.name();
