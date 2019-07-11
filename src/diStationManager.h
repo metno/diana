@@ -73,7 +73,6 @@ public:
   void findStations(int x, int y, bool add,
       std::vector<std::string>& name, std::vector<int>& id,
       std::vector<std::string>& station);
-  void getStationData(std::vector< std::vector<std::string> >& data);
   ///send command to StationPlot with name and id
   void stationCommand(const std::string& Command,
           const std::vector<std::string>& data,

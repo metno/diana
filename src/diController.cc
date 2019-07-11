@@ -658,11 +658,6 @@ void Controller::findStations(int x, int y, bool add,
   stam->findStations(x,y,add,name,id,station);
 }
 
-void Controller::getStationData(vector< vector<std::string> >& data)
-{
-  stam->getStationData(data);
-}
-
 void Controller::stationCommand(const string& command,
     const vector<string>& data,
     const string& name, int id,

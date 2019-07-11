@@ -1005,21 +1005,6 @@ bool StationPlot::stationCommand(const string& command)
   return true;
 }
 
-vector<std::string> StationPlot::stationRequest(const std::string& command)
-{
-  vector<std::string> ost;
-  if (command == "selected") {
-    int n = stations.size();
-    for (int i = 0; i < n; i++) {
-      if (stations[i]->isSelected)
-        ost.push_back(stations[i]->name);
-    }
-    ost.push_back(name);
-    ost.push_back(miutil::from_number(id));
-  }
-  return ost;
-}
-
 void StationPlot::glPlot(DiGLPainter* gl, Station::Status tp, float x, float y, bool selected)
 {
   //called from StationPlot::plotStation: Add GL things to plot here.

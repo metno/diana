@@ -434,12 +434,6 @@ void StationManager::findStations(int x, int y, bool add, std::vector<std::strin
   }
 }
 
-void StationManager::getStationData(vector< vector<std::string> >& data)
-{
-  for (stationPlots_t::iterator it = stationPlots.begin(); it != stationPlots.end(); ++it)
-    data.push_back((*it)->stationRequest("selected"));
-}
-
 void StationManager::stationCommand(const std::string& command,
     const vector<std::string>& data, const std::string& name, int id, const std::string& misc)
 {
