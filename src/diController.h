@@ -189,8 +189,6 @@ public:
   bool findObs(int,int);
   /// get obs popup text in grid position x,y
   std::string getObsPopupText(int x,int y);
-  /// plot other observations
-  void nextObs(bool);
   /// plot trajectory position
   void  trajPos(const std::vector<std::string>&);
   /// plot measurements position

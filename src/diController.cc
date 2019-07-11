@@ -289,12 +289,6 @@ std::string Controller::getObsPopupText(int x, int y)
   return plotm->obsplots()->getObsPopupText(x,y);
 }
 
-// plot other observations
-void Controller::nextObs(bool next)
-{
-  plotm->obsplots()->nextObs(next);
-}
-
 //plot trajectory position
 void Controller::trajPos(const vector<string>& str)
 {
