@@ -449,7 +449,7 @@ void QuickMenu::getDetails(int& item_index, std::string& listname, std::string& 
     listname = q.name;
     itemname = (q.valid_item() ? q.menuitems[item_index].name : "");
   } else {
-    item_index = 0;
+    item_index = -1;
   }
 }
 
