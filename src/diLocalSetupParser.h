@@ -79,8 +79,6 @@ public:
   static bool parse(std::string& mainfilename);
   /// get quick menues defined in setup
   static bool getQuickMenus(std::vector<QuickMenuDefs>& qm);
-  /// get list of lists of colours
-  static std::vector< std::vector<Colour::ColourInfo> > getMultiColourInfo(int multiNum);
   /// get list of InfoFile - used in textview
   static const std::map<std::string, InfoFile> getInfoFiles() {return infoFiles;}
   /// paths to check for language files

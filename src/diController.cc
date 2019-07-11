@@ -613,11 +613,6 @@ map<std::string,bool> Controller::decodeTypeString( std::string token)
   return objm->decodeTypeString(token);
 }
 
-vector< vector<Colour::ColourInfo> > Controller::getMultiColourInfo(int multiNum)
-{
-  return LocalSetupParser::getMultiColourInfo(multiNum);
-}
-
 bool Controller::getQuickMenus(vector<QuickMenuDefs>& qm)
 {
   return LocalSetupParser::getQuickMenus(qm);

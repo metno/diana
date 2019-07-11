@@ -269,7 +269,6 @@ public:
   std::map<std::string,bool> decodeTypeString(std::string);
 
   // various GUI-methods
-  std::vector< std::vector<Colour::ColourInfo> > getMultiColourInfo(int multiNum);
   bool getQuickMenus(std::vector<QuickMenuDefs>& qm);
 
   //stations
