@@ -62,6 +62,8 @@ public:
 
 private:
   Controller* controller();
+  bool setTimeFromStep();
+  void setPlotTime(const miutil::miTime& time);
 
 private:
   bool annotationsOnly_;

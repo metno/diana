@@ -52,13 +52,14 @@ void DianaImageSource::setTimes(const std::vector<miutil::miTime>& times)
 
 void DianaImageSource::prepare(bool printing, bool single)
 {
+  PaintableImageSource::prepare(printing, single);
   oldTime_ = controller()->getPlotTime();
   if (single || times_.empty()) {
     times_.clear();
     times_.push_back(oldTime_);
   }
   timestep_ = 0;
-  PaintableImageSource::prepare(printing, single);
+  setTimeFromStep();
 }
 
 int DianaImageSource::count()
@@ -97,18 +98,27 @@ void DianaImageSource::paintGL(DiPaintGLPainter* gl)
 bool DianaImageSource::next()
 {
   timestep_ += 1;
+  return setTimeFromStep();
+}
+
+bool DianaImageSource::setTimeFromStep()
+{
   if (timestep_ >= times_.size())
     return false;
-  controller()->setPlotTime(times_[timestep_]);
-  controller()->updatePlots();
+  setPlotTime(times_[timestep_]);
   return true;
+}
+
+void DianaImageSource::setPlotTime(const miutil::miTime& time)
+{
+  controller()->setPlotTime(time);
+  controller()->updatePlots();
 }
 
 void DianaImageSource::finish()
 {
   PaintableImageSource::finish();
-  controller()->setPlotTime(oldTime_);
-  controller()->updatePlots();
+  setPlotTime(oldTime_);
 }
 
 Controller* DianaImageSource::controller()
