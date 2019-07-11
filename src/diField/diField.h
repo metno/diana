@@ -89,9 +89,6 @@ public:
   std::string progtext;
   std::string timetext;
 
-  // estimated size in the memory of this field.....
-  long bytesize();
-
   /**
    * Copies all members, but performs a shallow copy on the actual data.
    * @param rhs Field to copy

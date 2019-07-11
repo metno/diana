@@ -143,36 +143,6 @@ void Field::checkDefined()
 }
 
 
-long Field::bytesize()
-{
-  long bytes=0;
-
-  // data
-  bytes+= area.gridSize()*sizeof(float);
-
-  // numSmoothed;forecastHour
-  bytes+= 2*sizeof(int);
-
-  // aHybrid;bHybrid
-  bytes+= 2*sizeof(float);
-
-  // allDefined;gridChanged;difference;
-  bytes+= 3*sizeof(bool);
-
-  // validFieldTime;analysisTime;
-  bytes+= 2*sizeof(miTime);
-
-  // all strings
-  bytes+= (name.length()+text.length()+fulltext.length()+modelName.length()+paramName.length()
-      +fieldText.length()+leveltext.length()+idnumtext.length()
-      +progtext.length()+timetext.length()) * sizeof(char);
-
-  // the area
-  bytes+= sizeof(Area);
-
-  return bytes;
-}
-
 void Field::reserve(int xdim, int ydim)
 {
   cleanup();
