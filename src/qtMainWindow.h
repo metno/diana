@@ -113,12 +113,6 @@ public:
   void checkNews();
   void start();
 
-  /// Adds a dialog for use with a manager.
-  void addDialog(DataDialog *dialog);
-
-  /// Adds a standard dialog (fields, ...)
-  void addStandardDialog(DataDialog* dialog);
-
   /// Returns the application's main window instance.
   static DianaMainWindow *instance();
 
@@ -139,9 +133,6 @@ protected:
   void dragEnterEvent(QDragEnterEvent *event);
   void dropEvent(QDropEvent *event);
   bool event(QEvent* event);
-
-public Q_SLOTS:
-  void toggleToolBar();
 
 private Q_SLOTS:
   void levelUp();
@@ -190,7 +181,6 @@ private Q_SLOTS:
   void requestBackgroundBufferUpdate();
 
   void toggleDialogs();
-  void toggleStatusBar();
   void filequit();
   void writeLogFile();
 
@@ -258,6 +248,12 @@ Q_SIGNALS:
   void instanceNameChanged(const QString&);
 
 private:
+  /// Adds a dialog for use with a manager.
+  void addDialog(DataDialog* dialog);
+
+  /// Adds a standard dialog (fields, ...)
+  void addStandardDialog(DataDialog* dialog);
+
   void initCoserverClient();
   void createHelpDialog();
   void vcrossEditManagerEnableSignals();
@@ -272,13 +268,6 @@ private:
 
   int displayWidth,displayHeight;
 
-  /// Actions
-  QAction * fileSavePictAction;
-  QAction * filePrintAction;
-  QAction * filePrintPreviewAction;
-  QAction * readSetupAction;
-  QAction * fileQuitAction;
-
   QAction * optOnOffAction;
   QAction * optArchiveAction;
   QAction * optAutoElementAction;
@@ -286,12 +275,6 @@ private:
   QAction * optScrollwheelZoomAction;
   QAction * optFontAction;
 
-  QAction * showResetAreaAction;
-  QAction * showResetAllAction;
-  QAction * showApplyAction;
-  QAction * showAddQuickAction;
-  QAction * showPrevPlotAction;
-  QAction * showNextPlotAction;
   QAction * showHideAllAction;
   QAction * showQuickmenuAction;
   QAction * showMapDialogAction;
@@ -299,18 +282,6 @@ private:
   QAction * showTrajecDialogAction;
   QAction * showAnnotationDialogAction;
   QAction * showMeasurementsDialogAction;
-  QAction * showProfilesDialogAction;
-  QAction * showCrossSectionDialogAction;
-  QAction * showWaveSpectrumDialogAction;
-  QAction * zoomOutAction;
-
-  QAction * toggleEditDrawingModeAction;
-
-  QAction * helpDocAction;
-  QAction * helpAccelAction;
-  QAction * helpNewsAction;
-  QAction * helpTestAction;
-  QAction * helpAboutAction;
 
   QAction * toolLevelUpAction;
   QAction * toolLevelDownAction;
@@ -318,26 +289,10 @@ private:
   QAction * toolIdnumUpAction;
   QAction * toolIdnumDownAction;
 
-  QAction * obsUpdateAction;
   QAction * autoUpdateAction;
 
-  QAction * undoAction;
-  QAction * redoAction;
-  QAction * saveAction;
-
-  QShortcut * leftBrowsingAction;
-  QShortcut * rightBrowsingAction;
-  QShortcut * upBrowsingAction;
-  QShortcut * downBrowsingAction;
-
-  QMenuBar   * mainmenubar;
-
-  QMenu * filemenu;
-  QMenu * optmenu;
   QMenu * showmenu;
-  QMenu * helpmenu;
 
-  QToolBar * menuToolbar;
   QToolBar * mainToolbar;
   QToolBar * levelToolbar;
 
@@ -360,7 +315,6 @@ private:
   AnnotationDialog  * annom;
   MeasurementsDialog   * measurementsm;
   HelpDialog        * help;
-//  EditTimeDialog    * editTimeDialog;
   EditItems::ToolBar * editDrawingToolBar;
 
   bool                markTrajPos; //left mouse click -> mark trajectory position
@@ -379,7 +333,6 @@ private:
   StatusGeopos      * sgeopos;
   StatusPlotButtons * statusbuttons;
   ShowSatValues     * showsatval;
-  QPushButton       * obsUpdateB;
   QLabel            * archiveL;
   ClientSelection   * pluginB;
 
@@ -389,9 +342,6 @@ private:
 
   bool          showelem;    ///> show on/off buttons
   bool          autoselect;  ///> autoselect element on mousemove
-
-  // x,y position of right mouse click or move
-  int xclick,yclick;
 
   //QSocket
   TextView *textview;
