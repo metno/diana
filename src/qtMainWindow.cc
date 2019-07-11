@@ -2865,11 +2865,8 @@ void DianaMainWindow::archiveMode()
   om->archiveMode(on);
   sm->archiveMode();
   objm->archiveMode(on);
-  if(on){
-    archiveL->show();
-  }else{
-    archiveL->hide();
-  }
+
+  archiveL->setVisible(on);
 }
 
 void DianaMainWindow::showAnnotations()
