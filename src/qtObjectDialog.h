@@ -74,12 +74,6 @@ public:
   /// read comment belonging to objects
   void commentUpdate();
 
-  /// show dialog
-  void showAll();
-
-  /// hide dialog
-  void hideAll();
-
   /// set mode to read files from archive
   void archiveMode( bool on );
 

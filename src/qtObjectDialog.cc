@@ -377,22 +377,6 @@ void  ObjectDialog::commentClicked(bool on)
   }
 }
 
-/*********************************************/
-
-void ObjectDialog::showAll()
-{
-  this->show();
-  if (commentbutton ->isChecked())
-    objcomment->show();
-}
-
-void ObjectDialog::hideAll()
-{
-  this->hide();
-  if (commentbutton->isChecked())
-    objcomment->hide();
-}
-
 /**********************************************/
 void ObjectDialog::updateTimefileList(bool refresh)
 {
