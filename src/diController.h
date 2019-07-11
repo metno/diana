@@ -310,8 +310,6 @@ public:
   std::vector<std::string> writeLog();
   void readLog(const std::vector<std::string>& vstr,
       const std::string& thisVersion, const std::string& logVersion);
-  ///Enable and disable paint mode
-  void setPaintModeEnabled(bool);
 
   // Miscellaneous get methods
   std::vector<SatPlot*> getSatellitePlots() const;   // Returns a vector of defined satellite plots.
