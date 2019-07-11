@@ -146,8 +146,6 @@ private:
   plottimes_t fieldAnaTime;
   Colour currentColour;
 
-  //called from constructor
-  void init();
   // expand string-variables
   const std::vector<std::string> expanded(const std::vector<std::string>&);
   // decode string, put into elements

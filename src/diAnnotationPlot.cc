@@ -69,15 +69,16 @@ std::vector<std::string> anno_split(const std::string& text, const char* separat
 } // namespace
 
 AnnotationPlot::AnnotationPlot()
+    : plotRequested(false)
+    , editable(false)
+    , isMarked(false)
+    , useAnaTime(false)
 {
-  METLIBS_LOG_SCOPE();
-  init();
 }
 
 AnnotationPlot::AnnotationPlot(const PlotCommand_cp& po)
+    : AnnotationPlot()
 {
-  METLIBS_LOG_SCOPE();
-  init();
   prepare(po);
 }
 
@@ -87,16 +88,6 @@ AnnotationPlot::~AnnotationPlot()
     for (element& e : a.annoElements)
       delete e.classplot;
   }
-}
-
-void AnnotationPlot::init()
-{
-  plotRequested = false;
-  isMarked = false;
-  labelstrings.clear();
-  productname = std::string();
-  editable = false;
-  useAnaTime = false;
 }
 
 const std::string AnnotationPlot::NORWEGIAN = "no";
@@ -167,6 +158,7 @@ void AnnotationPlot::setfillcolour(const Colour& c)
 
 bool AnnotationPlot::prepare(const PlotCommand_cp& pc)
 {
+  METLIBS_LOG_SCOPE();
   LabelPlotCommand_cp cmd = std::dynamic_pointer_cast<const LabelPlotCommand>(pc);
   if (!cmd)
     return false;
