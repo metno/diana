@@ -157,7 +157,6 @@ signals:
   void itemChanged(const QVariantMap &) const;
   void itemRemoved(int) const;
   void itemStatesReplaced();
-  void timesUpdated();
   void setWorkAreaCursor(const QCursor &);
   void unsetWorkAreaCursor();
   void editing(bool);

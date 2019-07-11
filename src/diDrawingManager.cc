@@ -493,7 +493,6 @@ bool DrawingManager::prepare(const miutil::miTime &time)
     itemGroup->setTime(dateTime, allVisible);
   }
 
-  Q_EMIT timesUpdated();
   return found;
 }
 

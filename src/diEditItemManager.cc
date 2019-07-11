@@ -109,7 +109,6 @@ EditItemManager::EditItemManager()
   // Create a default inactive layer group.
   itemGroups_["scratch"] = new EditItems::ItemGroup("scratch", true, false);
 
-  connect(this, SIGNAL(itemAdded(DrawingItemBase *)), SIGNAL(timesUpdated()));
   connect(this, SIGNAL(selectionChanged()), SLOT(handleSelectionChange()));
   connect(this, SIGNAL(incompleteEditing(bool)), SLOT(startStopEditing(bool)));
 
@@ -948,9 +947,6 @@ void EditItemManager::updateActions()
 
 void EditItemManager::updateTimes()
 {
-  // Let other components know about any changes to item times.
-  emit timesUpdated();
-
   // Update the visibility of items based on the current plot time.
   const miutil::miTime& time = PLOTM->getPlotTime();
   prepare(time);

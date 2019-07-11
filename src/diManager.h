@@ -92,9 +92,6 @@ public slots:
   virtual void setEditing(bool enable);
   virtual void setFocus(bool enable);
 
-signals:
-  void timesUpdated();
-
 private:
   // Whether the manager has a finished product to show.
   bool enabled;
