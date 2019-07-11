@@ -182,8 +182,6 @@ public:
   bool updatePlots();
   /// toggle area conservatism
   void keepCurrentArea(bool);
-  /// set colourindices from gui
-  void setColourIndices(std::vector<Colour::ColourInfo>&);
 
   /// reload observations
   void updateObs();
