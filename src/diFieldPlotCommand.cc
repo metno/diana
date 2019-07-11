@@ -68,10 +68,12 @@ void extractFieldSpec(const miutil::KeyValue_v& kvs, FieldPlotCommand::FieldSpec
       fs.elevel = kv.value();
     } else if (kv.key() == "units" || kv.key() == "unit") {
       fs.units = kv.value();
-    } else if (kv.key() == "hour.offset" && CommandParser::isInt(kv.value())) {
-      fs.hourOffset = kv.toInt();
-    } else if (kv.key() == "hour.diff" && CommandParser::isInt(kv.value())) {
-      fs.hourDiff = kv.toInt();
+    } else if (kv.key() == "hour.offset") {
+      if (CommandParser::isInt(kv.value()))
+        fs.hourOffset = kv.toInt();
+    } else if (kv.key() == "hour.diff") {
+      if (CommandParser::isInt(kv.value()))
+        fs.hourDiff = kv.toInt();
     } else if (kv.key() != "unknown") {
       options << kv;
     }
