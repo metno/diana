@@ -178,7 +178,6 @@ DianaMainWindow *DianaMainWindow::self = 0;
 
 DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
     : QMainWindow()
-    , push_command(true)
     , browsing(false)
     , markTrajPos(false)
     , markMeasurementsPos(false)
@@ -1020,10 +1019,7 @@ void DianaMainWindow::recallPlot(const PlotCommand_cpv& vstr, bool replace)
       dialog->putOKString(dialog_com[it->first]);
   }
 
-  // call full plot
-  push_command= false; // do not push this command on stack
-  MenuOK();
-  push_command= true;
+  applyPlotCommandsFromDialogs(false);
 }
 
 void DianaMainWindow::toggleEditDrawingMode()
@@ -1063,9 +1059,7 @@ void DianaMainWindow::resetArea()
 //   to prevent too many (nearly) identical plots on the stack
 void DianaMainWindow::editApply()
 {
-  push_command= false;
-  MenuOK();
-  push_command= true;
+  applyPlotCommandsFromDialogs(false);
 }
 
 namespace {
@@ -1130,6 +1124,12 @@ void DianaMainWindow::updatePlotElements()
 void DianaMainWindow::MenuOK()
 {
   METLIBS_LOG_SCOPE();
+  applyPlotCommandsFromDialogs(true);
+}
+
+void DianaMainWindow::applyPlotCommandsFromDialogs(bool addToHistory)
+{
+  METLIBS_LOG_SCOPE();
 
   diutil::OverrideCursor waitCursor;
 
@@ -1148,7 +1148,7 @@ void DianaMainWindow::MenuOK()
   setPlotTime(timeNavigator->selectedTime());
 
   // push command on history-stack
-  if (push_command) { // only when proper menuok
+  if (addToHistory) { // only when proper menuok
     // make shortname
     std::string plotname;
     for (const std::string& sn : shortnames)

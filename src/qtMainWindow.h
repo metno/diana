@@ -254,13 +254,13 @@ private:
   /// Adds a standard dialog (fields, ...)
   void addStandardDialog(DataDialog* dialog);
 
+  void applyPlotCommandsFromDialogs(bool addToHistory);
   void initCoserverClient();
   void createHelpDialog();
   void vcrossEditManagerEnableSignals();
   DianaImageSource* imageSource();
 
 private:
-  bool push_command;   // push current plot on stack
   bool browsing;       // user browsing through plot-stack
   BrowserBox* browser; // shows plot-stack
   bool updateBrowser();// update browser-window
