@@ -85,10 +85,7 @@ public:
   DrawingItemBase *createItem(const QString &type) override;
   QString loadDrawing(const QString &name, const QString &fileName) override;
 
-  QUndoStack *undoStack();
-  QUndoView *getUndoView();
   void pushUndoCommands();
-  bool canRedo() const;
   bool canUndo() const;
   bool hasIncompleteItem() const;
   bool needsRepaint() const;
@@ -103,8 +100,6 @@ public:
 
   void enableItemChangeNotification(bool = true);
   void emitItemChanged() const;
-
-  void setItemsVisibilityForced(bool);
 
   QString plotElementTag() const override;
 
@@ -187,7 +182,6 @@ private:
   quint32 hitOffset_;
   QPoint lastHoverPos_;
   QUndoStack undoStack_;
-  UndoView *undoView_;
 
   struct ToolTip {
     int priority;
@@ -232,8 +226,6 @@ private:
   void updateActionsAndTimes();
 
   bool itemChangeNotificationEnabled_;
-  bool itemsVisibilityForced_;
-  bool itemPropsDirectlyEditable_;
 
   bool cycleHitOrder(QKeyEvent *);
 

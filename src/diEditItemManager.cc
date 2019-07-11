@@ -104,9 +104,7 @@ EditItemManager::EditItemManager()
   , repaintNeeded_(false)
   , skipRepaint_(false)
   , hitOffset_(0)
-  , undoView_(0)
   , itemChangeNotificationEnabled_(false)
-  , itemsVisibilityForced_(false)
 {
   // Create a default inactive layer group.
   itemGroups_["scratch"] = new EditItems::ItemGroup("scratch", true, false);
@@ -308,16 +306,6 @@ bool EditItemManager::processInput(const PlotCommand_cpv&)
   return false;
 }
 
-QUndoView *EditItemManager::getUndoView()
-{
-  if (!undoView_) {
-    undoView_ = new UndoView(&undoStack_);
-    undoView_->setWindowTitle("Drawing tool undo/redo stack");
-  }
-
-  return undoView_;
-}
-
 // Adds an item to the scene. \a incomplete indicates whether the item is in the process of being manually placed.
 void EditItemManager::addItem(DrawingItemBase *item, bool incomplete, bool skipRepaint)
 {
@@ -393,11 +381,6 @@ void EditItemManager::updateItem(DrawingItemBase *item, const QVariantMap &props
 void EditItemManager::reset()
 {
   undoStack_.clear();
-}
-
-QUndoStack * EditItemManager::undoStack()
-{
-  return &undoStack_;
 }
 
 void EditItemManager::mousePress(QMouseEvent *event)
@@ -723,7 +706,7 @@ void EditItemManager::plot(DiGLPainter* gl, bool under, bool over)
       if (item == hit)
         modes |= EditItemBase::Hovered;
     }
-    if (itemsVisibilityForced_ || isItemVisible(item)) {
+    if (isItemVisible(item)) {
       applyPlotOptions(gl, item);
       setFromLatLonPoints(item, item->getLatLonPoints());
       Editing(item)->draw(gl, modes, false, Properties::PropertiesEditor::instance()->isVisible());
@@ -767,11 +750,6 @@ bool EditItemManager::canUndo() const
   return undoStack_.canUndo();
 }
 
-bool EditItemManager::canRedo() const
-{
-  return undoStack_.canRedo();
-}
-
 /**
  * Returns a list of all drawing items from all item groups. The items from
  * each group will be returned in the order in which they are stored.
@@ -798,7 +776,7 @@ QList<DrawingItemBase *> EditItemManager::findHitItems(const QPointF &pos,
   while (it != all.constBegin()) {
     --it;
     DrawingItemBase *item = *it;
-    if ((!itemsVisibilityForced_) && (!item->isVisible()))
+    if (!item->isVisible())
       continue;
     DrawingItemBase::HitType type = item->hit(pos, true);
     if (type != DrawingItemBase::None)
@@ -1040,12 +1018,6 @@ void EditItemManager::emitItemChanged() const
     }
     lastCallMatched = false;
   }
-}
-
-void EditItemManager::setItemsVisibilityForced(bool forced)
-{
-  itemsVisibilityForced_ = forced;
-  repaint(); // or a full handleLayersUpdate()?
 }
 
 QString EditItemManager::plotElementTag() const

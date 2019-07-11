@@ -735,34 +735,6 @@ QList<DrawingItemBase *> DrawingManager::findHitItems(const QPointF &pos,
   return hitItems;
 }
 
-/**
- * Returns a vector containing triples of IDs, labels and coordinates for
- * polylines in the KML file with the given \a fileName.
- */
-vector<PolyLineInfo> DrawingManager::loadCoordsFromKML(const string &fileName)
-{
-  vector<PolyLineInfo> info;
-
-  QString error;
-  QString fname = QString::fromStdString(fileName);
-  QList<DrawingItemBase *> items = KML::createFromFile(fname, fname, error);
-
-  if (error.isEmpty()) {
-    for (DrawingItemBase* item : items) {
-      DrawingItem_PolyLine::PolyLine *polyLine = dynamic_cast<DrawingItem_PolyLine::PolyLine *>(item);
-      if (polyLine) {
-        vector<LonLat> coords;
-        for (QPointF p : polyLine->getLatLonPoints())
-          coords.push_back(LonLat::fromDegrees(p.y(), p.x()));
-
-        info.push_back(PolyLineInfo(polyLine->id(), polyLine->property("Placemark:name").toString().toStdString(), coords));
-      }
-    }
-  }
-
-  return info;
-}
-
 bool DrawingManager::isEmpty() const
 {
   QMap<QString, EditItems::ItemGroup *>::const_iterator it;
@@ -827,24 +799,4 @@ void DrawingManager::setFilter(const QHash<QString, QStringList> &filter)
 void DrawingManager::setAllItemsVisible(bool enable)
 {
   allItemsVisible_ = enable;
-}
-
-/**
- * Returns the layer group identified by the given name.
- */
-EditItems::ItemGroup *DrawingManager::itemGroup(const QString &name)
-{
-  if (itemGroups_.contains(name))
-    return itemGroups_.value(name);
-  else
-    return 0;
-}
-
-/**
- * Removes the layer group with the given name. The items held within are not deleted.
- */
-void DrawingManager::removeItemGroup(const QString &name)
-{
-  itemGroups_.remove(name);
-  Q_EMIT updated();
 }

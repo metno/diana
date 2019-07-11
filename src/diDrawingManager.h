@@ -123,10 +123,6 @@ public:
   bool isItemVisible(DrawingItemBase *item) const;
   void setFilter(const QHash<QString, QStringList> &filter);
 
-  std::vector<PolyLineInfo> loadCoordsFromKML(const std::string &fileName);
-  EditItems::ItemGroup *itemGroup(const QString &name);
-  void removeItemGroup(const QString &name);
-
   plottimes_t getTimes() const override;
 
 public slots:
@@ -134,7 +130,6 @@ public slots:
 
 signals:
   void drawingLoaded(const QString &name);
-  void itemsClicked(const QList<DrawingItemBase *> &items);
   void itemsHovered(const QList<DrawingItemBase *> &items);
   void updated();
 
@@ -153,7 +148,6 @@ protected:
   bool allItemsVisible_;
 
 private:
-  GridConverter gc_;
   QString workDir_;
 
   QMap<QString, QSet<QString> > symbolSections_;
