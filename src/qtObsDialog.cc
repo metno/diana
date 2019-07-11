@@ -111,12 +111,11 @@ ObsDialog::ObsDialog(QWidget* parent, Controller* llctrl)
 
   loadDialogInfo();
 
-  if (nr_plot == 0)
+  if (nr_plot() == 0)
     return;
 
   plotbox->setCurrentIndex(0);
-  savelog.clear();
-  savelog.resize(nr_plot);
+  savelog.resize(nr_plot());
 
   multiplot = false;
 
@@ -157,7 +156,6 @@ std::string ObsDialog::name() const
 void ObsDialog::loadDialogInfo()
 {
   dialog = m_ctrl->initObsDialog();
-  nr_plot = dialog.plottype.size();
 
   plotbox->clear();
   for (const ObsDialogInfo::PlotType& plt : dialog.plottype) {
@@ -312,11 +310,11 @@ PlotCommand_cpv ObsDialog::getOKString()
 {
   PlotCommand_cpv str;
 
-  if (nr_plot == 0)
+  if (nr_plot() == 0)
     return str;
 
   if (multiplot) {
-    for (int i=nr_plot-1; i>-1; i--) {
+    for (int i=nr_plot()-1; i>-1; i--) {
       if (obsWidget[i]->initialized()) {
         if (PlotCommand_cp cmd = obsWidget[i]->getOKString())
           str.push_back(cmd);
@@ -335,7 +333,7 @@ vector<string> ObsDialog::writeLog()
 {
   vector<string> vstr;
 
-  if (nr_plot == 0)
+  if (nr_plot() == 0)
     return vstr;
 
   // first write the plot type selected now
@@ -343,7 +341,7 @@ vector<string> ObsDialog::writeLog()
     vstr.push_back(miutil::mergeKeyValue(cmd->all()));
 
   //then the others
-  for (int i=0; i<nr_plot; i++) {
+  for (int i=0; i<nr_plot(); i++) {
     if (i != m_selected) {
       if (obsWidget[i]->initialized()) {
         if (KVListPlotCommand_cp cmd = obsWidget[i]->getOKString(true))
@@ -369,7 +367,7 @@ void ObsDialog::readLog(const vector<string>& vstr, const string& thisVersion, c
 
     const miutil::KeyValue_v kvs = miutil::splitKeyValue(vstr[n]);
     const int index = findPlotnr(kvs);
-    if (index < nr_plot) {
+    if (index < nr_plot()) {
       if (obsWidget[index]->initialized() || first) {
         if (first) {  //will be selected
           first = false;
@@ -392,7 +390,7 @@ std::string ObsDialog::getShortname()
 {
   std::string name;
 
-  if (nr_plot == 0)
+  if (nr_plot() == 0)
     return name;
 
   name = obsWidget[m_selected]->getShortname();
@@ -406,7 +404,7 @@ std::string ObsDialog::getShortname()
 void ObsDialog::putOKString(const PlotCommand_cpv& vstr)
 {
   //unselect everything
-  for (int i=0; i<nr_plot; i++) {
+  for (int i=0; i<nr_plot(); i++) {
     if ( obsWidget[i]->initialized() ) {
       obsWidget[i]->setFalse();
     }
@@ -428,7 +426,7 @@ void ObsDialog::putOKString(const PlotCommand_cpv& vstr)
       continue;
 
     int l = findPlotnr(c->all());
-    if (l < nr_plot) {
+    if (l < nr_plot()) {
       plotbox->setCurrentIndex(l);
       plotSelected(l);
       obsWidget[l]->putOKString(cmd);
@@ -445,7 +443,7 @@ int ObsDialog::findPlotnr(const miutil::KeyValue_v& str)
     if (l >= 0)
       return l;
   }
-  return nr_plot; // not found
+  return nr_plot(); // not found
 }
 
 void ObsDialog::makeExtension()

@@ -119,9 +119,9 @@ private:
   bool newCriteriaString();
   void updateExtension();
   int findPlotnr(const miutil::KeyValue_v&);
+  int nr_plot() const { return dialog.plottype.size(); }
 
 private:
-  int nr_plot;
   std::vector<miutil::KeyValue_v> savelog;
   int m_selected;
   QComboBox* plotbox;
