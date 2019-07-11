@@ -61,14 +61,14 @@ FieldModelInfo::FieldModelInfo(const std::string& mn, const std::string& si)
 }
 
 FieldRequest::FieldRequest()
-    : hourOffset(0)
-    , minOffset(0)
-    , time_tolerance(0)
-    , refhour(-1)
+    : refhour(-1)
     , refoffset(0)
-    , allTimeSteps(false)
     , standard_name(false)
     , predefinedPlot(true)
     , flightlevel(false)
+    , hourOffset(0)
+    , minOffset(0)
+    , time_tolerance(0)
+    , allTimeSteps(false)
 {
 }
