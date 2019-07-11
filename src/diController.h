@@ -125,7 +125,6 @@ public:
   ObjectManager* getObjectManager() { return objm; };
   StationManager* getStationManager() { return stam; };
   SatManager* getSatelliteManager() { return satm; };
-  ObsManager* getObservationManager() { return obsm; };
 
   void addManager(const std::string &name, Manager *man);
   Manager *getManager(const std::string &name);
