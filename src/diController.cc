@@ -181,12 +181,6 @@ vector<Rectangle> Controller::plotAnnotations(DiGLPainter* gl)
   return plotm->plotAnnotations(gl);
 }
 
-// get plotwindow corners in GL-coordinates
-const Rectangle& Controller::getPlotSize()
-{
-  return plotm->getPlotSize();
-}
-
 // get plot area (incl. projection)
 const Area& Controller::getMapArea()
 {

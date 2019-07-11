@@ -142,8 +142,6 @@ public:
   std::vector<AnnotationPlot*> getAnnotations();
   /// plot annotations only
   std::vector<Rectangle> plotAnnotations(DiGLPainter* gl);
-  /// get plotwindow corners in GL-coordinates
-  const Rectangle& getPlotSize();
   /// get plot area (incl. projection)
   const Area& getMapArea();
 
