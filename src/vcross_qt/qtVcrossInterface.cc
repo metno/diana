@@ -173,7 +173,7 @@ void VcrossWindowInterface::timeListChangedSlot()
     times.insert(vcrossm->getTimeValue(i));
   }
 
-  Q_EMIT emitTimes("vcross", times);
+  Q_EMIT sendTimes("vcross", times, true);
 }
 
 

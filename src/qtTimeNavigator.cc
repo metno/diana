@@ -226,11 +226,6 @@ void TimeNavigator::timerEvent(QTimerEvent *e)
   }
 }
 
-void TimeNavigator::insertAndUse(const std::string& datatype, const plottimes_t& times)
-{
-  insert(datatype, times, true);
-}
-
 void TimeNavigator::insert(const std::string& datatype, const plottimes_t& vt, bool use)
 {
   tslider->insert(datatype, vt, use);

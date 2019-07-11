@@ -286,6 +286,11 @@ void VprofWindow::timeChanged()
   Q_EMIT setTime("vprof", t);
 }
 
+void VprofWindow::emitTimes(const plottimes_t& times)
+{
+  Q_EMIT sendTimes("vprof", times, true);
+}
+
 /***************************************************************************/
 
 void VprofWindow::updateStation()
@@ -351,7 +356,7 @@ void VprofWindow::quitClicked()
 
   active = false;
   Q_EMIT VprofHide();
-  Q_EMIT emitTimes("vprof", plottimes_t());
+  emitTimes(plottimes_t());
 }
 
 /***************************************************************************/
@@ -430,7 +435,7 @@ void VprofWindow::updateTimeBox()
   for (const miutil::miTime& t : times)
     timeBox->addItem(QString::fromStdString(t.isoTime(false, false)));
 
-  Q_EMIT emitTimes("vprof", times);
+  emitTimes(times);
 }
 
 /***************************************************************************/

@@ -272,6 +272,11 @@ void SpectrumWindow::timeChanged()
   Q_EMIT setTime("spectrum", t);
 }
 
+void SpectrumWindow::emitTimes(const plottimes_t& times)
+{
+  Q_EMIT sendTimes("spectrum", times, true);
+}
+
 void SpectrumWindow::realizationChanged(int value)
 {
   spectrumm->setRealization(value);
@@ -333,7 +338,7 @@ void SpectrumWindow::quitClicked()
 
   active = false;
   Q_EMIT SpectrumHide();
-  Q_EMIT emitTimes("spectrum", plottimes_t());
+  emitTimes(plottimes_t());
 }
 
 
@@ -445,7 +450,7 @@ void SpectrumWindow::updateTimeBox()
     timeBox->addItem(QString::fromStdString(t.isoTime(false, false)));
   }
 
-  Q_EMIT emitTimes("spectrum", times);
+  emitTimes(times);
 }
 
 void SpectrumWindow::stationBoxActivated(int)

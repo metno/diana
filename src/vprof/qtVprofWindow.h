@@ -106,6 +106,7 @@ private:
   void updateTimeBox();
   void updateStation();
   void timeChanged();
+  void emitTimes(const plottimes_t& times);
 
   miutil::miTime mainWindowTime;
   bool onlyObs; // if only observations, stations changes with time
@@ -135,7 +136,7 @@ Q_SIGNALS:
   void showsource(const std::string, const std::string = ""); // activate help
   void stationChanged(const std::vector<std::string>&);
   void modelChanged();
-  void emitTimes(const std::string&, const plottimes_t&);
+  void sendTimes(const std::string& datatype, const plottimes_t& times, bool use);
   void setTime(const std::string&, const miutil::miTime&);
 };
 #endif

@@ -845,18 +845,18 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
   connect(fm, &FieldDialog::sendTimes, timeNavigator, &TimeNavigator::insert);
   connect(om, &ObsDialog::sendTimes, timeNavigator, &TimeNavigator::insert);
   connect(sm, &SatDialog::sendTimes, timeNavigator, &TimeNavigator::insert);
-  connect(em, &EditDialog::emitTimes, timeNavigator, &TimeNavigator::insertAndUse);
+  connect(em, &EditDialog::sendTimes, timeNavigator, &TimeNavigator::insert);
   connect(objm, &ObjectDialog::sendTimes, timeNavigator, &TimeNavigator::insert);
   if (vpWindow) {
-    connect(vpWindow, &VprofWindow::emitTimes, timeNavigator, &TimeNavigator::insertAndUse);
+    connect(vpWindow, &VprofWindow::sendTimes, timeNavigator, &TimeNavigator::insert);
     connect(vpWindow, &VprofWindow::setTime, timeNavigator, &TimeNavigator::setTimeForDataType);
   }
   if (VcrossInterface* vc = vcInterface.get()) {
-    connect(vc, &VcrossInterface::emitTimes, timeNavigator, &TimeNavigator::insertAndUse);
+    connect(vc, &VcrossInterface::sendTimes, timeNavigator, &TimeNavigator::insert);
     connect(vc, &VcrossInterface::setTime, timeNavigator, &TimeNavigator::setTimeForDataType);
   }
   if (spWindow) {
-    connect(spWindow, &SpectrumWindow::emitTimes, timeNavigator, &TimeNavigator::insertAndUse);
+    connect(spWindow, &SpectrumWindow::sendTimes, timeNavigator, &TimeNavigator::insert);
     connect(spWindow, &SpectrumWindow::setTime, timeNavigator, &TimeNavigator::setTimeForDataType);
   }
 

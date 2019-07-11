@@ -98,6 +98,8 @@ private:
 
   void getFieldClassSpecs();
 
+  void emitTimes(const plottimes_t& times);
+
 private slots:
   // Field slots
   void fgroupClicked( int index );
@@ -161,7 +163,7 @@ Q_SIGNALS:
   /// show documentation
   void showsource(const std::string, const std::string="");
   /// emit edit times
-  void emitTimes(const std::string&, const plottimes_t&);
+  void sendTimes(const std::string& datatype, const plottimes_t& times, bool use);
   /// update field dialog
   void emitFieldEditUpdate(std::string);
   /// editing on or off

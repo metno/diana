@@ -1244,7 +1244,7 @@ void EditDialog::exitClicked()
   emit EditHide();
   emit editApply();
   // empty timeslider producttime
-  emit emitTimes("product", plottimes_t());
+  emitTimes(plottimes_t());
   inEdit= false;
   productApproved= false;
   enew->newActive=false;
@@ -1461,7 +1461,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
   if (!t.undef()) {
     Times.insert(t);
   }
-  Q_EMIT emitTimes("product", Times);
+  emitTimes(Times);
 
   // update field dialog
   for (unsigned int i=0; i<currprod.fields.size(); i++){
@@ -1668,7 +1668,7 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
   if (m_editm->getProductTime(t)){
     plottimes_t Times;
     Times.insert(t);
-    Q_EMIT emitTimes("product", Times);
+    emitTimes(Times);
     // update field dialog
     for (unsigned int i=0; i<currprod.fields.size(); i++){
       // add a new selected field in the field dialog
@@ -1763,4 +1763,9 @@ void EditDialog::getFieldClassSpecs()
   m_editm->getFieldPlotOptions(currprod.fields[0].name, po);
   diutil::parseClasses(po, classValues, classNames, maxlen);
   classValuesLocked.insert(classValuesLocked.end(), classValues.size(), false);
+}
+
+void EditDialog::emitTimes(const plottimes_t& times)
+{
+  Q_EMIT sendTimes("product", times, true);
 }

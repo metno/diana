@@ -85,7 +85,7 @@ Q_SIGNALS: // emitted by vcross
   void vcrossHistoryNext();
 
   //! time list from crossections updated
-  void emitTimes(const std::string&, const plottimes_t&);
+  void sendTimes(const std::string& datatype, const plottimes_t& times, bool use);
 
   //! currently selected time has changed in vcross
   void setTime(const std::string&, const miutil::miTime&);

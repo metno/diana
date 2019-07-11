@@ -71,8 +71,7 @@ Q_SIGNALS:
   void lastStep();
 
 public Q_SLOTS:
-  ///add new times for datatype
-  void insertAndUse(const std::string& datatype, const plottimes_t&);
+  /// add new times for datatype
   void insert(const std::string& datatype, const plottimes_t&, bool use);
 
   /// force new value

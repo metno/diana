@@ -102,6 +102,7 @@ private:
   void updateTimeBox();
   void stationChanged();
   void timeChanged();
+  void emitTimes(const plottimes_t& times);
 
   miutil::miTime mainWindowTime;
 
@@ -132,7 +133,7 @@ Q_SIGNALS:
   void showsource(const std::string, const std::string=""); // activate help
   void spectrumChanged(const QString& );
   void spectrumSetChanged();
-  void emitTimes(const std::string&, const plottimes_t&);
+  void sendTimes(const std::string& datatype, const plottimes_t& times, bool use);
   void setTime(const std::string&, const miutil::miTime&);
 };
 
