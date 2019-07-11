@@ -322,8 +322,6 @@ private:
   std::vector<std::string> currentLevels;
   std::vector<std::string> currentIdnums;
 
-  QColor* color;
-
   QTreeView* modelbox;
   QSortFilterProxyModel* modelFilter;
   QStandardItemModel* modelItems;

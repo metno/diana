@@ -26,9 +26,6 @@
  along with Diana; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-//#define DEBUGREDRAW
-
-#include "diana_config.h"
 
 #include "qtFieldDialog.h"
 
