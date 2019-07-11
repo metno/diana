@@ -261,8 +261,6 @@ bool MapManager::fillMapInfo(const miutil::KeyValue_v& kvs, MapInfo& mi,
         mi.symbol = kv.toInt();
         mi.special = true;
       } else if (kv.key() == "dbfcol") {
-        mi.dbfcol = kv.value();
-        mi.special = true;
       }
     }
   }

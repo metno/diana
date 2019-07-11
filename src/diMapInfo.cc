@@ -8,7 +8,6 @@ void MapInfo::reset()
   logok = true;
   special = false;
   symbol = 0;
-  dbfcol = "";
 
   land.ison = false;
   land.fillcolour = "white";

@@ -45,8 +45,6 @@ struct MapInfo {
   MapElementOption frame;    ///< area-frame options
   bool special;              ///< plot a symbol instead of a point (special case)
   int symbol;                ///< symbol number in ttf file (special case)
-  std::string dbfcol;        ///< column name in dbf file, values to be plottet
-                             ///< (special case)
 
   void reset();
 };
