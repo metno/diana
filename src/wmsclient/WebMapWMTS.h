@@ -243,7 +243,7 @@ public:
   /* set with URL pointing to GetCapabilities. need to call refresh to
    * actually fetch data */
   WebMapWMTS(const std::string& identifier,
-      const QUrl& service, QNetworkAccessManager* network);
+      const QUrl& url, QNetworkAccessManager* network);
 
   ~WebMapWMTS();
 
