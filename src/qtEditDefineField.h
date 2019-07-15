@@ -36,7 +36,6 @@
 #include <vector>
 #include <map>
 
-class Controller;
 class EditManager;
 class QLabel;
 class QComboBox;
@@ -56,7 +55,7 @@ class EditDefineFieldDialog: public QDialog
   Q_OBJECT
 
 public:
-  EditDefineFieldDialog(QWidget* parent, Controller*,int n, EditProduct ep);
+  EditDefineFieldDialog(QWidget* parent, EditManager* editm, int n, EditProduct ep);
 
   bool fieldSelected()
     {return not selectedfield.empty();}
@@ -85,7 +84,6 @@ private slots:
   void Refresh();
 
 private:
-  Controller* m_ctrl;
   EditManager* m_editm;
 
   QComboBox* prodnamebox;   //list of available products

@@ -86,9 +86,4 @@ struct EditEvent {
   }
 };
 
-const int numObjectTypes= 5;
-
-const std::string ObjectTypeNames[numObjectTypes]=
-{"edittool","front","symbol","area","anno"};
-
 #endif // diDrawingTypes_h

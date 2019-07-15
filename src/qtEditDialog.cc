@@ -277,7 +277,7 @@ EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
   connect(enew, SIGNAL(EditNewHelp()), SLOT(helpClicked()));
   connect(enew, SIGNAL(EditNewCancel()), SLOT(EditNewCancel()));
 
-  ecomment = new EditComment( this, m_ctrl,true );
+  ecomment = new EditComment(this, m_objm, true);
   connect(ecomment,SIGNAL(CommentHide()),SLOT(hideComment()));
   ecomment->hide();
 }

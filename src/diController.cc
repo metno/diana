@@ -591,28 +591,6 @@ miutil::miTime Controller::getFieldReferenceTime()
   return plotm->fieldplots()->getFieldReferenceTime();
 }
 
-//object dialog
-
-vector<std::string> Controller::getObjectNames(bool useArchive)
-{
-  return objm->getObjectNames(useArchive);
-}
-
-void Controller::setObjAuto(bool autoFile)
-{
-  plotm->setObjAuto(autoFile);
-}
-
-vector<ObjFileInfo> Controller::getObjectFiles(std::string objectname,
-    bool refresh) {
-  return objm->getObjectFiles(objectname,refresh);
-}
-
-map<std::string,bool> Controller::decodeTypeString( std::string token)
-{
-  return objm->decodeTypeString(token);
-}
-
 bool Controller::getQuickMenus(vector<QuickMenuDefs>& qm)
 {
   return LocalSetupParser::getQuickMenus(qm);

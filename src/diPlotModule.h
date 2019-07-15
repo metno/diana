@@ -29,8 +29,6 @@
 #ifndef diPlotModule_h
 #define diPlotModule_h
 
-#include "diDisplayObjects.h"
-#include "diDrawingTypes.h"
 #include "diPlot.h"
 #include "diPlotCommand.h"
 #include "diPlotElement.h"
@@ -287,10 +285,6 @@ public:
       const std::string& productName, bool newProduct);
 
   void deleteAllEditAnnotations();
-
-  //Objects
-  ///objects follow main plot time
-  void setObjAuto(bool autoF);
 
   void setPanning(bool pan);
   bool isPanning() const;

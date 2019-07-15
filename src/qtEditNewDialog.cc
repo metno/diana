@@ -493,7 +493,7 @@ void EditNewDialog::setFieldLabel(){
 void EditNewDialog::handleObjectButton(int /*num*/)
 {
   if (m_editm) {
-    EditDefineFieldDialog edf(this,m_ctrl,-1,products[currprod]);
+    EditDefineFieldDialog edf(this, m_editm, -1, products[currprod]);
     if (!edf.exec())
       return;
 
@@ -512,9 +512,10 @@ void EditNewDialog::handleObjectButton(int /*num*/)
 void EditNewDialog::handleFieldButton(int num)
 {
   METLIBS_LOG_SCOPE();
-  if( m_editm ){
-    EditDefineFieldDialog edf(this,m_ctrl, num, products[currprod]);
-    if (!edf.exec()) return;
+  if (m_editm) {
+    EditDefineFieldDialog edf(this, m_editm, num, products[currprod]);
+    if (!edf.exec())
+      return;
 
     std::string s;
     if (edf.fieldSelected()){

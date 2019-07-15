@@ -1378,11 +1378,6 @@ void PlotModule::deleteAllEditAnnotations()
   diutil::delete_all_and_clear(editVap);
 }
 
-void PlotModule::setObjAuto(bool autoF)
-{
-  objm->setObjAuto(autoF);
-}
-
 bool PlotModule::startTrajectoryComputation()
 {
   METLIBS_LOG_SCOPE();

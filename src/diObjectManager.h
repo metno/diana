@@ -184,8 +184,6 @@ public:
   void changeMarkedComplexText(const std::vector<std::string>& symbolText, const std::vector<std::string>& xText);
   /// get text list from complex weather symbol
   std::set <std::string> getComplexList();
-  /// decode string with types of objects to plot
-  std::map <std::string,bool> decodeTypeString(std::string);
 
   /// handles met. objects plot info strings
   void prepareObjects(const PlotCommand_cpv& inp);

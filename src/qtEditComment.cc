@@ -36,7 +36,6 @@
 #include "qtEditComment.h"
 
 #include "qtToggleButton.h"
-#include "diController.h"
 #include "diObjectManager.h"
 
 #include <QVBoxLayout>
@@ -44,15 +43,14 @@
 #include <QString>
 #include <QTextEdit>
 
-
-/*********************************************/
-EditComment::EditComment( QWidget* parent, Controller* llctrl,
-    bool edit)
-: QDialog(parent), m_ctrl(llctrl), m_objm(0), mEdit(0), mEdit2(0)
+EditComment::EditComment(QWidget* parent, ObjectManager* objm, bool edit)
+    : QDialog(parent)
+    , m_objm(objm)
+    , mEdit(0)
+    , mEdit2(0)
+    , inComment(false)
+    , inEditSession(edit)
 {
-  m_objm= m_ctrl->getObjectManager();
-  inEditSession = edit;
-  inComment = false;
   setWindowTitle("Comments[*]");
   setGeometry(100, 100, 480, 480);
 

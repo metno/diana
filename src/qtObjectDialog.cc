@@ -197,7 +197,7 @@ ObjectDialog::ObjectDialog(QWidget* parent, Controller* llctrl)
   vlayout->addLayout( gridlayout );
   vlayout->addLayout(createStandardButtons(true));
 
-  objcomment = new EditComment( this, m_ctrl,false );
+  objcomment = new EditComment(this, m_objm, false);
   connect(objcomment, &EditComment::CommentHide, this, &ObjectDialog::hideComment);
   objcomment->hide();
 
@@ -243,7 +243,7 @@ void ObjectDialog::timefileClicked(int tt)
   //update the selectedFileList box
   updateSelectedFileList();
 
-  m_ctrl->setObjAuto(tt==0);
+  m_objm->setObjAuto(tt == 0);
 }
 
 /*********************************************/
@@ -359,7 +359,7 @@ void ObjectDialog::updateTimefileList(bool refresh)
 
   // get the list of object files
   if (index>=0 && index<int(objectnames.size()))
-    files= m_ctrl->getObjectFiles(objectnames[index],refresh);
+    files = m_objm->getObjectFiles(objectnames[index], refresh);
   else
     files.clear();
 
@@ -686,7 +686,7 @@ void ObjectDialog::archiveMode(bool on)
 void ObjectDialog::updateObjectNames()
 {
   namebox->clear();
-  objectnames = m_ctrl->getObjectNames(useArchive);
+  objectnames = m_objm->getObjectNames(useArchive);
   for (const std::string& on : objectnames)
     namebox->addItem(QString::fromStdString(on));
 }

@@ -1194,11 +1194,6 @@ void ObjectManager::undofrontClear()
   editobjects.undofrontClear();
 }
 
-map <std::string,bool> ObjectManager::decodeTypeString(std::string token)
-{
-  return WeatherObjects::decodeTypeString(token);
-}
-
 bool ObjectManager::_isafile(const std::string& name)
 {
   FILE *fp;

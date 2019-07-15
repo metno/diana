@@ -55,6 +55,10 @@
 using namespace::miutil;
 using namespace std;
 
+namespace {
+const std::string ObjectTypeNames[] = {"edittool", "front", "symbol", "area", "anno"};
+} // namespace
+
 WeatherObjects::WeatherObjects()
     : xcopy(0)
     , ycopy(0)

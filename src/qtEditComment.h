@@ -33,7 +33,6 @@
 
 class QTextEdit;
 class ToggleButton;
-class Controller;
 class ObjectManager;
 
 /**
@@ -43,6 +42,7 @@ class EditComment :public QDialog
 {
   Q_OBJECT
 public:
+  EditComment(QWidget* parent, ObjectManager* objm, bool edit);
 
   /// start writing comments
   void startComment();
@@ -53,12 +53,10 @@ public:
   /// stop writing comments
   void stopComment();
 
-  EditComment( QWidget* parent, Controller* llctrl, bool edit);
 protected:
   void closeEvent( QCloseEvent* );
 
 private:
-  Controller*    m_ctrl;
   ObjectManager* m_objm;
 
   QTextEdit * mEdit;

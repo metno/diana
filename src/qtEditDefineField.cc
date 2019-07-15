@@ -45,7 +45,6 @@
 
 #include "qtUtility.h"
 #include "qtEditDefineField.h"
-#include "diController.h"
 #include "diEditManager.h"
 
 #define MILOGGER_CATEGORY "diana.EditDefineFieldDialog"
@@ -54,15 +53,14 @@
 using namespace std;
 
 /*********************************************/
-EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
-    Controller* llctrl,
-    int n,EditProduct ep)
-: QDialog(parent), m_ctrl(llctrl), EdProd(ep), num(n)
+EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent, EditManager* editm, int n, EditProduct ep)
+    : QDialog(parent)
+    , m_editm(editm)
+    , EdProd(ep)
+    , num(n)
 {
   METLIBS_LOG_SCOPE();
   setModal(true);
-
-  m_editm= m_ctrl->getEditManager();
 
   if (num==-1){
     fieldname= tr("Objects").toStdString();
@@ -342,9 +340,8 @@ void EditDefineFieldDialog::filenameSlot(QListWidgetItem* item)
 {
   METLIBS_LOG_SCOPE();
   selectedProdIndex=filenames->row(item);
-  if (num==-1){
-    map<std::string,bool> useEditobject =
-        m_ctrl->decodeTypeString(vselectedprod[selectedProdIndex].selectObjectTypes);
+  if (num == -1) {
+    std::map<std::string, bool> useEditobject = WeatherObjects::decodeTypeString(vselectedprod[selectedProdIndex].selectObjectTypes);
     setCheckedCbs(useEditobject);
   }
 }

@@ -32,11 +32,9 @@
 #include "diAreaTypes.h"
 #include "diColour.h"
 #include "diCommonTypes.h"
-#include "diDrawingTypes.h"
 #include "diEditTypes.h"
 #include "diMapInfo.h"
 #include "diMapMode.h"
-#include "diObjTypes.h"
 #include "diObsDialogInfo.h"
 #include "diPlotCommand.h"
 #include "diQuickMenuTypes.h"
@@ -257,16 +255,6 @@ public:
   EditDialogInfo initEditDialog();
   /// get text list from complex weather symbol
   std::set<std::string> getComplexList();
-
-  // object-dialog methods
-  /// get ObjectNames from setup file to be used in dialog etc.
-  std::vector<std::string> getObjectNames(bool);
-  ///objects follow main plot time
-  void setObjAuto(bool autoFile);
-  /// returns list of objectfiles for use in dialog
-  std::vector<ObjFileInfo> getObjectFiles(std::string objectname, bool refresh);
-  /// decode string with types of objects to plot
-  std::map<std::string,bool> decodeTypeString(std::string);
 
   // various GUI-methods
   bool getQuickMenus(std::vector<QuickMenuDefs>& qm);
