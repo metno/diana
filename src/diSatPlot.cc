@@ -98,19 +98,6 @@ void SatPlot::getAnnotation(std::string &str, Colour &col) const
     str.erase();
 }
 
-void SatPlot::getSatName(std::string &str)
-{
-  if (satdata->approved) {
-    str = miutil::trimmed(satdata->satellite_name + satdata->filetype);
-    if (satdata->mosaic)
-      str+=" MOSAIKK ";
-    else
-      str+= " ";
-    str += satdata->time.isoTime();
-  } else
-    str.erase();
-}
-
 void SatPlot::setData(Sat *data)
 {
   clearData();
