@@ -1,3 +1,9 @@
+diana-3.51 (3.51.1-1) unstable; urgency=low
+
+  * bugfix series export
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Mon, 15 Jul 2019 08:00:08 +0200
+
 diana-3.50 (3.51.0-1) unstable; urgency=low
 
   * Bugfix ObsBufr - TIME SIGNIFICANCE
