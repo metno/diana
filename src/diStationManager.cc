@@ -490,7 +490,7 @@ QString StationManager::getStationsText(int x, int y)
     map<std::string, unsigned int> stationNames;
     for (unsigned int i = 0; i < stations.size(); ++i) {
       unsigned int number = stationNames.count(stations[i]->name);
-      stationNames[stations[i]->name] = number + 1;
+      stationNames[stations[i]->name] = number + 1; // FIXME this is always == 2
     }
 
     stationsText = "<table>";
