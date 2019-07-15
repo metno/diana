@@ -100,13 +100,8 @@ void SatPlot::getAnnotation(std::string &str, Colour &col) const
 
 void SatPlot::setData(Sat *data)
 {
-  clearData();
   delete satdata;
   satdata = data;
-}
-
-void SatPlot::clearData()
-{
 }
 
 void SatPlot::getCalibChannels(std::vector<std::string>& channels) const

@@ -96,17 +96,12 @@ private:
   bool parseChannels(Sat* satdata, const SatFileInfo& info);
   bool readSatFile(Sat* satdata, const miutil::miTime& t);
 
-  void init(const PlotCommand_cpv&);
   void init_rgbindex(Sat& sd);
   void init_rgbindex_Meteosat(Sat& sd);
 
   //cut index from first picture,can be reused in other pictures
   int colourStretchInfo[6];
 
-  typedef std::vector<SatPlot*> SatPlot_xv;
-  SatPlot_xv vsp;   // vector of satellite plots
-
-  bool setData(SatPlot *satp);
   int getFileName(Sat* satdata, std::string &);
   int getFileName(Sat* satdata, const miutil::miTime&);
 
@@ -116,28 +111,9 @@ private:
 public:
   SatManager();
 
-  /// handles images plot info strings
-  void prepareSat(const PlotCommand_cpv& inp);
+  bool setData(Sat* satdata, const miutil::miTime& satptime);
 
-  void addPlotElements(std::vector<PlotElement>& pel);
-  bool enablePlotElement(const PlotElement& pe);
-  void addSatAnnotations(std::vector<AnnotationPlot::Annotation>& annotations);
-  void getDataAnnotations(std::vector<std::string>& anno);
-  void plot(DiGLPainter* gl, PlotOrder porder);
-  void clear();
-  bool getGridResolution(float& rx, float& ry) const;
-
-  bool setData();
-  bool getSatArea(Area& a) const;
-
-  plottimes_t getSatTimes();
-
-  /// get name++ of current channels (with calibration)
-  std::vector<std::string> getCalibChannels();
-  ///show pixel values in status bar
-  std::vector<SatValues> showValues(float x, float y);
-  ///satellite follows main plot time
-  void setSatAuto(bool, const std::string&, const std::string&);
+  plottimes_t getSatTimes(const std::string& satellite, const std::string& filetype);
 
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(plottimes_t& progTimes, int& timediff, const PlotCommand_cp& pinfo);
@@ -158,9 +134,6 @@ public:
   void archiveMode(bool on) { useArchive = on; }
 
   const Prod_t& getProductsInfo() const;
-
-  const std::vector<SatPlot*>& getSatellitePlots() const
-    { return vsp; }
 };
 
 #endif

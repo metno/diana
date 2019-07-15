@@ -49,6 +49,7 @@
 #include "diObsPlotCluster.h"
 #include "diPlotModule.h"
 #include "diSatManager.h"
+#include "diSatPlotCluster.h"
 #include "diStationManager.h"
 #include "diStationPlot.h"
 #include "miSetupParser.h"
@@ -320,12 +321,13 @@ bool Controller::printTrajectoryPositions(const std::string& filename ){
 // get name++ of current channels (with calibration)
 vector<string> Controller::getCalibChannels()
 {
-  return satm->getCalibChannels();
+  return plotm->satplots()->getCalibChannels();
 }
 
 // show values in grid position x,y
-vector<SatValues> Controller::showValues(float x, float y){
-  return satm->showValues(x,y);
+vector<SatValues> Controller::showValues(float x, float y)
+{
+  return plotm->satplots()->showValues(x, y);
 }
 
 
@@ -720,7 +722,7 @@ void Controller::readLog(const vector<string>& vstr,
 // Miscellaneous get methods
 vector<SatPlot*> Controller::getSatellitePlots() const
 {
-  return satm->getSatellitePlots();
+  return plotm->satplots()->getSatellitePlots();
 }
 
 std::vector<ObsPlot*> Controller::getObsPlots() const

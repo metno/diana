@@ -46,6 +46,7 @@
 #include "diObsManager.h"
 #include "diObsPlotCluster.h"
 #include "diSatManager.h"
+#include "diSatPlotCluster.h"
 #include "diStaticPlot.h"
 #include "diStationManager.h"
 #include "diStationPlot.h"
@@ -135,7 +136,7 @@ void PlotModule::preparePlots(const PlotCommand_cpv& vpi)
   ordered.insert(obsplots()->plotCommandKey());
   ordered.insert("MAP");
   ordered.insert("AREA");
-  ordered.insert("SAT");
+  ordered.insert(satplots()->plotCommandKey());
   ordered.insert("STATION");
   ordered.insert("OBJECTS");
   ordered.insert("TRAJECTORY");
@@ -163,7 +164,7 @@ void PlotModule::preparePlots(const PlotCommand_cpv& vpi)
   prepareMap(ordered_pi["MAP"]);
   fieldplots_->prepare(ordered_pi[fieldplots()->plotCommandKey()]);
   obsplots_->prepare(ordered_pi[obsplots()->plotCommandKey()]);
-  satm->prepareSat(ordered_pi["SAT"]);
+  satplots_->prepare(ordered_pi[satplots()->plotCommandKey()]);
   prepareStations(ordered_pi["STATION"]);
   objm->prepareObjects(ordered_pi["OBJECTS"]);
   prepareTrajectory(ordered_pi["TRAJECTORY"]);
@@ -304,7 +305,7 @@ vector<PlotElement> PlotModule::getPlotElements()
 
   fieldplots_->addPlotElements(pel);
   obsplots_->addPlotElements(pel);
-  satm->addPlotElements(pel);
+  satplots_->addPlotElements(pel);
   objm->addPlotElements(pel);
 
   // get trajectory names
@@ -397,7 +398,7 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
   } else if (pe.type == obsplots_->keyPlotElement()) {
     change = obsplots_->enablePlotElement(pe);
   } else if (pe.type == "RASTER") {
-    change = satm->enablePlotElement(pe);
+    change = satplots_->enablePlotElement(pe);
   } else if (pe.type == "OBJECTS") {
     change = objm->enablePlotElement(pe);
   } else if (pe.type == "AREAOBJECTS") {
@@ -441,7 +442,7 @@ void PlotModule::setAnnotations()
 
   fieldplots_->addAnnotations(annotations);
 
-  satm->addSatAnnotations(annotations);
+  satplots_->addAnnotations(annotations);
 
   { // get obj annotations
     objm->getObjAnnotation(ann.str, ann.col);
@@ -502,7 +503,7 @@ void PlotModule::setAnnotations()
     for (vector<string>& as : vvstr) {
       fieldplots_->getDataAnnotations(as);
       obsplots_->getDataAnnotations(as);
-      satm->getDataAnnotations(as);
+      satplots_->getDataAnnotations(as);
       editm->getDataAnnotations(as);
       objm->getDataAnnotations(as);
     }
@@ -534,7 +535,7 @@ bool PlotModule::updatePlots()
   }
 
   // prepare data for satellite plots
-  if (satm->setData())
+  if (satplots_->setData())
     nodata = false;
   else
     METLIBS_LOG_DEBUG("SatManager returned false from setData");
@@ -591,7 +592,7 @@ bool PlotModule::updatePlots()
 
 bool PlotModule::defineMapAreaFromData(Area& newMapArea, bool& allowKeepCurrentArea)
 {
-  if (satm->getSatArea(newMapArea)) {
+  if (satplots_->getSatArea(newMapArea)) {
     // set area equal to first EXISTING sat-area
     allowKeepCurrentArea = true;
     return true;
@@ -711,7 +712,7 @@ void PlotModule::plotUnder(DiGLPainter* gl)
   }
 
   // plot satellite images
-  satm->plot(gl, PO_SHADE_BACKGROUND);
+  satplots_->plot(gl, PO_SHADE_BACKGROUND);
 
   // mark undefined areas/values in field (before map)
   fieldplots_->plot(gl, PO_SHADE_BACKGROUND);
@@ -870,7 +871,7 @@ void PlotModule::cleanup()
 
   fieldplots_->cleanup();
 
-  satm->clear();
+  satplots_->cleanup();
 
   stam->cleanup();
 
@@ -948,9 +949,9 @@ void PlotModule::PhysToMap(float xphys, float yphys, float& xmap, float& ymap)
 bool PlotModule::MapToGrid(float xmap, float ymap, float& gridx, float& gridy)
 {
   Area a;
-  if (satm->getSatArea(a) and staticPlot_->getMapProjection() == a.P()) {
+  if (satplots_->getSatArea(a) and staticPlot_->getMapProjection() == a.P()) {
     float rx=0, ry=0;
-    if (satm->getGridResolution(rx, ry)) {
+    if (satplots_->getGridResolution(rx, ry)) {
       gridx = xmap/rx;
       gridy = ymap/ry;
       return true;
@@ -1070,6 +1071,7 @@ void PlotModule::setManagers(FieldPlotManager* fpm, ObsManager* om, SatManager* 
 
   obsplots_.reset(new ObsPlotCluster(obsm, editm));
   fieldplots_.reset(new FieldPlotCluster(fieldplotm));
+  satplots_.reset(new SatPlotCluster(satm));
 }
 
 Manager *PlotModule::getManager(const std::string &name)
@@ -1101,7 +1103,7 @@ void PlotModule::getPlotTimes(std::map<string, plottimes_t>& times)
   times.clear();
 
   insertTimes(times, "fields", fieldplots_->getTimes());
-  insertTimes(times, "satellites", satm->getSatTimes());
+  insertTimes(times, "satellites", satplots_->getSatTimes());
   insertTimes(times, "observations", obsplots_->getTimes());
   insertTimes(times, "objects", objm->getTimes());
   for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it) {

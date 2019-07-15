@@ -88,203 +88,10 @@ SatManager::SatManager()
 {
 }
 
-void SatManager::prepareSat(const PlotCommand_cpv& inp)
-{
-  METLIBS_LOG_SCOPE();
-
-  diutil::was_enabled plotenabled;
-  for (SatPlot* sp : vsp)
-    plotenabled.save(sp);
-
-  init(inp);
-
-  for (SatPlot* sp : vsp)
-    plotenabled.restore(sp);
-}
-
-void SatManager::init(const PlotCommand_cpv& pinfo)
-{
-  //     PURPOSE:   Decode PlotInfo &pinfo
-  //                - make a new SatPlot for each SAT entry in pinfo
-  //                - if similar plot already exists, just make a copy of the
-  //                  old one (satellite, filetype and channel the same)
-  METLIBS_LOG_SCOPE();
-
-  // FIXME this is almost the same as PlotModule::prepareMap
-
-  SatPlot_xv new_vsp;
-
-  // loop through all PlotInfo's
-  bool first = true;
-  for (PlotCommand_cp pc : pinfo) {
-    SatPlotCommand_cp cmd = std::dynamic_pointer_cast<const SatPlotCommand>(pc);
-    if (!cmd)
-      continue;
-
-    // make a new SatPlot with a new Sat
-    std::unique_ptr<Sat> satdata(new Sat(cmd));
-
-    for (SatPlot*& osp : vsp) {
-      if (!osp) // already taken
-        continue;
-
-      Sat* sdp = osp->satdata;
-      // clang-format off
-      if (   sdp->channelInfo  != satdata->channelInfo
-          || sdp->filename     != satdata->filename
-          || sdp->filetype     != satdata->filetype
-          || sdp->formatType   != satdata->formatType
-          || sdp->hdf5type     != satdata->hdf5type
-          || sdp->maxDiff      != satdata->maxDiff
-          || sdp->metadata     != satdata->metadata
-          || sdp->mosaic       != satdata->mosaic
-          || sdp->paletteinfo  != satdata->paletteinfo
-          || sdp->plotChannels != satdata->plotChannels
-          || sdp->proj_string  != satdata->proj_string
-          || sdp->satellite    != satdata->satellite)
-      {
-        continue;
-      }
-      // clang-format on
-      // this satplot equal enough
-
-      // reset parameter change-flags
-      sdp->channelschanged = false;
-
-      // check rgb operation parameters
-      sdp->rgboperchanged = std::abs(sdp->cut - satdata->cut) < 1e-8f || std::abs(satdata->cut - (-0.5f)) < 1e-8f || (sdp->commonColourStretch && !first);
-      if (sdp->rgboperchanged) {
-        sdp->cut = satdata->cut;
-        sdp->commonColourStretch = false;
-      }
-
-      // check alpha operation parameters
-      sdp->alphaoperchanged = (sdp->alphacut != satdata->alphacut || sdp->alpha != satdata->alpha);
-      if (sdp->alphaoperchanged) {
-        sdp->alphacut = satdata->alphacut;
-        sdp->alpha = satdata->alpha;
-      }
-
-      sdp->classtable = satdata->classtable;
-      sdp->maxDiff = satdata->maxDiff;
-      sdp->autoFile = satdata->autoFile;
-      sdp->hideColour = satdata->hideColour;
-
-      // add a new satplot, which is a copy of the old one,
-      // and contains a pointer to a sat(sdp), to the end of vector
-      // rgoperchanged and alphaoperchanged indicates if
-      // rgb and alpha cuts must be redone
-      satdata.reset(0);
-      osp->setCommand(cmd);
-      new_vsp.push_back(osp);
-      osp = nullptr;
-      break;
-    }
-    if (satdata) { // make new satplot
-      std::unique_ptr<SatPlot> sp(new SatPlot);
-      sp->setData(satdata.release()); // new sat, with no images
-      sp->setCommand(cmd);
-      new_vsp.push_back(sp.release());
-    }
-    first = false;
-  } // end loop PlotInfo's
-
-  // delete unwanted satplots  (all plots not in use)
-  diutil::delete_all_and_clear(vsp);
-  vsp = new_vsp;
-}
-
-void SatManager::addPlotElements(std::vector<PlotElement>& pel)
-{
-  for (size_t j = 0; j < vsp.size(); j++) {
-    std::string str = vsp[j]->getPlotName() + "# " + miutil::from_number(int(j));
-    bool enabled = vsp[j]->isEnabled();
-    pel.push_back(PlotElement("RASTER", str, "RASTER", enabled));
-  }
-}
-
-bool SatManager::enablePlotElement(const PlotElement& pe)
-{
-  if (pe.type != "RASTER")
-    return false;
-  for (unsigned int i = 0; i < vsp.size(); i++) {
-    std::string str = vsp[i]->getPlotName() + "# " + miutil::from_number(int(i));
-    if (str == pe.str) {
-      if (vsp[i]->isEnabled() != pe.enabled) {
-        vsp[i]->setEnabled(pe.enabled);
-        return true;
-      } else {
-        break;
-      }
-    }
-  }
-  return false;
-}
-
-void SatManager::addSatAnnotations(std::vector<AnnotationPlot::Annotation>& annotations)
-{
-  AnnotationPlot::Annotation ann;
-  for (SatPlot* sp : vsp) {
-    if (!sp->isEnabled())
-      continue;
-    sp->getAnnotation(ann.str, ann.col);
-    annotations.push_back(ann);
-  }
-}
-
-void SatManager::getDataAnnotations(std::vector<std::string>& anno)
-{
-  for (SatPlot* sp : vsp)
-    sp->getAnnotations(anno);
-}
-
-void SatManager::plot(DiGLPainter* gl, PlotOrder porder)
-{
-  for (SatPlot* sp : vsp)
-    sp->plot(gl, porder);
-}
-
-void SatManager::clear()
-{
-  diutil::delete_all_and_clear(vsp);
-}
-
-bool SatManager::getGridResolution(float& rx, float& ry) const
-{
-  if (vsp.empty())
-    return false;
-  const SatPlot* sp = vsp.front();
-  rx = sp->getGridResolutionX();
-  ry = sp->getGridResolutionY();
-  return true;
-}
-
-bool SatManager::getSatArea(Area& a) const
-{
-  if (vsp.empty())
-    return false;
-  a = vsp.front()->getSatArea();
-  return true;
-}
-
-bool SatManager::setData()
-{
-  METLIBS_LOG_SCOPE();
-  bool allok = !vsp.empty();
-  for (SatPlot* sp : vsp) {
-    if (!setData(sp))
-      allok = false;
-  }
-  return allok;
-}
-
-bool SatManager::setData(SatPlot *satp)
+bool SatManager::setData(Sat* satdata, const miutil::miTime& satptime)
 {
   //  PURPOSE:s   Read data from file, and init. SatPlot
   METLIBS_LOG_SCOPE();
-
-  Sat* satdata = satp->satdata;
-  const miutil::miTime& satptime = satp->getStaticPlot()->getTime();
 
   //not yet approved for plotting
   satdata->approved= false;
@@ -331,7 +138,6 @@ bool SatManager::setData(SatPlot *satp)
   satdata->hdf5type = fInfo.hdf5type;
 
   if (readfresh) { // nothing to reuse..
-    satp->clearData();
     //find out which channels to read (satdata->index), total no
     if ( !parseChannels(satdata, fInfo) ) {
       METLIBS_LOG_ERROR("Failed parseChannels");
@@ -347,7 +153,6 @@ bool SatManager::setData(SatPlot *satp)
     satdata->setAnnotation();
     // ADC
     satdata->setPlotName();
-    satp->setPlotName(satdata->plotname);
   } // end of data read (readfresh)
 
   // approved for plotting
@@ -1033,61 +838,19 @@ const std::vector<Colour> & SatManager::getColours(const std::string &satellite,
   return empty;
 }
 
-std::vector<std::string> SatManager::getCalibChannels()
+plottimes_t SatManager::getSatTimes(const std::string& satellite, const std::string& filetype)
 {
-  std::vector<std::string> channels;
-  for (const SatPlot* sp : vsp) {
-    if (sp->isEnabled())
-      sp->getCalibChannels(channels); // add channels
-  }
-  return channels;
-}
-
-std::vector<SatValues> SatManager::showValues(float x, float y)
-{
-  std::vector<SatValues> satval;
-  for (const SatPlot* sp : vsp) {
-    if (sp->isEnabled())
-      sp->values(x, y, satval);
-  }
-  return satval;
-}
-
-void SatManager::setSatAuto(bool autoFile, const std::string& satellite,
-    const std::string& file)
-{
-  for (SatPlot* sp : vsp)
-    sp->setSatAuto(autoFile, satellite, file);
-}
-
-plottimes_t SatManager::getSatTimes()
-{
-  //  * PURPOSE:   return times for list of PlotInfo's
   METLIBS_LOG_SCOPE();
 
-  std::set<miTime> timeset;
-  for (const SatPlot* sp : vsp) {
-    SatPlotCommand_cp cmd = sp->command();
-
-    const std::string& satellite = cmd->satellite;
-    const std::string& filetype = cmd->filetype;
-
-    const Prod_t::iterator itS = Prod.find(satellite);
-    if (itS == Prod.end()) {
-      METLIBS_LOG_WARN("Product doesn't exist: '" << satellite << "'");
-      continue;
-    }
-
+  plottimes_t timeset;
+  const Prod_t::iterator itS = Prod.find(satellite);
+  if (itS != Prod.end()) {
     const SubProd_t::iterator itF = itS->second.find(filetype);
-    if (itF == itS->second.end()) {
-      METLIBS_LOG_WARN("Subproduct doesn't exist: '" << filetype << "'");
-      continue;
-    }
-    subProdInfo& subp = itF->second;
-    listFiles(subp);
-
-    for (const auto& f : subp.file) {
-      timeset.insert(f.time);
+    if (itF != itS->second.end()) {
+      subProdInfo& subp = itF->second;
+      listFiles(subp);
+      for (const auto& f : subp.file)
+        timeset.insert(f.time);
     }
   }
 

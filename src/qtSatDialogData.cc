@@ -43,7 +43,7 @@ const SatDialogInfo& DianaSatDialogData::initSatDialog()
 
 void DianaSatDialogData::setSatAuto(bool autoFile, const std::string& satellite, const std::string& file)
 {
-  sm_->setSatAuto(autoFile, satellite, file);
+  // TODO sm_->setSatAuto(autoFile, satellite, file);
 }
 
 const std::vector<SatFileInfo>& DianaSatDialogData::getSatFiles(const std::string& satellite, const std::string& file, bool update)

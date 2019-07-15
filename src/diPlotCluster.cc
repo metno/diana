@@ -53,15 +53,15 @@ void PlotCluster::setCanvas(DiCanvas* canvas)
   if (canvas == canvas_)
     return;
   canvas_ = canvas;
-  for (size_t i = 0; i < plots_.size(); i++) {
-    plots_[i]->setCanvas(canvas_);
+  for (Plot* plt : plots_) {
+    plt->setCanvas(canvas_);
   }
 }
 
 void PlotCluster::plot(DiGLPainter* gl, PlotOrder zorder)
 {
-  for (size_t i = 0; i < plots_.size(); i++)
-    plots_[i]->plot(gl, zorder);
+  for (Plot* plt : plots_)
+    plt->plot(gl, zorder);
 }
 
 void PlotCluster::addAnnotations(std::vector<AnnotationPlot::Annotation>& annotations)
@@ -69,10 +69,10 @@ void PlotCluster::addAnnotations(std::vector<AnnotationPlot::Annotation>& annota
   Colour col;
   std::string str;
   AnnotationPlot::Annotation ann;
-  for (size_t i = 0; i < plots_.size(); i++) {
-    if (!at(i)->isEnabled())
+  for (Plot* plt : plots_) {
+    if (!plt->isEnabled())
       continue;
-    at(i)->getAnnotation(str, col);
+    plt->getAnnotation(str, col);
     if (!str.empty()) {
       ann.str = str;
       ann.col = col;

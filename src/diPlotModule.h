@@ -55,6 +55,7 @@ class StationManager;
 class ObjectManager;
 class EditManager;
 class DrawingManager;
+class SatPlotCluster;
 class Field;
 class TrajectoryPlot;
 class MeasurementsPlot;
@@ -84,6 +85,7 @@ private:
   FieldPlotManager *fieldplotm;   // field plot manager
 
   std::unique_ptr<ObsPlotCluster> obsplots_;   // observation plots
+  std::unique_ptr<SatPlotCluster> satplots_;   // satellite plots
   std::unique_ptr<FieldPlotCluster> fieldplots_; // field plots
   std::vector<MapPlot*> vmp;   // vector of map plots
   std::vector<TrajectoryPlot*> vtp; // vector of trajectory plots
@@ -310,8 +312,10 @@ public:
   void enablePlotElement(const PlotElement& pe);
 
   // Miscellaneous get methods
-  FieldPlotCluster* fieldplots()
-    { return fieldplots_.get(); }
+  FieldPlotCluster* fieldplots() { return fieldplots_.get(); }
+
+  // Miscellaneous get methods
+  SatPlotCluster* satplots() { return satplots_.get(); }
 
   typedef std::map<std::string, Manager*> managers_t;
   managers_t managers;
