@@ -27,8 +27,6 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "diana_config.h"
-
 #include "qtMeasurementsDialog.h"
 
 #include "qtUtility.h"
@@ -42,8 +40,6 @@
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QVBoxLayout>
-
-#include <puDatatypes/miCoordinates.h>
 
 #include <cmath>
 #include <iomanip>
@@ -445,8 +441,7 @@ void MeasurementsDialog::showplus()
   Q_EMIT updateMeasurements();
 }
 
-
-bool MeasurementsDialog::close(bool alsoDelete)
+bool MeasurementsDialog::close(bool /*alsoDelete*/)
 {
   Q_EMIT markMeasurementsPos(false);
   Q_EMIT MeasurementsHide();
@@ -470,6 +465,4 @@ void MeasurementsDialog::focusOutEvent(QFocusEvent *)
   Q_EMIT markMeasurementsPos(false);
 }
 
-void MeasurementsDialog::focusChanged(QWidget* old, QWidget* now)
-{
-}
+void MeasurementsDialog::focusChanged(QWidget* /*old*/, QWidget* /*now*/) {}

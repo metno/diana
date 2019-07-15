@@ -98,24 +98,16 @@ void MeasurementsPlot::measurementsPos(const vector<string>& vstr)
 {
   METLIBS_LOG_SCOPE();
 
-  int nvstr = vstr.size();
-  for(int k=0; k<nvstr; k++){
-    METLIBS_LOG_DEBUG(LOGVAL(vstr[k]));
-
-    const std::string& pin = vstr[k];
-    const vector<std::string> tokens = miutil::split_protected(pin, '"','"');
-    const int n = tokens.size();
-
-    for(int i=0; i<n; i++) {
-      const vector<std::string> stokens = miutil::split(tokens[i], 0, "=");
+  for (const std::string& pin : vstr) {
+    METLIBS_LOG_DEBUG(LOGVAL(pin));
+    for (const std::string& tok : miutil::split_protected(pin, '"', '"')) {
+      const vector<std::string> stokens = miutil::split(tok, 0, "=");
       if (stokens.empty())
         continue;
       const std::string key = miutil::to_lower(stokens[0]);
       if (stokens.size() == 1) {
         if (key == "clear") {
-          //          clearData();
-        }
-        else if (key == "delete"){
+        } else if (key == "delete") {
           lat.clear();
           lon.clear();
           clearXY();
