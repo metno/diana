@@ -591,11 +591,6 @@ miutil::miTime Controller::getFieldReferenceTime()
   return plotm->fieldplots()->getFieldReferenceTime();
 }
 
-bool Controller::getQuickMenus(vector<QuickMenuDefs>& qm)
-{
-  return LocalSetupParser::getQuickMenus(qm);
-}
-
 plottimes_t Controller::getObsTimes(const vector<string>& name, bool update)
 {
   return obsm->getTimes(name, update);

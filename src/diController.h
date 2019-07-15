@@ -37,7 +37,6 @@
 #include "diMapMode.h"
 #include "diObsDialogInfo.h"
 #include "diPlotCommand.h"
-#include "diQuickMenuTypes.h"
 #include "diRectangle.h"
 #include "diSatTypes.h"
 #include "diStationTypes.h"
@@ -255,9 +254,6 @@ public:
   EditDialogInfo initEditDialog();
   /// get text list from complex weather symbol
   std::set<std::string> getComplexList();
-
-  // various GUI-methods
-  bool getQuickMenus(std::vector<QuickMenuDefs>& qm);
 
   //stations
   void putStations(StationPlot*);

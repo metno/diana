@@ -673,7 +673,7 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
   // ----------- init dialog-objects -------------------
 
   std::vector<QuickMenuDefs> qdefs;
-  contr->getQuickMenus(qdefs);
+  LocalSetupParser::getQuickMenus(qdefs);
   qm = new QuickMenu(this, qdefs);
   qm->hide();
   mainToolbar->addAction( showQuickmenuAction         );
