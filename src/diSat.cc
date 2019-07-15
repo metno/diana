@@ -67,7 +67,6 @@ Sat::Sat()
     , channelschanged(true)
     , rgboperchanged(true)
     , alphaoperchanged(true)
-    , mosaicchanged(true)
 {
   METLIBS_LOG_SCOPE();
   for (int i = 0; i < maxch; i++)
@@ -156,7 +155,6 @@ void Sat::memberCopy(const Sat& rhs)
 
   autoFile = rhs.autoFile;
   channelschanged= rhs.channelschanged;
-  mosaicchanged=rhs.mosaicchanged;
   rgboperchanged= rhs.rgboperchanged;
   alphaoperchanged= rhs.alphaoperchanged;
   mosaic=rhs.mosaic;

@@ -132,7 +132,6 @@ public:
   bool channelschanged;    ///< changes in selected channels
   bool rgboperchanged;     ///< changes in rgb-operation parameters
   bool alphaoperchanged;   ///< changes in alpha-operation params
-  bool mosaicchanged;      ///< changes in mosaic parameters
 
   std::map<int,char> hideColour;   ///< colour values to blend
 

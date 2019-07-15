@@ -112,10 +112,7 @@ void SatManager::init(const PlotCommand_cpv& pinfo)
 
   // FIXME this is almost the same as PlotModule::prepareMap
 
-  // init inuse array
-  std::vector<bool> inuse(vsp.size(), false);
   SatPlot_xv new_vsp;
-
 
   // loop through all PlotInfo's
   bool first = true;
@@ -125,95 +122,75 @@ void SatManager::init(const PlotCommand_cpv& pinfo)
       continue;
 
     // make a new SatPlot with a new Sat
-    Sat* satdata = new Sat(cmd);
+    std::unique_ptr<Sat> satdata(new Sat(cmd));
 
-    bool isok= false;
-    if (not vsp.empty()) { // if satplots exists
-      for (size_t j=0; j<vsp.size(); j++) {
-        if (!inuse[j] && vsp[j]!=0) { // not already taken
-          Sat *sdp = vsp[j]->satdata;
-          if (sdp->satellite != satdata->satellite
-              || sdp->filetype != satdata->filetype
-              || sdp->formatType != satdata->formatType
-              || sdp->metadata != satdata->metadata
-              || sdp->proj_string != satdata->proj_string
-              || sdp->channelInfo != satdata->channelInfo
-              || sdp->paletteinfo != satdata->paletteinfo
-              || sdp->hdf5type != satdata->hdf5type
-              || sdp->plotChannels != satdata->plotChannels
-              || sdp->mosaic != satdata->mosaic
-              || sdp->maxDiff != satdata->maxDiff
-              || sdp->filename != satdata->filename)
-            continue;
-          // this satplot equal enough
-          // reset parameter change-flags
-          sdp->channelschanged= false;
-          sdp->rgboperchanged= false;
-          sdp->alphaoperchanged= false;
-          sdp->mosaicchanged=false;
-          // check rgb operation parameters
-          if (std::abs(sdp->cut - satdata->cut) < 1e-8f
-              || std::abs(satdata->cut - (-0.5f)) < 1e-8f
-              || (sdp->commonColourStretch && !first))
-          {
-            sdp->cut= satdata->cut;
-            sdp->rgboperchanged= true;
-            sdp->commonColourStretch=false;
-          }
-          // check alpha operation parameters
-          if (sdp->alphacut != satdata->alphacut
-              || sdp->alpha != satdata->alpha)
-          {
-            sdp->alphacut= satdata->alphacut;
-            sdp->alpha= satdata->alpha;
-            sdp->alphaoperchanged= true;
-          }
-          // new satdata is not needed, but keep filename and classtable
-          // variables from PlotInfo before deleting it
-          sdp->filename= satdata->filename;
-          sdp->formatType= satdata->formatType;
-          sdp->metadata = satdata->metadata;
-          sdp->proj_string = satdata->proj_string;
-          sdp->channelInfo = satdata->channelInfo;
-          sdp->paletteinfo = satdata->paletteinfo;
-          sdp->hdf5type = satdata->hdf5type;
+    for (SatPlot*& osp : vsp) {
+      if (!osp) // already taken
+        continue;
 
-#ifdef DEBUGPRINT
-          METLIBS_LOG_DEBUG(LOGVAL(sdp->formatType) << LOGVAL(sdp->metadata));
-#endif
-
-          sdp->classtable= satdata->classtable;
-          sdp->maxDiff = satdata->maxDiff;
-          sdp->autoFile = satdata->autoFile;
-          sdp->hideColour=satdata->hideColour;
-          delete satdata; //deleting the new sat created
-          // add a new satplot, which is a copy of the old one,
-          // and contains a pointer to a sat(sdp), to the end of vector
-          // rgoperchanged and alphaoperchanged indicates if
-          // rgb and alpha cuts must be redone
-          isok= true;
-          inuse[j]= true;
-          vsp[j]->setCommand(cmd);
-          new_vsp.push_back(vsp[j]);
-          break;
-        }
+      Sat* sdp = osp->satdata;
+      // clang-format off
+      if (   sdp->channelInfo  != satdata->channelInfo
+          || sdp->filename     != satdata->filename
+          || sdp->filetype     != satdata->filetype
+          || sdp->formatType   != satdata->formatType
+          || sdp->hdf5type     != satdata->hdf5type
+          || sdp->maxDiff      != satdata->maxDiff
+          || sdp->metadata     != satdata->metadata
+          || sdp->mosaic       != satdata->mosaic
+          || sdp->paletteinfo  != satdata->paletteinfo
+          || sdp->plotChannels != satdata->plotChannels
+          || sdp->proj_string  != satdata->proj_string
+          || sdp->satellite    != satdata->satellite)
+      {
+        continue;
       }
+      // clang-format on
+      // this satplot equal enough
+
+      // reset parameter change-flags
+      sdp->channelschanged = false;
+
+      // check rgb operation parameters
+      sdp->rgboperchanged = std::abs(sdp->cut - satdata->cut) < 1e-8f || std::abs(satdata->cut - (-0.5f)) < 1e-8f || (sdp->commonColourStretch && !first);
+      if (sdp->rgboperchanged) {
+        sdp->cut = satdata->cut;
+        sdp->commonColourStretch = false;
+      }
+
+      // check alpha operation parameters
+      sdp->alphaoperchanged = (sdp->alphacut != satdata->alphacut || sdp->alpha != satdata->alpha);
+      if (sdp->alphaoperchanged) {
+        sdp->alphacut = satdata->alphacut;
+        sdp->alpha = satdata->alpha;
+      }
+
+      sdp->classtable = satdata->classtable;
+      sdp->maxDiff = satdata->maxDiff;
+      sdp->autoFile = satdata->autoFile;
+      sdp->hideColour = satdata->hideColour;
+
+      // add a new satplot, which is a copy of the old one,
+      // and contains a pointer to a sat(sdp), to the end of vector
+      // rgoperchanged and alphaoperchanged indicates if
+      // rgb and alpha cuts must be redone
+      satdata.reset(0);
+      osp->setCommand(cmd);
+      new_vsp.push_back(osp);
+      osp = nullptr;
+      break;
     }
-    if (!isok) { // make new satplot
-      SatPlot *sp = new SatPlot;
-      sp->setData(satdata); //new sat, with no images
+    if (satdata) { // make new satplot
+      std::unique_ptr<SatPlot> sp(new SatPlot);
+      sp->setData(satdata.release()); // new sat, with no images
       sp->setCommand(cmd);
-      new_vsp.push_back(sp);
+      new_vsp.push_back(sp.release());
     }
     first = false;
   } // end loop PlotInfo's
 
   // delete unwanted satplots  (all plots not in use)
-  for (size_t i=0; i<vsp.size(); i++) {
-    if (!inuse[i]) {
-      delete vsp[i];
-    }
-  }
+  diutil::delete_all_and_clear(vsp);
   vsp = new_vsp;
 }
 
@@ -312,20 +289,17 @@ bool SatManager::setData(SatPlot *satp)
   //not yet approved for plotting
   satdata->approved= false;
 
-  int index;
+  int index = -1;
   if (!satdata->filename.empty()) { //requested a specific filename
     index=getFileName(satdata, satdata->filename);
+  } else if (!satdata->autoFile) { // keep the same filename
+    index = getFileName(satdata, satdata->actualfile);
   } else {
-    if (!satdata->autoFile) //keep the same filename
-      index=getFileName(satdata, satdata->actualfile);
-    else
-      //find filename from time
-      index=getFileName(satdata, satptime);
+    // find filename from time
+    index = getFileName(satdata, satptime);
   }
-
-  if (index <0) {
+  if (index < 0)
     return false;
-  }
 
   //Read header if not opened
 
