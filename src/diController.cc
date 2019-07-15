@@ -720,6 +720,11 @@ void Controller::readLog(const vector<string>& vstr,
 }
 
 // Miscellaneous get methods
+SatPlotCluster* Controller::getSatPlotCluster() const
+{
+  return plotm->satplots();
+}
+
 vector<SatPlot*> Controller::getSatellitePlots() const
 {
   return plotm->satplots()->getSatellitePlots();

@@ -30,9 +30,11 @@
 #include "qtSatDialogData.h"
 
 #include "diSatManager.h"
+#include "diSatPlotCluster.h"
 
-DianaSatDialogData::DianaSatDialogData(SatManager* sm)
+DianaSatDialogData::DianaSatDialogData(SatManager* sm, SatPlotCluster* spc)
     : sm_(sm)
+    , spc_(spc)
 {
 }
 
@@ -43,7 +45,7 @@ const SatDialogInfo& DianaSatDialogData::initSatDialog()
 
 void DianaSatDialogData::setSatAuto(bool autoFile, const std::string& satellite, const std::string& file)
 {
-  // TODO sm_->setSatAuto(autoFile, satellite, file);
+  spc_->setSatAuto(autoFile, satellite, file);
 }
 
 const std::vector<SatFileInfo>& DianaSatDialogData::getSatFiles(const std::string& satellite, const std::string& file, bool update)

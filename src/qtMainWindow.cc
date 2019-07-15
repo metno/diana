@@ -204,7 +204,7 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
 
   addStandardDialog(fm = new FieldDialog(this, new DianaFieldDialogData(contr->getFieldPlotManager())));
   addStandardDialog(om = new ObsDialog(this, contr));
-  addStandardDialog(sm = new SatDialog(new DianaSatDialogData(contr->getSatelliteManager()), this));
+  addStandardDialog(sm = new SatDialog(new DianaSatDialogData(contr->getSatelliteManager(), contr->getSatPlotCluster()), this));
   addStandardDialog(stm = new StationDialog(this, contr));
   addStandardDialog(objm = new ObjectDialog(this, contr));
   connect(timeNavigator, &TimeNavigator::lastStep, om, &ObsDialog::updateTimes);

@@ -61,6 +61,7 @@ class PlotElement;
 class PlotModule;
 class SatManager;
 class SatPlot;
+class SatPlotCluster;
 class StationManager;
 class StationPlot;
 
@@ -278,6 +279,7 @@ public:
       const std::string& thisVersion, const std::string& logVersion);
 
   // Miscellaneous get methods
+  SatPlotCluster* getSatPlotCluster() const;
   std::vector<SatPlot*> getSatellitePlots() const;   // Returns a vector of defined satellite plots.
   std::vector<ObsPlot*> getObsPlots() const;         // Returns a vector of defined observation plots.
 

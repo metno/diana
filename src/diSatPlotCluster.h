@@ -81,7 +81,7 @@ public:
   std::vector<SatValues> showValues(float x, float y);
 
   /// satellite follows main plot time
-  void setSatAuto(bool, const std::string&, const std::string&);
+  void setSatAuto(bool autoFile, const std::string& satellite, const std::string& file);
 
 private:
   bool setData(SatPlot* satp);
