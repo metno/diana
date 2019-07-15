@@ -33,6 +33,7 @@
 #include "diPlotModule.h"
 #include "diStaticPlot.h"
 #include "diStationPlot.h"
+#include "diUtilities.h"
 #include "util/misc_util.h"
 
 #include <mi_fieldcalc/math_util.h>
@@ -62,9 +63,7 @@ static double distance(const miCoordinates& pos, const Station* s)
 StationPlot::StationPlot(const vector<float> & lons, const vector<float> & lats)
 {
   init();
-  unsigned int n = lons.size();
-  if (n > lats.size())
-    n = lats.size();
+  const size_t n = std::min(lons.size(), lats.size());
   for (unsigned int i = 0; i < n; i++) {
     addStation(lons[i], lats[i]);
   }
@@ -78,12 +77,8 @@ StationPlot::StationPlot(const vector<std::string> & names,
   METLIBS_LOG_SCOPE();
 #endif
   init();
-  unsigned int n = names.size();
-  if (n > lons.size())
-    n = lons.size();
-  if (n > lats.size())
-    n = lats.size();
-  for (unsigned int i = 0; i < n; i++) {
+  const size_t n = std::min(names.size(), std::min(lons.size(), lats.size()));
+  for (size_t i = 0; i < n; i++) {
     addStation(lons[i], lats[i], names[i]);
   }
   defineCoordinates();
@@ -95,9 +90,8 @@ StationPlot::StationPlot(const vector<stationInfo> & stations)
   METLIBS_LOG_SCOPE();
 #endif
   init();
-  unsigned int n = stations.size();
-  for (unsigned int i = 0; i < n; i++) {
-    addStation(stations[i].lon, stations[i].lat, stations[i].name);
+  for (const stationInfo& si : stations) {
+    addStation(si.lon, si.lat, si.name);
   }
   defineCoordinates();
 }
@@ -110,12 +104,8 @@ StationPlot::StationPlot(const vector<std::string> & names,
   METLIBS_LOG_SCOPE();
 #endif
   init();
-  unsigned int n = names.size();
-  if (n > lons.size())
-    n = lons.size();
-  if (n > lats.size())
-    n = lats.size();
-  for (unsigned int i = 0; i < n; i++) {
+  const size_t n = std::min(names.size(), std::min(lons.size(), lats.size()));
+  for (size_t i = 0; i < n; i++) {
     addStation(lons[i], lats[i], names[i], images[i]);
   }
   useImage = true;
@@ -125,8 +115,8 @@ StationPlot::StationPlot(const vector<std::string> & names,
 StationPlot::StationPlot(const vector <Station*> &stations)
 {
   init();
-  for (unsigned int i = 0; i < stations.size(); ++i)
-    addStation(stations[i]);
+  for (Station* si : stations)
+    addStation(si);
 
   useImage = false;
   defineCoordinates();
@@ -244,19 +234,14 @@ StationPlot::~StationPlot()
 #ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
 #endif
-  int n = stations.size();
-  for (int i = 0; i < n; i++) {
-    delete stations[i];
-  }
-  stations.clear();
-  stationAreas.clear();
+  diutil::delete_all_and_clear(stations);
 }
 
 void StationPlot::addStation(float lon, float lat, const std::string& newname, const std::string& newimage, int alpha)
 {
   //at the moment, this should only be called from constructor, since
   //define coordinates must be called to actually plot stations
-  Station * newStation = new Station;
+  std::unique_ptr<Station> newStation(new Station);
   if (not newname.empty()) {
     newStation->name = newname;
   } else {
@@ -274,7 +259,7 @@ void StationPlot::addStation(float lon, float lat, const std::string& newname, c
   }
   newStation->status = Station::noStatus;
 
-  addStation(newStation);
+  addStation(newStation.release());
 }
 
 void StationPlot::addStation(Station* station)
@@ -334,95 +319,92 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
 #endif
 
   float h = 0; //height for displaying text
+  Station* si = stations[i];
   float x = xplot[i];
   float y = yplot[i];
   bool plotted = true;
 
   if (useImage) {
-    //use either stations[i]->image or imageNormal/imageSelected
-    if (!stations[i]->image.empty() && stations[i]->image2.empty()) {
-      if (stations[i]->image == "wind") {
-        h = (stations[i]->isSelected ? 40 : 30)
-            * getStaticPlot()->getPhysToMapScaleY();
+    // use either si->image or imageNormal/imageSelected
+    if (!si->image.empty() && si->image2.empty()) {
+      if (si->image == "wind") {
+        h = (si->isSelected ? 40 : 30) * getStaticPlot()->getPhysToMapScaleY();
         plotWind(gl, i, x, y);
       } else {
-        h = ig.height_(stations[i]->image) * getStaticPlot()->getPhysToMapScaleY();
-        if (!ig.plotImage(gl, getStaticPlot()->plotArea(), stations[i]->image, x, y, true, 1, stations[i]->alpha))
+        h = ig.height_(si->image) * getStaticPlot()->getPhysToMapScaleY();
+        if (!ig.plotImage(gl, getStaticPlot()->plotArea(), si->image, x, y, true, 1, si->alpha))
           plotted = false;
       }
-      if (stations[i]->isSelected && stations[i]->image != "wind")
+      if (si->isSelected && si->image != "wind")
         gl->Color3ub(255, 0, 0); //red
       glPlot(gl, Station::noStatus, x, y);
-    } else if (!stations[i]->image.empty() && !stations[i]->image2.empty()) {
-      float h1 = ig.height_(stations[i]->image);
-      float h2 = ig.height_(stations[i]->image2);
+    } else if (!si->image.empty() && !si->image2.empty()) {
+      float h1 = ig.height_(si->image);
+      float h2 = ig.height_(si->image2);
       h = std::max(h1, h2) * getStaticPlot()->getPhysToMapScaleY();
-      float w1 = ig.width_(stations[i]->image);
-      float w2 = ig.width_(stations[i]->image2);
+      float w1 = ig.width_(si->image);
+      float w2 = ig.width_(si->image2);
       gl->Color3ub(128, 128, 128); //grey
       glPlot(gl, Station::noStatus, x, y);
-      if (!ig.plotImage(gl, getStaticPlot()->plotArea(), stations[i]->image, x - w1 / 2, y, true, 1, stations[i]->alpha))
+      if (!ig.plotImage(gl, getStaticPlot()->plotArea(), si->image, x - w1 / 2, y, true, 1, si->alpha))
         plotted = false;
-      if (!ig.plotImage(gl, getStaticPlot()->plotArea(), stations[i]->image2, x + w2 / 2, y, true, 1, stations[i]->alpha))
+      if (!ig.plotImage(gl, getStaticPlot()->plotArea(), si->image2, x + w2 / 2, y, true, 1, si->alpha))
         plotted = false;
-      if (stations[i]->isSelected)
+      if (si->isSelected)
         gl->Color3ub(255, 0, 0); //red
       glPlot(gl, Station::noStatus, x, y);
-    } else if (!stations[i]->isSelected && !imageNormal.empty()) {
+    } else if (!si->isSelected && !imageNormal.empty()) {
       //otherwise plot images for selected/normal stations
-      if (!ig.plotImage(gl, getStaticPlot()->plotArea(), imageNormal, x, y, true, 1, stations[i]->alpha))
+      if (!ig.plotImage(gl, getStaticPlot()->plotArea(), imageNormal, x, y, true, 1, si->alpha))
         plotted = false;
       h = ig.height_(imageNormal) * getStaticPlot()->getPhysToMapScaleY();
-    } else if (stations[i]->isSelected && !imageSelected.empty()) {
-      if (!ig.plotImage(gl, getStaticPlot()->plotArea(), imageSelected, x, y, true, 1, stations[i]->alpha))
+    } else if (si->isSelected && !imageSelected.empty()) {
+      if (!ig.plotImage(gl, getStaticPlot()->plotArea(), imageSelected, x, y, true, 1, si->alpha))
         plotted = false;
       h = ig.height_(imageSelected) * getStaticPlot()->getPhysToMapScaleY();
     } else {
       //if no image plot crosses and circles for selected/normal stations
       //METLIBS_LOG_DEBUG("useImage=false");
-      glPlot(gl, Station::failed, x, y, stations[i]->isSelected);
+      glPlot(gl, Station::failed, x, y, si->isSelected);
     }
 
     //if something went wrong,
     //plot crosses and circles for selected/normal stations
     if (!plotted) {
-      glPlot(gl, Station::failed, x, y, stations[i]->isSelected);
+      glPlot(gl, Station::failed, x, y, si->isSelected);
     }
-  } else if (stations[i]->status != Station::noStatus) {
-    glPlot(gl, stations[i]->status, x, y, stations[i]->isSelected);
+  } else if (si->status != Station::noStatus) {
+    glPlot(gl, si->status, x, y, si->isSelected);
   }
 
-  if (useStationNameNormal && !stations[i]->isSelected) {
-    float cw, ch;
-    gl->Color3ub(0, 0, 0); //black
-    gl->setFont(diutil::BITMAPFONT, diutil::F_NORMAL, 10);
-    gl->getTextSize(stations[i]->name, cw, ch);
-    gl->drawText(stations[i]->name, x - cw / 2, y + h / 2, 0.0);
-  } else if (useStationNameSelected && stations[i]->isSelected) {
+  if ((useStationNameNormal && !si->isSelected) || (useStationNameSelected && si->isSelected)) {
     float cw, ch;
     gl->setFont(diutil::BITMAPFONT, diutil::F_NORMAL, 10);
-    gl->getTextSize(stations[i]->name, cw, ch);
-    gl->Color3ub(255, 255, 255); //white
-    glPlot(gl, Station::noStatus, x, y + h / 2 + ch * 0.1);
-    gl->Color3ub(0, 0, 0); //black
-    gl->drawText(stations[i]->name, x - cw / 2, y + h / 2 + ch * 0.35,
-        0.0);
+    gl->getTextSize(si->name, cw, ch);
+    if (useStationNameNormal && !si->isSelected) {
+      gl->Color3ub(0, 0, 0); // black
+      gl->drawText(si->name, x - cw / 2, y + h / 2, 0.0);
+    } else if (useStationNameSelected && si->isSelected) {
+      gl->Color3ub(255, 255, 255); // white
+      glPlot(gl, Station::noStatus, x, y + h / 2 + ch * 0.1);
+      gl->Color3ub(0, 0, 0); // black
+      gl->drawText(si->name, x - cw / 2, y + h / 2 + ch * 0.35, 0.0);
+    }
   }
 
-  if (showText || stations[i]->isSelected) {
-    int nt = stations[i]->vsText.size();
-    for (int it = 0; it < nt; it++) {
+  if (showText || si->isSelected) {
+    for (const auto& t : si->vsText) {
       float cw, ch;
       gl->setColour(textColour);
-      const std::string& text = stations[i]->vsText[it].text;
+      const std::string& text = t.text;
       gl->setFont(diutil::BITMAPFONT, textStyle, textSize);
       gl->getTextSize(text, cw, ch);
-      if (stations[i]->vsText[it].hAlign == align_center)
+      if (t.hAlign == align_center)
         gl->drawText(text, x - cw / 2, y - ch / 4, 0.0);
-      else if (stations[i]->vsText[it].hAlign == align_top)
+      else if (t.hAlign == align_top)
         gl->drawText(text, x - cw / 2, y + h / 2, 0.0);
-      else if (stations[i]->vsText[it].hAlign == align_bottom) {
-        if (stations[i]->isSelected)
+      else if (t.hAlign == align_bottom) {
+        if (si->isSelected)
           gl->Color3ub(255, 255, 255); //white
         glPlot(gl, Station::noStatus, x, y - h / 1.9 - ch * 1.0);
         gl->setColour(textColour);
@@ -455,9 +437,8 @@ void StationPlot::show()
 
 void StationPlot::unselect()
 {
-  int n = stations.size();
-  for (int i = 0; i < n; i++)
-    stations[i]->isSelected = false;
+  for (Station* si : stations)
+    si->isSelected = false;
   index = -1;
 }
 
@@ -475,14 +456,9 @@ void StationPlot::defineCoordinates()
 #endif
   // correct spec. when making Projection for long/lat coordinates
   //positions from lat/lon will be converted in changeprojection
-  int npos = stations.size();
-  xplot.clear();
-  yplot.clear();
-  for (int i = 0; i < npos; i++) {
-    Station* s = stations[i];
-    xplot.push_back(s->lon());
-    yplot.push_back(s->lat());
-  }
+  const size_t npos = stations.size();
+  xplot.reset(new float[npos]);
+  yplot.reset(new float[npos]);
   changeProjection();
 }
 
@@ -492,32 +468,22 @@ bool StationPlot::changeProjection()
   METLIBS_LOG_SCOPE("Change projection to: "<< area << " wind might not be rotated");
 #endif
 
-  int npos = xplot.size();
+  const size_t npos = stations.size();
   if (npos == 0) {
     return false;
   }
 
-  float *xpos = new float[npos];
-  float *ypos = new float[npos];
-  for (int i = 0; i < npos; i++) {
-    Station* s = stations[i];
-    xpos[i] = s->lon();
-    ypos[i] = s->lat();
+  size_t i = 0;
+  for (Station* si : stations) {
+    xplot[i] = si->lon();
+    yplot[i] = si->lat();
+    i += 1;
   }
 
-  if (!getStaticPlot()->GeoToMap(npos, xpos, ypos)) {
+  if (!getStaticPlot()->GeoToMap(npos, xplot.get(), yplot.get())) {
     METLIBS_LOG_ERROR("getPoints error");
-    delete[] xpos;
-    delete[] ypos;
     return false;
   }
-  for (int i = 0; i < npos; i++) {
-    xplot[i] = xpos[i];
-    yplot[i] = ypos[i];
-  }
-
-  delete[] xpos;
-  delete[] ypos;
 
   // TODO rotate wind
 
@@ -605,9 +571,9 @@ vector<std::string> StationPlot::findStation(int x, int y, bool add)
     add = found->isSelected || add;
     setSelectedStation(found->name, add);
 
-    for (unsigned int i = 0; i < xplot.size(); i++) {
-      if (stations[i]->isSelected)
-        stationstring.push_back(stations[i]->name);
+    for (const Station* si : stations) {
+      if (si->isSelected)
+        stationstring.push_back(si->name);
     }
   }
 

@@ -63,8 +63,6 @@ public:
   //! @return short name of current command
   std::string getShortname();
 
-  bool show_names;
-
 public Q_SLOTS:
   //! Updates the contents of the dialog with new data which is obtained from the manager.
   /*! This is only performed when the dialog is shown.
@@ -94,6 +92,8 @@ private Q_SLOTS:
   void showStationNamesActivated(bool);
 
 private:
+  bool show_names;
+
   stationDialogInfo dialogInfo;
   stationDialogInfo chosenInfo;
 

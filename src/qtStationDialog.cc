@@ -113,20 +113,6 @@ StationDialog::StationDialog(QWidget* parent, Controller* llctrl)
   connect(showStationNames, SIGNAL(toggled(bool)), SLOT(showStationNamesActivated(bool)));
   showStationNames->setChecked(show_names);
 
-  //  QPushButton *helpButton = NormalPushButton(tr("Help"), this);
-
-  //  fieldHide = NormalPushButton(tr("Hide"), this);
-  //  fieldApplyHide = NormalPushButton(tr("Apply+Hide"), this);
-  //  fieldApply = NormalPushButton(tr("Apply"), this);
-
-  //  reloadButton = NormalPushButton(tr("Reload"), this);
-  //  reloadButton->setEnabled(false);
-
-  //  connect(helpButton, SIGNAL(clicked()), SLOT(helpClicked()));
-  //  connect(fieldHide, SIGNAL(clicked()), SLOT(hideClicked()));
-  //  connect(fieldApplyHide, SIGNAL(clicked()), SLOT(applyHideClicked()));
-  //  connect(fieldApply, SIGNAL(clicked()), SLOT(applyClicked()));
-
   connect(stationPlotList->selectionModel(),
           SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
           this, SLOT(chooseSet()));
@@ -135,15 +121,8 @@ StationDialog::StationDialog(QWidget* parent, Controller* llctrl)
           SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
           this, SLOT(selectSet(const QItemSelection &)));
 
-  //  connect(reloadButton, SIGNAL(clicked()), SLOT(updateTimes()));
-
   QGridLayout* buttonLayout = new QGridLayout();
   buttonLayout->addWidget(showStationNames, 0, 1);
-  //  buttonLayout->addWidget(reloadButton, 0, 2);
-  //  buttonLayout->addWidget(helpButton, 1, 0);
-  //  buttonLayout->addWidget(fieldHide, 2, 0);
-  //  buttonLayout->addWidget(fieldApplyHide, 2, 1);
-  //  buttonLayout->addWidget(fieldApply, 2, 2);
 
   QVBoxLayout* mainLayout = new QVBoxLayout();
   mainLayout->addWidget(stationPlotLabel);

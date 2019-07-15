@@ -366,8 +366,7 @@ void StationManager::makeStationPlot(const std::string& commondesc,
     const std::string& common, const std::string& description, int from,
     const vector<std::string>& data)
 {
-  StationPlot* stationPlot = new StationPlot(commondesc, common, description, from, data);
-  putStations(stationPlot);
+  putStations(new StationPlot(commondesc, common, description, from, data));
 }
 
 Station* StationManager::findStation(int x, int y)

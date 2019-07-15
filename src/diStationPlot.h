@@ -255,8 +255,8 @@ private:
   void glPlot(DiGLPainter* gl, Station::Status tp, float x, float y, bool selected = false);
   void plotWind(DiGLPainter* gl, int i, float x, float y, bool classic=false, float scale=1);
 
-  std::vector <float> xplot; //x-positions to plot in current projection
-  std::vector <float> yplot; //y-positions to plot in current projection
+  std::unique_ptr<float[]> xplot; // x-positions to plot in current projection
+  std::unique_ptr<float[]> yplot; // y-positions to plot in current projection
 
   bool visible;
   std::string annotation;
