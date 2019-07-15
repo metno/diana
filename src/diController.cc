@@ -723,11 +723,6 @@ vector<SatPlot*> Controller::getSatellitePlots() const
   return satm->getSatellitePlots();
 }
 
-std::vector<FieldPlot*> Controller::getFieldPlots() const
-{
-  return plotm->fieldplots()->getFieldPlots();
-}
-
 std::vector<ObsPlot*> Controller::getObsPlots() const
 {
   return plotm->obsplots()->getObsPlots();

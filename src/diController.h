@@ -295,7 +295,6 @@ public:
 
   // Miscellaneous get methods
   std::vector<SatPlot*> getSatellitePlots() const;   // Returns a vector of defined satellite plots.
-  std::vector<FieldPlot*> getFieldPlots() const;     // Returns a vector of defined field plots.
   std::vector<ObsPlot*> getObsPlots() const;         // Returns a vector of defined observation plots.
 };
 
