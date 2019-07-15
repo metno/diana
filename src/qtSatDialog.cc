@@ -921,8 +921,7 @@ vector<string> SatDialog::writeLog()
   return vstr;
 }
 
-void SatDialog::readLog(const vector<string>& vstr,
-    const string& thisVersion, const string& logVersion)
+void SatDialog::readLog(const vector<string>& vstr, const string& /*thisVersion*/, const string& /*logVersion*/)
 {
   readSatOptionsLog(vstr, satoptions);
 }

@@ -59,9 +59,9 @@ public:
   double getGridResolutionY() const;
   void getAnnotation(std::string &, Colour &) const override;
   void getSatName(std::string &);
-  void getCalibChannels(std::vector<std::string>& channels );
+  void getCalibChannels(std::vector<std::string>& channels) const;
   ///get pixel value
-  void values(float x,float y, std::vector<SatValues>& satval);
+  void values(float x, float y, std::vector<SatValues>& satval) const;
   ///get legend
   bool getAnnotations(std::vector<std::string>& anno);
   void setSatAuto(bool, const std::string&, const std::string&);

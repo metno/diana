@@ -36,6 +36,7 @@
 #include "diSat.h"
 #include "diSatPlotCommand.h"
 #include "diStaticPlot.h"
+#include "util/misc_util.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -121,14 +122,12 @@ void SatPlot::clearData()
 {
 }
 
-void SatPlot::getCalibChannels(std::vector<std::string>& channels)
+void SatPlot::getCalibChannels(std::vector<std::string>& channels) const
 {
-  channels.insert(channels.end(),
-      satdata->cal_channels.begin(),
-      satdata->cal_channels.end());
+  diutil::insert_all(channels, satdata->cal_channels);
 }
 
-void SatPlot::values(float x, float y, std::vector<SatValues>& satval)
+void SatPlot::values(float x, float y, std::vector<SatValues>& satval) const
 {
   if (not isEnabled())
     return;

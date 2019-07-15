@@ -83,29 +83,9 @@ Sat::Sat(const Sat &rhs)
 }
 
 Sat::Sat(SatPlotCommand_cp cmd)
-    : approved(false)
-    , autoFile(true)
-    , cut(defaultCut)
-    , alphacut(defaultAlphacut)
-    , alpha(defaultAlpha)
-    , maxDiff(defaultTimediff)
-    , classtable(defaultClasstable)
-    , palette(false)
-    , mosaic(false)
-    , commonColourStretch(false)
-    , image(0)
-    , calibidx(-1)
-    , channelschanged(true)
-    , rgboperchanged(true)
-    , alphaoperchanged(true)
-    , mosaicchanged(true)
+    : Sat()
 {
   METLIBS_LOG_SCOPE(LOGVAL(cmd) << LOGVAL(cut));
-
-  for (int i=0; i<maxch; i++)
-    rawimage[i] = 0;
-  for (int i=0; i<3; i++)
-    origimage[i] = 0;
 
   satellite = cmd->satellite;
   filetype = cmd->filetype;
@@ -215,15 +195,15 @@ void Sat::memberCopy(const Sat& rhs)
 /* * PURPOSE:   calculate and print the temperature or the albedo of
  *            the pixel pointed at
  */
-void Sat::values(int x, int y, std::vector<SatValues>& satval)
+void Sat::values(int x, int y, std::vector<SatValues>& satval) const
 {
   if (x>=0 && x<area.nx && y>=0 && y<area.ny && approved) { // inside image/legal image
     int index = area.nx*(area.ny-y-1) + x;
 
     //return value from  all channels
 
-    std::map<int,table_cal>::iterator p=calibrationTable.begin();
-    std::map<int,table_cal>::iterator q=calibrationTable.end();
+    std::map<int, table_cal>::const_iterator p = calibrationTable.begin();
+    std::map<int, table_cal>::const_iterator q = calibrationTable.end();
     for (; p!=q && rawimage[p->first]!=NULL; p++) {
       SatValues sv;
       sv.value = -999.99;
@@ -238,16 +218,18 @@ void Sat::values(int x, int y, std::vector<SatValues>& satval)
         pvalue = rawimage[p->first][index];
       }
       //return if colour is hidden
-      if ( hideColour.count(pvalue) && hideColour[pvalue] == 0) {
-          return;
+      const auto ithc = hideColour.find(pvalue);
+      if (ithc != hideColour.end() && ithc->second == 0) {
+        return;
       }
-      if (pvalue!=0) {
-        if (p->second.val.size()>0) {
-          if (int(p->second.val.size())>pvalue) {
+      if (pvalue != 0) {
+        const int nv = p->second.val.size();
+        if (nv > 0) {
+          if (nv > pvalue) {
             if (palette) {
-              sv.text = p->second.val[(int)pvalue];
+              sv.text = p->second.val[pvalue];
             } else {
-              sv.value = atof(p->second.val[(int)pvalue].c_str());
+              sv.value = atof(p->second.val[pvalue].c_str());
               if (miutil::contains(p->second.channel, "TEMP"))
                 sv.value -= 273.0;//use degrees celsius instead of Kelvin
             }

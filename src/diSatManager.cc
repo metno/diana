@@ -93,13 +93,13 @@ void SatManager::prepareSat(const PlotCommand_cpv& inp)
   METLIBS_LOG_SCOPE();
 
   diutil::was_enabled plotenabled;
-  for (unsigned int i = 0; i < vsp.size(); i++)
-    plotenabled.save(vsp[i]);
+  for (SatPlot* sp : vsp)
+    plotenabled.save(sp);
 
   init(inp);
 
-  for (unsigned int i = 0; i < vsp.size(); i++)
-    plotenabled.restore(vsp[i]);
+  for (SatPlot* sp : vsp)
+    plotenabled.restore(sp);
 }
 
 void SatManager::init(const PlotCommand_cpv& pinfo)
@@ -257,14 +257,14 @@ void SatManager::addSatAnnotations(std::vector<AnnotationPlot::Annotation>& anno
 
 void SatManager::getDataAnnotations(std::vector<std::string>& anno)
 {
-  for (size_t j = 0; j < vsp.size(); j++)
-    vsp[j]->getAnnotations(anno);
+  for (SatPlot* sp : vsp)
+    sp->getAnnotations(anno);
 }
 
 void SatManager::plot(DiGLPainter* gl, PlotOrder porder)
 {
-  for (size_t i = 0; i < vsp.size(); i++)
-    vsp[i]->plot(gl, porder);
+  for (SatPlot* sp : vsp)
+    sp->plot(gl, porder);
 }
 
 void SatManager::clear()
@@ -272,24 +272,14 @@ void SatManager::clear()
   diutil::delete_all_and_clear(vsp);
 }
 
-bool SatManager::getGridResolution(float& rx, float& ry)
+bool SatManager::getGridResolution(float& rx, float& ry) const
 {
   if (vsp.empty())
     return false;
-  rx = vsp[0]->getGridResolutionX();
-  ry = vsp[0]->getGridResolutionY();
+  const SatPlot* sp = vsp.front();
+  rx = sp->getGridResolutionX();
+  ry = sp->getGridResolutionY();
   return true;
-}
-
-bool SatManager::setData()
-{
-  METLIBS_LOG_SCOPE();
-  bool allok = !vsp.empty();
-  for (size_t i = 0; i < vsp.size(); i++) {
-    if (not setData(vsp[i]))
-      allok = false;
-  }
-  return allok;
 }
 
 bool SatManager::getSatArea(Area& a) const
@@ -298,6 +288,17 @@ bool SatManager::getSatArea(Area& a) const
     return false;
   a = vsp.front()->getSatArea();
   return true;
+}
+
+bool SatManager::setData()
+{
+  METLIBS_LOG_SCOPE();
+  bool allok = !vsp.empty();
+  for (SatPlot* sp : vsp) {
+    if (!setData(sp))
+      allok = false;
+  }
+  return allok;
 }
 
 bool SatManager::setData(SatPlot *satp)
@@ -508,7 +509,7 @@ bool SatManager::readSatFile(Sat* satdata, const miutil::miTime& t)
 }
 
 /***********************************************************************/
-void SatManager::setPalette(Sat* satdata, SatFileInfo &fInfo)
+void SatManager::setPalette(Sat* satdata, SatFileInfo& /*fInfo*/)
 {
   //  PURPOSE:   uses palette to put data from image into satdata.image
   METLIBS_LOG_SCOPE(miTime::nowTime());
@@ -1061,9 +1062,9 @@ const std::vector<Colour> & SatManager::getColours(const std::string &satellite,
 std::vector<std::string> SatManager::getCalibChannels()
 {
   std::vector<std::string> channels;
-  for (size_t i = 0; i < vsp.size(); i++) {
-    if (vsp[i]->isEnabled())
-      vsp[i]->getCalibChannels(channels); //add channels
+  for (const SatPlot* sp : vsp) {
+    if (sp->isEnabled())
+      sp->getCalibChannels(channels); // add channels
   }
   return channels;
 }
@@ -1071,10 +1072,9 @@ std::vector<std::string> SatManager::getCalibChannels()
 std::vector<SatValues> SatManager::showValues(float x, float y)
 {
   std::vector<SatValues> satval;
-  for (size_t i = 0; i < vsp.size(); i++) {
-    if (vsp[i]->isEnabled()) {
-      vsp[i]->values(x, y, satval);
-    }
+  for (const SatPlot* sp : vsp) {
+    if (sp->isEnabled())
+      sp->values(x, y, satval);
   }
   return satval;
 }
@@ -1082,8 +1082,8 @@ std::vector<SatValues> SatManager::showValues(float x, float y)
 void SatManager::setSatAuto(bool autoFile, const std::string& satellite,
     const std::string& file)
 {
-  for (size_t j = 0; j < vsp.size(); j++)
-    vsp[j]->setSatAuto(autoFile, satellite, file);
+  for (SatPlot* sp : vsp)
+    sp->setSatAuto(autoFile, satellite, file);
 }
 
 plottimes_t SatManager::getSatTimes()

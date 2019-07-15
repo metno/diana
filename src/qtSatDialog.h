@@ -80,6 +80,8 @@ public:
 
   /// read log string
   void readLog(const std::vector<std::string>& vstr, const std::string& thisVersion, const std::string& logVersion);
+
+  //! read log -- this is public so that it can be tested
   static void readSatOptionsLog(const std::vector<std::string>& vstr, satoptions_t& satoptions);
 
 public /*Q_SLOTS*/:

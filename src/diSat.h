@@ -149,7 +149,7 @@ public:
   bool operator==(const Sat &rhs) const;
 
   void cleanup();
-  void values(int x,int y, std::vector<SatValues>& satval);
+  void values(int x, int y, std::vector<SatValues>& satval) const;
   void setCalibration();
   void setAnnotation();
   void setPlotName();

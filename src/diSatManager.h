@@ -125,7 +125,7 @@ public:
   void getDataAnnotations(std::vector<std::string>& anno);
   void plot(DiGLPainter* gl, PlotOrder porder);
   void clear();
-  bool getGridResolution(float& rx, float& ry);
+  bool getGridResolution(float& rx, float& ry) const;
 
   bool setData();
   bool getSatArea(Area& a) const;
