@@ -186,11 +186,10 @@ bool guessProjectionFromWKT(Projection& p, const QString& wkt)
 } // anonymous namespace
 
 ShapeObject::ShapeObject()
-  : mReductionScale(0, 0) // invalid
+    : ObjectPlot(ShapeXXX)
+    , mReductionScale(0, 0) // invalid
 {
   projection = Projection::geographic();
-
-  typeOfObject = ShapeXXX;
 
   ColourShading cs("standard");
   colours=cs.getColourShading();

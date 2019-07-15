@@ -144,32 +144,32 @@ protected:
   float getDwidth(){return  window_dw;}           // returns width of main window
   float getDheight(){return  window_dh;}          // returns height of main window
   virtual void setType(int ty){type = ty;}
-  virtual bool setType(const std::string& tystring){return false;}
+  virtual bool setType(const std::string&) { return false; }
   virtual void setIndex(int index){drawIndex=index;}
 
 public:
-  ObjectPlot();
   /// constructor taking type of object as argument
   ObjectPlot(int objTy);
-  ObjectPlot(const ObjectPlot &rhs);
-  virtual ~ObjectPlot();
+  ~ObjectPlot();
 
+  ObjectPlot(const ObjectPlot& rhs);
   ObjectPlot& operator=(const ObjectPlot &rhs);
+
   /// returns true if typeOfObject equals Obtype
-  bool objectIs(int Obtype){return (typeOfObject ==Obtype);}
-  std::string getBasisColor() {return basisColor;}   ///< gets basis color of object
-  void   setBasisColor(std::string);                 ///< sets basis color of object
-  void   setObjectColor(std::string);                /// < sets actual color of object
-  void   setObjectColor(Colour::ColourInfo);      ///< sets actual color of object
-  void   setObjectBorderColor(std::string);  /// < sets actual color of object
-  void   setObjectRGBColor(std::string);             /// < sets actual color of object from rgb
+  bool objectIs(int Obtype) const { return (typeOfObject == Obtype); }
+  const std::string& getBasisColor() const { return basisColor; } ///< gets basis color of object
+  void setBasisColor(const std::string&);                         ///< sets basis color of object
+  void setObjectColor(const std::string&);                        /// < sets actual color of object
+  void setObjectColor(const Colour::ColourInfo&);                 ///< sets actual color of object
+  void setObjectBorderColor(const std::string&);                  /// < sets actual color of object
+  void setObjectRGBColor(const std::string&);                     /// < sets actual color of object from rgb
   /// set alpha value of object colour
   void   setColorAlpha(int alpha){ objectColour.set(Colour::alpha,alpha);}
-  Colour::ColourInfo getObjectColor();            ///< gets actual colour of object
+  Colour::ColourInfo getObjectColor() const; ///< gets actual colour of object
 
-  void setLineType(std::string linetype){itsLinetype=Linetype(linetype);}
+  void setLineType(const std::string& linetype) { itsLinetype = Linetype(linetype); }
   void updateBoundBox();                          ///< finds the new bound box
-  Rectangle getBoundBox(){return boundBox;}       ///< returns bound box
+  const Rectangle& getBoundBox() const { return boundBox; } ///< returns bound box
   virtual void addPoint(float,float);             ///< adds new point
   /// marks node points close to x,y returns true if sucsess
   bool markPoint(float x,float y);
@@ -177,19 +177,19 @@ public:
   void unmarkAllPoints();                         ///< unmarks all points on this object
   bool deleteMarkPoints();                        ///< deletes all marked points on object
   bool ismarkPoint(float,float);                  ///< returns true if point marked
-  bool ismarkAllPoints();                         ///< returns true if all points marked
-  bool ismarkSomePoint();                         ///< returns true if some points marked
-  bool ismarkEndPoint();                          ///< returns true if end point marked
-  bool ismarkBeginPoint();                        ///< returns true if begin point marked
-  bool ismarkJoinPoint();                         ///< returns true if joined points marked
+  bool ismarkAllPoints() const;                   ///< returns true if all points marked
+  bool ismarkSomePoint() const;                   ///< returns true if some points marked
+  bool ismarkEndPoint() const;                    ///< returns true if end point marked
+  bool ismarkBeginPoint() const;                  ///< returns true if begin point marked
+  bool ismarkJoinPoint() const;                   ///< returns true if joined points marked
   /// makes join point when joining fronts
   bool joinPoint(float,float);
   bool isJoinPoint(float,float,float&,float&);    ///< returns true if joined point
-  bool isJoinPoint(float,float);                  ///< returns true if joined point
+  bool isJoinPoint(float, float) const;           ///< returns true if joined point
   void unjoinAllPoints();                         ///< unjoins all points
   void unJoinPoint(float,float);                  ///< unmarks point inside rect at x.y
   virtual bool isEmpty();                         ///< returns true if object contains no points
-  bool isSinglePoint();                           ///< returns true if object contain only one point
+  bool isSinglePoint() const;                     ///< returns true if object contain only one point
   /// moves point from x,y to new_x,new_y
   bool movePoint(float x,float y,float new_x,float new_y);
   bool moveMarkedPoints(float,float);             ///< moves marked points d_x d_y
@@ -203,7 +203,7 @@ public:
   /// returns true if end point in rectangle around x,y point values returned in xin,yin
   bool isEndPoint(float d,float y,float& xin,float& yin);
   int endPoint(){return nodePoints.size()-1;}     ///< returns index to end point
-  bool readObjectString(std::string objectString);   ///< reads string with object type, coordinates, colour
+  bool readObjectString(const std::string& objectString); ///< reads string with object type, coordinates, colour
   std::string writeObjectString();                   ///< writes string with object type, coordinates, colour
   void drawNodePoints(DiGLPainter* gl);                          ///< draws all the node points
   void drawJoinPoints(DiGLPainter* gl);                          ///< draws all the join points

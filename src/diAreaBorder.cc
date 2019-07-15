@@ -43,8 +43,8 @@
 using namespace::miutil;
 
 AreaBorder::AreaBorder()
+    : ObjectPlot(Border)
 {
-  typeOfObject = Border;
   linewidth=2;    // default linewidth of border
   transitionwidth = 8;// default transitionwidth
   type=7;         // default fronttype

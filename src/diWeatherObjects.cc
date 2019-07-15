@@ -145,8 +145,8 @@ bool WeatherObjects::changeProjection(const Area& newArea)
   for (int i=0; i<obsize; i++)
     npos += objects[i]->getXYZsize();
 
-  float *xpos = new float[npos];
-  float *ypos = new float[npos];
+  std::unique_ptr<float[]> xpos(new float[npos]);
+  std::unique_ptr<float[]> ypos(new float[npos]);
   int n= 0;
 
   for (int i=0; i<obsize; i++){
@@ -164,17 +164,15 @@ bool WeatherObjects::changeProjection(const Area& newArea)
 
   bool converted;
   if (itsArea.P() == geoArea.P()) {
-    converted = newArea.P().convertFromGeographic(npos,xpos,ypos);
+    converted = newArea.P().convertFromGeographic(npos, xpos.get(), ypos.get());
   } else if (newArea.P() == geoArea.P()) {
-    converted = itsArea.P().convertToGeographic(npos,xpos,ypos);
+    converted = itsArea.P().convertToGeographic(npos, xpos.get(), ypos.get());
   } else {
-    converted = newArea.P().convertPoints(itsArea.P(), npos, xpos, ypos);
+    converted = newArea.P().convertPoints(itsArea.P(), npos, xpos.get(), ypos.get());
   }
 
   if (!converted) {
     METLIBS_LOG_ERROR("coordinate conversion error");
-    delete[] xpos;
-    delete[] ypos;
     return false;
   }
 
@@ -189,9 +187,6 @@ bool WeatherObjects::changeProjection(const Area& newArea)
     objects[i]->setXY(x,y);
     n += m;
   }
-
-  delete[] xpos;
-  delete[] ypos;
 
   itsArea= newArea;
 

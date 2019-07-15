@@ -55,11 +55,6 @@ int ObjectPlot::siglinewidth=2;
 // static
 map <std::string,std::string> ObjectPlot::editTranslations;
 
-ObjectPlot::ObjectPlot()
-{
-  initVariables();
-}
-
 ObjectPlot::ObjectPlot(int objTy)
   : typeOfObject(objTy)
 {
@@ -238,72 +233,65 @@ XY ObjectPlot::getXY(int idx) const
 
 std::vector<XY> ObjectPlot::getXY() const
 {
-  const int n = getXYZsize();
   std::vector<XY> xy;
-  xy.reserve(n);
-  for (int i=0; i<n; ++i)
-    xy.push_back(getXY(i));
+  xy.reserve(nodePoints.size());
+  for (const ObjectPoint& np : nodePoints)
+    xy.push_back(np.xy());
   return xy;
 }
 
 
 std::vector<XY> ObjectPlot::getXYjoined() const
 {
-  const int n = nodePoints.size();
   std::vector<XY> xy;
-  xy.reserve(n / 2);
-  for (int i=0; i<n; ++i)
-    if (nodePoints[i].joined())
-      xy.push_back(nodePoints[i].xy());
+  xy.reserve(nodePoints.size());
+  for (const ObjectPoint& np : nodePoints)
+    if (np.joined())
+      xy.push_back(np.xy());
   return xy;
 }
 
 
 std::vector<XY> ObjectPlot::getXYmarked() const
 {
-  const int n = nodePoints.size();
   std::vector<XY> xy;
-  xy.reserve(n / 2);
-  for (int i=0; i<n; ++i)
-    if (nodePoints[i].marked())
-      xy.push_back(nodePoints[i].xy());
+  xy.reserve(nodePoints.size());
+  for (const ObjectPoint& np : nodePoints)
+    if (np.marked())
+      xy.push_back(np.xy());
   return xy;
 }
 
 
 std::vector<XY> ObjectPlot::getXYmarkedJoined() const
 {
-  const int n = nodePoints.size();
   std::vector<XY> xy;
-  xy.reserve(n / 2);
-  for (int i=0; i<n; ++i)
-    if (nodePoints[i].marked() && nodePoints[i].joined())
-      xy.push_back(nodePoints[i].xy());
+  xy.reserve(nodePoints.size());
+  for (const ObjectPoint& np : nodePoints)
+    if (np.marked() && np.joined())
+      xy.push_back(np.xy());
   return xy;
 }
 
 
 void ObjectPlot::setXY(const vector<float>& x, const vector <float>& y)
 {
-  unsigned int n=x.size();
-  unsigned int end=nodePoints.size();
-  if (y.size()<n) n=y.size();
-  for (unsigned int i = 0; i < n; i++) {
-    if (i < end) {
-      nodePoints[i].setXY(x[i], y[i]);
-    } else {
-      nodePoints.push_back(ObjectPoint(x[i],y[i]));
-    }
-  }
+  const size_t n = std::min(x.size(), y.size());
+  const size_t end = std::min(n, nodePoints.size());
+  size_t i = 0;
+  for (; i < end; i++)
+    nodePoints[i].setXY(x[i], y[i]);
+  for (; i < n; i++)
+    nodePoints.push_back(ObjectPoint(x[i], y[i]));
   updateBoundBox();
 }
 
 void ObjectPlot::recalculate()
 {
-  //METLIBS_LOG_DEBUG("------------ ObjectPlot::recalculate");
 }
 
-void ObjectPlot::addPoint( float x , float y){
+void ObjectPlot::addPoint(float x, float y)
+{
   switch (currentState){
   case active:
     int n=nodePoints.size();
@@ -355,22 +343,20 @@ void ObjectPlot::changeBoundBox(float x, float y)
   }
 }
 
-
-
-bool ObjectPlot::markPoint( float x , float y){
+bool ObjectPlot::markPoint(float x, float y)
+{
   bool found=false;
-  float fdeltaw=fSense*window_dw*w*0.5;
-  int end = nodePoints.size();
-  for (int i=0; i < end; i++){
-    if (nodePoints[i].isInRectangle(x,y,fdeltaw)){
-      if (!nodePoints[i].marked())
+  const float fdeltaw = fSense * window_dw * w * 0.5;
+  for (ObjectPoint& np : nodePoints) {
+    if (np.isInRectangle(x, y, fdeltaw)) {
+      if (!np.marked())
         markedChanged=true;
-      nodePoints[i].setMarked(true);
+      np.setMarked(true);
       found=true;
     } else if (!stayMarked && !joinedMarked) {
-      if (nodePoints[i].marked())
+      if (np.marked())
         markedChanged=true;
-      nodePoints[i].setMarked(false);
+      np.setMarked(false);
     }
   }
   return found;
@@ -378,11 +364,10 @@ bool ObjectPlot::markPoint( float x , float y){
 
 void ObjectPlot::markAllPoints()
 {
-  int end = nodePoints.size();
-  for (int i=0; i < end; i++){
-    if (!nodePoints[i].marked())
+  for (ObjectPoint& np : nodePoints) {
+    if (!np.marked())
       markedChanged=true;
-    nodePoints[i].setMarked(true);
+    np.setMarked(true);
   }
 }
 
@@ -391,11 +376,10 @@ void ObjectPlot::unmarkAllPoints()
 {
   if (stayMarked)
     return;
-  int end = nodePoints.size();
-  for (int i=0; i < end; i++){
-    if (nodePoints[i].marked())
+  for (ObjectPoint& np : nodePoints) {
+    if (np.marked())
       markedChanged=true;
-    nodePoints[i].setMarked(false);
+    np.setMarked(false);
   }
 }
 
@@ -418,41 +402,35 @@ bool ObjectPlot::deleteMarkPoints()
 
 bool ObjectPlot::ismarkPoint(float x, float y)
 {
-  float fdeltaw=fSense*window_dw*w*0.5;
-  int end = nodePoints.size();
-  for (int i=0; i < end; i++)
-    if (nodePoints[i].marked() && nodePoints[i].isInRectangle(x,y,fdeltaw))
+  const float fdeltaw = fSense * window_dw * w * 0.5;
+  for (const ObjectPoint& np : nodePoints)
+    if (np.marked() && np.isInRectangle(x, y, fdeltaw))
       return true;
   return false;
 }
 
-
-bool ObjectPlot::ismarkAllPoints()
+bool ObjectPlot::ismarkAllPoints() const
 {
-  int end = nodePoints.size();
-  for (int i=0; i < end; i++)
-    if (!nodePoints[i].marked())
+  for (const ObjectPoint& np : nodePoints)
+    if (!np.marked())
       return false;
   return true;
 }
 
-
-bool ObjectPlot::ismarkSomePoint()
+bool ObjectPlot::ismarkSomePoint() const
 {
-  int end = nodePoints.size();
-  for (int i=0; i < end; i++)
-    if (nodePoints[i].marked())
+  for (const ObjectPoint& np : nodePoints)
+    if (np.marked())
       return true;
   return false;
 }
 
-
-bool ObjectPlot::ismarkEndPoint()
+bool ObjectPlot::ismarkEndPoint() const
 {
   return !nodePoints.empty() && nodePoints.back().marked();
 }
 
-bool ObjectPlot::ismarkBeginPoint()
+bool ObjectPlot::ismarkBeginPoint() const
 {
   return !nodePoints.empty() && nodePoints.front().marked();
 }
@@ -500,23 +478,20 @@ bool ObjectPlot::isJoinPoint( float x , float y, float &xjoin, float &yjoin){
   return false;
 }
 
-
-bool ObjectPlot::isJoinPoint(float x , float y)
+bool ObjectPlot::isJoinPoint(float x, float y) const
 {
-  float fdeltaw=fSense*window_dw*w*0.5;
-  int end = nodePoints.size();
-  for (int i=0; i < end; i++)
-    if (nodePoints[i].joined() && nodePoints[i].isInRectangle(x,y,fdeltaw))
+  const float fdeltaw = fSense * window_dw * w * 0.5;
+  for (const ObjectPoint& np : nodePoints)
+    if (np.joined() && np.isInRectangle(x, y, fdeltaw))
       return true;
   return false;
 }
 
-bool ObjectPlot::ismarkJoinPoint()
+bool ObjectPlot::ismarkJoinPoint() const
 {
   //function to check whether a joined point is marked
-  int end = nodePoints.size();
-  for (int i=0; i < end; i++)
-    if (nodePoints[i].joined() && nodePoints[i].marked())
+  for (const ObjectPoint& np : nodePoints)
+    if (np.joined() && np.marked())
       return true;
   return false;
 }
@@ -524,18 +499,16 @@ bool ObjectPlot::ismarkJoinPoint()
 
 void ObjectPlot::unjoinAllPoints()
 {
-  int end = nodePoints.size();
-  for (int i=0; i < end; i++)
-    nodePoints[i].setJoined(false);
+  for (ObjectPoint& np : nodePoints)
+    np.setJoined(false);
 }
 
-
-void ObjectPlot::unJoinPoint( float x , float y){
-  float fdeltaw=fSense*window_dw*w*0.5;
-  int end = nodePoints.size();
-  for (int i=0; i < end; i++)
-    if (nodePoints[i].joined() && nodePoints[i].isInRectangle(x,y,fdeltaw))
-      nodePoints[i].setJoined(false);
+void ObjectPlot::unJoinPoint(float x, float y)
+{
+  const float fdeltaw = fSense * window_dw * w * 0.5;
+  for (ObjectPoint& np : nodePoints)
+    if (np.joined() && np.isInRectangle(x, y, fdeltaw))
+      np.setJoined(false);
 }
 
 bool ObjectPlot::isEmpty()
@@ -543,18 +516,16 @@ bool ObjectPlot::isEmpty()
   return nodePoints.empty();
 }
 
-
-bool ObjectPlot::isSinglePoint()
+bool ObjectPlot::isSinglePoint() const
 {
   return nodePoints.size() == 1;
 }
 
 bool ObjectPlot::movePoint(float x, float y, float new_x, float new_y)
 {
-  int end = nodePoints.size();
-  for (int i=0; i<end; i++){
-    if (nodePoints[i].isInRectangle(x,y,0)) {
-      nodePoints[i].setXY(new_x, new_y);
+  for (ObjectPoint& np : nodePoints) {
+    if (np.isInRectangle(x, y, 0)) {
+      np.setXY(new_x, new_y);
       updateBoundBox();
       return true;
     }
@@ -564,13 +535,12 @@ bool ObjectPlot::movePoint(float x, float y, float new_x, float new_y)
 
 bool ObjectPlot::moveMarkedPoints(float d_x, float d_y)
 {
-  int end = nodePoints.size();
-  if (end==0)
+  if (isEmpty())
     return false;
-  for (int i=0; i < end; i++)
-    if (nodePoints[i].marked()){
-      nodePoints[i].rx() += d_x;
-      nodePoints[i].ry() += d_y;
+  for (ObjectPoint& np : nodePoints)
+    if (np.marked()) {
+      np.rx() += d_x;
+      np.ry() += d_y;
     }
   updateBoundBox();
   return true;
@@ -636,23 +606,20 @@ bool ObjectPlot::rotateLine(float d_x, float d_y)
 
 bool ObjectPlot::isInside(float x , float y)
 {
-  float fdeltaw=fSense*window_dw*w*0.5;
-  int end = nodePoints.size();
-  for (int i=0; i < end; i++){
-    if (nodePoints[i].isInRectangle(x,y,fdeltaw))
+  const float fdeltaw = fSense * window_dw * w * 0.5;
+  for (const ObjectPoint& np : nodePoints)
+    if (np.isInRectangle(x, y, fdeltaw))
       return true;
-  }
   return false;
 }
 
 bool ObjectPlot::isInside( float x , float y, float &xin, float &yin)
 {
-  float fdeltaw=fSense*window_dw*w*0.5;
-  int end = nodePoints.size();
-  for (int i=0; i < end; i++){
-    if (nodePoints[i].isInRectangle(x,y,fdeltaw)){
-      xin = nodePoints[i].x();
-      yin = nodePoints[i].y();
+  const float fdeltaw = fSense * window_dw * w * 0.5;
+  for (ObjectPoint& np : nodePoints) {
+    if (np.isInRectangle(x, y, fdeltaw)) {
+      xin = np.x();
+      yin = np.y();
       return true;
     }
   }
@@ -662,7 +629,7 @@ bool ObjectPlot::isInside( float x , float y, float &xin, float &yin)
 
 bool ObjectPlot::isBeginPoint( float x , float y, float &xin, float &yin)
 {
-  float fdeltaw=fSense*window_dw*w*0.5;
+  const float fdeltaw = fSense * window_dw * w * 0.5;
   if (nodePoints.front().isInRectangle(x,y,fdeltaw)){
     xin = nodePoints.front().x();
     yin = nodePoints.front().y();
@@ -674,7 +641,7 @@ bool ObjectPlot::isBeginPoint( float x , float y, float &xin, float &yin)
 
 bool ObjectPlot::isEndPoint( float x , float y, float &xin, float &yin)
 {
-  float fdeltaw=fSense*window_dw*w*0.5;
+  const float fdeltaw = fSense * window_dw * w * 0.5;
   if (nodePoints.back().isInRectangle(x,y,fdeltaw)){
     xin = nodePoints.back().x();
     yin = nodePoints.back().y();
@@ -692,18 +659,16 @@ void ObjectPlot::updateBoundBox()
   boundBox.x2= -INT_MAX;
   boundBox.y1= +INT_MAX;
   boundBox.y2= -INT_MAX;
-  int end = nodePoints.size();
-  for (int i=0; i<end; i++) {
-    float x=nodePoints[i].x();
-    float y=nodePoints[i].y();
-    changeBoundBox(x,y);
-  }
+
+  for (const ObjectPoint& np : nodePoints)
+    changeBoundBox(np.x(), np.y());
   recalculate();
 }
 
 void ObjectPlot::drawJoinPoints(DiGLPainter* gl)
 {
-  if (!isVisible) return;
+  if (!isVisible)
+    return;
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
   gl->LineWidth(3);
   if (inBoundBox){
@@ -773,12 +738,11 @@ void ObjectPlot::drawPoints(DiGLPainter* gl, const std::vector<XY>& xydraw, bool
 
 void ObjectPlot::plotRubber(DiGLPainter* gl)
 {
-  int size = nodePoints.size();
   gl->Begin(DiGLPainter::gl_LINE_STRIP);        // Draws line from end of front to cursor
   if (addTop)
-    gl->Vertex2f(nodePoints[0].x(),nodePoints[0].y());
+    gl->Vertex2f(nodePoints.front().x(), nodePoints.front().y());
   else
-    gl->Vertex2f(nodePoints[size-1].x(),nodePoints[size-1].y());
+    gl->Vertex2f(nodePoints.back().x(), nodePoints.back().y());
   gl->Vertex2f(rubberx,rubbery);
   gl->End();
 }
@@ -790,48 +754,43 @@ void ObjectPlot::setWindowInfo()
   window_dh= getStaticPlot()->getPhysToMapScaleY();
 }
 
-
-void  ObjectPlot::setBasisColor(std::string colour)
+void ObjectPlot::setBasisColor(const string& colour)
 {
   // sets basis color of object
   basisColor = colour;
   objectColour = Colour(colour);
 }
 
-void  ObjectPlot::setObjectColor(std::string colour)
+void ObjectPlot::setObjectColor(const string& colour)
 {
   objectColour = Colour(colour);
 }
 
-void  ObjectPlot::setObjectBorderColor(std::string colour)
+void ObjectPlot::setObjectBorderColor(const string& colour)
 {
   objectBorderColour = Colour(colour);
 }
 
-void  ObjectPlot::setObjectColor(Colour::ColourInfo colour)
+void ObjectPlot::setObjectColor(const Colour::ColourInfo& colour)
 {
   objectColour = Colour(colour.rgb[0],colour.rgb[1],colour.rgb[2]);
 }
 
-void  ObjectPlot::setObjectRGBColor(std::string rgbstring)
+void ObjectPlot::setObjectRGBColor(const string& rgbstring)
 {
   //METLIBS_LOG_DEBUG("rgba value is " << rgbstring);
   vector<std::string> colours2add=miutil::split(rgbstring, ",");
   int nColours = colours2add.size()/4;
   for (int cc=0; cc < nColours; cc++){
-    //METLIBS_LOG_DEBUG("cc = " << cc);
-    //METLIBS_LOG_DEBUG("The colour string to be added is\n ");
     unsigned char cadd[4];
     for (int i = 0;i<4;i++){
-      //METLIBS_LOG_DEBUG(colours2add[cc*4+i]);
       cadd[i] = atoi(colours2add[cc*4+i].c_str());
     }
     objectColour = Colour(cadd[0],cadd[1],cadd[2],cadd[3]);
   }
 }
 
-
-Colour::ColourInfo  ObjectPlot::getObjectColor()
+Colour::ColourInfo ObjectPlot::getObjectColor() const
 {
   Colour::ColourInfo colour;
   colour.rgb[0]= (int) objectColour.R();
@@ -840,24 +799,22 @@ Colour::ColourInfo  ObjectPlot::getObjectColor()
   return colour;
 }
 
-bool ObjectPlot::readObjectString(std::string objectString)
+bool ObjectPlot::readObjectString(const std::string& objectString)
 {
-  std::string key,value;
   bool objectRead = false;
   bool typeRead = false;
   bool LonLatRead = false;
   METLIBS_LOG_DEBUG("ObjectPlot::readObjectString\n");
   METLIBS_LOG_DEBUG("string is: " << objectString);
 
-  vector <std::string> tokens = miutil::split(objectString, 0, ";");
-  for (unsigned int i = 0; i<tokens.size();i++){
-    vector <std::string> stokens = miutil::split(tokens[i], 0, "=");
+  for (const std::string tok : miutil::split(objectString, 0, ";")) {
+    const vector<std::string> stokens = miutil::split(tok, 0, "=");
     if( stokens.size() != 2 ) {
-      METLIBS_LOG_WARN(" readObjectString: key without value: "<<tokens[i]);
+      METLIBS_LOG_WARN(" readObjectString: key without value: '" << tok << "'");
       return false;
     }
-    key = miutil::to_lower(stokens[0]);
-    value = stokens[1];
+    const std::string key = miutil::to_lower(stokens[0]);
+    const std::string& value = stokens[1];
     if (key == "object"){
       METLIBS_LOG_DEBUG("Object value is " << value);
       // typeOfObject is already set in constructor
@@ -931,55 +888,41 @@ bool ObjectPlot::readObjectString(std::string objectString)
         << objectString);
     return false;
   }
-  //if (objectIs(wFront)) METLIBS_LOG_DEBUG("Object is front");
-  //else if (objectIs(wSymbol)) METLIBS_LOG_DEBUG("Object is symbol");
-  //else if (objectIs(wArea)) METLIBS_LOG_DEBUG("Object is area");
-  //else METLIBS_LOG_DEBUG("Unknown object type "<< typeOfObject);
-  //METLIBS_LOG_DEBUG("Type = " << type);
-  //METLIBS_LOG_DEBUG("Number of points = " << nodePoints.size());
   return true;
 }
 
 
 std::string ObjectPlot::writeObjectString()
 {
+  ostringstream r;
   //write type of object
-  std::string ret=writeTypeString();
-  //ret+="LatitudeLongitude=\n";    // old and wrong!
-  ret+="LongitudeLatitude=\n";
-  ostringstream cs;
+  r << writeTypeString();
+
   //write coordinates
-  if (nodePoints.size()){
-    for (unsigned int i=0; i < nodePoints.size(); i++)
-    {
-      cs << nodePoints[i].x() << "," << nodePoints[i].y();
-      if (i<nodePoints.size()-1)
-        cs <<",\n";
-      else
-        cs <<";\n";
+  r << "LongitudeLatitude=\n";
+  if (!nodePoints.empty()) {
+    bool first = true;
+    for (const ObjectPoint& np : nodePoints) {
+      if (!first)
+        r << ",\n";
+      r << np.x() << "," << np.y();
     }
-    ret+=cs.str();
+    r << ";\n";
   }
 
-  ostringstream rs;
-  ret+="RGBA=";
   //write colour
-  rs << (int) objectColour.R() << "," << (int) objectColour.G()
-          << "," << (int) objectColour.B() <<"," << (int) objectColour.A();
-  rs <<";\n";
-  ret+=rs.str();
+  r << "RGBA=" << (int)objectColour.R() << "," << (int)objectColour.G() << "," << (int)objectColour.B() << "," << (int)objectColour.A() << ";\n";
+
   //write "!" to signal end of object
-  ret+="!\n";
-  return ret;
+  r << "!\n";
+  return r.str();
 }
 
-
-bool ObjectPlot::isInRegion(int region,int matrix_nx,int matrix_ny,double resx,double resy, int * combinematrix)
+bool ObjectPlot::isInRegion(int region, int matrix_nx, int matrix_ny, double resx, double resy, int* combinematrix)
 {
-  int end = nodePoints.size();
-  for (int i=0; i < end; i++){
-    float x1=nodePoints[i].x()/resx;
-    float y1=nodePoints[i].y()/resy;
+  for (const ObjectPoint& np : nodePoints) {
+    float x1 = np.x() / resx;
+    float y1 = np.y() / resy;
     if (x1>=0 && x1<=matrix_nx-1 && y1>=0 && y1<=matrix_ny-1) {
       int x= int(x1+0.5);
       int y= int(y1+0.5);
@@ -1020,28 +963,18 @@ bool ObjectPlot::oktoJoin(bool joinAll)
     // only fronts can be joined
     // drawIndex from SigWeatherFront and higher are lines etc. not to be joined
     // empty fronts shouldn't be joined
-    if (objectIs(wFront) && drawIndex<SigweatherFront && nodePoints.size())
-      return true;
-    else
-      return false;
+    return (objectIs(wFront) && drawIndex < SigweatherFront && nodePoints.size());
   }
   return false;
 }
-
-
 
 bool ObjectPlot::oktoMerge(bool mergeAll,int index)
 {
   if  (mergeAll || ismarkSomePoint() || currentState == active) {
-    if (objectIs(wFront) && index==drawIndex && nodePoints.size())
-      return true;
-    else
-      return false;
+    return (objectIs(wFront) && index == drawIndex && nodePoints.size());
   }
   return false;
 }
-
-
 
 void ObjectPlot::setRubber(bool rub, const float x, const float y)
 {
@@ -1104,20 +1037,20 @@ bool ObjectPlot::onLine(float x, float y)
   return false;
 }
 
-
 //called from onLine-checks if x,y inside the tilted rectangle made by x1,y1,x2,y2
-bool ObjectPlot::isInsideBox(float x, float y,float x1,float y1,float x2,float y2){
+bool ObjectPlot::isInsideBox(float x, float y, float x1, float y1, float x2, float y2)
+{
   float salpha,calpha;
   float dwidth = 2*getLineWidth()*getDwidth();
-  Rectangle* box= new Rectangle(0,0,0,0);
+  Rectangle box(0, 0, 0, 0);
   if (x2!=x1){
     float  dy = y2-y1;
     float  dx = x2-x1;
     float hyp = miutil::absval(dy, dx);
-    int sign=1;
-    if (dy*dx < 0) sign = -1;
-    salpha = sign*fabsf(dy)/hyp;
-    calpha = fabsf(dx)/hyp;
+    salpha = fabsf(dy) / hyp;
+    calpha = fabsf(dx) / hyp;
+    if ((dy < 0) != (dx < 0))
+      salpha *= -1;
   }else{
     salpha=1.0;
     calpha = 0.0;
@@ -1126,15 +1059,15 @@ bool ObjectPlot::isInsideBox(float x, float y,float x1,float y1,float x2,float y
   float xprime = x*calpha+y*salpha;
   float yprime = y*calpha-x*salpha;
   if (x1<x2){
-    box->x1=x1*calpha+y1*salpha;
-    box->x2=x2*calpha+y2*salpha;
+    box.x1 = x1 * calpha + y1 * salpha;
+    box.x2 = x2 * calpha + y2 * salpha;
   }else if (x1>x2){
-    box->x1=x2*calpha+y2*salpha;
-    box->x2=x1*calpha+y1*salpha;
+    box.x1 = x2 * calpha + y2 * salpha;
+    box.x2 = x1 * calpha + y1 * salpha;
   }
-  box->y1 = y1*calpha-x1*salpha-dwidth;
-  box->y2 = box->y1 +2*dwidth;
-  if (box->isinside(xprime,yprime)){
+  box.y1 = y1 * calpha - x1 * salpha - dwidth;
+  box.y2 = box.y1 + 2 * dwidth;
+  if (box.isinside(xprime, yprime)) {
     //x,y distance to line
     if (x2!=x1){
       float a=(y2-y1)/(x2-x1); // gradient
@@ -1146,14 +1079,10 @@ bool ObjectPlot::isInsideBox(float x, float y,float x1,float y1,float x2,float y
       distX=x1-x;
       distY=0;
     }
-    delete box;
     return true;
   }
-  delete box;
   return false;
 }
-
-
 
 /*
   B-spline smooth of front
