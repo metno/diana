@@ -568,11 +568,6 @@ void Controller::updateObsDialog(ObsDialogInfo::PlotType& pt, const std::string&
   obsm->updateDialog(pt, readername);
 }
 
-stationDialogInfo Controller::initStationDialog()
-{
-  return stam->initDialog();
-}
-
 EditDialogInfo Controller::initEditDialog()
 {
   return editm->getEditDialogInfo();

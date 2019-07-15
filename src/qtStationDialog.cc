@@ -168,7 +168,7 @@ std::string StationDialog::name() const
 
 void StationDialog::updateDialog()
 {
-  dialogInfo = m_ctrl->initStationDialog();
+  dialogInfo = m_ctrl->getStationManager()->initDialog();
 
   // Read the contents of the dialogInfo object and update the list views.
   model->updateData(dialogInfo);

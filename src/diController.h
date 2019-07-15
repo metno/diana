@@ -233,8 +233,6 @@ public:
   /// get mode of main workarea
   mapMode getMapMode();
 
-  stationDialogInfo initStationDialog();
-
   // Obs-dialog methods
   /// return button names for ObsDialog
   ObsDialogInfo initObsDialog();
