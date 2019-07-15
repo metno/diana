@@ -68,10 +68,6 @@ public:
   const std::string& getObjectName() const
     { return objectname; }
 
-  /// returns plotInfo string
-  const miutil::KeyValue_v& getPlotInfo() const
-    { return pin; }
-
   bool isDefined() const
     { return defined; }
 
@@ -97,9 +93,6 @@ private:
   std::string objectname;
   bool defined;
 
-  std::map<std::string,bool> useobject;
-
-  miutil::KeyValue_v pin;
   int alpha;
   int newfrontlinewidth;
   int fixedsymbolsize;

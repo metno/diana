@@ -153,13 +153,9 @@ plottimes_t ObjectManager::getTimes()
   METLIBS_LOG_SCOPE();
   plottimes_t times;
 
-  for (const miutil::KeyValue& kv : objects.getPlotInfo()){
-    if (kv.key() == "name") {
-      for (const ObjFileInfo& ofi : getObjectFiles(kv.value(), true)) {
-        times.insert(ofi.time);
-      }
-      break;
-    }
+  if (!objects.getObjectName().empty()) {
+    for (const ObjFileInfo& ofi : getObjectFiles(objects.getObjectName(), true))
+      times.insert(ofi.time);
   }
 
   return times;
@@ -231,7 +227,7 @@ void ObjectManager::prepareObjects(const PlotCommand_cpv& inp)
 {
   METLIBS_LOG_SCOPE();
 
-  const miutil::KeyValue_v old_plotinfo = objects.getPlotInfo(); // make a copy
+  const bool old_defined = objects.isDefined();
   const bool old_enabled = objects.isEnabled();
 
   objects.init();
@@ -239,8 +235,7 @@ void ObjectManager::prepareObjects(const PlotCommand_cpv& inp)
   for (PlotCommand_cp pc : inp)
     objects.define(pc);
 
-  const miutil::KeyValue_v& new_plotinfo = objects.getPlotInfo();
-  objects.enable(old_enabled || (new_plotinfo != old_plotinfo));
+  objects.enable(!old_defined || old_enabled);
 }
 
 

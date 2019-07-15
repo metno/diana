@@ -526,13 +526,13 @@ vector<ObjectPlot*>::iterator WeatherObjects::removeObject(vector<ObjectPlot*>::
 /*********************************************/
 
 // static
-std::map<std::string, bool> WeatherObjects::decodeTypeString(const std::string& types)
+std::map<std::string, bool> WeatherObjects::decodeTypeString(const std::vector<std::string>& types)
 {
   std::map<std::string, bool> use;
   for (const std::string& otn : ObjectTypeNames)
     use[otn] = false;
   //types of objects to plot
-  for (const std::string& tok : miutil::split(types, 0, ",")) {
+  for (const std::string& tok : types) {
     if (tok == "all") {
       for (const std::string& otn : ObjectTypeNames)
         use[otn] = true;
@@ -541,6 +541,12 @@ std::map<std::string, bool> WeatherObjects::decodeTypeString(const std::string& 
     use[tok] = true;
   }
   return use;
+}
+
+// static
+std::map<std::string, bool> WeatherObjects::decodeTypeString(const std::string& types)
+{
+  return decodeTypeString(miutil::split(types, ","));
 }
 
 void WeatherObjects::enable(bool b)

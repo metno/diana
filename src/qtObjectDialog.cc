@@ -30,7 +30,6 @@
 #include "qtObjectDialog.h"
 
 #include "diController.h"
-#include "diKVListPlotCommand.h"
 #include "diObjectManager.h"
 #include "qtEditComment.h"
 #include "qtToggleButton.h"
@@ -438,48 +437,42 @@ PlotCommand_cpv ObjectDialog::getOKString()
   PlotCommand_cpv vstr;
 
   if (selectedFileList->count()) {
+    ObjectsPlotCommand_p cmd = std::make_shared<ObjectsPlotCommand>();
+
     miutil::KeyValue_v kvs;
     int index = namebox->currentRow();
     int timefileListIndex = timefileList->currentRow();
     if (index>-1 && index<int(objectnames.size())){
       //item has been selected in dialog
-      add(kvs, "name", objectnames[index]);
+      cmd->objectname = objectnames[index];
 
       if (timefileListIndex>-1 && timefileListIndex<int(files.size())) {
         const ObjFileInfo& file = files[timefileListIndex];
         if (timeButton->isChecked()){
           const miutil::miTime& time=file.time;
           if (!time.undef())
-            add(kvs, "time", miutil::stringFromTime(time, true));
+            cmd->time = time;
         } else if (fileButton->isChecked()) {
           if (!file.name.empty())
-            add(kvs, "file", file.name);
+            cmd->file = file.name;
         }
       }
     }
 
-    std::vector<std::string> types;
     if (cbs0->isChecked())
-      types.push_back("front");
+      cmd->objecttypes.push_back("front");
     if (cbs1->isChecked())
-      types.push_back("symbol");
+      cmd->objecttypes.push_back("symbol");
     if (cbs2->isChecked())
-      types.push_back("area");
+      cmd->objecttypes.push_back("area");
     if (cbs3->isChecked())
-      types.push_back("anno");
-    add(kvs, "types", types);
+      cmd->objecttypes.push_back("anno");
 
-    add(kvs, "timediff", m_totalminutes);
+    cmd->timeDiff = m_totalminutes;
     if (alpha->isChecked())
-      add(kvs, "alpha", m_alphanr);
+      cmd->alpha = m_alphanr;
 
-    KVListPlotCommand_p cmd = std::make_shared<KVListPlotCommand>("OBJECTS");
-    cmd->add(kvs);
-    cmd->add(plotVariables.external);
     vstr.push_back(cmd);
-
-    // clear external variables
-    plotVariables.external.clear();
   }
 
   return vstr;
@@ -494,15 +487,9 @@ void ObjectDialog::putOKString(const PlotCommand_cpv& vstr)
   if (vstr.empty())
     return;
 
-  // loop through all PlotInfo's
-  for (PlotCommand_cp pc : vstr) {
-    KVListPlotCommand_cp c = std::dynamic_pointer_cast<const KVListPlotCommand>(pc);
-    if (!c)
-      continue;
-    //(if there are several plotInfos, only the last one will be used
-    plotVariables = decodeString(c->all());
-  }
-
+  // loop through all PlotInfo's (if there are several plotInfos, only the last one will be used)
+  if (ObjectsPlotCommand_cp c = std::dynamic_pointer_cast<const ObjectsPlotCommand>(vstr.back()))
+    plotVariables = decodeString(c);
 
   //update dialog
   bool found=false;
@@ -578,40 +565,18 @@ void ObjectDialog::putOKString(const PlotCommand_cpv& vstr)
 
 
 // static
-ObjectDialog::PlotVariables ObjectDialog::decodeString(const miutil::KeyValue_v& tokens)
+ObjectDialog::PlotVariables ObjectDialog::decodeString(ObjectsPlotCommand_cp cmd)
 {
   METLIBS_LOG_SCOPE();
 
   PlotVariables okVar;
-  okVar.totalminutes=-1;
-  okVar.alphanr=1.0;
-
-  //loop over OKstrings
-  for (const miutil::KeyValue& kv : tokens) {
-    if (kv.hasValue()) {
-      const std::string& key = kv.key();
-      const std::string& value = kv.value();
-      if (key == "name") {
-        okVar.objectname = diutil::quote_removed(value);
-      } else if (key == "types") {
-        okVar.useobject = WeatherObjects::decodeTypeString(value);
-      } else if (key == "time") {
-        okVar.time=value;
-      } else if (key == "file") {
-        okVar.file=value;
-      } else if (key == "timediff") {
-        okVar.totalminutes = kv.toInt();
-      } else if (key == "alpha" || key == "alfa") {
-        okVar.alphanr = kv.toFloat();
-      } else {
-        // unknown key: add to external string
-        okVar.external.push_back(kv);
-      }
-    } else {
-      // no value: add to external string
-      okVar.external.push_back(kv);
-    }
-  }
+  okVar.objectname = cmd->objectname;
+  okVar.useobject = WeatherObjects::decodeTypeString(cmd->objecttypes);
+  okVar.file = cmd->file;
+  if (!cmd->time.undef())
+    okVar.time = miutil::stringFromTime(cmd->time, true);
+  okVar.totalminutes = cmd->timeDiff;
+  okVar.alphanr = cmd->alpha / 255.0;
   return okVar;
 }
 

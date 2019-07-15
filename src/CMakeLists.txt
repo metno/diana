@@ -126,6 +126,7 @@ SET (LIBDIANA_SOURCES
   diMeasurementsPlot.cc
   diObjectManager.cc
   diObjectPlot.cc
+  diObjectsPlotCommand.cc
   diObjectPoint.cc
   diObsAscii.cc
   diObsData.cc

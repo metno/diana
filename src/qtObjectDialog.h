@@ -32,7 +32,7 @@
 #include "qtDataDialog.h"
 
 #include "diObjTypes.h"
-#include "util/diKeyValue.h"
+#include "diObjectsPlotCommand.h"
 
 #include <vector>
 
@@ -106,7 +106,7 @@ private:
   void updateSelectedFileList();
 
   // decode part of OK string
-  static PlotVariables decodeString(const miutil::KeyValue_v& tokens);
+  static PlotVariables decodeString(ObjectsPlotCommand_cp cmd);
   // make string from plotVariables
   std::string makeOKString(PlotVariables& okVar);
 

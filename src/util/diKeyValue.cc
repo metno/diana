@@ -134,20 +134,24 @@ KeyValue kv(const std::string& key, const std::vector<int>& values)
 KeyValue kv(const std::string& key, const std::vector<float>& values)
 {
   std::ostringstream ov;
-  std::vector<float>::const_iterator it = values.begin();
-  ov << *it++;
-  for (; it != values.end(); ++it)
-    ov << ',' << miutil::from_number(*it);
+  if (!values.empty()) {
+    std::vector<float>::const_iterator it = values.begin();
+    ov << *it++;
+    for (; it != values.end(); ++it)
+      ov << ',' << miutil::from_number(*it);
+  }
   return kv(key, ov.str());
 }
 
 KeyValue kv(const std::string& key, const std::vector<std::string>& values)
 {
   std::ostringstream ov;
-  std::vector<std::string>::const_iterator it = values.begin();
-  ov << *it++;
-  for (; it != values.end(); ++it)
-    ov << ',' << *it;
+  if (!values.empty()) {
+    std::vector<std::string>::const_iterator it = values.begin();
+    ov << *it++;
+    for (; it != values.end(); ++it)
+      ov << ',' << *it;
+  }
   return kv(key, ov.str());
 }
 

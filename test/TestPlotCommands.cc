@@ -29,6 +29,7 @@
 
 #include <diFieldPlotCommand.h>
 #include <diKVListPlotCommand.h>
+#include <diObjectsPlotCommand.h>
 #include <diPlotCommandFactory.h>
 #include <diStringPlotCommand.h>
 
@@ -120,4 +121,19 @@ TEST(TestPlotCommands, FieldDifferenceFromFactory)
   EXPECT_EQ(plot2, cmd->minus.plot);
   EXPECT_EQ(options, cmd->options());
   EXPECT_EQ(text, cmd->toString());
+}
+
+TEST(TestPlotCommands, ObjectsCommandFromString)
+{
+  const std::string oname = "met.no Sigkart";
+  ObjectsPlotCommand_cp cmd = ObjectsPlotCommand::fromString("NAME=\"" + oname + "\" types=front,symbol,area,anno");
+  EXPECT_EQ(oname, cmd->objectname);
+  EXPECT_EQ(4, cmd->objecttypes.size());
+}
+
+TEST(TestPlotCommands, ObjectsCommandToString)
+{
+  ObjectsPlotCommand_p cmd = std::make_shared<ObjectsPlotCommand>();
+  cmd->objectname = "met.no Sigkart";
+  EXPECT_EQ("OBJECTS name=\"" + cmd->objectname + "\" types=", cmd->toString());
 }

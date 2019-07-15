@@ -123,8 +123,10 @@ public:
   std::string writeEditDrawString(const miutil::miTime&);
 
   /// sets which object types should be plotted
-  void setSelectedObjectTypes(const std::string& t)
-    { useobject = decodeTypeString(t); }
+  void setSelectedObjectTypes(const std::string& t) { useobject = decodeTypeString(t); }
+
+  /// sets which object types should be plotted
+  void setSelectedObjectTypes(const std::vector<std::string>& types) { useobject = decodeTypeString(types); }
 
   /// returns number of object of this type
   int objectCount(int type);
@@ -140,6 +142,7 @@ public:
 
   /// decode string with types of objects to plot
   static std::map<std::string, bool> decodeTypeString(const std::string&);
+  static std::map<std::string, bool> decodeTypeString(const std::vector<std::string>& types);
 
   /// x,y for copied objects
   float xcopy,ycopy;

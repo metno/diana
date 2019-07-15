@@ -31,7 +31,7 @@
 
 #include "diDisplayObjects.h"
 #include "diDrawingTypes.h"
-#include "diKVListPlotCommand.h"
+#include "diObjectsPlotCommand.h"
 #include "diWeatherArea.h"
 #include "diWeatherFront.h"
 #include "diWeatherSymbol.h"
@@ -74,45 +74,30 @@ bool DisplayObjects::define(const PlotCommand_cp& pc)
 {
   METLIBS_LOG_SCOPE();
 
-  KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(pc);
-  if (!cmd)
-    return 0;
-
-  init();
-  pin = cmd->all();
-
-  for (const miutil::KeyValue& kv : cmd->all()){
-    if (kv.key() == "types") {
-      setSelectedObjectTypes(kv.value());
-    } else {
-      const std::string& key = kv.key();
-      const std::string& value = kv.value();
-      METLIBS_LOG_DEBUG(LOGVAL(key) << LOGVAL(value));
-      if (key=="file") {
-        int l= value.length();
-        int f= value.rfind('.') + 1;
-        std::string tstr= value.substr(f,l-f);
-        itsTime = miutil::timeFromString(tstr);
-        autoFile= false;
-      } else if (key=="name") {
-        objectname = value;
-      } else if (key=="time") {
-        itsTime = miutil::timeFromString(value);
-        autoFile= false;
-      } else if (key == "timediff") {
-        timeDiff = kv.toInt();
-      } else if (key=="alpha" || key=="alfa") {
-        alpha = int(kv.toDouble()*255);
-      } else if (key=="frontlinewidth") {
-        newfrontlinewidth = kv.toInt();
-      } else if (key=="fixedsymbolsize") {
-        fixedsymbolsize= kv.toInt();
-      } else if (key=="symbolfilter") {
-        const std::vector<std::string> vals = miutil::split(value, ",");
-        diutil::insert_all(symbolfilter, vals);
-      }
-    }
+  ObjectsPlotCommand_cp cmd = std::dynamic_pointer_cast<const ObjectsPlotCommand>(pc);
+  if (!cmd) {
+    init();
+    return false;
   }
+
+  objectname = cmd->objectname;
+  if (!cmd->objecttypes.empty())
+    setSelectedObjectTypes(cmd->objecttypes);
+  if (!cmd->file.empty()) {
+    const int l = cmd->file.length();
+    const int f = cmd->file.rfind('.') + 1;
+    itsTime = miutil::timeFromString(cmd->file.substr(f, l - f));
+    autoFile = false;
+  }
+  if (!cmd->time.undef()) {
+    itsTime = cmd->time;
+    autoFile = false;
+  }
+  timeDiff = cmd->timeDiff;
+  alpha = cmd->alpha;
+  newfrontlinewidth = cmd->newfrontlinewidth;
+  fixedsymbolsize = cmd->fixedsymbolsize;
+  symbolfilter = cmd->symbolfilter;
 
   defined= true;
   return true;
@@ -139,7 +124,7 @@ bool DisplayObjects::prepareObjects()
   //set alpha value for objects as requested in objectdialog
   //and set state to passive
   for (ObjectPlot* pobject : objects) {
-    pobject->setPlotInfo(pin);
+    pobject->setPlotInfo(miutil::KeyValue_v());
     pobject->setColorAlpha(alpha);
     pobject->setState(ObjectPlot::passive);
     if (newfrontlinewidth)

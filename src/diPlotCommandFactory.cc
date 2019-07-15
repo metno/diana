@@ -32,6 +32,7 @@
 #include "diFieldPlotCommand.h"
 #include "diKVListPlotCommand.h"
 #include "diLabelPlotCommand.h"
+#include "diObjectsPlotCommand.h"
 #include "diSatPlotCommand.h"
 #include "diStationPlotCommand.h"
 #include "diStringPlotCommand.h"
@@ -81,7 +82,7 @@ PlotCommand_cp identifyCommand(const std::string& key, const std::string& text, 
   return PlotCommand_cp();
 }
 
-const std::vector<std::string> commandKeysKV = {"MAP", "AREA", "DRAWING", "OBJECTS", "OBS", "WEBMAP"};
+const std::vector<std::string> commandKeysKV = {"MAP", "AREA", "DRAWING", "OBS", "WEBMAP"};
 } // namespace
 
 PlotCommand_cp makeCommand(const std::string& text)
@@ -100,6 +101,8 @@ PlotCommand_cp makeCommand(const std::string& text)
   if (PlotCommand_cp c = identifyCommand<StationPlotCommand>("STATION", text))
     return c;
   if (PlotCommand_cp c = identifyCommand<SatPlotCommand>("SAT", text))
+    return c;
+  if (PlotCommand_cp c = identifyCommand<ObjectsPlotCommand>("OBJECTS", text))
     return c;
 
   return std::make_shared<StringPlotCommand>(text);
