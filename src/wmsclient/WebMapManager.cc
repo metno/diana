@@ -264,8 +264,13 @@ void WebMapManager::addMap(WebMapPlot* plot)
 {
   if (!plot)
     return;
-  connect(plot, SIGNAL(update()), SIGNAL(webMapsReady()));
+  connect(plot, &WebMapPlot::update, this, &WebMapManager::onPlotUpdate);
   webmaps.push_back(plot);
+}
+
+void WebMapManager::onPlotUpdate()
+{
+  Q_EMIT repaintNeeded(true);
 }
 
 void WebMapManager::plot(DiGLPainter* gl, PlotOrder zorder)

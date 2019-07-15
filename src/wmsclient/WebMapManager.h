@@ -118,11 +118,11 @@ public:
     { return webmaps.at(i); }
 
 Q_SIGNALS:
-  //! sent when a webmap has finished its request
-  void webMapsReady();
-
   //! sent when a webmap service has refreshed
   void serviceRefreshFinished();
+
+private Q_SLOTS:
+  void onPlotUpdate();
 
 private:
   WebMapPlot* createPlot(KVListPlotCommand_cp qmstring);

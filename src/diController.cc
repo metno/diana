@@ -731,13 +731,5 @@ std::vector<ObsPlot*> Controller::getObsPlots() const
 void Controller::addManager(const std::string &name, Manager *man)
 {
   plotm->managers[name] = man;
-}
-
-Manager *Controller::getManager(const std::string &name)
-{
-  PlotModule::managers_t::iterator it = plotm->managers.find(name);
-  if (it != plotm->managers.end())
-    return it->second;
-  else
-    return 0;
+  connect(man, &Manager::repaintNeeded, this, &Controller::repaintNeeded);
 }

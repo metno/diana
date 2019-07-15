@@ -91,7 +91,6 @@ SET (LIBDIANA_SOURCES
   diCommandParser.cc
   diComplexSymbolPlot.cc
   diContouring.cc
-  diController.cc
   diDisplayObjects.cc
   diEditManager.cc
   diEditObjects.cc
@@ -281,6 +280,7 @@ SET (LIBDIANA_SOURCES
 )
 
 SET(LIBDIANA_QTSOURCES
+  diController.cc
   diDrawingManager.cc
   diManager.cc
   EditItems/itemgroup.cc

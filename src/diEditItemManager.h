@@ -149,7 +149,6 @@ private slots:
 
 signals:
   void selectionChanged();
-  void repaintNeeded();
   void canUndoChanged(bool);
   void canRedoChanged(bool);
   void incompleteEditing(bool);

@@ -148,7 +148,8 @@ void DiOpenGLWidget::paintUnderlay()
     glpainter->DrawPixels(width(), height(), DiGLPainter::gl_RGBA, DiGLPainter::gl_UNSIGNED_BYTE, buffer_data);
     glpainter->PixelStorei(DiGLPainter::gl_UNPACK_ROW_LENGTH, 0);
     return;
-  } else if (!paintable->enable_background_buffer)
+  }
+  if (!paintable->enable_background_buffer)
     dropBackgroundBuffer();
 
   paintable->paintUnderlay(glpainter.get());

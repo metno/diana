@@ -731,7 +731,7 @@ void EditItemManager::redo()
 void EditItemManager::repaint()
 {
   if (!skipRepaint_)
-    emit repaintNeeded();
+    Q_EMIT repaintNeeded(false);
 }
 
 bool EditItemManager::hasIncompleteItem() const
@@ -823,7 +823,7 @@ void EditItemManager::abortEditing()
     hitItems_.clear();
 
     emit incompleteEditing(false);
-    emit repaintNeeded();
+    Q_EMIT repaintNeeded(false);
   }
 }
 
@@ -1418,7 +1418,7 @@ void EditItemManager::sendMouseEvent(QMouseEvent *event, EventResult &res)
     }
 
     if (repaintNeeded_)
-      emit repaintNeeded();
+      Q_EMIT repaintNeeded(false);
 
     return;
   }
@@ -1511,7 +1511,7 @@ void EditItemManager::openContextMenu(const QPoint &pos, const QPoint &globalPos
     if (!hitItems.empty()) {
       DrawingItemBase* hitItem = hitItems.first(); // consider only the first item
       selectItem(hitItem);
-      Q_EMIT repaintNeeded();
+      Q_EMIT repaintNeeded(false);
       if (EditItemBase* editItem = Editing(hitItem))
         hitItemActions = editItem->actions(pos);
     }

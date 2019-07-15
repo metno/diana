@@ -27,14 +27,12 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "diana_config.h"
+#include "qtWorkArea.h"
 
 #include "diController.h"
-#include "diEditItemManager.h"
 #include "diMainPaintable.h"
 #include "diPaintableWidget.h"
 #include "qtMainUiEventHandler.h"
-#include "qtWorkArea.h"
 
 #include <QVBoxLayout>
 
@@ -52,14 +50,11 @@ WorkArea::WorkArea(Controller* co, QWidget* parent)
     , qw(diana::createPaintableWidget(glw, gli, this))
     , currentCursor(keep_it)
 {
-  qw->setMinimumSize( 300, 200 );
+  qw->setMinimumSize(300, 200);
   qw->setMouseTracking(true);
 
-  EditItemManager *editm = static_cast<EditItemManager *>(co->getManager("EDITDRAWING"));
-  if (editm)
-    connect(editm, SIGNAL(repaintNeeded()), qw, SLOT(update())); // e.g. during undo/redo
-
-  connect(gli, SIGNAL(changeCursor(cursortype)), this, SLOT(changeCursor(cursortype)));
+  connect(co, &Controller::repaintNeeded, this, &WorkArea::onRepaintRequested); // e.g. during undo/redo
+  connect(gli, &MainUiEventHandler::changeCursor, this, &WorkArea::changeCursor);
 
   QVBoxLayout* vlayout = new QVBoxLayout(this);
   vlayout->addWidget(qw, 1);
@@ -73,6 +68,13 @@ WorkArea::~WorkArea()
   delete qw;
   delete gli;
   delete glw;
+}
+
+void WorkArea::onRepaintRequested(bool updateBackgroundBuffer)
+{
+  if (updateBackgroundBuffer)
+    glw->requestBackgroundBufferUpdate();
+  updateGL();
 }
 
 void WorkArea::updateGL()

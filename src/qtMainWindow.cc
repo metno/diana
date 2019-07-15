@@ -711,12 +711,7 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
   EditItems::DrawingDialog *drawingDialog = new EditItems::DrawingDialog(this, contr);
   addDialog(drawingDialog);
 
-  { WebMapDialog* wmd = new WebMapDialog(this, contr);
-    addDialog(wmd);
-
-    connect(WebMapManager::instance(), SIGNAL(webMapsReady()),
-        this, SLOT(requestBackgroundBufferUpdate()));
-  }
+  addDialog(new WebMapDialog(this, contr));
 
   editDrawingToolBar = EditItems::ToolBar::instance(this);
   editDrawingToolBar->setObjectName("PaintToolBar");

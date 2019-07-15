@@ -29,7 +29,8 @@
 #ifndef WORKAREA_H
 #define WORKAREA_H
 
-#include "diMapMode.h"
+#include "diEventResult.h"
+
 #include <QWidget>
 
 class Controller;
@@ -38,13 +39,12 @@ class MainPaintable;
 
 /**
     \brief the main workarea
-
     provides a wrapper around the MainPaintable
 */
-
 class WorkArea : public QWidget
 {
   Q_OBJECT
+
 public:
   WorkArea(Controller *c,  QWidget* parent = 0);
   ~WorkArea();
@@ -66,6 +66,7 @@ public Q_SLOTS:
   void updateGL();
 
 private Q_SLOTS:
+  void onRepaintRequested(bool updateBackgroundBuffer);
   void changeCursor(cursortype);
 
 protected:

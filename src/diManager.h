@@ -92,6 +92,9 @@ public slots:
   virtual void setEditing(bool enable);
   virtual void setFocus(bool enable);
 
+Q_SIGNALS:
+  void repaintNeeded(bool updateBackgroundBuffer);
+
 private:
   // Whether the manager has a finished product to show.
   bool enabled;

@@ -29,8 +29,6 @@
 #ifndef diController_h
 #define diController_h
 
-#include "diAreaTypes.h"
-#include "diColour.h"
 #include "diCommonTypes.h"
 #include "diEditTypes.h"
 #include "diMapInfo.h"
@@ -39,10 +37,9 @@
 #include "diPlotCommand.h"
 #include "diRectangle.h"
 #include "diSatTypes.h"
-#include "diStationTypes.h"
 #include "diTimeTypes.h"
 
-#include <puTools/miTime.h>
+#include <QObject>
 
 #include <map>
 #include <vector>
@@ -52,14 +49,11 @@ class AnnotationPlot;
 class Area;
 class DiCanvas;
 class DiGLPainter;
-class DrawingManager;
 class EditManager;
 class EventResult;
-class FieldPlot;
 class FieldPlotManager;
 class Manager;
 class MapAreaNavigator;
-class MapManager;
 class ObjectManager;
 class ObsManager;
 class ObsPlot;
@@ -72,29 +66,21 @@ class StationPlot;
 
 struct LocationData;
 
-// from diCommonFieldTypes.h
-struct FieldModelGroupInfo;
-typedef std::vector<FieldModelGroupInfo> FieldModelGroupInfo_v;
-struct FieldPlotGroupInfo;
-typedef std::vector<FieldPlotGroupInfo> FieldPlotGroupInfo_v;
-struct FieldRequest;
-
 class QKeyEvent;
 class QMouseEvent;
 class QSize;
 
 /**
-
   \brief Ui gate to main Diana engine
 
   The controller class acts as a gate to all plot and editing handlers
   - initialisation of all handlers
   - ui independent code beyond this point
   - used both in interactive and batch version of Diana
-
  */
-
-class Controller {
+class Controller : public QObject
+{
+  Q_OBJECT
 
 private:
   PlotModule    *plotm;
@@ -106,7 +92,6 @@ private:
   StationManager    *stam;
   ObjectManager *objm;
   EditManager   *editm;
-  DrawingManager   *drawm;
 
   bool editoverride; // do not route mouse/key-events to editmanager
 
@@ -124,7 +109,6 @@ public:
   SatManager* getSatelliteManager() { return satm; };
 
   void addManager(const std::string &name, Manager *man);
-  Manager *getManager(const std::string &name);
 
   bool updateFieldFileSetup(const std::vector<std::string>& lines,
       std::vector<std::string>& errors);
@@ -296,6 +280,9 @@ public:
   // Miscellaneous get methods
   std::vector<SatPlot*> getSatellitePlots() const;   // Returns a vector of defined satellite plots.
   std::vector<ObsPlot*> getObsPlots() const;         // Returns a vector of defined observation plots.
+
+Q_SIGNALS:
+  void repaintNeeded(bool updateBackgroundBuffer);
 };
 
 #endif
