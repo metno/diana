@@ -39,15 +39,11 @@
    At present only used to display lines of Vertical Crossections
    on the map.
 */
-class LocationPlot : public Plot {
-
+class LocationPlot : public Plot
+{
 public:
-
-  // constructor
   LocationPlot();
-
-  // destructor
-  virtual ~LocationPlot();
+  ~LocationPlot() override;
 
   bool setData(const LocationData& locationdata);
 
@@ -57,11 +53,11 @@ public:
   void hide() { visible= false; }
   void show() { visible= true; }
   bool isVisible() const { return visible; }
-  void plot(DiGLPainter* gl, PlotOrder zorder);
+  void plot(DiGLPainter* gl, PlotOrder zorder) override;
   bool changeProjection();
   std::string getName() { return locdata.name; }
   std::string find(int x, int y);
-  void getAnnotation(std::string &str, Colour &col) const;
+  void getAnnotation(std::string& str, Colour& col) const override;
 
 private:
   void drawLineOrPoint(DiGLPainter* gl, int l);

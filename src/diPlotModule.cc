@@ -1177,24 +1177,27 @@ AreaObjectsCluster* PlotModule::areaobjects()
 
 //********** plotting and selecting locationPlots on the map *************
 
+namespace {
+typedef std::vector<LocationPlot*> LocationPlot_xv;
+LocationPlot_xv::iterator find_lp(LocationPlot_xv& lpv, const std::string& name)
+{
+  return std::find_if(lpv.begin(), lpv.end(), [&](LocationPlot* lp) { return name == lp->getName(); });
+}
+} // namespace
+
 void PlotModule::putLocation(const LocationData& locationdata)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
 #endif
-  bool found = false;
-  for (LocationPlot*& lp : locationPlots) {
-    if (locationdata.name == lp->getName()) {
-      bool visible = lp->isVisible();
-      delete lp;
-      lp = new LocationPlot();
-      lp->setData(locationdata);
-      if (!visible)
-        lp->hide();
-      found = true;
-    }
-  }
-  if (!found) {
+  const auto p = find_lp(locationPlots, locationdata.name);
+  if (p != locationPlots.end()) {
+    LocationPlot* lp = *p;
+    const bool visible = lp->isVisible();
+    lp->setData(locationdata);
+    if (!visible)
+      lp->hide();
+  } else {
     LocationPlot* lp = new LocationPlot();
     lp->setData(locationdata);
     locationPlots.push_back(lp);
@@ -1204,36 +1207,26 @@ void PlotModule::putLocation(const LocationData& locationdata)
 
 void PlotModule::deleteLocation(const std::string& name)
 {
-  vector<LocationPlot*>::iterator p = locationPlots.begin();
-  vector<LocationPlot*>::iterator pend = locationPlots.end();
-
-  while (p != pend && name != (*p)->getName())
-    p++;
-  if (p != pend) {
-    delete (*p);
+  const auto p = find_lp(locationPlots, name);
+  if (p != locationPlots.end()) {
+    delete *p;
     locationPlots.erase(p);
     setAnnotations();
   }
 }
 
-void PlotModule::setSelectedLocation(const std::string& name,
-    const std::string& elementname)
+void PlotModule::setSelectedLocation(const std::string& name, const std::string& elementname)
 {
-  int n = locationPlots.size();
-  for (int i = 0; i < n; i++) {
-    if (name == locationPlots[i]->getName())
-      locationPlots[i]->setSelected(elementname);
-  }
+  const auto p = find_lp(locationPlots, name);
+  if (p != locationPlots.end())
+    (*p)->setSelected(elementname);
 }
 
 std::string PlotModule::findLocation(int x, int y, const std::string& name)
 {
-
-  int n = locationPlots.size();
-  for (int i = 0; i < n; i++) {
-    if (name == locationPlots[i]->getName())
-      return locationPlots[i]->find(x, y);
-  }
+  const auto p = find_lp(locationPlots, name);
+  if (p != locationPlots.end())
+    return (*p)->find(x, y);
   return std::string();
 }
 

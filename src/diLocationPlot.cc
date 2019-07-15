@@ -27,12 +27,10 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "diana_config.h"
-
 #include "diLocationPlot.h"
-#include "diStaticPlot.h"
 
 #include "diGLPainter.h"
+#include "diStaticPlot.h"
 
 #include <mi_fieldcalc/math_util.h>
 
@@ -47,14 +45,13 @@
 using namespace::miutil;
 
 LocationPlot::LocationPlot()
+    : visible(false)
+    , numPos(0)
+    , px(nullptr)
+    , py(nullptr)
 {
   METLIBS_LOG_SCOPE();
-
-  visible= false;
-  locdata.locationType= location_unknown;
-  numPos= 0;
-  px= 0;
-  py= 0;
+  locdata.locationType = location_unknown;
 }
 
 
@@ -70,7 +67,7 @@ void LocationPlot::cleanup()
   METLIBS_LOG_SCOPE();
   delete[] px;
   delete[] py;
-  px= py= 0;
+  px = py = nullptr;
   numPos= 0;
   locinfo.clear();
   visible= false;
@@ -89,40 +86,34 @@ bool LocationPlot::setData(const LocationData& locationdata)
   cleanup();
 
   // check if sensible input data
-  //bool ok= true;
 
-  int nelem = locationdata.elements.size();
-  if (nelem == 0) {
+  if (locationdata.elements.empty()) {
     METLIBS_LOG_INFO("nelem==0!");
     return false;
   }
 
   std::set<std::string> nameset;
 
-  for (int i = 0; i < nelem; i++) {
-    if (locationdata.elements[i].name.empty()) {
-      METLIBS_LOG_INFO("i=" << i << " locationdata.elements[i].name.empty()!");
-      return false;
-    } else if (nameset.find(locationdata.elements[i].name) == nameset.end())
-      nameset.insert(locationdata.elements[i].name);
-    else {
-      METLIBS_LOG_INFO("duplicate name: " << i
-          << " locationdata.elements[i].name!" << locationdata.elements[i].name);
+  for (const auto& le : locationdata.elements) {
+    if (le.name.empty()) {
+      METLIBS_LOG_WARN("skip LocationPlot with empty name");
       return false;
     }
-    if (locationdata.elements[i].xpos.size()
-        != locationdata.elements[i].ypos.size()) {
-      METLIBS_LOG_INFO("LocationPlot::setData " << i
-          << " locationdata.elements[i].xpos.size()!=locationdata.elements[i].ypos.size()!"
-          << locationdata.elements[i].xpos.size() << ","
-          << locationdata.elements[i].ypos.size());
+    if (nameset.find(le.name) != nameset.end()) {
+      METLIBS_LOG_INFO("duplicate name: '" << le.name << "'");
       return false;
     }
+    if (le.xpos.size() != le.ypos.size()) {
+      METLIBS_LOG_WARN("skip LocationPlot with xpos.size() != ypos.size()");
+      return false;
+    }
+    nameset.insert(le.name);
   }
 
   locdata = locationdata;
 
   numPos = 0;
+  const int nelem = locationdata.elements.size();
   locinfo.resize(nelem);
   for (int i = 0; i < nelem; i++) {
     locinfo[i].beginpos = numPos;
@@ -148,16 +139,15 @@ bool LocationPlot::changeProjection()
 {
   METLIBS_LOG_SCOPE();
 
-  if (numPos<1 || posArea.P()==getStaticPlot()->getMapArea().P()) return false;
+  if (numPos < 1 || posArea.P() == getStaticPlot()->getMapArea().P())
+    return false;
 
-  int nlines= locdata.elements.size();
-  int np1, np= 0;
-
-  for (int l=0; l<nlines; l++) {
-    np1= locdata.elements[l].xpos.size();
-    for (int i=0; i<np1; i++) {
-      px[np+i]= locdata.elements[l].xpos[i];
-      py[np+i]= locdata.elements[l].ypos[i];
+  int np = 0;
+  for (const auto& le : locdata.elements) {
+    const int np1 = le.xpos.size();
+    for (int i = 0; i < np1; i++) {
+      px[np + i] = le.xpos[i];
+      py[np + i] = le.ypos[i];
     }
     np+=np1;
   }
@@ -169,31 +159,16 @@ bool LocationPlot::changeProjection()
 
   posArea= getStaticPlot()->getMapArea();
 
-  float xmin,xmax,ymin,ymax,dmax,dx,dy;
-  int n1,n2, numLines= locinfo.size();
-
-  for (int l=0; l<numLines; l++) {
-    n1= locinfo[l].beginpos;
-    n2= locinfo[l].endpos;
-    xmin= xmax= px[n1];
-    ymin= ymax= py[n1];
-    dmax= 0.0f;
-    for (int n=n1+1; n<n2; n++) {
-      dx= px[n-1]-px[n];
-      dy= py[n-1]-py[n];
-      float d2 = miutil::absval2(dx, dy);
-      if (dmax < d2)
-        dmax=d2;
-      if      (xmin>px[n]) xmin= px[n];
-      else if (xmax<px[n]) xmax= px[n];
-      if      (ymin>py[n]) ymin= py[n];
-      else if (ymax<py[n]) ymax= py[n];
+  for (auto& li : locinfo) {
+    li.xmin = li.xmax = px[li.beginpos];
+    li.ymin = li.ymax = py[li.beginpos];
+    li.dmax = 0.0f;
+    for (int n = li.beginpos + 1; n < li.endpos; n++) {
+      miutil::maximize(li.dmax, miutil::absval2(px[n - 1] - px[n], py[n - 1] - py[n]));
+      miutil::minimaximize(li.xmin, li.xmax, px[n]);
+      miutil::minimaximize(li.ymin, li.ymax, py[n]);
     }
-    locinfo[l].xmin= xmin;
-    locinfo[l].xmax= xmax;
-    locinfo[l].ymin= ymin;
-    locinfo[l].ymax= ymax;
-    locinfo[l].dmax= sqrtf(dmax);
+    li.dmax = std::sqrt(li.dmax);
   }
 
   return true;
