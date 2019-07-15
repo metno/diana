@@ -146,7 +146,6 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
     vlayout->addWidget(cbs3);
   }
 
-
   //push buttons to delete all selections
   Delete = NormalPushButton( tr("Delete"), this );
   connect( Delete, SIGNAL(clicked()), SLOT(DeleteClicked()));
@@ -189,31 +188,30 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent,
   updateFilenames();
 
   if (num>-1 && fields.size()==0){
-    if (prodnamebox->count()>1) prodnamebox->setCurrentIndex(1);
+    if (prodnamebox->count() > 1)
+      prodnamebox->setCurrentIndex(1);
     prodnameActivated(1);
   }
   else
     prodnameActivated(0);
-
-
-}//end constructor EditDefineFieldDialog
-
+}
 
 /*********************************************/
 
-vector <std::string> EditDefineFieldDialog::getProductNames(){
+vector<std::string> EditDefineFieldDialog::getProductNames()
+{
   METLIBS_LOG_SCOPE();
 
   vector <std::string> name;
-  if (!m_editm) return name;
+  if (!m_editm)
+    return name;
   //get fields
   if (num>-1){
     name.push_back(MODELFIELDS);
     fields= m_editm->getValidEditFields(EdProd,num);
   }
   name.push_back(EdProd.name);
-  vector<savedProduct> sp=
-      m_editm->getSavedProducts(EdProd,num);
+  vector<savedProduct> sp = m_editm->getSavedProducts(EdProd, num);
   pmap[EdProd.name]=sp;
   vector<std::string> products = m_editm->getEditProductNames();
   int n = products.size();
@@ -309,12 +307,12 @@ void EditDefineFieldDialog::fieldselect(QListWidgetItem* item)
       filenames->item(selectedProdIndex)->setSelected(true);
   }
   ok->setEnabled(true);
-
 }
 
 /*********************************************/
 
-void EditDefineFieldDialog::updateFilenames(){
+void EditDefineFieldDialog::updateFilenames()
+{
   METLIBS_LOG_SCOPE();
   filenames->clear();
   if (fieldSelected()){
@@ -340,7 +338,8 @@ void EditDefineFieldDialog::updateFilenames(){
 
 /*********************************************/
 
-void EditDefineFieldDialog::filenameSlot(QListWidgetItem* item){
+void EditDefineFieldDialog::filenameSlot(QListWidgetItem* item)
+{
   METLIBS_LOG_SCOPE();
   selectedProdIndex=filenames->row(item);
   if (num==-1){
@@ -356,9 +355,7 @@ void EditDefineFieldDialog::DeleteClicked(){
   if (fieldSelected()){
     selectedfield.clear();
     updateFilenames();
-    ok->setEnabled(true);
-  }
-  else if (productSelected() && selectedProdIndex > -1 && selectedProdIndex < int(vselectedprod.size())){
+  } else if (productSelected() && selectedProdIndex > -1 && selectedProdIndex < int(vselectedprod.size())) {
     vselectedprod.erase(vselectedprod.begin()+selectedProdIndex);
     selectedProdIndex--;
     if (selectedProdIndex<0 && vselectedprod.size()) selectedProdIndex=0;
@@ -367,24 +364,28 @@ void EditDefineFieldDialog::DeleteClicked(){
       filenames->item(selectedProdIndex)->setSelected(true);
     else
       initCbs();
-    ok->setEnabled(true);
   }
+  ok->setEnabled(true);
   //refresh List, clear selection
   fillList();
 }
 
 /*********************************************/
 
-void EditDefineFieldDialog::Refresh(){
+void EditDefineFieldDialog::Refresh()
+{
   METLIBS_LOG_SCOPE();
   getProductNames();
   fillList();
 }
+
 /***********************************************************/
 
-void EditDefineFieldDialog::cbsClicked(){
+void EditDefineFieldDialog::cbsClicked()
+{
   METLIBS_LOG_SCOPE();
-  if (num>-1) return;
+  if (num > -1)
+    return;
   if (productSelected()){
     if (selectedProdIndex > -1 && selectedProdIndex < int(vselectedprod.size())){
       vselectedprod[selectedProdIndex].selectObjectTypes=selectedObjectTypes();
@@ -393,34 +394,24 @@ void EditDefineFieldDialog::cbsClicked(){
         filenames->item(selectedProdIndex)->setSelected(true);
     }
   }
-  if (vselectedprod.size() && selectedProdIndex > -1) ok->setEnabled(true);
+  if (vselectedprod.size() && selectedProdIndex > -1)
+    ok->setEnabled(true);
 }
 
-
-
-void EditDefineFieldDialog::setCheckedCbs(map<std::string,bool> useEditobject){
-  if (num>-1) return;
-  if (useEditobject["front"])
-    cbs0->setChecked(true);
-  else
-    cbs0->setChecked(false);
-  if (useEditobject["symbol"])
-    cbs1->setChecked(true);
-  else
-    cbs1->setChecked(false);
-  if (useEditobject["area"])
-    cbs2->setChecked(true);
-  else
-    cbs2->setChecked(false);
-  if (useEditobject["anno"])
-    cbs3->setChecked(true);
-  else
-    cbs3->setChecked(false);
+void EditDefineFieldDialog::setCheckedCbs(const map<std::string, bool>& useEditobject)
+{
+  if (num > -1)
+    return;
+  cbs0->setChecked(useEditobject.find("front") != useEditobject.end());
+  cbs1->setChecked(useEditobject.find("symbol") != useEditobject.end());
+  cbs2->setChecked(useEditobject.find("area") != useEditobject.end());
+  cbs3->setChecked(useEditobject.find("anno") != useEditobject.end());
 }
 
-
-void EditDefineFieldDialog::initCbs(){
-  if (num>-1) return;
+void EditDefineFieldDialog::initCbs()
+{
+  if (num > -1)
+    return;
   cbs0->setChecked(true);
   cbs1->setChecked(true);
   cbs2->setChecked(true);
@@ -442,14 +433,3 @@ std::string EditDefineFieldDialog::selectedObjectTypes()
 
   return str;
 }
-
-
-/***********************************************************/
-
-
-
-
-
-
-
-

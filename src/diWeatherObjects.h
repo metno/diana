@@ -139,7 +139,7 @@ public:
   std::string filename;
 
   /// decode string with types of objects to plot
-  static std::map <std::string,bool> decodeTypeString(const std::string&);
+  static std::map<std::string, bool> decodeTypeString(const std::string&);
 
   /// x,y for copied objects
   float xcopy,ycopy;

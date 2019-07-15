@@ -72,7 +72,7 @@ private:
   void fillList();
   void updateFilenames();
   std::string selectedObjectTypes(); //fronts /symbols/areas ?
-  void setCheckedCbs(std::map<std::string,bool> useEditobject);
+  void setCheckedCbs(const std::map<std::string, bool>& useEditobject);
   void initCbs();
 
 private slots:

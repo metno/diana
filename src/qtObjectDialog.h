@@ -71,12 +71,17 @@ public:
   /// creates a short name for the current settings (used in quick menues)
   std::string getShortname();
 
+  /// set mode to read files from archive
+  void archiveMode(bool on);
+
   /// read comment belonging to objects
   void commentUpdate();
 
-  /// set mode to read files from archive
-  void archiveMode( bool on );
+public /*Q_SLOTS*/:
+  void updateTimes() override;
+  void updateDialog() override;
 
+private:
   /**
    * \brief Variables to plot an object file
    * Name, file etc.
@@ -91,9 +96,19 @@ public:
     miutil::KeyValue_v external;
   };
 
-public /*Q_SLOTS*/:
-  void updateTimes() override;
-  void updateDialog() override;
+private:
+  //! update 'objectnames' and 'namebox'
+  void updateObjectNames();
+
+  // update the list of files  (if refresh = true read from disk)
+  void updateTimefileList(bool refresh);
+  // updates the text that appears in the selectedFileList box
+  void updateSelectedFileList();
+
+  // decode part of OK string
+  static PlotVariables decodeString(const miutil::KeyValue_v& tokens);
+  // make string from plotVariables
+  std::string makeOKString(PlotVariables& okVar);
 
 private:
   ObjectManager* m_objm;
@@ -115,18 +130,6 @@ private:
   //LB: current variables (only used for external)
   PlotVariables plotVariables;
 
-  //update the list of files  (if refresh = true read from disk)
-  void updateTimefileList(bool refresh);
-  //updates the text that appears in the selectedFileList box
-  void updateSelectedFileList();
-
-  //decode part of OK string
-  static PlotVariables decodeString(const miutil::KeyValue_v &tokens);
-  // make string from plotVariables
-  std::string makeOKString(PlotVariables & okVar);
-
-  //************** q tWidgets that appear in the dialog  *******************
-
   // Combobox for selecting region name
   QListWidget * namebox;
 
@@ -142,15 +145,11 @@ private:
  // the box showing which files have been choosen
   QListWidget* selectedFileList;  
  
-
  //Check boxes for selecting fronts/symbols/areas
-  QGroupBox * bgroupobjects; 
   QCheckBox *cbs0;
   QCheckBox *cbs1;
   QCheckBox *cbs2;
   QCheckBox *cbs3;
-
-
 
   //lCD number/slider for showing/selecting max time diff.
   QLCDNumber* diffLcdnum;

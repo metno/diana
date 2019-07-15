@@ -27,8 +27,6 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "diana_config.h"
-
 #include "qtObjectDialog.h"
 
 #include "diController.h"
@@ -69,6 +67,8 @@ using namespace std;
 /***************************************************************************/
 ObjectDialog::ObjectDialog(QWidget* parent, Controller* llctrl)
     : DataDialog(parent, llctrl)
+    , m_objm(m_ctrl->getObjectManager())
+    , useArchive(false)
 {
   METLIBS_LOG_SCOPE();
 
@@ -79,52 +79,37 @@ ObjectDialog::ObjectDialog(QWidget* parent, Controller* llctrl)
   m_action->setIconVisibleInMenu(true);
   helpFileName = "ug_objectdialogue.html";
 
-  m_objm = m_ctrl->getObjectManager();
+  //********** create the various QT widgets to appear in dialog ***********
 
-  useArchive=false;
-//********** create the various QT widgets to appear in dialog ***********
-
-  namebox = new QListWidget( this );
-
-  objectnames= m_ctrl->getObjectNames(useArchive);
-  for (unsigned int i=0; i<objectnames.size(); i++){
-    namebox->addItem(QString(objectnames[i].c_str()));
-  }
-
-  connect( namebox, SIGNAL(itemClicked(  QListWidgetItem * ) ),
-           SLOT( nameListClicked(  QListWidgetItem * ) ) );
+  namebox = new QListWidget(this);
+  connect(namebox, &QListWidget::itemClicked, this, &ObjectDialog::nameListClicked);
+  updateObjectNames();
 
   //**** the three buttons "auto", "tid", "fil" *************
 
   autoButton = new ToggleButton(this, tr("Auto"));
   timeButton = new ToggleButton(this, tr("Time"));
   fileButton = new ToggleButton(this, tr("File"));
-  timefileBut = new QButtonGroup( this );
-  timefileBut->addButton(autoButton,0);
-  timefileBut->addButton(timeButton,1);
-  timefileBut->addButton(fileButton,2);
+  timefileBut = new QButtonGroup(this);
+  timefileBut->addButton(autoButton, 0);
+  timefileBut->addButton(timeButton, 1);
+  timefileBut->addButton(fileButton, 2);
   QHBoxLayout* timefileLayout = new QHBoxLayout();
   timefileLayout->addWidget(autoButton);
   timefileLayout->addWidget(timeButton);
   timefileLayout->addWidget(fileButton);
-  timefileBut->setExclusive( true );
+  timefileBut->setExclusive(true);
   autoButton->setChecked(true);
   //timefileClicked is called when auto,tid,fil buttons clicked
-  connect( timefileBut, SIGNAL( buttonClicked(int) ),
-           SLOT( timefileClicked(int) ) );
+  connect(timefileBut, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, &ObjectDialog::timefileClicked);
 
   //********** the list of files/times to choose from **************
 
   timefileList = new QListWidget( this );
+  connect(timefileList, &QListWidget::itemClicked, this, &ObjectDialog::timefileListSlot);
 
-  connect( timefileList, SIGNAL( itemClicked( QListWidgetItem * ) ),
-           SLOT( timefileListSlot( QListWidgetItem * ) ) );
-
-
-  //the box (with label) showing which files have been choosen
-  QLabel* filesLabel = TitleLabel( tr("Selected files"), this);
-  selectedFileList = new QListWidget( this );
-
+  QLabel* filesLabel = TitleLabel(tr("Selected files"), this);
+  selectedFileList = new QListWidget(this);
 
   //*****  Check boxes for selecting fronts/symbols/areas  **********
 
@@ -137,9 +122,8 @@ ObjectDialog::ObjectDialog(QWidget* parent, Controller* llctrl)
   cbsLayout->addWidget(cbs1);
   cbsLayout->addWidget(cbs2);
   cbsLayout->addWidget(cbs3);
-  bgroupobjects= new QGroupBox();
-  bgroupobjects->setLayout( cbsLayout );
-  //  bgroupobjects->setExclusive( false );
+  QGroupBox* bgroupobjects = new QGroupBox();
+  bgroupobjects->setLayout(cbsLayout);
   cbs0->setChecked(true);
   cbs1->setChecked(true);
   cbs2->setChecked(true);
@@ -160,10 +144,7 @@ ObjectDialog::ObjectDialog(QWidget* parent, Controller* llctrl)
   diffLcdnum= LCDNumber( difflength, this);
   diffSlider= Slider( timediff_minValue, timediff_maxValue, 1,
                       timediff_value, Qt::Horizontal, this );
-
-  connect(diffSlider,SIGNAL( valueChanged(int)),SLOT(doubleDisplayDiff(int)));
-
-
+  connect(diffSlider, &QSlider::valueChanged, this, &ObjectDialog::doubleDisplayDiff);
 
   //********* slider/lcd number showing alpha cut **************
 
@@ -172,36 +153,28 @@ ObjectDialog::ObjectDialog(QWidget* parent, Controller* llctrl)
   int alpha_value    = 100;
   m_alphascale = 0.01;
 
-
   alpha = new ToggleButton(this, tr("Alpha"));
-  connect( alpha, SIGNAL( toggled(bool)), SLOT( greyAlpha( bool) ));
+  connect(alpha, &ToggleButton::toggled, this, &ObjectDialog::greyAlpha);
 
+  alphalcd = LCDNumber(4, this);
 
-  alphalcd = LCDNumber( 4, this);
+  salpha = Slider(alpha_minValue, alpha_maxValue, 1, alpha_value, Qt::Horizontal, this);
+  connect(salpha, &QSlider::valueChanged, this, &ObjectDialog::alphaDisplay);
 
-  salpha  = Slider( alpha_minValue, alpha_maxValue, 1, alpha_value,
-			    Qt::Horizontal, this);
-
-  connect( salpha, SIGNAL( valueChanged( int )),
-	      SLOT( alphaDisplay( int )));
-
-  // INITIALISATION
-  alphaDisplay( alpha_value );
+  alphaDisplay(alpha_value);
   greyAlpha(false);
 
   //************************* standard Buttons *****************************
 
    //push buttons to delete all selections
   QPushButton* deleteButton = NormalPushButton( tr("Delete"), this );
-  connect( deleteButton, SIGNAL(clicked()), SLOT(DeleteClicked()));
+  connect(deleteButton, &QPushButton::clicked, this, &ObjectDialog::DeleteClicked);
 
   //toggle button for comments
   commentbutton = new ToggleButton(this, tr("Comments"));
-  connect(  commentbutton, SIGNAL(toggled(bool)),
-	    SLOT( commentClicked(bool) ));
+  connect(commentbutton, &ToggleButton::toggled, this, &ObjectDialog::commentClicked);
 
-// ********************* place all the widgets in layouts ****************
-
+  // ********************* place all the widgets in layouts ****************
 
   QGridLayout* gridlayout = new QGridLayout();
   gridlayout->addWidget( diffLabel,  0,0 );
@@ -225,11 +198,8 @@ ObjectDialog::ObjectDialog(QWidget* parent, Controller* llctrl)
   vlayout->addLayout(createStandardButtons(true));
 
   objcomment = new EditComment( this, m_ctrl,false );
-  connect(objcomment,SIGNAL(CommentHide()),SLOT(hideComment()));
+  connect(objcomment, &EditComment::CommentHide, this, &ObjectDialog::hideComment);
   objcomment->hide();
-
-  //  atd = new AddtoDialog(this,m_ctrl);
-
 
    //set the selected prefix and get time file list
   selectedFileList->clear();
@@ -707,15 +677,18 @@ void ObjectDialog::archiveMode(bool on)
   METLIBS_LOG_SCOPE();
   useArchive= on;
 
-  //get new Objectnames
-  namebox->clear();
-  objectnames= m_ctrl->getObjectNames(useArchive);
-  for (unsigned int i=0; i<objectnames.size(); i++){
-    namebox->addItem(objectnames[i].c_str());
-  }
+  updateObjectNames();
 
   //everything is unselected and listboxes refreshed
   DeleteClicked();
+}
+
+void ObjectDialog::updateObjectNames()
+{
+  namebox->clear();
+  objectnames = m_ctrl->getObjectNames(useArchive);
+  for (const std::string& on : objectnames)
+    namebox->addItem(QString::fromStdString(on));
 }
 
 void ObjectDialog::hideComment()

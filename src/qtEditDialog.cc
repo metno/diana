@@ -280,12 +280,7 @@ EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
   ecomment = new EditComment( this, m_ctrl,true );
   connect(ecomment,SIGNAL(CommentHide()),SLOT(hideComment()));
   ecomment->hide();
-
-
-
-}//end constructor EditDialog
-
-
+}
 
 // --------------------------------------------------------------
 // --------------- FieldTab methods -----------------------------

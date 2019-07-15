@@ -30,7 +30,6 @@
 #define _editComment_h
 
 #include <QDialog>
-#include <qsplitter.h>
 
 class QTextEdit;
 class ToggleButton;
@@ -45,6 +44,15 @@ class EditComment :public QDialog
   Q_OBJECT
 public:
 
+  /// start writing comments
+  void startComment();
+  ///  read old comments for this edit product
+  void readComment();
+  /// save comments for editing
+  void saveComment();
+  /// stop writing comments
+  void stopComment();
+
   EditComment( QWidget* parent, Controller* llctrl, bool edit);
 protected:
   void closeEvent( QCloseEvent* );
@@ -55,33 +63,17 @@ private:
 
   QTextEdit * mEdit;
   QTextEdit * mEdit2;
-  QSplitter *split;
   ToggleButton *showOld;
 
   bool inComment; //true if editing comment
   bool inEditSession;    //true if comments for edit session
 
-signals:
+Q_SIGNALS:
   void CommentHide();
 
 private slots:
  void showOldToggled(bool);
  void textChanged();
-
-
-public slots:
-  /// start writing comments
-  void startComment();
-  ///  read old comments for this edit product
-  void readComment();
-  /// save comments for editing
-  void saveComment();
-  /// stop writing comments
-  void stopComment();
 };
 
 #endif
-
-
-
-

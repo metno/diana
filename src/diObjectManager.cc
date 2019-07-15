@@ -136,20 +136,13 @@ bool ObjectManager::parseSetup() {
   return true;
 }
 
-
-vector<std::string> ObjectManager::getObjectNames(bool archive)
+std::vector<std::string> ObjectManager::getObjectNames(bool archive)
 {
   //return objectnames. with/without archive
-  vector<std::string> objNames;
-  int n = objectNames.size();
-  for(int i = 0; i<n;i++){
-    if (archive){
-      objNames.push_back(objectNames[i]);
-    }
-    else{
-      if (objectFiles[objectNames[i]].archive==false)
-        objNames.push_back(objectNames[i]);
-    }
+  std::vector<std::string> objNames;
+  for (const std::string& obn : objectNames) {
+    if (archive || objectFiles[obn].archive == false)
+      objNames.push_back(obn);
   }
   return objNames;
 }

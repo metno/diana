@@ -58,10 +58,10 @@
 using namespace std;
 
 EditNewDialog::EditNewDialog(QWidget* parent, Controller* llctrl)
-  : QDialog(parent), m_ctrl(llctrl), m_editm(0)
+    : QDialog(parent)
+    , m_ctrl(llctrl)
+    , m_editm(m_ctrl->getEditManager())
 {
-  m_editm= m_ctrl->getEditManager();
-
   TABNAME_NORMAL = tr("Normal");
 
   normal= true;
@@ -365,25 +365,24 @@ bool EditNewDialog::load(){
   productfree= false;
   newActive=true;
 
-  if( m_ctrl && m_editm ){
+  if (m_editm) {
     products= m_editm->getEditProducts();
     prodbox->clear();
-    size_t n = products.size();
-    if ( n == 0 ) return false;
+    if (products.empty())
+      return false;
 
-    for (size_t i=0; i<n; i++){
-      prodbox->addItem(products[i].name.c_str());
-      int m= products[i].fields.size();
-      products[i].objectprods.clear();
+    for (auto& p : products) {
+      prodbox->addItem(QString::fromStdString(p.name));
+      const int m = p.fields.size();
+      p.objectprods.clear();
       for (int j=0; j<m; j++){
-        products[i].fields[j].fromfield= true;
+        p.fields[j].fromfield = true;
 
-        vector<string> fstr=
-            m_editm->getValidEditFields(products[i],j);
+        vector<string> fstr = m_editm->getValidEditFields(p, j);
         if (fstr.size())
-          products[i].fields[j].fromfname= fstr[0];
+          p.fields[j].fromfname = fstr[0];
         else
-          products[i].fields[j].fromfname.clear();
+          p.fields[j].fromfname.clear();
       }
     }
 
@@ -391,13 +390,12 @@ bool EditNewDialog::load(){
     prodbox->setCurrentIndex(0);
     prodBox(0);
 
-    miutil::miTime t = m_ctrl->getPlotTime();
     //set to closest hour
-    int nhour=t.hour(), nmin=t.min();
-    if (nmin>29)
+    const miutil::miTime& t = m_ctrl->getPlotTime();
+    int nhour = t.hour();
+    if (t.min() > 29)
       nhour++;
-    t.setTime(t.year(),t.month(),t.day(),nhour);
-    prodtime=t;
+    prodtime = miutil::miTime(t.year(), t.month(), t.day(), nhour);
     timespin->setTime(prodtime);
 
   } else {
@@ -492,13 +490,12 @@ void EditNewDialog::setFieldLabel(){
 
 }
 
-
-void EditNewDialog::handleObjectButton(int num)
+void EditNewDialog::handleObjectButton(int /*num*/)
 {
-  if( m_editm ){
-
+  if (m_editm) {
     EditDefineFieldDialog edf(this,m_ctrl,-1,products[currprod]);
-    if (!edf.exec()) return;
+    if (!edf.exec())
+      return;
 
     if (edf.productSelected()){
       products[currprod].objectprods=edf.vselectedProd();

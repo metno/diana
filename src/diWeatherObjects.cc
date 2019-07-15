@@ -56,18 +56,18 @@ using namespace::miutil;
 using namespace std;
 
 WeatherObjects::WeatherObjects()
-: xcopy(0), ycopy(0)
+    : xcopy(0)
+    , ycopy(0)
+    , enabled(true)
 {
   METLIBS_LOG_SCOPE();
 
   // correct spec. when making Projection for long/lat coordinates
   geoArea.setP(Projection::geographic());
 
-  useobject.clear();
   //use all objects if nothing else specified
-  for (int i=0; i<numObjectTypes; i++)
-    useobject[ObjectTypeNames[i]]= true;
-  enabled=true;
+  for (const std::string& otn : ObjectTypeNames)
+    useobject[otn] = true;
 }
 
 WeatherObjects::~WeatherObjects()
@@ -206,10 +206,8 @@ bool WeatherObjects::changeProjection(const Area& newArea)
 void WeatherObjects::updateObjects()
 {
   METLIBS_LOG_SCOPE();
-
-  const int obsize = objects.size();
-  for (int i=0; i<obsize; i++)
-    objects[i]->updateBoundBox();
+  for (ObjectPlot* op : objects)
+    op->updateBoundBox();
 }
 
 
@@ -296,8 +294,6 @@ bool WeatherObjects::readEditDrawString(const std::string& inputString,
 {
   METLIBS_LOG_SCOPE(LOGVAL(inputString));
 
-  std::string key,value,objectString;
-
   // nb ! if useobject not true for an objecttype, no objects used(read) for
   // this object type. Useobject is set in WeatherObjects constructor and
   // also in DisplayObjects::define and in EditManager::startEdit
@@ -308,56 +304,49 @@ bool WeatherObjects::readEditDrawString(const std::string& inputString,
   }
   changeProjection(geoArea);
 
-
   //split inputString into one string for each object
-  vector <std::string> objectStrings = miutil::split(inputString, 0, "!");
-
-  for (unsigned int i = 0;i<objectStrings.size();i++){
+  const std::vector<std::string> objectStrings = miutil::split(inputString, 0, "!");
+  for (const std::string& objstr : objectStrings) {
     //split objectString and check which type of new
     //object should be created from first keyword and value
-    vector <std::string> tokens = miutil::split(objectStrings[i], 0, ";");
-    vector <std::string> stokens = miutil::split(tokens[0], 0, "=");
-    if ( stokens.size()==2) {
-      key = miutil::to_lower(stokens[0]);
-      value = stokens[1];
-    } else {
-      METLIBS_LOG_WARN("WeatherObjects::readEditDrawString - Warning !");
-      METLIBS_LOG_ERROR("Error in objectString " << objectStrings[i]);
+    const std::vector<std::string> tokens = miutil::split(objstr, 0, ";");
+    const std::vector<std::string> stokens = miutil::split(tokens[0], 0, "="); // never empty
+    if (stokens.size() != 2) {
+      METLIBS_LOG_ERROR("Error in objectString '" << objstr << "'");
       continue;
     }
+    const std::string key = miutil::to_lower(stokens[0]);
+    const std::string& value = stokens[1];
     if (key == "date"){
     } else if (key == "object"){
-      ObjectPlot * tObject;
+      std::unique_ptr<ObjectPlot> tObject;
       if (value == "Front") {
         if (useobject["front"])
-          tObject = new WeatherFront();
+          tObject.reset(new WeatherFront());
         else
           continue;
       } else if (value == "Symbol") {
         if (useobject["symbol"])
-          tObject = new WeatherSymbol();
+          tObject.reset(new WeatherSymbol());
         else
           continue;
       } else if (value == "Area") {
         if (useobject["area"])
-          tObject = new WeatherArea();
+          tObject.reset(new WeatherArea());
         else
           continue;
       } else if (value == "Border")
-        tObject = new AreaBorder();
+        tObject.reset(new AreaBorder());
       else if (value == "RegionName")
-        tObject = new WeatherSymbol("",RegionName);
+        tObject.reset(new WeatherSymbol("", RegionName));
       else {
         METLIBS_LOG_ERROR("Unknown object: '" << value << "'");
         continue;
       }
-      if (tObject->readObjectString(objectStrings[i]))
-        //add a new object
-        addObject(tObject,replace);
-      else
-        delete tObject;
+      if (tObject->readObjectString(objstr))
+        addObject(tObject.release(), replace);
     } else {
-      METLIBS_LOG_ERROR("Error! Object key '" << key << "'not found !");
+      METLIBS_LOG_ERROR("Object key '" << key << "'not found !");
     }
   }
 
@@ -538,21 +527,19 @@ vector<ObjectPlot*>::iterator WeatherObjects::removeObject(vector<ObjectPlot*>::
 /*********************************************/
 
 // static
-map<std::string,bool> WeatherObjects::decodeTypeString(const std::string& types)
+std::map<std::string, bool> WeatherObjects::decodeTypeString(const std::string& types)
 {
-  map<std::string,bool> use;
-  for (int i=0; i<numObjectTypes; i++)
-    use[ObjectTypeNames[i]]= false;
+  std::map<std::string, bool> use;
+  for (const std::string& otn : ObjectTypeNames)
+    use[otn] = false;
   //types of objects to plot
-  vector<std::string> stokens = miutil::split(types, 0, ",");
-  int m= stokens.size();
-  for (int j=0; j<m; j++){
-    if (stokens[j] == "all"){
-      for (int k=0; k<numObjectTypes; k++)
-        use[ObjectTypeNames[k]]= true;
+  for (const std::string& tok : miutil::split(types, 0, ",")) {
+    if (tok == "all") {
+      for (const std::string& otn : ObjectTypeNames)
+        use[otn] = true;
       break;
     }
-    use[stokens[j]]= true;
+    use[tok] = true;
   }
   return use;
 }

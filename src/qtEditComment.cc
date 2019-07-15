@@ -33,10 +33,8 @@
   August 2001, two windows
  */
 
-
-#include "diana_config.h"
-
 #include "qtEditComment.h"
+
 #include "qtToggleButton.h"
 #include "diController.h"
 #include "diObjectManager.h"
@@ -52,23 +50,16 @@ EditComment::EditComment( QWidget* parent, Controller* llctrl,
     bool edit)
 : QDialog(parent), m_ctrl(llctrl), m_objm(0), mEdit(0), mEdit2(0)
 {
-#ifdef dEdit
-  cout<<"EditComment::EditComment called"<<endl;
-#endif
-
-
-
-  //initialization, font, colours etc
-
   m_objm= m_ctrl->getObjectManager();
   inEditSession = edit;
   inComment = false;
   setWindowTitle("Comments[*]");
+  setGeometry(100, 100, 480, 480);
+
   //one window mEdit for editing new comments
   // one window mEdit2 for showing old comments (also used in objectDialog)
-  if (inEditSession){
-    setGeometry(100,100,480,480);
-    split = new QSplitter(Qt::Vertical,this);
+  if (inEditSession) {
+    QSplitter* split = new QSplitter(Qt::Vertical, this);
     split->setGeometry(10,10,460,380);
     mEdit = new QTextEdit(split);
     mEdit2 = new QTextEdit(split);
@@ -80,21 +71,13 @@ EditComment::EditComment( QWidget* parent, Controller* llctrl,
     vlayout->addWidget(split);
     vlayout->addWidget(showOld);
     connect(mEdit, SIGNAL(textChanged ()),SLOT(textChanged()));
-  }
-  else {
-    setGeometry(100,100,480,400);
+  } else {
     setMinimumSize(480,400);
     setMaximumSize(480,400);
     mEdit2 = new QTextEdit(this);
     mEdit2->setGeometry(10,10,460,380);
   }
-
 }
-
-
-
-/*********************************************/
-
 
 void EditComment::textChanged()
 {
@@ -104,45 +87,36 @@ void EditComment::textChanged()
 void EditComment::startComment()
 {
   //start comments for editing
-  if (inComment) return;
+  if (inComment)
+    return;
   mEdit->clear();
-  std::string comments = m_objm->getComments();
-  mEdit->setText(comments.c_str());
-  //   mEdit->insertLine("\n");
-  //   int n = mEdit->numLines();
-  //   mEdit->setCursorPosition(n,0);
+  mEdit->setText(QString::fromStdString(m_objm->getComments()));
   setWindowModified(false);
   inComment = true;
-  if (showOld->isChecked()) readComment();
+  if (showOld->isChecked())
+    readComment();
 }
 
 void EditComment::readComment()
 {
   //read comments only
   mEdit2->clear();
-  std::string comments = m_objm->readComments(inEditSession);
-  mEdit2->setText(comments.c_str());
-  //   mEdit2->insertLine("\n");
-  //   int n = mEdit2->numLines();
-  //   mEdit2->setCursorPosition(n,0);
+  mEdit2->setText(QString::fromStdString(m_objm->readComments(inEditSession)));
   mEdit2->setReadOnly(true);
 }
-
-
 
 void EditComment::saveComment()
 {
   if (inComment && isWindowModified()){
-    std::string comments = std::string(mEdit->toPlainText().toStdString());
     //put comments into plotm->editobjects->comments;
-    m_objm->putComments(comments);
+    m_objm->putComments(mEdit->toPlainText().toStdString());
     setWindowModified(false);
   }
 }
 
-
-void EditComment::stopComment(){
-  if (inEditSession){
+void EditComment::stopComment()
+{
+  if (inEditSession) {
     mEdit->clear();
     setWindowModified(false);
   }
@@ -150,21 +124,16 @@ void EditComment::stopComment(){
   inComment = false;
 }
 
-
-void EditComment::showOldToggled(bool on){
-  if (on){
+void EditComment::showOldToggled(bool on)
+{
+  if (on) {
     mEdit2->show();
     readComment();
-  }
-  else
+  } else
     mEdit2->hide();
 }
 
-
-void EditComment::closeEvent( QCloseEvent* e) {
+void EditComment::closeEvent(QCloseEvent*)
+{
   emit CommentHide();
 }
-
-
-
-
