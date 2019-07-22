@@ -343,16 +343,14 @@ Field * GridCollection::getData(const std::string& reftime, const std::string& p
 
   miutil::miTime  actualtime;
 
-  if( timeFromFilename ){
-    getActualTime(reftime, paramname, time, time_tolerance, actualtime);
-        METLIBS_LOG_DEBUG(LOGVAL(actualtime));
+  if (timeFromFilename && getActualTime(reftime, paramname, time, time_tolerance, actualtime)) {
     std::map<miutil::miTime,GridIO*>::const_iterator ip = gridsourcesTimeMap.find(actualtime);
     if ( ip != gridsourcesTimeMap.end()) {
       ip->second->makeInventory(reftime);
       gridinventory::GridParameter param;
-      if (dataExists_reftime(ip->second->getReftimeInventory(reftime), paramname, param))
-      {
-        Field* f = ip->second->getData(reftime, param, level, actualtime, elevel, unit);
+      if (dataExists_reftime(ip->second->getReftimeInventory(reftime), paramname, param)) {
+        // Ignore time from file, just use the first timestep
+        Field* f = ip->second->getData(reftime, param, level, miutil::miTime(), elevel, unit);
         if (f!=0)
           f->validFieldTime = actualtime;
         return f;
@@ -372,7 +370,7 @@ Field * GridCollection::getData(const std::string& reftime, const std::string& p
 
     }
   }
-  METLIBS_LOG_WARN("giving up .. returning 0");
+  METLIBS_LOG_DEBUG("giving up .. returning 0");
   return 0;
 }
 
