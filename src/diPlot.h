@@ -85,8 +85,7 @@ public:
     { plotname= name; }
 
   /// return name of this plot object
-  const std::string& getPlotName() const
-    { return plotname; }
+  virtual const std::string& getPlotName() const;
 
   virtual void getAnnotation(std::string &str, Colour &col) const;
 

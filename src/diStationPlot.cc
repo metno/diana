@@ -442,9 +442,23 @@ void StationPlot::unselect()
   index = -1;
 }
 
-bool StationPlot::isVisible()
+bool StationPlot::isVisible() const
 {
   return visible;
+}
+
+void StationPlot::setVisible(bool on)
+{
+  if (on)
+    show();
+  else
+    hide();
+}
+
+const std::string& StationPlot::getPlotName() const
+{
+  static const std::string EMPTY;
+  return isVisible() ? Plot::getPlotName() : EMPTY;
 }
 
 void StationPlot::defineCoordinates()

@@ -93,3 +93,8 @@ void Plot::getAnnotation(std::string& s, Colour& c) const
   c = Colour("black");
   s = getPlotName();
 }
+
+const std::string& Plot::getPlotName() const
+{
+  return plotname;
+}

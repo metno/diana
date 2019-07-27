@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -2240,7 +2240,7 @@ void DianaMainWindow::catchMouseDoubleClick(QMouseEvent* mev)
 
 void DianaMainWindow::showStationOrObsText(int x, int y)
 {
-  QString stationText = contr->getStationManager()->getStationsText(x, y);
+  QString stationText = contr->getStationsText(x, y);
   QString obsText = QString::fromStdString(contr->getObsPopupText(x, y));
   if (!stationText.isEmpty() || !obsText.isEmpty()) {
     // undo reverted y coordinate from MainPaintable::handleMouseEvents

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2011-2018 met.no
+  Copyright (C) 2011-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -199,7 +199,7 @@ void StationDialog::reloadSets()
     QModelIndex nameIndex = chosenModel->index(index.row(), 0);
     std::string name = nameIndex.data().toString().toStdString();
     if (show_names)
-        m_ctrl->getStationManager()->stationCommand("showPositionName",name,-1);
+      m_ctrl->stationCommand("showPositionName", name, -1);
 
 #if 0 // FIXME leaks StationPlot*
     if (m_ctrl->getStationManager()->importStations(name, url))

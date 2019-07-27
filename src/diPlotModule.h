@@ -55,6 +55,7 @@ class EditManager;
 class DrawingManager;
 class SatPlotCluster;
 class MapPlotCluster;
+class StationPlotCluster;
 class Field;
 class TrajectoryPlot;
 class MeasurementsPlot;
@@ -87,6 +88,7 @@ private:
   std::unique_ptr<SatPlotCluster> satplots_;   // satellite plots
   std::unique_ptr<FieldPlotCluster> fieldplots_; // field plots
   std::unique_ptr<MapPlotCluster> mapplots_;     // vector of map plots
+  std::unique_ptr<StationPlotCluster> stationplots_; // vector of map plots
   std::vector<TrajectoryPlot*> vtp; // vector of trajectory plots
   std::vector<MeasurementsPlot*> vMeasurementsPlot; // vector of measurements plots
   std::vector<AnnotationPlot*> vap; // vector of annotation plots
@@ -134,8 +136,6 @@ private:
   void prepareFields(const PlotCommand_cpv&);
   /// handles area info strings
   void prepareArea(const PlotCommand_cpv&);
-  /// handles stations plot info strings
-  void prepareStations(const PlotCommand_cpv&);
   /// handles trajectory plot info strings
   void prepareTrajectory(const PlotCommand_cpv&);
   /// handles annotation plot info strings
@@ -314,6 +314,7 @@ public:
 
   // Miscellaneous get methods
   SatPlotCluster* satplots() { return satplots_.get(); }
+  StationPlotCluster* stationplots() { return stationplots_.get(); }
 
   typedef std::map<std::string, Manager*> managers_t;
   managers_t managers;

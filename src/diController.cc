@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -52,6 +52,7 @@
 #include "diSatPlotCluster.h"
 #include "diStationManager.h"
 #include "diStationPlot.h"
+#include "diStationPlotCluster.h"
 #include "miSetupParser.h"
 #include "wmsclient/WebMapManager.h"
 
@@ -595,9 +596,14 @@ plottimes_t Controller::getObsTimes(const vector<string>& name, bool update)
 
 //********** plotting and selecting stations on the map***************
 
+QString Controller::getStationsText(int x, int y)
+{
+  return plotm->stationplots()->getStationsText(x, y);
+}
+
 void Controller::putStations(StationPlot* stationPlot)
 {
-  stam->putStations(stationPlot);
+  plotm->stationplots()->putStations(stationPlot);
   plotm->setAnnotations();
 }
 
@@ -607,17 +613,17 @@ void Controller::makeStationPlot(const string& commondesc,
     int from,
     const  vector<string>& data)
 {
-  stam->makeStationPlot(commondesc,common,description,from,data);
+  plotm->stationplots()->makeStationPlot(commondesc, common, description, from, data);
 }
 
 std::string Controller::findStation(int x, int y, const std::string& name, int id)
 {
-  return stam->findStation(x,y,name,id);
+  return plotm->stationplots()->findStation(x, y, name, id);
 }
 
 std::vector<std::string> Controller::findStations(int x, int y, const std::string& name, int id)
 {
-  return stam->findStations(x,y,name,id);
+  return plotm->stationplots()->findStations(x, y, name, id);
 }
 
 void Controller::findStations(int x, int y, bool add,
@@ -625,7 +631,7 @@ void Controller::findStations(int x, int y, bool add,
     vector<int>& id,
     vector<std::string>& station)
 {
-  stam->findStations(x,y,add,name,id,station);
+  plotm->stationplots()->findStations(x, y, add, name, id, station);
 }
 
 void Controller::stationCommand(const string& command,
@@ -633,7 +639,7 @@ void Controller::stationCommand(const string& command,
     const string& name, int id,
     const string& misc)
 {
-  stam->stationCommand(command,data,name,id,misc);
+  plotm->stationplots()->stationCommand(command, data, name, id, misc);
 
   if (command == "annotation")
     plotm->setAnnotations();
@@ -642,8 +648,7 @@ void Controller::stationCommand(const string& command,
 void Controller::stationCommand(const string& command,
     const string& name, int id)
 {
-  stam->stationCommand(command,name,id);
-
+  plotm->stationplots()->stationCommand(command, name, id);
   plotm->setAnnotations();
 }
 
@@ -723,6 +728,11 @@ void Controller::readLog(const vector<string>& vstr,
 SatPlotCluster* Controller::getSatPlotCluster() const
 {
   return plotm->satplots();
+}
+
+StationPlotCluster* Controller::getStationPlotCluster() const
+{
+  return plotm->stationplots();
 }
 
 std::vector<ObsPlot*> Controller::getObsPlots() const

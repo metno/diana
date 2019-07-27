@@ -175,6 +175,7 @@ SET (LIBDIANA_SOURCES
   diStaticPlot.cc
   diStationManager.cc
   diStationPlot.cc
+  diStationPlotCluster.cc
   diStationPlotCommand.cc
   diStringPlotCommand.cc
   diTrajectoryGenerator.cc

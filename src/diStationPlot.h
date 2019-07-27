@@ -172,7 +172,11 @@ public:
   /// unselects all stations
   void unselect();
   /// returns true if stationplot visible
-  bool isVisible();
+  bool isVisible() const;
+  void setVisible(bool on);
+
+  const std::string& getPlotName() const override;
+
   /// change stationplot projection
   void changeProjection(const Area& mapArea, const Rectangle& plotSize) override;
 

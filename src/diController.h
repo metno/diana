@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -63,6 +63,7 @@ class SatManager;
 class SatPlot;
 class SatPlotCluster;
 class StationManager;
+class StationPlotCluster;
 class StationPlot;
 
 struct LocationData;
@@ -239,6 +240,7 @@ public:
   std::set<std::string> getComplexList();
 
   //stations
+  QString getStationsText(int x, int y);
   void putStations(StationPlot*);
   void makeStationPlot(const std::string& commondesc, const std::string& common,
       const std::string& description, int from,
@@ -280,6 +282,7 @@ public:
 
   // Miscellaneous get methods
   SatPlotCluster* getSatPlotCluster() const;
+  StationPlotCluster* getStationPlotCluster() const;
   std::vector<ObsPlot*> getObsPlots() const;         // Returns a vector of defined observation plots.
 
 Q_SIGNALS:

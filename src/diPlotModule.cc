@@ -49,6 +49,7 @@
 #include "diStaticPlot.h"
 #include "diStationManager.h"
 #include "diStationPlot.h"
+#include "diStationPlotCluster.h"
 #include "diTrajectoryGenerator.h"
 #include "diTrajectoryPlot.h"
 #include "diUtilities.h"
@@ -116,6 +117,7 @@ void PlotModule::setCanvas(DiCanvas* canvas)
   mCanvas = canvas;
   mapplots_->setCanvas(canvas);
   obsplots_->setCanvas(mCanvas);
+  stationplots_->setCanvas(mCanvas);
   fieldplots_->setCanvas(mCanvas);
   for (Manager* m : boost::adaptors::values(managers))
     m->setCanvas(canvas);
@@ -134,7 +136,7 @@ void PlotModule::preparePlots(const PlotCommand_cpv& vpi)
   ordered.insert(mapplots_->plotCommandKey());
   ordered.insert("AREA");
   ordered.insert(satplots()->plotCommandKey());
-  ordered.insert("STATION");
+  ordered.insert(stationplots_->plotCommandKey());
   ordered.insert("OBJECTS");
   ordered.insert("TRAJECTORY");
   ordered.insert("LABEL");
@@ -162,7 +164,7 @@ void PlotModule::preparePlots(const PlotCommand_cpv& vpi)
   fieldplots_->processInput(ordered_pi[fieldplots()->plotCommandKey()]);
   obsplots_->processInput(ordered_pi[obsplots()->plotCommandKey()]);
   satplots_->processInput(ordered_pi[satplots()->plotCommandKey()]);
-  prepareStations(ordered_pi["STATION"]);
+  stationplots_->processInput(ordered_pi[stationplots_->plotCommandKey()]);
   objm->prepareObjects(ordered_pi["OBJECTS"]);
   prepareTrajectory(ordered_pi["TRAJECTORY"]);
   prepareAnnotation(ordered_pi["LABEL"]);
@@ -230,15 +232,6 @@ void PlotModule::prepareArea(const PlotCommand_cpv& inp)
   staticPlot_->setRequestedarea(requestedarea);
 }
 
-void PlotModule::prepareStations(const PlotCommand_cpv& inp)
-{
-  METLIBS_LOG_SCOPE();
-
-  if (!stam->init(inp)) {
-    METLIBS_LOG_DEBUG("init returned false");
-  }
-}
-
 void PlotModule::prepareAnnotation(const PlotCommand_cpv& inp)
 {
   METLIBS_LOG_SCOPE();
@@ -264,6 +257,7 @@ vector<PlotElement> PlotModule::getPlotElements()
   obsplots_->addPlotElements(pel);
   satplots_->addPlotElements(pel);
   objm->addPlotElements(pel);
+  stationplots_->addPlotElements(pel);
 
   // get trajectory names
   for (size_t j = 0; j < vtp.size(); j++) {
@@ -272,24 +266,6 @@ vector<PlotElement> PlotModule::getPlotElements()
       str += "# " + miutil::from_number(int(j));
       bool enabled = vtp[j]->isEnabled();
       pel.push_back(PlotElement("TRAJECTORY", str, "TRAJECTORY", enabled));
-    }
-  }
-
-  // get stationPlot names; vector is built on each call to stam->plots()
-  const std::vector<StationPlot*>& stam_plots = stam->plots();
-  for (size_t j = 0; j < stam_plots.size(); j++) {
-    StationPlot* sp = stam_plots[j];
-    if (!sp->isVisible())
-      continue;
-    std::string str = sp->getPlotName();
-    if (not str.empty()) {
-      str += "# " + miutil::from_number(int(j));
-      bool enabled = sp->isEnabled();
-      std::string icon = sp->getIcon();
-      if (icon.empty())
-        icon = "STATION";
-      std::string ptype = "STATION";
-      pel.push_back(PlotElement(ptype, str, icon, enabled));
     }
   }
 
@@ -324,16 +300,6 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
         break;
       }
     }
-  } else if (pe.type == "STATION") {
-    const std::vector<StationPlot*>& stam_plots = stam->plots();
-    for (size_t i = 0; i < stam_plots.size(); i++) {
-      StationPlot* sp = stam_plots[i];
-      std::string str = sp->getPlotName() + "# " + miutil::from_number(int(i));
-      if (str == pe.str) {
-        plot = sp;
-        break;
-      }
-    }
   } else if (pe.type == "LOCATION") {
     for (unsigned int i = 0; i < locationPlots.size(); i++) {
       std::string str = locationPlots[i]->getPlotName() + "# " + miutil::from_number(int(i));
@@ -356,6 +322,8 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
     change = obsplots_->enablePlotElement(pe);
   } else if (pe.type == satplots_->keyPlotElement()) {
     change = satplots_->enablePlotElement(pe);
+  } else if (pe.type == stationplots_->keyPlotElement()) {
+    change = stationplots_->enablePlotElement(pe);
   } else if (pe.type == "OBJECTS") {
     change = objm->enablePlotElement(pe);
   } else if (areaobjects_ && pe.type == areaobjects_->keyPlotElement()) {
@@ -407,6 +375,7 @@ void PlotModule::setAnnotations()
   }
 
   obsplots_->addAnnotations(annotations);
+  stationplots_->addAnnotations(annotations);
 
   // get trajectory annotations
   for (TrajectoryPlot* tp : vtp) {
@@ -416,14 +385,6 @@ void PlotModule::setAnnotations()
     // empty string if data plot is off
     if (!ann.str.empty())
       annotations.push_back(ann);
-  }
-
-  // get stationPlot annotations
-  for (StationPlot* sp : stam->plots()) {
-    if (!sp->isEnabled())
-      continue;
-    sp->getAnnotation(ann.str, ann.col);
-    annotations.push_back(ann);
   }
 
   // get locationPlot annotations
@@ -680,10 +641,7 @@ void PlotModule::plotUnder(DiGLPainter* gl)
   if (areaobjects_.get())
     areaobjects_->plot(gl, PO_LINES);
 
-  // plot station plots
-  const std::vector<StationPlot*>& stam_plots = stam->plots();
-  for (size_t j = 0; j < stam_plots.size(); j++)
-    stam_plots[j]->plot(gl, PO_LINES);
+  stationplots_->plot(gl, PO_LINES);
 
   // plot inactive edit fields/objects under observations
   editm->plot(gl, PO_LINES);
@@ -794,7 +752,7 @@ void PlotModule::cleanup()
   mapplots_->cleanup();
   fieldplots_->cleanup();
   satplots_->cleanup();
-  stam->cleanup();
+  stationplots_->cleanup();
   obsplots_->cleanup();
 
   objm->clearObjects();
@@ -828,8 +786,7 @@ void PlotModule::notifyChangeProjection()
   objm->changeProjection(ma, ps);
   if (areaobjects_)
     areaobjects_->changeProjection(ma, ps);
-  for (StationPlot* stp : stam->plots())
-    stp->changeProjection(ma, ps);
+  stationplots_->changeProjection(ma, ps);
   for (TrajectoryPlot* tp : vtp)
     tp->changeProjection(ma, ps);
   for (MeasurementsPlot* mp : vMeasurementsPlot)
@@ -999,6 +956,7 @@ void PlotModule::setManagers(FieldPlotManager* fpm, ObsManager* om, SatManager* 
   mapplots_.reset(new MapPlotCluster());
   fieldplots_.reset(new FieldPlotCluster(fieldplotm));
   satplots_.reset(new SatPlotCluster(satm));
+  stationplots_.reset(new StationPlotCluster(stam));
 }
 
 Manager *PlotModule::getManager(const std::string &name)
