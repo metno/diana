@@ -65,6 +65,8 @@ private:
   DiGLCanvas* mCanvas;
   DiGLPainter::GLuint drawlist[3]; // openGL drawlists
 
+  std::string bgcolourname_;
+
   static std::map<std::string,ShapeObject> shapemaps;
   static std::map<std::string,Area> shapeareas;
 
@@ -123,6 +125,8 @@ public:
 
   /// parse plotinfo
   bool prepare(const PlotCommand_cp&, bool ifequal =true);
+
+  const std::string& bgcolourname() const { return bgcolourname_; }
 
 private:
   static void referenceFilledMaps(const MapInfo& mi);

@@ -186,6 +186,8 @@ void PlotModule::preparePlots(const PlotCommand_cpv& vpi)
       manager->processInput(PlotCommand_cpv());
   }
 
+  if (!mapplots_->getBackColour().empty())
+    staticPlot_->setBgColour(mapplots_->getBackColour());
   defineMapArea();
   // changeProjection()?
   // changeTime()?

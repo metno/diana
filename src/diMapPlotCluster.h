@@ -38,8 +38,13 @@ public:
   MapPlotCluster();
   ~MapPlotCluster();
 
+  const std::string& getBackColour() const;
+
 protected:
   void processInputPE(const PlotCommand_cpv& cmds) override;
+
+private:
+  std::string bgcolourname_;
 };
 
 #endif // MAPPLOTCLUSTER_H

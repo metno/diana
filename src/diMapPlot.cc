@@ -123,13 +123,12 @@ bool MapPlot::prepare(const PlotCommand_cp& pc, bool ifequal)
   if (!cmd)
     return false;
 
-  std::string bgcolourname;
   MapInfo tmpinfo;
   for (const KeyValue& kv : cmd->all()) {
     if (kv.key() == "map") {
       mapm.getMapInfoByName(kv.value(), tmpinfo);
     } else if (kv.key() == "backcolour") {
-      bgcolourname= kv.value();
+      bgcolourname_ = kv.value();
     }
   }
 
@@ -144,12 +143,9 @@ bool MapPlot::prepare(const PlotCommand_cp& pc, bool ifequal)
 
   mapinfo= tmpinfo;
 
-  if (!bgcolourname.empty()) {
-    getStaticPlot()->setBgColour(bgcolourname); // static Plot member
+  if (!bgcolourname_.empty() && cmd->size() == 1) {
     //just background colour, no map. No reason to make MapPlot object
-    if (cmd->size() == 1) {
-      return false;
-    }
+    return false;
   }
 
   // fill in new options for mapinfo and make proper PlotOptions
