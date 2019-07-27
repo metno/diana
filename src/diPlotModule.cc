@@ -271,24 +271,17 @@ vector<PlotElement> PlotModule::getPlotElements()
 
 void PlotModule::enablePlotElement(const PlotElement& pe)
 {
-  bool change = false;
-  if (pe.type == fieldplots_->keyPlotElement()) {
-    change = fieldplots_->enablePlotElement(pe);
-  } else if (pe.type == obsplots_->keyPlotElement()) {
-    change = obsplots_->enablePlotElement(pe);
-  } else if (pe.type == trajectoryplots_->keyPlotElement()) {
-    change = trajectoryplots_->enablePlotElement(pe);
-  } else if (pe.type == satplots_->keyPlotElement()) {
-    change = satplots_->enablePlotElement(pe);
-  } else if (pe.type == stationplots_->keyPlotElement()) {
-    change = stationplots_->enablePlotElement(pe);
-  } else if (pe.type == objectplots_->keyPlotElement()) {
-    change = objectplots_->enablePlotElement(pe);
-  } else if (areaobjects_ && pe.type == areaobjects_->keyPlotElement()) {
-    change = areaobjects_->enablePlotElement(pe);
-  } else if (pe.type == locationplots_->keyPlotElement()) {
-    change = locationplots_->enablePlotElement(pe);
-  } else {
+  // clang-format off
+  bool change =    fieldplots_     ->enablePlotElement(pe)
+                || obsplots_       ->enablePlotElement(pe)
+                || trajectoryplots_->enablePlotElement(pe)
+                || satplots_       ->enablePlotElement(pe)
+                || stationplots_   ->enablePlotElement(pe)
+                || objectplots_    ->enablePlotElement(pe)
+                || areaobjects_    ->enablePlotElement(pe)
+                || locationplots_  ->enablePlotElement(pe);
+  // clang-format on
+  if (!change) {
     const QString qtype = QString::fromStdString(pe.type);
     for (Manager* m : boost::adaptors::values(managers)) {
       if (qtype == m->plotElementTag()) {
