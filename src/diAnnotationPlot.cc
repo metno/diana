@@ -387,7 +387,6 @@ bool AnnotationPlot::decodeElement(const std::string& elementstring, element& e)
     vector<std::string> stokens = anno_split(elementstring, ",");
     e.classplot = new LegendPlot(stokens[0]);
     e.classplot->setPlotOptions(poptions);
-    e.classplot->setStaticPlot(getStaticPlot());
   } else if (miutil::contains(elementstring, "box")) {
     e.eType = box;
   } else {

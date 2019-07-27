@@ -59,36 +59,16 @@ private:
 
   // x,y coordinates of the titlebar... if we click inside this area,
   //change value of showplot;
-  float x1title;
-  float x2title;
-  float y1title;
-  float y2title;
-  float xRatio,yRatio;
-  // if showplot = true: show the whole table. if false: only title bar
-  bool showplot;
   std::string suffix;
   PlotOptions poptions;
-  StaticPlot* staticPlot_;
-  static float xUsed;
 
-  void memberCopy(const LegendPlot& rhs);
-  bool operator==(const LegendPlot &rhs) const;
-
-  LegendPlot();
-  LegendPlot(const LegendPlot &rhs);
-  LegendPlot& operator=(const LegendPlot &rhs);
-
-  /// get width and height of string str with current font
-  void getStringSize(DiGLPainter*, const std::string& str,
-      float& width, float& height);
+  LegendPlot(const LegendPlot& rhs) = delete;
+  LegendPlot& operator=(const LegendPlot& rhs) = delete;
 
 public:
   /// Constructor which reads string to get title and make vector of ColourCode
   LegendPlot(const std::string& str);
   ~LegendPlot();
-
-  /// sets title and ColourCode vector
-  void setData(const std::string& title, const std::vector<ColourCode>& colourcode);
 
   /// plots the legend plot with top left corner at x,y
   bool plotLegend(DiGLPainter* gl, float x=0.0, float y=0.0);
@@ -103,14 +83,9 @@ public:
   void setPlotOptions(const PlotOptions& po)
     { poptions = po; }
 
-  void setTitle(std::string t)
-    { titlestring = t; }
+  void setTitle(const std::string& t) { titlestring = t; }
 
-  void setBackgroundColour(Colour c)
-    { poptions.fillcolour = c; }
-
-  void setStaticPlot(StaticPlot* sp)
-    { staticPlot_ = sp; }
+  void setBackgroundColour(const Colour& c) { poptions.fillcolour = c; }
 
   ///sets suffix, usually unit (hPa, mm)
   void setSuffix(const std::string& suffix_){suffix = suffix_;}

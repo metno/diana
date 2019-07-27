@@ -48,32 +48,17 @@
 using namespace std;
 using namespace miutil;
 
-LegendPlot::LegendPlot()
-  : staticPlot_(0)
+namespace {
+static void getStringSize(DiGLPainter* gl, const std::string& str, float& width, float& height)
 {
-  METLIBS_LOG_SCOPE();
-  showplot = true;
-  x1title = 0;
-  x2title = 0;
-  y1title= 0;
-  y2title= 0;
-  xRatio = 0.01;
-  yRatio = 0.01;
+  gl->getTextSize(str, width, height);
+  height *= 1.2; // FIXME
 }
-
+} // namespace
 
 LegendPlot::LegendPlot(const std::string& str)
-  : staticPlot_(0)
 {
   METLIBS_LOG_SCOPE();
-
-  showplot = true;
-  x1title = 0;
-  x2title = 0;
-  y1title= 0;
-  y2title= 0;
-  xRatio = 0.01;
-  yRatio = 0.01;
 
   std::string sstr(str);
   miutil::replace(sstr, '"',' ');
@@ -104,68 +89,9 @@ LegendPlot::LegendPlot(const std::string& str)
   }
 }
 
-
-void LegendPlot::setData(const std::string& title,
-    const vector<ColourCode>& colourcode)
-{
-  METLIBS_LOG_SCOPE();
-
-  // fill the table with colours and textstrings from palette information
-  titlestring = title;
-  colourcodes = colourcode;
-}
-
-// Copy constructor
-LegendPlot::LegendPlot(const LegendPlot &rhs)
-{
-  METLIBS_LOG_SCOPE();
-  // elementwise copy
-  memberCopy(rhs);
-}
-
 LegendPlot::~LegendPlot()
 {
   METLIBS_LOG_SCOPE();
-}
-
-LegendPlot& LegendPlot::operator=(const LegendPlot &rhs)
-{
-  METLIBS_LOG_SCOPE();
-  if (this == &rhs) return *this;
-
-  // elementwise copy
-  memberCopy(rhs);
-
-  return *this;
-}
-
-bool LegendPlot::operator==(const LegendPlot &rhs) const
-{
-  METLIBS_LOG_SCOPE();
-  return false;
-}
-
-void LegendPlot::memberCopy(const LegendPlot& rhs)
-{
-  METLIBS_LOG_SCOPE();
-  // copy members
-  titlestring= rhs.titlestring;
-  colourcodes= rhs.colourcodes;
-  x1title = rhs.x1title;
-  x2title = rhs.x2title;
-  y1title = rhs.y1title;
-  y2title = rhs.y2title;
-  xRatio  = rhs.xRatio;
-  yRatio  = rhs.yRatio;
-  suffix  = rhs.suffix;
-  showplot = rhs.showplot;
-}
-
-void LegendPlot::getStringSize(DiGLPainter* gl, const std::string& str,
-    float& width, float& height)
-{
-  gl->getTextSize(str, width, height);
-  height *= 1.2; // FIXME
 }
 
 bool LegendPlot::plotLegend(DiGLPainter* gl, float x, float y)
@@ -241,10 +167,10 @@ bool LegendPlot::plotLegend(DiGLPainter* gl, float x, float y)
   float tableheight = maxheight*ncolours + 2*yborder;
   if(titlewidth < tablewidth ) titlewidth = tablewidth;
 
-  x1title = x;
-  x2title = x + titlewidth;
-  y2title = y;
-  y1title = y - titleheight;
+  float x1title = x;
+  float x2title = x + titlewidth;
+  float y2title = y;
+  float y1title = y - titleheight;
 
   float x1table = 0.0, x2table = 0.0;
   if(poptions.h_align==align_right){
@@ -273,60 +199,56 @@ bool LegendPlot::plotLegend(DiGLPainter* gl, float x, float y)
     }
   }
 
+  // draw table background
+  gl->Enable(DiGLPainter::gl_BLEND);
+  gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
+  gl->setColour(poptions.fillcolour);
+  gl->drawRect(true, x1table, y1table, x2table, y1title);
+
   // draw table
-  if (showplot){
-
-    //draw table background
-    gl->Enable(DiGLPainter::gl_BLEND);
-    gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
-    gl->setColour(poptions.fillcolour);
-    gl->drawRect(true, x1table, y1table, x2table, y1title);
-
-    // draw table
-    float x1box = x1table + xborder;
-    float x2box = x1box   + 4*xborder;
-    float y2box = y1title - yborder;
-    float y1box = y2box   - maxheight;
-    ImageGallery ig;
-    gl->Enable(DiGLPainter::gl_POLYGON_STIPPLE);
-    for (int i=0;i<ncolours;i++){
-      if(colourcodes[i].plotBox){
-        //draw colour/pattern box
-        // draw background of colour/pattern boxes
-        gl->setColour(poptions.fillcolour, false);
+  float x1box = x1table + xborder;
+  float x2box = x1box + 4 * xborder;
+  float y2box = y1title - yborder;
+  float y1box = y2box - maxheight;
+  ImageGallery ig;
+  gl->Enable(DiGLPainter::gl_POLYGON_STIPPLE);
+  for (int i = 0; i < ncolours; i++) {
+    if (colourcodes[i].plotBox) {
+      // draw colour/pattern box
+      // draw background of colour/pattern boxes
+      gl->setColour(poptions.fillcolour, false);
 #if 1 // FIXME this is a strange painting call
-        gl->Begin(DiGLPainter::gl_POLYGON);
-        gl->Vertex2f(x1box,y1box);
-        gl->Vertex2f(x1box,y2box);
-        gl->Vertex2f(x2box,y2box);
-        gl->Vertex2f(x2box,y1box);
-        gl->End();
+      gl->Begin(DiGLPainter::gl_POLYGON);
+      gl->Vertex2f(x1box, y1box);
+      gl->Vertex2f(x1box, y2box);
+      gl->Vertex2f(x2box, y2box);
+      gl->Vertex2f(x2box, y1box);
+      gl->End();
 #else
-        gl->drawRect(true, x1box, y1box, x2box, y2box);
+      gl->drawRect(true, x1box, y1box, x2box, y2box);
 #endif
-        if((not colourcodes[i].pattern.empty())){
-          DiGLPainter::GLubyte* p=ig.getPattern(colourcodes[i].pattern);
-          if(p==0)
-            gl->PolygonStipple(solid);
-          else
-            gl->PolygonStipple(p);
-        }else{
+      if ((not colourcodes[i].pattern.empty())) {
+        DiGLPainter::GLubyte* p = ig.getPattern(colourcodes[i].pattern);
+        if (p == 0)
           gl->PolygonStipple(solid);
-        }
-        gl->setColour(colourcodes[i].colour);
-        gl->drawRect(true, x1box, y1box, x2box, y2box);
-
-        // draw border of colour/pattern box
-        gl->drawRect(false, x1box, y1box, x2box, y2box);
+        else
+          gl->PolygonStipple(p);
+      } else {
+        gl->PolygonStipple(solid);
       }
-      //draw textstring
-      gl->setColour(poptions.textcolour);
-      gl->drawText(colourcodes[i].colourstr, (x2box+xborder),(y1box+0.8*yborder));
-      y2box -= maxheight;
-      y1box -= maxheight;
+      gl->setColour(colourcodes[i].colour);
+      gl->drawRect(true, x1box, y1box, x2box, y2box);
+
+      // draw border of colour/pattern box
+      gl->drawRect(false, x1box, y1box, x2box, y2box);
     }
-    gl->Disable(DiGLPainter::gl_POLYGON_STIPPLE);
+    // draw textstring
+    gl->setColour(poptions.textcolour);
+    gl->drawText(colourcodes[i].colourstr, (x2box + xborder), (y1box + 0.8 * yborder));
+    y2box -= maxheight;
+    y1box -= maxheight;
   }
+  gl->Disable(DiGLPainter::gl_POLYGON_STIPPLE);
   gl->Disable(DiGLPainter::gl_BLEND);
 
   return true;
