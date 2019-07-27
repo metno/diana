@@ -100,7 +100,7 @@ private:
   int getFileName(subProdInfo* subp, const miutil::miTime&, int maxDiff);
 
   /*! Find product, \returns nullptr if not found. */
-  subProdInfo* findProduct(const std::string& image_name, const std::string& subtype_name);
+  subProdInfo* findProduct(const SatImageAndSubType& sist);
 
 public:
   SatManager();
@@ -111,14 +111,14 @@ public:
   //! return true iff the plot has been reused
   bool reusePlot(SatPlotBase* plot, SatPlotCommand_cp cmd, bool first) override;
 
-  plottimes_t getSatTimes(const std::string& image_name, const std::string& subtype_name) override;
+  plottimes_t getSatTimes(const SatImageAndSubType& sist) override;
 
-  SatFile_v getFiles(const std::string& image_name, const std::string& subtype_name, bool update) override;
+  SatFile_v getFiles(const SatImageAndSubType& sist, bool update) override;
 
   //! Returns colour palette for this subproduct.
-  const std::vector<Colour>& getColours(const std::string& image_name, const std::string& subtype_name) override;
+  const std::vector<Colour>& getColours(const SatImageAndSubType& sist) override;
 
-  const std::vector<std::string>& getChannels(const std::string& image_name, const std::string& subtype_name, int index = -1) override;
+  const std::vector<std::string>& getChannels(const SatImageAndSubType& sist, int index = -1) override;
 
   const SatImage_v& initDialog() override { return Dialog; }
 

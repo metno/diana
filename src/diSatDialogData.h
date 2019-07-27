@@ -44,13 +44,13 @@ public:
   virtual const SatImage_v& initSatDialog() = 0;
 
   /// get list of satfiles of class satellite and subclass file. if update is true read new list from disk
-  virtual SatFile_v getSatFiles(const std::string& image_name, const std::string& subtype_name, bool update) = 0;
+  virtual SatFile_v getSatFiles(const SatImageAndSubType& sist, bool update) = 0;
 
   /// returns channels for subproduct of class satellite and subclass file
-  virtual std::vector<std::string> getSatChannels(const std::string& image_name, const std::string& subtype_name, int index) = 0;
+  virtual std::vector<std::string> getSatChannels(const SatImageAndSubType& sist, int index) = 0;
 
   /// returns colour palette for subproduct of class satellite and subclass file
-  virtual std::vector<Colour> getSatColours(const std::string& image_name, const std::string& subtype_name) = 0;
+  virtual std::vector<Colour> getSatColours(const SatImageAndSubType& sist) = 0;
 };
 
 #endif // disatdialogdata_h

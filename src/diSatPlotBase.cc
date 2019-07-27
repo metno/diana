@@ -22,6 +22,6 @@ std::string SatPlotBase::getEnabledStateKey() const
     return "ARGHHH!";
 
   std::ostringstream oks;
-  oks << command_->image_name << command_->subtype_name << command_->plotChannels << command_->filename;
+  oks << command_->image_name() << command_->subtype_name() << command_->plotChannels << command_->filename;
   return oks.str();
 }

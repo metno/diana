@@ -48,9 +48,9 @@ public:
   TestSatDialogData();
 
   const SatImage_v& initSatDialog() override { return sdi; }
-  SatFile_v getSatFiles(const std::string& image_name, const std::string& subtype_name, bool update) override;
-  std::vector<std::string> getSatChannels(const std::string& image_name, const std::string& subtype_name, int index) override;
-  std::vector<Colour> getSatColours(const std::string& /*image_name*/, const std::string& /*subtype_name*/) override { return scolours; }
+  SatFile_v getSatFiles(const SatImageAndSubType& sist, bool update) override;
+  std::vector<std::string> getSatChannels(const SatImageAndSubType& sist, int index) override;
+  std::vector<Colour> getSatColours(const SatImageAndSubType& /*sist*/) override { return scolours; }
 
   SatImage_v sdi;
   std::vector<Colour> scolours;
@@ -68,14 +68,14 @@ TestSatDialogData::TestSatDialogData()
   scolours.push_back(Colour(0, 0, 0xFF));
 }
 
-std::vector<std::string> TestSatDialogData::getSatChannels(const std::string& image_name, const std::string& subtype_name, int index)
+std::vector<std::string> TestSatDialogData::getSatChannels(const SatImageAndSubType& sist, int index)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(image_name) << LOGVAL(subtype_name) << LOGVAL(index));
+  METLIBS_LOG_SCOPE(LOGVAL(sist.image_name) << LOGVAL(sist.subtype_name) << LOGVAL(index));
   for (const auto& i : sdi) {
-    if (i.image_name == image_name) {
+    if (i.image_name == sist.image_name) {
       METLIBS_LOG_SCOPE(LOGVAL(i.image_name));
       for (const auto& f : i.subtype_names) {
-        if (f == subtype_name) {
+        if (f == sist.subtype_name) {
           return std::vector<std::string>{"day_night", "2+4",   "4+2", "1+2+4", "2+3+4", "3+4+5", "5+4+3", "2+6+4",
                                           "6+4+5",     "5+4+6", "1",   "2",     "3",     "4",     "5",     "6"};
         }
@@ -86,7 +86,7 @@ std::vector<std::string> TestSatDialogData::getSatChannels(const std::string& im
   return EMPTY;
 }
 
-SatFile_v TestSatDialogData::getSatFiles(const std::string& /*image_name*/, const std::string& /*subtype_name*/, bool /*update*/)
+SatFile_v TestSatDialogData::getSatFiles(const SatImageAndSubType& /*sist*/, bool /*update*/)
 {
   SatFile_v sfi;
 
@@ -148,8 +148,8 @@ TEST(TestSatDialog, ReadGarbageSatOptionsLog)
     SatDialog::subtypeoptions_t::const_iterator ita = itn->second.find("radar");
     ASSERT_NE(itn->second.end(), ita);
     SatPlotCommand_cp cmd = ita->second;
-    EXPECT_EQ("ARCHIVE", cmd->image_name);
-    EXPECT_EQ("radar", cmd->subtype_name);
+    EXPECT_EQ("ARCHIVE", cmd->image_name());
+    EXPECT_EQ("radar", cmd->subtype_name());
     EXPECT_EQ("PSC", cmd->plotChannels);
     EXPECT_EQ(60, cmd->timediff);
     EXPECT_EQ(1.0, cmd->alpha);
@@ -161,8 +161,8 @@ TEST(TestSatDialog, ReadGarbageSatOptionsLog)
     SatDialog::subtypeoptions_t::const_iterator ita = itn->second.find("Analysis");
     ASSERT_NE(itn->second.end(), ita);
     SatPlotCommand_cp cmd = ita->second;
-    EXPECT_EQ("UK", cmd->image_name);
-    EXPECT_EQ("Analysis", cmd->subtype_name);
+    EXPECT_EQ("UK", cmd->image_name());
+    EXPECT_EQ("Analysis", cmd->subtype_name());
     EXPECT_EQ("FAX", cmd->plotChannels);
     EXPECT_EQ(1, cmd->alpha);
     EXPECT_EQ(60, cmd->timediff);

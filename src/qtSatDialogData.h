@@ -40,9 +40,9 @@ public:
   DianaSatDialogData(SatManagerBase* sm);
 
   const SatImage_v& initSatDialog() override;
-  SatFile_v getSatFiles(const std::string& image_name, const std::string& subtype_name, bool update) override;
-  std::vector<std::string> getSatChannels(const std::string& image_name, const std::string& subtype_name, int index) override;
-  std::vector<Colour> getSatColours(const std::string& image_name, const std::string& subtype_name) override;
+  SatFile_v getSatFiles(const SatImageAndSubType& sist, bool update) override;
+  std::vector<std::string> getSatChannels(const SatImageAndSubType& sist, int index) override;
+  std::vector<Colour> getSatColours(const SatImageAndSubType& sist) override;
 
 private:
   SatManagerBase* sm_;

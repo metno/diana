@@ -139,7 +139,7 @@ plottimes_t SatPlotCluster::getTimes()
   plottimes_t timeset;
   for (const SatPlotBase* sp : diutil::static_content_cast<SatPlotBase*>(plots_)) {
     SatPlotCommand_cp cmd = sp->command();
-    diutil::insert_all(timeset, satm_->getSatTimes(cmd->image_name, cmd->subtype_name));
+    diutil::insert_all(timeset, satm_->getSatTimes(cmd->sist));
   }
 
   return timeset;

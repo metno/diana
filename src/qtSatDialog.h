@@ -104,6 +104,7 @@ private:
   void putOptions(SatPlotCommand_cp cmd);
 
   std::string pictureString(SatPlotCommand_cp cmd, bool);
+  SatImageAndSubType currentSatImageAndSubType() const;
 
 private Q_SLOTS:
   void DeleteClicked();

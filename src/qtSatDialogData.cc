@@ -41,17 +41,17 @@ const SatImage_v& DianaSatDialogData::initSatDialog()
   return sm_->initDialog();
 }
 
-SatFile_v DianaSatDialogData::getSatFiles(const std::string& image_name, const std::string& subtype_name, bool update)
+SatFile_v DianaSatDialogData::getSatFiles(const SatImageAndSubType& sist, bool update)
 {
-  return sm_->getFiles(image_name, subtype_name, update);
+  return sm_->getFiles(sist, update);
 }
 
-std::vector<std::string> DianaSatDialogData::getSatChannels(const std::string& image_name, const std::string& subtype_name, int index)
+std::vector<std::string> DianaSatDialogData::getSatChannels(const SatImageAndSubType& sist, int index)
 {
-  return sm_->getChannels(image_name, subtype_name, index);
+  return sm_->getChannels(sist, index);
 }
 
-std::vector<Colour> DianaSatDialogData::getSatColours(const std::string& image_name, const std::string& subtype_name)
+std::vector<Colour> DianaSatDialogData::getSatColours(const SatImageAndSubType& sist)
 {
-  return sm_->getColours(image_name, subtype_name);
+  return sm_->getColours(sist);
 }

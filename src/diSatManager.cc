@@ -98,18 +98,18 @@ bool SatManager::reusePlot(SatPlotBase* osp, SatPlotCommand_cp cmd, bool first)
 
   Sat* sdp = static_cast<SatPlot*>(osp)->getData();
   // clang-format off
-  if (   sdp->channelInfo  != satdata->channelInfo
-      || sdp->filename     != satdata->filename
-      || sdp->subtype_name != satdata->subtype_name
-      || sdp->formatType   != satdata->formatType
-      || sdp->hdf5type     != satdata->hdf5type
-      || sdp->maxDiff      != satdata->maxDiff
-      || sdp->metadata     != satdata->metadata
-      || sdp->mosaic       != satdata->mosaic
-      || sdp->paletteinfo  != satdata->paletteinfo
-      || sdp->plotChannels != satdata->plotChannels
-      || sdp->proj_string  != satdata->proj_string
-      || sdp->image_name   != satdata->image_name)
+  if (   sdp->channelInfo    != satdata->channelInfo
+      || sdp->filename       != satdata->filename
+      || sdp->subtype_name() != satdata->subtype_name()
+      || sdp->formatType     != satdata->formatType
+      || sdp->hdf5type       != satdata->hdf5type
+      || sdp->maxDiff        != satdata->maxDiff
+      || sdp->metadata       != satdata->metadata
+      || sdp->mosaic         != satdata->mosaic
+      || sdp->paletteinfo    != satdata->paletteinfo
+      || sdp->plotChannels   != satdata->plotChannels
+      || sdp->proj_string    != satdata->proj_string
+      || sdp->image_name()   != satdata->image_name())
   {
     return false;
   }
@@ -154,7 +154,7 @@ void SatManager::setData(Sat* satdata, const miutil::miTime& satptime)
   //not yet approved for plotting
   satdata->approved= false;
 
-  subProdInfo* spi = findProduct(satdata->image_name, satdata->subtype_name);
+  subProdInfo* spi = findProduct(satdata->sist);
   if (!spi)
     return;
 
@@ -388,7 +388,7 @@ void SatManager::setRGB(Sat* satdata)
   //   * PURPOSE:   put data from 3 images into satdata.image,
   // in geotiff files the data are already sorted as rgba values
   // RGB stretch is performed in order to improve the contrast
-  METLIBS_LOG_TIME(LOGVAL(satdata->subtype_name));
+  METLIBS_LOG_TIME(LOGVAL(satdata->subtype_name()));
 
   const int nx = satdata->area.nx;
   const int ny = satdata->area.ny;
@@ -644,7 +644,7 @@ std::vector<SatFileInfo> SatManager::getMosaicfiles(Sat* satdata, const miutil::
 {
   METLIBS_LOG_SCOPE();
   std::vector<SatFileInfo> mosaicfiles;
-  if (subProdInfo* subp = findProduct(satdata->image_name, satdata->subtype_name)) {
+  if (subProdInfo* subp = findProduct(satdata->sist)) {
     const miutil::miTime& plottime = (satdata->autoFile) ? t : satdata->time;
     std::vector<int> vdiff;
     const int diff = satdata->maxDiff + 1;
@@ -714,9 +714,9 @@ void SatManager::readHeader(SatFileInfo& file, const std::vector<std::string>& c
   }
 }
 
-const std::vector<std::string>& SatManager::getChannels(const std::string& image_name, const std::string& subtype_name, int index)
+const std::vector<std::string>& SatManager::getChannels(const SatImageAndSubType& sist, int index)
 {
-  if (subProdInfo* subp = findProduct(image_name, subtype_name)) {
+  if (subProdInfo* subp = findProduct(sist)) {
     if (index < 0 || index >= int(subp->file.size()))
       return subp->channel;
 
@@ -803,31 +803,31 @@ void SatManager::listFiles(subProdInfo &subp)
 #endif
 }
 
-SatManager::subProdInfo* SatManager::findProduct(const std::string& image_name, const std::string& subtype_name)
+SatManager::subProdInfo* SatManager::findProduct(const SatImageAndSubType& sist)
 {
   METLIBS_LOG_SCOPE();
 
-  const Prod_t::iterator itp = Prod.find(image_name);
+  const Prod_t::iterator itp = Prod.find(sist.image_name);
   if (itp == Prod.end()) {
-    METLIBS_LOG_WARN("Product doesn't exist:" << image_name);
+    METLIBS_LOG_WARN("Product doesn't exist:" << sist.image_name);
     return nullptr;
   }
 
-  const SubProd_t::iterator its = itp->second.find(subtype_name);
+  const SubProd_t::iterator its = itp->second.find(sist.subtype_name);
   if (its == itp->second.end()) {
-    METLIBS_LOG_WARN("Subproduct doesn't exist:" << subtype_name);
+    METLIBS_LOG_WARN("Subproduct doesn't exist:" << sist.subtype_name);
     return nullptr;
   }
 
   return &its->second;
 }
 
-SatFile_v SatManager::getFiles(const std::string& image_name, const std::string& subtype_name, bool update)
+SatFile_v SatManager::getFiles(const SatImageAndSubType& sist, bool update)
 {
   METLIBS_LOG_SCOPE();
   SatFile_v files;
 
-  if (subProdInfo* subp = findProduct(image_name, subtype_name)) {
+  if (subProdInfo* subp = findProduct(sist)) {
     if (update)
       listFiles(*subp);
 
@@ -839,21 +839,21 @@ SatFile_v SatManager::getFiles(const std::string& image_name, const std::string&
   return files;
 }
 
-const std::vector<Colour>& SatManager::getColours(const std::string& image_name, const std::string& subtype_name)
+const std::vector<Colour>& SatManager::getColours(const SatImageAndSubType& sist)
 {
-  if (subProdInfo* subp = findProduct(image_name, subtype_name))
+  if (subProdInfo* subp = findProduct(sist))
     return subp->colours;
 
   static const std::vector<Colour> empty;
   return empty;
 }
 
-plottimes_t SatManager::getSatTimes(const std::string& image_name, const std::string& subtype_name)
+plottimes_t SatManager::getSatTimes(const SatImageAndSubType& sist)
 {
   METLIBS_LOG_SCOPE();
 
   plottimes_t timeset;
-  if (subProdInfo* subp = findProduct(image_name, subtype_name)) {
+  if (subProdInfo* subp = findProduct(sist)) {
     listFiles(*subp);
     for (const auto& f : subp->file)
       timeset.insert(f.time);

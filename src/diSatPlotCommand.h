@@ -31,6 +31,7 @@
 #define DISATPLOTCOMMAND_H
 
 #include "diKVListPlotCommand.h"
+#include "diSatDialogInfo.h"
 
 #include <puTools/miTime.h>
 
@@ -43,8 +44,9 @@ public:
 
   std::string toString() const override;
 
-  std::string image_name;   ///< main product name
-  std::string subtype_name; ///< subproduct / area
+  SatImageAndSubType sist;
+  const std::string& image_name() const { return sist.image_name; }
+  const std::string& subtype_name() const { return sist.subtype_name; }
   std::string plotChannels; ///< channelname for annotation
   std::string filename;     ///< filename
   miutil::miTime filetime;  ///< time

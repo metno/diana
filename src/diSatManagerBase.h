@@ -52,16 +52,16 @@ public:
   //! return true iff the plot has been reused
   virtual bool reusePlot(SatPlotBase* plot, SatPlotCommand_cp cmd, bool first) = 0;
 
-  virtual SatFile_v getFiles(const std::string& image_name, const std::string& subtype_name, bool update) = 0;
+  virtual SatFile_v getFiles(const SatImageAndSubType& sist, bool update) = 0;
 
   //! Returns colour palette for this subproduct.
-  virtual const std::vector<Colour>& getColours(const std::string& image_name, const std::string& subtype_name) = 0;
+  virtual const std::vector<Colour>& getColours(const SatImageAndSubType& sist) = 0;
 
-  virtual const std::vector<std::string>& getChannels(const std::string& image_name, const std::string& subtype_name, int index) = 0;
+  virtual const std::vector<std::string>& getChannels(const SatImageAndSubType& sist, int index) = 0;
 
   virtual const SatImage_v& initDialog() = 0;
 
-  virtual plottimes_t getSatTimes(const std::string& image_name, const std::string& subtype_name) = 0;
+  virtual plottimes_t getSatTimes(const SatImageAndSubType& sist) = 0;
 
   virtual bool parseSetup() = 0;
 

@@ -43,6 +43,12 @@ struct SatImage
 
 typedef std::vector<SatImage> SatImage_v;
 
+struct SatImageAndSubType
+{
+  std::string image_name;   ///< image name
+  std::string subtype_name; ///< subtype name
+};
+
 struct SatFile
 {
   std::string name;

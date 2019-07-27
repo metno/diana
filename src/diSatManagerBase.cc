@@ -16,7 +16,7 @@ void SatManagerBase::getCapabilitiesTime(plottimes_t& normalTimes, int& timediff
   timediff = cmd->timediff;
 
   if (!cmd->hasFileName()) { // FIXME should this not be cmd->isAuto()?
-    for (const auto& fi : getFiles(cmd->image_name, cmd->subtype_name, true))
+    for (const auto& fi : getFiles(cmd->sist, true))
       normalTimes.insert(fi.time);
 #if 0 // TODO use constant time if not cmd->isAuto()?
   } else if (cmd->hasFileTime()) {
