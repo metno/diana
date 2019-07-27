@@ -39,8 +39,6 @@
 
 #include <puTools/miStringFunctions.h>
 
-#include <sstream>
-
 #define MILOGGER_CATEGORY "diana.SatPlot"
 #include <miLogger/miLogging.h>
 
@@ -48,9 +46,9 @@ using namespace::miutil;
 using namespace std;
 
 SatPlot::SatPlot(SatPlotCommand_cp cmd, SatManager* satm)
-    : satm_(satm)
-    , command_(cmd)
-    , satdata(new Sat(command_))
+    : SatPlotBase(cmd)
+    , satm_(satm)
+    , satdata(new Sat(command()))
 {
 }
 
@@ -64,25 +62,9 @@ void SatPlot::changeTime(const miutil::miTime& mapTime)
   setPlotName(satdata->plotname);
 }
 
-void SatPlot::setCommand(SatPlotCommand_cp cmd)
-{
-  command_ = cmd;
-  setPlotInfo(cmd->all());
-}
-
 GridArea& SatPlot::getSatArea()
 {
   return satdata->area;
-}
-
-std::string SatPlot::getEnabledStateKey() const
-{
-  if (!command_)
-    return "ARGHHH!";
-
-  std::ostringstream oks;
-  oks << command_->image_name << command_->subtype_name << command_->plotChannels << command_->filename;
-  return oks.str();
 }
 
 void SatPlot::getAnnotation(std::string &str, Colour &col) const

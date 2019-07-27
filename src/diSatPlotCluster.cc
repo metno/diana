@@ -29,8 +29,8 @@
 
 #include "diSatPlotCluster.h"
 
-#include "diSatManager.h"
-#include "diSatPlot.h"
+#include "diSatManagerBase.h"
+#include "diSatPlotBase.h"
 #include "diUtilities.h"
 #include "util/misc_util.h"
 
@@ -42,7 +42,7 @@ using namespace miutil;
 static const std::string SAT = "SAT";
 static const std::string RASTER = "RASTER";
 
-SatPlotCluster::SatPlotCluster(SatManager* satm)
+SatPlotCluster::SatPlotCluster(SatManagerBase* satm)
     : PlotCluster(SAT, RASTER)
     , satm_(satm)
 {
@@ -72,7 +72,7 @@ void SatPlotCluster::processInputPE(const PlotCommand_cpv& pinfo)
       if (!plt) // already taken
         continue;
 
-      SatPlot* osp = static_cast<SatPlot*>(plt);
+      SatPlotBase* osp = static_cast<SatPlotBase*>(plt);
       if (satm_->reusePlot(osp, cmd, first)) {
         plots_.push_back(osp);
         plt = nullptr; // plt has been reused now
@@ -93,7 +93,7 @@ void SatPlotCluster::processInputPE(const PlotCommand_cpv& pinfo)
 bool SatPlotCluster::MapToGrid(const Projection& plotproj, float xmap, float ymap, float& gridx, float& gridy) const
 {
   if (!plots_.empty()) {
-    const GridArea& ga = static_cast<SatPlot*>(plots_.front())->getSatArea();
+    const GridArea& ga = static_cast<SatPlotBase*>(plots_.front())->getSatArea();
     if (ga.P() == plotproj) {
       gridx = ga.toGridX(xmap);
       gridy = ga.toGridY(ymap);
@@ -107,14 +107,14 @@ bool SatPlotCluster::getSatArea(Area& a) const
 {
   if (plots_.empty())
     return false;
-  a = static_cast<SatPlot*>(plots_.front())->getSatArea();
+  a = static_cast<SatPlotBase*>(plots_.front())->getSatArea();
   return true;
 }
 
 std::vector<std::string> SatPlotCluster::getCalibChannels()
 {
   std::vector<std::string> channels;
-  for (const SatPlot* sp : diutil::static_content_cast<SatPlot*>(plots_)) {
+  for (const SatPlotBase* sp : diutil::static_content_cast<SatPlotBase*>(plots_)) {
     if (sp->isEnabled())
       sp->getCalibChannels(channels); // add channels
   }
@@ -124,7 +124,7 @@ std::vector<std::string> SatPlotCluster::getCalibChannels()
 std::vector<SatValues> SatPlotCluster::showValues(float x, float y)
 {
   std::vector<SatValues> satval;
-  for (const SatPlot* sp : diutil::static_content_cast<SatPlot*>(plots_)) {
+  for (const SatPlotBase* sp : diutil::static_content_cast<SatPlotBase*>(plots_)) {
     if (sp->isEnabled())
       sp->values(x, y, satval);
   }
@@ -137,7 +137,7 @@ plottimes_t SatPlotCluster::getTimes()
   METLIBS_LOG_SCOPE();
 
   plottimes_t timeset;
-  for (const SatPlot* sp : diutil::static_content_cast<SatPlot*>(plots_)) {
+  for (const SatPlotBase* sp : diutil::static_content_cast<SatPlotBase*>(plots_)) {
     SatPlotCommand_cp cmd = sp->command();
     diutil::insert_all(timeset, satm_->getSatTimes(cmd->image_name, cmd->subtype_name));
   }

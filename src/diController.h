@@ -58,7 +58,7 @@ class ObsManager;
 class ObsPlot;
 class PlotElement;
 class PlotModule;
-class SatManager;
+class SatManagerBase;
 class SatPlot;
 class SatPlotCluster;
 class StationManager;
@@ -89,7 +89,7 @@ private:
 
   std::unique_ptr<FieldPlotManager> fieldplotm;
   ObsManager    *obsm;
-  SatManager    *satm;
+  SatManagerBase* satm;
   StationManager    *stam;
   ObjectManager *objm;
   EditManager   *editm;
@@ -107,7 +107,7 @@ public:
   EditManager*   getEditManager()   { return editm; };
   ObjectManager* getObjectManager() { return objm; };
   StationManager* getStationManager() { return stam; };
-  SatManager* getSatelliteManager() { return satm; };
+  SatManagerBase* getSatelliteManager() { return satm; };
 
   void addManager(const std::string &name, Manager *man);
 

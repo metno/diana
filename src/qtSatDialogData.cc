@@ -29,9 +29,9 @@
 
 #include "qtSatDialogData.h"
 
-#include "diSatManager.h"
+#include "diSatManagerBase.h"
 
-DianaSatDialogData::DianaSatDialogData(SatManager* sm)
+DianaSatDialogData::DianaSatDialogData(SatManagerBase* sm)
     : sm_(sm)
 {
 }

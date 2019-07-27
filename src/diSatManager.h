@@ -29,21 +29,13 @@
 #ifndef diSatManager_h
 #define diSatManager_h
 
-#include "diColour.h"
-#include "diPlotElement.h"
-#include "diSatDialogInfo.h"
-#include "diSatPlotCommand.h"
+#include "diSatManagerBase.h"
+
 #include "diSatTypes.h"
-#include "diTimeTypes.h"
 
 #include <puTools/TimeFilter.h>
 
 #include <map>
-#include <set>
-#include <vector>
-
-class Sat;
-class SatPlot;
 
 /**
   \brief Managing satellite and radar images
@@ -54,7 +46,8 @@ class SatPlot;
   - read data
   - making rgb images, mosaic of images
 */
-class SatManager {
+class SatManager : public SatManagerBase
+{
 
 public:
   struct subProdInfo {
@@ -112,30 +105,28 @@ private:
 public:
   SatManager();
 
-  SatPlot* createPlot(SatPlotCommand_cp cmd);
+  SatPlotBase* createPlot(SatPlotCommand_cp cmd) override;
 
   //! Try to reuse plot for showing cmd
   //! return true iff the plot has been reused
-  bool reusePlot(SatPlot* plot, SatPlotCommand_cp cmd, bool first);
+  bool reusePlot(SatPlotBase* plot, SatPlotCommand_cp cmd, bool first) override;
 
-  void setData(Sat* satdata, const miutil::miTime& satptime);
+  plottimes_t getSatTimes(const std::string& image_name, const std::string& subtype_name) override;
 
-  plottimes_t getSatTimes(const std::string& image_name, const std::string& subtype_name);
-
-  ///returns union or intersection of plot times from all pinfos
-  void getCapabilitiesTime(plottimes_t& progTimes, int& timediff, const PlotCommand_cp& pinfo);
-
-  SatFile_v getFiles(const std::string& image_name, const std::string& subtype_name, bool update = false);
+  SatFile_v getFiles(const std::string& image_name, const std::string& subtype_name, bool update) override;
 
   //! Returns colour palette for this subproduct.
-  const std::vector<Colour>& getColours(const std::string& image_name, const std::string& subtype_name);
+  const std::vector<Colour>& getColours(const std::string& image_name, const std::string& subtype_name) override;
 
-  const std::vector<std::string>& getChannels(const std::string& image_name, const std::string& subtype_name, int index = -1);
+  const std::vector<std::string>& getChannels(const std::string& image_name, const std::string& subtype_name, int index = -1) override;
 
-  const SatImage_v& initDialog() { return Dialog; }
-  bool parseSetup();
+  const SatImage_v& initDialog() override { return Dialog; }
 
-  void archiveMode(bool on) { useArchive = on; }
+  bool parseSetup() override;
+
+  void archiveMode(bool on) override { useArchive = on; }
+
+  void setData(Sat* satdata, const miutil::miTime& satptime);
 };
 
 #endif

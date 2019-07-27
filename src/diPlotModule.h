@@ -55,7 +55,7 @@ class ObjectManager;
 class ObjectPlotCluster;
 class ObsManager;
 class ObsPlotCluster;
-class SatManager;
+class SatManagerBase;
 class SatPlotCluster;
 class StationManager;
 class StationPlot;
@@ -82,8 +82,8 @@ class PlotModule {
 private:
 
   ObsManager *obsm;       // observation manager
-  SatManager *satm;       // raster-data manager
-  StationManager *stam;       // raster-data manager
+  SatManagerBase* satm;   // sat-data manager
+  StationManager* stam;
   ObjectManager *objm;    // met.objects
   EditManager *editm;     // editing/drawing manager
   FieldPlotManager *fieldplotm;   // field plot manager
@@ -226,7 +226,7 @@ public:
   double getWindowArea();
 
   /// set managers
-  void setManagers(FieldPlotManager*, ObsManager*, SatManager*, StationManager*, ObjectManager*, EditManager*);
+  void setManagers(FieldPlotManager*, ObsManager*, SatManagerBase*, StationManager*, ObjectManager*, EditManager*);
   Manager *getManager(const std::string &name);
 
   /// return current plottime

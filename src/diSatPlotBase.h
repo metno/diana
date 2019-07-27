@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -26,44 +26,42 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef diSatPlot_h
-#define diSatPlot_h
 
-#include "diSatPlotBase.h"
+#ifndef diSatPlotBase_h
+#define diSatPlotBase_h
+
+#include "diPlotOptionsPlot.h"
 
 #include "diArea.h"
 #include "diSatTypes.h"
 
-class Sat;
-class SatManager;
+class SatPlotCommand;
+typedef std::shared_ptr<const SatPlotCommand> SatPlotCommand_cp;
 
 /**
   \brief Plot satellite and radar images
 */
-class SatPlot : public SatPlotBase
+class SatPlotBase : public PlotOptionsPlot
 {
 public:
-  SatPlot(SatPlotCommand_cp cmd, SatManager* satm);
-  ~SatPlot();
+  SatPlotBase(SatPlotCommand_cp cmd);
 
-  void changeTime(const miutil::miTime& mapTime) override;
-  void plot(DiGLPainter* gl, PlotOrder zorder) override;
-  bool hasData() const override;
-  void getAnnotation(std::string&, Colour&) const override;
-  void getDataAnnotations(std::vector<std::string>& anno) const override;
+  std::string getEnabledStateKey() const override;
 
-  Sat* getData() { return satdata.get(); }
+  SatPlotCommand_cp command() const { return command_; }
+  void setCommand(SatPlotCommand_cp cmd);
 
-  GridArea& getSatArea() override;
-  void getCalibChannels(std::vector<std::string>& channels) const override;
-  void values(float x, float y, std::vector<SatValues>& satval) const override;
+  virtual GridArea& getSatArea() = 0;
+  virtual void getCalibChannels(std::vector<std::string>& channels) const = 0;
+
+  /// get pixel value
+  virtual void values(float x, float y, std::vector<SatValues>& satval) const = 0;
 
 private:
-  SatPlot(const SatPlot& rhs) = delete;
-  SatPlot& operator=(const SatPlot& rhs) = delete;
+  SatPlotBase(const SatPlotBase& rhs) = delete;
+  SatPlotBase& operator=(const SatPlotBase& rhs) = delete;
 
-  SatManager* satm_;
-  std::unique_ptr<Sat> satdata;
+  SatPlotCommand_cp command_;
 };
 
-#endif
+#endif // diSatPlotBase_h

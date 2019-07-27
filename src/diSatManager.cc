@@ -87,16 +87,16 @@ SatManager::SatManager()
 {
 }
 
-SatPlot* SatManager::createPlot(SatPlotCommand_cp cmd)
+SatPlotBase* SatManager::createPlot(SatPlotCommand_cp cmd)
 {
   return new SatPlot(cmd, this);
 }
 
-bool SatManager::reusePlot(SatPlot* osp, SatPlotCommand_cp cmd, bool first)
+bool SatManager::reusePlot(SatPlotBase* osp, SatPlotCommand_cp cmd, bool first)
 {
   std::unique_ptr<const Sat> satdata(new Sat(cmd));
 
-  Sat* sdp = osp->getData();
+  Sat* sdp = static_cast<SatPlot*>(osp)->getData();
   // clang-format off
   if (   sdp->channelInfo  != satdata->channelInfo
       || sdp->filename     != satdata->filename
@@ -859,26 +859,6 @@ plottimes_t SatManager::getSatTimes(const std::string& image_name, const std::st
       timeset.insert(f.time);
   }
   return timeset;
-}
-
-void SatManager::getCapabilitiesTime(plottimes_t& normalTimes, int& timediff, const PlotCommand_cp& pinfo)
-{
-  //Finding times from pinfo
-  //If pinfo contains "file=", return constTime
-
-  timediff=0;
-
-  SatPlotCommand_cp cmd = std::dynamic_pointer_cast<const SatPlotCommand>(pinfo);
-  if (!cmd)
-    return;
-
-  timediff = cmd->timediff;
-
-  //Product with prog times
-  if (!cmd->hasFileName()) {
-    for (const auto& fi : getFiles(cmd->image_name, cmd->subtype_name, true))
-      normalTimes.insert(fi.time);
-  }
 }
 
 /**

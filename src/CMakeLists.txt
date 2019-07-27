@@ -174,7 +174,9 @@ SET (LIBDIANA_SOURCES
   diRasterUtil.cc
   diSat.cc
   diSatManager.cc
+  diSatManagerBase.cc
   diSatPlot.cc
+  diSatPlotBase.cc
   diSatPlotCluster.cc
   diSatPlotCommand.cc
   diShapeObject.cc

@@ -46,7 +46,7 @@
 #include "diObjectPlotCluster.h"
 #include "diObsManager.h"
 #include "diObsPlotCluster.h"
-#include "diSatManager.h"
+#include "diSatManagerBase.h"
 #include "diSatPlotCluster.h"
 #include "diStaticPlot.h"
 #include "diStationManager.h"
@@ -763,7 +763,7 @@ double PlotModule::getArea(float flat1, float flat2, float flat3, float flat4, f
 
 
 // set managers
-void PlotModule::setManagers(FieldPlotManager* fpm, ObsManager* om, SatManager* sm, StationManager* stm, ObjectManager* obm, EditManager* edm)
+void PlotModule::setManagers(FieldPlotManager* fpm, ObsManager* om, SatManagerBase* sm, StationManager* stm, ObjectManager* obm, EditManager* edm)
 {
   METLIBS_LOG_SCOPE();
   fieldplotm = fpm;

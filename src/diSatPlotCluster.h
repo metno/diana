@@ -39,13 +39,13 @@
 class Area;
 class Projection;
 class SatPlot;
-class SatManager;
+class SatManagerBase;
 
 class SatPlotCluster : public PlotCluster
 {
 
 public:
-  SatPlotCluster(SatManager* satm);
+  SatPlotCluster(SatManagerBase* satm);
 
   plottimes_t getTimes() override;
 
@@ -63,7 +63,7 @@ private:
   void processInputPE(const PlotCommand_cpv&) override;
 
 private:
-  SatManager* satm_;
+  SatManagerBase* satm_;
 };
 
 #endif

@@ -32,12 +32,12 @@
 
 #include "diSatDialogData.h"
 
-class SatManager;
+class SatManagerBase;
 
 class DianaSatDialogData : public SatDialogData
 {
 public:
-  DianaSatDialogData(SatManager* sm);
+  DianaSatDialogData(SatManagerBase* sm);
 
   const SatImage_v& initSatDialog() override;
   SatFile_v getSatFiles(const std::string& image_name, const std::string& subtype_name, bool update) override;
@@ -45,7 +45,7 @@ public:
   std::vector<Colour> getSatColours(const std::string& image_name, const std::string& subtype_name) override;
 
 private:
-  SatManager* sm_;
+  SatManagerBase* sm_;
 };
 
 #endif // dianasatdialogdata_h
