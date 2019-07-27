@@ -585,13 +585,13 @@ void PlotModule::plotUnder(DiGLPainter* gl)
 
   trajectoryplots_->plot(gl, PO_LINES);
 
-  for (size_t i = 0; i < vMeasurementsPlot.size(); i++)
-    vMeasurementsPlot[i]->plot(gl, PO_LINES);
+  for (MeasurementsPlot* mp : vMeasurementsPlot)
+    mp->plot(gl, PO_LINES);
 
   if (showanno && !editm->isInEdit()) {
     // plot Annotations
-    for (size_t i = 0; i < vap.size(); i++)
-      vap[i]->plot(gl, PO_LINES);
+    for (AnnotationPlot* ap : vap)
+      ap->plot(gl, PO_LINES);
   }
 }
 

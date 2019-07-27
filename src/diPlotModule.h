@@ -41,27 +41,27 @@
 
 class AnnotationPlot;
 class AreaObjectsCluster;
-class FieldPlotManager;
+class DrawingManager;
+class EditManager;
+class Field;
 class FieldPlotCluster;
-struct LocationData;
+class FieldPlotManager;
+class LocationPlotCluster;
 class Manager;
+class MapPlotCluster;
+class MeasurementsPlot;
+class ObjectManager;
+class ObjectPlotCluster;
 class ObsManager;
 class ObsPlotCluster;
 class SatManager;
-class StationManager;
-class ObjectManager;
-class ObjectPlotCluster;
-class EditManager;
-class DrawingManager;
 class SatPlotCluster;
-class LocationPlotCluster;
-class MapPlotCluster;
+class StationManager;
+class StationPlot;
 class StationPlotCluster;
-class Field;
 class TrajectoryPlot;
 class TrajectoryPlotCluster;
-class MeasurementsPlot;
-class StationPlot;
+struct LocationData;
 
 class QMouseEvent;
 
@@ -170,6 +170,9 @@ public:
   /// plot annotations
   std::vector<Rectangle> plotAnnotations(DiGLPainter* gl);
 
+  // show or hide all annotations (for fields, observations, satellite etc.)
+  void showAnnotations(bool on) { showanno = on; }
+
   /// get annotations from all plots
   void setAnnotations();
 
@@ -229,13 +232,8 @@ public:
   /// set plottime (forwarded to staticPlot_)
   void setPlotTime(const miutil::miTime&);
 
-  ObsPlotCluster* obsplots() const
-    { return obsplots_.get(); }
-
   /// Update ObsPlots if data files have changed
   void updateObs();
-
-  AreaObjectsCluster* areaobjects();
 
   // locationPlot (vcross,...)
   void putLocation(const LocationData& locationdata);
@@ -256,11 +254,6 @@ public:
   // Measurements (distance, velocity)
   void measurementsPos(const std::vector<std::string>&);
 
-  //show or hide all annotations (for fields, observations, satellite etc.)
-  void showAnnotations(bool on)
-  {
-    showanno = on;
-  }
   /// mark editable annotationPlot if x,y inside plot
   bool markAnnotationPlot(int, int);
   /// get text of marked and editable annotationPlot
@@ -310,9 +303,9 @@ public:
   void enablePlotElement(const PlotElement& pe);
 
   // Miscellaneous get methods
+  AreaObjectsCluster* areaobjects();
+  ObsPlotCluster* obsplots() const { return obsplots_.get(); }
   FieldPlotCluster* fieldplots() { return fieldplots_.get(); }
-
-  // Miscellaneous get methods
   SatPlotCluster* satplots() { return satplots_.get(); }
   StationPlotCluster* stationplots() { return stationplots_.get(); }
 
