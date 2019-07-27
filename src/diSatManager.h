@@ -103,8 +103,8 @@ private:
   //cut index from first picture,can be reused in other pictures
   int colourStretchInfo[6];
 
-  int getFileName(Sat* satdata, std::string &);
-  int getFileName(Sat* satdata, const miutil::miTime&);
+  int getFileName(subProdInfo* subp, const std::string&);
+  int getFileName(subProdInfo* subp, const miutil::miTime&, int maxDiff);
 
   /*! Find product, \returns nullptr if not found. */
   subProdInfo* findProduct(const std::string& image_name, const std::string& subtype_name);

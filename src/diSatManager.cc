@@ -154,22 +154,23 @@ void SatManager::setData(Sat* satdata, const miutil::miTime& satptime)
   //not yet approved for plotting
   satdata->approved= false;
 
-  int index = -1;
-  if (!satdata->filename.empty()) { //requested a specific filename
-    index=getFileName(satdata, satdata->filename);
-  } else if (!satdata->autoFile) { // keep the same filename
-    index = getFileName(satdata, satdata->actualfile);
-  } else {
-    // find filename from time
-    index = getFileName(satdata, satptime);
-  }
-  if (index < 0)
-    return;
-
-  //Read header if not opened
-
   subProdInfo* spi = findProduct(satdata->image_name, satdata->subtype_name);
   if (!spi)
+    return;
+
+  if (spi->file.empty())
+    listFiles(*spi);
+
+  int index;
+  if (!satdata->filename.empty()) { //requested a specific filename
+    index = getFileName(spi, satdata->filename);
+  } else if (!satdata->autoFile) { // keep the same filename
+    index = getFileName(spi, satdata->actualfile);
+  } else {
+    // find filename from time
+    index = getFileName(spi, satptime, satdata->maxDiff);
+  }
+  if (index < 0)
     return;
 
   SatFileInfo& fInfo = spi->file[index];
@@ -292,7 +293,7 @@ bool SatManager::readSatFile(Sat* satdata, const miutil::miTime& t)
 {
   //read the file with name satdata->actualfile, channels given in
   //satdata->index. Result in satdata->rawimage
-  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_TIME();
   if(!_isafile(satdata->actualfile)) {
     //stat() is not able to get the file attributes,
     //so the file obviously does not exist or
@@ -344,7 +345,7 @@ bool SatManager::readSatFile(Sat* satdata, const miutil::miTime& t)
 void SatManager::setPalette(Sat* satdata, SatFileInfo& /*fInfo*/)
 {
   //  PURPOSE:   uses palette to put data from image into satdata.image
-  METLIBS_LOG_SCOPE(miTime::nowTime());
+  METLIBS_LOG_TIME();
 
   int nx=satdata->area.nx;
   int ny=satdata->area.ny;
@@ -387,7 +388,7 @@ void SatManager::setRGB(Sat* satdata)
   //   * PURPOSE:   put data from 3 images into satdata.image,
   // in geotiff files the data are already sorted as rgba values
   // RGB stretch is performed in order to improve the contrast
-  METLIBS_LOG_SCOPE(LOGVAL(satdata->subtype_name));
+  METLIBS_LOG_TIME(LOGVAL(satdata->subtype_name));
 
   const int nx = satdata->area.nx;
   const int ny = satdata->area.ny;
@@ -523,26 +524,21 @@ void SatManager::calcRGBstrech(unsigned char *image, const int& size, const floa
   }
 }
 
-int SatManager::getFileName(Sat* satdata, std::string &name)
+int SatManager::getFileName(subProdInfo* subp, const std::string& name)
 {
-  METLIBS_LOG_SCOPE(name);
+  METLIBS_LOG_SCOPE(LOGVAL(name));
 
-  if (subProdInfo* subp = findProduct(satdata->image_name, satdata->subtype_name)) {
-    const std::vector<SatFileInfo>& ft = subp->file;
-    if (ft.empty())
-      listFiles(*subp);
-
-    for (size_t i = 0; i < ft.size(); i++) {
-      if (name == ft[i].name)
-        return i;
-    }
+  const std::vector<SatFileInfo>& ft = subp->file;
+  for (size_t i = 0; i < ft.size(); i++) {
+    if (name == ft[i].name)
+      return i;
   }
 
   METLIBS_LOG_WARN("Could not find " << name << " in inventory");
   return -1;
 }
 
-int SatManager::getFileName(Sat* satdata, const miTime &time)
+int SatManager::getFileName(subProdInfo* subp, const miTime& time, int maxDiff)
 {
   METLIBS_LOG_SCOPE();
   if (time.undef()) {
@@ -552,18 +548,13 @@ int SatManager::getFileName(Sat* satdata, const miTime &time)
   METLIBS_LOG_DEBUG(LOGVAL(time));
 
   int fileno=-1;
-  if (subProdInfo* subp = findProduct(satdata->image_name, satdata->subtype_name)) {
-    const std::vector<SatFileInfo>& ft = subp->file;
-    if (ft.empty())
-      listFiles(*subp);
-
-    int diff = satdata->maxDiff + 1;
-    for (size_t i = 0; i < ft.size(); i++) {
-      const int d = abs(miTime::minDiff(ft[i].time, time));
-      if (d < diff) {
-        diff = d;
-        fileno = i;
-      }
+  const std::vector<SatFileInfo>& ft = subp->file;
+  int diff = maxDiff + 1;
+  for (size_t i = 0; i < ft.size(); i++) {
+    const int d = abs(miTime::minDiff(ft[i].time, time));
+    if (d < diff) {
+      diff = d;
+      fileno = i;
     }
   }
 
@@ -677,7 +668,7 @@ std::vector<SatFileInfo> SatManager::getMosaicfiles(Sat* satdata, const miutil::
 
 void SatManager::readHeader(SatFileInfo& file, const std::vector<std::string>& channel)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(file.name) << LOGVAL(file.formattype));
+  METLIBS_LOG_TIME(LOGVAL(file.name) << LOGVAL(file.formattype) << LOGVAL(file.opened));
   if (file.opened)
     return;
 
