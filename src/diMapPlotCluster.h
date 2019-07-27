@@ -38,6 +38,9 @@ public:
   MapPlotCluster();
   ~MapPlotCluster();
 
+  void addPlotElements(std::vector<PlotElement>& pel) override;
+  bool enablePlotElement(const PlotElement& pe) override;
+
   const std::string& getBackColour() const;
 
 protected:

@@ -245,7 +245,7 @@ public:
   /// returns a string with product id, name, time and object types
   std::string savedProductString(const savedProduct &sp);
   /// get fieldEdit annotations
-  void getDataAnnotations(std::vector<std::string>& anno);
+  void getDataAnnotations(std::vector<std::string>& anno) const;
   /// insert time in text string
   PlotCommand_cp insertTime(PlotCommand_cp pc, const miutil::miTime&);
 

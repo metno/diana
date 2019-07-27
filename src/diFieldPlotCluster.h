@@ -42,11 +42,11 @@ public:
   FieldPlotCluster(FieldPlotManager* fieldplotm);
   ~FieldPlotCluster();
 
-  void changeTime(const miutil::miTime& mapTime) override;
-
-  void getDataAnnotations(std::vector<std::string>& anno) override;
-
   plottimes_t getTimes() override;
+
+  //! do not plot fields in overlay
+  /*! FieldPlot has to plot itself in overlay for field edits, but normal field plot must not be plotted in overlay. */
+  void plot(DiGLPainter* gl, PlotOrder zorder) override;
 
   plottimes_t fieldAnalysisTimes() const;
 

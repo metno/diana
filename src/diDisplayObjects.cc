@@ -161,7 +161,7 @@ void DisplayObjects::getObjAnnotation(string &str, Colour &col)
   }
 }
 
-void DisplayObjects::getAnnotations(vector<string>& anno)
+void DisplayObjects::getDataAnnotations(vector<string>& anno) const
 {
   if (!isEnabled() or objects.empty())
     return;

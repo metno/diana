@@ -264,7 +264,7 @@ std::string ObsPlot::makeAnnotationString() const
   return str;
 }
 
-void ObsPlot::getDataAnnotations(vector<string>& anno)
+void ObsPlot::getDataAnnotations(vector<string>& anno) const
 {
   METLIBS_LOG_SCOPE();
 

@@ -48,6 +48,13 @@ MapPlotCluster::MapPlotCluster()
 
 MapPlotCluster::~MapPlotCluster() {}
 
+void MapPlotCluster::addPlotElements(std::vector<PlotElement>&) {}
+
+bool MapPlotCluster::enablePlotElement(const PlotElement&)
+{
+  return false;
+}
+
 const std::string& MapPlotCluster::getBackColour() const
 {
   return bgcolourname_;

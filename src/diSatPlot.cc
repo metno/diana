@@ -168,7 +168,7 @@ void SatPlot::rasterPixels(int n, const diutil::PointD &xy0, const diutil::Point
   }
 }
 
-void SatPlot::getAnnotations(vector<string>& anno)
+void SatPlot::getDataAnnotations(vector<string>& anno) const
 {
   if (!isEnabled())
     return;

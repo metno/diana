@@ -52,7 +52,6 @@ public:
   void changeTime(const miutil::miTime& mapTime) override;
 
   plottimes_t getTimes() override;
-  void getDataAnnotations(std::vector<std::string>& anno) override;
 
   bool MapToGrid(const Projection& plotproj, float xmap, float ymap, float& gridx, float& gridy) const;
 

@@ -3146,7 +3146,7 @@ void EditManager::setMapmodeinfo(){
   WeatherArea::setDefaultLineWidth(EdProd.areaLineWidth);
 }
 
-void EditManager::getDataAnnotations(vector<string>& anno)
+void EditManager::getDataAnnotations(vector<string>& anno) const
 {
   for (FieldEdit* fe : fedits)
     fe->getAnnotations(anno);

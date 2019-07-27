@@ -374,7 +374,7 @@ public:
   bool setData();
   void clear();
   void getAnnotation(std::string&, Colour&) const override;
-  void getDataAnnotations(std::vector<std::string>& anno);
+  void getDataAnnotations(std::vector<std::string>& anno) const override;
 
   std::string makeAnnotationString() const;
 

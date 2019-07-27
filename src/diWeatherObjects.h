@@ -54,15 +54,15 @@ public:
   virtual void init(){}
 
   /// returns true of no objects or labels
-  bool empty();
+  bool empty() const;
 
   /// plot all weather objects
   void plot(DiGLPainter* gl, PlotOrder porder);
 
   /// check if objectplots are enabled
-  bool isEnabled();
+  bool isEnabled() const;
 
- /// enable/disable objectplots
+  /// enable/disable objectplots
   void enable(const bool b);
 
   /// set prefix for object files

@@ -92,22 +92,22 @@ void PlotCluster::plot(DiGLPainter* gl, PlotOrder zorder)
 
 void PlotCluster::addAnnotations(std::vector<AnnotationPlot::Annotation>& annotations)
 {
-  Colour col;
-  std::string str;
   AnnotationPlot::Annotation ann;
   for (Plot* plt : plots_) {
     if (!plt->isEnabled())
       continue;
-    plt->getAnnotation(str, col);
-    if (!str.empty()) {
-      ann.str = str;
-      ann.col = col;
+
+    plt->getAnnotation(ann.str, ann.col);
+    if (!ann.str.empty())
       annotations.push_back(ann);
-    }
   }
 }
 
-void PlotCluster::getDataAnnotations(std::vector<std::string>&) {}
+void PlotCluster::getDataAnnotations(std::vector<std::string>& anno) const
+{
+  for (Plot* p : plots_)
+    p->getDataAnnotations(anno);
+}
 
 std::vector<AnnotationPlot*> PlotCluster::getExtraAnnotations() const
 {

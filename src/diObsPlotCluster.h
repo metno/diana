@@ -49,12 +49,10 @@ public:
   plottimes_t getTimes() override;
 
   void changeTime(const miutil::miTime& mapTime) override;
+  std::vector<AnnotationPlot*> getExtraAnnotations() const override;
 
   //! returns true iff there are any obs plots with data
   bool update(bool ifNeeded, const miutil::miTime& t);
-
-  void getDataAnnotations(std::vector<std::string>& anno) override;
-  std::vector<AnnotationPlot*> getExtraAnnotations() const override;
 
   bool findObs(int x, int y);
 

@@ -60,7 +60,7 @@ public:
   virtual plottimes_t getTimes();
 
   virtual void addAnnotations(std::vector<AnnotationPlot::Annotation>& annotations);
-  virtual void getDataAnnotations(std::vector<std::string>& anno);
+  virtual void getDataAnnotations(std::vector<std::string>& anno) const;
   virtual std::vector<AnnotationPlot*> getExtraAnnotations() const;
 
   virtual void addPlotElements(std::vector<PlotElement>& pel);

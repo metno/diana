@@ -34,6 +34,7 @@
 #include <puTools/miTime.h>
 
 #include <string>
+#include <vector>
 
 class Area;
 class Colour;
@@ -62,6 +63,7 @@ public:
   virtual void changeTime(const miutil::miTime& newTime);
   virtual bool hasData() const;
   virtual void getAnnotation(std::string& str, Colour& col) const;
+  virtual void getDataAnnotations(std::vector<std::string>& anno) const;
 
   /// key identifiying plot for remembering enabled/disabled state
   virtual std::string getEnabledStateKey() const = 0;

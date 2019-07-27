@@ -59,6 +59,7 @@ class SatManager;
 class SatPlotCluster;
 class StationManager;
 class StationPlot;
+class PlotCluster;
 class StationPlotCluster;
 class TrajectoryPlot;
 class TrajectoryPlotCluster;
@@ -129,6 +130,9 @@ private:
   void plotUnder(DiGLPainter* gl);
 
   void plotOver(DiGLPainter* gl);
+
+  std::vector<PlotCluster*> clusters() const;
+  void plotClustersAndManagers(DiGLPainter* gl, PlotOrder po);
 
   static PlotModule *self;
 

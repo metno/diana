@@ -53,6 +53,12 @@ FieldPlotCluster::~FieldPlotCluster()
 {
 }
 
+void FieldPlotCluster::plot(DiGLPainter* gl, PlotOrder zorder)
+{
+  if (zorder != PO_OVERLAY && zorder != PO_OVERLAY_TOP)
+    PlotCluster::plot(gl, zorder);
+}
+
 void FieldPlotCluster::processInputPE(const PlotCommand_cpv& inp)
 {
   cleanup();
@@ -62,18 +68,6 @@ void FieldPlotCluster::processInputPE(const PlotCommand_cpv& inp)
     if (fp.get())
       add(fp.release());
   }
-}
-
-void FieldPlotCluster::changeTime(const miutil::miTime& mapTime)
-{
-  for (FieldPlot* fp : diutil::static_content_cast<FieldPlot*>(plots_))
-    fp->changeTime(mapTime);
-}
-
-void FieldPlotCluster::getDataAnnotations(std::vector<std::string>& anno)
-{
-  for (FieldPlot* fp : diutil::static_content_cast<FieldPlot*>(plots_))
-    fp->getDataAnnotations(anno);
 }
 
 plottimes_t FieldPlotCluster::getTimes()

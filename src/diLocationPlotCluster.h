@@ -40,6 +40,7 @@ public:
   LocationPlotCluster();
 
   void processInput(const PlotCommand_cpv& cmds) override;
+  bool hasData() override { return false; }
 
   void putLocation(const LocationData& locationdata);
   bool deleteLocation(const std::string& name);

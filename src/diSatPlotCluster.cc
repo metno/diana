@@ -148,12 +148,6 @@ void SatPlotCluster::processInputPE(const PlotCommand_cpv& pinfo)
   diutil::delete_all_and_clear(plots);
 }
 
-void SatPlotCluster::getDataAnnotations(std::vector<std::string>& anno)
-{
-  for (SatPlot* sp : diutil::static_content_cast<SatPlot*>(plots_))
-    sp->getAnnotations(anno);
-}
-
 bool SatPlotCluster::MapToGrid(const Projection& plotproj, float xmap, float ymap, float& gridx, float& gridy) const
 {
   if (!plots_.empty()) {

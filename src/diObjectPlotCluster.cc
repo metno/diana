@@ -83,7 +83,7 @@ void ObjectPlotCluster::addAnnotations(std::vector<AnnotationPlot::Annotation>& 
     annotations.push_back(ann);
 }
 
-void ObjectPlotCluster::getDataAnnotations(std::vector<std::string>& anno)
+void ObjectPlotCluster::getDataAnnotations(std::vector<std::string>& anno) const
 {
   objm->getDataAnnotations(anno);
 }

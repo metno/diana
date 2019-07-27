@@ -40,6 +40,7 @@ public:
   TrajectoryPlotCluster();
 
   void processInput(const PlotCommand_cpv& cmds) override;
+  bool hasData() override { return false; }
 
   TrajectoryPlot* getPlot(size_t idx);
 

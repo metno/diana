@@ -250,7 +250,7 @@ void MapPlot::plot(DiGLPainter* gl, PlotOrder porder)
     zorder = 0;
   else if (porder == PO_LINES_BACKGROUND)
     zorder = 1;
-  else if (porder == PO_OVERLAY)
+  else if (porder == PO_OVERLAY_TOP)
     zorder = 2;
   else
     return;

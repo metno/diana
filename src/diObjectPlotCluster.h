@@ -45,7 +45,7 @@ public:
   void changeTime(const miutil::miTime& mapTime) override;
   plottimes_t getTimes() override;
   void addAnnotations(std::vector<AnnotationPlot::Annotation>& annotations) override;
-  void getDataAnnotations(std::vector<std::string>& anno) override;
+  void getDataAnnotations(std::vector<std::string>& anno) const override;
   std::vector<AnnotationPlot*> getExtraAnnotations() const override;
   void addPlotElements(std::vector<PlotElement>& pel) override;
   bool enablePlotElement(const PlotElement& pe) override;

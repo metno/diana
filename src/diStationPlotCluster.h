@@ -47,6 +47,8 @@ public:
   StationPlotCluster(StationManager* stam);
   ~StationPlotCluster();
 
+  bool hasData() override { return false; }
+
   /// put StationPlot in list of StationPlots
   void putStations(StationPlot*);
   /// make StationPlot and put it in list of StationPlots

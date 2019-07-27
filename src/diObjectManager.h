@@ -191,8 +191,7 @@ public:
   void addPlotElements(std::vector<PlotElement>& pel);
   bool enablePlotElement(const PlotElement& pe);
   void getObjAnnotation(std::string &str, Colour &col);
-  void getDataAnnotations(std::vector<std::string>& anno)
-    { objects.getAnnotations(anno); }
+  void getDataAnnotations(std::vector<std::string>& anno) const { objects.getDataAnnotations(anno); }
   const PlotCommand_cpv& getObjectLabels()
     { return objects.getObjectLabels(); }
   void plotObjects(DiGLPainter* gl, PlotOrder zorder);

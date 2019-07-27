@@ -50,20 +50,20 @@ public:
   Sat *satdata;
 
   void plot(DiGLPainter* gl, PlotOrder zorder) override;
-  std::string getEnabledStateKey() const override;
   bool hasData() const override;
+  std::string getEnabledStateKey() const override;
+  void getAnnotation(std::string&, Colour&) const override;
+  void getDataAnnotations(std::vector<std::string>& anno) const override;
 
   void setData(Sat*);
   void setCommand(SatPlotCommand_cp cmd);
   SatPlotCommand_cp command() const { return command_; }
 
   GridArea& getSatArea();
-  void getAnnotation(std::string &, Colour &) const override;
   void getCalibChannels(std::vector<std::string>& channels) const;
   ///get pixel value
   void values(float x, float y, std::vector<SatValues>& satval) const;
   ///get legend
-  void getAnnotations(std::vector<std::string>& anno);
   void setSatAuto(bool, const std::string&, const std::string&);
 
 protected:

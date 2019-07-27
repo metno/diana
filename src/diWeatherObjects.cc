@@ -96,7 +96,7 @@ void WeatherObjects::clear()
 
 /*********************************************/
 
-bool WeatherObjects::empty()
+bool WeatherObjects::empty() const
 {
   return (objects.empty() && itsLabels.empty());
 }
@@ -537,7 +537,7 @@ void WeatherObjects::enable(bool b)
   enabled = b;
 }
 
-bool WeatherObjects::isEnabled()
+bool WeatherObjects::isEnabled() const
 {
   return enabled;
 }

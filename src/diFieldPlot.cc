@@ -222,7 +222,7 @@ struct aTable {
 };
 } // namespace
 
-void FieldPlot::getTableAnnotations(std::vector<std::string>& annos)
+void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
 {
   METLIBS_LOG_SCOPE();
 
@@ -477,7 +477,7 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos)
   }
 }
 
-void FieldPlot::getDataAnnotations(std::vector<std::string>& annos)
+void FieldPlot::getDataAnnotations(std::vector<std::string>& annos) const
 {
   METLIBS_LOG_SCOPE(LOGVAL(annos.size()));
 

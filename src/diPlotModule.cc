@@ -120,11 +120,10 @@ void PlotModule::setCanvas(DiCanvas* canvas)
 
   // TODO set for all existing plots, and for new plots
   mCanvas = canvas;
-  mapplots_->setCanvas(canvas);
-  obsplots_->setCanvas(mCanvas);
-  stationplots_->setCanvas(mCanvas);
-  objectplots_->setCanvas(mCanvas);
-  fieldplots_->setCanvas(mCanvas);
+
+  for (PlotCluster* pc : clusters())
+    pc->setCanvas(canvas);
+
   for (Manager* m : boost::adaptors::values(managers))
     m->setCanvas(canvas);
 
@@ -137,10 +136,10 @@ void PlotModule::preparePlots(const PlotCommand_cpv& vpi)
 
   // split up input into separate products
   std::set<std::string> ordered;
+  ordered.insert("AREA");
+  ordered.insert(mapplots_->plotCommandKey());
   ordered.insert(fieldplots()->plotCommandKey());
   ordered.insert(obsplots()->plotCommandKey());
-  ordered.insert(mapplots_->plotCommandKey());
-  ordered.insert("AREA");
   ordered.insert(satplots()->plotCommandKey());
   ordered.insert(stationplots_->plotCommandKey());
   ordered.insert(objectplots_->plotCommandKey());
@@ -251,37 +250,24 @@ vector<PlotElement> PlotModule::getPlotElements()
   //  METLIBS_LOG_SCOPE();
   std::vector<PlotElement> pel;
 
-  mapplots_->addPlotElements(pel);
-  fieldplots_->addPlotElements(pel);
-  obsplots_->addPlotElements(pel);
-  satplots_->addPlotElements(pel);
-  stationplots_->addPlotElements(pel);
-  objectplots_->addPlotElements(pel);
-  trajectoryplots_->addPlotElements(pel);
+  for (PlotCluster* pc : clusters())
+    pc->addPlotElements(pel);
 
-  if (areaobjects_.get())
-    areaobjects_->addPlotElements(pel);
-  locationplots_->addPlotElements(pel);
-
-  for (Manager* m : boost::adaptors::values(managers)) {
+  for (Manager* m : boost::adaptors::values(managers))
     diutil::insert_all(pel, m->getPlotElements());
-  }
 
   return pel;
 }
 
 void PlotModule::enablePlotElement(const PlotElement& pe)
 {
-  // clang-format off
-  bool change =    fieldplots_     ->enablePlotElement(pe)
-                || obsplots_       ->enablePlotElement(pe)
-                || trajectoryplots_->enablePlotElement(pe)
-                || satplots_       ->enablePlotElement(pe)
-                || stationplots_   ->enablePlotElement(pe)
-                || objectplots_    ->enablePlotElement(pe)
-                || areaobjects_    ->enablePlotElement(pe)
-                || locationplots_  ->enablePlotElement(pe);
-  // clang-format on
+  bool change = false;
+  for (PlotCluster* pc : clusters()) {
+    if (pc->enablePlotElement(pe)) {
+      change = true;
+      break;
+    }
+  }
   if (!change) {
     const QString qtype = QString::fromStdString(pe.type);
     for (Manager* m : boost::adaptors::values(managers)) {
@@ -318,13 +304,8 @@ void PlotModule::setAnnotations()
 
   const plottimes_t fieldAnalysisTimes = fieldplots_->fieldAnalysisTimes();
 
-  fieldplots_->addAnnotations(annotations);
-  satplots_->addAnnotations(annotations);
-  obsplots_->addAnnotations(annotations);
-  stationplots_->addAnnotations(annotations);
-  objectplots_->addAnnotations(annotations);
-  trajectoryplots_->addAnnotations(annotations);
-  locationplots_->addAnnotations(annotations);
+  for (PlotCluster* pc : clusters())
+    pc->addAnnotations(annotations);
 
   // Miscellaneous managers
   ann.col = Colour(0, 0, 0);
@@ -349,17 +330,16 @@ void PlotModule::setAnnotations()
   for (AnnotationPlot* ap : vap) {
     vector<vector<string> > vvstr = ap->getAnnotationStrings();
     for (vector<string>& as : vvstr) {
-      fieldplots_->getDataAnnotations(as);
-      obsplots_->getDataAnnotations(as);
-      satplots_->getDataAnnotations(as);
+      for (PlotCluster* pc : clusters())
+        pc->getDataAnnotations(as);
+
       editm->getDataAnnotations(as);
-      objectplots_->getDataAnnotations(as);
     }
     ap->setAnnotationStrings(vvstr);
   }
 
-  diutil::insert_all(vap, obsplots_->getExtraAnnotations());
-  diutil::insert_all(vap, objectplots_->getExtraAnnotations());
+  for (PlotCluster* pc : clusters())
+    diutil::insert_all(vap, pc->getExtraAnnotations());
 }
 
 void PlotModule::changeTime(const miutil::miTime& mapTime)
@@ -367,10 +347,9 @@ void PlotModule::changeTime(const miutil::miTime& mapTime)
   METLIBS_LOG_SCOPE();
   staticPlot_->setTime(mapTime);
 
-  satplots_->changeTime(mapTime);
-  fieldplots_->changeTime(mapTime);
-  obsplots_->changeTime(mapTime);
-  objectplots_->changeTime(mapTime);
+  for (PlotCluster* pc : clusters())
+    pc->changeTime(mapTime);
+
   for (Manager* m : boost::adaptors::values(managers)) {
     if (m->isEnabled())
       m->changeTime(mapTime);
@@ -381,8 +360,11 @@ void PlotModule::changeTime(const miutil::miTime& mapTime)
 
 bool PlotModule::hasData()
 {
-  if (mapplots_->hasData() || fieldplots_->hasData() || satplots_->hasData() || obsplots_->hasData() || objectplots_->hasData())
-    return true;
+  for (PlotCluster* pc : clusters())
+    if (pc->hasData())
+      return true;
+  // FIXME vMeasurementsPlot
+
   for (Manager* m : boost::adaptors::values(managers)) {
     if (m->isEnabled() && m->hasData())
       return true;
@@ -392,6 +374,8 @@ bool PlotModule::hasData()
 
 bool PlotModule::defineMapAreaFromData(Area& newMapArea, bool& allowKeepCurrentArea)
 {
+  // TODO this is common for all grid-based plots, in strange order
+
   if (satplots_->getSatArea(newMapArea)) {
     // set area equal to first EXISTING sat-area
     allowKeepCurrentArea = true;
@@ -495,79 +479,9 @@ void PlotModule::plotUnder(DiGLPainter* gl)
 
   plotInit(gl);
 
-  // plot map-elements for lowest zorder
-  mapplots_->plot(gl, PO_BACKGROUND);
-
-  // plot other objects, including drawing items
-  for (Manager* m : boost::adaptors::values(managers)) {
-    if (m->isEnabled())
-      m->plot(gl, PO_BACKGROUND);
-  }
-
-  // plot satellite images
-  satplots_->plot(gl, PO_SHADE_BACKGROUND);
-
-  // mark undefined areas/values in field (before map)
-  fieldplots_->plot(gl, PO_SHADE_BACKGROUND);
-
-  // plot other objects, including drawing items
-  for (Manager* m : boost::adaptors::values(managers)) {
-    if (m->isEnabled())
-      m->plot(gl, PO_SHADE_BACKGROUND);
-  }
-
-  // plot fields (shaded fields etc. before map)
-  fieldplots_->plot(gl, PO_SHADE);
-
-  // plot other objects, including drawing items
-  for (Manager* m : boost::adaptors::values(managers)) {
-    if (m->isEnabled())
-      m->plot(gl, PO_SHADE);
-  }
-
-  // plot map-elements for auto zorder
-  mapplots_->plot(gl, PO_LINES_BACKGROUND);
-
-  // plot other objects, including drawing items
-  for (Manager* m : boost::adaptors::values(managers)) {
-    if (m->isEnabled())
-      m->plot(gl, PO_LINES_BACKGROUND);
-  }
-
-  locationplots_->plot(gl, PO_LINES);
-
-  // plot fields (isolines, vectors etc. after map)
-  fieldplots_->plot(gl, PO_LINES);
-
-  // next line also calls objects.changeProjection
-  objectplots_->plot(gl, PO_LINES);
-
-  if (areaobjects_.get())
-    areaobjects_->plot(gl, PO_LINES);
-
-  stationplots_->plot(gl, PO_LINES);
-
-  // plot inactive edit fields/objects under observations
-  editm->plot(gl, PO_LINES);
-
-  // plot other objects, including drawing items
-  for (Manager* m : boost::adaptors::values(managers)) {
-    if (m->isEnabled())
-      m->plot(gl, PO_LINES);
-  }
-
-  obsplots_->plot(gl, PO_LINES);
-
-  trajectoryplots_->plot(gl, PO_LINES);
-
-  for (MeasurementsPlot* mp : vMeasurementsPlot)
-    mp->plot(gl, PO_LINES);
-
-  if (showanno && !editm->isInEdit()) {
-    // plot Annotations
-    for (AnnotationPlot* ap : vap)
-      ap->plot(gl, PO_LINES);
-  }
+  const PlotOrder pos[] = {PO_BACKGROUND, PO_SHADE_BACKGROUND, PO_SHADE, PO_LINES_BACKGROUND, PO_LINES};
+  for (const PlotOrder po : pos)
+    plotClustersAndManagers(gl, po);
 }
 
 // plot overlay ---------------------------------------
@@ -577,30 +491,9 @@ void PlotModule::plotOver(DiGLPainter* gl)
   METLIBS_LOG_SCOPE();
 #endif
 
-  // plot active draw- and editobjects here
-  editm->plot(gl, PO_OVERLAY);
-
-  obsplots_->plot(gl, PO_OVERLAY);
-
-  if (editm->isInEdit()) {
-    // Annotations
-    if (showanno) {
-      for (AnnotationPlot* ap : vap)
-        ap->plot(gl, PO_OVERLAY);
-    }
-    for (AnnotationPlot* ap : editVap)
-      ap->plot(gl, PO_OVERLAY);
-
-  } // if editm->isInEdit()
-
-  for (Manager* m : boost::adaptors::values(managers)) {
-    if (m->isEnabled()) {
-      m->plot(gl, PO_OVERLAY);
-    }
-  }
-
-  // plot map-elements for highest zorder
-  mapplots_->plot(gl, PO_OVERLAY);
+  const PlotOrder pos[] = {PO_OVERLAY, PO_OVERLAY_TOP};
+  for (const PlotOrder po : pos)
+    plotClustersAndManagers(gl, po);
 
   // draw frame if map has a border
   if (staticPlot_->getMapBorder() > 0) {
@@ -617,6 +510,51 @@ void PlotModule::plotOver(DiGLPainter* gl)
 
     gl->setLineStyle(staticPlot_->getBackContrastColour(), RUBBER_LINEWIDTH);
     gl->drawRect(false, pold.x(), pold.y(), pnew.x(), pnew.y());
+  }
+}
+
+std::vector<PlotCluster*> PlotModule::clusters() const
+{
+  std::vector<PlotCluster*> pcs = {
+      // clang-format off
+      mapplots_.get(),
+      fieldplots_.get(),
+      obsplots_.get(),
+      satplots_.get(),
+      stationplots_.get(),
+      objectplots_.get(),
+      trajectoryplots_.get(),
+      areaobjects_.get(),
+      locationplots_.get()
+      // clang-format on
+  };
+  pcs.erase(std::remove_if(pcs.begin(), pcs.end(), [](PlotCluster* pc) { return pc == nullptr; }), pcs.end());
+  return pcs;
+}
+
+void PlotModule::plotClustersAndManagers(DiGLPainter* gl, PlotOrder po)
+{
+  for (PlotCluster* pc : clusters())
+    pc->plot(gl, po);
+
+  for (MeasurementsPlot* mp : vMeasurementsPlot)
+    mp->plot(gl, po);
+
+  editm->plot(gl, po);
+
+  for (Manager* m : boost::adaptors::values(managers)) {
+    if (m->isEnabled())
+      m->plot(gl, po);
+  }
+
+  const bool inEdit = editm->isInEdit();
+  if (showanno && ((po == PO_LINES && !inEdit) || (po == PO_OVERLAY && inEdit))) {
+    for (AnnotationPlot* ap : vap)
+      ap->plot(gl, po);
+  }
+  if (inEdit && po == PO_OVERLAY) {
+    for (AnnotationPlot* ap : editVap)
+      ap->plot(gl, po);
   }
 }
 
@@ -649,14 +587,8 @@ void PlotModule::cleanup()
 #ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
 #endif
-  mapplots_->cleanup();
-  fieldplots_->cleanup();
-  satplots_->cleanup();
-  stationplots_->cleanup();
-  obsplots_->cleanup();
-  trajectoryplots_->cleanup();
-
-  objectplots_->cleanup();
+  for (PlotCluster* pc : clusters())
+    pc->cleanup();
 
   diutil::delete_all_and_clear(vMeasurementsPlot);
   diutil::delete_all_and_clear(vap);
@@ -738,6 +670,8 @@ void PlotModule::PhysToMap(float xphys, float yphys, float& xmap, float& ymap)
 /// return field grid x,y from map x,y if field defined and map proj = field proj
 bool PlotModule::MapToGrid(float xmap, float ymap, float& gridx, float& gridy)
 {
+  // TODO this is common for all grid-based plots, in strange order; see also defineMapAreaFromData
+
   if (satplots_->MapToGrid(staticPlot_->getMapProjection(), xmap, ymap, gridx, gridy))
     return true;
 
@@ -1010,8 +944,8 @@ void PlotModule::measurementsPos(const vector<std::string>& vstr)
 bool PlotModule::markAnnotationPlot(int x, int y)
 {
   bool marked = false;
-  for (size_t j = 0; j < editVap.size(); j++)
-    if (editVap[j]->markAnnotationPlot(x, y))
+  for (AnnotationPlot* eap : editVap)
+    if (eap->markAnnotationPlot(x, y))
       marked = true;
   return marked;
 }
@@ -1019,8 +953,8 @@ bool PlotModule::markAnnotationPlot(int x, int y)
 std::string PlotModule::getMarkedAnnotation()
 {
   std::string annotext;
-  for (size_t j = 0; j < editVap.size(); j++) {
-    std::string text = editVap[j]->getMarkedAnnotation();
+  for (AnnotationPlot* eap : editVap) {
+    std::string text = eap->getMarkedAnnotation();
     if (!text.empty())
       annotext = text;
   }
@@ -1030,45 +964,45 @@ std::string PlotModule::getMarkedAnnotation()
 void PlotModule::changeMarkedAnnotation(std::string text, int cursor, int sel1,
     int sel2)
 {
-  for (size_t j = 0; j < editVap.size(); j++)
-    editVap[j]->changeMarkedAnnotation(text, cursor, sel1, sel2);
+  for (AnnotationPlot* eap : editVap)
+    eap->changeMarkedAnnotation(text, cursor, sel1, sel2);
 }
 
 void PlotModule::DeleteMarkedAnnotation()
 {
-  for (size_t j = 0; j < editVap.size(); j++)
-    editVap[j]->DeleteMarkedAnnotation();
+  for (AnnotationPlot* eap : editVap)
+    eap->DeleteMarkedAnnotation();
 }
 
 void PlotModule::startEditAnnotation()
 {
-  for (size_t j = 0; j < editVap.size(); j++)
-    editVap[j]->startEditAnnotation();
+  for (AnnotationPlot* eap : editVap)
+    eap->startEditAnnotation();
 }
 
 void PlotModule::stopEditAnnotation()
 {
-  for (size_t j = 0; j < editVap.size(); j++)
-    editVap[j]->stopEditAnnotation();
+  for (AnnotationPlot* eap : editVap)
+    eap->stopEditAnnotation();
 }
 
 void PlotModule::editNextAnnoElement()
 {
-  for (size_t j = 0; j < editVap.size(); j++)
-    editVap[j]->editNextAnnoElement();
+  for (AnnotationPlot* eap : editVap)
+    eap->editNextAnnoElement();
 }
 
 void PlotModule::editLastAnnoElement()
 {
-  for (size_t j = 0; j < editVap.size(); j++)
-    editVap[j]->editLastAnnoElement();
+  for (AnnotationPlot* eap : editVap)
+    eap->editLastAnnoElement();
 }
 
 PlotCommand_cpv PlotModule::writeAnnotations(const string& prodname)
 {
   PlotCommand_cpv annoCommands;
-  for (AnnotationPlot* ap : editVap) {
-    if (PlotCommand_cp pc = ap->writeAnnotation(prodname))
+  for (AnnotationPlot* eap : editVap) {
+    if (PlotCommand_cp pc = eap->writeAnnotation(prodname))
       annoCommands.push_back(pc);
   }
   return annoCommands;

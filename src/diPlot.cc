@@ -81,6 +81,8 @@ void Plot::getAnnotation(std::string& s, Colour& c) const
   s = getPlotName();
 }
 
+void Plot::getDataAnnotations(std::vector<std::string>&) const {}
+
 const std::string& Plot::getPlotName() const
 {
   return plotname;

@@ -52,15 +52,14 @@ public:
   FieldPlot(FieldPlotManager* fieldplotm);
   ~FieldPlot();
 
-  void getDataAnnotations(std::vector<std::string>& anno);
-  int getLevel() const;
-
-  void plot(DiGLPainter* gl, PlotOrder zorder) override;
-
-  std::string getEnabledStateKey() const override;
-
   void changeTime(const miutil::miTime& mapTime) override;
   bool hasData() const override;
+  void plot(DiGLPainter* gl, PlotOrder zorder) override;
+  void getAnnotation(std::string&, Colour&) const override;
+  void getDataAnnotations(std::vector<std::string>& anno) const override;
+  std::string getEnabledStateKey() const override;
+
+  int getLevel() const;
 
   //! Extract plotting-parameters from plot command
   //* Also fetches some default options from FieldPlotManager. */
@@ -70,7 +69,6 @@ public:
   void setData(const std::vector<Field*>&, const miutil::miTime&);
   const Area& getFieldArea() const;
   bool getRealFieldArea(Area&) const;
-  void getAnnotation(std::string&, Colour&) const override;
   const std::vector<Field*>& getFields() const;
   FieldPlotCommand_cp command() const;
 
@@ -97,7 +95,7 @@ private:
   miutil::miTime ftime;          // current field time
 
   void clearFields();
-  void getTableAnnotations(std::vector<std::string>& anno);
+  void getTableAnnotations(std::vector<std::string>& anno) const;
 
   bool centerOnGridpoint() const;
   const std::string& plottype() const

@@ -138,12 +138,6 @@ void ObsPlotCluster::plot(DiGLPainter* gl, PlotOrder zorder)
     PlotCluster::plot(gl, zorder);
 }
 
-void ObsPlotCluster::getDataAnnotations(std::vector<std::string>& anno)
-{
-  for (ObsPlot* p : static_content_cast<ObsPlot*>(plots_))
-    p->getDataAnnotations(anno);
-}
-
 std::vector<AnnotationPlot*> ObsPlotCluster::getExtraAnnotations() const
 {
   std::vector<AnnotationPlot*> vap;
