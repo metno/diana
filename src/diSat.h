@@ -115,15 +115,6 @@ public:
   int rgbindex[3];      ///< channelindex for rgb-operations
   unsigned char* rawimage[maxch]; ///< raw image
   float* origimage[3]; ///< original image for temperature display images
-  int rawchannels[maxch];         ///< raw images channel numbers
-
-  int calibidx;         ///< channel to use in values routine
-  /// calibration coefficients for channel values
-  struct calib{
-    std::string channel;  ///< GUI text
-    float a,b; ///< calibration coeff.
-  };
-  calib cal[maxch]; ///< calibration data for all channels
 
   /// any images defined
   bool noimages(){return !(image);}
@@ -135,17 +126,13 @@ public:
 
   std::map<int,char> hideColour;   ///< colour values to blend
 
-private:
-  void memberCopy(const Sat& rhs);
-
 public:
   Sat();
-  Sat(const Sat &rhs);
   Sat(SatPlotCommand_cp cmd);
   ~Sat();
 
-  Sat& operator=(const Sat &rhs);
-  bool operator==(const Sat &rhs) const;
+  Sat(const Sat& rhs) = delete;
+  Sat& operator=(const Sat& rhs) = delete;
 
   void cleanup();
   void values(int x, int y, std::vector<SatValues>& satval) const;

@@ -63,7 +63,6 @@ Sat::Sat()
     , mosaic(false)
     , commonColourStretch(false)
     , image(0)
-    , calibidx(-1)
     , channelschanged(true)
     , rgboperchanged(true)
     , alphaoperchanged(true)
@@ -73,12 +72,6 @@ Sat::Sat()
     rawimage[i] = 0;
   for (int i = 0; i < 3; i++)
     origimage[i] = 0;
-}
-
-Sat::Sat(const Sat &rhs)
-{
-  METLIBS_LOG_SCOPE();
-  memberCopy(rhs);
 }
 
 Sat::Sat(SatPlotCommand_cp cmd)
@@ -106,88 +99,6 @@ Sat::Sat(SatPlotCommand_cp cmd)
 Sat::~Sat()
 {
   cleanup();
-}
-
-Sat& Sat::operator=(const Sat &rhs)
-{
-  METLIBS_LOG_SCOPE();
-
-  if (this != &rhs)
-    memberCopy(rhs);
-  return *this;
-}
-
-bool Sat::operator==(const Sat&) const
-{
-  return false;
-}
-
-void Sat::memberCopy(const Sat& rhs)
-{
-  METLIBS_LOG_SCOPE(LOGVAL(rhs.area.nx) << LOGVAL(rhs.area.ny));
-
-  // first clean up images etc.
-  cleanup();
-
-  // copy members
-  approved= rhs.approved;
-  satellite= rhs.satellite;
-  filetype= rhs.filetype;
-  filename= rhs.filename;
-  actualfile= rhs.actualfile;
-  cut= rhs.cut;
-  alphacut= rhs.alphacut;
-  alpha= rhs.alpha;
-  maxDiff= rhs.maxDiff;
-  classtable= rhs.classtable;
-  hideColour=rhs.hideColour;
-
-  area= rhs.area;
-
-  time= rhs.time;
-  annotation= rhs.annotation;
-  plotname= rhs.plotname;
-  palette= rhs.palette;
-  plotChannels= rhs.plotChannels;
-  calibidx= rhs.calibidx;
-  for (int i=0; i<3; i++)
-    rgbindex[i]= rhs.rgbindex[i];
-
-  autoFile = rhs.autoFile;
-  channelschanged= rhs.channelschanged;
-  rgboperchanged= rhs.rgboperchanged;
-  alphaoperchanged= rhs.alphaoperchanged;
-  mosaic=rhs.mosaic;
-  firstMosaicFileTime=rhs.firstMosaicFileTime;
-  lastMosaicFileTime=rhs.lastMosaicFileTime;
-  commonColourStretch=rhs.commonColourStretch;
-  // copy images
-  long size= area.gridSize();
-
-  if (size) {
-    image = new unsigned char[size];
-    for (int i=0; i<maxch; i++) {
-      if (rhs.rawimage[i]!=0) {
-        rawimage[i]= new unsigned char[size];
-        rawchannels[i]= rhs.rawchannels[i];
-      }
-    }
-    for (int j=0; j<size; j++) {
-      image[j]=rhs.image[j];
-      for (int i=0; i<maxch; i++)
-        if (rawimage[i]!=0)
-          rawimage[i][j]= rhs.rawimage[i][j];
-    }
-    for (int k=0; k<3; k++) {
-      origimage[k]= new float[size];
-    }
-    for (int j=0; j<size; j++) {
-      for (int i=0; i<3; i++)
-        if (origimage[i]!=NULL)
-          origimage[i][j]= rhs.origimage[i][j];
-    }
-  }
-
 }
 
 /* * PURPOSE:   calculate and print the temperature or the albedo of
@@ -480,7 +391,6 @@ void Sat::cleanup()
     origimage[j] = 0;
   }
 
-  calibidx= -1;
   annotation.erase();
   plotname.erase();
   approved= false;
