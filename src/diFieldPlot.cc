@@ -99,9 +99,9 @@ bool FieldPlot::getRealFieldArea(Area& a) const
 
 int FieldPlot::getLevel() const
 {
-  if (!hasData())
+  if (!cmd_)
     return 0;
-  return fields[0]->level;
+  return atoi(cmd_->field.vlevel.c_str()); // cannot use miutil::to_int here because the string might also contain the unit
 }
 
 void FieldPlot::changeTime(const miutil::miTime& mapTime)

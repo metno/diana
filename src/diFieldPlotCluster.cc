@@ -98,7 +98,7 @@ plottimes_t FieldPlotCluster::fieldAnalysisTimes() const
 int FieldPlotCluster::getVerticalLevel() const
 {
   if (!plots_.empty())
-    return static_cast<const FieldPlot*>(plots_.back())->getLevel();
+    return static_cast<const FieldPlot*>(plots_.back())->getLevel(); // TODO why last and not first?
   else
     return 0;
 }

@@ -185,6 +185,7 @@ void PlotModule::preparePlots(const PlotCommand_cpv& vpi)
   if (!mapplots_->getBackColour().empty())
     staticPlot_->setBgColour(mapplots_->getBackColour());
   defineMapArea();
+  staticPlot_->setVerticalLevel(fieldplots_->getVerticalLevel());  // vertical level for observations "as field"
   // changeProjection()?
   // changeTime()?
 }
@@ -368,10 +369,6 @@ void PlotModule::changeTime(const miutil::miTime& mapTime)
 
   satplots_->changeTime(mapTime);
   fieldplots_->changeTime(mapTime);
-
-  // level for vertical level observations "as field"
-  staticPlot_->setVerticalLevel(fieldplots_->getVerticalLevel());
-
   obsplots_->changeTime(mapTime);
   objectplots_->changeTime(mapTime);
   for (Manager* m : boost::adaptors::values(managers)) {
