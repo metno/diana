@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2013 met.no
+ Copyright (C) 2006-2019 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -365,16 +365,6 @@ public:
     { collider_ = collider; }
 
   void setShowVVAsCode(bool on) { show_VV_as_code_ = on; }
-  void setPlotundef(bool on) { plotundef = on; }
-
-  // return the computed index in stationlist, ROADOBS only
-  std::vector<int>& getStationsToPlot();
-
-  // clear VisibleStations map from current plottype, ROADOBS only
-  void clearVisibleStations();
-
-  // Returns the allObs boolean
-  bool isallObs() { return allObs; };
 
   void plot(DiGLPainter* gl, PlotOrder zorder) override;
 
@@ -410,21 +400,15 @@ public:
   bool mslp() const
     { return devfield.get() != 0; }
 
-  bool moreTimes()
-    { return moretimes; }
-
   const std::vector<std::string>& readerNames() const { return readernames; }
 
   void setObsTime(const miutil::miTime& t);
 
   int getLevel();
 
-  int numPositions() const { return getObsCount(); }
-
   void setObsExtraAnnotations(const PlotCommand_cpv& a) { extraAnnotations = a; }
   std::vector<std::string> columnName;
   void addObsData(const std::vector<ObsData>& obs);
-  void replaceObsData(const std::vector<ObsData>& obs);
   const miutil::miTime& getObsTime() const { return obsTime; }
 
 protected:
@@ -439,14 +423,6 @@ protected:
 public:
   int getTimeDiff() const
     { return timeDiff; }
-
-  void setTimeDiff(int diff)
-    { timeDiff = diff; }
-
-  // if timediff == -1 :use all observations
-  // if not: use all observations with abs(obsTime-Time)<timediff
-  bool timeOK(const miutil::miTime& t) const;
-
 };
 
 #endif

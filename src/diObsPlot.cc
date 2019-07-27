@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2018 met.no
+ Copyright (C) 2006-2019 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -259,7 +259,7 @@ std::string ObsPlot::makeAnnotationString() const
       }
     }
 
-    str += (" ( " + miutil::from_number(numVisiblePositions()) + " / " + miutil::from_number(numPositions()) + " )");
+    str += (" ( " + miutil::from_number(numVisiblePositions()) + " / " + miutil::from_number(getObsCount()) + " )");
   }
   return str;
 }
@@ -268,7 +268,7 @@ bool ObsPlot::getDataAnnotations(vector<string>& anno)
 {
   METLIBS_LOG_SCOPE();
 
-  if (!isEnabled() || !annotations || numPositions() == 0 || wind_scale < 0)
+  if (!isEnabled() || !annotations || getObsCount() == 0 || wind_scale < 0)
     return false;
 
   const std::string vectorAnnotationSize = miutil::from_number(21 * getStaticPlot()->getPhysToMapScaleX());
@@ -310,15 +310,8 @@ void ObsPlot::addObsData(const std::vector<ObsData>& obs)
   diutil::insert_all(obsp, obs);
 }
 
-void ObsPlot::replaceObsData(const std::vector<ObsData>& obs)
-{
-  obsp.clear();
-  addObsData(obs);
-}
-
 int ObsPlot::getLevel()
 {
-
   if (levelAsField) //from field
     level = getStaticPlot()->getVerticalLevel();
 
@@ -334,18 +327,18 @@ void ObsPlot::setObsTime(const miutil::miTime& t)
 {
   if (obsTime.undef()) {
     obsTime = t;
-    return;
+  } else {
+    const miutil::miTime& ptime = getStaticPlot()->getTime();
+    if (abs(miTime::minDiff(ptime, t)) < abs(miTime::minDiff(ptime, obsTime)))
+      obsTime = t;
   }
-
-  if (abs(miTime::minDiff(getStaticPlot()->getTime(), t)) < abs(miTime::minDiff(getStaticPlot()->getTime(), obsTime)))
-    obsTime = t;
 }
 
 int ObsPlot::numVisiblePositions() const
 {
   METLIBS_LOG_SCOPE();
 
-  int npos = numPositions();
+  int npos = getObsCount();
   int count = 0;
   for (int i = 0; i < npos; i++) {
     if (getStaticPlot()->getMapSize().isinside(x[i], y[i]))
@@ -557,12 +550,10 @@ void ObsPlot::updateObsPositions()
   if (!mslp())
     return;
 
-  const int numObs = numPositions();
+  const int numObs = getObsCount();
   devfield->resize(numObs);
-  for (int i = 0; i < numObs; i++) {
-    devfield->xpos[i] = x[i];
-    devfield->ypos[i] = y[i];
-  }
+  std::copy(x, x+numObs, devfield->xpos);
+  std::copy(y, y+numObs, devfield->ypos);
   devfield->convertToGrid = true;
   devfield->obsArea = getStaticPlot()->getMapArea();
 }
@@ -595,7 +586,7 @@ bool ObsPlot::setData()
   x = 0;
   y = 0;
 
-  int numObs = numPositions();
+  const int numObs = getObsCount();
 
   if (numObs < 1) {
     METLIBS_LOG_INFO("no data");
@@ -614,15 +605,12 @@ bool ObsPlot::setData()
   updateObsPositions();
 
   // find direction of north for each observation
-  float *u = new float[numObs];
-  float *v = new float[numObs];
+  std::unique_ptr<float[]> u(new float[numObs]);
+  std::unique_ptr<float[]> v(new float[numObs]);
+  std::fill(u.get(), u.get() + numObs, 0);
+  std::fill(v.get(), v.get() + numObs, 10);
 
-  for (int i = 0; i < numObs; i++) {
-    u[i] = 0;
-    v[i] = 10;
-  }
-
-  getStaticPlot()->GeoToMap(numObs, x, y, u, v);
+  getStaticPlot()->GeoToMap(numObs, x, y, u.get(), v.get());
 
   for (int i = 0; i < numObs; i++) {
     const int angle = (int) (atan2f(u[i], v[i]) * 180 / M_PI);
@@ -639,21 +627,14 @@ bool ObsPlot::setData()
       float& dd = it->second;
       dd = normalize_angle(dd + angle);
     }
-    // FIXME: stringdata ?
     if ((it = obsp[i].fdata.find("ds")) != obsp[i].fdata.end()) {
       float& dd = it->second;
       dd = normalize_angle(dd + angle);
     }
-    ObsData::stringdata_t::iterator its;
-    if ((its = obsp[i].stringdata.find("ds")) != obsp[i].stringdata.end()) {
-      float tmp_dd = miutil::to_float(its->second);
-      float& dd = tmp_dd;
-      dd = normalize_angle(dd + angle);
-    }
   }
 
-  delete[] u;
-  delete[] v;
+  u.reset(nullptr);
+  v.reset(nullptr);
 
   updateDeltaTimes();
 
@@ -683,24 +664,6 @@ void ObsPlot::getObsLonLat(int obsidx, float& x, float& y)
   y = obsp[obsidx].ypos;
 }
 
-bool ObsPlot::timeOK(const miTime& t) const
-{
-  // called very often METLIBS_LOG_SCOPE("time: " << t.isoTime());
-
-  return (timeDiff < 0 || std::abs(miTime::minDiff(t, obsTime)) <= timeDiff);
-}
-
-std::vector<int>& ObsPlot::getStationsToPlot()
-{
-  return stations_to_plot;
-}
-
-// clear VisibleStations map from current dialogname
-void ObsPlot::clearVisibleStations()
-{
-  visibleStations[dialogname].clear();
-}
-
 void ObsPlot::logStations()
 {
   METLIBS_LOG_SCOPE();
@@ -717,22 +680,17 @@ void ObsPlot::readStations()
 {
   METLIBS_LOG_SCOPE();
 
-  int n = visibleStations[dialogname].size();
-  if (n > 0) {
-
+  std::vector<std::string>& vs = visibleStations[dialogname];
+  if (!vs.empty()) {
     vector<int> tmpList = all_from_file;
     all_stations.clear();
 
     // Fill the stations from stat into priority_vector,
     // and mark them in tmpList
-    int i, j;
-    int numObs = obsp.size();
+    const int numObs = obsp.size();
     for (int k = 0; k < numObs; k++) {
-      i = all_from_file[k];
-      j = 0;
-      while (j < n && visibleStations[dialogname][j] != obsp[i].id)
-        j++;
-      if (j < n) {
+      const int i = all_from_file[k];
+      if (std::find(vs.begin(), vs.end(), obsp[i].id) != vs.end()) {
         all_stations.push_back(i);
         tmpList[i] = -1;
       }
@@ -777,7 +735,7 @@ void ObsPlot::priority_sort()
   METLIBS_LOG_SCOPE();
 
   //sort the observations according to priority list
-  int numObs = numPositions();
+  int numObs = getObsCount();
 
   //  METLIBS_LOG_DEBUG("Priority_sort:"<<numObs);
   int i;
@@ -1272,7 +1230,7 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     return;
   }
 
-  int numObs = numPositions();
+  int numObs = getObsCount();
   if (numObs == 0)
     return;
 
