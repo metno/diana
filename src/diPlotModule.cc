@@ -134,8 +134,6 @@ void PlotModule::setCanvas(DiCanvas* canvas)
 void PlotModule::preparePlots(const PlotCommand_cpv& vpi)
 {
   METLIBS_LOG_SCOPE();
-  // reset flags
-  mapDefinedByUser = false;
 
   // split up input into separate products
   std::set<std::string> ordered;
