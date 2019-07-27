@@ -125,8 +125,6 @@ plottimes_t BdianaMain::getTimes()
     it = find_times(times, "observations");
   if (it == times.end())
     it = find_times(times, "objects");
-  if (it == times.end())
-    it = find_times(times, "products");
   if (it != times.end())
     return it->second;
 
