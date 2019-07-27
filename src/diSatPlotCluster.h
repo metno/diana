@@ -49,10 +49,6 @@ class SatPlotCluster : public PlotCluster
 public:
   SatPlotCluster(SatManager* satm);
 
-  void prepare(const PlotCommand_cpv& inp) override;
-  const std::string& plotCommandKey() const override;
-  const std::string& keyPlotElement() const override;
-
   bool setData();
 
   void getDataAnnotations(std::vector<std::string>& anno);
@@ -61,7 +57,7 @@ public:
 
   bool getSatArea(Area& a) const;
 
-  plottimes_t getSatTimes();
+  plottimes_t getTimes() override;
 
   /// get name++ of current channels (with calibration)
   std::vector<std::string> getCalibChannels();
@@ -74,7 +70,7 @@ public:
 
 private:
   bool setData(SatPlot* satp);
-  void init(const PlotCommand_cpv&);
+  void processInputPE(const PlotCommand_cpv&) override;
 
 private:
   SatManager* satm_;

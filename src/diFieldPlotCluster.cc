@@ -32,7 +32,6 @@
 #include "diFieldPlot.h"
 #include "diFieldPlotManager.h"
 #include "util/misc_util.h"
-#include "util/was_enabled.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -43,12 +42,9 @@ namespace {
 const std::string FIELD = "FIELD";
 }
 
-// Field deletion at the end is done in the cache. The cache destructor is called by
-// FieldPlotManagers destructor, which comes before this destructor. Basically we try to
-// destroy something in a dead pointer here....
-
 FieldPlotCluster::FieldPlotCluster(FieldPlotManager* fieldplotm)
-    : fieldplotm_(fieldplotm)
+    : PlotCluster(FIELD)
+    , fieldplotm_(fieldplotm)
 {
 }
 
@@ -56,26 +52,15 @@ FieldPlotCluster::~FieldPlotCluster()
 {
 }
 
-const std::string& FieldPlotCluster::plotCommandKey() const
+void FieldPlotCluster::processInputPE(const PlotCommand_cpv& inp)
 {
-  return FIELD;
-}
-
-void FieldPlotCluster::prepare(const PlotCommand_cpv& inp)
-{
-  diutil::was_enabled plotenabled;
-
-  // for now -- erase all fieldplots
-  for (auto p : plots_)
-    plotenabled.save(p);
   cleanup();
 
   for (auto pc : inp) {
     std::unique_ptr<FieldPlot> fp(fieldplotm_->createPlot(pc));
     if (fp.get()) {
-      plotenabled.restore(fp.get());
       fp->setCanvas(canvas_);
-      plots_.push_back(fp.release());
+      add(fp.release());
     }
   }
 }
@@ -100,11 +85,6 @@ plottimes_t FieldPlotCluster::getTimes()
   for (FieldPlot* fp : diutil::static_content_cast<FieldPlot*>(plots_))
     commands.push_back(fp->command());
   return fieldplotm_->getFieldTime(commands, false);
-}
-
-const std::string& FieldPlotCluster::keyPlotElement() const
-{
-  return FIELD;
 }
 
 plottimes_t FieldPlotCluster::fieldAnalysisTimes() const

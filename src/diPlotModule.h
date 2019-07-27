@@ -39,10 +39,8 @@
 #include <deque>
 #include <memory>
 
-class MapPlot;
 class AnnotationPlot;
 class AreaObjectsCluster;
-class ObsPlot;
 class FieldPlotManager;
 class FieldPlotCluster;
 struct LocationData;
@@ -56,6 +54,7 @@ class ObjectManager;
 class EditManager;
 class DrawingManager;
 class SatPlotCluster;
+class MapPlotCluster;
 class Field;
 class TrajectoryPlot;
 class MeasurementsPlot;
@@ -87,7 +86,7 @@ private:
   std::unique_ptr<ObsPlotCluster> obsplots_;   // observation plots
   std::unique_ptr<SatPlotCluster> satplots_;   // satellite plots
   std::unique_ptr<FieldPlotCluster> fieldplots_; // field plots
-  std::vector<MapPlot*> vmp;   // vector of map plots
+  std::unique_ptr<MapPlotCluster> mapplots_;     // vector of map plots
   std::vector<TrajectoryPlot*> vtp; // vector of trajectory plots
   std::vector<MeasurementsPlot*> vMeasurementsPlot; // vector of measurements plots
   std::vector<AnnotationPlot*> vap; // vector of annotation plots
@@ -135,8 +134,6 @@ private:
   void prepareFields(const PlotCommand_cpv&);
   /// handles area info strings
   void prepareArea(const PlotCommand_cpv&);
-  /// handles map plot info strings
-  void prepareMap(const PlotCommand_cpv&);
   /// handles stations plot info strings
   void prepareStations(const PlotCommand_cpv&);
   /// handles trajectory plot info strings

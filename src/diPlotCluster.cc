@@ -30,11 +30,19 @@
 #include "diPlotCluster.h"
 
 #include "diUtilities.h" // delete_all_and_clear
+#include "util/was_enabled.h"
 
 #include <puTools/miStringFunctions.h>
 
-PlotCluster::PlotCluster()
-  : canvas_(0)
+PlotCluster::PlotCluster(const std::string& pck, const std::string& pek)
+    : canvas_(nullptr)
+    , pck_(pck)
+    , pek_(pek)
+{
+}
+
+PlotCluster::PlotCluster(const std::string& key)
+    : PlotCluster(key, key)
 {
 }
 
@@ -56,6 +64,24 @@ void PlotCluster::setCanvas(DiCanvas* canvas)
   for (Plot* plt : plots_) {
     plt->setCanvas(canvas_);
   }
+}
+
+void PlotCluster::processInput(const PlotCommand_cpv& cmds)
+{
+
+  diutil::was_enabled plotenabled;
+  for (Plot* plt : plots_)
+    plotenabled.save(plt);
+
+  processInputPE(cmds);
+
+  for (Plot* plt : plots_)
+    plotenabled.restore(plt);
+}
+
+plottimes_t PlotCluster::getTimes()
+{
+  return plottimes_t();
 }
 
 void PlotCluster::plot(DiGLPainter* gl, PlotOrder zorder)
@@ -113,7 +139,9 @@ bool PlotCluster::enablePlotElement(const PlotElement& pe)
   return false;
 }
 
-Plot* PlotCluster::at(size_t i)
+void PlotCluster::processInputPE(const PlotCommand_cpv&) {}
+
+void PlotCluster::add(Plot* plot)
 {
-  return plots_[i];
+  plots_.push_back(plot);
 }

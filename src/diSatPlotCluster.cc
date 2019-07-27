@@ -47,26 +47,16 @@
 
 using namespace miutil;
 
+static const std::string SAT = "SAT";
+static const std::string RASTER = "RASTER";
+
 SatPlotCluster::SatPlotCluster(SatManager* satm)
-    : satm_(satm)
+    : PlotCluster(SAT, RASTER)
+    , satm_(satm)
 {
 }
 
-void SatPlotCluster::prepare(const PlotCommand_cpv& inp)
-{
-  METLIBS_LOG_SCOPE();
-
-  diutil::was_enabled plotenabled;
-  for (Plot* plt : plots_)
-    plotenabled.save(plt);
-
-  init(inp);
-
-  for (Plot* plt : plots_)
-    plotenabled.restore(plt);
-}
-
-void SatPlotCluster::init(const PlotCommand_cpv& pinfo)
+void SatPlotCluster::processInputPE(const PlotCommand_cpv& pinfo)
 {
   //     PURPOSE:   Decode PlotInfo &pinfo
   //                - make a new SatPlot for each SAT entry in pinfo
@@ -76,7 +66,7 @@ void SatPlotCluster::init(const PlotCommand_cpv& pinfo)
 
   // FIXME this is almost the same as PlotModule::prepareMap
 
-  std::vector<Plot*> new_plots;
+  std::vector<Plot*> plots = std::move(plots_);
 
   // loop through all PlotInfo's
   bool first = true;
@@ -88,7 +78,7 @@ void SatPlotCluster::init(const PlotCommand_cpv& pinfo)
     // make a new SatPlot with a new Sat
     std::unique_ptr<Sat> satdata(new Sat(cmd));
 
-    for (Plot*& plt : plots_) {
+    for (Plot*& plt : plots) {
       if (!plt) // already taken
         continue;
 
@@ -141,7 +131,7 @@ void SatPlotCluster::init(const PlotCommand_cpv& pinfo)
       // rgb and alpha cuts must be redone
       satdata.reset(0);
       osp->setCommand(cmd);
-      new_plots.push_back(osp);
+      plots_.push_back(osp);
       plt = nullptr; // plt has been reused now
       break;
     }
@@ -149,26 +139,13 @@ void SatPlotCluster::init(const PlotCommand_cpv& pinfo)
       std::unique_ptr<SatPlot> sp(new SatPlot);
       sp->setData(satdata.release()); // new sat, with no images
       sp->setCommand(cmd);
-      new_plots.push_back(sp.release());
+      add(sp.release());
     }
     first = false;
   } // end loop PlotInfo's
 
   // delete unwanted satplots  (all plots not in use)
-  diutil::delete_all_and_clear(plots_);
-  plots_ = new_plots;
-}
-
-const std::string& SatPlotCluster::plotCommandKey() const
-{
-  static const std::string SAT = "SAT";
-  return SAT;
-}
-
-const std::string& SatPlotCluster::keyPlotElement() const
-{
-  static const std::string RASTER = "RASTER";
-  return RASTER;
+  diutil::delete_all_and_clear(plots);
 }
 
 void SatPlotCluster::getDataAnnotations(std::vector<std::string>& anno)
@@ -241,7 +218,7 @@ void SatPlotCluster::setSatAuto(bool autoFile, const std::string& satellite, con
     static_cast<SatPlot*>(plt)->setSatAuto(autoFile, satellite, file);
 }
 
-plottimes_t SatPlotCluster::getSatTimes()
+plottimes_t SatPlotCluster::getTimes()
 {
   //  * PURPOSE:   return times for list of PlotInfo's
   METLIBS_LOG_SCOPE();

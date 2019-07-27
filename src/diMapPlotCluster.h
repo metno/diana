@@ -27,51 +27,19 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef OBSPLOTCLUSTER_H
-#define OBSPLOTCLUSTER_H
+#ifndef MAPPLOTCLUSTER_H
+#define MAPPLOTCLUSTER_H
 
 #include "diPlotCluster.h"
 
-#include "diTimeTypes.h"
-
-class EditManager;
-class ObsManager;
-class ObsPlot;
-struct ObsPlotCollider;
-
-class ObsPlotCluster : public PlotCluster
+class MapPlotCluster : public PlotCluster
 {
 public:
-  ObsPlotCluster(ObsManager* obsm, EditManager* editm);
-  ~ObsPlotCluster();
-
-  void plot(DiGLPainter* gl, PlotOrder zorder) override;
-  plottimes_t getTimes() override;
-
-  //! returns true iff there are any obs plots with data
-  bool update(bool ifNeeded, const miutil::miTime& t);
-
-  void getDataAnnotations(std::vector<std::string>& anno) const;
-
-  void getExtraAnnotations(std::vector<AnnotationPlot*>& vap);
-
-  bool findObs(int x, int y);
-
-  std::string getObsPopupText(int x, int y);
-
-  void nextObs(bool next);
-
-  std::vector<ObsPlot*> getObsPlots() const;
+  MapPlotCluster();
+  ~MapPlotCluster();
 
 protected:
   void processInputPE(const PlotCommand_cpv& cmds) override;
-
-private:
-  bool hasDevField_;
-  std::unique_ptr<ObsPlotCollider> collider_;
-
-  ObsManager* obsm_;
-  EditManager* editm_;
 };
 
-#endif // OBSPLOTCLUSTER_H
+#endif // MAPPLOTCLUSTER_H

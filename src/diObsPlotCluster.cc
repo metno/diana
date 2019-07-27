@@ -49,10 +49,11 @@ const std::string OBS = "OBS";
 using diutil::static_content_cast;
 
 ObsPlotCluster::ObsPlotCluster(ObsManager* obsm, EditManager* editm)
-  : hasDevField_(false)
-  , collider_(new ObsPlotCollider)
-  , obsm_(obsm)
-  , editm_(editm)
+    : PlotCluster(OBS)
+    , hasDevField_(false)
+    , collider_(new ObsPlotCollider)
+    , obsm_(obsm)
+    , editm_(editm)
 {
 }
 
@@ -60,17 +61,8 @@ ObsPlotCluster::~ObsPlotCluster()
 {
 }
 
-const std::string& ObsPlotCluster::plotCommandKey() const
+void ObsPlotCluster::processInputPE(const PlotCommand_cpv& inp)
 {
-  return OBS;
-}
-
-void ObsPlotCluster::prepare(const PlotCommand_cpv& inp)
-{
-  diutil::was_enabled plotenabled;
-  for (Plot* p : plots_)
-    plotenabled.save(p);
-
   // for now -- erase all obsplots etc..
   //first log stations plotted
   for (ObsPlot* op : static_content_cast<ObsPlot*>(plots_))
@@ -93,8 +85,7 @@ void ObsPlotCluster::prepare(const PlotCommand_cpv& inp)
       op->setCollider(collider_.get());
       hasDevField_ |= op->mslp();
 
-      plotenabled.restore(op.get());
-      plots_.push_back(op.release());
+      add(op.release());
     }
   }
   collider_->clear();
@@ -165,16 +156,7 @@ plottimes_t ObsPlotCluster::getTimes()
   std::set<std::string> readernames;
   for (ObsPlot* op : static_content_cast<ObsPlot*>(plots_))
     diutil::insert_all(readernames, op->readerNames());
-  if (!readernames.empty()) {
-    return obsm_->getObsTimes(readernames);
-  } else {
-    return plottimes_t();
-  }
-}
-
-const std::string& ObsPlotCluster::keyPlotElement() const
-{
-  return OBS;
+  return obsm_->getObsTimes(readernames);
 }
 
 bool ObsPlotCluster::findObs(int x, int y)

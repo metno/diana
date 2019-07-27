@@ -44,18 +44,12 @@ public:
   FieldPlotCluster(FieldPlotManager* fieldplotm);
   ~FieldPlotCluster();
 
-  const std::string& plotCommandKey() const override;
-
-  void prepare(const PlotCommand_cpv& cmds) override;
-
   //! returns true iff there are fields with data
   bool update();
 
   void getDataAnnotations(std::vector<std::string>& anno) const;
 
-  plottimes_t getTimes();
-
-  const std::string& keyPlotElement() const override;
+  plottimes_t getTimes() override;
 
   plottimes_t fieldAnalysisTimes() const;
 
@@ -75,6 +69,8 @@ public:
   std::vector<FieldPlot*> getFieldPlots() const;
 
 protected:
+  void processInputPE(const PlotCommand_cpv& cmds) override;
+
   /// \returns first plot if not empty, else nullptr
   FieldPlot* first() const;
 

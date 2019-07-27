@@ -41,35 +41,45 @@
 class PlotCluster
 {
 public:
-  PlotCluster();
+  PlotCluster(const std::string& pck, const std::string& pek);
+  PlotCluster(const std::string& key);
+
   virtual ~PlotCluster();
+
+  const std::string& plotCommandKey() const { return pck_; }
+  const std::string& keyPlotElement() const { return pek_; }
 
   virtual void cleanup();
 
-  virtual const std::string& plotCommandKey() const = 0;
-
-  virtual void prepare(const PlotCommand_cpv& cmds) = 0;
+  virtual void processInput(const PlotCommand_cpv& cmds);
 
   virtual void setCanvas(DiCanvas* canvas);
 
   virtual void plot(DiGLPainter* gl, PlotOrder zorder);
 
-  virtual void addAnnotations(std::vector<AnnotationPlot::Annotation>& annotations);
+  virtual plottimes_t getTimes();
 
-  virtual const std::string& keyPlotElement() const = 0;
+  virtual void addAnnotations(std::vector<AnnotationPlot::Annotation>& annotations);
 
   virtual void addPlotElements(std::vector<PlotElement>& pel);
 
   virtual bool enablePlotElement(const PlotElement& pe);
 
+  bool empty() const { return plots_.empty(); }
+
 protected:
-  Plot* at(size_t i);
+  virtual void processInputPE(const PlotCommand_cpv& cmds);
+  virtual void add(Plot* plot);
 
 protected:
   typedef std::vector<Plot*> Plot_xv;
 
   Plot_xv plots_;
   DiCanvas* canvas_;
+
+private:
+  const std::string& pck_;
+  const std::string& pek_;
 };
 
 #endif // PLOTCLUSTER_H

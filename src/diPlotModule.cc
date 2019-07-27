@@ -39,8 +39,7 @@
 #include "diLocationPlot.h"
 #include "diManager.h"
 #include "diMapAreaSetup.h"
-#include "diMapManager.h"
-#include "diMapPlot.h"
+#include "diMapPlotCluster.h"
 #include "diMeasurementsPlot.h"
 #include "diObjectManager.h"
 #include "diObsManager.h"
@@ -53,7 +52,6 @@
 #include "diTrajectoryGenerator.h"
 #include "diTrajectoryPlot.h"
 #include "diUtilities.h"
-#include "diWeatherArea.h"
 
 #include "util/misc_util.h"
 #include "util/nearest_element.h"
@@ -116,8 +114,7 @@ void PlotModule::setCanvas(DiCanvas* canvas)
   staticPlot_->setDirty(true);
   // TODO set for all existing plots, and for new plots
   mCanvas = canvas;
-  for (MapPlot* mp : vmp)
-    mp->setCanvas(canvas);
+  mapplots_->setCanvas(canvas);
   obsplots_->setCanvas(mCanvas);
   fieldplots_->setCanvas(mCanvas);
   for (Manager* m : boost::adaptors::values(managers))
@@ -134,7 +131,7 @@ void PlotModule::preparePlots(const PlotCommand_cpv& vpi)
   std::set<std::string> ordered;
   ordered.insert(fieldplots()->plotCommandKey());
   ordered.insert(obsplots()->plotCommandKey());
-  ordered.insert("MAP");
+  ordered.insert(mapplots_->plotCommandKey());
   ordered.insert("AREA");
   ordered.insert(satplots()->plotCommandKey());
   ordered.insert("STATION");
@@ -161,10 +158,10 @@ void PlotModule::preparePlots(const PlotCommand_cpv& vpi)
 
   // call prepare methods
   prepareArea(ordered_pi["AREA"]);
-  prepareMap(ordered_pi["MAP"]);
-  fieldplots_->prepare(ordered_pi[fieldplots()->plotCommandKey()]);
-  obsplots_->prepare(ordered_pi[obsplots()->plotCommandKey()]);
-  satplots_->prepare(ordered_pi[satplots()->plotCommandKey()]);
+  mapplots_->processInput(ordered_pi[mapplots_->plotCommandKey()]);
+  fieldplots_->processInput(ordered_pi[fieldplots()->plotCommandKey()]);
+  obsplots_->processInput(ordered_pi[obsplots()->plotCommandKey()]);
+  satplots_->processInput(ordered_pi[satplots()->plotCommandKey()]);
   prepareStations(ordered_pi["STATION"]);
   objm->prepareObjects(ordered_pi["OBJECTS"]);
   prepareTrajectory(ordered_pi["TRAJECTORY"]);
@@ -232,48 +229,6 @@ void PlotModule::prepareArea(const PlotCommand_cpv& inp)
   staticPlot_->setRequestedarea(requestedarea);
 }
 
-void PlotModule::prepareMap(const PlotCommand_cpv& inp)
-{
-  METLIBS_LOG_SCOPE();
-
-  // init inuse array
-  const size_t nm = vmp.size();
-  vector<bool> inuse(nm, false);
-
-  std::vector<MapPlot*> new_vmp; // new vector of map plots
-
-  for (PlotCommand_cp pc : inp) { // loop through all plotinfo's
-    bool isok = false;
-    for (size_t j = 0; j < nm; j++) {
-      if (!inuse[j]) { // not already taken
-        if (vmp[j]->prepare(pc, true)) {
-          inuse[j] = true;
-          isok = true;
-          new_vmp.push_back(vmp[j]);
-          break;
-        }
-      }
-    }
-    if (isok)
-      continue;
-
-    // make new mapPlot object and push it on the list
-    std::unique_ptr<MapPlot> mp(new MapPlot());
-    if (mp->prepare(pc, false)) {
-      mp->setCanvas(mCanvas);
-      new_vmp.push_back(mp.release());
-    }
-  } // end plotinfo loop
-
-  // delete unwanted mapplots
-  for (size_t i = 0; i < nm; i++) {
-    if (!inuse[i])
-      delete vmp[i];
-  }
-
-  std::swap(vmp, new_vmp);
-}
-
 void PlotModule::prepareStations(const PlotCommand_cpv& inp)
 {
   METLIBS_LOG_SCOPE();
@@ -303,6 +258,7 @@ vector<PlotElement> PlotModule::getPlotElements()
   //  METLIBS_LOG_SCOPE();
   std::vector<PlotElement> pel;
 
+  mapplots_->addPlotElements(pel);
   fieldplots_->addPlotElements(pel);
   obsplots_->addPlotElements(pel);
   satplots_->addPlotElements(pel);
@@ -526,7 +482,7 @@ bool PlotModule::updatePlots()
   METLIBS_LOG_SCOPE();
   const miTime& t = staticPlot_->getTime();
 
-  bool nodata = vmp.empty(); // false when data are found
+  bool nodata = mapplots_->empty(); // false when data are found
 
   if (fieldplots_->update()) {
     nodata = false;
@@ -702,8 +658,7 @@ void PlotModule::plotUnder(DiGLPainter* gl)
   callManagersChangeProjection(true);
 
   // plot map-elements for lowest zorder
-  for (size_t i = 0; i < vmp.size(); i++)
-    vmp[i]->plot(gl, PO_BACKGROUND);
+  mapplots_->plot(gl, PO_BACKGROUND);
 
   // plot other objects, including drawing items
   for (Manager* m : boost::adaptors::values(managers)) {
@@ -733,8 +688,7 @@ void PlotModule::plotUnder(DiGLPainter* gl)
   }
 
   // plot map-elements for auto zorder
-  for (size_t i = 0; i < vmp.size(); i++)
-    vmp[i]->plot(gl, PO_LINES_BACKGROUND);
+  mapplots_->plot(gl, PO_LINES_BACKGROUND);
 
   // plot other objects, including drawing items
   for (Manager* m : boost::adaptors::values(managers)) {
@@ -816,8 +770,7 @@ void PlotModule::plotOver(DiGLPainter* gl)
   }
 
   // plot map-elements for highest zorder
-  for (MapPlot* mp : vmp)
-    mp->plot(gl, PO_OVERLAY);
+  mapplots_->plot(gl, PO_OVERLAY);
 
   // draw frame if map has a border
   if (staticPlot_->getMapBorder() > 0) {
@@ -867,14 +820,10 @@ void PlotModule::cleanup()
 #ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
 #endif
-  diutil::delete_all_and_clear(vmp);
-
+  mapplots_->cleanup();
   fieldplots_->cleanup();
-
   satplots_->cleanup();
-
   stam->cleanup();
-
   obsplots_->cleanup();
 
   objm->clearObjects();
@@ -1070,6 +1019,7 @@ void PlotModule::setManagers(FieldPlotManager* fpm, ObsManager* om, SatManager* 
     METLIBS_LOG_ERROR("editmanager==0");
 
   obsplots_.reset(new ObsPlotCluster(obsm, editm));
+  mapplots_.reset(new MapPlotCluster());
   fieldplots_.reset(new FieldPlotCluster(fieldplotm));
   satplots_.reset(new SatPlotCluster(satm));
 }
@@ -1103,7 +1053,7 @@ void PlotModule::getPlotTimes(std::map<string, plottimes_t>& times)
   times.clear();
 
   insertTimes(times, "fields", fieldplots_->getTimes());
-  insertTimes(times, "satellites", satplots_->getSatTimes());
+  insertTimes(times, "satellites", satplots_->getTimes());
   insertTimes(times, "observations", obsplots_->getTimes());
   insertTimes(times, "objects", objm->getTimes());
   for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it) {
