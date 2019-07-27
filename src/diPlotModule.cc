@@ -177,15 +177,9 @@ void PlotModule::preparePlots(const PlotCommand_cpv& vpi)
   editm->prepareEditFields(ordered_pi["EDITFIELD"]);
 
   // Send the commands to the other managers.
-  for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it) {
-    Manager *manager = it->second;
-
-    // send any plot commands to the relevant manager.
-    const manager_pi_t::const_iterator itp = manager_pi.find(it->first);
-    if (itp != manager_pi.end())
-      manager->processInput(itp->second);
-    else
-      manager->processInput(PlotCommand_cpv());
+  for (auto& it : managers) {
+    Manager* manager = it.second;
+    manager->processInput(manager_pi[it.first]);
   }
 
   if (!mapplots_->getBackColour().empty())
