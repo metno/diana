@@ -83,9 +83,8 @@ private:
 
   bool useArchive; //read archive files too.
 
-  void getMosaicfiles(Sat* satdata, const miutil::miTime& t);
-  void addMosaicfiles(Sat* satdata);
-  std::vector<SatFileInfo> mosaicfiles;
+  std::vector<SatFileInfo> getMosaicfiles(Sat* satdata, const miutil::miTime& t);
+  void addMosaicfiles(Sat* satdata, const std::vector<SatFileInfo>& mosaicfiles);
 
   void setRGB(Sat* satdata);
   void calcRGBstrech(unsigned char *image, const int& size, const float& cut);

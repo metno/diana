@@ -39,6 +39,8 @@
 #include "util/time_util.h"
 #include "util/was_enabled.h"
 
+#include <mi_fieldcalc/math_util.h>
+
 #include <puTools/miStringFunctions.h>
 #include <puCtools/stat.h>
 
@@ -275,8 +277,8 @@ bool SatManager::readSatFile(Sat* satdata, const miutil::miTime& t)
   }
 
   if (satdata->mosaic) {
-    getMosaicfiles(satdata, t);
-    addMosaicfiles(satdata);
+    const std::vector<SatFileInfo> mf = getMosaicfiles(satdata, t);
+    addMosaicfiles(satdata, mf);
   }
 
   return true;
@@ -513,7 +515,7 @@ int SatManager::getFileName(Sat* satdata, const miTime &time)
   return fileno;
 }
 
-void SatManager::addMosaicfiles(Sat* satdata)
+void SatManager::addMosaicfiles(Sat* satdata, const std::vector<SatFileInfo>& mosaicfiles)
 {
   //  * PURPOSE:   add files to existing image
   METLIBS_LOG_SCOPE();
@@ -521,7 +523,7 @@ void SatManager::addMosaicfiles(Sat* satdata)
   unsigned char *color[3];//contains the three rgb channels of raw image
   if (!satdata->palette) {
     color[0] = satdata->rawimage[satdata->rgbindex[0]];
-    color[1] = satdata->rawimage[satdata ->rgbindex[1]];
+    color[1] = satdata->rawimage[satdata->rgbindex[1]];
     color[2] = satdata->rawimage[satdata->rgbindex[2]];
   } else {
     color[0] = satdata->rawimage[0];
@@ -529,25 +531,18 @@ void SatManager::addMosaicfiles(Sat* satdata)
     color[2] = NULL;
   }
 
-  int n=mosaicfiles.size();
-  bool filledmosaic=false;
-  miTime firstFileTime=satdata->time;
-  miTime lastFileTime=satdata->time;
+  // first and last filetimes to use in annotations
+  satdata->firstMosaicFileTime = satdata->time;
+  satdata->lastMosaicFileTime = satdata->time;
 
-  for (int i=0; i<n && !filledmosaic; i++) { //loop over mosaic files
-    if (mosaicfiles[i].time < firstFileTime)
-      firstFileTime=mosaicfiles[i].time;
-    if (mosaicfiles[i].time > lastFileTime)
-      lastFileTime=mosaicfiles[i].time;
+  for (const SatFileInfo& mfi : mosaicfiles) { // loop over mosaic files
 
     Sat sd;
     for (int j=0; j<Sat::maxch; j++)
       sd.index[j] = satdata->index[j];
     sd.no = satdata->no;
 
-    bool ok = MItiff::readMItiff(mosaicfiles[i].name, sd);
-
-    if (!ok)
+    if (!MItiff::readMItiff(mfi.name, sd))
       continue;
 
     if (sd.area.nx!=satdata->area.nx || sd.area.ny!=satdata->area.ny
@@ -555,52 +550,52 @@ void SatManager::addMosaicfiles(Sat* satdata)
         || sd.Bx!=satdata->Bx || sd.By!=satdata->By
         || sd.proj_string != satdata->proj_string)
     {
-      METLIBS_LOG_WARN("File "<<mosaicfiles[i].name <<" not added to mosaic, area not ok");
+      METLIBS_LOG_WARN("File " << mfi.name << " not added to mosaic, area not ok");
       continue;
     }
 
+    miutil::minimaximize(satdata->firstMosaicFileTime, satdata->lastMosaicFileTime, mfi.time);
+
     int size =sd.area.gridSize();
-    unsigned char *newcolor[3];
+    const unsigned char* newcolor[3];
+    bool filledmosaic = true;
     if (!satdata->palette) {
       // pointers to raw channels
       newcolor[0]= sd.rawimage[satdata->rgbindex[0]];
       newcolor[1]= sd.rawimage[satdata->rgbindex[1]];
       newcolor[2]= sd.rawimage[satdata->rgbindex[2]];
 
-      filledmosaic=true;
       for (int j=0; j<size; j++) {
-        if ((int)color[0][j]==0 && (int)color[1][j]==0 && (int)color[2][j]==0) {
-          filledmosaic=false;
+        if (color[0][j] == 0 && color[1][j] == 0 && color[2][j] == 0) {
           color[0][j]=newcolor[0][j];
           color[1][j]=newcolor[1][j];
           color[2][j]=newcolor[2][j];
+          if (color[0][j] == 0 && color[1][j] == 0 && color[2][j] == 0)
+            filledmosaic = false;
         }
       }
     } else {
       // pointers to raw channels
       newcolor[0]= sd.rawimage[0];
-      filledmosaic=true;
       for (int j=0; j<size; j++) {
         if ((int)color[0][j]==0) {
-          filledmosaic=false;
           color[0][j]=newcolor[0][j];
+          if (color[0][j] == 0)
+            filledmosaic = false;
         }
       }
     }
+    if (filledmosaic)
+      break;
     // satdata->rawimage is also updated (points to same as color)
 
   }//end loop over mosaic files
-
-  //first and last filetimes to use in annotations
-  satdata->firstMosaicFileTime=firstFileTime;
-  satdata->lastMosaicFileTime=lastFileTime;
-
 }
 
-void SatManager::getMosaicfiles(Sat* satdata, const miutil::miTime& t)
+std::vector<SatFileInfo> SatManager::getMosaicfiles(Sat* satdata, const miutil::miTime& t)
 {
   METLIBS_LOG_SCOPE();
-  mosaicfiles. clear();
+  std::vector<SatFileInfo> mosaicfiles;
   if (subProdInfo* subp = findProduct(satdata->satellite, satdata->filetype)) {
     const miutil::miTime& plottime = (satdata->autoFile) ? t : satdata->time;
     std::vector<int> vdiff;
@@ -620,6 +615,7 @@ void SatManager::getMosaicfiles(Sat* satdata, const miutil::miTime& t)
       }
     }
   }
+  return mosaicfiles;
 }
 
 void SatManager::readHeader(SatFileInfo& file, const std::vector<std::string>& channel)
