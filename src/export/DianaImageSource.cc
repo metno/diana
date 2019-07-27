@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017 met.no
+  Copyright (C) 2017-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -111,8 +111,10 @@ bool DianaImageSource::setTimeFromStep()
 
 void DianaImageSource::setPlotTime(const miutil::miTime& time)
 {
-  controller()->setPlotTime(time);
-  controller()->updatePlots();
+  if (time != controller()->getPlotTime()) {
+    controller()->setPlotTime(time);
+    controller()->updatePlots();
+  }
 }
 
 void DianaImageSource::finish()
