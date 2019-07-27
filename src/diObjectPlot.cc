@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -334,12 +334,9 @@ bool ObjectPlot::insertPoint(float x,float y){
 
 void ObjectPlot::changeBoundBox(float x, float y)
 {
-  // Changes boundBox
   if (!boundBox.isinside(x,y)) {
-    if (x < boundBox.x1){ boundBox.x1=x; }
-    if (x > boundBox.x2){ boundBox.x2=x; }
-    if (y < boundBox.y1){ boundBox.y1=y; }
-    if (y > boundBox.y2){ boundBox.y2=y; }
+    miutil::minimaximize(boundBox.x1, boundBox.x2, x);
+    miutil::minimaximize(boundBox.y1, boundBox.y2, y);
   }
 }
 

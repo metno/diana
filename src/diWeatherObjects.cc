@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -113,16 +113,11 @@ void WeatherObjects::plot(DiGLPainter* gl, PlotOrder porder)
   if (!enabled || (porder != PO_LINES && porder != PO_OVERLAY))
     return;
 
-  const int n = objects.size();
-  const int NORDER = 7;
-  const objectType order[NORDER] = {
-    wArea, wFront, wSymbol, wText, Border, RegionName, ShapeXXX
-  };
-
-  for (int o=0; o<NORDER; ++o) {
-    for (int i=0; i<n; i++){
-      if (objects[i]->objectIs(order[o]))
-        objects[i]->plot(gl, porder);
+  const objectType order[] = {wArea, wFront, wSymbol, wText, Border, RegionName, ShapeXXX};
+  for (int ord : order) {
+    for (ObjectPlot* op : objects) {
+      if (op->objectIs(ord))
+        op->plot(gl, porder);
     }
   }
 }
@@ -141,28 +136,23 @@ bool WeatherObjects::changeProjection(const Area& newArea)
     return false;
   }
 
-  const int obsize = objects.size();
-
   //npos = number of points to be transformed = all object points
   //plus one copy point(xcopy,ycopy)
   int npos = 1;
-  for (int i=0; i<obsize; i++)
-    npos += objects[i]->getXYZsize();
+  for (ObjectPlot* op : objects)
+    npos += op->getXYZsize();
 
   std::unique_ptr<float[]> xpos(new float[npos]);
   std::unique_ptr<float[]> ypos(new float[npos]);
-  int n= 0;
 
-  for (int i=0; i<obsize; i++){
-    const int m= objects[i]->getXYZsize();
+  int n = 0;
+  for (ObjectPlot* op : objects) {
+    const int m = op->getXYZsize();
     for (int j=0; j<m; ++j) {
-      const XY& xy = objects[i]->getXY(j);
-      xpos[n]= xy.x();
-      ypos[n]= xy.y();
+      op->getXY(j).unpack(xpos[n], ypos[n]);
       n++;
     }
   }
-
   xpos[n]=xcopy;
   ypos[n]=ycopy;
 
@@ -182,13 +172,12 @@ bool WeatherObjects::changeProjection(const Area& newArea)
 
   xcopy=xpos[n];
   ycopy=ypos[n];
-
   n= 0;
-  for (int i=0; i<obsize; i++){
-    const int m= objects[i]->getXYZsize();
+  for (ObjectPlot* op : objects) {
+    const int m = op->getXYZsize();
     const vector<float> x(&xpos[n], &xpos[n+m]);
     const vector<float> y(&ypos[n], &ypos[n+m]);
-    objects[i]->setXY(x,y);
+    op->setXY(x, y);
     n += m;
   }
 
@@ -506,12 +495,9 @@ void WeatherObjects::addObject(ObjectPlot* object, bool replace)
   if (!object)
     return;
 
-  if (replace) { // remove old object
-    std::vector<ObjectPlot*>::iterator p = objects.begin();
-    while (p!=objects.end() && (*p)->getName() != object->getName())
-      p++;
-    if (p!=objects.end())
-      objects.erase(p);
+  if (replace) {
+    // remove old object
+    objects.erase(std::remove_if(objects.begin(), objects.end(), [&](ObjectPlot* op) { return op->getName() == object->getName(); }), objects.end());
   }
 
   objects.push_back(object);

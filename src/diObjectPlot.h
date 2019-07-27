@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -294,30 +294,6 @@ public:
   virtual bool isInsideArea(float /*x*/, float /*y*/){return true;}
   std::string getName(){return name;}                           ///< returns object name
   void setName(std::string n){name=n;}                          ///< sets object name
-
 };
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
