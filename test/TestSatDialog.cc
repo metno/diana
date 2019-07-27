@@ -59,23 +59,6 @@ public:
 
 TestSatDialogData::TestSatDialogData()
 {
-  sdi.cut.minValue = 0;
-  sdi.cut.maxValue = 5;
-  sdi.cut.value = 2;
-  sdi.cut.scale = 0.01;
-  sdi.alphacut.minValue = 0;
-  sdi.alphacut.maxValue = 10;
-  sdi.alphacut.value = 0;
-  sdi.alphacut.scale = 0.1;
-  sdi.alpha.minValue = 0;
-  sdi.alpha.maxValue = 10;
-  sdi.alpha.value = 10;
-  sdi.alpha.scale = 0.1;
-  sdi.timediff.minValue = 0;
-  sdi.timediff.maxValue = 96;
-  sdi.timediff.value = 4;
-  sdi.timediff.scale = 15;
-
   SatDialogInfo::Image noaa_image;
   noaa_image.name = "NOAA";
   const std::vector<std::string> noaa_channels = {"day_night", "2+4",   "4+2", "1+2+4", "2+3+4", "3+4+5", "5+4+3", "2+6+4",

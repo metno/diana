@@ -30,6 +30,7 @@
 #include "qtSatDialog.h"
 
 #include "diSatDialogData.h"
+#include "diSliderValues.h"
 #include "qtSatDialogAdvanced.h"
 #include "qtToggleButton.h"
 #include "qtUtility.h"
@@ -51,8 +52,8 @@
 #include <QListWidgetItem>
 #include <QPixmap>
 #include <QSlider>
-#include <QToolTip>
 #include <QVBoxLayout>
+
 #include <iomanip>
 #include <sstream>
 
@@ -77,6 +78,11 @@ bool selectTextInList(QListWidget* lw, const std::string& text)
   lw->setCurrentItem(channelitems.front());
   return true;
 }
+
+const SliderValues sv_cut = {0, 5, 2, 0.01};      ///< rgb cutoff value for histogram stretching
+const SliderValues sv_alphacut = {0, 10, 0, 0.1}; ///< rgb cutoff value for alpha blending
+const SliderValues sv_alpha = {0, 10, 10, 0.1};   ///< alpha blending value
+const SliderValues sv_timediff = {0, 96, 4, 15};  ///< max time difference
 
 } // namespace
 
@@ -180,12 +186,12 @@ SatDialog::SatDialog(SatDialogData* sdd, QWidget* parent)
 
   //SLIDER FOR MAX TIME DIFFERENCE
   QLabel *diffLabel = new QLabel( tr("Time diff"), this);
-  int difflength=dialogInfo.timediff.maxValue/40+3;
+  int difflength = sv_timediff.maxValue / 40 + 3;
   diffLcdnum= LCDNumber( difflength, this);
   diffSlider= new QSlider(Qt::Horizontal, this );
-  diffSlider->setMinimum(dialogInfo.timediff.minValue);
-  diffSlider->setMaximum(dialogInfo.timediff.maxValue);
-  diffSlider->setValue(dialogInfo.timediff.value);
+  diffSlider->setMinimum(sv_timediff.minValue);
+  diffSlider->setMaximum(sv_timediff.maxValue);
+  diffSlider->setValue(sv_timediff.value);
   QHBoxLayout* difflayout = new QHBoxLayout();
   difflayout->addWidget( diffLabel,0,0 );
   difflayout->addWidget( diffLcdnum, 0,0 );
@@ -229,11 +235,11 @@ SatDialog::SatDialog(SatDialogData* sdd, QWidget* parent)
   vlayout->activate();
 
   // INNITIALISATION AND DEFAULT
-  doubleDisplayDiff(dialogInfo.timediff.value);
+  doubleDisplayDiff(sv_timediff.value);
 
   this->hide();
   setOrientation(Qt::Horizontal);
-  sda = new SatDialogAdvanced( this,  dialogInfo);
+  sda = new SatDialogAdvanced(this, sv_cut, sv_alphacut, sv_alpha);
   setExtension(sda);
   showMore(false);
   connect(sda, &SatDialogAdvanced::getSatColours, this, &SatDialog::updateColours);
@@ -480,7 +486,7 @@ void SatDialog::picturesSlot(QListWidgetItem*)
     sda->setPictures(pictureString(cmd, false));
     sda->setFromCommand(cmd);
     sda->greyOptions();
-    int number = int(cmd->timediff / dialogInfo.timediff.scale);
+    int number = int(cmd->timediff / sv_timediff.scale);
     diffSlider->setValue(number);
     mosaic->setChecked(cmd->mosaic);
     mosaic->setEnabled(true);
@@ -560,7 +566,7 @@ void SatDialog::doubleDisplayDiff(int number)
 {
   /* This function is called when diffSlider sends a signald valueChanged(int)
    and changes the numerical value in the lcd display diffLcdnum */
-  int totalminutes = int(number * dialogInfo.timediff.scale);
+  int totalminutes = int(number * sv_timediff.scale);
 
   int index = pictures->currentRow();
   if (index > -1 && int(m_state.size()) > index)
@@ -708,7 +714,7 @@ void SatDialog::putOptions(SatPlotCommand_cp cmd)
   channelboxSlot(channelbox->currentItem());
 
   if (cmd->timediff >= 0) {
-    int number = int(cmd->timediff / dialogInfo.timediff.scale);
+    int number = int(cmd->timediff / sv_timediff.scale);
     diffSlider->setValue(number);
   }
   mosaic->setChecked(cmd->mosaic);
@@ -852,7 +858,7 @@ void SatDialog::updatePictures(int index, bool updateAbove)
     sda->setPictures(pictureString(cmd, false));
     sda->setFromCommand(cmd);
     sda->greyOptions();
-    diffSlider->setValue(int(cmd->timediff / dialogInfo.timediff.scale));
+    diffSlider->setValue(int(cmd->timediff / sv_timediff.scale));
     mosaic->setChecked(cmd->mosaic);
     mosaic->setEnabled(true);
   }

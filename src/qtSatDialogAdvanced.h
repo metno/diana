@@ -29,23 +29,21 @@
 #ifndef _satdialogadvanced_h
 #define _satdialogadvanced_h
 
+#include <QWidget>
+
 #include "diColour.h"
 #include "diSatPlotCommand.h"
-#include "diSliderValues.h"
-
-#include <qlabel.h>
-#include <qlayout.h>
-#include <QListWidget>
 
 #include <vector>
 
-class SatDialogInfo;
-
 class ToggleButton;
+class SliderValues;
+
 class QCheckBox;
 class QSlider;
 class QPushButton;
 class QLCDNumber;
+class QListWidget;
 
 /**
   \brief Advanced dialogue for plotting satellite and radar pictures
@@ -57,7 +55,7 @@ class SatDialogAdvanced: public QWidget
    Q_OBJECT
 
 public:
-  SatDialogAdvanced(QWidget* parent, const SatDialogInfo& info);
+  SatDialogAdvanced(QWidget* parent, const SliderValues& sv_cut, const SliderValues& sv_alphacut, const SliderValues& sv_alpha);
 
   /// put settings from widgets into plot command
   void applyToCommand(SatPlotCommand_p cmd);
@@ -98,9 +96,9 @@ private:
   void blockSignals(bool b);
 
 private:
-  SliderValues m_cut;
-  SliderValues m_alphacut;
-  SliderValues m_alpha;
+  const SliderValues& m_cut;
+  const SliderValues& m_alphacut;
+  const SliderValues& m_alpha;
 
   float m_cutnr;
   float m_alphacutnr;

@@ -1011,23 +1011,6 @@ bool SatManager::parseSetup()
     }
   }
 
-  Dialog.cut.minValue=0;
-  Dialog.cut.maxValue=5;
-  Dialog.cut.value=2;
-  Dialog.cut.scale=0.01;
-  Dialog.alphacut.minValue=0;
-  Dialog.alphacut.maxValue=10;
-  Dialog.alphacut.value=0;
-  Dialog.alphacut.scale=0.1;
-  Dialog.alpha.minValue=0;
-  Dialog.alpha.maxValue=10;
-  Dialog.alpha.value=10;
-  Dialog.alpha.scale=0.1;
-  Dialog.timediff.minValue=0;
-  Dialog.timediff.maxValue=96;
-  Dialog.timediff.value=4;
-  Dialog.timediff.scale=15;
-
   return true;
 }
 

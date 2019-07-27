@@ -29,25 +29,26 @@
 
 #include "qtSatDialogAdvanced.h"
 
-#include "diSatTypes.h"
+#include "diSliderValues.h"
 #include "qtToggleButton.h"
 #include "qtUtility.h"
 #include "vcross_v2/VcrossQtUtil.h"
 
 #include <puTools/miStringFunctions.h>
 
-#include <QSlider>
+#include <QCheckBox>
+#include <QLCDNumber>
 #include <QLabel>
-#include <qcheckbox.h>
-#include <qlcdnumber.h>
+#include <QListWidget>
 #include <QPixmap>
+#include <QSlider>
 #include <QVBoxLayout>
 
-SatDialogAdvanced::SatDialogAdvanced(QWidget* parent, const SatDialogInfo& info)
+SatDialogAdvanced::SatDialogAdvanced(QWidget* parent, const SliderValues& sv_cut, const SliderValues& sv_alphacut, const SliderValues& sv_alpha)
     : QWidget(parent)
-    , m_cut(info.cut)
-    , m_alphacut(info.alphacut)
-    , m_alpha(info.alpha)
+    , m_cut(sv_cut)
+    , m_alphacut(sv_alphacut)
+    , m_alpha(sv_alpha)
     , palette(false)
 {
   // Cut
