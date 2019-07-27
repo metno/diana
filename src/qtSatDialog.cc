@@ -100,25 +100,24 @@ SatDialog::SatDialog(SatDialogData* sdd, QWidget* parent)
   m_action->setIconVisibleInMenu(true);
   helpFileName = "ug_satdialogue.html";
 
-  dialogInfo = sdd->initSatDialog();
+  availableImages = sdd->initSatDialog();
 
   //put satellite names (NOAA,Meteosat,radar) in namebox
-  vector<std::string> name;
-  int nImage=dialogInfo.image.size();
-  for( int i=0; i< nImage; i++ )
-    name.push_back(dialogInfo.image[i].name);
-  namebox = ComboBox( this, name, true, 0);
-  connect(namebox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &SatDialog::nameActivated);
+  imageNameBox = new QComboBox(this);
+  for (const auto& im : availableImages)
+    imageNameBox->addItem(QString::fromStdString(im.image_name));
+  imageNameBox->setCurrentIndex(0);
+  connect(imageNameBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &SatDialog::imageNameBoxActivated);
 
   //fileListWidget contains filetypes for each satellite
   //NOAA Europa N-Europa etc.
   //METEOSAT Visuell, IR
   //insert filetypes for default sat - m_image[0]-NOAA
-  fileListWidget = new QListWidget( this );
-  fileListWidget->setMinimumHeight(HEIGHTLISTBOX);
+  subtypeNameList = new QListWidget(this);
+  subtypeNameList->setMinimumHeight(HEIGHTLISTBOX);
 
-  updateFileListWidget(0);
-  connect(fileListWidget, &QListWidget::itemClicked, this, &SatDialog::fileListWidgetClicked);
+  updateSubTypeList(0);
+  connect(subtypeNameList, &QListWidget::itemClicked, this, &SatDialog::subtypeNameListClicked);
 
   autoButton = new ToggleButton(this, tr("Auto"));
   timeButton = new ToggleButton(this, tr("Time"));
@@ -219,8 +218,8 @@ SatDialog::SatDialog(SatDialogData* sdd, QWidget* parent)
 
   QVBoxLayout* vlayout = new QVBoxLayout( this);
   vlayout->setMargin(10);
-  vlayout->addWidget( namebox );
-  vlayout->addWidget( fileListWidget );
+  vlayout->addWidget(imageNameBox);
+  vlayout->addWidget(subtypeNameList);
   vlayout->addLayout( timefileLayout );
   vlayout->addWidget( timefileList );
   vlayout->addWidget( channellabel );
@@ -266,13 +265,13 @@ void SatDialog::updateDialog()
 }
 
 /*********************************************/
-void SatDialog::nameActivated(int in)
+void SatDialog::imageNameBoxActivated(int in)
 {
   METLIBS_LOG_SCOPE();
 
   //insert in fileListWidget the list of files for selected satellite
   //but no file is selected, takes to much time
-  updateFileListWidget(in);
+  updateSubTypeList(in);
 
   //clear timefileList and channelbox
   timefileList->clear();
@@ -280,7 +279,7 @@ void SatDialog::nameActivated(int in)
 }
 
 /*********************************************/
-void SatDialog::fileListWidgetClicked(QListWidgetItem * item)
+void SatDialog::subtypeNameListClicked(QListWidgetItem* item)
 {
   METLIBS_LOG_SCOPE();
 
@@ -288,11 +287,11 @@ void SatDialog::fileListWidgetClicked(QListWidgetItem * item)
   const int index = timefileBut->checkedId();
 
   //restore options if possible
-  const std::string name = namebox->currentText().toStdString();
-  const std::string area = item->text().toStdString();
-  const satoptions_t::const_iterator itn = satoptions.find(name);
+  const std::string image_name = imageNameBox->currentText().toStdString();
+  const std::string subtype_name = item->text().toStdString();
+  const imageoptions_t::const_iterator itn = satoptions.find(image_name);
   if (itn != satoptions.end()) {
-    const areaoptions_t::const_iterator ita = itn->second.find(area);
+    const subtypeoptions_t::const_iterator ita = itn->second.find(subtype_name);
     if (ita != itn->second.end()) {
       putOptions(ita->second);
       return;
@@ -312,7 +311,7 @@ void SatDialog::timefileClicked(int tt)
    */
   METLIBS_LOG_SCOPE(LOGVAL(tt));
 
-  if (fileListWidget->currentRow() == -1)
+  if (subtypeNameList->currentRow() == -1)
     return;
 
   //update list of files
@@ -385,8 +384,8 @@ int SatDialog::addSelectedPicture()
     return -2;
 
   SatPlotCommand_p cmd = std::make_shared<SatPlotCommand>();
-  cmd->satellite = namebox->currentText().toStdString();
-  cmd->filetype = fileListWidget->currentItem()->text().toStdString();
+  cmd->image_name = imageNameBox->currentText().toStdString();
+  cmd->subtype_name = subtypeNameList->currentItem()->text().toStdString();
   cmd->plotChannels = channelbox->currentItem()->text().toStdString();
   if (timeButton->isChecked() || fileButton->isChecked()) {
     //"time"/"file" clicked, find filename
@@ -408,7 +407,7 @@ int SatDialog::addSelectedPicture()
       SatPlotCommand_cp msi = m_state[i];
       cmd->mosaic = msi->mosaic;
       cmd->timediff = msi->timediff;
-      const vector<SatFileInfo> f = sdd_->getSatFiles(msi->satellite, msi->filetype, false);
+      const auto f = sdd_->getSatFiles(msi->image_name, msi->subtype_name, false);
       if (!f.empty() && (f[0].palette != files[0].palette)) {
         //special case changing from palette to rgb or vice versa
       } else {
@@ -438,10 +437,10 @@ int SatDialog::addSelectedPicture()
 
 std::string SatDialog::pictureString(SatPlotCommand_cp cmd, bool timefile)
 {
-  std::string str = cmd->satellite;
+  std::string str = cmd->image_name;
   if (cmd->mosaic)
     str += " MOSAIC ";
-  str += " " + cmd->filetype + " " + cmd->plotChannels + " ";
+  str += " " + cmd->subtype_name + " " + cmd->plotChannels + " ";
   if (timefile && cmd->hasFileName())
     str += cmd->filetime.isoTime();
   return str;
@@ -454,10 +453,10 @@ void SatDialog::picturesSlot(QListWidgetItem*)
   const int index = pictures->currentRow();
   if (index > -1) {
     SatPlotCommand_p cmd = m_state[index];
-    namebox->setCurrentText(QString::fromStdString(cmd->satellite));
-    nameActivated(namebox->currentIndex()); // this updates fileListWidget
+    imageNameBox->setCurrentText(QString::fromStdString(cmd->image_name));
+    imageNameBoxActivated(imageNameBox->currentIndex()); // this updates fileListWidget
 
-    selectTextInList(fileListWidget, cmd->filetype);
+    selectTextInList(subtypeNameList, cmd->subtype_name);
 
     if (cmd->isAuto()) {
       autoButton->setChecked(true);
@@ -514,7 +513,7 @@ void SatDialog::updateTimes()
 
   // update times (files) of all selected pictures
   for (SatPlotCommand_cp cmd : m_state)
-    sdd_->getSatFiles(cmd->satellite, cmd->filetype, true);
+    sdd_->getSatFiles(cmd->image_name, cmd->subtype_name, true);
 
   // update the timefilelist if "time" og "file" is selected
   if (!autoButton->isChecked())
@@ -583,7 +582,7 @@ void SatDialog::DeleteAllClicked()
 {
   METLIBS_LOG_SCOPE();
 
-  fileListWidget->clearSelection();
+  subtypeNameList->clearSelection();
   timefileList->clear();
   channelbox->clear();
 
@@ -628,7 +627,7 @@ PlotCommand_cpv SatDialog::getOKString()
   PlotCommand_cpv cmds;
   cmds.reserve(m_state.size());
   for (SatPlotCommand_cp cmd : m_state) {
-    satoptions[cmd->satellite][cmd->filetype] = cmd;
+    satoptions[cmd->image_name][cmd->subtype_name] = cmd;
 #if 0
     // needs a copy of cmd
     cmd->add(miutil::KeyValue(PlotOptions::key_fontname, diutil::BITMAPFONT));
@@ -647,30 +646,30 @@ void SatDialog::putOKString(const PlotCommand_cpv& vstr)
 
   for (PlotCommand_cp pc : vstr) {
     SatPlotCommand_cp cmd = std::dynamic_pointer_cast<const SatPlotCommand>(pc);
-    if (!cmd || cmd->satellite.empty() || cmd->filetype.empty() || cmd->plotChannels.empty())
+    if (!cmd || cmd->image_name.empty() || cmd->subtype_name.empty() || cmd->plotChannels.empty())
       continue;
 
-    const int name_index = namebox->findText(QString::fromStdString(cmd->satellite), Qt::MatchExactly);
+    const int name_index = imageNameBox->findText(QString::fromStdString(cmd->image_name), Qt::MatchExactly);
     if (name_index != -1) {
-      namebox->setCurrentIndex(name_index);
-      nameActivated(name_index);
+      imageNameBox->setCurrentIndex(name_index);
+      imageNameBoxActivated(name_index);
     } else {
       continue;
     }
 
-    const QList<QListWidgetItem*> area_match = fileListWidget->findItems(QString::fromStdString(cmd->filetype), Qt::MatchExactly);
-    if (area_match.size() == 1) {
-      fileListWidget->setCurrentItem(area_match.front());
+    const QList<QListWidgetItem*> subtype_match = subtypeNameList->findItems(QString::fromStdString(cmd->subtype_name), Qt::MatchExactly);
+    if (subtype_match.size() == 1) {
+      subtypeNameList->setCurrentItem(subtype_match.front());
     } else {
       continue;
     }
 
     SatPlotCommand_p ccmd = std::make_shared<SatPlotCommand>(*cmd); // make an editable copy
-    // update list of files/times
-    const std::vector<SatFileInfo> cmdfiles = sdd_->getSatFiles(ccmd->satellite, ccmd->filetype, true);
     if (ccmd->hasFileName() && !ccmd->hasFileTime()) {
+      // update list of files/times
+      const auto cmdfiles = sdd_->getSatFiles(ccmd->image_name, ccmd->subtype_name, true);
       // find time for filename
-      for (const SatFileInfo& sfi : cmdfiles) {
+      for (const auto& sfi : cmdfiles) {
         if (sfi.name == ccmd->filename) {
           ccmd->filetime = sfi.time;
           break;
@@ -740,13 +739,12 @@ void SatDialog::archiveMode()
   updateTimefileList(true);
 }
 
-void SatDialog::updateFileListWidget(int in)
+void SatDialog::updateSubTypeList(int in)
 {
-  if (in >= 0 && in < int(dialogInfo.image.size())) {
-    fileListWidget->clear();
-    //insert in fileListWidget the list of files.. Europa,N-Europa etc...
-    for (const auto& f : dialogInfo.image[in].file)
-      fileListWidget->addItem(QString::fromStdString(f.name));
+  if (in >= 0 && in < int(availableImages.size())) {
+    subtypeNameList->clear();
+    for (const auto& im_subtype : availableImages[in].subtype_names)
+      subtypeNameList->addItem(QString::fromStdString(im_subtype));
   }
 }
 
@@ -755,7 +753,7 @@ void SatDialog::updateTimefileList(bool update)
   METLIBS_LOG_SCOPE();
 
   //if no file group selected, nothing to do
-  if (fileListWidget->currentRow() == -1)
+  if (subtypeNameList->currentRow() == -1)
     return;
 
   //clear box with list of files
@@ -763,7 +761,7 @@ void SatDialog::updateTimefileList(bool update)
 
   //get new list of sat files
   { diutil::OverrideCursor waitCursor;
-    files = sdd_->getSatFiles(namebox->currentText().toStdString(), fileListWidget->currentItem()->text().toStdString(), update);
+    files = sdd_->getSatFiles(imageNameBox->currentText().toStdString(), subtypeNameList->currentItem()->text().toStdString(), update);
   }
 
   if (autoButton->isChecked())
@@ -776,11 +774,11 @@ void SatDialog::updateTimefileList(bool update)
 
   if (timeButton->isChecked()) {
     // insert times into timefileList
-    for (const SatFileInfo& f : files)
+    for (const auto& f : files)
       timefileList->addItem(QString::fromStdString(f.time.isoTime()));
 
   } else if (fileButton->isChecked()) {
-    for (const SatFileInfo& f : files)
+    for (const auto& f : files)
       timefileList->addItem(QString::fromStdString(f.name));
   }
 
@@ -818,7 +816,7 @@ void SatDialog::updateChannelBox(bool select)
     index = timefileList->currentRow();
 
   const std::vector<std::string> channels =
-      sdd_->getSatChannels(namebox->currentText().toStdString(), fileListWidget->currentItem()->text().toStdString(), index);
+      sdd_->getSatChannels(imageNameBox->currentText().toStdString(), subtypeNameList->currentItem()->text().toStdString(), index);
   if (channels.empty())
     return;
 
@@ -875,7 +873,7 @@ void SatDialog::updateColours()
   int index = pictures->currentRow();
   if (index > -1) {
     SatPlotCommand_cp cmd = m_state[index];
-    const std::vector<Colour>& colours = sdd_->getSatColours(cmd->satellite, cmd->filetype);
+    const std::vector<Colour>& colours = sdd_->getSatColours(cmd->image_name, cmd->subtype_name);
     sda->setColours(colours);
   }
 }
@@ -892,7 +890,7 @@ void SatDialog::emitSatTimes(bool update)
     useTimes |= cmd->isAuto();
     if (!cmd->hasFileName() || update) {
       //get times to send to timeslider
-      for (const SatFileInfo& f : sdd_->getSatFiles(cmd->satellite, cmd->filetype, update))
+      for (const auto& f : sdd_->getSatFiles(cmd->image_name, cmd->subtype_name, update))
         times.insert(f.time);
     } else {
       times.insert(cmd->filetime);
@@ -906,8 +904,8 @@ vector<string> SatDialog::writeLog()
 {
   METLIBS_LOG_SCOPE();
   vector<string> vstr;
-  for (const satoptions_t::value_type& so : satoptions) {
-    for (const areaoptions_t::value_type& ao : so.second) {
+  for (const imageoptions_t::value_type& so : satoptions) {
+    for (const subtypeoptions_t::value_type& ao : so.second) {
       const std::string s = ao.second->toString().substr(4); // FIXME skips "SAT ", better not include it
       vstr.push_back(s);
     }
@@ -921,7 +919,7 @@ void SatDialog::readLog(const vector<string>& vstr, const string& /*thisVersion*
 }
 
 // static
-void SatDialog::readSatOptionsLog(const std::vector<std::string>& vstr, satoptions_t& satoptions)
+void SatDialog::readSatOptionsLog(const std::vector<std::string>& vstr, imageoptions_t& satoptions)
 {
   METLIBS_LOG_SCOPE();
   for (std::string s : vstr) { // make a copy
@@ -929,6 +927,6 @@ void SatDialog::readSatOptionsLog(const std::vector<std::string>& vstr, satoptio
       s = s.substr(4);
     SatPlotCommand_cp cmd = SatPlotCommand::fromString(s);
     if (cmd)
-      satoptions[cmd->satellite][cmd->filetype] = cmd;
+      satoptions[cmd->image_name][cmd->subtype_name] = cmd;
   }
 }

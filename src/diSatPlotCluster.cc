@@ -87,7 +87,7 @@ void SatPlotCluster::processInputPE(const PlotCommand_cpv& pinfo)
       // clang-format off
       if (   sdp->channelInfo  != satdata->channelInfo
           || sdp->filename     != satdata->filename
-          || sdp->filetype     != satdata->filetype
+          || sdp->subtype_name     != satdata->subtype_name
           || sdp->formatType   != satdata->formatType
           || sdp->hdf5type     != satdata->hdf5type
           || sdp->maxDiff      != satdata->maxDiff
@@ -96,7 +96,7 @@ void SatPlotCluster::processInputPE(const PlotCommand_cpv& pinfo)
           || sdp->paletteinfo  != satdata->paletteinfo
           || sdp->plotChannels != satdata->plotChannels
           || sdp->proj_string  != satdata->proj_string
-          || sdp->satellite    != satdata->satellite)
+          || sdp->image_name    != satdata->image_name)
       {
         continue;
       }
@@ -209,13 +209,9 @@ plottimes_t SatPlotCluster::getTimes()
   METLIBS_LOG_SCOPE();
 
   plottimes_t timeset;
-  for (const Plot* plt : plots_) {
-    SatPlotCommand_cp cmd = static_cast<const SatPlot*>(plt)->command();
-
-    const std::string& satellite = cmd->satellite;
-    const std::string& filetype = cmd->filetype;
-
-    diutil::insert_all(timeset, satm_->getSatTimes(satellite, filetype));
+  for (const SatPlot* sp : diutil::static_content_cast<SatPlot*>(plots_)) {
+    SatPlotCommand_cp cmd = sp->command();
+    diutil::insert_all(timeset, satm_->getSatTimes(cmd->image_name, cmd->subtype_name));
   }
 
   return timeset;

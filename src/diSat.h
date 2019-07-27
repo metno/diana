@@ -48,8 +48,8 @@ class Sat {
 public:
   // set from SatManager::init()
   bool approved;        ///< approved for plotting
-  std::string satellite;   ///< main product name
-  std::string filetype;    ///< subproduct
+  std::string image_name;   ///< main product name
+  std::string subtype_name; ///< subproduct
   std::string formatType;  ///< filetype (mitiff or hdf5)
   std::string metadata;
   std::string channelInfo;

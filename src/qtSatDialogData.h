@@ -39,10 +39,10 @@ class DianaSatDialogData : public SatDialogData
 public:
   DianaSatDialogData(SatManager* sm);
 
-  const SatDialogInfo& initSatDialog() override;
-  const std::vector<SatFileInfo>& getSatFiles(const std::string& satellite, const std::string& file, bool update) override;
-  const std::vector<std::string>& getSatChannels(const std::string& satellite, const std::string& file, int index) override;
-  const std::vector<Colour>& getSatColours(const std::string& satellite, const std::string& file) override;
+  const SatImage_v& initSatDialog() override;
+  SatFile_v getSatFiles(const std::string& image_name, const std::string& subtype_name, bool update) override;
+  std::vector<std::string> getSatChannels(const std::string& image_name, const std::string& subtype_name, int index) override;
+  std::vector<Colour> getSatColours(const std::string& image_name, const std::string& subtype_name) override;
 
 private:
   SatManager* sm_;

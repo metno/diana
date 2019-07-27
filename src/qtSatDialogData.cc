@@ -36,22 +36,22 @@ DianaSatDialogData::DianaSatDialogData(SatManager* sm)
 {
 }
 
-const SatDialogInfo& DianaSatDialogData::initSatDialog()
+const SatImage_v& DianaSatDialogData::initSatDialog()
 {
   return sm_->initDialog();
 }
 
-const std::vector<SatFileInfo>& DianaSatDialogData::getSatFiles(const std::string& satellite, const std::string& file, bool update)
+SatFile_v DianaSatDialogData::getSatFiles(const std::string& image_name, const std::string& subtype_name, bool update)
 {
-  return sm_->getFiles(satellite, file, update);
+  return sm_->getFiles(image_name, subtype_name, update);
 }
 
-const std::vector<std::string>& DianaSatDialogData::getSatChannels(const std::string& satellite, const std::string& file, int index)
+std::vector<std::string> DianaSatDialogData::getSatChannels(const std::string& image_name, const std::string& subtype_name, int index)
 {
-  return sm_->getChannels(satellite, file, index);
+  return sm_->getChannels(image_name, subtype_name, index);
 }
 
-const std::vector<Colour>& DianaSatDialogData::getSatColours(const std::string& satellite, const std::string& file)
+std::vector<Colour> DianaSatDialogData::getSatColours(const std::string& image_name, const std::string& subtype_name)
 {
-  return sm_->getColours(satellite, file);
+  return sm_->getColours(image_name, subtype_name);
 }

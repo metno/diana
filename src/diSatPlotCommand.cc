@@ -51,8 +51,8 @@ SatPlotCommand::SatPlotCommand()
 std::string SatPlotCommand::toString() const
 {
   std::ostringstream s;
-  s << SAT << ' ' << satellite // may contain spaces -- no quotes here!
-    << ' ' << filetype << ' ' << plotChannels;
+  s << SAT << ' ' << image_name // may contain spaces -- no quotes here!
+    << ' ' << subtype_name << ' ' << plotChannels;
   if (hasFileName())
     s << ' ' << miutil::kv("file", filename);
   else if (hasFileTime())
@@ -97,16 +97,16 @@ SatPlotCommand_cp SatPlotCommand::fromString(const std::string& line)
   // satellite name
   if (it->hasValue())
     return SatPlotCommand_cp();
-  cmd->satellite = it->key();
+  cmd->image_name = it->key();
   ++it;
 
   // satellite area / subproduct / filetype
   if (it->hasValue())
     return SatPlotCommand_cp();
-  cmd->filetype = it->key();
+  cmd->subtype_name = it->key();
   ++it;
 
-  if (cmd->satellite.empty() || cmd->filetype.empty())
+  if (cmd->image_name.empty() || cmd->subtype_name.empty())
     return SatPlotCommand_cp();
 
   // channels

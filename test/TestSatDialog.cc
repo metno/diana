@@ -47,58 +47,53 @@ class TestSatDialogData : public SatDialogData
 public:
   TestSatDialogData();
 
-  const SatDialogInfo& initSatDialog() override { return sdi; }
-  const std::vector<SatFileInfo>& getSatFiles(const std::string& satellite, const std::string& file, bool update) override;
-  const std::vector<std::string>& getSatChannels(const std::string& satellite, const std::string& file, int index) override;
-  const std::vector<Colour>& getSatColours(const std::string& satellite, const std::string& file) override { return scolours; }
+  const SatImage_v& initSatDialog() override { return sdi; }
+  SatFile_v getSatFiles(const std::string& image_name, const std::string& subtype_name, bool update) override;
+  std::vector<std::string> getSatChannels(const std::string& image_name, const std::string& subtype_name, int index) override;
+  std::vector<Colour> getSatColours(const std::string& /*image_name*/, const std::string& /*subtype_name*/) override { return scolours; }
 
-  SatDialogInfo sdi;
-  std::vector<SatFileInfo> sfi;
+  SatImage_v sdi;
   std::vector<Colour> scolours;
 };
 
 TestSatDialogData::TestSatDialogData()
 {
-  SatDialogInfo::Image noaa_image;
-  noaa_image.name = "NOAA";
-  const std::vector<std::string> noaa_channels = {"day_night", "2+4",   "4+2", "1+2+4", "2+3+4", "3+4+5", "5+4+3", "2+6+4",
-                                                  "6+4+5",     "5+4+6", "1",   "2",     "3",     "4",     "5",     "6"};
-  SatDialogInfo::File noaa_file;
-  noaa_file.name = "N-Europa";
-  noaa_file.channel = noaa_channels;
-  noaa_image.file.push_back(noaa_file);
-  sdi.image.push_back(noaa_image);
+  SatImage noaa_image;
+  noaa_image.image_name = "NOAA";
+  noaa_image.subtype_names = std::vector<std::string>{"N-Europa"};
+  sdi.push_back(noaa_image);
 
   scolours.push_back(Colour(0xFF, 0, 0));
   scolours.push_back(Colour(0, 0xFF, 0));
   scolours.push_back(Colour(0, 0, 0xFF));
 }
 
-const std::vector<std::string>& TestSatDialogData::getSatChannels(const std::string& satellite, const std::string& file, int index)
+std::vector<std::string> TestSatDialogData::getSatChannels(const std::string& image_name, const std::string& subtype_name, int index)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(satellite) << LOGVAL(file) << LOGVAL(index));
-  for (const auto& i : sdi.image) {
-    if (i.name == satellite) {
-      METLIBS_LOG_SCOPE(LOGVAL(i.name));
-      for (const auto& f : i.file) {
-        if (f.name == file) {
-          METLIBS_LOG_SCOPE(LOGVAL(f.name) << LOGVAL(f.channel.size()));
-          return f.channel;
+  METLIBS_LOG_SCOPE(LOGVAL(image_name) << LOGVAL(subtype_name) << LOGVAL(index));
+  for (const auto& i : sdi) {
+    if (i.image_name == image_name) {
+      METLIBS_LOG_SCOPE(LOGVAL(i.image_name));
+      for (const auto& f : i.subtype_names) {
+        if (f == subtype_name) {
+          return std::vector<std::string>{"day_night", "2+4",   "4+2", "1+2+4", "2+3+4", "3+4+5", "5+4+3", "2+6+4",
+                                          "6+4+5",     "5+4+6", "1",   "2",     "3",     "4",     "5",     "6"};
         }
       }
     }
   }
+  static const std::vector<std::string> EMPTY;
+  return EMPTY;
 }
 
-const std::vector<SatFileInfo>& TestSatDialogData::getSatFiles(const std::string& satellite, const std::string& file, bool update)
+SatFile_v TestSatDialogData::getSatFiles(const std::string& /*image_name*/, const std::string& /*subtype_name*/, bool /*update*/)
 {
-  sfi.clear();
+  SatFile_v sfi;
 
-  SatFileInfo fi;
+  SatFile fi;
   fi.name = "/no/such/file.tiff";
-  fi.formattype = "mitiff";
-  fi.hdf5type = 0;
   fi.time = miutil::miTime(2018, 9, 9, 0, 0, 0);
+  fi.palette = false;
   sfi.push_back(fi);
 
   return sfi;
@@ -143,31 +138,31 @@ TEST(TestSatDialog, ReadGarbageSatOptionsLog)
   vstr.push_back("meteosat overview timediff=60");
   vstr.push_back("timediff=60 mosaic=0 cut=0.125 alphacut=0 alpha=1 font=BITMAPFONT face=normal");
 
-  SatDialog::satoptions_t satoptions;
+  SatDialog::imageoptions_t satoptions;
   SatDialog::readSatOptionsLog(vstr, satoptions);
   EXPECT_EQ(2, satoptions.size());
 
   {
-    SatDialog::satoptions_t::const_iterator itn = satoptions.find("ARCHIVE");
+    SatDialog::imageoptions_t::const_iterator itn = satoptions.find("ARCHIVE");
     ASSERT_NE(satoptions.end(), itn);
-    SatDialog::areaoptions_t::const_iterator ita = itn->second.find("radar");
+    SatDialog::subtypeoptions_t::const_iterator ita = itn->second.find("radar");
     ASSERT_NE(itn->second.end(), ita);
     SatPlotCommand_cp cmd = ita->second;
-    EXPECT_EQ("ARCHIVE", cmd->satellite);
-    EXPECT_EQ("radar", cmd->filetype);
+    EXPECT_EQ("ARCHIVE", cmd->image_name);
+    EXPECT_EQ("radar", cmd->subtype_name);
     EXPECT_EQ("PSC", cmd->plotChannels);
     EXPECT_EQ(60, cmd->timediff);
     EXPECT_EQ(1.0, cmd->alpha);
     EXPECT_EQ(false, cmd->mosaic);
   }
   {
-    SatDialog::satoptions_t::const_iterator itn = satoptions.find("UK");
+    SatDialog::imageoptions_t::const_iterator itn = satoptions.find("UK");
     ASSERT_NE(satoptions.end(), itn);
-    SatDialog::areaoptions_t::const_iterator ita = itn->second.find("Analysis");
+    SatDialog::subtypeoptions_t::const_iterator ita = itn->second.find("Analysis");
     ASSERT_NE(itn->second.end(), ita);
     SatPlotCommand_cp cmd = ita->second;
-    EXPECT_EQ("UK", cmd->satellite);
-    EXPECT_EQ("Analysis", cmd->filetype);
+    EXPECT_EQ("UK", cmd->image_name);
+    EXPECT_EQ("Analysis", cmd->subtype_name);
     EXPECT_EQ("FAX", cmd->plotChannels);
     EXPECT_EQ(1, cmd->alpha);
     EXPECT_EQ(60, cmd->timediff);

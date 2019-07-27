@@ -29,6 +29,7 @@
 #ifndef diMItiff_h
 #define diMItiff_h
 
+#include "diColour.h"
 #include "diSat.h"
 
 #include <vector>

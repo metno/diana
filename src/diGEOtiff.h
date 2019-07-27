@@ -29,6 +29,7 @@
 #ifndef diGEOtiff_h
 #define diGEOtiff_h
 
+#include "diColour.h"
 #include "diSat.h"
 
 #include <vector>

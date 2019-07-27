@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -26,31 +26,30 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef disatdialogdata_h
-#define disatdialogdata_h
 
-#include "diColour.h"
-#include "diSatDialogInfo.h"
+#ifndef DIANA_DISATDIALOGINFO_H
+#define DIANA_DISATDIALOGINFO_H
+
+#include <puTools/miTime.h>
 
 #include <string>
 #include <vector>
 
-class SatDialogData
+struct SatImage
 {
-public:
-  virtual ~SatDialogData();
-
-  /// return button names for SatDialog
-  virtual const SatImage_v& initSatDialog() = 0;
-
-  /// get list of satfiles of class satellite and subclass file. if update is true read new list from disk
-  virtual SatFile_v getSatFiles(const std::string& image_name, const std::string& subtype_name, bool update) = 0;
-
-  /// returns channels for subproduct of class satellite and subclass file
-  virtual std::vector<std::string> getSatChannels(const std::string& image_name, const std::string& subtype_name, int index) = 0;
-
-  /// returns colour palette for subproduct of class satellite and subclass file
-  virtual std::vector<Colour> getSatColours(const std::string& image_name, const std::string& subtype_name) = 0;
+  std::string image_name;                 ///< main image name
+  std::vector<std::string> subtype_names; ///< available subtype names
 };
 
-#endif // disatdialogdata_h
+typedef std::vector<SatImage> SatImage_v;
+
+struct SatFile
+{
+  std::string name;
+  miutil::miTime time;
+  bool palette;
+};
+
+typedef std::vector<SatFile> SatFile_v;
+
+#endif // DIANA_DISATDIALOGINFO_H

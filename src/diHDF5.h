@@ -29,7 +29,9 @@
 #ifndef diHDF5_h
 #define diHDF5_h
 
+#include "diColour.h"
 #include "diSat.h"
+
 #include <vector>
 
 /**

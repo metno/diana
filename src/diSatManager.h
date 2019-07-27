@@ -33,6 +33,7 @@
 #include "diPlotCommand.h"
 #include "diPlotElement.h"
 #include "diSat.h"
+#include "diSatDialogInfo.h"
 #include "diTimeTypes.h"
 
 #include <puTools/TimeFilter.h>
@@ -76,7 +77,7 @@ public:
 
 private:
   Prod_t Prod;
-  SatDialogInfo Dialog;
+  SatImage_v Dialog;
 
   typedef std::map<std::string,std::string> channelmap_t;
   channelmap_t channelmap; // ex: name:1+2+3 -> channelmap[name]=1+2+3
@@ -105,29 +106,26 @@ private:
   int getFileName(Sat* satdata, const miutil::miTime&);
 
   /*! Find product, \returns nullptr if not found. */
-  subProdInfo* findProduct(const std::string& image, const std::string& subtype);
+  subProdInfo* findProduct(const std::string& image_name, const std::string& subtype_name);
 
 public:
   SatManager();
 
   void setData(Sat* satdata, const miutil::miTime& satptime);
 
-  plottimes_t getSatTimes(const std::string& satellite, const std::string& filetype);
+  plottimes_t getSatTimes(const std::string& image_name, const std::string& subtype_name);
 
   ///returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(plottimes_t& progTimes, int& timediff, const PlotCommand_cp& pinfo);
 
-  const std::vector<SatFileInfo>& getFiles(const std::string& image, const std::string& subtype, bool update = false);
+  SatFile_v getFiles(const std::string& image_name, const std::string& subtype_name, bool update = false);
 
   //! Returns colour palette for this subproduct.
-  const std::vector<Colour> & getColours(const std::string &,
-				       const std::string &);
+  const std::vector<Colour>& getColours(const std::string& image_name, const std::string& subtype_name);
 
-  const std::vector<std::string>& getChannels(const std::string &satellite,
-				      const std::string & file,
-				      int index=-1);
+  const std::vector<std::string>& getChannels(const std::string& image_name, const std::string& subtype_name, int index = -1);
 
-  const SatDialogInfo& initDialog() { return Dialog; }
+  const SatImage_v& initDialog() { return Dialog; }
   bool parseSetup();
 
   void archiveMode(bool on) { useArchive = on; }

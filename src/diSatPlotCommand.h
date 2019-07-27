@@ -43,8 +43,8 @@ public:
 
   std::string toString() const override;
 
-  std::string satellite;    ///< main product name
-  std::string filetype;     ///< subproduct / area
+  std::string image_name;   ///< main product name
+  std::string subtype_name; ///< subproduct / area
   std::string plotChannels; ///< channelname for annotation
   std::string filename;     ///< filename
   miutil::miTime filetime;  ///< time

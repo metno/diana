@@ -79,8 +79,8 @@ Sat::Sat(SatPlotCommand_cp cmd)
 {
   METLIBS_LOG_SCOPE(LOGVAL(cmd) << LOGVAL(cut));
 
-  satellite = cmd->satellite;
-  filetype = cmd->filetype;
+  image_name = cmd->image_name;
+  subtype_name = cmd->subtype_name;
   plotChannels = cmd->plotChannels;
   filename = cmd->filename;
   if (!filename.empty())
@@ -166,7 +166,7 @@ void Sat::setCalibration()
   if (palette && !paletteInfo.clname.size() )
     return;
 
-  std::string start = satellite_name + " " + filetype +"|";
+  std::string start = satellite_name + " " + subtype_name + "|";
 
   METLIBS_LOG_DEBUG(LOGVAL(palette));
 
@@ -324,7 +324,7 @@ void Sat::setAnnotation()
     annotation += " MOSAIKK ";
   else
     annotation += " ";
-  annotation += filetype;
+  annotation += subtype_name;
   annotation += " ";
   annotation += plotChannels;
   annotation += " ";
@@ -347,7 +347,7 @@ void Sat::setPlotName()
     plotname += " MOSAIKK ";
   else
     plotname += " ";
-  plotname += filetype;
+  plotname += subtype_name;
   plotname += " ";
   plotname += plotChannels;
   if (!autoFile)

@@ -473,6 +473,7 @@ LIST (APPEND LIBDIANA_HEADERS
   diPlotElement.h
   diPlotOrder.h
   diQuickMenuTypes.h
+  diSatDialogInfo.h
   diSatTypes.h
   diSliderValues.h
   diStationTypes.h

@@ -31,8 +31,8 @@
 
 #include "qtDataDialog.h"
 
+#include "diSatDialogData.h"
 #include "diSatPlotCommand.h"
-#include "diSatTypes.h"
 
 #include <vector>
 #include <map>
@@ -56,8 +56,8 @@ class SatDialog : public DataDialog
   Q_OBJECT
 
 public:
-  typedef std::map<std::string, SatPlotCommand_cp> areaoptions_t;
-  typedef std::map<std::string, areaoptions_t> satoptions_t;
+  typedef std::map<std::string, SatPlotCommand_cp> subtypeoptions_t;
+  typedef std::map<std::string, subtypeoptions_t> imageoptions_t;
 
   SatDialog(SatDialogData* sdd, QWidget* parent = 0);
   ~SatDialog();
@@ -82,7 +82,7 @@ public:
   void readLog(const std::vector<std::string>& vstr, const std::string& thisVersion, const std::string& logVersion);
 
   //! read log -- this is public so that it can be tested
-  static void readSatOptionsLog(const std::vector<std::string>& vstr, satoptions_t& satoptions);
+  static void readSatOptionsLog(const std::vector<std::string>& vstr, imageoptions_t& satoptions);
 
 public /*Q_SLOTS*/:
   void updateTimes() override;
@@ -93,7 +93,7 @@ protected:
   void doShowMore(bool show) override;
 
 private:
-  void updateFileListWidget(int);
+  void updateSubTypeList(int);
   void updateTimefileList(bool update);
   void updateChannelBox(bool select);
   void updatePictures(int index, bool updateAbove);
@@ -108,10 +108,10 @@ private:
 private Q_SLOTS:
   void DeleteClicked();
   void DeleteAllClicked();
-  void nameActivated( int in );
+  void imageNameBoxActivated(int in);
   void timefileClicked(int tt);
   void timefileListSlot(QListWidgetItem * item);
-  void fileListWidgetClicked(QListWidgetItem * item);
+  void subtypeNameListClicked(QListWidgetItem* item);
   void channelboxSlot(QListWidgetItem * item);
   void picturesSlot(QListWidgetItem * item);
   void doubleDisplayDiff( int number );
@@ -124,17 +124,17 @@ private Q_SLOTS:
 private:
   std::unique_ptr<SatDialogData> sdd_;
 
-  satoptions_t satoptions;
+  imageoptions_t satoptions;
   std::vector<SatPlotCommand_p> m_state; // pictures to plot
 
   std::string m_channelstr;
   miutil::miTime m_time;
-  std::vector<SatFileInfo> files;
+  SatFile_v files;
 
-  SatDialogInfo dialogInfo;
+  SatImage_v availableImages;
 
-  QComboBox* namebox;
-  QListWidget* fileListWidget;
+  QComboBox* imageNameBox;
+  QListWidget* subtypeNameList;
 
   QLCDNumber* diffLcdnum;
   QSlider* diffSlider;

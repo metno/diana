@@ -29,7 +29,9 @@
 #ifndef TRAJECTORYDIALOG_H
 #define TRAJECTORYDIALOG_H
 
-#include <diController.h>
+#include "diColour.h"
+#include "diController.h"
+
 #include <QDialog>
 #include <vector>
 

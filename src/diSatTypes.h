@@ -30,8 +30,6 @@
 #ifndef DIANA_DISATTYPES_H
 #define DIANA_DISATTYPES_H
 
-#include "diColour.h"
-#include "diSliderValues.h"
 
 #include <puTools/miTime.h>
 
@@ -62,36 +60,6 @@ struct SatFileInfo
       , palette(false)
   {
   }
-};
-
-/**
-   \brief GUI data for geo images
-*/
-struct SatDialogInfo
-{
-
-  /// image file info
-  struct File
-  {
-    std::string name;                 ///< filename
-    std::vector<std::string> channel; ///< channels available
-    std::string default_channel;      ///< default channel
-    std::string fileformat;           ///< file format
-  };
-
-  /// main image info
-  struct Image
-  {
-    std::string name;         ///< main image name
-    std::vector<File> file;   ///< files available
-    std::string default_file; ///< default filename
-  };
-
-  std::vector<Image> image; ///< defined Images
-  SliderValues cut;         ///< rgb cutoff value for histogram stretching
-  SliderValues alphacut;    ///< rgb cutoff value for alpha blending
-  SliderValues alpha;       ///< alpha blending value
-  SliderValues timediff;    ///< max time difference
 };
 
 /**
