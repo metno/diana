@@ -154,14 +154,17 @@ void SatPlotCluster::getDataAnnotations(std::vector<std::string>& anno)
     sp->getAnnotations(anno);
 }
 
-bool SatPlotCluster::getGridResolution(float& rx, float& ry) const
+bool SatPlotCluster::MapToGrid(const Projection& plotproj, float xmap, float ymap, float& gridx, float& gridy) const
 {
-  if (plots_.empty())
-    return false;
-  const SatPlot* sp = static_cast<SatPlot*>(plots_.front());
-  rx = sp->getGridResolutionX();
-  ry = sp->getGridResolutionY();
-  return true;
+  if (!plots_.empty()) {
+    const GridArea& ga = static_cast<SatPlot*>(plots_.front())->getSatArea();
+    if (ga.P() == plotproj) {
+      gridx = ga.toGridX(xmap);
+      gridy = ga.toGridY(ymap);
+      return true;
+    }
+  }
+  return false;
 }
 
 bool SatPlotCluster::getSatArea(Area& a) const

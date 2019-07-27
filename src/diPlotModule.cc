@@ -741,15 +741,8 @@ void PlotModule::PhysToMap(float xphys, float yphys, float& xmap, float& ymap)
 /// return field grid x,y from map x,y if field defined and map proj = field proj
 bool PlotModule::MapToGrid(float xmap, float ymap, float& gridx, float& gridy)
 {
-  Area a;
-  if (satplots_->getSatArea(a) and staticPlot_->getMapProjection() == a.P()) {
-    float rx=0, ry=0;
-    if (satplots_->getGridResolution(rx, ry)) {
-      gridx = xmap/rx;
-      gridy = ymap/ry;
-      return true;
-    }
-  }
+  if (satplots_->MapToGrid(staticPlot_->getMapProjection(), xmap, ymap, gridx, gridy))
+    return true;
 
   if (fieldplots_->MapToGrid(staticPlot_->getMapProjection(), xmap, ymap, gridx, gridy))
     return true;

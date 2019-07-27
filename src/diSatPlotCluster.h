@@ -54,7 +54,7 @@ public:
   plottimes_t getTimes() override;
   void getDataAnnotations(std::vector<std::string>& anno) override;
 
-  bool getGridResolution(float& rx, float& ry) const;
+  bool MapToGrid(const Projection& plotproj, float xmap, float ymap, float& gridx, float& gridy) const;
 
   bool getSatArea(Area& a) const;
 

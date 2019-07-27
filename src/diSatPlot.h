@@ -57,9 +57,7 @@ public:
   void setCommand(SatPlotCommand_cp cmd);
   SatPlotCommand_cp command() const { return command_; }
 
-  Area& getSatArea();
-  double getGridResolutionX() const;
-  double getGridResolutionY() const;
+  GridArea& getSatArea();
   void getAnnotation(std::string &, Colour &) const override;
   void getCalibChannels(std::vector<std::string>& channels) const;
   ///get pixel value

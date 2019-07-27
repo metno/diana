@@ -64,19 +64,9 @@ void SatPlot::setCommand(SatPlotCommand_cp cmd)
   setPlotInfo(cmd->all());
 }
 
-Area& SatPlot::getSatArea()
+GridArea& SatPlot::getSatArea()
 {
   return satdata->area;
-}
-
-double SatPlot::getGridResolutionX() const
-{
-  return satdata->area.resolutionX;
-}
-
-double SatPlot::getGridResolutionY() const
-{
-  return satdata->area.resolutionY;
 }
 
 std::string SatPlot::getEnabledStateKey() const
