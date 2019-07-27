@@ -201,8 +201,10 @@ void StationDialog::reloadSets()
     if (show_names)
         m_ctrl->getStationManager()->stationCommand("showPositionName",name,-1);
 
+#if 0 // FIXME leaks StationPlot*
     if (m_ctrl->getStationManager()->importStations(name, url))
       selectionModel->select(index, QItemSelectionModel::Deselect | QItemSelectionModel::Rows);
+#endif
   }
 }
 
