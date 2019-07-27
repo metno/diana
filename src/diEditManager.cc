@@ -79,50 +79,6 @@
 using namespace miutil;
 using namespace std;
 
-namespace {
-//useful functions not belonging to EditManager
-
-editToolInfo newEditToolInfo(const std::string & newName,
-    const int newIndex,
-    const std::string & newColour="black",
-    const std::string & newBorderColour="black",
-    const int & newSizeIncrement=0,
-    const bool & newSpline=true,
-    const std::string& newLinetype ="solid",
-    const std::string& newFilltype="")
-{
-  editToolInfo eToolInfo;
-  eToolInfo.name=  newName;
-  eToolInfo.index= newIndex;
-  eToolInfo.colour= newColour;
-  eToolInfo.borderColour= newBorderColour;
-  eToolInfo.sizeIncrement= newSizeIncrement;
-  eToolInfo.spline=newSpline;
-  eToolInfo.linetype=newLinetype;
-  eToolInfo.filltype=newFilltype;
-  return eToolInfo;
-}
-
-editModeInfo newEditModeInfo(const std::string & newmode,
-    const vector<editToolInfo>& newtools)
-{
-  editModeInfo eModeInfo;
-  eModeInfo.editmode=newmode;
-  eModeInfo.edittools=newtools;
-  return eModeInfo;
-}
-
-mapModeInfo newMapModeInfo(const std::string & newmode,
-    const vector<editModeInfo>& newmodeinfo)
-{
-  mapModeInfo mModeInfo;
-  mModeInfo.mapmode= newmode;
-  mModeInfo.editmodeinfo= newmodeinfo;
-  return mModeInfo;
-}
-
-} // namespace
-
 EditManager::EditManager(PlotModule* pm, ObjectManager* om, FieldPlotManager* fm)
     : plotm(pm)
     , objm(om)
@@ -2936,193 +2892,192 @@ bool EditManager::interpolateEditField(ObsPositions* obsPositions)
 ----------------   end functions called from PlotModule   --------------
  -----------------------------------------------------------------------*/
 
-void EditManager::initEditTools(){
-  /* called from EditManager constructor. Defines edit tools used
-     for editing fields, and displaying and editing objects  */
+void EditManager::initEditTools()
+{
   METLIBS_LOG_SCOPE();
-  //defines edit and drawing tools
+  eToolFieldStandard = std::vector<editToolInfo>{{"Change value", edit_value},
+                                                 {"Move", edit_move},
+                                                 {"Change gradient", edit_gradient},
+                                                 {"Line, without smooth", edit_line},
+                                                 {"Line, with smooth", edit_line_smooth},
+                                                 {"Line, limited, without smooth", edit_line_limited},
+                                                 {"Line, limited, with smooth", edit_line_limited_smooth},
+                                                 {"Smooth", edit_smooth},
+                                                 {"Replace undefined values", edit_replace_undef}};
 
-  eToolFieldStandard.push_back(newEditToolInfo("Change value",      edit_value));
-  eToolFieldStandard.push_back(newEditToolInfo("Move",           edit_move));
-  eToolFieldStandard.push_back(newEditToolInfo("Change gradient",   edit_gradient));
-  eToolFieldStandard.push_back(newEditToolInfo("Line, without smooth",edit_line));
-  eToolFieldStandard.push_back(newEditToolInfo("Line, with smooth",edit_line_smooth));
-  eToolFieldStandard.push_back(newEditToolInfo("Line, limited, without smooth",
-      edit_line_limited));
-  eToolFieldStandard.push_back(newEditToolInfo("Line, limited, with smooth",
-      edit_line_limited_smooth));
-  eToolFieldStandard.push_back(newEditToolInfo("Smooth",           edit_smooth));
-  eToolFieldStandard.push_back(newEditToolInfo("Replace undefined values",
-      edit_replace_undef));
+  eToolFieldClasses = std::vector<editToolInfo>{{"Line", edit_class_line}, {"Copy value", edit_class_copy}};
 
-  eToolFieldClasses.push_back(newEditToolInfo("Line",             edit_class_line));
-  eToolFieldClasses.push_back(newEditToolInfo("Copy value",      edit_class_copy));
-
-  eToolFieldNumbers.push_back(newEditToolInfo("Copy value",      edit_class_copy));
-  eToolFieldNumbers.push_back(newEditToolInfo("Change value",       edit_value));
-  eToolFieldNumbers.push_back(newEditToolInfo("Move",            edit_move));
-  eToolFieldNumbers.push_back(newEditToolInfo("Change gradient",    edit_gradient));
-  eToolFieldNumbers.push_back(newEditToolInfo("Set undefined",    edit_set_undef));
-  eToolFieldNumbers.push_back(newEditToolInfo("Smooth",            edit_smooth));
-  eToolFieldNumbers.push_back(newEditToolInfo("Replace undefined values",
-      edit_replace_undef));
+  eToolFieldNumbers = std::vector<editToolInfo>{
+      {"Copy value", edit_class_copy},
+      {"Change value", edit_value},
+      {"Move", edit_move},
+      {"Change gradient", edit_gradient},
+      {"Set undefined", edit_set_undef},
+      {"Smooth", edit_smooth},
+      {"Replace undefined values", edit_replace_undef},
+  };
 
   // draw_mode types
-  fronts.push_back(newEditToolInfo("Cold front",Cold,"blue"));
-  fronts.push_back(newEditToolInfo("Warm front",Warm,"red"));
-  fronts.push_back(newEditToolInfo("Occlusion",Occluded,"purple"));
-  fronts.push_back(newEditToolInfo("Trough",Line,"blue"));
-  fronts.push_back(newEditToolInfo("Squall line",SquallLine,"blue"));
-  fronts.push_back(newEditToolInfo("Significant weather",SigweatherFront,"black"));
-  fronts.push_back(newEditToolInfo("Significant weather TURB/VA/RC",SigweatherFront,"red"));
-  fronts.push_back(newEditToolInfo("Significant weather ICE/TCU/CB",SigweatherFront,"blue"));
-  fronts.push_back(newEditToolInfo("Jet stream",ArrowLine,"black","black",0,true));
-  fronts.push_back(newEditToolInfo("Cold occlusion",Occluded,"blue"));
-  fronts.push_back(newEditToolInfo("Warm occlusion",Occluded,"red"));
-  fronts.push_back(newEditToolInfo("Stationary front",Stationary,"grey50"));
-  fronts.push_back(newEditToolInfo("Black sharp line",Line,"black","black",0,false));
-  fronts.push_back(newEditToolInfo("Black smooth line",Line,"black","black",0,true));
-  fronts.push_back(newEditToolInfo("Red sharp line",Line,"red","red",0,false));
-  fronts.push_back(newEditToolInfo("Red smooth line",Line,"red"));
-  fronts.push_back(newEditToolInfo("Blue sharp line",Line,"blue","blue",0,false));
-  fronts.push_back(newEditToolInfo("Blue smooth line",Line,"blue"));
-  fronts.push_back(newEditToolInfo("Green sharp line",Line,"green","green",0,false));
-  fronts.push_back(newEditToolInfo("Green smooth line",Line,"green"));
-  fronts.push_back(newEditToolInfo("Black sharp line stipple",Line,"black","black",0,false,"dash2"));
-  fronts.push_back(newEditToolInfo("Black smooth line stipple",Line,"black","black",0,true,"dash2"));
-  fronts.push_back(newEditToolInfo("Red sharp line stipple",Line,"red","red",0,false,"dash2"));
-  fronts.push_back(newEditToolInfo("Red smooth line stipple",Line,"red","red",0,true,"dash2"));
-  fronts.push_back(newEditToolInfo("Blue sharp line stipple",Line,"blue","blue",0,false,"dash2"));
-  fronts.push_back(newEditToolInfo("Blue smooth line stipple",Line,"blue","blue",0,true,"dash2"));
-  fronts.push_back(newEditToolInfo("Green sharp line stipple",Line,"green","green",0,false,"dash2"));
-  fronts.push_back(newEditToolInfo("Green smooth line stipple",Line,"green","green",0,true,"dash2"));
-  fronts.push_back(newEditToolInfo("Black sharp arrow",ArrowLine,"black","black",0,false));
-  fronts.push_back(newEditToolInfo("Black sharp thin arrow",ArrowLine,"black","black",-2,false));
-  fronts.push_back(newEditToolInfo("Black smooth arrow",ArrowLine,"black"));
-  fronts.push_back(newEditToolInfo("Red sharp arrow",ArrowLine,"red","red",0,false));
-  fronts.push_back(newEditToolInfo("Red smooth arrow",ArrowLine,"red"));
-  fronts.push_back(newEditToolInfo("Blue sharp arrow",ArrowLine,"blue","blue",0,false));
-  fronts.push_back(newEditToolInfo("Blue smooth arrow",ArrowLine,"blue"));
+  fronts = std::vector<editToolInfo>{
+      {"Cold front", Cold, "blue"},
+      {"Warm front", Warm, "red"},
+      {"Occlusion", Occluded, "purple"},
+      {"Trough", Line, "blue"},
+      {"Squall line", SquallLine, "blue"},
+      {"Significant weather", SigweatherFront, "black"},
+      {"Significant weather TURB/VA/RC", SigweatherFront, "red"},
+      {"Significant weather ICE/TCU/CB", SigweatherFront, "blue"},
+      {"Jet stream", ArrowLine, "black", "black", 0, true},
+      {"Cold occlusion", Occluded, "blue"},
+      {"Warm occlusion", Occluded, "red"},
+      {"Stationary front", Stationary, "grey50"},
+      {"Black sharp line", Line, "black", "black", 0, false},
+      {"Black smooth line", Line, "black", "black", 0, true},
+      {"Red sharp line", Line, "red", "red", 0, false},
+      {"Red smooth line", Line, "red"},
+      {"Blue sharp line", Line, "blue", "blue", 0, false},
+      {"Blue smooth line", Line, "blue"},
+      {"Green sharp line", Line, "green", "green", 0, false},
+      {"Green smooth line", Line, "green"},
+      {"Black sharp line stipple", Line, "black", "black", 0, false, "dash2"},
+      {"Black smooth line stipple", Line, "black", "black", 0, true, "dash2"},
+      {"Red sharp line stipple", Line, "red", "red", 0, false, "dash2"},
+      {"Red smooth line stipple", Line, "red", "red", 0, true, "dash2"},
+      {"Blue sharp line stipple", Line, "blue", "blue", 0, false, "dash2"},
+      {"Blue smooth line stipple", Line, "blue", "blue", 0, true, "dash2"},
+      {"Green sharp line stipple", Line, "green", "green", 0, false, "dash2"},
+      {"Green smooth line stipple", Line, "green", "green", 0, true, "dash2"},
+      {"Black sharp arrow", ArrowLine, "black", "black", 0, false},
+      {"Black sharp thin arrow", ArrowLine, "black", "black", -2, false},
+      {"Black smooth arrow", ArrowLine, "black"},
+      {"Red sharp arrow", ArrowLine, "red", "red", 0, false},
+      {"Red smooth arrow", ArrowLine, "red"},
+      {"Blue sharp arrow", ArrowLine, "blue", "blue", 0, false},
+      {"Blue smooth arrow", ArrowLine, "blue"},
+  };
 
-  symbols.push_back(newEditToolInfo("Low pressure",242,"red"));
-  symbols.push_back(newEditToolInfo("High pressure",243,"blue"));
-  symbols.push_back(newEditToolInfo("Fog",62,"darkYellow"));
-  symbols.push_back(newEditToolInfo("Thunderstorm",119,"red"));
-  symbols.push_back(newEditToolInfo("Freezing rain",93,"red"));
-  symbols.push_back(newEditToolInfo("Freezing drizzle",83,"red"));
-  symbols.push_back(newEditToolInfo( "Showers",109,"green"));
-  symbols.push_back(newEditToolInfo( "Snow showers",114,"green"));
-  symbols.push_back(newEditToolInfo( "Hail showers",117,"green"));
-  symbols.push_back(newEditToolInfo( "Snow",254,"green"));
-  symbols.push_back(newEditToolInfo( "Rain",89,"green"));
-  symbols.push_back(newEditToolInfo("Drizzle",80,"green"));
-  symbols.push_back(newEditToolInfo("Cold",244,"blue"));
-  symbols.push_back(newEditToolInfo("Warm",245,"red"));
-  symbols.push_back(newEditToolInfo( "Rain showers",110,"green"));
-  symbols.push_back(newEditToolInfo( "Sleet showers",126,"green"));
-  symbols.push_back(newEditToolInfo( "Thunderstorm with hail",122,"red"));
-  symbols.push_back(newEditToolInfo( "Sleet",96,"green"));
-  symbols.push_back(newEditToolInfo( "Hurricane",253,"black"));
-  symbols.push_back(newEditToolInfo( "Disk",241,"red"));
-  symbols.push_back(newEditToolInfo( "Circle",35,"blue"));
-  symbols.push_back(newEditToolInfo( "Cross",255,"red"));
-  symbols.push_back(newEditToolInfo("Text",0,"black"));
+  symbols = std::vector<editToolInfo>{
+      {"Low pressure", 242, "red"},
+      {"High pressure", 243, "blue"},
+      {"Fog", 62, "darkYellow"},
+      {"Thunderstorm", 119, "red"},
+      {"Freezing rain", 93, "red"},
+      {"Freezing drizzle", 83, "red"},
+      {"Showers", 109, "green"},
+      {"Snow showers", 114, "green"},
+      {"Hail showers", 117, "green"},
+      {"Snow", 254, "green"},
+      {"Rain", 89, "green"},
+      {"Drizzle", 80, "green"},
+      {"Cold", 244, "blue"},
+      {"Warm", 245, "red"},
+      {"Rain showers", 110, "green"},
+      {"Sleet showers", 126, "green"},
+      {"Thunderstorm with hail", 122, "red"},
+      {"Sleet", 96, "green"},
+      {"Hurricane", 253, "black"},
+      {"Disk", 241, "red"},
+      {"Circle", 35, "blue"},
+      {"Cross", 255, "red"},
+      {"Text", 0, "black"},
+  };
 
-  areas.push_back(newEditToolInfo("Precipitation",Genericarea,"green4","green4"));
-  areas.push_back(newEditToolInfo("Showers",Genericarea,"green3","green3",0,true,"dash2"));
-  areas.push_back(newEditToolInfo("Fog",Genericarea,"darkGray","darkGrey",0,true,"empty","zigzag"));
-  areas.push_back(newEditToolInfo("Significant weather",Sigweather,"black"));
-  areas.push_back(newEditToolInfo("Significant weather  TURB/VA/RC",Sigweather,"red","red"));
-  areas.push_back(newEditToolInfo("Significant weather  ICE/TCU/CB",Sigweather,"blue","blue"));
-  areas.push_back(newEditToolInfo("Reduced visibility",Genericarea,"gulbrun","gulbrun",0,true,"dash2"));
-  areas.push_back(newEditToolInfo("Clouds",Genericarea,"orange","orange:0",0,true,"solid","diagleft"));
-  areas.push_back(newEditToolInfo("Ice",Genericarea,"darkYellow","darkYellow:255",0,true,"solid","paralyse"));
-  areas.push_back(newEditToolInfo("Black sharp area",Genericarea,"black","black",0,false));
-  areas.push_back(newEditToolInfo("Black smooth area",Genericarea,"black","black",0,true));
-  areas.push_back(newEditToolInfo("Red sharp area",Genericarea,"red","red",0,false));
-  areas.push_back(newEditToolInfo("Red smooth area",Genericarea,"red","red"));
-  areas.push_back(newEditToolInfo("Blue sharp area",Genericarea,"blue","blue",0,false));
-  areas.push_back(newEditToolInfo("Blue smooth area",Genericarea,"blue","blue"));
-  areas.push_back(newEditToolInfo("Black sharp area stipple",Genericarea,"black","black",0,false,"dash2"));
-  areas.push_back(newEditToolInfo("Black smooth area stipple",Genericarea,"black","black",0,true,"dash2"));
-  areas.push_back(newEditToolInfo("Red sharp area stipple",Genericarea,"red","red",0,false,"dash2"));
-  areas.push_back(newEditToolInfo("Red smooth area stipple",Genericarea,"red","red",0,true,"dash2"));
-  areas.push_back(newEditToolInfo("Blue sharp area stipple",Genericarea,"blue","blue",0,false,"dash2"));
-  areas.push_back(newEditToolInfo("Blue smooth area stipple",Genericarea,"blue","blue",0,true,"dash2"));
-  areas.push_back(newEditToolInfo("Generic area",Genericarea,"red","red",0,false,"solid"));
-  sigsymbols.push_back(newEditToolInfo("Sig18",1018,"black","black",-1));
-  //arrow
+  areas = std::vector<editToolInfo>{
+      {"Precipitation", Genericarea, "green4", "green4"},
+      {"Showers", Genericarea, "green3", "green3", 0, true, "dash2"},
+      {"Fog", Genericarea, "darkGray", "darkGrey", 0, true, "empty", "zigzag"},
+      {"Significant weather", Sigweather, "black"},
+      {"Significant weather  TURB/VA/RC", Sigweather, "red", "red"},
+      {"Significant weather  ICE/TCU/CB", Sigweather, "blue", "blue"},
+      {"Reduced visibility", Genericarea, "gulbrun", "gulbrun", 0, true, "dash2"},
+      {"Clouds", Genericarea, "orange", "orange:0", 0, true, "solid", "diagleft"},
+      {"Ice", Genericarea, "darkYellow", "darkYellow:255", 0, true, "solid", "paralyse"},
+      {"Black sharp area", Genericarea, "black", "black", 0, false},
+      {"Black smooth area", Genericarea, "black", "black", 0, true},
+      {"Red sharp area", Genericarea, "red", "red", 0, false},
+      {"Red smooth area", Genericarea, "red", "red"},
+      {"Blue sharp area", Genericarea, "blue", "blue", 0, false},
+      {"Blue smooth area", Genericarea, "blue", "blue"},
+      {"Black sharp area stipple", Genericarea, "black", "black", 0, false, "dash2"},
+      {"Black smooth area stipple", Genericarea, "black", "black", 0, true, "dash2"},
+      {"Red sharp area stipple", Genericarea, "red", "red", 0, false, "dash2"},
+      {"Red smooth area stipple", Genericarea, "red", "red", 0, true, "dash2"},
+      {"Blue sharp area stipple", Genericarea, "blue", "blue", 0, false, "dash2"},
+      {"Blue smooth area stipple", Genericarea, "blue", "blue", 0, true, "dash2"},
+      {"Generic area", Genericarea, "red", "red", 0, false, "solid"},
+  };
 
-  //sigsymbols.push_back(newEditToolInfo("Sig18",1018,"black","black",-1));
-  sigsymbols.push_back(newEditToolInfo("Tekst_1",1000,"black"));
-  //Low
-  sigsymbols.push_back(newEditToolInfo("Sig19",1019,"black","black",1));
-  sigsymbols.push_back(newEditToolInfo("Sig12",1012,"black","black"));
-  sigsymbols.push_back(newEditToolInfo("Sig22",1022,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig11",1011,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig3",1003,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig6",1006,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig25",1025,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig14",1014,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig23",1023,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig8",1008,"black"));
-  //High
-  sigsymbols.push_back(newEditToolInfo("Sig20",1020,"black","black",1));
-  sigsymbols.push_back(newEditToolInfo("Sig10",1010,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig16",1016,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig7",1007,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig4",1004,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig5",1005,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig26",1026,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig15",1015,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig24",1024,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig13",1013,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig21",1021,"red"));
-  sigsymbols.push_back(newEditToolInfo("Sig9",1009,"black"));
-  //all texts have index ending in 0
-  sigsymbols.push_back(newEditToolInfo("Tekst_2",2000,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig1",1001,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig2",1002,"black"));
+  sigsymbols = std::vector<editToolInfo>{
+      {"Sig18", 1018, "black", "black", -1}, // arrow
+      // {"Sig18",1018,"black","black",-1},
+      {"Tekst_1", 1000, "black"},
+      // Low
+      {"Sig19", 1019, "black", "black", 1},
+      {"Sig12", 1012, "black", "black"},
+      {"Sig22", 1022, "black"},
+      {"Sig11", 1011, "black"},
+      {"Sig3", 1003, "black"},
+      {"Sig6", 1006, "black"},
+      {"Sig25", 1025, "black"},
+      {"Sig14", 1014, "black"},
+      {"Sig23", 1023, "black"},
+      {"Sig8", 1008, "black"},
+      // High
+      {"Sig20", 1020, "black", "black", 1},
+      {"Sig10", 1010, "black"},
+      {"Sig16", 1016, "black"},
+      {"Sig7", 1007, "black"},
+      {"Sig4", 1004, "black"},
+      {"Sig5", 1005, "black"},
+      {"Sig26", 1026, "black"},
+      {"Sig15", 1015, "black"},
+      {"Sig24", 1024, "black"},
+      {"Sig13", 1013, "black"},
+      {"Sig21", 1021, "red"},
+      {"Sig9", 1009, "black"},
+      // all texts have index ending in 0
+      {"Tekst_2", 2000, "black"},
+      {"Sig1", 1001, "black"},
+      {"Sig2", 1002, "black"},
 
-  //new
-  //Sea temp, blue circle
-  sigsymbols.push_back(newEditToolInfo("Sig27",1027,"black", "blue"));
-  //Mean SFC wind, red diamond
-  sigsymbols.push_back(newEditToolInfo("Sig28",1028,"black", "red"));
-  // Sea state, black flag
-  sigsymbols.push_back(newEditToolInfo("Sig29",1029,"black", "black",2));
-  // Freezing fog
-  sigsymbols.push_back(newEditToolInfo("Sig_fzfg",1030,"gulbrun", "red"));
-  //Nuclear
-  sigsymbols.push_back(newEditToolInfo("Sig31",1031,"black"));
-  //Visibility, black rectangular box
-  //  sigsymbols.push_back(newEditToolInfo("Sig33",1033,"black"));
-  //Vulcano box
-  sigsymbols.push_back(newEditToolInfo("Sig34",1034,"black"));
-  //New cross
-  sigsymbols.push_back(newEditToolInfo("Sig35",1035,"black"));
-  //Freezing level (new)
-  sigsymbols.push_back(newEditToolInfo("Sig36",1036,"black", "blue"));
-  //BR
-  sigsymbols.push_back(newEditToolInfo("Sig_br",1037,"gulbrun"));
-  sigsymbols.push_back(newEditToolInfo("Sig38",1038,"black"));
-  sigsymbols.push_back(newEditToolInfo("Sig39",1039,"red"));
+      // new
+      // Sea temp, blue circle
+      {"Sig27", 1027, "black", "blue"},
+      // Mean SFC wind, red diamond
+      {"Sig28", 1028, "black", "red"},
+      // Sea state, black flag
+      {"Sig29", 1029, "black", "black", 2},
+      // Freezing fog
+      {"Sig_fzfg", 1030, "gulbrun", "red"},
+      // Nuclear
+      {"Sig31", 1031, "black"},
+      // Visibility, black rectangular box
+      //  {"Sig33",1033,"black"},
+      // Vulcano box
+      {"Sig34", 1034, "black"},
+      // New cross
+      {"Sig35", 1035, "black"},
+      // Freezing level (new)
+      {"Sig36", 1036, "black", "blue"},
+      // BR
+      {"Sig_br", 1037, "gulbrun"},
+      {"Sig38", 1038, "black"},
+      {"Sig39", 1039, "red"},
 
-  sigsymbols.push_back(newEditToolInfo("Clouds",1040,"black"));
-  //Fog
-  sigsymbols.push_back(newEditToolInfo("Sig_fg",1041,"gulbrun"));
-  //precipitation, green lines
-  sigsymbols.push_back(newEditToolInfo("Sig32",1032,"green"));
-  //snow
-  sigsymbols.push_back(newEditToolInfo( "Sig_snow",1042,"green","black",0));
-  //snow showers
-  sigsymbols.push_back(newEditToolInfo( "Sig_snow_showers",1043,"green","green",2));
-  //showers
-  sigsymbols.push_back(newEditToolInfo( "Sig_showers",1044,"green","green",2));
-  //Freezing precip
-  sigsymbols.push_back(newEditToolInfo( "FZRA",1045,"red"));
-
-
+      {"Clouds", 1040, "black"},
+      // Fog
+      {"Sig_fg", 1041, "gulbrun"},
+      // precipitation, green lines
+      {"Sig32", 1032, "green"},
+      // snow
+      {"Sig_snow", 1042, "green", "black", 0},
+      // snow showers
+      {"Sig_snow_showers", 1043, "green", "green", 2},
+      // showers
+      {"Sig_showers", 1044, "green", "green", 2},
+      // Freezing precip
+      {"FZRA", 1045, "red"},
+  };
 
   WeatherFront::defineFronts(fronts);
   WeatherSymbol::defineSymbols(symbols);
@@ -3141,52 +3096,46 @@ void EditManager::setMapmodeinfo(){
 
   mapmodeinfo.clear();
 
-  vector<editModeInfo> eMode;
-  eMode.push_back(newEditModeInfo("Standard",eToolFieldStandard));
-  eMode.push_back(newEditModeInfo("Klasser", eToolFieldClasses));
-  eMode.push_back(newEditModeInfo("Tall",    eToolFieldNumbers));
+  vector<editModeInfo> eMode = {{"Standard", eToolFieldStandard}, {"Klasser", eToolFieldClasses}, {"Tall", eToolFieldNumbers}};
 
   vector<editModeInfo> dMode;
   int emidx=0;
   map <int,object_modes> objectModes;
   for (const std::string& edt : EdProd.drawtools) {
     if (edt == OBJECTS_ANALYSIS){
-      dMode.push_back(newEditModeInfo("Fronts",fronts));
+      dMode.push_back(editModeInfo("Fronts", fronts));
       objectModes[emidx++]=front_drawing;
-      dMode.push_back(newEditModeInfo("Symbols",symbols));
+      dMode.push_back(editModeInfo("Symbols", symbols));
       objectModes[emidx++]=symbol_drawing;
-      dMode.push_back(newEditModeInfo("Areas",areas));
+      dMode.push_back(editModeInfo("Areas", areas));
       objectModes[emidx++]=area_drawing;
     }
     if (edt == OBJECTS_SIGMAPS) {
-      dMode.push_back(newEditModeInfo("Symbols(SIGWX)",sigsymbols));
+      dMode.push_back(editModeInfo("Symbols(SIGWX)", sigsymbols));
       objectModes[emidx++]=symbol_drawing;
     }
   }
 
-
   // combine_mode types
-  vector<editToolInfo> regionlines;
-  regionlines.push_back(newEditToolInfo("regioner",0));
+  vector<editToolInfo> regionlines = {{"regioner", 0}};
 
   vector<editToolInfo> regions;
   const char* colours[3] = { "blue", "red", "darkGreen" };
   for (size_t i=0; i<regnames.size(); i++)
-    regions.push_back(newEditToolInfo(regnames[i], 0, colours[i%3]));
-
+    regions.push_back(editToolInfo(regnames[i], 0, colours[i % 3]));
 
   vector<editModeInfo> cMode;
   int cmidx=0;
   map <int,combine_modes> combineModes;
 
-  cMode.push_back(newEditModeInfo("Regionlinjer",regionlines));
+  cMode.push_back(editModeInfo("Regionlinjer", regionlines));
   combineModes[cmidx++]=set_borders;
-  cMode.push_back(newEditModeInfo("Regioner",regions));
+  cMode.push_back(editModeInfo("Regioner", regions));
   combineModes[cmidx++]=set_region;
 
-  mapmodeinfo.push_back(newMapModeInfo("fedit_mode",eMode));
-  mapmodeinfo.push_back(newMapModeInfo("draw_mode",dMode));
-  mapmodeinfo.push_back(newMapModeInfo("combine_mode",cMode));
+  mapmodeinfo.push_back(mapModeInfo("fedit_mode", eMode));
+  mapmodeinfo.push_back(mapModeInfo("draw_mode", dMode));
+  mapmodeinfo.push_back(mapModeInfo("combine_mode", cMode));
 
   WeatherSymbol::defineRegions(regions);
   EditObjects::defineModes(objectModes,combineModes);

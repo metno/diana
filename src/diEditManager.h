@@ -29,14 +29,9 @@
 #ifndef _diEditManager_h
 #define _diEditManager_h
 
-#include "diDrawingTypes.h"
+#include "diEditObjects.h"
 #include "diEditSpec.h"
 #include "diEditTypes.h"
-#include "diFieldEdit.h"
-#include "diMapMode.h"
-#include "diObjectManager.h"
-#include "diPlot.h"
-#include "diTimeTypes.h"
 
 #include <QString>
 
@@ -44,8 +39,10 @@
 
 class AnnotationPlot;
 class DiGLPainter;
+class EditEvent;
 class EventResult;
 class Field;
+class FieldEdit;
 class FieldPlotManager;
 class ObjectManager;
 class PlotModule;
@@ -123,7 +120,11 @@ private:
 
   void plotSingleRegion(DiGLPainter* gl, PlotOrder zorder);
 
+  /*! called from EditManager constructor. Defines edit tools used
+   *  for editing fields, and displaying and editing objects
+   */
   void initEditTools();
+
   void setMapmodeinfo();
 
   // fedit_mode types

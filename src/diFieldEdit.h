@@ -29,16 +29,18 @@
 #ifndef _diFieldEdit_h
 #define _diFieldEdit_h
 
-#include "diCommonTypes.h"
 #include "diDrawingTypes.h"
-#include "diMapMode.h"
-#include "diFieldPlot.h"
 #include "diEditSpec.h"
-
-#include <diField/diField.h>
+#include "diMapMode.h"
+#include "diPlotOrder.h"
 
 #include <vector>
-#include <set>
+
+class DiGLPainter;
+class Field;
+class FieldPlot;
+class FieldPlotManager;
+class StaticPlot;
 
 /// info about influence of field edit operations
 struct FieldInfluence {

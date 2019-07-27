@@ -50,6 +50,20 @@ struct editToolInfo
   bool spline;
   std::string linetype;
   std::string filltype;
+
+  editToolInfo(const std::string& newName, const int newIndex, const std::string& newColour = "black", const std::string& newBorderColour = "black",
+               const int& newSizeIncrement = 0, const bool& newSpline = true, const std::string& newLinetype = "solid",
+               const std::string& newFilltype = std::string())
+      : name(newName)
+      , index(newIndex)
+      , colour(newColour)
+      , borderColour(newBorderColour)
+      , sizeIncrement(newSizeIncrement)
+      , spline(newSpline)
+      , linetype(newLinetype)
+      , filltype(newFilltype)
+  {
+  }
 };
 
 /**
@@ -71,6 +85,11 @@ struct editModeInfo
 {
   std::string editmode;
   std::vector<editToolInfo> edittools;
+  editModeInfo(const std::string& newmode, const std::vector<editToolInfo>& newtools)
+      : editmode(newmode)
+      , edittools(newtools)
+  {
+  }
 };
 
 /**
@@ -80,6 +99,11 @@ struct mapModeInfo
 {
   std::string mapmode;
   std::vector<editModeInfo> editmodeinfo;
+  mapModeInfo(const std::string& newmode, const std::vector<editModeInfo>& newmodeinfo)
+      : mapmode(newmode)
+      , editmodeinfo(newmodeinfo)
+  {
+  }
 };
 
 /**

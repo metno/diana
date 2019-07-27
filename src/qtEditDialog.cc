@@ -50,6 +50,7 @@
 #include <QToolTip>
 
 #include "diController.h"
+#include "diDrawingTypes.h"
 #include "diEditManager.h"
 #include "diFieldPlotManager.h"
 #include "diLocalSetupParser.h"

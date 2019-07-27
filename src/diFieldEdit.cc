@@ -26,16 +26,16 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-//#define TESTICECONC
 
 //#define DEBUGCLASSES
 
 //#define DEBUGREDRAW
 
-#include "diana_config.h"
-
-#include "diField/diFieldUtil.h"
 #include "diFieldEdit.h"
+
+#include "diField/diField.h"
+#include "diField/diFieldUtil.h"
+#include "diFieldPlot.h"
 #include "diFieldPlotManager.h"
 #include "diGLPainter.h"
 #include "diPlotModule.h"
