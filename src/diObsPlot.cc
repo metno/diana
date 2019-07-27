@@ -325,13 +325,7 @@ int ObsPlot::getLevel()
 
 void ObsPlot::setObsTime(const miutil::miTime& t)
 {
-  if (obsTime.undef()) {
-    obsTime = t;
-  } else {
-    const miutil::miTime& ptime = getStaticPlot()->getTime();
-    if (abs(miTime::minDiff(ptime, t)) < abs(miTime::minDiff(ptime, obsTime)))
-      obsTime = t;
-  }
+  obsTime = t;
 }
 
 int ObsPlot::numVisiblePositions() const

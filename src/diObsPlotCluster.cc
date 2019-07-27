@@ -81,7 +81,6 @@ void ObsPlotCluster::processInputPE(const PlotCommand_cpv& inp)
       std::unique_ptr<ObsPlot> op(new ObsPlot(dialogname, plottype));
       obsm_->setPlotDefaults(op.get());
       op->setPlotInfo(cmd->all());
-      op->setCanvas(canvas_);
       op->setCollider(collider_.get());
       hasDevField_ |= op->mslp();
 
@@ -89,6 +88,11 @@ void ObsPlotCluster::processInputPE(const PlotCommand_cpv& inp)
     }
   }
   collider_->clear();
+}
+
+void ObsPlotCluster::changeTime(const miutil::miTime& mapTime)
+{
+  update(false, mapTime);
 }
 
 bool ObsPlotCluster::update(bool ifNeeded, const miutil::miTime& t)

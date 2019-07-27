@@ -172,22 +172,17 @@ bool SatPlotCluster::getSatArea(Area& a) const
   return true;
 }
 
-bool SatPlotCluster::setData()
+void SatPlotCluster::changeTime(const miutil::miTime& mapTime)
 {
   METLIBS_LOG_SCOPE();
-  bool allok = !plots_.empty();
-  for (Plot* plt : plots_) {
-    if (!setData(static_cast<SatPlot*>(plt)))
-      allok = false;
-  }
-  return allok;
+  for (SatPlot* sp : diutil::static_content_cast<SatPlot*>(plots_))
+    setData(sp, mapTime);
 }
 
-bool SatPlotCluster::setData(SatPlot* satp)
+bool SatPlotCluster::setData(SatPlot* satp, const miutil::miTime& mapTime)
 {
   Sat* satdata = satp->satdata;
-  const miutil::miTime& satptime = satp->getStaticPlot()->getTime();
-  bool ok = satm_->setData(satdata, satptime);
+  bool ok = satm_->setData(satdata, mapTime);
   satp->setPlotName(satdata->plotname);
   return ok;
 }

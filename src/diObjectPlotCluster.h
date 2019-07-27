@@ -51,7 +51,7 @@ public:
   bool enablePlotElement(const PlotElement& pe) override;
   void plot(DiGLPainter* gl, PlotOrder zorder) override;
   void cleanup() override;
-  bool empty() const override;
+  bool hasData() override;
 
 private:
   ObjectManager* objm;

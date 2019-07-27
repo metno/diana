@@ -1146,7 +1146,7 @@ command_result Bdiana::handlePlotCommand(int& k)
 
     // necessary to set time before plotCommands()..?
     miTime thetime = miTime::nowTime();
-    main.controller->setPlotTime(thetime);
+    main.controller->changeTime(thetime);
     main.commands(pcom);
 
     if (!set_ptime(main))
@@ -1154,7 +1154,7 @@ command_result Bdiana::handlePlotCommand(int& k)
 
     if (verbose)
       METLIBS_LOG_INFO("- updatePlots");
-    if (!main.controller->updatePlots() && failOnMissingData) {
+    if (!main.controller->hasData() && failOnMissingData) {
       METLIBS_LOG_WARN("Failed to update plots.");
       return cmd_abort;
     }

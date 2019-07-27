@@ -445,13 +445,9 @@ plottimes_t DrawingManager::getTimes() const
  * Prepares the manager for display of, and interaction with, items that
  * correspond to the given \a time.
 */
-bool DrawingManager::changeTime(const miutil::miTime& time)
+void DrawingManager::changeTime(const miutil::miTime& time)
 {
-  bool found = false;
-
-  // Check the requested time against the available times.
-  plottimes_t times = getTimes();
-  found = (times.find(time) != times.end());
+  mapTime_ = time;
 
   QDateTime dateTime;
   if (!time.undef()) {
@@ -492,16 +488,20 @@ bool DrawingManager::changeTime(const miutil::miTime& time)
 
     itemGroup->setTime(dateTime, allVisible);
   }
-
-  return found;
 }
 
-bool DrawingManager::changeProjection(const Area& /*mapArea*/, const Rectangle& plotSize)
+bool DrawingManager::hasData()
+{
+  // Check the requested time against the available times.
+  plottimes_t times = getTimes();
+  return (times.find(mapTime_) != times.end());
+}
+
+void DrawingManager::changeProjection(const Area& /*mapArea*/, const Rectangle& plotSize)
 {
   // Record the new plot rectangle and area.
   // Update the edit rectangle so that objects are positioned consistently.
   setEditRect(plotSize);
-  return true;
 }
 
 void DrawingManager::setCanvas(DiCanvas* canvas)

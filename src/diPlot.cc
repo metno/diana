@@ -65,6 +65,11 @@ void Plot::changeTime(const miutil::miTime& /*newTime*/)
   // ignore
 }
 
+bool Plot::hasData()
+{
+  return true;
+}
+
 StaticPlot* Plot::getStaticPlot() const
 {
   return PlotModule::instance()->getStaticPlot();

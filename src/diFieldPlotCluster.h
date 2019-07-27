@@ -44,8 +44,7 @@ public:
   FieldPlotCluster(FieldPlotManager* fieldplotm);
   ~FieldPlotCluster();
 
-  //! returns true iff there are fields with data
-  bool update();
+  void changeTime(const miutil::miTime& mapTime) override;
 
   void getDataAnnotations(std::vector<std::string>& anno) override;
 

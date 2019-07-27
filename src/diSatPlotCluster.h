@@ -49,15 +49,14 @@ class SatPlotCluster : public PlotCluster
 public:
   SatPlotCluster(SatManager* satm);
 
-  bool setData();
+  void changeTime(const miutil::miTime& mapTime) override;
 
+  plottimes_t getTimes() override;
   void getDataAnnotations(std::vector<std::string>& anno) override;
 
   bool getGridResolution(float& rx, float& ry) const;
 
   bool getSatArea(Area& a) const;
-
-  plottimes_t getTimes() override;
 
   /// get name++ of current channels (with calibration)
   std::vector<std::string> getCalibChannels();
@@ -69,7 +68,7 @@ public:
   void setSatAuto(bool autoFile, const std::string& satellite, const std::string& file);
 
 private:
-  bool setData(SatPlot* satp);
+  bool setData(SatPlot* satp, const miutil::miTime& mapTime);
   void processInputPE(const PlotCommand_cpv&) override;
 
 private:

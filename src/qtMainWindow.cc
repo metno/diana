@@ -2031,8 +2031,7 @@ void DianaMainWindow::setPlotTime(const miutil::miTime& t)
     sendLetter(letter);
   }
 
-  contr->setPlotTime(t);
-  contr->updatePlots();
+  contr->changeTime(t);
   requestBackgroundBufferUpdate();
 
   //to be done whenever time changes (step back/forward, MenuOK etc.)

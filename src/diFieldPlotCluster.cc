@@ -58,19 +58,15 @@ void FieldPlotCluster::processInputPE(const PlotCommand_cpv& inp)
 
   for (auto pc : inp) {
     std::unique_ptr<FieldPlot> fp(fieldplotm_->createPlot(pc));
-    if (fp.get()) {
-      fp->setCanvas(canvas_);
+    if (fp.get())
       add(fp.release());
-    }
   }
 }
 
-bool FieldPlotCluster::update()
+void FieldPlotCluster::changeTime(const miutil::miTime& mapTime)
 {
-  bool haveFieldData = false;
   for (FieldPlot* fp : diutil::static_content_cast<FieldPlot*>(plots_))
-    haveFieldData |= fp->updateIfNeeded();
-  return haveFieldData;
+    fp->changeTime(mapTime);
 }
 
 void FieldPlotCluster::getDataAnnotations(std::vector<std::string>& anno)

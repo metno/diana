@@ -48,6 +48,8 @@ public:
   void plot(DiGLPainter* gl, PlotOrder zorder) override;
   plottimes_t getTimes() override;
 
+  void changeTime(const miutil::miTime& mapTime) override;
+
   //! returns true iff there are any obs plots with data
   bool update(bool ifNeeded, const miutil::miTime& t);
 

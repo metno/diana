@@ -110,7 +110,7 @@ void ObjectPlotCluster::cleanup()
   objm->clearObjects();
 }
 
-bool ObjectPlotCluster::empty() const
+bool ObjectPlotCluster::hasData()
 {
-  return !objm->objectsDefined();
+  return objm->objectsDefined();
 }

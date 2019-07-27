@@ -187,6 +187,8 @@ void PlotModule::preparePlots(const PlotCommand_cpv& vpi)
   }
 
   defineMapArea();
+  // changeProjection()?
+  // changeTime()?
 }
 
 void PlotModule::prepareArea(const PlotCommand_cpv& inp)
@@ -361,48 +363,40 @@ void PlotModule::setAnnotations()
   diutil::insert_all(vap, objectplots_->getExtraAnnotations());
 }
 
-bool PlotModule::updatePlots()
+void PlotModule::changeTime(const miutil::miTime& mapTime)
 {
   METLIBS_LOG_SCOPE();
-  const miTime& t = staticPlot_->getTime();
+  staticPlot_->setTime(mapTime);
 
-  bool nodata = mapplots_->empty(); // false when data are found
+  satplots_->changeTime(mapTime);
+  fieldplots_->changeTime(mapTime);
 
-  if (fieldplots_->update()) {
-    nodata = false;
-    // level for vertical level observations "as field"
-    staticPlot_->setVerticalLevel(fieldplots_->getVerticalLevel());
-  }
+  // level for vertical level observations "as field"
+  staticPlot_->setVerticalLevel(fieldplots_->getVerticalLevel());
 
-  // prepare data for satellite plots
-  if (satplots_->setData())
-    nodata = false;
-  else
-    METLIBS_LOG_DEBUG("SatManager returned false from setData");
-
-  if (obsplots_->update(false, t))
-    nodata = false;
-
-  // prepare met-objects
-  objectplots_->changeTime(t);
-  if (!objectplots_->empty())
-    nodata = false;
-
-  // prepare item stored in miscellaneous managers
+  obsplots_->changeTime(mapTime);
+  objectplots_->changeTime(mapTime);
   for (Manager* m : boost::adaptors::values(managers)) {
-    // If the preparation fails then return false to indicate an error.
-    if (m->isEnabled() && !m->changeTime(t))
-      nodata = false;
+    if (m->isEnabled())
+      m->changeTime(mapTime);
   }
 
   setAnnotations();
+}
 
-  return !nodata;
+bool PlotModule::hasData()
+{
+  if (mapplots_->hasData() || fieldplots_->hasData() || satplots_->hasData() || obsplots_->hasData() || objectplots_->hasData())
+    return true;
+  for (Manager* m : boost::adaptors::values(managers)) {
+    if (m->isEnabled() && m->hasData())
+      return true;
+  }
+  return false;
 }
 
 bool PlotModule::defineMapAreaFromData(Area& newMapArea, bool& allowKeepCurrentArea)
 {
-  satplots_->setData();
   if (satplots_->getSatArea(newMapArea)) {
     // set area equal to first EXISTING sat-area
     allowKeepCurrentArea = true;
@@ -415,7 +409,6 @@ bool PlotModule::defineMapAreaFromData(Area& newMapArea, bool& allowKeepCurrentA
     return true;
   }
 
-  fieldplots_->update();
   if (fieldplots_->getRealFieldArea(newMapArea)) {
     allowKeepCurrentArea = true;
     return true;
@@ -959,12 +952,6 @@ void PlotModule::getCapabilitiesTime(plottimes_t& ctimes, const PlotCommand_cpv&
   }
 }
 
-// set plottime
-void PlotModule::setPlotTime(const miTime& t)
-{
-  staticPlot_->setTime(t);
-}
-
 void PlotModule::updateObs()
 {
   // Update ObsPlots if data files have changed
@@ -1134,7 +1121,7 @@ void PlotModule::deleteAllEditAnnotations()
 bool PlotModule::startTrajectoryComputation()
 {
   METLIBS_LOG_SCOPE();
-  if (trajectoryplots_->empty())
+  if (trajectoryplots_->hasData())
     return false;
 
   TrajectoryPlot* tp = trajectoryplots_->getPlot(0);
@@ -1162,7 +1149,7 @@ void PlotModule::stopTrajectoryComputation()
 // write trajectory positions to file
 bool PlotModule::printTrajectoryPositions(const std::string& filename)
 {
-  if (!trajectoryplots_->empty())
+  if (trajectoryplots_->hasData())
     return trajectoryplots_->getPlot(0)->printTrajectoryPositions(filename);
 
   return false;

@@ -70,7 +70,11 @@ public:
   virtual void changeProjection(const Area& mapArea, const Rectangle& plotSize);
   virtual void changeTime(const miutil::miTime& mapTime);
 
-  virtual bool empty() const;
+  //! Check if some plot has data.
+  /*! In some cases, this should verify that that expected content is actually available.
+   *  \returns true iff some plot has data
+   */
+  virtual bool hasData();
 
 protected:
   virtual void processInputPE(const PlotCommand_cpv& cmds);

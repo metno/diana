@@ -160,9 +160,11 @@ public:
   void getCapabilitiesTime(plottimes_t& okTimes, const PlotCommand_cpv& pinfos, bool allTimes = true);
 
   /// set plottime
-  void setPlotTime(const miutil::miTime&);
-  /// update plots
-  bool updatePlots();
+  void changeTime(const miutil::miTime&);
+
+  /// check if any plot has data
+  bool hasData();
+
   /// toggle area conservatism
   void keepCurrentArea(bool);
 

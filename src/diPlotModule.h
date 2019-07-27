@@ -176,8 +176,11 @@ public:
   /// get annotations from all plots
   void setAnnotations();
 
-  /// update all plot objects, returning true if successful
-  bool updatePlots();
+  //! Check if any plot has data
+  /*! Results are useful only after calling setMapArea and changeTime.
+   *  \returns true if any plot says it has data
+   */
+  bool hasData();
 
   /// set maparea from map spec., sat or fields
   void defineMapArea();
@@ -229,8 +232,8 @@ public:
   //! returns union or intersection of plot times from all pinfos
   void getCapabilitiesTime(std::set<miutil::miTime>& okTimes, const PlotCommand_cpv& pinfos, bool time_union = true);
 
-  /// set plottime (forwarded to staticPlot_)
-  void setPlotTime(const miutil::miTime&);
+  /// set plottime and inform plots
+  void changeTime(const miutil::miTime&);
 
   /// Update ObsPlots if data files have changed
   void updateObs();

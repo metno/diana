@@ -133,19 +133,19 @@ int FieldPlot::getLevel() const
   return fields[0]->level;
 }
 
-bool FieldPlot::updateIfNeeded()
+void FieldPlot::changeTime(const miutil::miTime& mapTime)
 {
-  const miTime& t = getStaticPlot()->getTime();
-  bool have_data;
-  const bool update = (ftime.undef() || (ftime != t && cmd_->time.empty()) || fields.empty());
+  const bool update = (ftime.undef() || (ftime != mapTime && cmd_->time.empty()) || fields.empty());
   if (update && fieldplotm_ != 0) {
     std::vector<Field*> fv;
-    have_data = fieldplotm_->makeFields(cmd_, t, fv);
-    setData(fv, t);
-  } else {
-    have_data = !fields.empty();
+    fieldplotm_->makeFields(cmd_, mapTime, fv);
+    setData(fv, mapTime);
   }
-  return have_data;
+}
+
+bool FieldPlot::hasData()
+{
+  return !fields.empty();
 }
 
 void FieldPlot::getAnnotation(string& s, Colour& c) const

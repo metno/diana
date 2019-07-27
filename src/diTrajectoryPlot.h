@@ -47,6 +47,7 @@ public:
   void plot(DiGLPainter* gl, PlotOrder zorder) override;
 
   void changeProjection(const Area& mapArea, const Rectangle& plotSize) override;
+  void changeTime(const miutil::miTime& newTime) override;
 
   ///Start positions, colours, lines, field, etc
   int trajPos(const std::vector<std::string>&);
@@ -93,6 +94,7 @@ private:
   TrajectoryData_v trajectories;
   std::vector<QPolygonF> reprojectedXY;
 
+  miutil::miTime mapTime_;
   float  timeStep;      // timestep in seconds
   int    numIterations; // fixed no. of iterations each timestep
 };

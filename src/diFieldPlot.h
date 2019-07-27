@@ -65,7 +65,8 @@ public:
 
   std::string getEnabledStateKey() const override;
 
-  bool updateIfNeeded();
+  void changeTime(const miutil::miTime& mapTime) override;
+  bool hasData() override;
 
   //! Extract plotting-parameters from plot command
   //* Also fetches some default options from FieldPlotManager. */

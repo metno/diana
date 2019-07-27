@@ -137,6 +137,11 @@ void TrajectoryPlot::switchProjection()
   mNeedPrepare = false;
 }
 
+void TrajectoryPlot::changeTime(const miutil::miTime& newTime)
+{
+  mapTime_ = newTime;
+}
+
 int TrajectoryPlot::trajPos(const vector<string>& vstr)
 {
   METLIBS_LOG_SCOPE();
@@ -249,17 +254,15 @@ void TrajectoryPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     return;
   }
 
-  const miutil::miTime& tnow = getStaticPlot()->getTime();
-
   for (size_t i=0; i<reprojectedXY.size(); ++i) {
     const TrajectoryData& t = trajectories[i];
     const QPolygonF& r = reprojectedXY[i];
 
     QPolygonF past, future;
     for (int j = 0; j < t.size(); j += 1) {
-      if (t.time(j) <= tnow)
+      if (t.time(j) <= mapTime_)
         past << r.at(j);
-      if (t.time(j) >= tnow)
+      if (t.time(j) >= mapTime_)
         future << r.at(j);
     }
 
@@ -281,7 +284,7 @@ void TrajectoryPlot::plot(DiGLPainter* gl, PlotOrder zorder)
       gl->drawArrowHead(p1.x(), p1.y(), p2.x(), p2.y(), d*10);
     }
 
-    if (t.time(t.mStartIndex) <= tnow)
+    if (t.time(t.mStartIndex) <= mapTime_)
       gl->setColour(cP);
     else
       gl->setColour(cF);

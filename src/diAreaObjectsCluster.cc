@@ -100,7 +100,7 @@ void AreaObjectsCluster::areaObjectsCommand(const std::string& command, const st
   }
 }
 
-bool AreaObjectsCluster::empty() const
+bool AreaObjectsCluster::hasData()
 {
-  return vareaobjects.empty();
+  return !vareaobjects.empty();
 }

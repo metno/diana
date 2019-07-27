@@ -67,9 +67,10 @@ public:
   // parse DRAWING section of setup file (defines Drawing products)
   virtual bool parseSetup() override;
 
-  virtual bool changeProjection(const Area& mapArea, const Rectangle& plotSize) override;
+  virtual void changeProjection(const Area& mapArea, const Rectangle& plotSize) override;
   virtual QString loadDrawing(const QString &name, const QString &fileName);
-  virtual bool changeTime(const miutil::miTime& time) override;
+  void changeTime(const miutil::miTime& time) override;
+  bool hasData() override;
   virtual void setCanvas(DiCanvas* canvas) override;
   virtual void plot(DiGLPainter* gl, bool under, bool over) override;
   virtual bool processInput(const PlotCommand_cpv& inp) override;
@@ -146,6 +147,8 @@ protected:
   QMap<QString, QDateTime> lastUpdated_;
   QHash<QString, QStringList> filter_;
   bool allItemsVisible_;
+
+  miutil::miTime mapTime_;
 
 private:
   QString workDir_;

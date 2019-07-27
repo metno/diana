@@ -258,9 +258,9 @@ void Controller::getPlotTimes(std::map<std::string, plottimes_t>& times)
 }
 
 // set plottime
-void Controller::setPlotTime(const miTime& t)
+void Controller::changeTime(const miTime& t)
 {
-  plotm->setPlotTime(t);
+  plotm->changeTime(t);
 }
 
 // toggle area conservatism
@@ -269,10 +269,9 @@ void Controller::keepCurrentArea(bool b)
   plotm->setKeepCurrentArea(b);
 }
 
-// update plot-classes with new data
-bool Controller::updatePlots()
+bool Controller::hasData()
 {
-  return plotm->updatePlots();
+  return plotm->hasData();
 }
 
 // reload obsevations

@@ -111,10 +111,8 @@ bool DianaImageSource::setTimeFromStep()
 
 void DianaImageSource::setPlotTime(const miutil::miTime& time)
 {
-  if (time != controller()->getPlotTime()) {
-    controller()->setPlotTime(time);
-    controller()->updatePlots();
-  }
+  if (time != controller()->getPlotTime())
+    controller()->changeTime(time);
 }
 
 void DianaImageSource::finish()

@@ -44,7 +44,7 @@ public:
 
   void changeProjection(const Area& mapArea, const Rectangle& plotSize) override;
   void plot(DiGLPainter* gl, PlotOrder zorder) override;
-  bool empty() const;
+  bool hasData() override;
 
   ///put area into list of area objects
   void makeAreaObjects(std::string name, std::string areastring, int id);

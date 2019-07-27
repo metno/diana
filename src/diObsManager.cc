@@ -86,6 +86,7 @@ void ObsManager::prepare(ObsPlot* oplot, const miutil::miTime& time)
 {
   METLIBS_LOG_SCOPE();
 
+  miutil::miTime obsTime;
   oplot->clear();
   oplot->setPopupSpec(popupSpec);
   for (ObsReader_p reader : readers(oplot)) {
@@ -98,12 +99,16 @@ void ObsManager::prepare(ObsPlot* oplot, const miutil::miTime& time)
     reader->getData(req, res);
     oplot->addObsData(res->data());
 
-    if (!res->time().undef())
-      oplot->setObsTime(res->time());
+    const miutil::miTime& rtime = res->time();
+    if (!rtime.undef()) {
+      if (obsTime.undef() || std::abs(miTime::minDiff(time, res->time())) < std::abs(miTime::minDiff(time, obsTime)))
+        obsTime = res->time();
+    }
     oplot->setParameters(reader->getParameters());
     oplot->setObsExtraAnnotations(reader->getExtraAnnotations());
   }
 
+  oplot->setObsTime(obsTime);
   oplot->setData();
 }
 

@@ -176,7 +176,6 @@ void WebMapPlot::plot(DiGLPainter* gl, PlotOrder porder)
   if (!mLayer)
     return;
 
-  changeTime(getStaticPlot()->getTime());
   if (mTimeDimensionIdx >= 0 && mTimeSelected < 0)
     return; // has time axis, but time not found within tolerance
 

@@ -69,7 +69,6 @@ void MapPlotCluster::processInputPE(const PlotCommand_cpv& inp)
     } else {
       // make new mapPlot object and push it on the list
       std::unique_ptr<MapPlot> mp(new MapPlot());
-      mp->setCanvas(canvas_);
       if (mp->prepare(pc, false))
         add(mp.release());
     }

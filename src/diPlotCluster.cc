@@ -164,14 +164,19 @@ void PlotCluster::changeTime(const miutil::miTime& mapTime)
     p->changeTime(mapTime);
 }
 
-bool PlotCluster::empty() const
+bool PlotCluster::hasData()
 {
-  return plots_.empty();
+  for (Plot* p : plots_) {
+    if (p->hasData())
+      return true;
+  }
+  return false;
 }
 
 void PlotCluster::processInputPE(const PlotCommand_cpv&) {}
 
 void PlotCluster::add(Plot* plot)
 {
+  plot->setCanvas(canvas_);
   plots_.push_back(plot);
 }

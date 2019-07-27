@@ -136,5 +136,5 @@ plottimes_t BdianaMain::getTimes()
 
 void BdianaMain::setTime(const miutil::miTime& time)
 {
-  controller->setPlotTime(time);
+  controller->changeTime(time);
 }

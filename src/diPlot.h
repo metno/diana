@@ -62,6 +62,7 @@ public:
 
   virtual void changeProjection(const Area& mapArea, const Rectangle& plotSize);
   virtual void changeTime(const miutil::miTime& newTime);
+  virtual bool hasData();
 
   /// enable this plot object
   void setEnabled(bool enable=true);

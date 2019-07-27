@@ -330,18 +330,21 @@ plottimes_t WebMapManager::getTimes() const
   return times;
 }
 
-bool WebMapManager::changeProjection(const Area& mapArea, const Rectangle& plotSize)
+void WebMapManager::changeProjection(const Area& mapArea, const Rectangle& plotSize)
 {
   METLIBS_LOG_SCOPE();
   for (WebMapPlot* wmp : webmaps)
     wmp->changeProjection(mapArea, plotSize);
-  return true;
 }
 
-bool WebMapManager::changeTime(const miutil::miTime& time)
+void WebMapManager::changeTime(const miutil::miTime& time)
 {
   METLIBS_LOG_SCOPE();
   for (WebMapPlot* wmp : webmaps)
     wmp->changeTime(time);
-  return true;
+}
+
+bool WebMapManager::hasData()
+{
+  return !webmaps.empty(); // FIXME webmaps may not have data
 }

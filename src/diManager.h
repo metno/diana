@@ -61,8 +61,9 @@ public:
   virtual bool parseSetup() = 0;
 
   virtual plottimes_t getTimes() const = 0;
-  virtual bool changeProjection(const Area& mapArea, const Rectangle& plotSize) = 0;
-  virtual bool changeTime(const miutil::miTime& time) = 0;
+  virtual void changeProjection(const Area& mapArea, const Rectangle& plotSize) = 0;
+  virtual void changeTime(const miutil::miTime& time) = 0;
+  virtual bool hasData() = 0;
 
   virtual void setCanvas(DiCanvas* canvas);
   DiCanvas* canvas() const
