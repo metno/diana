@@ -397,7 +397,7 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
     change = fieldplots_->enablePlotElement(pe);
   } else if (pe.type == obsplots_->keyPlotElement()) {
     change = obsplots_->enablePlotElement(pe);
-  } else if (pe.type == "RASTER") {
+  } else if (pe.type == satplots_->keyPlotElement()) {
     change = satplots_->enablePlotElement(pe);
   } else if (pe.type == "OBJECTS") {
     change = objm->enablePlotElement(pe);

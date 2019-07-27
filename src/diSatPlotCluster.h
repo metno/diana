@@ -43,15 +43,6 @@
 class SatPlot;
 class SatManager;
 
-/**
-  \brief Managing satellite and radar images
-
-  - parse setup
-  - decode plot info strings
-  - managing file/time info
-  - read data
-  - making rgb images, mosaic of images
-*/
 class SatPlotCluster : public PlotCluster
 {
 
