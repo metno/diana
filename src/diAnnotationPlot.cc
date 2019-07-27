@@ -131,19 +131,11 @@ const vector<std::string> AnnotationPlot::expanded(const vector<std::string>& vs
   vector<std::string> evs;
   for (const std::string& s : vs) {
     std::string es = insertTime(s, getStaticPlot()->getTime());
-
-    if (useAnaTime) {
-      // only using the latest analysis time (yet...)
-      miTime anaTime;
-      for (const miTime& fat : fieldAnaTime) {
-        if (!fat.undef() && (anaTime.undef() || anaTime < fat))
-          anaTime = fat;
-      }
+    if (!fieldAnaTime.undef()) {
       miutil::replace(es, "@", "$");
       miutil::replace(es, "&", "%");
-      es = insertTime(es, anaTime);
+      es = insertTime(es, fieldAnaTime);
     }
-
     evs.push_back(es);
   }
 
@@ -231,8 +223,16 @@ void AnnotationPlot::setData(const vector<Annotation>& a, const plottimes_t& fie
 {
   if (atype != anno_text)
     annotations = a;
-  if (useAnaTime)
-    fieldAnaTime = fieldAnalysisTime;
+
+  fieldAnaTime = miTime();
+  if (useAnaTime) {
+    // only using the latest analysis time (yet...)
+    for (const miTime& fat : fieldAnalysisTime) {
+      if (!fat.undef() && (fieldAnaTime.undef() || fieldAnaTime < fat))
+        fieldAnaTime = fat;
+    }
+  }
+
   splitAnnotations();
   putElements();
 }

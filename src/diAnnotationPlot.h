@@ -147,7 +147,7 @@ private:
   float maxwid;
 
   bool useAnaTime;
-  plottimes_t fieldAnaTime;
+  miutil::miTime fieldAnaTime;
   Colour currentColour;
 
   // expand string-variables
