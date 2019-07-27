@@ -114,6 +114,7 @@ SET (LIBDIANA_SOURCES
   diLinetype.cc
   diLocalSetupParser.cc
   diLocationPlot.cc
+  diLocationPlotCluster.cc
   diLogFile.cc
   diMItiff.cc
   diMainPaintable.cc

@@ -44,7 +44,6 @@ class AreaObjectsCluster;
 class FieldPlotManager;
 class FieldPlotCluster;
 struct LocationData;
-class LocationPlot;
 class Manager;
 class ObsManager;
 class ObsPlotCluster;
@@ -55,6 +54,7 @@ class ObjectPlotCluster;
 class EditManager;
 class DrawingManager;
 class SatPlotCluster;
+class LocationPlotCluster;
 class MapPlotCluster;
 class StationPlotCluster;
 class Field;
@@ -94,6 +94,7 @@ private:
   std::unique_ptr<ObjectPlotCluster> objectplots_;   // obsject plots
   std::unique_ptr<TrajectoryPlotCluster> trajectoryplots_; // vector of trajectory plots
   std::vector<MeasurementsPlot*> vMeasurementsPlot; // vector of measurements plots
+  std::unique_ptr<LocationPlotCluster> locationplots_; // location (vcross,...) to be plotted
   std::vector<AnnotationPlot*> vap; // vector of annotation plots
   std::vector<AnnotationPlot*> editVap;   //edit object labels
   std::unique_ptr<AreaObjectsCluster> areaobjects_;
@@ -111,8 +112,6 @@ private:
   std::unique_ptr<StaticPlot> staticPlot_;
 
   DiCanvas* mCanvas;
-
-  std::vector<LocationPlot*> locationPlots; // location (vcross,...) to be plotted
 
   //! Rectangle with phys coordinates of rubberband.
   Rectangle rubberband;

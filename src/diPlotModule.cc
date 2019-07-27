@@ -37,6 +37,7 @@
 #include "diFieldPlotManager.h"
 #include "diKVListPlotCommand.h"
 #include "diLocationPlot.h"
+#include "diLocationPlotCluster.h"
 #include "diManager.h"
 #include "diMapAreaSetup.h"
 #include "diMapPlotCluster.h"
@@ -259,16 +260,7 @@ vector<PlotElement> PlotModule::getPlotElements()
 
   if (areaobjects_.get())
     areaobjects_->addPlotElements(pel);
-
-  // get locationPlot annotations
-  for (size_t j = 0; j < locationPlots.size(); j++) {
-    std::string str = locationPlots[j]->getPlotName();
-    if (not str.empty()) {
-      str += "# " + miutil::from_number(int(j));
-      bool enabled = locationPlots[j]->isEnabled();
-      pel.push_back(PlotElement("LOCATION", str, "LOCATION", enabled));
-    }
-  }
+  locationplots_->addPlotElements(pel);
 
   for (Manager* m : boost::adaptors::values(managers)) {
     diutil::insert_all(pel, m->getPlotElements());
@@ -279,24 +271,8 @@ vector<PlotElement> PlotModule::getPlotElements()
 
 void PlotModule::enablePlotElement(const PlotElement& pe)
 {
-  Plot* plot = 0;
-  if (pe.type == "LOCATION") {
-    for (unsigned int i = 0; i < locationPlots.size(); i++) {
-      std::string str = locationPlots[i]->getPlotName() + "# " + miutil::from_number(int(i));
-      if (str == pe.str) {
-        plot = locationPlots[i];
-        break;
-      }
-    }
-  }
-
   bool change = false;
-  if (plot) {
-    if (plot->isEnabled() != pe.enabled) {
-      plot->setEnabled(pe.enabled);
-      change = true;
-    }
-  } else if (pe.type == fieldplots_->keyPlotElement()) {
+  if (pe.type == fieldplots_->keyPlotElement()) {
     change = fieldplots_->enablePlotElement(pe);
   } else if (pe.type == obsplots_->keyPlotElement()) {
     change = obsplots_->enablePlotElement(pe);
@@ -310,6 +286,8 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
     change = objectplots_->enablePlotElement(pe);
   } else if (areaobjects_ && pe.type == areaobjects_->keyPlotElement()) {
     change = areaobjects_->enablePlotElement(pe);
+  } else if (pe.type == locationplots_->keyPlotElement()) {
+    change = locationplots_->enablePlotElement(pe);
   } else {
     const QString qtype = QString::fromStdString(pe.type);
     for (Manager* m : boost::adaptors::values(managers)) {
@@ -352,14 +330,7 @@ void PlotModule::setAnnotations()
   stationplots_->addAnnotations(annotations);
   objectplots_->addAnnotations(annotations);
   trajectoryplots_->addAnnotations(annotations);
-
-  // get locationPlot annotations
-  for (LocationPlot* lp : locationPlots) {
-    if (!lp->isEnabled())
-      continue;
-    lp->getAnnotation(ann.str, ann.col);
-    annotations.push_back(ann);
-  }
+  locationplots_->addAnnotations(annotations);
 
   // Miscellaneous managers
   ann.col = Colour(0, 0, 0);
@@ -588,9 +559,7 @@ void PlotModule::plotUnder(DiGLPainter* gl)
       m->plot(gl, PO_LINES_BACKGROUND);
   }
 
-  // plot locationPlots (vcross,...)
-  for (size_t i = 0; i < locationPlots.size(); i++)
-    locationPlots[i]->plot(gl, PO_LINES);
+  locationplots_->plot(gl, PO_LINES);
 
   // plot fields (isolines, vectors etc. after map)
   fieldplots_->plot(gl, PO_LINES);
@@ -914,6 +883,7 @@ void PlotModule::setManagers(FieldPlotManager* fpm, ObsManager* om, SatManager* 
   satplots_.reset(new SatPlotCluster(satm));
   stationplots_.reset(new StationPlotCluster(stam));
   objectplots_.reset(new ObjectPlotCluster(objm));
+  locationplots_.reset(new LocationPlotCluster());
 }
 
 Manager *PlotModule::getManager(const std::string &name)
@@ -1019,60 +989,26 @@ AreaObjectsCluster* PlotModule::areaobjects()
   return areaobjects_.get();
 }
 
-
-//********** plotting and selecting locationPlots on the map *************
-
-namespace {
-typedef std::vector<LocationPlot*> LocationPlot_xv;
-LocationPlot_xv::iterator find_lp(LocationPlot_xv& lpv, const std::string& name)
-{
-  return std::find_if(lpv.begin(), lpv.end(), [&](LocationPlot* lp) { return name == lp->getName(); });
-}
-} // namespace
-
 void PlotModule::putLocation(const LocationData& locationdata)
 {
-#ifdef DEBUGPRINT
-  METLIBS_LOG_SCOPE();
-#endif
-  const auto p = find_lp(locationPlots, locationdata.name);
-  if (p != locationPlots.end()) {
-    LocationPlot* lp = *p;
-    const bool visible = lp->isVisible();
-    lp->setData(locationdata);
-    if (!visible)
-      lp->hide();
-  } else {
-    LocationPlot* lp = new LocationPlot();
-    lp->setData(locationdata);
-    locationPlots.push_back(lp);
-  }
+  locationplots_->putLocation(locationdata);
   setAnnotations();
 }
 
 void PlotModule::deleteLocation(const std::string& name)
 {
-  const auto p = find_lp(locationPlots, name);
-  if (p != locationPlots.end()) {
-    delete *p;
-    locationPlots.erase(p);
+  if (locationplots_->deleteLocation(name))
     setAnnotations();
-  }
 }
 
 void PlotModule::setSelectedLocation(const std::string& name, const std::string& elementname)
 {
-  const auto p = find_lp(locationPlots, name);
-  if (p != locationPlots.end())
-    (*p)->setSelected(elementname);
+  locationplots_->setSelectedLocation(name, elementname);
 }
 
 std::string PlotModule::findLocation(int x, int y, const std::string& name)
 {
-  const auto p = find_lp(locationPlots, name);
-  if (p != locationPlots.end())
-    return (*p)->find(x, y);
-  return std::string();
+  return locationplots_->findLocation(x, y, name);
 }
 
 //****************************************************
@@ -1086,8 +1022,8 @@ void PlotModule::trajPos(const vector<std::string>& vstr)
 void PlotModule::measurementsPos(const vector<std::string>& vstr)
 {
   //if vstr starts with "quit", delete all MeasurementsPlot objects
-  for (size_t j = 0; j < vstr.size(); j++) {
-    if (diutil::startswith(vstr[j], "quit")) {
+  for (const std::string& s : vstr) {
+    if (diutil::startswith(s, "quit")) {
       diutil::delete_all_and_clear(vMeasurementsPlot);
       return;
     }
