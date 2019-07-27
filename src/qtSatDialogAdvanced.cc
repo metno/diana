@@ -61,8 +61,8 @@ SatDialogAdvanced::SatDialogAdvanced(QWidget* parent, const SatDialogInfo& info)
   connect(cutCheckBox, &QCheckBox::toggled, this, &SatDialogAdvanced::cutCheckBoxSlot);
   connect(cutCheckBox, &QCheckBox::toggled, this, &SatDialogAdvanced::SatChanged);
 
-  connect(scut, SIGNAL(valueChanged(int)), SLOT(cutDisplay(int)));
-  connect(scut, SIGNAL(valueChanged(int)), SIGNAL(SatChanged()));
+  connect(scut, &QSlider::valueChanged, this, &SatDialogAdvanced::cutDisplay);
+  connect(scut, &QSlider::valueChanged, this, &SatDialogAdvanced::SatChanged);
 
   connect(cut, &ToggleButton::toggled, this, &SatDialogAdvanced::greyCut);
   connect(cut, &ToggleButton::clicked, this, &SatDialogAdvanced::SatChanged);
@@ -75,8 +75,8 @@ SatDialogAdvanced::SatDialogAdvanced(QWidget* parent, const SatDialogInfo& info)
   alphacutlcd = LCDNumber(4, this);
 
   salphacut = Slider(m_alphacut.minValue, m_alphacut.maxValue, 1, m_alphacut.value, Qt::Horizontal, this);
-  connect(salphacut, SIGNAL(valueChanged(int)), SLOT(alphacutDisplay(int)));
-  connect(salphacut, SIGNAL(valueChanged(int)), SIGNAL(SatChanged()));
+  connect(salphacut, &QSlider::valueChanged, this, &SatDialogAdvanced::alphacutDisplay);
+  connect(salphacut, &QSlider::valueChanged, this, &SatDialogAdvanced::SatChanged);
 
   // Alpha
   alpha = new ToggleButton(this, tr("Alpha"));
@@ -242,7 +242,7 @@ void SatDialogAdvanced::colourcutOn()
 void SatDialogAdvanced::colourcutClicked(bool on)
 {
   if (on && !colourList->count())
-    Q_EMIT getSatColours();
+    /*Q_EMIT*/ getSatColours();
 }
 
 void SatDialogAdvanced::applyToCommand(SatPlotCommand_p cmd)
