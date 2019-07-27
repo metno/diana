@@ -91,8 +91,6 @@ private:
   std::vector<TrajectoryPlot*> vtp; // vector of trajectory plots
   std::vector<MeasurementsPlot*> vMeasurementsPlot; // vector of measurements plots
   std::vector<AnnotationPlot*> vap; // vector of annotation plots
-  std::vector<AnnotationPlot*> obsVap; //display obs annotation
-  std::vector<AnnotationPlot*> objectVap; //display object label
   std::vector<AnnotationPlot*> editVap;   //edit object labels
   std::unique_ptr<AreaObjectsCluster> areaobjects_;
 
