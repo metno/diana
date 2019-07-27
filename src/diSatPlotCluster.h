@@ -51,7 +51,7 @@ public:
 
   bool setData();
 
-  void getDataAnnotations(std::vector<std::string>& anno);
+  void getDataAnnotations(std::vector<std::string>& anno) override;
 
   bool getGridResolution(float& rx, float& ry) const;
 

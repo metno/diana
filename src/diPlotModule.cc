@@ -42,6 +42,7 @@
 #include "diMapPlotCluster.h"
 #include "diMeasurementsPlot.h"
 #include "diObjectManager.h"
+#include "diObjectPlotCluster.h"
 #include "diObsManager.h"
 #include "diObsPlotCluster.h"
 #include "diSatManager.h"
@@ -119,6 +120,7 @@ void PlotModule::setCanvas(DiCanvas* canvas)
   mapplots_->setCanvas(canvas);
   obsplots_->setCanvas(mCanvas);
   stationplots_->setCanvas(mCanvas);
+  objectplots_->setCanvas(mCanvas);
   fieldplots_->setCanvas(mCanvas);
   for (Manager* m : boost::adaptors::values(managers))
     m->setCanvas(canvas);
@@ -138,7 +140,7 @@ void PlotModule::preparePlots(const PlotCommand_cpv& vpi)
   ordered.insert("AREA");
   ordered.insert(satplots()->plotCommandKey());
   ordered.insert(stationplots_->plotCommandKey());
-  ordered.insert("OBJECTS");
+  ordered.insert(objectplots_->plotCommandKey());
   ordered.insert(trajectoryplots_->plotCommandKey());
   ordered.insert("LABEL");
   ordered.insert("EDITFIELD");
@@ -166,7 +168,7 @@ void PlotModule::preparePlots(const PlotCommand_cpv& vpi)
   obsplots_->processInput(ordered_pi[obsplots()->plotCommandKey()]);
   satplots_->processInput(ordered_pi[satplots()->plotCommandKey()]);
   stationplots_->processInput(ordered_pi[stationplots_->plotCommandKey()]);
-  objm->prepareObjects(ordered_pi["OBJECTS"]);
+  objectplots_->processInput(ordered_pi[objectplots_->plotCommandKey()]);
   trajectoryplots_->processInput(ordered_pi[trajectoryplots_->plotCommandKey()]);
   prepareAnnotation(ordered_pi["LABEL"]);
   editm->prepareEditFields(ordered_pi["EDITFIELD"]);
@@ -251,8 +253,8 @@ vector<PlotElement> PlotModule::getPlotElements()
   fieldplots_->addPlotElements(pel);
   obsplots_->addPlotElements(pel);
   satplots_->addPlotElements(pel);
-  objm->addPlotElements(pel);
   stationplots_->addPlotElements(pel);
+  objectplots_->addPlotElements(pel);
   trajectoryplots_->addPlotElements(pel);
 
   if (areaobjects_.get())
@@ -304,8 +306,8 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
     change = satplots_->enablePlotElement(pe);
   } else if (pe.type == stationplots_->keyPlotElement()) {
     change = stationplots_->enablePlotElement(pe);
-  } else if (pe.type == "OBJECTS") {
-    change = objm->enablePlotElement(pe);
+  } else if (pe.type == objectplots_->keyPlotElement()) {
+    change = objectplots_->enablePlotElement(pe);
   } else if (areaobjects_ && pe.type == areaobjects_->keyPlotElement()) {
     change = areaobjects_->enablePlotElement(pe);
   } else {
@@ -345,17 +347,10 @@ void PlotModule::setAnnotations()
   const plottimes_t fieldAnalysisTimes = fieldplots_->fieldAnalysisTimes();
 
   fieldplots_->addAnnotations(annotations);
-
   satplots_->addAnnotations(annotations);
-
-  { // get obj annotations
-    objm->getObjAnnotation(ann.str, ann.col);
-    if (!ann.str.empty())
-      annotations.push_back(ann);
-  }
-
   obsplots_->addAnnotations(annotations);
   stationplots_->addAnnotations(annotations);
+  objectplots_->addAnnotations(annotations);
   trajectoryplots_->addAnnotations(annotations);
 
   // get locationPlot annotations
@@ -393,20 +388,13 @@ void PlotModule::setAnnotations()
       obsplots_->getDataAnnotations(as);
       satplots_->getDataAnnotations(as);
       editm->getDataAnnotations(as);
-      objm->getDataAnnotations(as);
+      objectplots_->getDataAnnotations(as);
     }
     ap->setAnnotationStrings(vvstr);
   }
 
-  //get obs annotations
-  obsplots_->getExtraAnnotations(vap);
-
-  //objects
-  PlotCommand_cpv objLabels = objm->getObjectLabels();
-  for (PlotCommand_cp pc : objLabels) {
-    AnnotationPlot* ap = new AnnotationPlot(pc);
-    vap.push_back(ap);
-  }
+  diutil::insert_all(vap, obsplots_->getExtraAnnotations());
+  diutil::insert_all(vap, objectplots_->getExtraAnnotations());
 }
 
 bool PlotModule::updatePlots()
@@ -432,7 +420,8 @@ bool PlotModule::updatePlots()
     nodata = false;
 
   // prepare met-objects
-  if (objm->prepareObjects(t))
+  objectplots_->changeTime(t);
+  if (!objectplots_->empty())
     nodata = false;
 
   // prepare item stored in miscellaneous managers
@@ -607,7 +596,7 @@ void PlotModule::plotUnder(DiGLPainter* gl)
   fieldplots_->plot(gl, PO_LINES);
 
   // next line also calls objects.changeProjection
-  objm->plotObjects(gl, PO_LINES);
+  objectplots_->plot(gl, PO_LINES);
 
   if (areaobjects_.get())
     areaobjects_->plot(gl, PO_LINES);
@@ -725,7 +714,7 @@ void PlotModule::cleanup()
   obsplots_->cleanup();
   trajectoryplots_->cleanup();
 
-  objm->clearObjects();
+  objectplots_->cleanup();
 
   diutil::delete_all_and_clear(vMeasurementsPlot);
   diutil::delete_all_and_clear(vap);
@@ -750,10 +739,10 @@ void PlotModule::notifyChangeProjection()
 
   mapplots_->changeProjection(ma, ps);
   obsplots_->changeProjection(ma, ps);
-  objm->changeProjection(ma, ps);
   if (areaobjects_)
     areaobjects_->changeProjection(ma, ps);
   stationplots_->changeProjection(ma, ps);
+  objectplots_->changeProjection(ma, ps);
   trajectoryplots_->changeProjection(ma, ps);
   for (MeasurementsPlot* mp : vMeasurementsPlot)
     mp->changeProjection(ma, ps);
@@ -924,6 +913,7 @@ void PlotModule::setManagers(FieldPlotManager* fpm, ObsManager* om, SatManager* 
   fieldplots_.reset(new FieldPlotCluster(fieldplotm));
   satplots_.reset(new SatPlotCluster(satm));
   stationplots_.reset(new StationPlotCluster(stam));
+  objectplots_.reset(new ObjectPlotCluster(objm));
 }
 
 Manager *PlotModule::getManager(const std::string &name)
@@ -958,7 +948,7 @@ void PlotModule::getPlotTimes(std::map<string, plottimes_t>& times)
   insertTimes(times, "fields", fieldplots_->getTimes());
   insertTimes(times, "satellites", satplots_->getTimes());
   insertTimes(times, "observations", obsplots_->getTimes());
-  insertTimes(times, "objects", objm->getTimes());
+  insertTimes(times, "objects", objectplots_->getTimes());
   for (managers_t::iterator it = managers.begin(); it != managers.end(); ++it) {
     insertTimes(times, it->first, it->second->getTimes());
   }
@@ -1185,8 +1175,7 @@ void PlotModule::updateEditLabels(const PlotCommand_cpv& productLabelCommands,
   vector<AnnotationPlot*> oldVap; //display object labels
   //read the old labels...
 
-  const PlotCommand_cpv& objLabels = objm->getEditObjects().getObjectLabels();
-  for (PlotCommand_cp pc : objLabels)
+  for (PlotCommand_cp pc : objm->getEditObjects().getObjectLabels())
     oldVap.push_back(new AnnotationPlot(pc));
 
   for (PlotCommand_cp pc : productLabelCommands) {
@@ -1199,8 +1188,8 @@ void PlotModule::updateEditLabels(const PlotCommand_cpv& productLabelCommands,
     ap->setAnnotationStrings(vvstr);
 
     // here we compare the labels, take input from oldVap
-    for (size_t i = 0; i < oldVap.size(); i++)
-      ap->updateInputLabels(oldVap[i], newProduct);
+    for (AnnotationPlot* oap : oldVap)
+      ap->updateInputLabels(oap, newProduct);
 
     editVap.push_back(ap);
   }

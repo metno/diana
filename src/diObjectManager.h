@@ -203,6 +203,7 @@ public:
 
   /// prepare objects for displaying
   bool prepareObjects(const miutil::miTime& t);
+  bool objectsDefined() const;
   /// reads the file with weather objectPlots
   bool readEditDrawFile(const std::string& file, WeatherObjects& objects);
   /// reads the file with edit comments

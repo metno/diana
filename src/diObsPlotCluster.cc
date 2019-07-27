@@ -134,21 +134,22 @@ void ObsPlotCluster::plot(DiGLPainter* gl, PlotOrder zorder)
     PlotCluster::plot(gl, zorder);
 }
 
-void ObsPlotCluster::getDataAnnotations(std::vector<std::string>& anno) const
+void ObsPlotCluster::getDataAnnotations(std::vector<std::string>& anno)
 {
   for (ObsPlot* p : static_content_cast<ObsPlot*>(plots_))
     p->getDataAnnotations(anno);
 }
 
-void ObsPlotCluster::getExtraAnnotations(std::vector<AnnotationPlot*>& vap)
+std::vector<AnnotationPlot*> ObsPlotCluster::getExtraAnnotations() const
 {
-  //get obs annotations
+  std::vector<AnnotationPlot*> vap;
   for (ObsPlot* op : static_content_cast<ObsPlot*>(plots_)) {
     if (!op->isEnabled())
       continue;
     for (PlotCommand_cp pc : op->getObsExtraAnnotations())
       vap.push_back(new AnnotationPlot(pc));
   }
+  return vap;
 }
 
 plottimes_t ObsPlotCluster::getTimes()

@@ -107,6 +107,13 @@ void PlotCluster::addAnnotations(std::vector<AnnotationPlot::Annotation>& annota
   }
 }
 
+void PlotCluster::getDataAnnotations(std::vector<std::string>&) {}
+
+std::vector<AnnotationPlot*> PlotCluster::getExtraAnnotations() const
+{
+  return std::vector<AnnotationPlot*>();
+}
+
 void PlotCluster::addPlotElements(std::vector<PlotElement>& pel)
 {
   const std::string& key = keyPlotElement();
@@ -155,6 +162,11 @@ void PlotCluster::changeTime(const miutil::miTime& mapTime)
 {
   for (Plot* p : plots_)
     p->changeTime(mapTime);
+}
+
+bool PlotCluster::empty() const
+{
+  return plots_.empty();
 }
 
 void PlotCluster::processInputPE(const PlotCommand_cpv&) {}

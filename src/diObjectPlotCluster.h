@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2019 met.no
+  Copyright (C) 2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,50 +27,34 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef OBSPLOTCLUSTER_H
-#define OBSPLOTCLUSTER_H
+#ifndef diObjectPlotCluster_h
+#define diObjectPlotCluster_h
 
 #include "diPlotCluster.h"
 
-#include "diTimeTypes.h"
+class ObjectManager;
 
-class EditManager;
-class ObsManager;
-class ObsPlot;
-struct ObsPlotCollider;
-
-class ObsPlotCluster : public PlotCluster
+class ObjectPlotCluster : public PlotCluster
 {
 public:
-  ObsPlotCluster(ObsManager* obsm, EditManager* editm);
-  ~ObsPlotCluster();
+  ObjectPlotCluster(ObjectManager* objm);
+  ~ObjectPlotCluster();
 
-  void plot(DiGLPainter* gl, PlotOrder zorder) override;
+  void processInput(const PlotCommand_cpv& cmds) override;
+  void changeProjection(const Area& mapArea, const Rectangle& plotSize) override;
+  void changeTime(const miutil::miTime& mapTime) override;
   plottimes_t getTimes() override;
-
-  //! returns true iff there are any obs plots with data
-  bool update(bool ifNeeded, const miutil::miTime& t);
-
+  void addAnnotations(std::vector<AnnotationPlot::Annotation>& annotations) override;
   void getDataAnnotations(std::vector<std::string>& anno) override;
   std::vector<AnnotationPlot*> getExtraAnnotations() const override;
-
-  bool findObs(int x, int y);
-
-  std::string getObsPopupText(int x, int y);
-
-  void nextObs(bool next);
-
-  std::vector<ObsPlot*> getObsPlots() const;
-
-protected:
-  void processInputPE(const PlotCommand_cpv& cmds) override;
+  void addPlotElements(std::vector<PlotElement>& pel) override;
+  bool enablePlotElement(const PlotElement& pe) override;
+  void plot(DiGLPainter* gl, PlotOrder zorder) override;
+  void cleanup() override;
+  bool empty() const override;
 
 private:
-  bool hasDevField_;
-  std::unique_ptr<ObsPlotCollider> collider_;
-
-  ObsManager* obsm_;
-  EditManager* editm_;
+  ObjectManager* objm;
 };
 
-#endif // OBSPLOTCLUSTER_H
+#endif // diObjectPlotCluster_h

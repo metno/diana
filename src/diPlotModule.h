@@ -51,6 +51,7 @@ class ObsPlotCluster;
 class SatManager;
 class StationManager;
 class ObjectManager;
+class ObjectPlotCluster;
 class EditManager;
 class DrawingManager;
 class SatPlotCluster;
@@ -90,6 +91,7 @@ private:
   std::unique_ptr<FieldPlotCluster> fieldplots_; // field plots
   std::unique_ptr<MapPlotCluster> mapplots_;     // vector of map plots
   std::unique_ptr<StationPlotCluster> stationplots_; // vector of map plots
+  std::unique_ptr<ObjectPlotCluster> objectplots_;   // obsject plots
   std::unique_ptr<TrajectoryPlotCluster> trajectoryplots_; // vector of trajectory plots
   std::vector<MeasurementsPlot*> vMeasurementsPlot; // vector of measurements plots
   std::vector<AnnotationPlot*> vap; // vector of annotation plots

@@ -60,6 +60,8 @@ public:
   virtual plottimes_t getTimes();
 
   virtual void addAnnotations(std::vector<AnnotationPlot::Annotation>& annotations);
+  virtual void getDataAnnotations(std::vector<std::string>& anno);
+  virtual std::vector<AnnotationPlot*> getExtraAnnotations() const;
 
   virtual void addPlotElements(std::vector<PlotElement>& pel);
 
@@ -68,7 +70,7 @@ public:
   virtual void changeProjection(const Area& mapArea, const Rectangle& plotSize);
   virtual void changeTime(const miutil::miTime& mapTime);
 
-  bool empty() const { return plots_.empty(); }
+  virtual bool empty() const;
 
 protected:
   virtual void processInputPE(const PlotCommand_cpv& cmds);

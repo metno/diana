@@ -73,7 +73,7 @@ bool FieldPlotCluster::update()
   return haveFieldData;
 }
 
-void FieldPlotCluster::getDataAnnotations(std::vector<std::string>& anno) const
+void FieldPlotCluster::getDataAnnotations(std::vector<std::string>& anno)
 {
   for (FieldPlot* fp : diutil::static_content_cast<FieldPlot*>(plots_))
     fp->getDataAnnotations(anno);

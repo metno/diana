@@ -267,6 +267,10 @@ bool ObjectManager::prepareObjects(const miTime& t)
   return objects.prepareObjects();
 }
 
+bool ObjectManager::objectsDefined() const
+{
+  return objects.isDefined();
+}
 
 vector<ObjFileInfo> ObjectManager::getObjectFiles(const std::string& objectname, bool refresh)
 {

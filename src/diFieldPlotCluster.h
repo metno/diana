@@ -47,7 +47,7 @@ public:
   //! returns true iff there are fields with data
   bool update();
 
-  void getDataAnnotations(std::vector<std::string>& anno) const;
+  void getDataAnnotations(std::vector<std::string>& anno) override;
 
   plottimes_t getTimes() override;
 
