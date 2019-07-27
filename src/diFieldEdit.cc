@@ -3477,9 +3477,9 @@ void FieldEdit::plot(DiGLPainter* gl, PlotOrder porder, bool showinfluence)
     numbersDisplayed= false;
 }
 
-bool FieldEdit::getAnnotations(vector<string>& anno)
+void FieldEdit::getAnnotations(vector<string>& anno)
 {
-  return editfieldplot->getDataAnnotations(anno);
+  editfieldplot->getDataAnnotations(anno);
 }
 
 StaticPlot* FieldEdit::getStaticPlot() const

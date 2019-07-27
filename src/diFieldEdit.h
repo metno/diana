@@ -212,7 +212,7 @@ public:
   void deactivate() { active= false; };
   bool activated() { return active; }
   void plot(DiGLPainter* gl, PlotOrder porder, bool showinfluence);
-  bool getAnnotations(std::vector<std::string>& anno);
+  void getAnnotations(std::vector<std::string>& anno);
 };
 
 #endif

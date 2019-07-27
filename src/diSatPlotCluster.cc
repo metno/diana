@@ -150,8 +150,8 @@ void SatPlotCluster::processInputPE(const PlotCommand_cpv& pinfo)
 
 void SatPlotCluster::getDataAnnotations(std::vector<std::string>& anno)
 {
-  for (Plot* plt : plots_)
-    static_cast<SatPlot*>(plt)->getAnnotations(anno);
+  for (SatPlot* sp : diutil::static_content_cast<SatPlot*>(plots_))
+    sp->getAnnotations(anno);
 }
 
 bool SatPlotCluster::getGridResolution(float& rx, float& ry) const

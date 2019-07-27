@@ -59,7 +59,7 @@ public:
   /// returns a string with objectname and time
   void getObjAnnotation(std::string &str, Colour &col);
   /// adds annotation tables from each objectplot (relevant for shapefiles)
-  bool getAnnotations(std::vector<std::string>&);
+  void getAnnotations(std::vector<std::string>&);
 
   /// returns a string with object name and possibly time
   std::string getName() const;

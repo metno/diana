@@ -59,7 +59,7 @@ public:
   FieldPlot(FieldPlotManager* fieldplotm);
   ~FieldPlot();
 
-  bool getDataAnnotations(std::vector<std::string>& anno);
+  void getDataAnnotations(std::vector<std::string>& anno);
   int getLevel() const;
 
   void plot(DiGLPainter* gl, PlotOrder zorder) override;

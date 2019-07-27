@@ -500,12 +500,12 @@ void FieldPlot::getTableAnnotations(vector<string>& annos)
   }
 }
 
-bool FieldPlot::getDataAnnotations(vector<string>& annos)
+void FieldPlot::getDataAnnotations(vector<string>& annos)
 {
   METLIBS_LOG_SCOPE(LOGVAL(annos.size()));
 
   if (not checkFields(1))
-    return false;
+    return;
 
   for (std::string& anno : annos) {
 
@@ -559,8 +559,6 @@ bool FieldPlot::getDataAnnotations(vector<string>& annos)
   }
 
   getTableAnnotations(annos);
-
-  return true;
 }
 
 void FieldPlot::plot(DiGLPainter* gl, PlotOrder zorder)

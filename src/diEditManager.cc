@@ -3145,11 +3145,10 @@ void EditManager::setMapmodeinfo(){
   WeatherArea::setDefaultLineWidth(EdProd.areaLineWidth);
 }
 
-bool EditManager::getDataAnnotations(vector<string>& anno)
+void EditManager::getDataAnnotations(vector<string>& anno)
 {
   for (FieldEdit* fe : fedits)
     fe->getAnnotations(anno);
-  return true;
 }
 
 PlotCommand_cp EditManager::insertTime(PlotCommand_cp lc, const miTime& time)

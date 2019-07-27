@@ -161,10 +161,10 @@ void DisplayObjects::getObjAnnotation(string &str, Colour &col)
   }
 }
 
-bool DisplayObjects::getAnnotations(vector <string>& anno)
+void DisplayObjects::getAnnotations(vector<string>& anno)
 {
   if (!isEnabled() or objects.empty())
-    return false;
+    return;
   for (string& a : anno) {
     if (!miutil::contains(a, "table") || miutil::contains(a, "table="))
       continue;
@@ -181,7 +181,6 @@ bool DisplayObjects::getAnnotations(vector <string>& anno)
       }
     }
   }
-  return true;
 }
 
 /*********************************************/

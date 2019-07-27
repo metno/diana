@@ -264,12 +264,12 @@ std::string ObsPlot::makeAnnotationString() const
   return str;
 }
 
-bool ObsPlot::getDataAnnotations(vector<string>& anno)
+void ObsPlot::getDataAnnotations(vector<string>& anno)
 {
   METLIBS_LOG_SCOPE();
 
   if (!isEnabled() || !annotations || getObsCount() == 0 || wind_scale < 0)
-    return false;
+    return;
 
   const std::string vectorAnnotationSize = miutil::from_number(21 * getStaticPlot()->getPhysToMapScaleX());
   const std::string vectorAnnotationText = miutil::from_number(2.5f * wind_scale, 2) + "m/s";
@@ -293,7 +293,6 @@ bool ObsPlot::getDataAnnotations(vector<string>& anno)
       anno.push_back(str);
     }
   }
-  return true;
 }
 
 const PlotCommand_cpv ObsPlot::getObsExtraAnnotations() const

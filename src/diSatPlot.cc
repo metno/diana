@@ -178,13 +178,13 @@ void SatPlot::rasterPixels(int n, const diutil::PointD &xy0, const diutil::Point
   }
 }
 
-bool SatPlot::getAnnotations(vector<string>& anno)
+void SatPlot::getAnnotations(vector<string>& anno)
 {
   if (!isEnabled())
-    return false;
+    return;
 
   if(satdata == NULL || satdata->image == NULL || !satdata->approved)
-    return false;
+    return;
 
   int nanno = anno.size();
 
@@ -195,7 +195,7 @@ bool SatPlot::getAnnotations(vector<string>& anno)
 
   //Colour table
   if (!satdata->palette || !satdata->classtable)
-    return false;
+    return;
 
   for(int i=0; i<nanno; i++){
 
@@ -247,8 +247,6 @@ bool SatPlot::getAnnotations(vector<string>& anno)
 
     anno.push_back(str);
   }
-
-  return true;
 }
 
 void SatPlot::setSatAuto(bool autoFile,const string& satellite, const string& file)

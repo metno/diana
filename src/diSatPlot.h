@@ -65,7 +65,7 @@ public:
   ///get pixel value
   void values(float x, float y, std::vector<SatValues>& satval) const;
   ///get legend
-  bool getAnnotations(std::vector<std::string>& anno);
+  void getAnnotations(std::vector<std::string>& anno);
   void setSatAuto(bool, const std::string&, const std::string&);
 
 protected:
