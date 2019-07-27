@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2018 met.no
+  Copyright (C) 2017-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -46,6 +46,8 @@ namespace {
 const std::string OBS = "OBS";
 } // namespace
 
+using diutil::static_content_cast;
+
 ObsPlotCluster::ObsPlotCluster(ObsManager* obsm, EditManager* editm)
   : hasDevField_(false)
   , collider_(new ObsPlotCollider)
@@ -66,13 +68,13 @@ const std::string& ObsPlotCluster::plotCommandKey() const
 void ObsPlotCluster::prepare(const PlotCommand_cpv& inp)
 {
   diutil::was_enabled plotenabled;
-  for (unsigned int i = 0; i < plots_.size(); i++)
-    plotenabled.save(plots_[i]);
+  for (Plot* p : plots_)
+    plotenabled.save(p);
 
   // for now -- erase all obsplots etc..
   //first log stations plotted
-  for (size_t i = 0; i < plots_.size(); i++)
-    at(i)->logStations();
+  for (ObsPlot* op : static_content_cast<ObsPlot*>(plots_))
+    op->logStations();
   cleanup();
   hasDevField_ = false;
 
@@ -103,11 +105,10 @@ bool ObsPlotCluster::update(bool ifNeeded, const miutil::miTime& t)
   bool havedata = false;
 
   if (!ifNeeded) {
-    for (size_t i = 0; i < plots_.size(); i++)
-      at(i)->logStations();
+    for (ObsPlot* op : static_content_cast<ObsPlot*>(plots_))
+      op->logStations();
   }
-  for (size_t i = 0; i < plots_.size(); i++) {
-    ObsPlot* op = at(i);
+  for (ObsPlot* op : static_content_cast<ObsPlot*>(plots_)) {
     if (!ifNeeded || obsm_->updateTimes(op)) {
       obsm_->prepare(op, t);
       havedata = true;
@@ -133,8 +134,7 @@ void ObsPlotCluster::plot(DiGLPainter* gl, PlotOrder zorder)
   const bool plotunderlay = (zorder == PO_LINES && !obsedit);
 
   if (plotoverlay) {
-    for (size_t i = 0; i < plots_.size(); i++) {
-      ObsPlot* op = at(i);
+    for (ObsPlot* op : static_content_cast<ObsPlot*>(plots_)) {
       if (editm_->interpolateEditField(op->getObsPositions()))
         op->updateFromEditField();
     }
@@ -145,30 +145,26 @@ void ObsPlotCluster::plot(DiGLPainter* gl, PlotOrder zorder)
 
 void ObsPlotCluster::getDataAnnotations(std::vector<std::string>& anno) const
 {
-  for (Plot* p : plots_)
-    static_cast<ObsPlot*>(p)->getDataAnnotations(anno);
+  for (ObsPlot* p : static_content_cast<ObsPlot*>(plots_))
+    p->getDataAnnotations(anno);
 }
 
 void ObsPlotCluster::getExtraAnnotations(std::vector<AnnotationPlot*>& vap)
 {
   //get obs annotations
-  for (Plot* p : plots_) {
-    ObsPlot* op = static_cast<ObsPlot*>(p);
+  for (ObsPlot* op : static_content_cast<ObsPlot*>(plots_)) {
     if (!op->isEnabled())
       continue;
-    PlotCommand_cpv obsinfo = op->getObsExtraAnnotations();
-    for (PlotCommand_cp pc : obsinfo) {
-      AnnotationPlot* ap = new AnnotationPlot(pc);
-      vap.push_back(ap);
-    }
+    for (PlotCommand_cp pc : op->getObsExtraAnnotations())
+      vap.push_back(new AnnotationPlot(pc));
   }
 }
 
 plottimes_t ObsPlotCluster::getTimes()
 {
   std::set<std::string> readernames;
-  for (Plot* p : plots_)
-    diutil::insert_all(readernames, static_cast<const ObsPlot*>(p)->readerNames());
+  for (ObsPlot* op : static_content_cast<ObsPlot*>(plots_))
+    diutil::insert_all(readernames, op->readerNames());
   if (!readernames.empty()) {
     return obsm_->getObsTimes(readernames);
   } else {
@@ -185,8 +181,8 @@ bool ObsPlotCluster::findObs(int x, int y)
 {
   bool found = false;
 
-  for (size_t i = 0; i < plots_.size(); i++)
-    if (at(i)->showpos_findObs(x, y))
+  for (ObsPlot* op : static_content_cast<ObsPlot*>(plots_))
+    if (op->showpos_findObs(x, y))
       found = true;
 
   return found;
@@ -194,32 +190,23 @@ bool ObsPlotCluster::findObs(int x, int y)
 
 std::string ObsPlotCluster::getObsPopupText(int x, int y)
 {
-  size_t n = plots_.size();
-  std::string obsText = "";
+  std::string obsText;
 
-  for (size_t i = 0; i < n; i++)
-    if (at(i)->getObsPopupText(x, y, obsText))
-      return obsText;
+  for (ObsPlot* op : static_content_cast<ObsPlot*>(plots_))
+    if (op->getObsPopupText(x, y, obsText))
+      break;
 
   return obsText;
 }
 
 void ObsPlotCluster::nextObs(bool next)
 {
-  for (size_t i = 0; i < plots_.size(); i++)
-    at(i)->nextObs(next);
+  for (ObsPlot* op : static_content_cast<ObsPlot*>(plots_))
+    op->nextObs(next);
 }
 
 std::vector<ObsPlot*> ObsPlotCluster::getObsPlots() const
 {
-  std::vector<ObsPlot*> obsplots;
-  obsplots.reserve(plots_.size());
-  for (std::vector<Plot*>::const_iterator it = plots_.begin(); it != plots_.end(); ++it)
-    obsplots.push_back(static_cast<ObsPlot*>(*it));
-  return obsplots;
-}
-
-ObsPlot* ObsPlotCluster::at(size_t i) const
-{
-  return static_cast<ObsPlot*>(plots_[i]);
+  const auto ops = static_content_cast<ObsPlot*>(plots_);
+  return std::vector<ObsPlot*>(ops.begin(), ops.end());
 }

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2018 met.no
+  Copyright (C) 2017-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -69,9 +69,6 @@ public:
   void nextObs(bool next);
 
   std::vector<ObsPlot*> getObsPlots() const;
-
-protected:
-  ObsPlot* at(size_t i) const;
 
 private:
   bool hasDevField_;
