@@ -1064,21 +1064,10 @@ bool SatManager::parseSetup()
 void SatManager::init_rgbindex(Sat& sd)
 {
   METLIBS_LOG_SCOPE();
-  if (sd.no==1) {
+  if (sd.no >= 1 && sd.no <= 3) {
     sd.rgbindex[0]= 0;
-    sd.rgbindex[1]= 0;
-    sd.rgbindex[2]= 0;
-
-  } else if (sd.no==2) {
-    sd.rgbindex[0]= 0;
-    sd.rgbindex[1]= 0;
-    sd.rgbindex[2]= 1;
-
-  } else if (sd.no ==3) {
-    sd.rgbindex[0]= 0;
-    sd.rgbindex[1]= 1;
-    sd.rgbindex[2]= 2;
-
+    sd.rgbindex[1] = std::max(sd.no - 2, 0);
+    sd.rgbindex[2] = std::max(sd.no - 1, 0);
   } else {
     METLIBS_LOG_INFO("number of channels: " << sd.no);
   }
