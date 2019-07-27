@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -44,10 +44,9 @@ public:
   TrajectoryPlot();
   ~TrajectoryPlot();
 
-  void plot(DiGLPainter* gl, PlotOrder zorder);
+  void plot(DiGLPainter* gl, PlotOrder zorder) override;
 
-  ///change projection
-  bool prepare(void);
+  void changeProjection(const Area& mapArea, const Rectangle& plotSize) override;
 
   ///Start positions, colours, lines, field, etc
   int trajPos(const std::vector<std::string>&);
@@ -66,7 +65,7 @@ public:
 
   void setTrajectoryData(const TrajectoryData_v& t);
 
-  void getAnnotation(std::string& s, Colour& c) const;
+  void getAnnotation(std::string& s, Colour& c) const override;
 
   bool printTrajectoryPositions(const std::string& filename);
 
@@ -75,6 +74,7 @@ private:
   TrajectoryPlot& operator=(const TrajectoryPlot &rhs); // not implemented
 
   void clearData();
+  void switchProjection();
 
 private:
   std::string fieldStr;

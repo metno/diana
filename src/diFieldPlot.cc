@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2018 met.no
+ Copyright (C) 2006-2019 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -136,20 +136,16 @@ int FieldPlot::getLevel() const
 bool FieldPlot::updateIfNeeded()
 {
   const miTime& t = getStaticPlot()->getTime();
-  bool update, data = false;
-  if (ftime.undef() || (ftime != t && cmd_->time.empty()) || fields.empty()) {
-    update = true;
-  } else {
-    update = false;
-  }
+  bool have_data;
+  const bool update = (ftime.undef() || (ftime != t && cmd_->time.empty()) || fields.empty());
   if (update && fieldplotm_ != 0) {
     std::vector<Field*> fv;
-    data = fieldplotm_->makeFields(cmd_, t, fv);
+    have_data = fieldplotm_->makeFields(cmd_, t, fv);
     setData(fv, t);
   } else {
-    data = !fields.empty();
+    have_data = !fields.empty();
   }
-  return data;
+  return have_data;
 }
 
 void FieldPlot::getAnnotation(string& s, Colour& c) const

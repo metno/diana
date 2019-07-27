@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -77,7 +77,7 @@ public:
   const Projection& getMapProjection() const { return getMapArea().P(); }
 
   /// set area
-  void setMapArea(const Area& area);
+  bool setMapArea(const Area& area);
 
   /// with a new projection: find the best matching physical area with the current one
   Area findBestMatch(const Area&);
@@ -151,7 +151,7 @@ public:
   float getPhysToMapScaleY() const { return pa_.getPhysToMapScale().y(); }
 
   /// set the physical size of the map in pixels
-  void setPhysSize(int w, int h);
+  bool setPhysSize(int w, int h);
 
   /// this is  the physical size of the map in pixels
   bool hasPhysSize() const { return pa_.hasPhysSize(); }

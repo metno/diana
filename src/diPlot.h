@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -59,6 +59,9 @@ public:
   virtual void setCanvas(DiCanvas* canvas);
 
   virtual void plot(DiGLPainter* gl, PlotOrder zorder) = 0;
+
+  virtual void changeProjection(const Area& mapArea, const Rectangle& plotSize);
+  virtual void changeTime(const miutil::miTime& newTime);
 
   /// enable this plot object
   void setEnabled(bool enable=true);

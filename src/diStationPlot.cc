@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2018 met.no
+ Copyright (C) 2006-2019 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -432,7 +432,7 @@ void StationPlot::show()
 
   visible = true;
   unselect();
-  changeProjection();
+  switchProjection();
 }
 
 void StationPlot::unselect()
@@ -459,10 +459,15 @@ void StationPlot::defineCoordinates()
   const size_t npos = stations.size();
   xplot.reset(new float[npos]);
   yplot.reset(new float[npos]);
-  changeProjection();
+  switchProjection();
 }
 
-bool StationPlot::changeProjection()
+void StationPlot::changeProjection(const Area& /*mapArea*/, const Rectangle& /*plotSize*/)
+{
+  switchProjection();
+}
+
+bool StationPlot::switchProjection()
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE("Change projection to: "<< area << " wind might not be rotated");

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -74,10 +74,11 @@ ObjectManager::~ObjectManager()
 {
 }
 
-void ObjectManager::changeProjection(const Area& newArea)
+void ObjectManager::changeProjection(const Area& mapArea, const Rectangle& plotSize)
 {
-  editobjects.changeProjection(newArea);
-  combiningobjects.changeProjection(newArea);
+  objects.changeProjection(mapArea, plotSize);
+  editobjects.changeProjection(mapArea, plotSize);
+  combiningobjects.changeProjection(mapArea, plotSize);
 }
 
 bool ObjectManager::parseSetup() {
@@ -238,8 +239,7 @@ void ObjectManager::prepareObjects(const PlotCommand_cpv& inp)
   objects.enable(!old_defined || old_enabled);
 }
 
-
-bool ObjectManager::prepareObjects(const miTime& t, const Area& area)
+bool ObjectManager::prepareObjects(const miTime& t)
 {
   //are objects defined (in objects.define() if not return false)
   if (!objects.isDefined())
@@ -260,7 +260,7 @@ bool ObjectManager::prepareObjects(const miTime& t, const Area& area)
   }
 
   if (!objects.isApproved()){
-    if (!objects.readEditDrawFile(objects.filename,area))
+    if (!objects.readEditDrawFile(objects.filename))
       return false;
   }
 
@@ -439,10 +439,8 @@ void ObjectManager::getObjAnnotation(std::string &str, Colour &col)
 
 void ObjectManager::plotObjects(DiGLPainter* gl, PlotOrder zorder)
 {
-  if (zorder == PO_LINES) {
-    objects.changeProjection(plotm->getMapArea());
+  if (zorder == PO_LINES)
     objects.plot(gl, zorder);
-  }
 }
 
 /*----------------------------------------------------------------------
@@ -505,7 +503,7 @@ bool ObjectManager::editCommandReadDrawFile(const std::string filename)
   //size of objects to start with
   int edSize = editobjects.getSize();
 
-  readEditDrawFile(filename,plotm->getMapArea(),editobjects);
+  readEditDrawFile(filename, editobjects);
 
   editNewObjectsAdded(edSize);
 
@@ -520,9 +518,7 @@ bool ObjectManager::editCommandReadDrawFile(const std::string filename)
   return true;
 }
 
-
-bool ObjectManager::readEditDrawFile(const std::string filename,
-    const Area& area, WeatherObjects& wObjects)
+bool ObjectManager::readEditDrawFile(const string& filename, WeatherObjects& wObjects)
 {
   METLIBS_LOG_SCOPE();
 
@@ -535,7 +531,7 @@ bool ObjectManager::readEditDrawFile(const std::string filename,
     METLIBS_LOG_ERROR("FILE " << fileName << " does not exist !");
     return false;
   }
-  return wObjects.readEditDrawFile(fileName,area);
+  return wObjects.readEditDrawFile(fileName);
 }
 
 std::string ObjectManager::writeEditDrawString(const miTime& t,

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -68,13 +68,12 @@ void MeasurementsPlot::clearXY()
   needReprojection = true;
 }
 
-
-void MeasurementsPlot::changeProjection()
+void MeasurementsPlot::changeProjection(const Area& mapArea, const Rectangle& /*plotSize*/)
 {
   METLIBS_LOG_SCOPE();
-  if (oldProjection != getStaticPlot()->getMapArea().P()) {
+  if (oldProjection != mapArea.P()) {
     needReprojection = true;
-    oldProjection = getStaticPlot()->getMapArea().P();
+    oldProjection = mapArea.P();
   }
 }
 

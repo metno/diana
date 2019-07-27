@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -73,16 +73,20 @@ float StaticPlot::getPhysDiagonal() const
   return miutil::absval(getPhysWidth(), getPhysHeight());
 }
 
-void StaticPlot::setMapArea(const Area& area)
+bool StaticPlot::setMapArea(const Area& area)
 {
-  if (pa_.setMapArea(area))
+  const bool changed = pa_.setMapArea(area);
+  if (changed)
     setDirty(true);
+  return changed;
 }
 
-void StaticPlot::setPhysSize(int w, int h)
+bool StaticPlot::setPhysSize(int w, int h)
 {
-  if (pa_.setPhysSize(w, h))
+  const bool changed = pa_.setPhysSize(w, h);
+  if (changed)
     setDirty(true);
+  return changed;
 }
 
 Area StaticPlot::findBestMatch(const Area& newa)

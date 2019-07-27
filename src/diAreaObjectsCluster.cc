@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2018 met.no
+  Copyright (C) 2017-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -38,8 +38,7 @@
 #define MILOGGER_CATEGORY "diana.AreaObjectsCluster"
 #include <miLogger/miLogging.h>
 
-AreaObjectsCluster::AreaObjectsCluster(PlotModule* plot)
-  : plot_(plot)
+AreaObjectsCluster::AreaObjectsCluster()
 {
 }
 
@@ -49,10 +48,14 @@ AreaObjectsCluster::~AreaObjectsCluster()
 
 void AreaObjectsCluster::plot(DiGLPainter* gl, PlotOrder zorder)
 {
-  for (size_t i = 0; i < vareaobjects.size(); i++) {
-    vareaobjects[i].changeProjection(plot_->getMapArea()); // TODO move this somewhere else
-    vareaobjects[i].plot(gl, zorder);
-  }
+  for (AreaObjects& ao : vareaobjects)
+    ao.plot(gl, zorder);
+}
+
+void AreaObjectsCluster::changeProjection(const Area& mapArea, const Rectangle& plotSize)
+{
+  for (AreaObjects& ao : vareaobjects)
+    ao.changeProjection(mapArea, plotSize);
 }
 
 void AreaObjectsCluster::addPlotElements(std::vector<PlotElement>& pel)
@@ -107,7 +110,7 @@ void AreaObjectsCluster::makeAreaObjects(std::string name, std::string areastrin
   if (it == vareaobjects.end())
     // not found, add new at end
     it = vareaobjects.insert(it, AreaObjects());
-  it->makeAreas(name, icon, areastring, id, plot_->getMapArea());
+  it->makeAreas(name, icon, areastring, id);
 }
 
 void AreaObjectsCluster::areaObjectsCommand(const std::string& command, const std::string& dataSet,
@@ -128,4 +131,3 @@ void AreaObjectsCluster::areaObjectsCommand(const std::string& command, const st
     }
   }
 }
-

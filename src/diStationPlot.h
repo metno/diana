@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -162,9 +162,8 @@ public:
       const  std::vector<std::string>& data);
   ~StationPlot();
 
-
   /// plot stations
-  void plot(DiGLPainter* gl, PlotOrder zorder);
+  void plot(DiGLPainter* gl, PlotOrder zorder) override;
 
   /// hide stations
   void hide();
@@ -175,7 +174,7 @@ public:
   /// returns true if stationplot visible
   bool isVisible();
   /// change stationplot projection
-  bool changeProjection();
+  void changeProjection(const Area& mapArea, const Rectangle& plotSize) override;
 
   /// Returns the stations in the plot object
   std::vector<Station*> getStations() const;
@@ -200,7 +199,7 @@ public:
   /// set station number i to selected<br> if add is false, unselect all stations first
   int setSelectedStation(int i, bool add=false);
   /// get annotation
-  void getAnnotation(std::string &str,Colour &col) const;
+  void getAnnotation(std::string& str, Colour& col) const override;
   /// set annotation
   void setStationPlotAnnotation(const std::string &str);
   /// set UseImage
@@ -250,6 +249,7 @@ private:
   void addStation(float lon, float lat, const std::string& name = "", const std::string& image = "", int alpha = 255);
   void addStation(Station* station);
   void defineCoordinates();
+  bool switchProjection();
   void init();
   void plotStation(DiGLPainter* gl, int i);
   void glPlot(DiGLPainter* gl, Station::Status tp, float x, float y, bool selected = false);

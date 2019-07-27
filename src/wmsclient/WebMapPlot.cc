@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2018 met.no
+  Copyright (C) 2015-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -176,7 +176,7 @@ void WebMapPlot::plot(DiGLPainter* gl, PlotOrder porder)
   if (!mLayer)
     return;
 
-  setTimeValue(getStaticPlot()->getTime());
+  changeTime(getStaticPlot()->getTime());
   if (mTimeDimensionIdx >= 0 && mTimeSelected < 0)
     return; // has time axis, but time not found within tolerance
 
@@ -252,10 +252,10 @@ void WebMapPlot::requestCompleted()
   Q_EMIT update();
 }
 
-void WebMapPlot::changeProjection()
+void WebMapPlot::changeProjection(const Area& mapArea, const Rectangle& /*plotSize*/)
 {
-  if (mOldArea != getStaticPlot()->getMapArea()) {
-    mOldArea = getStaticPlot()->getMapArea();
+  if (mOldArea != mapArea) {
+    mOldArea = mapArea;
     dropRequest();
   }
 }
@@ -291,7 +291,7 @@ void WebMapPlot::setDimensionValue(const std::string& dimId, const std::string& 
     mDimensionValues.erase(dimId);
 }
 
-void WebMapPlot::setTimeValue(const miutil::miTime& time)
+void WebMapPlot::changeTime(const miutil::miTime& time)
 {
   METLIBS_LOG_SCOPE(LOGVAL(time) << LOGVAL(mTimeDimensionIdx));
   if (!mLayer || mTimeDimensionIdx < 0) {

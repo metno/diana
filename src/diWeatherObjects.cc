@@ -26,12 +26,9 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-//#define DEBUGPRINT
-
-#include "diana_config.h"
 
 #include "diWeatherObjects.h"
-#include "diDrawingTypes.h"
+
 #include "diWeatherFront.h"
 #include "diWeatherSymbol.h"
 #include "diWeatherArea.h"
@@ -113,6 +110,9 @@ void WeatherObjects::plot(DiGLPainter* gl, PlotOrder porder)
   if (!enabled || (porder != PO_LINES && porder != PO_OVERLAY))
     return;
 
+  if (mapArea.P() != itsArea.P())
+    switchProjection(mapArea);
+
   const objectType order[] = {wArea, wFront, wSymbol, wText, Border, RegionName, ShapeXXX};
   for (int ord : order) {
     for (ObjectPlot* op : objects) {
@@ -124,7 +124,12 @@ void WeatherObjects::plot(DiGLPainter* gl, PlotOrder porder)
 
 /*********************************************/
 
-bool WeatherObjects::changeProjection(const Area& newArea)
+void WeatherObjects::changeProjection(const Area& newArea, const Rectangle& /*plotSize*/)
+{
+  mapArea = newArea;
+}
+
+bool WeatherObjects::switchProjection(const Area& newArea)
 {
   METLIBS_LOG_SCOPE("Change projection from " << itsArea <<" to " << newArea);
 
@@ -201,23 +206,20 @@ void WeatherObjects::updateObjects()
 
 /*********************************************/
 
-bool WeatherObjects::readEditDrawFile(const std::string& fn, const Area& newArea)
+bool WeatherObjects::readEditDrawFile(const std::string& fn)
 {
   METLIBS_LOG_SCOPE("filename" << fn);
 
   //if *.shp read shapefile
   if (diutil::endswith(fn, ".shp")) {
-    if (newArea.P()!=itsArea.P()){
-      changeProjection(newArea);
-    }
-    changeProjection(geoArea);
+    // shape file expected to be in geographical projection; convert all other objects to this projection
+    // such that all objects have the same projection after adding the shape file
+    switchProjection(geoArea);
 
     METLIBS_LOG_INFO("This is a shapefile");
     ShapeObject * shape = new ShapeObject();
     addObject(shape);
     shape->read(fn);
-
-    changeProjection(newArea);
 
     return true;
   }
@@ -274,11 +276,10 @@ bool WeatherObjects::readEditDrawFile(const std::string& fn, const Area& newArea
     }
   }
   file.close();
-  return readEditDrawString(fileString, newArea);
+  return readEditDrawString(fileString);
 }
 
-bool WeatherObjects::readEditDrawString(const std::string& inputString,
-    const Area& newArea, bool replace)
+bool WeatherObjects::readEditDrawString(const std::string& inputString, bool replace)
 {
   METLIBS_LOG_SCOPE(LOGVAL(inputString));
 
@@ -287,10 +288,7 @@ bool WeatherObjects::readEditDrawString(const std::string& inputString,
   // also in DisplayObjects::define and in EditManager::startEdit
 
   // first convert existing objects to geographic coordinates
-  if (newArea.P()!=itsArea.P()){
-    changeProjection(newArea);
-  }
-  changeProjection(geoArea);
+  switchProjection(geoArea);
 
   //split inputString into one string for each object
   const std::vector<std::string> objectStrings = miutil::split(inputString, 0, "!");
@@ -338,7 +336,6 @@ bool WeatherObjects::readEditDrawString(const std::string& inputString,
     }
   }
 
-  changeProjection(newArea);
   return true;
 }
 
@@ -350,7 +347,7 @@ std::string WeatherObjects::writeEditDrawString(const miTime& t)
     return std::string();
 
   const Area oldarea = itsArea;
-  changeProjection(geoArea);
+  switchProjection(geoArea);
 
   ostringstream ostr;
   ostr << "Date=" << miutil::stringFromTime(t, true) << ';' << endl << endl;
@@ -358,7 +355,7 @@ std::string WeatherObjects::writeEditDrawString(const miTime& t)
   for (vector <ObjectPlot*>::iterator p = objects.begin(); p!=objects.end(); ++p)
     ostr << (*p)->writeObjectString();
 
-  changeProjection(oldarea);
+  switchProjection(oldarea);
 
   for (PlotCommand_cp pc : itsLabels)
     ostr << pc->toString() << "\n";
@@ -425,7 +422,7 @@ const PlotCommand_cpv& WeatherObjects::getEditLabels()
  *  Methods for reading and writing areaBorders  *
  *************************************************/
 
-bool WeatherObjects::readAreaBorders(const std::string fn, const Area& newArea)
+bool WeatherObjects::readAreaBorders(const string& fn)
 {
   METLIBS_LOG_SCOPE("filename = " << fn);
 
@@ -442,7 +439,7 @@ bool WeatherObjects::readAreaBorders(const std::string fn, const Area& newArea)
 
   file.close();
 
-  return readEditDrawString(miutil::from_latin1_to_utf8(fileString),newArea);
+  return readEditDrawString(miutil::from_latin1_to_utf8(fileString));
 }
 
 
@@ -459,7 +456,7 @@ bool WeatherObjects::writeAreaBorders(const std::string& fn)
   }
 
   const Area oldarea = itsArea;
-  changeProjection(geoArea);
+  switchProjection(geoArea);
 
   diutil::CharsetConverter_p converter = diutil::findConverter(diutil::CHARSET_INTERNAL(), diutil::ISO_8859_1);
 
@@ -471,7 +468,7 @@ bool WeatherObjects::writeAreaBorders(const std::string& fn)
 
   file.close();
 
-  changeProjection(oldarea);
+  switchProjection(oldarea);
   return true;
 }
 

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -51,8 +51,7 @@ AreaObjects::~AreaObjects()
 {
 }
 
-void AreaObjects::makeAreas(const std::string& name, const std::string& icon,
-    const std::string& areastring, int id,const Area& area)
+void AreaObjects::makeAreas(const std::string& name, const std::string& icon, const std::string& areastring, int id)
 {
   METLIBS_LOG_SCOPE();
   METLIBS_LOG_DEBUG(LOGVAL(name));
@@ -63,7 +62,7 @@ void AreaObjects::makeAreas(const std::string& name, const std::string& icon,
   itsName=name;
   iconName=icon;
 
-  if (readEditDrawString(areastring,area,true))
+  if (readEditDrawString(areastring, true))
     METLIBS_LOG_DEBUG("AreaObjects " << itsName << " id=" << itsId << " read OK!");
   else
     METLIBS_LOG_DEBUG("Areaobjects not read OK");

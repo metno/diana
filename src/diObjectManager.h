@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -109,7 +109,7 @@ public:
   ObjectManager(PlotModule*);
   ~ObjectManager();
 
-  void changeProjection(const Area& newArea);
+  void changeProjection(const Area& mapArea, const Rectangle& plotSize);
   EditObjects& getEditObjects()
     { return editobjects; }
   EditObjects& getCombiningObjects()
@@ -202,12 +202,9 @@ public:
     { objects.setAutoFile(autoF); }
 
   /// prepare objects for displaying
-  bool prepareObjects(const miutil::miTime& t,
-		      const Area& area);
+  bool prepareObjects(const miutil::miTime& t);
   /// reads the file with weather objectPlots
-  bool readEditDrawFile(const std::string file,
-			const Area& area,
-			WeatherObjects& objects);
+  bool readEditDrawFile(const std::string& file, WeatherObjects& objects);
   /// reads the file with edit comments
   bool readEditCommentFile(const std::string file,
 			   WeatherObjects& objects);

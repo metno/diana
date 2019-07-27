@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2018 met.no
+ Copyright (C) 2018-2019 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -134,7 +134,7 @@ void MapAreaNavigator::areaHome()
 {
   const bool kca = plotm->isKeepCurrentArea();
   plotm->setKeepCurrentArea(false);
-  plotm->updatePlots();
+  plotm->defineMapArea();
   plotm->setKeepCurrentArea(kca);
 }
 

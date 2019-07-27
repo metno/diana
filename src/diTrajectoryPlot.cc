@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -73,18 +73,23 @@ TrajectoryPlot::~TrajectoryPlot()
 
 void TrajectoryPlot::setTrajectoryData(const TrajectoryData_v& t)
 {
-  reprojectedXY.clear();
+  mNeedPrepare = true;
   trajectories = t;
   setPlotName("Trajektorier" + fieldStr);
-  prepare();
+  switchProjection();
 }
 
-bool TrajectoryPlot::prepare()
+void TrajectoryPlot::changeProjection(const Area& /*mapArea*/, const Rectangle& /*plotSize*/)
+{
+  switchProjection();
+}
+
+void TrajectoryPlot::switchProjection()
 {
   METLIBS_LOG_SCOPE();
 
   if (!mNeedPrepare && oldArea.P() == getStaticPlot()->getMapArea().P())
-    return true;
+    return;
 
   reprojectedXY.clear();
 
@@ -130,8 +135,6 @@ bool TrajectoryPlot::prepare()
 
   oldArea = getStaticPlot()->getMapArea();
   mNeedPrepare = false;
-
-  return true;
 }
 
 int TrajectoryPlot::trajPos(const vector<string>& vstr)
@@ -226,7 +229,7 @@ void TrajectoryPlot::plot(DiGLPainter* gl, PlotOrder zorder)
   if (!plot_on || !isEnabled() || zorder != PO_LINES)
     return;
 
-  prepare();
+  switchProjection();
 
   const Colour& cP = getStaticPlot()->notBackgroundColour(colourPast);
   const Colour& cF = getStaticPlot()->notBackgroundColour(colourFuture);

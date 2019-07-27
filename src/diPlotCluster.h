@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2018 met.no
+  Copyright (C) 2017-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -64,6 +64,9 @@ public:
   virtual void addPlotElements(std::vector<PlotElement>& pel);
 
   virtual bool enablePlotElement(const PlotElement& pe);
+
+  virtual void changeProjection(const Area& mapArea, const Rectangle& plotSize);
+  virtual void changeTime(const miutil::miTime& mapTime);
 
   bool empty() const { return plots_.empty(); }
 

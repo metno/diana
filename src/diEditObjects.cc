@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -486,7 +486,7 @@ void EditObjects::editCopyObjects()
     }
   }
   copyObjects.setArea(itsArea);
-  copyObjects.changeProjection(geoArea);
+  copyObjects.switchProjection(geoArea);
 }
 
 
@@ -499,7 +499,7 @@ void EditObjects::editPasteObjects()
 
   if (csize){
     unmarkAllPoints();
-    copyObjects.changeProjection(itsArea);
+    copyObjects.switchProjection(itsArea);
     diffx=newx-copyObjects.xcopy;
     diffy=newy-copyObjects.ycopy;
     // AC: changed offset-check to absolute values
@@ -1256,7 +1256,7 @@ bool EditObjects::changeCurrentFronts()
 
   //reads the current undoBuffer, and updates fronts
   const Area oldarea= itsArea;
-  changeProjection(undoCurrent->oldArea);
+  switchProjection(undoCurrent->oldArea);
   vector<saveObject>::iterator p1 = undoCurrent->saveobjects.begin();
   int nFrontsDeleted = 0; // number of symbols deleted
   while (p1!=undoCurrent->saveobjects.end()){
@@ -1314,7 +1314,7 @@ bool EditObjects::changeCurrentFronts()
   }
 
   // Changed/Added by ADC - 23.02.01
-  if (!changeProjection(oldarea)){
+  if (!switchProjection(oldarea)) {
     // projection change not necessary - but still call updateObjects
     updateObjects();
   }

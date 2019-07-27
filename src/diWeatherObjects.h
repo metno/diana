@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -91,8 +91,11 @@ public:
   /// updates the bound box
   void updateObjects();
 
-  /// change projection to newAreas projection
-  bool changeProjection(const Area& newArea);
+  /// request later reprojection to newArea
+  void changeProjection(const Area& newArea, const Rectangle& plotSize);
+
+  /// force projection to newArea projection
+  bool switchProjection(const Area& newArea);
 
   /// read file with comments
   bool readEditCommentFile(const std::string fn);
@@ -107,14 +110,13 @@ public:
   const PlotCommand_cpv& getEditLabels();
 
   /// read file with weather objects and change projection to newArea
-  bool readEditDrawFile(const std::string& filename,const Area& newArea);
+  bool readEditDrawFile(const std::string& filename);
 
   /// read  string with weather objects and change projection to newArea
-  bool readEditDrawString(const std::string&  inputString,
-      const Area& newArea, bool replace=false);
+  bool readEditDrawString(const std::string& inputString, bool replace = false);
 
   /// read file with area borders (for combining analyses)
-  bool readAreaBorders(const std::string, const Area&);
+  bool readAreaBorders(const std::string& fn);
 
   /// write file with area borders (for combining analyses)
   bool writeAreaBorders(const std::string&);
@@ -154,6 +156,7 @@ private:
 protected:
   std::string prefix;               //VA,VV,VNN...
   Area itsArea;                  // current object area
+  Area mapArea;                  // map object area, to be used for next plot
   Area geoArea;
 
   miutil::miTime itsTime;                //plot time

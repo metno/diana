@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -54,12 +54,10 @@ public:
   MeasurementsPlot();
   ~MeasurementsPlot();
 
-  ///change projection
-  bool prepare(void);
   ///Start positions, colours, lines, field, etc
-  void plot(DiGLPainter* gl, PlotOrder porder);
+  void plot(DiGLPainter* gl, PlotOrder porder) override;
 
-  void changeProjection();
+  void changeProjection(const Area& mapArea, const Rectangle& plotSize) override;
 
   /// define positions, colours, lines, field, etc
   void measurementsPos(const std::vector<std::string>&);

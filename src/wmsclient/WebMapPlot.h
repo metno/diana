@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015 MET Norway
+  Copyright (C) 2015-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -79,7 +79,7 @@ public:
 
   void plot(DiGLPainter* gl, PlotOrder porder) override;
 
-  void changeProjection();
+  void changeProjection(const Area& mapArea, const Rectangle& plotSize) override;
 
   size_t countDimensions() const;
 
@@ -92,9 +92,9 @@ public:
 
   void setDimensionValue(const std::string& dimId, const std::string& dimValue);
 
-  /*! selet time; if invalid or not found, use default time; ignored
+  /*! select time; if invalid or not found, use default time; ignored
    *  if no time dimension */
-  void setTimeValue(const miutil::miTime& time);
+  void changeTime(const miutil::miTime& time) override;
 
   /*! set to a fixed time; empty == no fixed time */
   void setFixedTime(const std::string& time);

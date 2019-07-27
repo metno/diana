@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013-2018 met.no
+  Copyright (C) 2013-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -949,7 +949,7 @@ void EditItemManager::updateTimes()
 {
   // Update the visibility of items based on the current plot time.
   const miutil::miTime& time = PLOTM->getPlotTime();
-  prepare(time);
+  changeTime(time);
 }
 
 void EditItemManager::updateActionsAndTimes()

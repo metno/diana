@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -50,7 +50,7 @@ public:
   ~AreaObjects();
 
   /// assign name,icon and id, and read areastring to make WeatherArea objects
-  void makeAreas(const std::string& name, const std::string& icon, const std::string& areastring, int id, const Area&);
+  void makeAreas(const std::string& name, const std::string& icon, const std::string& areastring, int id);
   /// apply a command
   bool areaCommand(const std::string& command, const std::vector<std::string>& data);
 

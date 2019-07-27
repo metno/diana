@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2018 met.no
+  Copyright (C) 2015-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -330,18 +330,18 @@ plottimes_t WebMapManager::getTimes() const
   return times;
 }
 
-bool WebMapManager::changeProjection(const Area&)
+bool WebMapManager::changeProjection(const Area& mapArea, const Rectangle& plotSize)
 {
   METLIBS_LOG_SCOPE();
-  for (size_t i = 0; i < webmaps.size(); i++)
-    webmaps[i]->changeProjection();
+  for (WebMapPlot* wmp : webmaps)
+    wmp->changeProjection(mapArea, plotSize);
   return true;
 }
 
-bool WebMapManager::prepare(const miutil::miTime& time)
+bool WebMapManager::changeTime(const miutil::miTime& time)
 {
   METLIBS_LOG_SCOPE();
-  for (size_t i = 0; i < webmaps.size(); i++)
-    webmaps[i]->setTimeValue(time);
+  for (WebMapPlot* wmp : webmaps)
+    wmp->changeTime(time);
   return true;
 }

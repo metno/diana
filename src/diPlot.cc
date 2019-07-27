@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -53,6 +53,16 @@ void Plot::setCanvas(DiCanvas*)
 bool Plot::operator==(const Plot&) const
 {
   return false;
+}
+
+void Plot::changeProjection(const Area& /*mapArea*/, const Rectangle& /*plotSize*/)
+{
+  // ignore
+}
+
+void Plot::changeTime(const miutil::miTime& /*newTime*/)
+{
+  // ignore
 }
 
 StaticPlot* Plot::getStaticPlot() const

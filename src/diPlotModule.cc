@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2018 met.no
+ Copyright (C) 2006-2019 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -179,6 +179,8 @@ void PlotModule::preparePlots(const PlotCommand_cpv& vpi)
     else
       manager->processInput(PlotCommand_cpv());
   }
+
+  defineMapArea();
 }
 
 void PlotModule::prepareArea(const PlotCommand_cpv& inp)
@@ -189,6 +191,9 @@ void PlotModule::prepareArea(const PlotCommand_cpv& inp)
     return;
   if (inp.size() > 1)
     METLIBS_LOG_DEBUG("More AREA definitions, using: " <<inp[0]->toString());
+  KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(inp[0]);
+  if (!cmd)
+    return;
 
   const std::string key_name=  "name";
   const std::string key_proj=  "proj4string";
@@ -197,10 +202,6 @@ void PlotModule::prepareArea(const PlotCommand_cpv& inp)
   Area requestedarea = staticPlot_->getRequestedarea();
   Projection proj;
   Rectangle rect;
-
-  KVListPlotCommand_cp cmd = std::dynamic_pointer_cast<const KVListPlotCommand>(inp[0]);
-  if (!cmd)
-    return;
 
   for (const miutil::KeyValue& kv : cmd->all()) {
     if (!kv.value().empty()) {
@@ -496,68 +497,41 @@ bool PlotModule::updatePlots()
   else
     METLIBS_LOG_DEBUG("SatManager returned false from setData");
 
-  // set maparea from map spec., sat or fields
-
-  defineMapArea();
-
   if (obsplots_->update(false, t))
     nodata = false;
 
   // prepare met-objects
-  if (objm->prepareObjects(t, staticPlot_->getMapArea()))
+  if (objm->prepareObjects(t))
     nodata = false;
 
   // prepare item stored in miscellaneous managers
   for (Manager* m : boost::adaptors::values(managers)) {
     // If the preparation fails then return false to indicate an error.
-    if (m->isEnabled() && !m->prepare(t))
+    if (m->isEnabled() && !m->changeTime(t))
       nodata = false;
   }
 
-  // prepare editobjects (projection etc.)
-  objm->changeProjection(staticPlot_->getMapArea());
-
-  // this is called in plotUnder:
-  // vareaobjects[i].changeProjection(staticPlot_->getMapArea());
-
-  const std::vector<StationPlot*>& stam_plots = stam->plots();
-  for (size_t i = 0; i < stam_plots.size(); i++) {
-    stam_plots[i]->changeProjection();
-    nodata = false;
-  }
-
-  // Prepare/compute trajectories - change projection
-  if (vtp.size() > 0) {
-    vtp[0]->prepare();
-    nodata = false;
-  }
-
-  // Prepare measurement positions - change projection
-  if (vMeasurementsPlot.size() > 0) {
-    vMeasurementsPlot[0]->changeProjection();
-  }
-
   setAnnotations();
-
-  // Update drawing items - this needs to be after the PlotAreaSetup call
-  // because we need to reproject the items to screen coordinates.
-  callManagersChangeProjection(false);
 
   return !nodata;
 }
 
 bool PlotModule::defineMapAreaFromData(Area& newMapArea, bool& allowKeepCurrentArea)
 {
+  satplots_->setData();
   if (satplots_->getSatArea(newMapArea)) {
     // set area equal to first EXISTING sat-area
     allowKeepCurrentArea = true;
     return true;
   }
+
   if (editm->isInEdit() && editm->getFieldArea(newMapArea)) {
     // set area equal to editfield-area
     allowKeepCurrentArea = false;
     return true;
   }
+
+  fieldplots_->update();
   if (fieldplots_->getRealFieldArea(newMapArea)) {
     allowKeepCurrentArea = true;
     return true;
@@ -602,7 +576,7 @@ void PlotModule::defineMapArea()
     mapDefinedByView = true;
   }
 
-  staticPlot_->setMapArea(newMapArea);
+  setMapArea(newMapArea);
 
   previousrequestedarea = staticPlot_->getRequestedarea();
 }
@@ -654,8 +628,6 @@ void PlotModule::plotUnder(DiGLPainter* gl)
 #endif
 
   plotInit(gl);
-
-  callManagersChangeProjection(true);
 
   // plot map-elements for lowest zorder
   mapplots_->plot(gl, PO_BACKGROUND);
@@ -764,7 +736,6 @@ void PlotModule::plotOver(DiGLPainter* gl)
 
   for (Manager* m : boost::adaptors::values(managers)) {
     if (m->isEnabled()) {
-      m->changeProjection(staticPlot_->getMapArea());
       m->plot(gl, PO_OVERLAY);
     }
   }
@@ -812,7 +783,8 @@ vector<Rectangle> PlotModule::plotAnnotations(DiGLPainter* gl)
 
 void PlotModule::setPhysSize(int w, int h)
 {
-  staticPlot_->setPhysSize(w, h);
+  if (staticPlot_->setPhysSize(w, h))
+    notifyChangeProjection();
 }
 
 void PlotModule::cleanup()
@@ -847,24 +819,30 @@ bool PlotModule::isPanning() const
   return staticPlot_->isPanning();
 }
 
-void PlotModule::callManagersChangeProjection(bool onlyIfEnabled)
+void PlotModule::notifyChangeProjection()
 {
+  const Area& ma = staticPlot_->getMapArea();
+  const Rectangle& ps = staticPlot_->getPlotSize();
+
+  mapplots_->changeProjection(ma, ps);
+  obsplots_->changeProjection(ma, ps);
+  objm->changeProjection(ma, ps);
+  if (areaobjects_)
+    areaobjects_->changeProjection(ma, ps);
+  for (StationPlot* stp : stam->plots())
+    stp->changeProjection(ma, ps);
+  for (TrajectoryPlot* tp : vtp)
+    tp->changeProjection(ma, ps);
+  for (MeasurementsPlot* mp : vMeasurementsPlot)
+    mp->changeProjection(ma, ps);
   for (Manager* m : boost::adaptors::values(managers))
-    if (!onlyIfEnabled || m->isEnabled())
-      m->changeProjection(staticPlot_->getMapArea());
+    m->changeProjection(ma, ps);
 }
 
 void PlotModule::setMapArea(const Area& area)
 {
-  const bool projChanged = (staticPlot_->getMapProjection() != area.P());
-
-  staticPlot_->setMapArea(area);
-
-  if (projChanged) {
-    updatePlots();
-  } else {
-    callManagersChangeProjection(false);
-  }
+  if (staticPlot_->setMapArea(area))
+    notifyChangeProjection();
 }
 
 void PlotModule::setMapAreaFromMap(const Rectangle& rectangle)
@@ -1050,6 +1028,7 @@ void insertTimes(times_t& times, const std::string& plotkey, const plottimes_t& 
 
 void PlotModule::getPlotTimes(std::map<string, plottimes_t>& times)
 {
+  METLIBS_LOG_TIME();
   times.clear();
 
   insertTimes(times, "fields", fieldplots_->getTimes());
@@ -1121,7 +1100,7 @@ void PlotModule::updateObs()
 AreaObjectsCluster* PlotModule::areaobjects()
 {
   if (!areaobjects_.get()) {
-    areaobjects_.reset(new AreaObjectsCluster(this));
+    areaobjects_.reset(new AreaObjectsCluster());
   }
   return areaobjects_.get();
 }

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2018 met.no
+  Copyright (C) 2017-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,18 +31,16 @@
 #define AREAOBJECTSCLUSTER_H
 
 #include "diAreaObjects.h"
-#include "diPlot.h"
 
-class PlotModule;
 class PlotElement;
-class StaticPlot;
 
 class AreaObjectsCluster
 {
 public:
-  AreaObjectsCluster(PlotModule* pm);
+  AreaObjectsCluster();
   ~AreaObjectsCluster();
 
+  void changeProjection(const Area& mapArea, const Rectangle& plotSize);
   void plot(DiGLPainter* gl, PlotOrder zorder);
 
   void addPlotElements(std::vector<PlotElement>& pel);
@@ -57,8 +55,6 @@ public:
       const std::vector<std::string>& data, int id);
 
 private:
-  PlotModule* plot_;
-
   typedef std::vector<AreaObjects> areaobjects_v;
   areaobjects_v vareaobjects;  //QED areas
 };

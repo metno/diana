@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013-2018 met.no
+  Copyright (C) 2013-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -445,7 +445,7 @@ plottimes_t DrawingManager::getTimes() const
  * Prepares the manager for display of, and interaction with, items that
  * correspond to the given \a time.
 */
-bool DrawingManager::prepare(const miutil::miTime &time)
+bool DrawingManager::changeTime(const miutil::miTime& time)
 {
   bool found = false;
 
@@ -496,12 +496,11 @@ bool DrawingManager::prepare(const miutil::miTime &time)
   return found;
 }
 
-bool DrawingManager::changeProjection(const Area& newArea)
+bool DrawingManager::changeProjection(const Area& /*mapArea*/, const Rectangle& plotSize)
 {
   // Record the new plot rectangle and area.
   // Update the edit rectangle so that objects are positioned consistently.
-  const Rectangle& r = PLOTM->getPlotSize();
-  setEditRect(r);
+  setEditRect(plotSize);
   return true;
 }
 

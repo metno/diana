@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -1895,7 +1895,7 @@ bool EditManager::startCombineEdit(const EditProduct& ep,
 
   std::string filename = EdProd.combineBorders + EdProdId.name;
   //read AreaBorders
-  if(!objm->getCombiningObjects().readAreaBorders(filename,plotm->getMapArea())){
+  if (!objm->getCombiningObjects().readAreaBorders(filename)) {
     message = "EditManager::startCombineEdit  error reading borders";
     return false;
   }
@@ -1980,7 +1980,7 @@ bool EditManager::startCombineEdit(const EditProduct& ep,
 
   }
 
-  objm->getCombiningObjects().changeProjection(newarea);
+  objm->getCombiningObjects().switchProjection(newarea);
 
   combineobjects.clear();
 
@@ -1995,7 +1995,7 @@ bool EditManager::startCombineEdit(const EditProduct& ep,
       EditObjects wo;
       //init weather objects with correct prefix (region name)
       wo.setPrefix(combineprods[ipc].pid);
-      objm->readEditDrawFile(filename, newarea, wo);
+      objm->readEditDrawFile(filename, wo);
       combineobjects.push_back(wo);
       //open the comments file, which should have same path and
       //extension as the object file
@@ -2065,12 +2065,12 @@ bool EditManager::editCombine()
   //or regions changed
 
   // first convert all remaining objects to editfield area
-  objm->getEditObjects().changeProjection(newarea);
-  objm->getCombiningObjects().changeProjection(newarea);
+  objm->getEditObjects().switchProjection(newarea);
+  objm->getCombiningObjects().switchProjection(newarea);
 
   // projection may have been changed when showing single region data
   for (int i=0; i<numregs; i++)
-    combineobjects[i].changeProjection(newarea);
+    combineobjects[i].switchProjection(newarea);
 
   std::unique_ptr<int[]> regindex(new int[nparts]);
 
@@ -2100,8 +2100,8 @@ bool EditManager::editCombine()
 
   if (error) {
     // convert all objects to map area again
-    objm->getCombiningObjects().changeProjection(plotm->getMapArea());
-    objm->getEditObjects().changeProjection(plotm->getMapArea());
+    objm->getCombiningObjects().switchProjection(plotm->getMapArea());
+    objm->getEditObjects().switchProjection(plotm->getMapArea());
 
     return false;
   }
@@ -2138,8 +2138,8 @@ bool EditManager::editCombine()
     objm->editHideCombineObjects(showRegion);
 
   // then convert all objects to map area again
-  objm->getCombiningObjects().changeProjection(plotm->getMapArea());
-  objm->getEditObjects().changeProjection(plotm->getMapArea());
+  objm->getCombiningObjects().switchProjection(plotm->getMapArea());
+  objm->getEditObjects().switchProjection(plotm->getMapArea());
 
   objm->getCombiningObjects().updateObjects();
   objm->getEditObjects().updateObjects();
@@ -2851,7 +2851,7 @@ void EditManager::plotSingleRegion(DiGLPainter* gl, PlotOrder zorder)
 
   if (showRegion<int(combineobjects.size())) {
     // projection may have been changed when showing single region data
-    combineobjects[showRegion].changeProjection(plotm->getMapArea());
+    combineobjects[showRegion].switchProjection(plotm->getMapArea());
 
     combineobjects[showRegion].plot(gl, zorder);
   }
