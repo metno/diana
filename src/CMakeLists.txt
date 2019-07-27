@@ -180,6 +180,7 @@ SET (LIBDIANA_SOURCES
   diStringPlotCommand.cc
   diTrajectoryGenerator.cc
   diTrajectoryPlot.cc
+  diTrajectoryPlotCluster.cc
   diUndoFront.cc
   diUtilities.cc
   diWeatherArea.cc

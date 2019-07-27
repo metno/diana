@@ -58,6 +58,7 @@ class MapPlotCluster;
 class StationPlotCluster;
 class Field;
 class TrajectoryPlot;
+class TrajectoryPlotCluster;
 class MeasurementsPlot;
 class StationPlot;
 
@@ -89,7 +90,7 @@ private:
   std::unique_ptr<FieldPlotCluster> fieldplots_; // field plots
   std::unique_ptr<MapPlotCluster> mapplots_;     // vector of map plots
   std::unique_ptr<StationPlotCluster> stationplots_; // vector of map plots
-  std::vector<TrajectoryPlot*> vtp; // vector of trajectory plots
+  std::unique_ptr<TrajectoryPlotCluster> trajectoryplots_; // vector of trajectory plots
   std::vector<MeasurementsPlot*> vMeasurementsPlot; // vector of measurements plots
   std::vector<AnnotationPlot*> vap; // vector of annotation plots
   std::vector<AnnotationPlot*> editVap;   //edit object labels
@@ -136,8 +137,6 @@ private:
   void prepareFields(const PlotCommand_cpv&);
   /// handles area info strings
   void prepareArea(const PlotCommand_cpv&);
-  /// handles trajectory plot info strings
-  void prepareTrajectory(const PlotCommand_cpv&);
   /// handles annotation plot info strings
   void prepareAnnotation(const PlotCommand_cpv&);
 

@@ -52,6 +52,7 @@
 #include "diStationPlotCluster.h"
 #include "diTrajectoryGenerator.h"
 #include "diTrajectoryPlot.h"
+#include "diTrajectoryPlotCluster.h"
 #include "diUtilities.h"
 
 #include "util/misc_util.h"
@@ -138,7 +139,7 @@ void PlotModule::preparePlots(const PlotCommand_cpv& vpi)
   ordered.insert(satplots()->plotCommandKey());
   ordered.insert(stationplots_->plotCommandKey());
   ordered.insert("OBJECTS");
-  ordered.insert("TRAJECTORY");
+  ordered.insert(trajectoryplots_->plotCommandKey());
   ordered.insert("LABEL");
   ordered.insert("EDITFIELD");
 
@@ -166,7 +167,7 @@ void PlotModule::preparePlots(const PlotCommand_cpv& vpi)
   satplots_->processInput(ordered_pi[satplots()->plotCommandKey()]);
   stationplots_->processInput(ordered_pi[stationplots_->plotCommandKey()]);
   objm->prepareObjects(ordered_pi["OBJECTS"]);
-  prepareTrajectory(ordered_pi["TRAJECTORY"]);
+  trajectoryplots_->processInput(ordered_pi[trajectoryplots_->plotCommandKey()]);
   prepareAnnotation(ordered_pi["LABEL"]);
   editm->prepareEditFields(ordered_pi["EDITFIELD"]);
 
@@ -241,12 +242,6 @@ void PlotModule::prepareAnnotation(const PlotCommand_cpv& inp)
   annotationCommands = inp;
 }
 
-void PlotModule::prepareTrajectory(const PlotCommand_cpv&)
-{
-  METLIBS_LOG_SCOPE();
-  // vtp.push_back(new TrajectoryPlot());
-}
-
 vector<PlotElement> PlotModule::getPlotElements()
 {
   //  METLIBS_LOG_SCOPE();
@@ -258,16 +253,7 @@ vector<PlotElement> PlotModule::getPlotElements()
   satplots_->addPlotElements(pel);
   objm->addPlotElements(pel);
   stationplots_->addPlotElements(pel);
-
-  // get trajectory names
-  for (size_t j = 0; j < vtp.size(); j++) {
-    std::string str = vtp[j]->getPlotName();
-    if (not str.empty()) {
-      str += "# " + miutil::from_number(int(j));
-      bool enabled = vtp[j]->isEnabled();
-      pel.push_back(PlotElement("TRAJECTORY", str, "TRAJECTORY", enabled));
-    }
-  }
+  trajectoryplots_->addPlotElements(pel);
 
   if (areaobjects_.get())
     areaobjects_->addPlotElements(pel);
@@ -292,15 +278,7 @@ vector<PlotElement> PlotModule::getPlotElements()
 void PlotModule::enablePlotElement(const PlotElement& pe)
 {
   Plot* plot = 0;
-  if (pe.type == "TRAJECTORY") {
-    for (unsigned int i = 0; i < vtp.size(); i++) {
-      std::string str = vtp[i]->getPlotName() + "# " + miutil::from_number(int(i));
-      if (str == pe.str) {
-        plot = vtp[i];
-        break;
-      }
-    }
-  } else if (pe.type == "LOCATION") {
+  if (pe.type == "LOCATION") {
     for (unsigned int i = 0; i < locationPlots.size(); i++) {
       std::string str = locationPlots[i]->getPlotName() + "# " + miutil::from_number(int(i));
       if (str == pe.str) {
@@ -320,6 +298,8 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
     change = fieldplots_->enablePlotElement(pe);
   } else if (pe.type == obsplots_->keyPlotElement()) {
     change = obsplots_->enablePlotElement(pe);
+  } else if (pe.type == trajectoryplots_->keyPlotElement()) {
+    change = trajectoryplots_->enablePlotElement(pe);
   } else if (pe.type == satplots_->keyPlotElement()) {
     change = satplots_->enablePlotElement(pe);
   } else if (pe.type == stationplots_->keyPlotElement()) {
@@ -376,16 +356,7 @@ void PlotModule::setAnnotations()
 
   obsplots_->addAnnotations(annotations);
   stationplots_->addAnnotations(annotations);
-
-  // get trajectory annotations
-  for (TrajectoryPlot* tp : vtp) {
-    if (!tp->isEnabled())
-      continue;
-    tp->getAnnotation(ann.str, ann.col);
-    // empty string if data plot is off
-    if (!ann.str.empty())
-      annotations.push_back(ann);
-  }
+  trajectoryplots_->addAnnotations(annotations);
 
   // get locationPlot annotations
   for (LocationPlot* lp : locationPlots) {
@@ -654,9 +625,7 @@ void PlotModule::plotUnder(DiGLPainter* gl)
 
   obsplots_->plot(gl, PO_LINES);
 
-  //plot trajectories
-  for (size_t i = 0; i < vtp.size(); i++)
-    vtp[i]->plot(gl, PO_LINES);
+  trajectoryplots_->plot(gl, PO_LINES);
 
   for (size_t i = 0; i < vMeasurementsPlot.size(); i++)
     vMeasurementsPlot[i]->plot(gl, PO_LINES);
@@ -754,16 +723,14 @@ void PlotModule::cleanup()
   satplots_->cleanup();
   stationplots_->cleanup();
   obsplots_->cleanup();
+  trajectoryplots_->cleanup();
 
   objm->clearObjects();
 
-  diutil::delete_all_and_clear(vtp);
-
   diutil::delete_all_and_clear(vMeasurementsPlot);
+  diutil::delete_all_and_clear(vap);
 
   annotationCommands.clear();
-
-  diutil::delete_all_and_clear(vap);
 }
 
 void PlotModule::setPanning(bool pan)
@@ -787,8 +754,7 @@ void PlotModule::notifyChangeProjection()
   if (areaobjects_)
     areaobjects_->changeProjection(ma, ps);
   stationplots_->changeProjection(ma, ps);
-  for (TrajectoryPlot* tp : vtp)
-    tp->changeProjection(ma, ps);
+  trajectoryplots_->changeProjection(ma, ps);
   for (MeasurementsPlot* mp : vMeasurementsPlot)
     mp->changeProjection(ma, ps);
   for (Manager* m : boost::adaptors::values(managers))
@@ -954,6 +920,7 @@ void PlotModule::setManagers(FieldPlotManager* fpm, ObsManager* om, SatManager* 
 
   obsplots_.reset(new ObsPlotCluster(obsm, editm));
   mapplots_.reset(new MapPlotCluster());
+  trajectoryplots_.reset(new TrajectoryPlotCluster());
   fieldplots_.reset(new FieldPlotCluster(fieldplotm));
   satplots_.reset(new SatPlotCluster(satm));
   stationplots_.reset(new StationPlotCluster(stam));
@@ -1122,28 +1089,8 @@ std::string PlotModule::findLocation(int x, int y, const std::string& name)
 
 void PlotModule::trajPos(const vector<std::string>& vstr)
 {
-  const int n = vtp.size();
-
-  //if vstr starts with "quit", delete all trajectoryPlot objects
-  for (size_t j = 0; j < vstr.size(); j++) {
-    if (vstr[j].substr(0, 4) == "quit") {
-      diutil::delete_all_and_clear(vtp);
-      setAnnotations(); // will remove tarjectoryPlot annotation
-      return;
-    }
-  }
-
-  //if no trajectoryPlot object, make one
-  if (n == 0)
-    vtp.push_back(new TrajectoryPlot());
-
-  //there are never more than one trajectoryPlot object (so far..)
-  int action = vtp[0]->trajPos(vstr);
-
-  if (action == 1) {
-    // trajectories cleared, reset annotations
-    setAnnotations(); // will remove tarjectoryPlot annotation
-  }
+  if (trajectoryplots_->trajPos(vstr))
+    setAnnotations();
 }
 
 void PlotModule::measurementsPos(const vector<std::string>& vstr)
@@ -1269,22 +1216,23 @@ void PlotModule::deleteAllEditAnnotations()
 bool PlotModule::startTrajectoryComputation()
 {
   METLIBS_LOG_SCOPE();
-  if (vtp.size() < 1)
+  if (trajectoryplots_->empty())
     return false;
 
-  const FieldPlot* fp = fieldplots()->findTrajectoryPlot(miutil::to_lower(vtp[0]->getFieldName()));
+  TrajectoryPlot* tp = trajectoryplots_->getPlot(0);
+  const FieldPlot* fp = fieldplots()->findTrajectoryPlot(miutil::to_lower(tp->getFieldName()));
   if (!fp)
     return false;
 
   TrajectoryGenerator tg(fieldplotm, fp, staticPlot_->getTime());
-  tg.setIterationCount(vtp[0]->getIterationCount());
-  tg.setTimeStep(vtp[0]->getTimeStep());
-  const TrajectoryGenerator::LonLat_v& pos = vtp[0]->getStartPositions();
+  tg.setIterationCount(tp->getIterationCount());
+  tg.setTimeStep(tp->getTimeStep());
+  const TrajectoryGenerator::LonLat_v& pos = tp->getStartPositions();
   for (TrajectoryGenerator::LonLat_v::const_iterator itP = pos.begin(); itP != pos.end(); ++itP)
     tg.addPosition(*itP);
 
   const TrajectoryData_v trajectories = tg.compute();
-  vtp[0]->setTrajectoryData(trajectories);
+  tp->setTrajectoryData(trajectories);
 
   return true;
 }
@@ -1296,8 +1244,8 @@ void PlotModule::stopTrajectoryComputation()
 // write trajectory positions to file
 bool PlotModule::printTrajectoryPositions(const std::string& filename)
 {
-  if (vtp.size() > 0)
-    return vtp[0]->printTrajectoryPositions(filename);
+  if (!trajectoryplots_->empty())
+    return trajectoryplots_->getPlot(0)->printTrajectoryPositions(filename);
 
   return false;
 }
