@@ -282,7 +282,6 @@ public:
       const std::string& thisVersion, const std::string& logVersion);
 
   // Miscellaneous get methods
-  SatPlotCluster* getSatPlotCluster() const;
   StationPlotCluster* getStationPlotCluster() const;
   std::vector<ObsPlot*> getObsPlots() const;         // Returns a vector of defined observation plots.
 

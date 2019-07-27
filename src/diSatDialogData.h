@@ -45,9 +45,6 @@ public:
   /// return button names for SatDialog
   virtual const SatDialogInfo& initSatDialog() = 0;
 
-  /// satellite follows main plot time
-  virtual void setSatAuto(bool, const std::string&, const std::string&) = 0;
-
   /// get list of satfiles of class satellite and subclass file. if update is true read new list from disk
   virtual const std::vector<SatFileInfo>& getSatFiles(const std::string& satellite, const std::string& file, bool update) = 0;
 

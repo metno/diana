@@ -203,12 +203,6 @@ std::vector<SatValues> SatPlotCluster::showValues(float x, float y)
   return satval;
 }
 
-void SatPlotCluster::setSatAuto(bool autoFile, const std::string& satellite, const std::string& file)
-{
-  for (Plot* plt : plots_)
-    static_cast<SatPlot*>(plt)->setSatAuto(autoFile, satellite, file);
-}
-
 plottimes_t SatPlotCluster::getTimes()
 {
   //  * PURPOSE:   return times for list of PlotInfo's

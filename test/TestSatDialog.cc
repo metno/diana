@@ -48,7 +48,6 @@ public:
   TestSatDialogData();
 
   const SatDialogInfo& initSatDialog() override { return sdi; }
-  void setSatAuto(bool, const std::string&, const std::string&) override {}
   const std::vector<SatFileInfo>& getSatFiles(const std::string& satellite, const std::string& file, bool update) override;
   const std::vector<std::string>& getSatChannels(const std::string& satellite, const std::string& file, int index) override;
   const std::vector<Colour>& getSatColours(const std::string& satellite, const std::string& file) override { return scolours; }

@@ -239,12 +239,6 @@ void SatPlot::getDataAnnotations(vector<string>& anno) const
   }
 }
 
-void SatPlot::setSatAuto(bool autoFile,const string& satellite, const string& file)
-{
-  if (satdata->satellite == satellite && satdata->filetype == file)
-    satdata->autoFile=autoFile;
-}
-
 bool SatPlot::hasData() const
 {
   return satdata && satdata->approved;

@@ -63,8 +63,6 @@ public:
   void getCalibChannels(std::vector<std::string>& channels) const;
   ///get pixel value
   void values(float x, float y, std::vector<SatValues>& satval) const;
-  ///get legend
-  void setSatAuto(bool, const std::string&, const std::string&);
 
 protected:
   const PlotArea& rasterPlotArea() override;

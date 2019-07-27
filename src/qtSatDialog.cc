@@ -312,21 +312,11 @@ void SatDialog::timefileClicked(int tt)
   //update list of files
   updateTimefileList(true);
 
-  if (tt == 0) {
-    // AUTO clicked
-
-    sdd_->setSatAuto(true, namebox->currentText().toStdString(), fileListWidget->currentItem()->text().toStdString());
-
-    //    timefileList->setEnabled( false );
+  const bool autofile = (tt == 0);
+  if (autofile) {
     updateChannelBox(true);
-
   } else {
     // "time"/"file" clicked
-
-    sdd_->setSatAuto(false, namebox->currentText().toStdString(), fileListWidget->currentItem()->text().toStdString());
-
-    //    timefileList->setEnabled ( true );
-
     timefileListSlot(timefileList->currentItem());
   }
 }
@@ -463,7 +453,6 @@ void SatDialog::picturesSlot(QListWidgetItem*)
 
     selectTextInList(fileListWidget, cmd->filetype);
 
-    sdd_->setSatAuto(cmd->isAuto(), cmd->satellite, cmd->filetype);
     if (cmd->isAuto()) {
       autoButton->setChecked(true);
       updateTimefileList(true);

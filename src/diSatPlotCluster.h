@@ -63,9 +63,6 @@ public:
   /// show pixel values in status bar
   std::vector<SatValues> showValues(float x, float y);
 
-  /// satellite follows main plot time
-  void setSatAuto(bool autoFile, const std::string& satellite, const std::string& file);
-
 private:
   void setData(SatPlot* satp, const miutil::miTime& mapTime);
   void processInputPE(const PlotCommand_cpv&) override;

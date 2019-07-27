@@ -33,22 +33,19 @@
 #include "diSatDialogData.h"
 
 class SatManager;
-class SatPlotCluster;
 
 class DianaSatDialogData : public SatDialogData
 {
 public:
-  DianaSatDialogData(SatManager* sm, SatPlotCluster* spc);
+  DianaSatDialogData(SatManager* sm);
 
   const SatDialogInfo& initSatDialog() override;
-  void setSatAuto(bool, const std::string&, const std::string&) override;
   const std::vector<SatFileInfo>& getSatFiles(const std::string& satellite, const std::string& file, bool update) override;
   const std::vector<std::string>& getSatChannels(const std::string& satellite, const std::string& file, int index) override;
   const std::vector<Colour>& getSatColours(const std::string& satellite, const std::string& file) override;
 
 private:
   SatManager* sm_;
-  SatPlotCluster* spc_;
 };
 
 #endif // dianasatdialogdata_h
