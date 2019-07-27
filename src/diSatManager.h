@@ -91,7 +91,7 @@ private:
   void calcRGBstrech(unsigned char *image, const int& size, const float& cut);
   void setPalette(Sat* satdata, SatFileInfo &);
   void listFiles(subProdInfo &subp);
-  bool readHeader(SatFileInfo &, std::vector<std::string> &);
+  void readHeader(SatFileInfo&, const std::vector<std::string>&);
 
   bool parseChannels(Sat* satdata, const SatFileInfo& info);
   bool readSatFile(Sat* satdata, const miutil::miTime& t);

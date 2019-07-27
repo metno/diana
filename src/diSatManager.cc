@@ -115,10 +115,7 @@ void SatManager::setData(Sat* satdata, const miutil::miTime& satptime)
     return;
 
   SatFileInfo& fInfo = spi->file[index];
-  if (!fInfo.opened) {
-    readHeader(fInfo, spi->channel);
-    fInfo.opened = true;
-  }
+  readHeader(fInfo, spi->channel);
 
   //read new file if :
   // 1) satdata contains no images
@@ -625,9 +622,11 @@ void SatManager::getMosaicfiles(Sat* satdata, const miutil::miTime& t)
   }
 }
 
-bool SatManager::readHeader(SatFileInfo &file, std::vector<std::string> &channel)
+void SatManager::readHeader(SatFileInfo& file, const std::vector<std::string>& channel)
 {
   METLIBS_LOG_SCOPE(LOGVAL(file.name) << LOGVAL(file.formattype));
+  if (file.opened)
+    return;
 
   if (file.formattype=="mitiff") {
     MItiff::readMItiffHeader(file);
@@ -646,8 +645,8 @@ bool SatManager::readHeader(SatFileInfo &file, std::vector<std::string> &channel
 #endif
 
   //compare channels from setup and channels from file
-  for (unsigned int k=0; k<channel.size(); k++) {
-    if (channel[k]=="IR+V") {
+  for (const std::string& ch : channel) {
+    if (ch == "IR+V") {
       std::string name=file.name;
       if (miutil::contains(name, "v."))
         miutil::replace(name, "v.", "i.");
@@ -656,37 +655,19 @@ bool SatManager::readHeader(SatFileInfo &file, std::vector<std::string> &channel
       std::ifstream inFile(name.c_str(), std::ios::in);
       if (inFile)
         file.channel.push_back("IR+V");
-    }
-
-    else if (channel[k]=="day_night") {
-      file.channel.push_back("day_night");
-    }
-    else if (channel[k]=="RGB") {
-      file.channel.push_back("RGB");
-    }
-    else if (channel[k]=="IR") {
-      file.channel.push_back("IR");
-    }
-    else if (miutil::contains(channel[k], "+") ) {
-      std::vector<std::string> ch = miutil::split(channel[k], "+");
-      bool found =false;
-      for (unsigned int l=0; l<ch.size(); l++) {
-        found =false;
-        for (unsigned int m=0; m<file.channel.size(); m++)
-          if (ch[l]==file.channel[m]) {
-            found=true;
-            break;
-          }
+    } else if (ch == "day_night" || ch == "RGB" || ch == "IR") {
+      file.channel.push_back(ch);
+    } else if (miutil::contains(ch, "+")) {
+      bool found = false;
+      for (const std::string& sch : miutil::split(ch, "+")) {
+        found = (std::find(file.channel.begin(), file.channel.end(), sch) != file.channel.end());
         if (!found)
           break;
       }
       if (found)
-        file.channel.push_back(channel[k]);
+        file.channel.push_back(ch);
     }
-
   }
-
-  return true;
 }
 
 const std::vector<std::string>& SatManager::getChannels(const std::string &satellite,
@@ -696,12 +677,9 @@ const std::vector<std::string>& SatManager::getChannels(const std::string &satel
     if (index < 0 || index >= int(subp->file.size()))
       return subp->channel;
 
-    if (subp->file[index].opened)
-      return subp->file[index].channel;
-    if (readHeader(subp->file[index], subp->channel)) {
-      subp->file[index].opened = true;
-      return subp->file[index].channel;
-    }
+    SatFileInfo& fInfo = subp->file[index];
+    readHeader(fInfo, subp->channel);
+    return fInfo.channel;
   }
 
   static const std::vector<std::string> empty;
@@ -741,11 +719,9 @@ void SatManager::listFiles(subProdInfo &subp)
 
       if (subp.filter[j].getTime(ft.name, ft.time)) {
         METLIBS_LOG_DEBUG("Time from filename:" << LOGVAL(ft.name) << LOGVAL(ft.time));
-        ft.opened = false;
       } else {
         // Open file if time not found from filename
         readHeader(ft, subp.channel);
-        ft.opened = true;
         METLIBS_LOG_DEBUG("Time from File:" LOGVAL(ft.time));
       }
 
