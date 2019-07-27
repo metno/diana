@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2018 met.no
+  Copyright (C) 2017-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,6 +31,7 @@
 
 #include "diFieldPlot.h"
 #include "diFieldPlotManager.h"
+#include "util/misc_util.h"
 #include "util/was_enabled.h"
 
 #include <puTools/miStringFunctions.h>
@@ -82,25 +83,22 @@ void FieldPlotCluster::prepare(const PlotCommand_cpv& inp)
 bool FieldPlotCluster::update()
 {
   bool haveFieldData = false;
-  for (size_t i = 0; i < plots_.size(); i++)
-    haveFieldData |= at(i)->updateIfNeeded();
+  for (FieldPlot* fp : diutil::static_content_cast<FieldPlot*>(plots_))
+    haveFieldData |= fp->updateIfNeeded();
   return haveFieldData;
 }
 
 void FieldPlotCluster::getDataAnnotations(std::vector<std::string>& anno) const
 {
-  for (Plot* pp : plots_) {
-    static_cast<FieldPlot*>(pp)->getDataAnnotations(anno);
-  }
+  for (FieldPlot* fp : diutil::static_content_cast<FieldPlot*>(plots_))
+    fp->getDataAnnotations(anno);
 }
 
 plottimes_t FieldPlotCluster::getTimes()
 {
   std::vector<FieldPlotCommand_cp> commands;
-  for (const Plot* p : plots_) {
-    const FieldPlot* fp = static_cast<const FieldPlot*>(p);
+  for (FieldPlot* fp : diutil::static_content_cast<FieldPlot*>(plots_))
     commands.push_back(fp->command());
-  }
   return fieldplotm_->getFieldTime(commands, false);
 }
 
@@ -112,8 +110,8 @@ const std::string& FieldPlotCluster::keyPlotElement() const
 plottimes_t FieldPlotCluster::fieldAnalysisTimes() const
 {
   plottimes_t fat;
-  for (size_t i = 0; i < plots_.size(); i++) {
-    const miutil::miTime& ti = at(i)->getAnalysisTime();
+  for (FieldPlot* fp : diutil::static_content_cast<FieldPlot*>(plots_)) {
+    const miutil::miTime& ti = fp->getAnalysisTime();
     if (!ti.undef())
       fat.insert(ti);
   }
@@ -123,32 +121,26 @@ plottimes_t FieldPlotCluster::fieldAnalysisTimes() const
 int FieldPlotCluster::getVerticalLevel() const
 {
   if (!plots_.empty())
-    return at(plots_.size()-1)->getLevel();
+    return static_cast<const FieldPlot*>(plots_.back())->getLevel();
   else
     return 0;
 }
 
 bool FieldPlotCluster::getRealFieldArea(Area& newMapArea) const
 {
-  if (plots_.empty())
-    return false;
-
   // set area equal to first EXISTING field-area ("all timesteps"...)
-  const int n = plots_.size();
-  int i = 0;
-  while (i < n && !at(i)->getRealFieldArea(newMapArea))
-    i++;
-  return (i < n);
+  for (FieldPlot* fp : diutil::static_content_cast<FieldPlot*>(plots_)) {
+    if (fp->getRealFieldArea(newMapArea))
+      return true;
+  }
+  return false;
 }
 
 
 bool FieldPlotCluster::MapToGrid(const Projection& plotproj, float xmap, float ymap, float& gridx, float& gridy) const
 {
-  if (plots_.empty())
-    return false;
-
-  FieldPlot* fp = at(0);
-  if (plotproj == fp->getFieldArea().P()) {
+  FieldPlot* fp = first();
+  if (fp && plotproj == fp->getFieldArea().P()) {
     const std::vector<Field*>& ff = fp->getFields();
     if (!ff.empty()) {
       gridx = ff[0]->area.toGridX(xmap);
@@ -164,14 +156,14 @@ miutil::miTime FieldPlotCluster::getFieldReferenceTime() const
   if (plots_.empty())
     return miutil::miTime();
 
-  return at(0)->getReferenceTime();
+  return first()->getReferenceTime();
 }
 
 std::vector<std::string> FieldPlotCluster::getTrajectoryFields()
 {
   std::vector<std::string> vstr;
-  for (size_t i = 0; i < plots_.size(); i++) {
-    std::string fname = at(i)->getTrajectoryFieldName();
+  for (FieldPlot* fp : diutil::static_content_cast<FieldPlot*>(plots_)) {
+    std::string fname = fp->getTrajectoryFieldName();
     if (!fname.empty())
       vstr.push_back(fname);
   }
@@ -180,23 +172,20 @@ std::vector<std::string> FieldPlotCluster::getTrajectoryFields()
 
 const FieldPlot* FieldPlotCluster::findTrajectoryPlot(const std::string& fieldname)
 {
-  for (size_t i = 0; i < plots_.size(); ++i) {
-    if (miutil::to_lower(at(i)->getTrajectoryFieldName()) == fieldname)
-      return at(i);
+  for (FieldPlot* fp : diutil::static_content_cast<FieldPlot*>(plots_)) {
+    if (miutil::to_lower(fp->getTrajectoryFieldName()) == fieldname)
+      return fp;
   }
   return 0;
 }
 
 std::vector<FieldPlot*> FieldPlotCluster::getFieldPlots() const
 {
-  std::vector<FieldPlot*> fieldplots;
-  fieldplots.reserve(plots_.size());
-  for (std::vector<Plot*>::const_iterator it = plots_.begin(); it != plots_.end(); ++it)
-    fieldplots.push_back(static_cast<FieldPlot*>(*it));
-  return fieldplots;
+  const auto fps = diutil::static_content_cast<FieldPlot*>(plots_);
+  return std::vector<FieldPlot*>(fps.begin(), fps.end());
 }
 
-FieldPlot* FieldPlotCluster::at(size_t i) const
+FieldPlot* FieldPlotCluster::first() const
 {
-  return static_cast<FieldPlot*>(plots_[i]);
+  return plots_.empty() ? nullptr : static_cast<FieldPlot*>(plots_.front());
 }

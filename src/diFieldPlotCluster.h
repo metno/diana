@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2018 met.no
+  Copyright (C) 2017-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -75,7 +75,8 @@ public:
   std::vector<FieldPlot*> getFieldPlots() const;
 
 protected:
-  FieldPlot* at(size_t i) const;
+  /// \returns first plot if not empty, else nullptr
+  FieldPlot* first() const;
 
 private:
   FieldPlotManager* fieldplotm_;
