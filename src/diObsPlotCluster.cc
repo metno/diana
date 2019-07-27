@@ -109,9 +109,8 @@ bool ObsPlotCluster::update(bool ifNeeded, const miutil::miTime& t)
   for (size_t i = 0; i < plots_.size(); i++) {
     ObsPlot* op = at(i);
     if (!ifNeeded || obsm_->updateTimes(op)) {
-      if (obsm_->prepare(op, t)) {
-        havedata = true;
-      }
+      obsm_->prepare(op, t);
+      havedata = true;
     }
     //update list of positions ( used in "PPPP-mslp")
     // TODO this is kind of prepares changeProjection of all ObsPlot's with mslp() == true, to be used in EditManager::interpolateEditFields

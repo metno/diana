@@ -82,7 +82,7 @@ void ObsManager::setPlotDefaults(ObsPlot* oplot)
   }
 }
 
-bool ObsManager::prepare(ObsPlot* oplot, const miutil::miTime& time)
+void ObsManager::prepare(ObsPlot* oplot, const miutil::miTime& time)
 {
   METLIBS_LOG_SCOPE();
 
@@ -105,7 +105,6 @@ bool ObsManager::prepare(ObsPlot* oplot, const miutil::miTime& time)
   }
 
   oplot->setData();
-  return true;
 }
 
 bool ObsManager::updateTimes(ObsPlot* op)

@@ -104,7 +104,7 @@ public:
   void setPlotDefaults(ObsPlot* oplot);
 
   //! read data into an obsplot
-  bool prepare(ObsPlot*, const miutil::miTime&);
+  void prepare(ObsPlot*, const miutil::miTime&);
 
   //! \return observation times for a list of "prod"
   plottimes_t getTimes(const std::vector<std::string>& obsTypes, bool update);
