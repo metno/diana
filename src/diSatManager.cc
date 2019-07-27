@@ -88,7 +88,7 @@ SatManager::SatManager()
 {
 }
 
-bool SatManager::setData(Sat* satdata, const miutil::miTime& satptime)
+void SatManager::setData(Sat* satdata, const miutil::miTime& satptime)
 {
   //  PURPOSE:s   Read data from file, and init. SatPlot
   METLIBS_LOG_SCOPE();
@@ -106,13 +106,13 @@ bool SatManager::setData(Sat* satdata, const miutil::miTime& satptime)
     index = getFileName(satdata, satptime);
   }
   if (index < 0)
-    return false;
+    return;
 
   //Read header if not opened
 
   subProdInfo* spi = findProduct(satdata->satellite, satdata->filetype);
   if (!spi)
-    return false;
+    return;
 
   SatFileInfo& fInfo = spi->file[index];
   if (!fInfo.opened) {
@@ -141,12 +141,12 @@ bool SatManager::setData(Sat* satdata, const miutil::miTime& satptime)
     //find out which channels to read (satdata->index), total no
     if ( !parseChannels(satdata, fInfo) ) {
       METLIBS_LOG_ERROR("Failed parseChannels");
-      return false;
+      return;
     }
     satdata->cleanup();
     if (!readSatFile(satdata, satptime)) {
       METLIBS_LOG_ERROR("Failed readSatFile");
-      return false;
+      return;
     }
     satdata->setArea();
     satdata->setCalibration();
@@ -170,8 +170,6 @@ bool SatManager::setData(Sat* satdata, const miutil::miTime& satptime)
 
   //delete filename selected in dialog
   satdata->filename.erase();
-
-  return true;
 }
 
 /***********************************************************************/

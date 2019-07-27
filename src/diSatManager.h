@@ -111,7 +111,7 @@ private:
 public:
   SatManager();
 
-  bool setData(Sat* satdata, const miutil::miTime& satptime);
+  void setData(Sat* satdata, const miutil::miTime& satptime);
 
   plottimes_t getSatTimes(const std::string& satellite, const std::string& filetype);
 

@@ -176,12 +176,11 @@ void SatPlotCluster::changeTime(const miutil::miTime& mapTime)
     setData(sp, mapTime);
 }
 
-bool SatPlotCluster::setData(SatPlot* satp, const miutil::miTime& mapTime)
+void SatPlotCluster::setData(SatPlot* satp, const miutil::miTime& mapTime)
 {
   Sat* satdata = satp->satdata;
-  bool ok = satm_->setData(satdata, mapTime);
+  satm_->setData(satdata, mapTime);
   satp->setPlotName(satdata->plotname);
-  return ok;
 }
 
 std::vector<std::string> SatPlotCluster::getCalibChannels()

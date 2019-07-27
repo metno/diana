@@ -67,7 +67,7 @@ public:
   void setSatAuto(bool autoFile, const std::string& satellite, const std::string& file);
 
 private:
-  bool setData(SatPlot* satp, const miutil::miTime& mapTime);
+  void setData(SatPlot* satp, const miutil::miTime& mapTime);
   void processInputPE(const PlotCommand_cpv&) override;
 
 private:
