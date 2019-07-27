@@ -29,7 +29,7 @@
 #ifndef diObsPlot_h
 #define diObsPlot_h
 
-#include "diPlot.h"
+#include "diPlotOptionsPlot.h"
 
 #include "diGLPainter.h"
 #include "diObsData.h"
@@ -73,7 +73,8 @@ struct ObsPlotCollider {
  - metar plot
  - list plot
  */
-class ObsPlot: public Plot {
+class ObsPlot : public PlotOptionsPlot
+{
 
 protected:
   std::vector<ObsData> obsp;

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2019 met.no
+  Copyright (C) 2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,61 +27,31 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#ifndef diPlotOptionsPlot_h
+#define diPlotOptionsPlot_h
+
 #include "diPlot.h"
 
-#include "diColour.h"
-#include "diPlotModule.h"
+#include "diPlotOptions.h"
 
-Plot::Plot()
-  : enabled(true)
+/**
+   \brief Ancestor of all map plotting classes
+*/
+class PlotOptionsPlot : public Plot
 {
-}
+public:
+  /// key identifiying plot for remembering enabled/disabled state
+  std::string getEnabledStateKey() const override;
 
-Plot::~Plot()
-{
-}
+  /// set the plot info string
+  virtual void setPlotInfo(const miutil::KeyValue_v& kvs);
 
-void Plot::setCanvas(DiCanvas*)
-{
-}
+  /// return the current PlotOptions
+  const PlotOptions& getPlotOptions() const { return poptions; }
 
-bool Plot::operator==(const Plot&) const
-{
-  return false;
-}
+protected:
+  PlotOptions poptions;
+  miutil::KeyValue_v ooptions;
+};
 
-void Plot::changeProjection(const Area& /*mapArea*/, const Rectangle& /*plotSize*/)
-{
-  // ignore
-}
-
-void Plot::changeTime(const miutil::miTime& /*newTime*/)
-{
-  // ignore
-}
-
-bool Plot::hasData()
-{
-  return true;
-}
-
-StaticPlot* Plot::getStaticPlot() const
-{
-  return PlotModule::instance()->getStaticPlot();
-}
-
-void Plot::setEnabled(bool e)
-{
-  enabled = e;
-}
-
-void Plot::getAnnotation(std::string& s, Colour& c) const
-{
-  c = Colour("black");
-  s = getPlotName();
-}
-
-const std::string& Plot::getPlotName() const
-{
-  return plotname;
-}
+#endif // diPlotOptionsPlot_h

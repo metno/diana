@@ -95,6 +95,11 @@ std::string WebMapPlot::attribution() const
     return std::string();
 }
 
+std::string WebMapPlot::getEnabledStateKey() const
+{
+  return "webmap_" + title();
+}
+
 void WebMapPlot::getAnnotation(std::string& text, Colour&) const
 {
   METLIBS_LOG_SCOPE();

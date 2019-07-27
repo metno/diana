@@ -30,7 +30,9 @@
 #define _diShapeObject_h
 
 #include "diObjectPlot.h"
+
 #include "diGLPainter.h"
+#include "diProjection.h"
 
 #include <QPolygonF>
 

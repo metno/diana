@@ -32,11 +32,9 @@
 
 #include "diPlotCluster.h"
 
-#include "diAnnotationPlot.h" // AnnotationPlot::Annotation
-#include "diTimeTypes.h"
-
 class FieldPlot;
 class FieldPlotManager;
+class Projection;
 
 class FieldPlotCluster : public PlotCluster
 {

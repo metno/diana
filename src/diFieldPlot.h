@@ -29,7 +29,7 @@
 #ifndef diFieldPlot_h
 #define diFieldPlot_h
 
-#include "diPlot.h"
+#include "diPlotOptionsPlot.h"
 
 #include "diCommonTypes.h"
 #include "diFieldPlotCommand.h"
@@ -52,7 +52,8 @@ class FieldPlotManager;
   Holds the (scalar) field(s) after reading and any computations.
   Contains all field plotting methodes except contouring.
 */
-class FieldPlot : public Plot {
+class FieldPlot : public PlotOptionsPlot
+{
 
 public:
   FieldPlot(FieldPlotManager* fieldplotm);

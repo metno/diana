@@ -1579,6 +1579,11 @@ bool ComplexSymbolPlot::isComplexTextColor(int drawIndex)
   }
 }
 
+void ComplexSymbolPlot::setBorderColour(const std::string& colstring)
+{
+  borderColour = Colour(colstring);
+}
+
 bool ComplexSymbolPlot::isComplexText(int drawIndex)
 {
   switch (drawIndex) {

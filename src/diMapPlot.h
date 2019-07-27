@@ -116,7 +116,7 @@ public:
   ~MapPlot();
 
   void setCanvas(DiCanvas* canvas) override;
-
+  std::string getEnabledStateKey() const override;
   /// plot map/lat/lon/frame in a specific zorder layer
   void plot(DiGLPainter* gl, PlotOrder porder) override;
   void plotMap(DiGLPainter* gl, int zorder);

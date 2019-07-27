@@ -140,10 +140,9 @@ private:
    with or without name/text. Misc options to set/change "state"
    of each position in the set.
 */
-class StationPlot: public Plot{
-
+class StationPlot : public Plot
+{
 public:
-  StationPlot(){}
   /// constructor with station longitudes and latitudes
   StationPlot(const std::vector <float> & lons, const std::vector <float> & lats);
   /// constructor with station names,longitudes and latitudes
@@ -162,8 +161,12 @@ public:
       const  std::vector<std::string>& data);
   ~StationPlot();
 
+  void changeProjection(const Area& mapArea, const Rectangle& plotSize) override;
   /// plot stations
   void plot(DiGLPainter* gl, PlotOrder zorder) override;
+  std::string getEnabledStateKey() const override;
+
+  const std::string& getPlotName() const override;
 
   /// hide stations
   void hide();
@@ -174,11 +177,6 @@ public:
   /// returns true if stationplot visible
   bool isVisible() const;
   void setVisible(bool on);
-
-  const std::string& getPlotName() const override;
-
-  /// change stationplot projection
-  void changeProjection(const Area& mapArea, const Rectangle& plotSize) override;
 
   /// Returns the stations in the plot object
   std::vector<Station*> getStations() const;

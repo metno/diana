@@ -414,6 +414,11 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
   }
 }
 
+std::string StationPlot::getEnabledStateKey() const
+{
+  return "stationplot-" + getName();
+}
+
 void StationPlot::hide()
 {
 #ifdef DEBUGPRINT

@@ -63,14 +63,11 @@ private:
   static std::set<std::string> textlist;
 
 public:
- /// default constructor
   WeatherSymbol();
   /// constructor with integer symbol type as argument
   WeatherSymbol(int ty);
   /// constructor with symbol name and type of object as argument
-  WeatherSymbol(std::string,int);
-  WeatherSymbol(const WeatherSymbol &rhs);
-  /// Destructor
+  WeatherSymbol(const std::string& tystring, int objTy);
   ~WeatherSymbol();
 
   /// define map to find symbol type number from name
@@ -96,8 +93,7 @@ public:
   /// get std::vectors with text from complex symbols
   static void getCurrentComplexText(std::vector<std::string> & symbolText, std::vector<std::string> & xText);
   /// set std::vectors with text from complex symbols
-  static void setCurrentComplexText(const std::vector<std::string>& symbolText,
-      const std::vector<std::string>& xText); 
+  static void setCurrentComplexText(const std::vector<std::string>& symbolText, const std::vector<std::string>& xText);
   /// initialise text for complex symbols
   static void initCurrentComplexText(std::string edittool);
   /// sets list of complex texts (used in text dialog)

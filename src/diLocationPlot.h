@@ -45,19 +45,19 @@ public:
   LocationPlot();
   ~LocationPlot() override;
 
+  void plot(DiGLPainter* gl, PlotOrder zorder) override;
+  void changeProjection(const Area& mapArea, const Rectangle& plotSize) override;
+  std::string getEnabledStateKey() const override;
+  void getAnnotation(std::string& str, Colour& col) const override;
+
   bool setData(const LocationData& locationdata);
 
-  void setSelected(const std::string& name)
-	{ selectedName= name; }
+  void setSelected(const std::string& name) { selectedName = name; }
 
-  void hide() { visible= false; }
-  void show() { visible= true; }
+  void setVisible(bool vis) { visible = vis; }
   bool isVisible() const { return visible; }
-  void plot(DiGLPainter* gl, PlotOrder zorder) override;
-  bool changeProjection();
-  std::string getName() { return locdata.name; }
+  const std::string& getName() const { return locdata.name; }
   std::string find(int x, int y);
-  void getAnnotation(std::string& str, Colour& col) const override;
 
 private:
   void drawLineOrPoint(DiGLPainter* gl, int l);
@@ -80,6 +80,8 @@ private:
   std::string selectedName;
 
   Area  posArea;
+  float sizeOfCross_;
+
   int   numPos;
   float *px;
   float *py;

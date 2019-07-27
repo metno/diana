@@ -140,6 +140,11 @@ void MeasurementsPlot::measurementsPos(const vector<string>& vstr)
   }
 }
 
+std::string MeasurementsPlot::getEnabledStateKey() const
+{
+  return std::string();
+}
+
 void MeasurementsPlot::plot(DiGLPainter* gl, PlotOrder porder)
 {
   METLIBS_LOG_SCOPE();

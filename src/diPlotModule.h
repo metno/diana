@@ -29,6 +29,7 @@
 #ifndef diPlotModule_h
 #define diPlotModule_h
 
+#include "diArea.h"
 #include "diPlot.h"
 #include "diPlotCommand.h"
 #include "diPlotElement.h"

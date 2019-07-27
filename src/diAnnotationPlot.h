@@ -29,9 +29,12 @@
 #ifndef diAnnotationPlot_h
 #define diAnnotationPlot_h
 
-#include "diPlot.h"
+#include "diPlotOptionsPlot.h"
+
 #include "diPlotCommand.h"
 #include "diTimeTypes.h"
+
+#include "diField/diRectangle.h"
 
 #include <vector>
 #include <map>
@@ -44,7 +47,8 @@ class LegendPlot;
 
  Includes: text, symbol, image, input, legend, arrow, box
  */
-class AnnotationPlot: public Plot {
+class AnnotationPlot : public PlotOptionsPlot
+{
 
   enum annoType {
     anno_data, anno_text,

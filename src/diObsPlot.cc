@@ -391,7 +391,7 @@ void ObsPlot::setPlotInfo(const miutil::KeyValue_v& pin)
   poptions.fontname = diutil::BITMAPFONT;
   poptions.fontface = diutil::F_NORMAL;
 
-  Plot::setPlotInfo(pin);
+  PlotOptionsPlot::setPlotInfo(pin);
 
   vector<std::string> parameter;
   for (const miutil::KeyValue& kv : pin) {

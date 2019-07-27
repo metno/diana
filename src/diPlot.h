@@ -29,19 +29,17 @@
 #ifndef diPlot_h
 #define diPlot_h
 
-#include "diColour.h"
-#include "diField/diArea.h"
-#include "diField/diGridConverter.h"
-#include "diPlotOptions.h"
 #include "diPlotOrder.h"
-#include "diPoint.h"
 
 #include <puTools/miTime.h>
 
-#include <vector>
+#include <string>
 
+class Area;
+class Colour;
 class DiCanvas;
 class DiGLPainter;
+class Rectangle;
 class StaticPlot;
 
 /**
@@ -50,11 +48,11 @@ class StaticPlot;
 class Plot {
 public:
   Plot();
+  Plot(const Plot&) = delete;
+  Plot& operator=(const Plot&) = delete;
   virtual ~Plot();
 
   bool operator==(const Plot &rhs) const;
-
-  StaticPlot* getStaticPlot() const;
 
   virtual void setCanvas(DiCanvas* canvas);
 
@@ -63,6 +61,12 @@ public:
   virtual void changeProjection(const Area& mapArea, const Rectangle& plotSize);
   virtual void changeTime(const miutil::miTime& newTime);
   virtual bool hasData();
+  virtual void getAnnotation(std::string& str, Colour& col) const;
+
+  /// key identifiying plot for remembering enabled/disabled state
+  virtual std::string getEnabledStateKey() const = 0;
+
+  StaticPlot* getStaticPlot() const;
 
   /// enable this plot object
   void setEnabled(bool enable=true);
@@ -71,28 +75,12 @@ public:
   bool isEnabled() const
     { return enabled; }
 
-  /// key identifiying plot for remembering enabled/disabled state
-  virtual std::string getEnabledStateKey() const;
-
-  /// set the plot info string
-  virtual void setPlotInfo(const miutil::KeyValue_v& kvs);
-
-  /// return the current PlotOptions
-  const PlotOptions& getPlotOptions() const
-    { return poptions; }
-
   /// set name of this plot object
   void setPlotName(const std::string& name)
     { plotname= name; }
 
   /// return name of this plot object
   virtual const std::string& getPlotName() const;
-
-  virtual void getAnnotation(std::string &str, Colour &col) const;
-
-protected:
-  PlotOptions poptions;
-  miutil::KeyValue_v ooptions;
 
 private:
   bool enabled;               // plot enabled

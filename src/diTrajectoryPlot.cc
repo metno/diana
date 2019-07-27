@@ -292,6 +292,10 @@ void TrajectoryPlot::plot(DiGLPainter* gl, PlotOrder zorder)
   }
 }
 
+std::string TrajectoryPlot::getEnabledStateKey() const
+{
+  return "trajectory-" + fieldStr;
+}
 
 void TrajectoryPlot::clearData()
 {

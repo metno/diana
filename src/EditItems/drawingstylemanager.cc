@@ -36,6 +36,7 @@
 #include "diGlUtilities.h"
 #include "diPlot.h"
 #include "diPlotModule.h"
+#include "diPlotOptions.h"
 #include "diStaticPlot.h"
 
 #include <QApplication>

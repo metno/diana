@@ -105,6 +105,11 @@ void MapPlot::setCanvas(DiCanvas* c)
   mCanvas = dynamic_cast<DiGLCanvas*>(c);
 }
 
+std::string MapPlot::getEnabledStateKey() const
+{
+  return std::string();
+}
+
 /*
  Extract plotting-parameters from PlotInfo.
  */

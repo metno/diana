@@ -29,19 +29,17 @@
 #ifndef ComplexSymbolPlot_h
 #define ComplexSymbolPlot_h
 
-#include "diPlot.h"
+#include "diPlotOptionsPlot.h"
 
 #include <set>
 #include <vector>
-
-class DiGLPainter;
 
 /**
   \brief Draw complex sigmap symbols
 
   The symbols are a combination of font symbols and text the user can enter
 */
-class ComplexSymbolPlot: public Plot
+class ComplexSymbolPlot : public PlotOptionsPlot
 {
 public:
   ComplexSymbolPlot(int drawIndex);
@@ -75,7 +73,7 @@ public:
   std::string writeComplexText();
   /// get the the size and x,y of center of bounding box
   void getComplexBoundingBox(DiGLPainter* gl, int index, float& sw, float & sh, float & x, float & y);
-  void setBorderColour(const std::string& colstring){borderColour= Colour(colstring);}
+  void setBorderColour(const std::string& colstring);
   /// returns true if symbol is complex text
   static bool isComplexText(int drawIndex);
   /// returns true if symbol is colored complex text

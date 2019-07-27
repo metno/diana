@@ -157,6 +157,7 @@ SET (LIBDIANA_SOURCES
   diPlotCommandFactory.cc
   diPlotModule.cc
   diPlotOptions.cc
+  diPlotOptionsPlot.cc
   diPolyContouring.cc
   diPrintOptions.cc
   diQuickMenues.cc

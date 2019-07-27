@@ -30,6 +30,9 @@
 #define diTrajectoryPlot_h
 
 #include "diPlot.h"
+
+#include "diArea.h"
+#include "diColour.h"
 #include "diLinetype.h"
 #include "diTrajectoryGenerator.h"
 
@@ -44,10 +47,11 @@ public:
   TrajectoryPlot();
   ~TrajectoryPlot();
 
-  void plot(DiGLPainter* gl, PlotOrder zorder) override;
-
   void changeProjection(const Area& mapArea, const Rectangle& plotSize) override;
   void changeTime(const miutil::miTime& newTime) override;
+  void plot(DiGLPainter* gl, PlotOrder zorder) override;
+  std::string getEnabledStateKey() const override;
+  void getAnnotation(std::string& s, Colour& c) const override;
 
   ///Start positions, colours, lines, field, etc
   int trajPos(const std::vector<std::string>&);
@@ -65,8 +69,6 @@ public:
     { return timeStep; }
 
   void setTrajectoryData(const TrajectoryData_v& t);
-
-  void getAnnotation(std::string& s, Colour& c) const override;
 
   bool printTrajectoryPositions(const std::string& filename);
 

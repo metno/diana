@@ -32,6 +32,7 @@
 #include "diDrawingManager.h"
 #include "diGLPainter.h"
 #include "diPlotModule.h"
+#include "diPlotOptions.h"
 #include "diStaticPlot.h"
 #include <qmath.h>
 

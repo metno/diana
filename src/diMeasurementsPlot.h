@@ -30,7 +30,10 @@
 #define diMeasurementsPlot_h
 
 #include "diPlot.h"
+
+#include "diColour.h"
 #include "diLinetype.h"
+#include "diProjection.h"
 
 #include <vector>
 
@@ -58,6 +61,8 @@ public:
   void plot(DiGLPainter* gl, PlotOrder porder) override;
 
   void changeProjection(const Area& mapArea, const Rectangle& plotSize) override;
+
+  std::string getEnabledStateKey() const override;
 
   /// define positions, colours, lines, field, etc
   void measurementsPos(const std::vector<std::string>&);

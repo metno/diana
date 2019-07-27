@@ -73,7 +73,6 @@ WeatherSymbol::WeatherSymbol()
     setSymbolSize(defaultComplexSize);
 }
 
-
 WeatherSymbol::WeatherSymbol(int ty)
   : ObjectPlot(wSymbol)
   , complexSymbol(0)
@@ -82,11 +81,10 @@ WeatherSymbol::WeatherSymbol(int ty)
   setType(ty);
 }
 
-
-WeatherSymbol::WeatherSymbol(std::string tystring,int objTy)
-  : ObjectPlot(objTy),
-    symbolSize(defaultSize)
-  , complexSymbol(0)
+WeatherSymbol::WeatherSymbol(const string& tystring, int objTy)
+    : ObjectPlot(objTy)
+    , symbolSize(defaultSize)
+    , complexSymbol(0)
 {
   METLIBS_LOG_SCOPE();
   if (tystring.empty())
@@ -94,19 +92,6 @@ WeatherSymbol::WeatherSymbol(std::string tystring,int objTy)
   else if (!setType(tystring))
     METLIBS_LOG_ERROR("WeatherSymbol constructor error, type " << tystring << " not found !!!");
 }
-
-
-WeatherSymbol::WeatherSymbol(const WeatherSymbol &rhs)
-  : ObjectPlot(rhs)
-{
-  symbolSize=rhs.symbolSize;
-  symbolString = rhs.symbolString;
-  if (rhs.complexSymbol)
-    complexSymbol= new ComplexSymbolPlot(*rhs.complexSymbol);
-  else
-    complexSymbol = 0;
-}
-
 
 WeatherSymbol::~WeatherSymbol()
 {

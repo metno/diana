@@ -29,7 +29,8 @@
 #ifndef diSatPlot_h
 #define diSatPlot_h
 
-#include "diPlot.h"
+#include "diPlotOptionsPlot.h"
+
 #include "diRasterPlot.h"
 #include "diSatTypes.h"
 
@@ -40,7 +41,8 @@ typedef std::shared_ptr<const SatPlotCommand> SatPlotCommand_cp;
 /**
   \brief Plot satellite and radar images
 */
-class SatPlot : public Plot, protected RasterPlot {
+class SatPlot : public PlotOptionsPlot, protected RasterPlot
+{
 public:
   SatPlot();
   ~SatPlot();

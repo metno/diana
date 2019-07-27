@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2019 met.no
+  Copyright (C) 2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,61 +27,17 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "diPlot.h"
+#include "diPlotOptionsPlot.h"
 
-#include "diColour.h"
-#include "diPlotModule.h"
-
-Plot::Plot()
-  : enabled(true)
+std::string PlotOptionsPlot::getEnabledStateKey() const
 {
+  return miutil::mergeKeyValue(ooptions);
 }
 
-Plot::~Plot()
+void PlotOptionsPlot::setPlotInfo(const miutil::KeyValue_v& kvs)
 {
-}
-
-void Plot::setCanvas(DiCanvas*)
-{
-}
-
-bool Plot::operator==(const Plot&) const
-{
-  return false;
-}
-
-void Plot::changeProjection(const Area& /*mapArea*/, const Rectangle& /*plotSize*/)
-{
-  // ignore
-}
-
-void Plot::changeTime(const miutil::miTime& /*newTime*/)
-{
-  // ignore
-}
-
-bool Plot::hasData()
-{
-  return true;
-}
-
-StaticPlot* Plot::getStaticPlot() const
-{
-  return PlotModule::instance()->getStaticPlot();
-}
-
-void Plot::setEnabled(bool e)
-{
-  enabled = e;
-}
-
-void Plot::getAnnotation(std::string& s, Colour& c) const
-{
-  c = Colour("black");
-  s = getPlotName();
-}
-
-const std::string& Plot::getPlotName() const
-{
-  return plotname;
+  // fill poptions with values from pinfo
+  ooptions.clear();
+  PlotOptions::parsePlotOption(kvs, poptions, ooptions);
+  setEnabled(poptions.enabled);
 }

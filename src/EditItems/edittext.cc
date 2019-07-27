@@ -28,12 +28,15 @@
 */
 
 #include "edittext.h"
+
+#include "EditItems/dialogcommon.h"
+#include "EditItems/drawingstylemanager.h"
 #include "diEditItemManager.h"
 #include "diGLPainter.h"
 #include "diPlot.h"
 #include "diPlotModule.h"
-#include "EditItems/drawingstylemanager.h"
-#include "EditItems/dialogcommon.h"
+#include "diPlotOptions.h"
+
 #include <QAction>
 
 namespace EditItem_Text {
@@ -49,7 +52,7 @@ Text::~Text()
 {
 }
 
-QList<QAction *> Text::actions(const QPoint &pos) const
+QList<QAction*> Text::actions(const QPoint&) const
 {
   QList<QAction *> acts;
   acts << editAction;

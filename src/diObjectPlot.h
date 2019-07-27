@@ -29,7 +29,7 @@
 #ifndef ObjectPlot_h
 #define ObjectPlot_h
 
-#include "diPlot.h"
+#include "diPlotOptionsPlot.h"
 
 #include "diColour.h"
 #include "diLinetype.h"
@@ -51,7 +51,8 @@ extern const int DIV_SPLINE;
 
   this class holds one weather object
 */
-class ObjectPlot : public Plot {
+class ObjectPlot : public PlotOptionsPlot
+{
 public:
   bool addTop; ///< add elements to top instead of bottom
 

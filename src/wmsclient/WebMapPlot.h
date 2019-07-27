@@ -31,6 +31,8 @@
 #define WebMapPlot_h 1
 
 #include "diPlot.h"
+
+#include "diArea.h"
 #include "diTimeTypes.h"
 
 #include <QObject>
@@ -51,14 +53,23 @@ public:
   WebMapPlot(WebMapService* service, const std::string& layer);
   ~WebMapPlot();
 
-  WebMapService* service() const
-    { return mService; }
+  void plot(DiGLPainter* gl, PlotOrder porder) override;
+
+  void changeProjection(const Area& mapArea, const Rectangle& plotSize) override;
+
+  /*! select time; if invalid or not found, use default time; ignored
+   *  if no time dimension */
+  void changeTime(const miutil::miTime& time) override;
+
+  void getAnnotation(std::string& str, Colour& col) const override;
+
+  std::string getEnabledStateKey() const override;
+
+  WebMapService* service() const { return mService; }
 
   std::string title() const;
 
   std::string attribution() const;
-
-  void getAnnotation(std::string &str, Colour &col) const override;
 
   /* set time tolerance in seconds */
   void setTimeTolerance(int tolerance)
@@ -77,10 +88,6 @@ public:
 
   void setPlotOrder(PlotOrder po);
 
-  void plot(DiGLPainter* gl, PlotOrder porder) override;
-
-  void changeProjection(const Area& mapArea, const Rectangle& plotSize) override;
-
   size_t countDimensions() const;
 
   const std::string& dimensionTitle(size_t idx) const;
@@ -91,10 +98,6 @@ public:
   int timeDimension() const { return mTimeDimensionIdx; }
 
   void setDimensionValue(const std::string& dimId, const std::string& dimValue);
-
-  /*! select time; if invalid or not found, use default time; ignored
-   *  if no time dimension */
-  void changeTime(const miutil::miTime& time) override;
 
   /*! set to a fixed time; empty == no fixed time */
   void setFixedTime(const std::string& time);

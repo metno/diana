@@ -52,8 +52,7 @@ void LocationPlotCluster::putLocation(const LocationData& locationdata)
     LocationPlot* lp = static_cast<LocationPlot*>(*it);
     const bool visible = lp->isVisible();
     lp->setData(locationdata);
-    if (!visible)
-      lp->hide();
+    lp->setVisible(visible);
   } else {
     LocationPlot* lp = new LocationPlot();
     lp->setData(locationdata);

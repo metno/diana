@@ -30,12 +30,14 @@
 #include "diLocationPlot.h"
 
 #include "diGLPainter.h"
+#include "diLinetype.h"
 #include "diStaticPlot.h"
 
 #include <mi_fieldcalc/math_util.h>
 
 #include <QPolygonF>
 
+#include <algorithm>
 #include <cmath>
 #include <set>
 
@@ -123,9 +125,7 @@ bool LocationPlot::setData(const LocationData& locationdata)
 
   px = new float[numPos];
   py = new float[numPos];
-  Projection p;
-  Rectangle r;
-  posArea = Area(p, r); // impossible area spec
+  posArea = Area(); // impossible area spec
 
   visible = true;
 
@@ -135,29 +135,30 @@ bool LocationPlot::setData(const LocationData& locationdata)
   return true;
 }
 
-bool LocationPlot::changeProjection()
+void LocationPlot::changeProjection(const Area& mapArea, const Rectangle& plotSize)
 {
   METLIBS_LOG_SCOPE();
 
-  if (numPos < 1 || posArea.P() == getStaticPlot()->getMapArea().P())
-    return false;
+  sizeOfCross_ = plotSize.width() * 0.004;
 
-  int np = 0;
+  if (posArea.P() == mapArea.P())
+    return;
+  posArea = mapArea;
+
+  if (numPos < 1)
+    return;
+
+  size_t np = 0;
   for (const auto& le : locdata.elements) {
-    const int np1 = le.xpos.size();
-    for (int i = 0; i < np1; i++) {
-      px[np + i] = le.xpos[i];
-      py[np + i] = le.ypos[i];
-    }
-    np+=np1;
+    std::copy(le.xpos.begin(), le.xpos.end(), &px[np]);
+    std::copy(le.ypos.begin(), le.ypos.end(), &py[np]);
+    np += le.xpos.size();
   }
 
   if (!getStaticPlot()->GeoToMap(numPos, px, py)) {
      METLIBS_LOG_INFO("getPoints error");
-     return false;
+     return;
   }
-
-  posArea= getStaticPlot()->getMapArea();
 
   for (auto& li : locinfo) {
     li.xmin = li.xmax = px[li.beginpos];
@@ -170,10 +171,12 @@ bool LocationPlot::changeProjection()
     }
     li.dmax = std::sqrt(li.dmax);
   }
-
-  return true;
 }
 
+std::string LocationPlot::getEnabledStateKey() const
+{
+  return "locationplot-" + getName();
+}
 
 std::string LocationPlot::find(int x, int y)
 {
@@ -241,11 +244,6 @@ void LocationPlot::plot(DiGLPainter* gl, PlotOrder zorder)
   if (numPos<1)
     return;
 
-  if (posArea.P()!=getStaticPlot()->getMapArea().P()) {
-    if (!changeProjection())
-      return;
-  }
-
   const Colour lc(locdata.colour);
   const Colour& c1 = getStaticPlot()->notBackgroundColour(lc);
   float    w1= locdata.linewidth;
@@ -285,11 +283,9 @@ void LocationPlot::drawLineOrPoint(DiGLPainter* gl, int l)
       gl->Vertex2f(px[n],py[n]);
     gl->End();
   } else {
-    const float size = getStaticPlot()->getPlotSize().width() * 0.004;
-    gl->drawCross(px[n1],py[n1], size);
+    gl->drawCross(px[n1], py[n1], sizeOfCross_);
   }
 }
-
 
 void LocationPlot::getAnnotation(std::string &str, Colour &col) const
 {
