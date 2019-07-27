@@ -545,9 +545,6 @@ void SatManager::addMosaicfiles(Sat* satdata)
     if (mosaicfiles[i].time > lastFileTime)
       lastFileTime=mosaicfiles[i].time;
 
-    unsigned char* rawimage[Sat::maxch]; // raw images
-    for (int j=0; j<Sat::maxch; j++)
-      rawimage[j]= 0;
     Sat sd;
     for (int j=0; j<Sat::maxch; j++)
       sd.index[j] = satdata->index[j];
@@ -596,12 +593,6 @@ void SatManager::addMosaicfiles(Sat* satdata)
       }
     }
     // satdata->rawimage is also updated (points to same as color)
-
-    for (int i=0; i<Sat::maxch; i++) {
-      if (rawimage[i]!=0)
-        delete[] rawimage[i];
-      rawimage[i]= 0;
-    }
 
   }//end loop over mosaic files
 
