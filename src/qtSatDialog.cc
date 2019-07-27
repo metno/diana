@@ -765,7 +765,6 @@ void SatDialog::updateTimefileList(bool update)
 
   channelbox->clear();
 
-  int nr_file = files.size();
   if (files.empty())
     return;
 
@@ -781,7 +780,7 @@ void SatDialog::updateTimefileList(bool update)
 
   if (timeButton->isChecked() || fileButton->isChecked()) {
     //set current item in timefileList to same as before, or first item
-    for (int i = 0; i < nr_file; i++) {
+    for (size_t i = 0; i < files.size(); i++) {
       if (m_time == files[i].time) {
         timefileList->setCurrentRow(i);
         return;
