@@ -66,7 +66,9 @@ protected:
   Plot* at(size_t i);
 
 protected:
-  std::vector<Plot*> plots_; // vector of observation plots
+  typedef std::vector<Plot*> Plot_xv;
+
+  Plot_xv plots_;
   DiCanvas* canvas_;
 };
 
