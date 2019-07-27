@@ -27,13 +27,12 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "diana_config.h"
-
 #include "diSatPlot.h"
 
 #include "diGLPainter.h"
 #include "diPaintGLPainter.h"
 #include "diSat.h"
+#include "diSatManager.h"
 #include "diSatPlotCommand.h"
 #include "diStaticPlot.h"
 #include "util/misc_util.h"
@@ -48,14 +47,21 @@
 using namespace::miutil;
 using namespace std;
 
-SatPlot::SatPlot()
-  : satdata(0)
+SatPlot::SatPlot(SatPlotCommand_cp cmd, SatManager* satm)
+    : satm_(satm)
+    , command_(cmd)
+    , satdata(new Sat(command_))
 {
 }
 
 SatPlot::~SatPlot()
 {
-  delete satdata;
+}
+
+void SatPlot::changeTime(const miutil::miTime& mapTime)
+{
+  satm_->setData(satdata.get(), mapTime);
+  setPlotName(satdata->plotname);
 }
 
 void SatPlot::setCommand(SatPlotCommand_cp cmd)
@@ -86,12 +92,6 @@ void SatPlot::getAnnotation(std::string &str, Colour &col) const
     col = Colour("black");
   } else
     str.erase();
-}
-
-void SatPlot::setData(Sat *data)
-{
-  delete satdata;
-  satdata = data;
 }
 
 void SatPlot::getCalibChannels(std::vector<std::string>& channels) const

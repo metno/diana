@@ -29,11 +29,11 @@
 #ifndef diSatManager_h
 #define diSatManager_h
 
-#include "diAnnotationPlot.h"
-#include "diPlotCommand.h"
+#include "diColour.h"
 #include "diPlotElement.h"
-#include "diSat.h"
 #include "diSatDialogInfo.h"
+#include "diSatPlotCommand.h"
+#include "diSatTypes.h"
 #include "diTimeTypes.h"
 
 #include <puTools/TimeFilter.h>
@@ -42,6 +42,7 @@
 #include <set>
 #include <vector>
 
+class Sat;
 class SatPlot;
 
 /**
@@ -110,6 +111,12 @@ private:
 
 public:
   SatManager();
+
+  SatPlot* createPlot(SatPlotCommand_cp cmd);
+
+  //! Try to reuse plot for showing cmd
+  //! return true iff the plot has been reused
+  bool reusePlot(SatPlot* plot, SatPlotCommand_cp cmd, bool first);
 
   void setData(Sat* satdata, const miutil::miTime& satptime);
 

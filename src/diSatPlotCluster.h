@@ -32,14 +32,12 @@
 
 #include "diPlotCluster.h"
 
-#include "diArea.h"
-#include "diPlotCommand.h"
-#include "diPlotElement.h"
 #include "diSatTypes.h"
-#include "diTimeTypes.h"
 
 #include <vector>
 
+class Area;
+class Projection;
 class SatPlot;
 class SatManager;
 
@@ -48,8 +46,6 @@ class SatPlotCluster : public PlotCluster
 
 public:
   SatPlotCluster(SatManager* satm);
-
-  void changeTime(const miutil::miTime& mapTime) override;
 
   plottimes_t getTimes() override;
 
@@ -64,7 +60,6 @@ public:
   std::vector<SatValues> showValues(float x, float y);
 
 private:
-  void setData(SatPlot* satp, const miutil::miTime& mapTime);
   void processInputPE(const PlotCommand_cpv&) override;
 
 private:

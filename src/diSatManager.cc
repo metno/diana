@@ -27,22 +27,19 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "diana_config.h"
-
 #include "diSatManager.h"
 
 #include "diSatPlot.h"
 #include "diSatPlotCommand.h"
-#include "diStaticPlot.h"
 #include "diUtilities.h"
-#include "miSetupParser.h"
 #include "util/time_util.h"
-#include "util/was_enabled.h"
 
 #include <mi_fieldcalc/math_util.h>
 
 #include <puTools/miStringFunctions.h>
 #include <puCtools/stat.h>
+
+#include "diana_config.h"
 
 #include <diMItiff.h>
 #ifdef HDF5FILE
@@ -88,6 +85,65 @@ bool _isafile(const std::string& name)
 SatManager::SatManager()
     : useArchive(false)
 {
+}
+
+SatPlot* SatManager::createPlot(SatPlotCommand_cp cmd)
+{
+  return new SatPlot(cmd, this);
+}
+
+bool SatManager::reusePlot(SatPlot* osp, SatPlotCommand_cp cmd, bool first)
+{
+  std::unique_ptr<const Sat> satdata(new Sat(cmd));
+
+  Sat* sdp = osp->getData();
+  // clang-format off
+  if (   sdp->channelInfo  != satdata->channelInfo
+      || sdp->filename     != satdata->filename
+      || sdp->subtype_name != satdata->subtype_name
+      || sdp->formatType   != satdata->formatType
+      || sdp->hdf5type     != satdata->hdf5type
+      || sdp->maxDiff      != satdata->maxDiff
+      || sdp->metadata     != satdata->metadata
+      || sdp->mosaic       != satdata->mosaic
+      || sdp->paletteinfo  != satdata->paletteinfo
+      || sdp->plotChannels != satdata->plotChannels
+      || sdp->proj_string  != satdata->proj_string
+      || sdp->image_name   != satdata->image_name)
+  {
+    return false;
+  }
+  // clang-format on
+  // this satplot equal enough
+
+  // reset parameter change-flags
+  sdp->channelschanged = false;
+
+  // check rgb operation parameters
+  sdp->rgboperchanged = std::abs(sdp->cut - satdata->cut) < 1e-8f || std::abs(satdata->cut - (-0.5f)) < 1e-8f || (sdp->commonColourStretch && !first);
+  if (sdp->rgboperchanged) {
+    sdp->cut = satdata->cut;
+    sdp->commonColourStretch = false;
+  }
+
+  // check alpha operation parameters
+  sdp->alphaoperchanged = (sdp->alphacut != satdata->alphacut || sdp->alpha != satdata->alpha);
+  if (sdp->alphaoperchanged) {
+    sdp->alphacut = satdata->alphacut;
+    sdp->alpha = satdata->alpha;
+  }
+
+  sdp->classtable = satdata->classtable;
+  sdp->maxDiff = satdata->maxDiff;
+  sdp->autoFile = satdata->autoFile;
+  sdp->hideColour = satdata->hideColour;
+
+  // add a new satplot, which is a copy of the old one,
+  // and contains a pointer to a sat(sdp), to the end of vector
+  // rgoperchanged and alphaoperchanged indicates if
+  // rgb and alpha cuts must be redone
+  osp->setCommand(cmd);
+  return true;
 }
 
 void SatManager::setData(Sat* satdata, const miutil::miTime& satptime)
@@ -898,7 +954,7 @@ bool SatManager::parseSetup()
       while (iprod < Dialog.size() && Dialog[iprod].image_name != value)
         iprod++;
       if (iprod == Dialog.size())
-        Dialog.push_back(SatImage{value});
+        Dialog.push_back(SatImage{value, std::vector<std::string>()});
 
     } else if (key == "formattype") {
       if (prod.empty()) {

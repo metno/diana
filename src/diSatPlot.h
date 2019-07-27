@@ -35,6 +35,7 @@
 #include "diSatTypes.h"
 
 class Sat;
+class SatManager;
 class SatPlotCommand;
 typedef std::shared_ptr<const SatPlotCommand> SatPlotCommand_cp;
 
@@ -44,18 +45,18 @@ typedef std::shared_ptr<const SatPlotCommand> SatPlotCommand_cp;
 class SatPlot : public PlotOptionsPlot, protected RasterPlot
 {
 public:
-  SatPlot();
+  SatPlot(SatPlotCommand_cp cmd, SatManager* satm);
   ~SatPlot();
 
-  Sat *satdata;
-
+  void changeTime(const miutil::miTime& mapTime) override;
   void plot(DiGLPainter* gl, PlotOrder zorder) override;
   bool hasData() const override;
   std::string getEnabledStateKey() const override;
   void getAnnotation(std::string&, Colour&) const override;
   void getDataAnnotations(std::vector<std::string>& anno) const override;
 
-  void setData(Sat*);
+  Sat* getData() { return satdata.get(); }
+
   void setCommand(SatPlotCommand_cp cmd);
   SatPlotCommand_cp command() const { return command_; }
 
@@ -73,7 +74,9 @@ private:
   SatPlot(const SatPlot &rhs);  // not implemented
   SatPlot& operator=(const SatPlot &rhs); // not implemented
 
+  SatManager* satm_;
   SatPlotCommand_cp command_;
+  std::unique_ptr<Sat> satdata;
 };
 
 #endif

@@ -31,16 +31,8 @@
 
 #include "diSatManager.h"
 #include "diSatPlot.h"
-#include "diSatPlotCommand.h"
-#include "diStaticPlot.h"
 #include "diUtilities.h"
-#include "miSetupParser.h"
 #include "util/misc_util.h"
-#include "util/time_util.h"
-#include "util/was_enabled.h"
-
-#include <puCtools/stat.h>
-#include <puTools/miStringFunctions.h>
 
 #define MILOGGER_CATEGORY "diana.SatPlotCluster"
 #include <miLogger/miLogging.h>
@@ -75,72 +67,22 @@ void SatPlotCluster::processInputPE(const PlotCommand_cpv& pinfo)
     if (!cmd)
       continue;
 
-    // make a new SatPlot with a new Sat
-    std::unique_ptr<Sat> satdata(new Sat(cmd));
-
+    bool reused = false;
     for (Plot*& plt : plots) {
       if (!plt) // already taken
         continue;
 
       SatPlot* osp = static_cast<SatPlot*>(plt);
-      Sat* sdp = osp->satdata;
-      // clang-format off
-      if (   sdp->channelInfo  != satdata->channelInfo
-          || sdp->filename     != satdata->filename
-          || sdp->subtype_name     != satdata->subtype_name
-          || sdp->formatType   != satdata->formatType
-          || sdp->hdf5type     != satdata->hdf5type
-          || sdp->maxDiff      != satdata->maxDiff
-          || sdp->metadata     != satdata->metadata
-          || sdp->mosaic       != satdata->mosaic
-          || sdp->paletteinfo  != satdata->paletteinfo
-          || sdp->plotChannels != satdata->plotChannels
-          || sdp->proj_string  != satdata->proj_string
-          || sdp->image_name    != satdata->image_name)
-      {
-        continue;
+      if (satm_->reusePlot(osp, cmd, first)) {
+        plots_.push_back(osp);
+        plt = nullptr; // plt has been reused now
+        reused = true;
+        break;
       }
-      // clang-format on
-      // this satplot equal enough
-
-      // reset parameter change-flags
-      sdp->channelschanged = false;
-
-      // check rgb operation parameters
-      sdp->rgboperchanged = std::abs(sdp->cut - satdata->cut) < 1e-8f || std::abs(satdata->cut - (-0.5f)) < 1e-8f || (sdp->commonColourStretch && !first);
-      if (sdp->rgboperchanged) {
-        sdp->cut = satdata->cut;
-        sdp->commonColourStretch = false;
-      }
-
-      // check alpha operation parameters
-      sdp->alphaoperchanged = (sdp->alphacut != satdata->alphacut || sdp->alpha != satdata->alpha);
-      if (sdp->alphaoperchanged) {
-        sdp->alphacut = satdata->alphacut;
-        sdp->alpha = satdata->alpha;
-      }
-
-      sdp->classtable = satdata->classtable;
-      sdp->maxDiff = satdata->maxDiff;
-      sdp->autoFile = satdata->autoFile;
-      sdp->hideColour = satdata->hideColour;
-
-      // add a new satplot, which is a copy of the old one,
-      // and contains a pointer to a sat(sdp), to the end of vector
-      // rgoperchanged and alphaoperchanged indicates if
-      // rgb and alpha cuts must be redone
-      satdata.reset(0);
-      osp->setCommand(cmd);
-      plots_.push_back(osp);
-      plt = nullptr; // plt has been reused now
-      break;
     }
-    if (satdata) { // make new satplot
-      std::unique_ptr<SatPlot> sp(new SatPlot);
-      sp->setData(satdata.release()); // new sat, with no images
-      sp->setCommand(cmd);
-      add(sp.release());
-    }
+    if (!reused)
+      add(satm_->createPlot(cmd));
+
     first = false;
   } // end loop PlotInfo's
 
@@ -169,26 +111,12 @@ bool SatPlotCluster::getSatArea(Area& a) const
   return true;
 }
 
-void SatPlotCluster::changeTime(const miutil::miTime& mapTime)
-{
-  METLIBS_LOG_SCOPE();
-  for (SatPlot* sp : diutil::static_content_cast<SatPlot*>(plots_))
-    setData(sp, mapTime);
-}
-
-void SatPlotCluster::setData(SatPlot* satp, const miutil::miTime& mapTime)
-{
-  Sat* satdata = satp->satdata;
-  satm_->setData(satdata, mapTime);
-  satp->setPlotName(satdata->plotname);
-}
-
 std::vector<std::string> SatPlotCluster::getCalibChannels()
 {
   std::vector<std::string> channels;
-  for (const Plot* plt : plots_) {
-    if (plt->isEnabled())
-      static_cast<const SatPlot*>(plt)->getCalibChannels(channels); // add channels
+  for (const SatPlot* sp : diutil::static_content_cast<SatPlot*>(plots_)) {
+    if (sp->isEnabled())
+      sp->getCalibChannels(channels); // add channels
   }
   return channels;
 }
@@ -196,9 +124,9 @@ std::vector<std::string> SatPlotCluster::getCalibChannels()
 std::vector<SatValues> SatPlotCluster::showValues(float x, float y)
 {
   std::vector<SatValues> satval;
-  for (const Plot* plt : plots_) {
-    if (plt->isEnabled())
-      static_cast<const SatPlot*>(plt)->values(x, y, satval);
+  for (const SatPlot* sp : diutil::static_content_cast<SatPlot*>(plots_)) {
+    if (sp->isEnabled())
+      sp->values(x, y, satval);
   }
   return satval;
 }
