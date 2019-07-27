@@ -382,7 +382,7 @@ bool PlotModule::defineMapAreaFromData(Area& newMapArea, bool& allowKeepCurrentA
     return true;
   }
 
-  if (editm->isInEdit() && editm->getFieldArea(newMapArea)) {
+  if (editm->getFieldArea(newMapArea)) {
     // set area equal to editfield-area
     allowKeepCurrentArea = false;
     return true;

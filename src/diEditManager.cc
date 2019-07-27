@@ -2683,10 +2683,12 @@ void EditManager::prepareEditFields(const PlotCommand_cpv& inp)
 
 bool EditManager::getFieldArea(Area& a)
 {
-  for (FieldEdit* fe : fedits) {
-    if (fe->editfield) {
-      a = fe->editfield->area;
-      return true;
+  if (isInEdit()) {
+    for (FieldEdit* fe : fedits) {
+      if (fe->editfield) {
+        a = fe->editfield->area;
+        return true;
+      }
     }
   }
   return false;
