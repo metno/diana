@@ -169,6 +169,7 @@ SET (LIBDIANA_SOURCES
   diRasterGrid.cc
   diRasterPlot.cc
   diRasterRGB.cc
+  diRasterSat.cc
   diRasterUndef.cc
   diRasterUtil.cc
   diSat.cc

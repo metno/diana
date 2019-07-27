@@ -31,7 +31,7 @@
 
 #include "diPlotOptionsPlot.h"
 
-#include "diRasterPlot.h"
+#include "diArea.h"
 #include "diSatTypes.h"
 
 class Sat;
@@ -42,7 +42,7 @@ typedef std::shared_ptr<const SatPlotCommand> SatPlotCommand_cp;
 /**
   \brief Plot satellite and radar images
 */
-class SatPlot : public PlotOptionsPlot, protected RasterPlot
+class SatPlot : public PlotOptionsPlot
 {
 public:
   SatPlot(SatPlotCommand_cp cmd, SatManager* satm);
@@ -65,14 +65,9 @@ public:
   ///get pixel value
   void values(float x, float y, std::vector<SatValues>& satval) const;
 
-protected:
-  const PlotArea& rasterPlotArea() override;
-  const GridArea& rasterArea() override;
-  void rasterPixels(int n, const diutil::PointD& xy0, const diutil::PointD& dxy, QRgb* pixels) override;
-
 private:
-  SatPlot(const SatPlot &rhs);  // not implemented
-  SatPlot& operator=(const SatPlot &rhs); // not implemented
+  SatPlot(const SatPlot& rhs) = delete;
+  SatPlot& operator=(const SatPlot& rhs) = delete;
 
   SatManager* satm_;
   SatPlotCommand_cp command_;

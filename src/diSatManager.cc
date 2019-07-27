@@ -351,9 +351,9 @@ void SatManager::setPalette(Sat* satdata, SatFileInfo& /*fInfo*/)
   int size =nx*ny;
 
   // image(RGBA)
-  if (satdata->image)
-    delete[] satdata->image;
-  satdata->image= new unsigned char[size*4];
+  if (satdata->image_rgba_)
+    delete[] satdata->image_rgba_;
+  satdata->image_rgba_ = new unsigned char[size * 4];
 
   // index -> RGB
 
@@ -371,11 +371,12 @@ void SatManager::setPalette(Sat* satdata, SatFileInfo& /*fInfo*/)
       int rawIndex = (int)satdata->rawimage[0][j*nx+i]; //raw image index
       int index = (i+(ny-j-1)*nx)*4;//image index
       for (int k=0; k<3; k++)
-        satdata->image[index+k] = colmap[k][rawIndex];
+        satdata->image_rgba_[index + k] = colmap[k][rawIndex];
       if (!satdata->hideColour.count(rawIndex)) {
-        satdata->image[index+3] = satdata->alpha;;
+        satdata->image_rgba_[index + 3] = satdata->alpha;
+        ;
       } else {
-        satdata->image[index+3] = satdata->hideColour[rawIndex];
+        satdata->image_rgba_[index + 3] = satdata->hideColour[rawIndex];
       }
     }
   }
@@ -398,18 +399,18 @@ void SatManager::setRGB(Sat* satdata)
   const int colmapsize = 256;
   unsigned char colmap[3][colmapsize];
 
-  delete[] satdata->image;
-  satdata->image = nullptr;
+  delete[] satdata->image_rgba_;
+  satdata->image_rgba_ = nullptr;
 
   if (satdata->formatType == "geotiff") {
-    satdata->image = satdata->rawimage[0];
+    satdata->image_rgba_ = satdata->rawimage[0];
     satdata->rawimage[0] = nullptr;
   } else {
-    satdata->image = new unsigned char[size * 4];
+    satdata->image_rgba_ = new unsigned char[size * 4];
     if (!satdata->rawimage[0]) {
       for (int k = 0; k < 3; k++)
         for (int i = 0; i < size; i++)
-          satdata->image[i * 4 + k] = 0;
+          satdata->image_rgba_[i * 4 + k] = 0;
       return;
     }
 
@@ -418,7 +419,7 @@ void SatManager::setRGB(Sat* satdata)
     for (int k = 0; k < 3; k++)
       for (int j = 0; j < ny; j++)
         for (int i = 0; i < nx; i++)
-          satdata->image[(i + (ny - j - 1) * nx) * 4 + k] = satdata->rawimage[satdata->rgbindex[k]][j * nx + i];
+          satdata->image_rgba_[(i + (ny - j - 1) * nx) * 4 + k] = satdata->rawimage[satdata->rgbindex[k]][j * nx + i];
   }
 
   const bool dorgb = (satdata->noimages() || satdata->rgboperchanged);
@@ -428,7 +429,7 @@ void SatManager::setRGB(Sat* satdata)
     if (satdata->cut > -1) {
       if (satdata->cut > -0.5) {
         // if cut=-0.5, reuse stretch from first image
-        calcRGBstrech(satdata->image, size, satdata->cut);
+        calcRGBstrech(satdata->image_rgba_, size, satdata->cut);
       }
       // calc. colour map
       for (int k = 0; k < 3; k++) {
@@ -446,9 +447,9 @@ void SatManager::setRGB(Sat* satdata)
       }
       // Put 1,2 or 3 different channels into satdata->image(RGBA).
       for (int i = 0; i < size; i++) {
-        satdata->image[i * 4 + 0] = colmap[0][(unsigned int)(satdata->image[i * 4])];
-        satdata->image[i * 4 + 1] = colmap[1][(unsigned int)(satdata->image[i * 4 + 1])];
-        satdata->image[i * 4 + 2] = colmap[2][(unsigned int)(satdata->image[i * 4 + 2])];
+        satdata->image_rgba_[i * 4 + 0] = colmap[0][(unsigned int)(satdata->image_rgba_[i * 4])];
+        satdata->image_rgba_[i * 4 + 1] = colmap[1][(unsigned int)(satdata->image_rgba_[i * 4 + 1])];
+        satdata->image_rgba_[i * 4 + 2] = colmap[2][(unsigned int)(satdata->image_rgba_[i * 4 + 2])];
       }
     } else { // set colourStretchInfo even if cut is off
       for (int k = 0; k < 3; k++) {
@@ -464,20 +465,20 @@ void SatManager::setRGB(Sat* satdata)
     if (satdata->alphacut > 0) {
       for (int i = 0; i < size; i++) {
         // cut on pixelvalue
-        if ((int)satdata->image[i * 4] < satdata->alphacut)
-          satdata->image[i * 4 + 3] = (unsigned char)0;
+        if ((int)satdata->image_rgba_[i * 4] < satdata->alphacut)
+          satdata->image_rgba_[i * 4 + 3] = (unsigned char)0;
         else
           // set alpha value to default or the one chosen in dialog
-          satdata->image[i * 4 + 3] = (unsigned char)satdata->alpha;
+          satdata->image_rgba_[i * 4 + 3] = (unsigned char)satdata->alpha;
       }
 
     } else {
       for (int i = 0; i < size; i++) {
         // set alpha value to default or the one chosen in dialog
-        satdata->image[i * 4 + 3] = (unsigned char)satdata->alpha;
+        satdata->image_rgba_[i * 4 + 3] = (unsigned char)satdata->alpha;
         // remove black pixels
-        if (satdata->image[i * 4] == 0 && satdata->image[i * 4 + 1] == 0 && satdata->image[i * 4 + 2] == 0)
-          satdata->image[i * 4 + 3] = 0;
+        if (satdata->image_rgba_[i * 4] == 0 && satdata->image_rgba_[i * 4 + 1] == 0 && satdata->image_rgba_[i * 4 + 2] == 0)
+          satdata->image_rgba_[i * 4 + 3] = 0;
       }
     }
   }

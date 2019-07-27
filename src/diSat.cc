@@ -62,7 +62,7 @@ Sat::Sat()
     , palette(false)
     , mosaic(false)
     , commonColourStretch(false)
-    , image(0)
+    , image_rgba_(0)
     , channelschanged(true)
     , rgboperchanged(true)
     , alphaoperchanged(true)
@@ -378,8 +378,8 @@ void Sat::cleanup()
   area.nx = 0;
   area.ny = 0;
 
-  delete[] image;
-  image = 0;
+  delete[] image_rgba_;
+  image_rgba_ = 0;
 
   for (int i=0; i<maxch; i++) {
     delete[] rawimage[i];

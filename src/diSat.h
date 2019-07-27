@@ -109,7 +109,7 @@ public:
 
   enum { maxch=16 };         ///< maximum number of channels
 
-  unsigned char *image; ///< Image ready for plot
+  unsigned char* image_rgba_; ///< Image ready for plot
   int index[maxch];     ///< index of plotted channels
   int no;               ///< no of plotted channels
   int rgbindex[3];      ///< channelindex for rgb-operations
@@ -117,7 +117,7 @@ public:
   float* origimage[3]; ///< original image for temperature display images
 
   /// any images defined
-  bool noimages(){return !(image);}
+  bool noimages() { return !image_rgba_; }
 
   // flags to indicate changes in parameters
   bool channelschanged;    ///< changes in selected channels
