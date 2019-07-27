@@ -30,22 +30,21 @@
 #ifndef AREAOBJECTSCLUSTER_H
 #define AREAOBJECTSCLUSTER_H
 
+#include "diPlotCluster.h"
+
 #include "diAreaObjects.h"
 
 class PlotElement;
 
-class AreaObjectsCluster
+class AreaObjectsCluster : public PlotCluster
 {
 public:
   AreaObjectsCluster();
   ~AreaObjectsCluster();
 
-  void changeProjection(const Area& mapArea, const Rectangle& plotSize);
-  void plot(DiGLPainter* gl, PlotOrder zorder);
-
-  void addPlotElements(std::vector<PlotElement>& pel);
-
-  bool enablePlotElement(const PlotElement& pe);
+  void changeProjection(const Area& mapArea, const Rectangle& plotSize) override;
+  void plot(DiGLPainter* gl, PlotOrder zorder) override;
+  bool empty() const;
 
   ///put area into list of area objects
   void makeAreaObjects(std::string name, std::string areastring, int id);

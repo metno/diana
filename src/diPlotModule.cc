@@ -358,9 +358,8 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
     change = satplots_->enablePlotElement(pe);
   } else if (pe.type == "OBJECTS") {
     change = objm->enablePlotElement(pe);
-  } else if (pe.type == "AREAOBJECTS") {
-    if (areaobjects_.get())
-      change = areaobjects_->enablePlotElement(pe);
+  } else if (areaobjects_ && pe.type == areaobjects_->keyPlotElement()) {
+    change = areaobjects_->enablePlotElement(pe);
   } else {
     const QString qtype = QString::fromStdString(pe.type);
     for (Manager* m : boost::adaptors::values(managers)) {

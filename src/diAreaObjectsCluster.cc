@@ -38,7 +38,10 @@
 #define MILOGGER_CATEGORY "diana.AreaObjectsCluster"
 #include <miLogger/miLogging.h>
 
+static const std::string AREAOBJECTS = "AREAOBJECTS";
+
 AreaObjectsCluster::AreaObjectsCluster()
+    : PlotCluster(AREAOBJECTS)
 {
 }
 
@@ -56,41 +59,6 @@ void AreaObjectsCluster::changeProjection(const Area& mapArea, const Rectangle& 
 {
   for (AreaObjects& ao : vareaobjects)
     ao.changeProjection(mapArea, plotSize);
-}
-
-void AreaObjectsCluster::addPlotElements(std::vector<PlotElement>& pel)
-{
-  for (size_t j = 0; j < vareaobjects.size(); j++) {
-    AreaObjects& ao = vareaobjects[j];
-    const std::string& nm = ao.getName();
-    if (!nm.empty()) {
-      std::string str = nm + "# " + miutil::from_number(int(j));
-      pel.push_back(PlotElement("AREAOBJECTS", str, ao.getIcon(), ao.isEnabled()));
-    }
-  }
-}
-
-bool AreaObjectsCluster::enablePlotElement(const PlotElement& pe)
-{
-  if (pe.type != "AREAOBJECTS")
-    return false;
-
-  for (size_t i = 0; i < vareaobjects.size(); i++) {
-    AreaObjects& ao = vareaobjects[i];
-    const std::string& nm = ao.getName();
-    if (!nm.empty()) {
-      std::string str = nm + "# " + miutil::from_number(int(i));
-      if (str == pe.str) {
-        if (ao.isEnabled() != pe.enabled) {
-          ao.enable(pe.enabled);
-          return true;
-        } else {
-          break;
-        }
-      }
-    }
-  }
-  return false;
 }
 
 void AreaObjectsCluster::makeAreaObjects(std::string name, std::string areastring, int id)
@@ -130,4 +98,9 @@ void AreaObjectsCluster::areaObjectsCommand(const std::string& command, const st
       ++it;
     }
   }
+}
+
+bool AreaObjectsCluster::empty() const
+{
+  return vareaobjects.empty();
 }
