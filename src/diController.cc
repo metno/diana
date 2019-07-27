@@ -725,11 +725,6 @@ SatPlotCluster* Controller::getSatPlotCluster() const
   return plotm->satplots();
 }
 
-vector<SatPlot*> Controller::getSatellitePlots() const
-{
-  return plotm->satplots()->getSatellitePlots();
-}
-
 std::vector<ObsPlot*> Controller::getObsPlots() const
 {
   return plotm->obsplots()->getObsPlots();

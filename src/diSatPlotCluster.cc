@@ -258,11 +258,3 @@ plottimes_t SatPlotCluster::getSatTimes()
 
   return timeset;
 }
-
-std::vector<SatPlot*> SatPlotCluster::getSatellitePlots() const
-{
-  std::vector<SatPlot*> satplots;
-  satplots.reserve(plots_.size());
-  std::transform(plots_.begin(), plots_.end(), std::back_inserter(satplots), [](Plot* p) { return static_cast<SatPlot*>(p); });
-  return satplots;
-}

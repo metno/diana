@@ -46,10 +46,7 @@
 #include <diController.h>
 #include <diFieldPlot.h>
 #include <diObsManager.h>
-#include <diObsPlot.h>
 #include <diPlotModule.h>
-#include <diSatManager.h>
-#include <diSatPlot.h>
 
 #include "diLocalSetupParser.h"
 #include "diPlotCommandFactory.h"
@@ -1421,55 +1418,7 @@ command_result Bdiana::handleDescribeCommand(int& k)
   //Find ENDDESCRIBE
   std::vector<std::string> pcom = FIND_END_COMMAND(k, com_describe_end);
 
-  if (not main.MAKE_CONTROLLER())
-    return cmd_abort;
-
-  main.commands(pcom);
-
-  if (!set_ptime(main))
-    return cmd_fail;
-
-  if (verbose)
-    METLIBS_LOG_INFO("- updatePlots");
-
-  if (main.controller->updatePlots() || !failOnMissingData) {
-
-    if (verbose)
-      METLIBS_LOG_INFO("- opening file '" << outputfilename << "'");
-
-    // open filestream
-    ofstream file(outputfilename.c_str());
-    if (!file) {
-      METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << outputfilename << "'");
-      return cmd_abort;
-    }
-
-    const SatManager::Prod_t& satProducts = main.controller->getSatelliteManager()->getProductsInfo();
-    set<std::string> satPatterns;
-    set<std::string> satFiles;
-
-    for (SatPlot* sp : main.controller->getSatellitePlots()) {
-      Sat* sat = sp->satdata;
-      const SatManager::Prod_t::const_iterator itp = satProducts.find(sat->satellite);
-      if (itp != satProducts.end()) {
-        const SatManager::SubProd_t::const_iterator itsp = itp->second.find(sat->satellite);
-        if (itsp != itp->second.end()) {
-          const SatManager::subProdInfo& satInfo = itsp->second;
-          for (const SatFileInfo& sfi : satInfo.file) {
-            satFiles.insert(sfi.name);
-            if (sfi.name == sat->actualfile)
-              satPatterns.insert(satInfo.pattern.begin(), satInfo.pattern.end());
-          }
-        }
-      }
-    }
-
-    file << "FILES" << endl;
-    for (const std::string& p : satFiles)
-      file << p << endl;
-    for (const std::string& p : satPatterns)
-      file << p << endl;
-  }
+  METLIBS_LOG_WARN("- describe is disabled");
   return cmd_abort;
 }
 

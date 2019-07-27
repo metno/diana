@@ -57,8 +57,6 @@ public:
 
   void getDataAnnotations(std::vector<std::string>& anno);
 
-  std::vector<SatPlot*> getSatellitePlots() const;
-
   bool getGridResolution(float& rx, float& ry) const;
 
   bool getSatArea(Area& a) const;

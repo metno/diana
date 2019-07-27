@@ -132,8 +132,6 @@ public:
   bool parseSetup();
 
   void archiveMode(bool on) { useArchive = on; }
-
-  const Prod_t& getProductsInfo() const;
 };
 
 #endif

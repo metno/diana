@@ -1144,8 +1144,3 @@ void SatManager::init_rgbindex_Meteosat(Sat& sd)
     inFile.close();
   }
 }
-
-const std::map<std::string, std::map<std::string,SatManager::subProdInfo> >& SatManager::getProductsInfo() const
-{
-  return Prod;
-}

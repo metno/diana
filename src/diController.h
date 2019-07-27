@@ -280,7 +280,6 @@ public:
 
   // Miscellaneous get methods
   SatPlotCluster* getSatPlotCluster() const;
-  std::vector<SatPlot*> getSatellitePlots() const;   // Returns a vector of defined satellite plots.
   std::vector<ObsPlot*> getObsPlots() const;         // Returns a vector of defined observation plots.
 
 Q_SIGNALS:
