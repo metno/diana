@@ -51,7 +51,7 @@ public:
 
   void plot(DiGLPainter* gl, PlotOrder zorder) override;
   std::string getEnabledStateKey() const override;
-  bool hasData() override;
+  bool hasData() const override;
 
   void setData(Sat*);
   void setCommand(SatPlotCommand_cp cmd);

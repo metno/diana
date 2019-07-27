@@ -31,15 +31,9 @@
 
 #include "diPlotOptionsPlot.h"
 
-#include "diCommonTypes.h"
 #include "diFieldPlotCommand.h"
-#include "diRasterPlot.h"
+#include "diFieldRendererBase.h"
 #include "diTimeTypes.h"
-
-#include <diField/diField.h>
-#include <puTools/miTime.h>
-
-#include <QPolygonF>
 
 #include <vector>
 
@@ -54,7 +48,6 @@ class FieldPlotManager;
 */
 class FieldPlot : public PlotOptionsPlot
 {
-
 public:
   FieldPlot(FieldPlotManager* fieldplotm);
   ~FieldPlot();
@@ -67,19 +60,19 @@ public:
   std::string getEnabledStateKey() const override;
 
   void changeTime(const miutil::miTime& mapTime) override;
-  bool hasData() override;
+  bool hasData() const override;
 
   //! Extract plotting-parameters from plot command
   //* Also fetches some default options from FieldPlotManager. */
   bool prepare(const std::string& fname, const FieldPlotCommand_cp&);
 
+  //  set list of field-pointers, update datatime
   void setData(const std::vector<Field*>&, const miutil::miTime&);
   const Area& getFieldArea() const;
   bool getRealFieldArea(Area&) const;
-  bool getShadePlot() const { return (pshade || poptions.plot_under); }
   void getAnnotation(std::string&, Colour&) const override;
-  const std::vector<Field*>& getFields() const {return fields; }
-  FieldPlotCommand_cp command() const { return cmd_; }
+  const std::vector<Field*>& getFields() const;
+  FieldPlotCommand_cp command() const;
 
   //! time of model analysis
   const miutil::miTime& getAnalysisTime() const;
@@ -88,8 +81,12 @@ public:
 
   miutil::miTime getReferenceTime() const;
 
-  bool plotUndefined(DiGLPainter* gl);
+  /*!
+   plot field values as numbers in each gridpoint
+   skip plotting if too many (or too small) numbers
+   */
   bool plotNumbers(DiGLPainter* gl);
+
   std::string getModelName();
   std::string getTrajectoryFieldName();
 
@@ -97,65 +94,16 @@ private:
   FieldPlotManager* fieldplotm_;
   FieldPlotCommand_cp cmd_;
   std::vector<Field*> fields; // fields, stored elsewhere
-  std::vector<Field*> tmpfields; // tmp fields, stored here
   miutil::miTime ftime;          // current field time
-
-  // plotting parameters
-  bool praster; //!< true iff raster plot
-  bool pshade;  //!< shaded (true) or line drawing (false)
-
-  // from plotting routines to annotations
-  float    vectorAnnotationSize;
-  std::string vectorAnnotationText;
 
   void clearFields();
   void getTableAnnotations(std::vector<std::string>& anno);
 
-  typedef std::vector<float*> (FieldPlot::*prepare_vectors_t)(float* x, float* y);
-
-  std::vector<float*> prepareVectors(float* x, float* y);
-  std::vector<float*> prepareDirectionVectors(float* x, float* y);
-  std::vector<float*> doPrepareVectors(float* x, float* y, bool direction);
-
-  void setAutoStep(float* x, float* y, int& ix1, int ix2, int& iy1, int iy2,
-      int maxElementsX, int& step, float& dist);
-  int xAutoStep(float* x, float* y, int& ix1, int ix2, int iy, float sdist);
-
-  // plotting methods
-  bool plotMe(DiGLPainter* gl, PlotOrder zorder);
-  bool plotWind(DiGLPainter* gl);
-  bool plotWindAndValue(DiGLPainter* gl, bool flightlevelChart=false);
-  bool plotValue(DiGLPainter* gl);
-  bool plotValues(DiGLPainter* gl);
-
-  bool plotVector(DiGLPainter* gl);
-  bool plotDirection(DiGLPainter* gl);
-  bool plotArrows(DiGLPainter* gl, prepare_vectors_t pre_vec,
-      const float* colourfield, float& arrowlength);
-
-  bool plotContour(DiGLPainter* gl);
-  bool plotContour2(DiGLPainter* gl, PlotOrder zorder);
-
-  bool plotRaster(DiGLPainter* gl);
-
-  bool plotFrameOnly(DiGLPainter* gl);
-  void plotFrame(DiGLPainter* gl, int nx, int ny, const float *x, const float *y);
-  void plotFrameStencil(DiGLPainter* gl, int nx, int ny, const float *x, const float *y);
-  QPolygonF makeFramePolygon(int nx, int ny, const float *x, const float *y) const;
-  bool markExtreme(DiGLPainter* gl);
-  bool plotGridLines(DiGLPainter* gl);
-
-  /** Return true if fields 0..count-1 are non-0 and have data.
-   *  If count == 0, check that at least one field exists an that all fields have data.
-   */
-  bool checkFields(size_t count) const;
-
-  bool getGridPoints(float* &x, float* &y, int& ix1, int& ix2, int& iy1, int& iy2, int factor=1, bool boxes=false) const;
-  bool getPoints(int n, float* x, float* y) const;
-
   bool centerOnGridpoint() const;
   const std::string& plottype() const
     { return getPlotOptions().plottype; }
+
+  FieldRendererBase_p renderer_;
 };
 
 #endif

@@ -60,7 +60,7 @@ public:
 
   virtual void changeProjection(const Area& mapArea, const Rectangle& plotSize);
   virtual void changeTime(const miutil::miTime& newTime);
-  virtual bool hasData();
+  virtual bool hasData() const;
   virtual void getAnnotation(std::string& str, Colour& col) const;
 
   /// key identifiying plot for remembering enabled/disabled state

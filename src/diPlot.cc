@@ -60,7 +60,7 @@ void Plot::changeTime(const miutil::miTime& /*newTime*/)
   // ignore
 }
 
-bool Plot::hasData()
+bool Plot::hasData() const
 {
   return true;
 }

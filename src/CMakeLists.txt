@@ -99,6 +99,8 @@ SET (LIBDIANA_SOURCES
   diFieldPlotCluster.cc
   diFieldPlotCommand.cc
   diFieldPlotManager.cc
+  diFieldRenderer.cc
+  diFieldRendererBase.cc
   diFieldUtil.cc
   diFilledMap.cc
   diFont.cc

@@ -34,6 +34,7 @@
 
 #include "diAnnotationPlot.h"
 #include "diEventResult.h"
+#include "diField/diField.h"
 #include "diFieldEdit.h"
 #include "diFieldPlot.h"
 #include "diFieldPlotCluster.h"

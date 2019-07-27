@@ -245,7 +245,7 @@ void SatPlot::setSatAuto(bool autoFile,const string& satellite, const string& fi
     satdata->autoFile=autoFile;
 }
 
-bool SatPlot::hasData()
+bool SatPlot::hasData() const
 {
   return satdata && satdata->approved;
 }
