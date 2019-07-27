@@ -66,7 +66,7 @@ public:
   /// key identifiying plot for remembering enabled/disabled state
   virtual std::string getEnabledStateKey() const = 0;
 
-  StaticPlot* getStaticPlot() const;
+  const StaticPlot* getStaticPlot() const;
 
   /// enable this plot object
   void setEnabled(bool enable=true);

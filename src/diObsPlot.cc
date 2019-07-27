@@ -206,7 +206,7 @@ ObsPlot::ObsPlot(const std::string& dn, ObsPlotType plottype)
   thisObs = false;
   wind_scale = -1;
   firstplot = true;
-  beendisabled = false;
+  recalculate_densities_ = false;
   itab = 0;
   iptab = 0;
   onlypos = false;
@@ -1210,6 +1210,11 @@ void ObsPlot::drawCircle(DiGLPainter* gl)
   }
 }
 
+void ObsPlot::changeProjection(const Area& /*mapArea*/, const Rectangle& /*plotSize*/)
+{
+  recalculate_densities_ = true;
+}
+
 void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 {
   METLIBS_LOG_SCOPE();
@@ -1219,8 +1224,7 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 
   if (!isEnabled()) {
     // make sure plot-densities etc are recalc. next time
-    if (getStaticPlot()->isDirty())
-      beendisabled = true;
+    recalculate_densities_ = true;
     return;
   }
 
@@ -1230,7 +1234,7 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 
   // Update observation delta time before checkPlotCriteria
   if (updateDeltaTimes())
-    getStaticPlot()->setDirty(true);
+    recalculate_densities_ = true;
 
   const Colour selectedColour = origcolour;
   origcolour = getStaticPlot()->notBackgroundColour(origcolour);
@@ -1290,7 +1294,7 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
   vector<int> ptmp;
   vector<int>::iterator p, pbegin, pend;
 
-  if (getStaticPlot()->isDirty() || firstplot || beendisabled) { //new area
+  if (firstplot || recalculate_densities_) { // new area
 
     //init of areaFreeSetup
     // I think we should plot roadobs like synop here
@@ -1476,7 +1480,7 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     plotnr = -1;
   origcolour = selectedColour; // reset in case a background contrast colour was used
   firstplot = false;
-  beendisabled = false;
+  recalculate_densities_ = false;
 }
 
 void ObsPlot::plotIndex(DiGLPainter* gl, int index)
@@ -3022,7 +3026,7 @@ bool ObsPlot::updateDeltaTimes()
 {
   bool updated = false;
   if (has_deltatime) {
-    miutil::miTime nowTime = miutil::miTime::nowTime();
+    const miutil::miTime nowTime = miutil::miTime::nowTime();
     for (ObsData& dta : obsp) {
       if (updateDeltaTime(dta, nowTime))
         updated = true;

@@ -77,7 +77,7 @@ bool StaticPlot::setMapArea(const Area& area)
 {
   const bool changed = pa_.setMapArea(area);
   if (changed)
-    setDirty(true);
+    updateGcd();
   return changed;
 }
 
@@ -85,11 +85,11 @@ bool StaticPlot::setPhysSize(int w, int h)
 {
   const bool changed = pa_.setPhysSize(w, h);
   if (changed)
-    setDirty(true);
+    updateGcd();
   return changed;
 }
 
-Area StaticPlot::findBestMatch(const Area& newa)
+Area StaticPlot::findBestMatch(const Area& newa) const
 {
   if (!getMapProjection().isDefined())
     return newa;
@@ -120,15 +120,8 @@ Area StaticPlot::findBestMatch(const Area& newa)
   return Area(newa.P(), Rectangle(minx, miny, maxx, maxy));
 }
 
-void StaticPlot::setDirty(bool f)
+void StaticPlot::updateGcd()
 {
-  dirty = f;
-}
-
-void StaticPlot::updateGcd(DiGLPainter* gl)
-{
-  gl->setVpGlSize(getPhysWidth(), getPhysHeight(), pa_.getPlotSize().width(), pa_.getPlotSize().height());
-
   // lat3,lon3, point where ratio between window scale and geographical scale
   // is computed, set to Oslo coordinates, can be changed according to area
   const float lat3 = 60, lon3 = 10, lat1 = lat3 - 10, lat2 = lat3 + 10, lon1 = lon3 - 10, lon2 = lon3 + 10;

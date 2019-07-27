@@ -132,7 +132,7 @@ protected:
   PlotCommand_cpv extraAnnotations; // labels from ascii-files or PlotModule(edit)
   std::map<std::string, std::vector<std::string> > popupSpec;
   bool firstplot;
-  bool beendisabled; // obsplot was disabled while area changed
+  bool recalculate_densities_;
   bool has_deltatime; // obsplot has the DeltaTime parameter
 
   // Criteria
@@ -357,6 +357,7 @@ public:
   static ObsPlotType extractPlottype(const std::string& dialogname);
 
   void setPlotInfo(const miutil::KeyValue_v& pin) override;
+  void changeProjection(const Area& mapArea, const Rectangle& plotSize) override;
 
   bool operator==(const ObsPlot &rhs) const;
 

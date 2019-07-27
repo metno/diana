@@ -115,7 +115,9 @@ PlotModule::~PlotModule()
 void PlotModule::setCanvas(DiCanvas* canvas)
 {
   METLIBS_LOG_SCOPE();
-  staticPlot_->setDirty(true);
+  if (mCanvas == canvas)
+    return;
+
   // TODO set for all existing plots, and for new plots
   mCanvas = canvas;
   mapplots_->setCanvas(canvas);
@@ -125,6 +127,8 @@ void PlotModule::setCanvas(DiCanvas* canvas)
   fieldplots_->setCanvas(mCanvas);
   for (Manager* m : boost::adaptors::values(managers))
     m->setCanvas(canvas);
+
+  updateCanvasSize();
 }
 
 void PlotModule::preparePlots(const PlotCommand_cpv& vpi)
@@ -472,17 +476,11 @@ void PlotModule::plot(DiGLPainter* gl, bool under, bool over)
   METLIBS_LOG_SCOPE(LOGVAL(under) << LOGVAL(over));
 #endif
 
-  //if plotarea has changed, calculate great circle distance...
-  if (staticPlot_->isDirty())
-    staticPlot_->updateGcd(gl);
-
   if (under)
     plotUnder(gl);
 
   if (over)
     plotOver(gl);
-
-  staticPlot_->setDirty(false);
 }
 
 void PlotModule::plotInit(DiGLPainter* gl)
@@ -640,8 +638,6 @@ const vector<AnnotationPlot*>& PlotModule::getAnnotations()
 
 vector<Rectangle> PlotModule::plotAnnotations(DiGLPainter* gl)
 {
-  staticPlot_->updateGcd(gl); // FIXME add mCanvas to staticPlot_ and drop this
-
   plotInit(gl);
 
   std::vector<Rectangle> rectangles;
@@ -689,8 +685,18 @@ bool PlotModule::isPanning() const
   return staticPlot_->isPanning();
 }
 
+void PlotModule::updateCanvasSize()
+{
+  if (!mCanvas)
+    return;
+  StaticPlot* sp = getStaticPlot();
+  mCanvas->setVpGlSize(sp->getPhysWidth(), sp->getPhysHeight(), sp->getPlotSize().width(), sp->getPlotSize().height());
+}
+
 void PlotModule::notifyChangeProjection()
 {
+  updateCanvasSize(); // TODO canvas size update is too frequent
+
   const Area& ma = staticPlot_->getMapArea();
   const Rectangle& ps = staticPlot_->getPlotSize();
 

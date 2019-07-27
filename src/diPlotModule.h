@@ -149,6 +149,7 @@ private:
   static double getArea(float flat1, float flat2, float flat3, float flat4, float flon1, float flon2, float flon3, float flon4);
   static double calculateArea(double hLSide, double hUSide, double vLSide, double vRSide, double diag);
 
+  void updateCanvasSize();
   void notifyChangeProjection();
 
   bool defineMapAreaFromData(Area& newMapArea, bool& allowKeepCurrentArea);

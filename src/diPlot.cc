@@ -65,7 +65,7 @@ bool Plot::hasData()
   return true;
 }
 
-StaticPlot* Plot::getStaticPlot() const
+const StaticPlot* Plot::getStaticPlot() const
 {
   return PlotModule::instance()->getStaticPlot();
 }

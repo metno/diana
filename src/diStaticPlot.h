@@ -80,7 +80,7 @@ public:
   bool setMapArea(const Area& area);
 
   /// with a new projection: find the best matching physical area with the current one
-  Area findBestMatch(const Area&);
+  Area findBestMatch(const Area&) const;
 
   /// convert from physical xy to geographic coordinates in lat-lon degrees
   bool PhysToGeo(float x, float y, float& lat, float& lon) const;
@@ -127,7 +127,7 @@ public:
   void setRequestedarea(const Area& a) { requestedarea = a; }
 
   /// this is the area we really wanted
-  const Area& getRequestedarea() { return requestedarea; }
+  const Area& getRequestedarea() const { return requestedarea; }
 
   //! Get the size of the map plot area / data grid, excluding \ref mapborder, in coordinates of getMapProjection().
   /*! This is the rectangle from getMapArea() extended to the aspect ratio of getPhysSize().
@@ -168,13 +168,13 @@ public:
   void setTime(const miutil::miTime& t) { ctime = t; }
 
   /// return the current data time
-  const miutil::miTime& getTime() { return ctime; }
+  const miutil::miTime& getTime() const { return ctime; }
 
   /// set current vertical level
   void setVerticalLevel(int l) { verticalLevel = l; }
 
   /// this is the current vertical level
-  int getVerticalLevel() { return verticalLevel; }
+  int getVerticalLevel() const { return verticalLevel; }
 
   /// set name of background colour
   void setBgColour(const std::string& cn);
@@ -190,16 +190,7 @@ public:
    */
   const Colour& notBackgroundColour(const Colour& c) const;
 
-  /// mark this as 'redraw needed'
-  void setDirty(bool dirty);
-
-  /// is redraw needed
-  bool isDirty() { return dirty; }
-
-  /// set great circle distance
-  void updateGcd(DiGLPainter* gl);
-
-  float getGcd() { return gcd; }
+  float getGcd() const { return gcd; }
 
   //! Set flag indicating if panning is in progress.
   void setPanning(bool pan);
@@ -207,7 +198,11 @@ public:
   //! Get flag indicating if panning is in progress.
   /*! \return true if currently panning
    */
-  bool isPanning() { return panning; }
+  bool isPanning() const { return panning; }
+
+private:
+  /// set great circle distance
+  void updateGcd();
 };
 
 #endif // diStaticPlot_h

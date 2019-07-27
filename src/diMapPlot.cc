@@ -233,6 +233,11 @@ FilledMap* MapPlot::fetchFilledMap(const std::string& filename)
   return &(filledmapObjects.insert(std::make_pair(filename, FilledMap(filename))).first->second);
 }
 
+void MapPlot::changeProjection(const Area& /*mapArea*/, const Rectangle& /*plotSize*/)
+{
+  mapchanged = true;
+}
+
 /*
  Plot one layer of the map
  */
@@ -296,9 +301,7 @@ void MapPlot::plotMap(DiGLPainter* gl, int zorder)
   if (!mCanvas || !mCanvas->supportsDrawLists()) {
     // do not use display lists: always make a new plot from scratch
     makenew = true;
-  } else if ((getStaticPlot()->isDirty() && !getStaticPlot()->isPanning())
-      || mapchanged || !mCanvas->IsList(drawlist[zorder]))
-  {
+  } else if (mapchanged || !mCanvas->IsList(drawlist[zorder])) {
     // Making new map drawlist for this zorder
     makelist=true;
     if (mCanvas->IsList(drawlist[zorder]))
@@ -318,8 +321,6 @@ void MapPlot::plotMap(DiGLPainter* gl, int zorder)
         mapchanged= false;
     }
     // make new plot anyway during panning
-  } else if (getStaticPlot()->isDirty()) { // && mapinfo.type!="triangles"
-    makenew= true;
   }
 
   METLIBS_LOG_DEBUG(LOGVAL(mapinfo.type) << LOGVAL(makenew));

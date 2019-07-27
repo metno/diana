@@ -209,7 +209,7 @@ void WebMapPlot::plot(DiGLPainter* gl, PlotOrder porder)
     mRequest->submit();
   } else if (mRequestCompleted) {
     METLIBS_LOG_DEBUG("about to plot tiles...");
-    StaticPlot* sp = getStaticPlot();
+    const StaticPlot* sp = getStaticPlot();
     const diutil::Values2<int> size(sp->getPhysWidth(), sp->getPhysHeight());
     QImage target(size.x(), size.y(), QImage::Format_ARGB32);
     target.fill(Qt::transparent);
