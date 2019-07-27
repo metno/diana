@@ -33,7 +33,6 @@
 #include "diAreaTypes.h"
 #include "diCommonTypes.h"
 #include "diField/diRectangle.h"
-#include "diMapMode.h"
 #include "diPlotCommand.h"
 #include "diPlotElement.h"
 #include "diPrintOptions.h"

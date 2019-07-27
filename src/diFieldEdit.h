@@ -31,7 +31,6 @@
 
 #include "diDrawingTypes.h"
 #include "diEditSpec.h"
-#include "diMapMode.h"
 #include "diPlotOrder.h"
 
 #include <vector>

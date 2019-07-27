@@ -1098,7 +1098,7 @@ void DianaMainWindow::getPlotStrings(PlotCommand_cpv &pstr, vector<string> &shor
   shortnames.push_back(mm->getShortname());
 
   // annotation
-  const bool remove = (contr->getMapMode() != normal_mode || !timeNavigator->hasTimes());
+  const bool remove = (contr->editManagerIsInEdit() || !timeNavigator->hasTimes());
   for (PlotCommand_cp cmd : annom->getOKString()) {
     if (!remove || !isLabelCommandWithTime(cmd))
       pstr.push_back(cmd);

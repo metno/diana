@@ -33,7 +33,6 @@
 #include "diWeatherObjects.h"
 #include "diAreaBorder.h"
 #include "diUndoFront.h"
-#include "diMapMode.h"
 #include "diPlotCommand.h"
 #include "diColour.h"
 

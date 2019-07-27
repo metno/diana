@@ -537,11 +537,10 @@ void Controller::sendKeyboardEvent(QKeyEvent* ke, EventResult& res)
 
 // ----- edit and drawing methods ----------
 
-mapMode Controller::getMapMode()
+bool Controller::editManagerIsInEdit()
 {
-  return editm->getMapMode();
+  return editm->isInEdit();
 }
-
 
 set<string> Controller::getComplexList()
 {

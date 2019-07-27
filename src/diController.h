@@ -32,7 +32,6 @@
 #include "diCommonTypes.h"
 #include "diEditTypes.h"
 #include "diMapInfo.h"
-#include "diMapMode.h"
 #include "diObsDialogInfo.h"
 #include "diPlotCommand.h"
 #include "diRectangle.h"
@@ -219,7 +218,7 @@ public:
 
   // edit and drawing methods
   /// get mode of main workarea
-  mapMode getMapMode();
+  bool editManagerIsInEdit();
 
   // Obs-dialog methods
   /// return button names for ObsDialog
