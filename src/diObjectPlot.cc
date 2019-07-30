@@ -903,6 +903,7 @@ std::string ObjectPlot::writeObjectString()
       if (!first)
         r << ",\n";
       r << np.x() << "," << np.y();
+      first = false;
     }
     r << ";\n";
   }
