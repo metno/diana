@@ -356,7 +356,7 @@ void ObsAscii::decodeData()
     for (size_t i=0; i<tmp_nColumn; i++) {
       diutil::remove_quote(pstr[i]);
       if (not asciiColumnUndefined.count(pstr[i]))
-        obsData.stringdata[m_columnName[i]] = pstr[i];
+        obsData.put_string(m_columnName[i], pstr[i]);
     }
 
     float value;
@@ -368,11 +368,11 @@ void ObsAscii::decodeData()
     if (getColumnValue("Name", pstr, text))
       obsData.id = text;
     if (getColumnValue("ff", pstr, value))
-      obsData.fdata["ff"] = knots ? miutil::knots2ms(value) : value;
+      obsData.put_float("ff", knots ? miutil::knots2ms(value) : value);
     if (getColumnValue("dd", pstr, value))
-      obsData.fdata["dd"] = value;
+      obsData.put_float("dd", value);
     if (getColumnValue("image", pstr, text))
-      obsData.stringdata["image"] = text;
+      obsData.put_string("image", text);
 
     if (useTime) {
       miClock clock;

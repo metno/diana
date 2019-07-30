@@ -233,6 +233,7 @@ protected:
   float areaFreeXmove[4], areaFreeYmove[4];
 
   void getObsLonLat(int obsidx, float& x, float& y);
+  void reprojectData();
 
   int vtab(int idx) const;
   QPointF xytab(int idxy) const;

@@ -56,14 +56,24 @@ public:
   std::vector<std::string> ww;     ///< Significant weather
   std::vector<std::string> cloud;  ///< Clouds
 
+  void clear_data();
+
+  const std::string* get_string(const std::string& key) const;
+  void put_string(const std::string& key, const std::string& s) { stringdata[key] = s; }
+
+  const float* get_float(const std::string& key) const;
+  void put_float(const std::string& key, float f) { fdata[key] = f; }
+
+  const float* get_unrotated_float(const std::string& key) const;
+  void put_rotated_float(const std::string& key, float f) { fdata_rotated[key] = f; }
+
+private:
   typedef std::map<std::string,float> fdata_t;
   typedef std::map<std::string,std::string> stringdata_t;
 
   fdata_t fdata;
+  fdata_t fdata_rotated;
   stringdata_t stringdata;
-
-  const std::string& get_string(const std::string& key) const;
-  float get_float(const std::string& key) const;
 };
 
 #endif
