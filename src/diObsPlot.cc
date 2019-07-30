@@ -578,26 +578,16 @@ void ObsPlot::setParameters(const std::vector<ObsDialogInfo::Par>& vp)
   }
 }
 
-bool ObsPlot::setData()
+void ObsPlot::reprojectData()
 {
   METLIBS_LOG_SCOPE();
 
-  firstplot = true;
-  nextplot.clear();
-  notplot.clear();
-  list_plotnr.clear();
+  const int numObs = getObsCount();
+  if (numObs == 0)
+    return;
 
   delete[] x;
   delete[] y;
-  x = 0;
-  y = 0;
-
-  const int numObs = getObsCount();
-
-  if (numObs < 1) {
-    METLIBS_LOG_INFO("no data");
-    return false;
-  }
 
   x = new float[numObs];
   y = new float[numObs];
@@ -607,8 +597,6 @@ bool ObsPlot::setData()
 
   // convert points to correct projection
   getStaticPlot()->GeoToMap(numObs, x, y);
-
-  updateObsPositions();
 
   // find direction of north for each observation
   std::unique_ptr<float[]> u(new float[numObs]);
@@ -639,6 +627,27 @@ bool ObsPlot::setData()
 
   u.reset(nullptr);
   v.reset(nullptr);
+
+  updateObsPositions();
+}
+
+bool ObsPlot::setData()
+{
+  METLIBS_LOG_SCOPE();
+
+  firstplot = true;
+  nextplot.clear();
+  notplot.clear();
+  list_plotnr.clear();
+
+  const int numObs = getObsCount();
+
+  if (numObs < 1) {
+    METLIBS_LOG_INFO("no data");
+    return false;
+  }
+
+  reprojectData();
 
   updateDeltaTimes();
 
@@ -1222,6 +1231,7 @@ void ObsPlot::drawCircle(DiGLPainter* gl)
 void ObsPlot::changeProjection(const Area& /*mapArea*/, const Rectangle& /*plotSize*/)
 {
   recalculate_densities_ = true;
+  reprojectData();
 }
 
 void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
