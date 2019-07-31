@@ -218,9 +218,9 @@ bool WeatherObjects::readEditDrawFile(const std::string& fn)
     switchProjection(geoArea);
 
     METLIBS_LOG_INFO("This is a shapefile");
-    ShapeObject * shape = new ShapeObject();
-    addObject(shape);
-    shape->read(fn);
+    std::unique_ptr<ShapeObject> shape(new ShapeObject());
+    shape->read(fn); // FIXME ShapeObject::read automatically reprojects to map projection
+    addObject(shape.release());
 
     return true;
   }
