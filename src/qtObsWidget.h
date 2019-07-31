@@ -139,7 +139,7 @@ private:
 
   QLCDNumber* densityLcdnum;
   QLCDNumber* sizeLcdnum;
-  QLCDNumber* diffLcdnum;
+  QLabel* diffLcdnum;
   QSlider* densitySlider;
   QSlider* sizeSlider;
   QSlider* diffSlider;

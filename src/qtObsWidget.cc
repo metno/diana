@@ -39,6 +39,8 @@
 
 #include <puTools/miStringFunctions.h>
 
+#include <mi_fieldcalc/math_util.h>
+
 #include <QSlider>
 #include <QComboBox>
 #include <QPushButton>
@@ -261,7 +263,7 @@ void ObsWidget::setDialogInfo(const ObsDialogInfo::PlotType& dialogInfo)
 
   densityLcdnum = LCDNumber( 5, this); // 4 siffer
   sizeLcdnum = LCDNumber( 5, this);
-  diffLcdnum = LCDNumber( 5, this);
+  diffLcdnum = new QLabel(this);
 
   for(int i=0;i<13;i++)
     time_slider2lcd.push_back(i*15);
@@ -271,9 +273,11 @@ void ObsWidget::setDialogInfo(const ObsDialogInfo::PlotType& dialogInfo)
   diffSlider = Slider(0, time_slider2lcd.size(), 1, 4, Qt::Horizontal, this);
 
   diffComboBox = new QComboBox(this);
-  diffComboBox->addItem("3t");
-  diffComboBox->addItem("24t");
-  diffComboBox->addItem("7d");
+  // userData = sliderStep (minutes) << 8 + maxSliderValue
+  diffComboBox->addItem("15 min", (1 << 8) + 16);
+  diffComboBox->addItem("3t", (15 << 8) + 13);
+  diffComboBox->addItem("24t", (60 << 8) + 25);
+  diffComboBox->addItem("7d", ((60 * 24) << 8) + 8);
 
   displayDiff(diffSlider->value());
 
@@ -473,62 +477,50 @@ void ObsWidget::displayDiff(int number)
   /* This function is called when diffSslider sends a signal valueChanged(int)
      and changes the numerical value in the lcd display diffLcdnum */
 
-  if( number == int(time_slider2lcd.size()) ) {
-    diffLcdnum->display( tr("ALL") );
+  QString timediffText;
+  if (number == int(time_slider2lcd.size())) {
+    timediffText = tr("ALL");
     timediff_minutes = "alltimes";
-    return;
-  }
-
-  std::string str;
-  int totalminutes = time_slider2lcd[number];
-  timediff_minutes = miutil::from_number(totalminutes);
-  if(diffComboBox->currentIndex()<2){
-    int hours = totalminutes/60;
-    int minutes= totalminutes-hours*60;
-    ostringstream ostr;
-    ostr << hours << ":" << setw(2) << setfill('0') << minutes;
-    str= ostr.str();
   } else {
-    ostringstream ostr;
-    ostr << (totalminutes/60/24) << " d";
-    str= ostr.str();
+    const int totalminutes = time_slider2lcd[number];
+    const int max_minutes = time_slider2lcd.back();
+    timediff_minutes = miutil::from_number(totalminutes);
+    if (max_minutes <= 60) {
+      timediffText = QString::number(totalminutes) + " min";
+    } else if (max_minutes <= 24 * 60) {
+      int hours = totalminutes / 60;
+      int minutes = totalminutes - hours * 60;
+      timediffText = QString("%1:%2").arg(hours).arg(QString::number(minutes), 2, '0');
+    } else {
+      int days = totalminutes / 60 / 24;
+      timediffText = QString("%1 d").arg(days);
+    }
   }
-
-  diffLcdnum->display( str.c_str() );
+  diffLcdnum->setText(timediffText);
 }
 
 /***************************************************************************/
-void ObsWidget::diffComboBoxSlot(int number)
+void ObsWidget::diffComboBoxSlot(int)
 {
-  int index = time_slider2lcd[diffSlider->value()];
+  const int timediff = time_slider2lcd[diffSlider->value()];
   bool maxValue = ( diffSlider->value() == int(time_slider2lcd.size()) );
 
-  int maxSliderValue, sliderStep;
-  if(number==0){
-    maxSliderValue = 13;
-    sliderStep = 15;
-  } else if(number==1){
-    maxSliderValue = 25;
-    sliderStep = 60;
-  } else {
-    maxSliderValue = 8;
-    sliderStep = 60*24;
-  }
+  const int userData = diffComboBox->currentData().toInt(); // userData = sliderStep (minutes) << 8 + maxSliderValue
+  const int sliderStep = userData >> 8;
+  const int maxSliderValue = userData & 0xFF;
 
-  diffSlider->setRange(0,maxSliderValue);
   time_slider2lcd.clear();
   for(int i=0;i<maxSliderValue;i++)
     time_slider2lcd.push_back(i*sliderStep);
 
-  //set slider
+  diffSlider->setRange(0, maxSliderValue);
+  int slidervalue;
   if(maxValue){
-    index = maxSliderValue;
+    slidervalue = maxSliderValue;
   } else {
-    index /= sliderStep;
-    if(index>maxSliderValue-1) index = maxSliderValue-1;
+    slidervalue = std::min(timediff / sliderStep, maxSliderValue - 1);
   }
-
-  diffSlider->setValue(index);
+  diffSlider->setValue(slidervalue);
   displayDiff(diffSlider->value());
 }
 /***************************************************************************/
@@ -547,10 +539,6 @@ void ObsWidget::rightClickedSlot(std::string str)
   if (criteriaCheckBox->isChecked())
     Q_EMIT rightClicked(str);
 }
-
-/*********************************************/
-
-
 
 /*****************************************************************/
 vector<std::string> ObsWidget::getDataTypes()
@@ -889,40 +877,36 @@ void ObsWidget::updateDialog(bool setChecked)
   displaySize(number);
 
   //timediff
-  int i=0;
-  int maxSliderValue = 13;
-  int sliderStep = 15;
-  number = 60/sliderStep;
+  int diffcombo_index = 0;
+  int slider_value = 4;
   if ((it = dVariables.misc.find("timediff")) != end) {
     timediff_minutes = it->second;
-    if( timediff_minutes == "alltimes"){
-      number=time_slider2lcd.size();
+    if (timediff_minutes == "alltimes") {
+      slider_value = 99999;
     } else {
-      int iminutes = miutil::to_int(timediff_minutes);
-      if(iminutes<3*60){
-        i=0;
-        maxSliderValue = 13;
-        sliderStep = 15;
-      } else if(iminutes<24*60){
-        i=1;
-        maxSliderValue = 25;
-        sliderStep = 60;
-      } else {
-        i=2;
-        maxSliderValue = 8;
-        sliderStep = 60*24;
+      const int timediff = miutil::to_int(timediff_minutes);
+      for (diffcombo_index = 0; diffcombo_index < diffComboBox->count(); ++diffcombo_index) {
+        const int userData = diffComboBox->itemData(diffcombo_index).toInt(); // userData = sliderStep (minutes) << 8 + maxSliderValue
+        const int c_step = userData >> 8;
+        const int c_max = userData & 0xFF;
+        slider_value = std::min(timediff / c_step, c_max - 1);
+        if (timediff < c_step * c_max)
+          break;
       }
-      number = iminutes/sliderStep;
-      if(number>maxSliderValue-1) number = maxSliderValue-1;
     }
   }
-  diffComboBox->setCurrentIndex(i);
+  const int userData = diffComboBox->itemData(diffcombo_index).toInt(); // userData = sliderStep (minutes) << 8 + maxSliderValue
+  int sliderStep = userData >> 8;
+  int maxSliderValue = userData & 0xFF;
+  miutil::minimize(slider_value, maxSliderValue);
+
+  diffComboBox->setCurrentIndex(diffcombo_index);
   diffSlider->setRange(0,maxSliderValue);
   time_slider2lcd.clear();
   for(int i=0;i<maxSliderValue;i++)
     time_slider2lcd.push_back(i*sliderStep);
-  diffSlider->setValue(number);
-  displayDiff(number);
+  diffSlider->setValue(slider_value);
+  displayDiff(slider_value);
 
   //onlypos
   if ((it = dVariables.misc.find("onlypos")) != end && it->second == "true") {
