@@ -65,6 +65,7 @@ WeatherObjects::WeatherObjects()
 
   // correct spec. when making Projection for long/lat coordinates
   geoArea.setP(Projection::geographic());
+  itsArea = geoArea;
 
   //use all objects if nothing else specified
   for (const std::string& otn : ObjectTypeNames)
