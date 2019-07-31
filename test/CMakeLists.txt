@@ -65,6 +65,7 @@ SET (dianaUnitTests_SOURCES
   TestLogFileIO.cc
   TestObsReaderAscii.cc
   TestObsReaderFile.cc
+  TestObsReaderTimeInterval.cc
   TestPlotCommands.cc
   TestPlotOptions.cc
   TestPoint.cc

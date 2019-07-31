@@ -44,7 +44,7 @@
 struct ObsDataRequest
 {
   miutil::miTime obstime;
-  int timeDiff;
+  int timeDiff; // units: minutes
   int level;
   bool useArchive;
   ObsDataRequest();

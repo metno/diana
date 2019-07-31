@@ -32,7 +32,6 @@
 #include "diObsAscii.h"
 
 #include "diLabelPlotCommand.h"
-#include "diObsMetaData.h"
 #include "diUtilities.h"
 #include "util/string_util.h"
 

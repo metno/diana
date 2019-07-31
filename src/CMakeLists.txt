@@ -136,7 +136,6 @@ SET (LIBDIANA_SOURCES
   diObsData.cc
   diObsDialogInfo.cc
   diObsManager.cc
-  diObsMetaData.cc
   diObsPlot.cc
   diObsPlotCluster.cc
   diObsPlotType.cc
@@ -148,6 +147,7 @@ SET (LIBDIANA_SOURCES
   diObsReaderFile.cc
   diObsReaderMetnoUrl.cc
   diObsReaderRoad.cc
+  diObsReaderTimeInterval.cc
   diPaintGLPainter.cc
   diPaintable.cc
   diPainter.cc
