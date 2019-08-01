@@ -45,11 +45,12 @@
 using namespace std;
 using namespace miutil;
 
+static const size_t BAD = 0xFFFFFF;
+
 ObsAscii::ObsAscii(const string& filename, const string& headerfile,
     const vector<string>& headerinfo)
 {
   METLIBS_LOG_SCOPE();
-  fileOK = false;
   knots = false;
   readHeaderInfo(filename, headerfile, headerinfo);
   decodeHeader();
@@ -98,12 +99,13 @@ void ObsAscii::readDecodeData()
 void ObsAscii::readData(const std::string& filename)
 {
   METLIBS_LOG_SCOPE();
+  METLIBS_LOG_INFO("Start reading '" << filename << "'");
   if (diutil::getFromAny(filename, lines))
-    METLIBS_LOG_INFO("Reading '" << filename << "'");
+    METLIBS_LOG_INFO("Done reading '" << filename << "'");
   else
-    METLIBS_LOG_WARN("could not read '" << filename << "'");
+    METLIBS_LOG_WARN("Error reading '" << filename << "'");
 }
-  
+
 static void erase_comment(std::string& line, const std::string& comment = "#")
 {
   const size_t cpos = line.find(comment);
@@ -190,7 +192,23 @@ void ObsAscii::decodeHeader()
     vstr.push_back(line);
   }
 
-  asciiColumn.clear();
+  idx_x = BAD;
+  idx_y = BAD;
+  idx_ff = BAD;
+  idx_dd = BAD;
+  idx_image = BAD;
+  idx_Name = BAD;
+
+  idx_date = BAD;
+  idx_year = BAD;
+  idx_month = BAD;
+  idx_day = BAD;
+
+  idx_time = BAD;
+  idx_hour = BAD;
+  idx_min = BAD;
+  idx_sec = BAD;
+
   asciiSkipDataLines= 0;
 
   m_columnType.clear();
@@ -202,7 +220,6 @@ void ObsAscii::decodeHeader()
 
   if (not bracketContents(vstr)) {
     METLIBS_LOG_ERROR("bad header, cannot find closing ']'");
-    fileOK = false;
     return;
   }
   for (size_t i=0; i<vstr.size(); ++i)
@@ -219,103 +236,66 @@ void ObsAscii::decodeHeader()
     const std::string cn_lower = miutil::to_lower(m_columnName[i]);
 
     if      (ct=="d")
-      asciiColumn["date"]= i;
+      idx_date = i;
     else if (ct=="t")
-      asciiColumn["time"]= i;
+      idx_time = i;
     else if (ct=="year")
-      asciiColumn["year"] = i;
+      idx_year = i;
     else if (ct=="month")
-      asciiColumn["month"] = i;
+      idx_month = i;
     else if (ct=="day")
-      asciiColumn["day"] = i;
+      idx_day = i;
     else if (ct=="hour")
-      asciiColumn["hour"] = i;
+      idx_hour = i;
     else if (ct=="min")
-      asciiColumn["min"] = i;
+      idx_min = i;
     else if (ct=="sec")
-      asciiColumn["sec"] = i;
+      idx_sec = i;
     else if (ct_lower=="lon")
-      asciiColumn["x"]= i;
+      idx_x = i;
     else if (ct_lower=="lat")
-      asciiColumn["y"]= i;
+      idx_y = i;
     else if (ct_lower=="dd")
-      asciiColumn["dd"]= i;
+      idx_dd = i;
     else if (ct_lower=="ff") //Wind speed in m/s
-      asciiColumn["ff"]= i;
+      idx_ff = i;
     else if (ct_lower=="ffk") //Wind speed in knots
-      asciiColumn["ff"]= i;
+      idx_ff = i;
     else if (ct_lower=="image")
-      asciiColumn["image"]= i;
+      idx_image = i;
     else if (cn_lower=="lon" && ct=="r") //Obsolete
-      asciiColumn["x"]= i;
+      idx_x = i;
     else if (cn_lower=="lat" && ct=="r") //Obsolete
-      asciiColumn["y"]= i;
+      idx_y = i;
     else if (cn_lower=="dd" && ct=="r") //Obsolete
-      asciiColumn["dd"]= i;
+      idx_dd = i;
     else if (cn_lower=="ff" && ct=="r") //Obsolete
-      asciiColumn["ff"]= i;
+      idx_ff = i;
     else if (cn_lower=="ffk" && ct=="r") //Obsolete
-      asciiColumn["ff"]= i;
+      idx_ff = i;
     else if (cn_lower=="image" && ct=="s") //Obsolete
-      asciiColumn["image"]= i;
+      idx_image = i;
     else if (cn_lower=="name" || ct=="id")
-      asciiColumn["Name"]= i;
+      idx_Name = i;
 
     if (ct_lower=="ffk" || cn_lower=="ffk")
       knots=true;
   }
-
-  fileOK= true;
-  return;
 }
 
-ObsAscii::string_size_m::const_iterator ObsAscii::getColumn(const std::string& cn, const std::vector<std::string>& cv) const
+bool ObsAscii::checkColumn(size_t idx, const diutil::string_v& cv) const
 {
-  string_size_m::const_iterator it = asciiColumn.find(cn);
-  if (it == asciiColumn.end() or it->second >= cv.size() or asciiColumnUndefined.count(cv[it->second]))
-    return asciiColumn.end();
-  else
-    return it;
-}
-
-bool ObsAscii::getColumnValue(const std::string& cn, const diutil::string_v& cv, float& value) const
-{
-  string_size_m::const_iterator it = getColumn(cn, cv);
-  if (it == asciiColumn.end())
-    return false;
-
-  value = miutil::to_float(cv[it->second]);
-  return true;
-}
-
-bool ObsAscii::getColumnValue(const std::string& cn, const diutil::string_v& cv, int& value) const
-{
-  string_size_m::const_iterator it = getColumn(cn, cv);
-  if (it == asciiColumn.end())
-    return false;
-
-  value = miutil::to_int(cv[it->second]);
-  return true;
-}
-
-bool ObsAscii::getColumnValue(const std::string& cn, const diutil::string_v& cv, std::string& value) const
-{
-  string_size_m::const_iterator it = getColumn(cn, cv);
-  if (it == asciiColumn.end())
-    return false;
-
-  value = cv[it->second];
-  return true;
+  return idx != BAD && idx < cv.size() && (asciiColumnUndefined.find(cv[idx])) == asciiColumnUndefined.end();
 }
 
 void ObsAscii::decodeData()
 {
-  METLIBS_LOG_SCOPE();
-  
-  const bool isoTime = asciiColumn.count("time");
-  const bool useTime = isoTime || asciiColumn.count("hour");
-  const bool date_ymd = asciiColumn.count("year") && asciiColumn.count("month") && asciiColumn.count("day");
-  const bool date_column = asciiColumn.count("date");
+  METLIBS_LOG_TIME();
+
+  const bool isoTime = (idx_time != BAD);
+  const bool useTime = isoTime || (idx_hour != BAD);
+  const bool date_ymd = (idx_year != BAD) && (idx_month != BAD) && (idx_day != BAD);
+  const bool date_column = (idx_date != BAD);
   const bool allTime = useTime && (date_column || date_ymd);
   const bool isoDate = useTime && date_column;
 
@@ -337,17 +317,19 @@ void ObsAscii::decodeData()
     ii += 1;
   }
 
+  vObsData.reserve(lines.size());
   for (; ii < lines.size(); ++ii) {
-    METLIBS_LOG_DEBUG("read '" << lines[ii] << "'");
-    miutil::trim(lines[ii]);
-    if (lines[ii].empty() or lines[ii][0]=='#')
+    // METLIBS_LOG_DEBUG("read '" << lines[ii] << "'");
+    std::string& line = lines[ii];
+    miutil::trim(line);
+    if (line.empty() or line[0] == '#')
       continue;
 
     vector<string> pstr;
     if (not separator.empty())
-      pstr = miutil::split(lines[ii], separator, false);
+      pstr = miutil::split(line, separator, false);
     else
-      pstr = miutil::split_protected(lines[ii], '"', '"');
+      pstr = miutil::split_protected(line, '"', '"');
 
     ObsData  obsData;
 
@@ -358,70 +340,58 @@ void ObsAscii::decodeData()
         obsData.put_string(m_columnName[i], pstr[i]);
     }
 
-    float value;
-    std::string text;
-    if (getColumnValue("x", pstr, value))
-      obsData.xpos = value;
-    if (getColumnValue("y", pstr, value))
-      obsData.ypos = value;
-    if (getColumnValue("Name", pstr, text))
-      obsData.id = text;
-    if (getColumnValue("ff", pstr, value))
+    if (checkColumn(idx_x, pstr))
+      obsData.xpos = miutil::to_float(pstr[idx_x]);
+    if (checkColumn(idx_y, pstr))
+      obsData.ypos = miutil::to_float(pstr[idx_y]);
+    if (checkColumn(idx_Name, pstr))
+      obsData.id = pstr[idx_Name];
+    if (checkColumn(idx_ff, pstr)) {
+      const float value = miutil::to_float(pstr[idx_ff]);
       obsData.put_float("ff", knots ? miutil::knots2ms(value) : value);
-    if (getColumnValue("dd", pstr, value))
-      obsData.put_float("dd", value);
-    if (getColumnValue("image", pstr, text))
-      obsData.put_string("image", text);
+    }
+    if (checkColumn(idx_dd, pstr))
+      obsData.put_float("dd", miutil::to_float(pstr[idx_dd]));
+    if (checkColumn(idx_image, pstr))
+      obsData.put_string("image", pstr[idx_image]);
 
     if (useTime) {
       miClock clock;
-      miDate date;
-      int hour=0, min=0, sec=0;
       if (isoTime) {
-        if (getColumnValue("time", pstr, text)) {
-          vector<std::string> tpart = miutil::split(text,":");
-          hour = miutil::to_int(tpart[0]);
-          if ( tpart.size() > 1 )
-            min = miutil::to_int(tpart[1]);
-          if ( tpart.size() > 2 )
-            sec = miutil::to_int(tpart[2]);
-          clock = miClock(hour, min, sec);
-        } else {
-          METLIBS_LOG_WARN("time column missing");
+        if (!checkColumn(idx_time, pstr))
           continue;
-        }
+        clock.setClock(pstr[idx_time]);
       } else {
-        if (getColumnValue("hour", pstr, hour)) {
-          getColumnValue("min", pstr, min); // no problem if missing, assume min = sec = 00
-          getColumnValue("sec", pstr, sec);
-          clock = miClock(hour, min, sec);
-        } else {
-          METLIBS_LOG_WARN("hour column missing");
+        if (!checkColumn(idx_hour, pstr))
           continue;
-        }
+        int hour = miutil::to_int(pstr[idx_hour]);
+        int min = 0, sec = 0;
+        // no problem if missing, assume min = sec = 0
+        if (checkColumn(idx_min, pstr))
+          min = miutil::to_int(pstr[idx_min]);
+        if (checkColumn(idx_sec, pstr))
+          sec = miutil::to_int(pstr[idx_sec]);
+        clock.setClock(hour, min, sec);
       }
 
+      miDate date;
       if (isoDate) {
-        if (getColumnValue("date", pstr, text)) {
-          date = miDate(text);
-        } else {
-          METLIBS_LOG_WARN("date column missing");
+        if (!checkColumn(idx_date, pstr))
           continue;
-        }
+        date.setDate(pstr[idx_date]);
       } else if (allTime) {
-        int year=0,month=0,day=0;
-        if (getColumnValue("year", pstr, year) and getColumnValue("month", pstr, month) and getColumnValue("day", pstr, day)) {
-          date = miDate(year, month, day);
-        } else {
-          METLIBS_LOG_WARN("year/month/day column missing");
+        if (!(checkColumn(idx_year, pstr) && checkColumn(idx_month, pstr) && checkColumn(idx_day, pstr)))
           continue;
-        }
+        const int year = miutil::to_int(pstr[idx_year]);
+        const int month = miutil::to_int(pstr[idx_month]);
+        const int day = miutil::to_int(pstr[idx_day]);
+        date.setDate(year, month, day);
       } else  {
         date = filedate;
       }
 
       miTime obstime(date, clock);
-      if (not allTime) {
+      if (!allTime && !isoDate) {
         int mdiff= miTime::minDiff(obstime,fileTime);
         if      (mdiff<-12*60)
           obstime.addHour(24);
@@ -429,12 +399,12 @@ void ObsAscii::decodeData()
           obstime.addHour(-24);
       }
       
-      METLIBS_LOG_DEBUG(LOGVAL(obstime) << LOGVAL(plotTime) << LOGVAL(timeDiff));
+      // METLIBS_LOG_DEBUG(LOGVAL(obstime) << LOGVAL(plotTime) << LOGVAL(timeDiff));
       if (timeDiff < 0 || abs(miTime::minDiff(obstime, plotTime))< timeDiff)
         obsData.obsTime = obstime;
       else
         continue;
     }
-    vObsData.push_back(obsData);
+    vObsData.push_back(std::move(obsData));
   }
 }

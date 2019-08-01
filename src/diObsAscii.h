@@ -53,15 +53,31 @@ private:
   std::vector<std::string> lines;
   std::vector<ObsData> vObsData;
   std::string separator;
-  bool fileOK;
   bool knots;
   miutil::miTime plotTime;
   miutil::miTime fileTime;
   int    timeDiff;
 
   std::set<std::string> asciiColumnUndefined;
-  typedef std::map<std::string, size_t> string_size_m;
-  string_size_m asciiColumn; //column index(time, x,y,dd,ff etc)
+
+  // column indices (time, x,y,dd,ff etc)
+  size_t idx_x;
+  size_t idx_y;
+  size_t idx_ff;
+  size_t idx_dd;
+  size_t idx_image;
+  size_t idx_Name;
+
+  size_t idx_date;
+  size_t idx_year;
+  size_t idx_month;
+  size_t idx_day;
+
+  size_t idx_time;
+  size_t idx_hour;
+  size_t idx_min;
+  size_t idx_sec;
+
   int  asciiSkipDataLines;
   PlotCommand_cpv labels;
 
@@ -72,10 +88,8 @@ private:
   void readDecodeData();
   void readData(const std::string &filename);
   void decodeData();
-  string_size_m::const_iterator getColumn(const std::string& cn, const std::vector<std::string>& cv) const;
-  bool getColumnValue(const std::string& cn, const std::vector<std::string>& cv, float& value) const;
-  bool getColumnValue(const std::string& cn, const std::vector<std::string>& cv, int& value) const;
-  bool getColumnValue(const std::string& cn, const std::vector<std::string>& cv, std::string& value) const;
+
+  bool checkColumn(size_t idx, const std::vector<std::string>& cv) const;
 
   void readHeaderInfo(const std::string& filename, const std::string& headerfile,
       const std::vector<std::string>& headerinfo);
