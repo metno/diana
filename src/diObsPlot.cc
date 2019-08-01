@@ -625,9 +625,6 @@ void ObsPlot::reprojectData()
       obs.put_rotated_float("ds", normalize_angle(*pds + angle));
   }
 
-  u.reset(nullptr);
-  v.reset(nullptr);
-
   updateObsPositions();
 }
 
@@ -680,11 +677,11 @@ void ObsPlot::getObsLonLat(int obsidx, float& x, float& y)
 void ObsPlot::logStations()
 {
   METLIBS_LOG_SCOPE();
-  int n = nextplot.size();
-  if (n) {
-    visibleStations[dialogname].clear();
-    for (int i = 0; i < n; i++) {
-      visibleStations[dialogname].push_back(obsp[nextplot[i]].id);
+  if (!nextplot.empty()) {
+    std::vector<std::string>& vs = visibleStations[dialogname];
+    vs.clear();
+    for (int n : nextplot) {
+      vs.push_back(obsp[n].id);
     }
   }
 }
@@ -3275,13 +3272,14 @@ void ObsPlot::weather(DiGLPainter* gl, short int ww, float TTT, bool ship_buoy, 
       57, 57, 58, 59, 0, 63, 61, 63, 65, 66, 67, 67, 68, 69, 0, 73, 71, 73, 75,
       79, 79, 79, 0, 0, 0, 81, 80, 81, 82, 85, 86, 86, 0, 0, 0, 17, 17, 95, 96,
       17, 97, 99, 0, 0, 0 };
+  const int n_auto2man = boost::size(auto2man);
+  const int l_auto2man = 100;
 
-  if (ww > 99) {
-    const int wwa = ww - 100;
-    if (wwa < boost::size(auto2man))
-      ww = auto2man[wwa];
-    else
+  if (ww >= l_auto2man) {
+    const int wwa = ww - l_auto2man;
+    if (wwa >= n_auto2man)
       return;
+    ww = auto2man[wwa];
   }
 
   //do not plot ww<3
@@ -3320,18 +3318,19 @@ void ObsPlot::weather(DiGLPainter* gl, short int ww, float TTT, bool ship_buoy, 
   symbol(gl, n, xypos, 0.8 * scale, align_right);
 }
 
-void ObsPlot::pastWeather(DiGLPainter* gl, int w, QPointF xypos, float scale, bool align_right)
+void ObsPlot::pastWeather(DiGLPainter* gl, int w, QPointF xypos, float scale, bool /*align_right*/)
 {
-
   // manual codes - code table 4561, automatic codes - code table 4531
   const int auto2man[10] = { 0, 4, 3, 4, 6, 5, 6, 7, 8, 9 };
+  const int n_auto2man = boost::size(auto2man);
+  const int l_auto2man = 10;
 
-  if (w > 9) {
-    const int wa = w - 10;
-    if (wa < boost::size(auto2man))
-      w = auto2man[wa];
-    else
+  if (w >= l_auto2man) {
+    const int wa = w - l_auto2man;
+    if (wa >= n_auto2man)
       return;
+
+    w = auto2man[wa];
   }
 
   // code figures 0, 1 and 2 of the W  code table shall be considered to represent phenomena without significance.
