@@ -1147,7 +1147,7 @@ command_result Bdiana::handlePlotCommand(int& k)
 
     // necessary to set time before plotCommands()..?
     miTime thetime = miTime::nowTime();
-    main.controller->changeTime(thetime);
+    main.setTime(thetime);
     main.commands(pcom);
 
     if (!set_ptime(main))
