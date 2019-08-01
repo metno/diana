@@ -95,10 +95,8 @@ void ObsPlotCluster::changeTime(const miutil::miTime& mapTime)
   update(false, mapTime);
 }
 
-bool ObsPlotCluster::update(bool ifNeeded, const miutil::miTime& t)
+void ObsPlotCluster::update(bool ifNeeded, const miutil::miTime& t)
 {
-  bool havedata = false;
-
   if (!ifNeeded) {
     for (ObsPlot* op : static_content_cast<ObsPlot*>(plots_))
       op->logStations();
@@ -106,13 +104,11 @@ bool ObsPlotCluster::update(bool ifNeeded, const miutil::miTime& t)
   for (ObsPlot* op : static_content_cast<ObsPlot*>(plots_)) {
     if (!ifNeeded || obsm_->updateTimes(op)) {
       obsm_->prepare(op, t);
-      havedata = true;
     }
     //update list of positions ( used in "PPPP-mslp")
     // TODO this is kind of prepares changeProjection of all ObsPlot's with mslp() == true, to be used in EditManager::interpolateEditFields
     op->updateObsPositions();
   }
-  return havedata;
 }
 
 void ObsPlotCluster::plot(DiGLPainter* gl, PlotOrder zorder)
