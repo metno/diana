@@ -508,15 +508,16 @@ command_result Bdiana::prepareInput(istream& is)
     tmplinenumbers.push_back(lm.lineno());
   }
 
-  // unpack loops and lists
-  unpackinput(tmplines, tmplinenumbers, lines, linenumbers);
-
   // substitute environment variables and key-values
   for (std::string& line : lines) {
     SetupParser::checkEnvironment(line);
     for (const keyvalue& kv : keys)
       miutil::replace(line, "$" + kv.key, kv.value);
   }
+
+  // unpack loops and lists
+  unpackinput(tmplines, tmplinenumbers, lines, linenumbers);
+
   return cmd_success;
 }
 
