@@ -34,7 +34,7 @@ bool ObsReaderMetnoUrl::configure(const std::string& key, const std::string& val
 void ObsReaderMetnoUrl::getData(ObsDataRequest_cp request, ObsDataResult_p result)
 {
   METLIBS_LOG_SCOPE();
-  const int timediff_s = 60 * request->timeDiff + time_interval() / 2;
+  const int timediff_s = 60 * request->timeDiff;
   const miutil::miTime after = miutil::addSec(request->obstime, -timediff_s);
   const miutil::miTime until = miutil::addSec(request->obstime, +timediff_s);
 
