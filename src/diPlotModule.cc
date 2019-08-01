@@ -621,15 +621,14 @@ void PlotModule::notifyChangeProjection()
   const Area& ma = staticPlot_->getMapArea();
   const Rectangle& ps = staticPlot_->getPlotSize();
 
-  mapplots_->changeProjection(ma, ps);
-  obsplots_->changeProjection(ma, ps);
-  if (areaobjects_)
-    areaobjects_->changeProjection(ma, ps);
-  stationplots_->changeProjection(ma, ps);
-  objectplots_->changeProjection(ma, ps);
-  trajectoryplots_->changeProjection(ma, ps);
+  for (PlotCluster* pc : clusters())
+    pc->changeProjection(ma, ps);
+
   for (MeasurementsPlot* mp : vMeasurementsPlot)
     mp->changeProjection(ma, ps);
+
+  // editm
+
   for (Manager* m : boost::adaptors::values(managers))
     m->changeProjection(ma, ps);
 }
