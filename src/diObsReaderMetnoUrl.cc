@@ -55,6 +55,7 @@ void ObsReaderMetnoUrl::getData(ObsDataRequest_cp request, ObsDataResult_p resul
   oplot->columnName = obsAscii.getColumnNames();
 #endif
 
+  result->setTime(request->obstime);
   result->add(obsdata);
 }
 
