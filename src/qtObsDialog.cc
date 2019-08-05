@@ -36,6 +36,7 @@
 #include "qtUtility.h"
 
 #include "util/misc_util.h"
+#include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -358,33 +359,22 @@ vector<string> ObsDialog::writeLog()
   return vstr;
 }
 
-void ObsDialog::readLog(const vector<string>& vstr, const string& thisVersion, const string& logVersion)
+void ObsDialog::readLog(const vector<string>& vstr, const string& /*thisVersion*/, const string& /*logVersion*/)
 {
-  int n=0, nvstr= vstr.size();
-  bool first=true;
+  for (const std::string& l : vstr) {
+    if (diutil::startswith(l, "===="))
+      break;
 
-  while (n < nvstr && vstr[n].substr(0, 4) != "====") {
-
-    const miutil::KeyValue_v kvs = miutil::splitKeyValue(vstr[n]);
+    const miutil::KeyValue_v kvs = miutil::splitKeyValue(l);
     const int index = findPlotnr(kvs);
     if (index < nr_plot()) {
-      if (obsWidget[index]->initialized() || first) {
-        if (first) {  //will be selected
-          first = false;
-          plotbox->setCurrentIndex(index);
-          plotSelected(index);
-        }
+      if (obsWidget[index]->initialized())
         obsWidget[index]->readLog(kvs);
-      }
       // save until ascii dialog activated, or until writeLog
       savelog[index] = kvs;
-
     }
-
-    n++;
   }
 }
-
 
 std::string ObsDialog::getShortname()
 {
