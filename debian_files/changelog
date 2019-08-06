@@ -1,3 +1,15 @@
+diana-3.52 (3.52.0~rc1-1) unstable; urgency=low
+
+  * do not restore last product in ObsDialog
+  * replace query parameters in ObsReaderMetnoUrl
+  * ObsAscii performance improvements
+  * unified handling of plot types FIELD, OBS, SAT, ...
+  * do not immediately change existing plots when clicking "auto" in SatDialog
+  * refoffset+refhour in field difference plot
+  * reduce filechanged checks for FIELD
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 06 Aug 2019 08:00:08 +0200
+
 diana-3.50 (3.51.0-1) unstable; urgency=low
 
   * Bugfix ObsBufr - TIME SIGNIFICANCE
