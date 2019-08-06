@@ -119,7 +119,7 @@ bool FunctionData::setArguments(const string_v& arguments, const InventoryBase_c
     arg_idx += 1;
     if (arg_idx == 1 and (function() == vcf_convert_unit or function() == vcf_impose_unit)) {
       if (badArgs or nargument() == 0) {
-        METLIBS_LOG_INFO("cannot change unit of unknown argument");
+        METLIBS_LOG_DEBUG("cannot change unit of missing variable");
         badArgs = true;
       } else if (a.empty()) {
         METLIBS_LOG_INFO("cannot change to empty unit");

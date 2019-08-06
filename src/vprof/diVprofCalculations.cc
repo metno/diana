@@ -108,21 +108,21 @@ VprofGraphData_cp ducting(VprofGraphData_cp tt, VprofGraphData_cp td)
   METLIBS_LOG_SCOPE();
 
   if (!tt) {
-    METLIBS_LOG_INFO("missing tt");
+    METLIBS_LOG_DEBUG("missing tt");
     return VprofGraphData_cp();
   }
   if (!td) {
-    METLIBS_LOG_INFO("missing td");
+    METLIBS_LOG_DEBUG("missing td");
     return VprofGraphData_cp();
   }
   if (!check_same_z(tt, td)) {
-    METLIBS_LOG_INFO("z mismatch tt - td");
+    METLIBS_LOG_DEBUG("z mismatch tt - td");
     return VprofGraphData_cp();
   }
 
   // if (!vcross::util::unitsConvertible(tt->zUnit(), "hPa"))
   if (tt->zUnit() != "hPa") { // FIXME
-    METLIBS_LOG_INFO("bad tt z unit '" << tt->zUnit() << "'");
+    METLIBS_LOG_DEBUG("bad tt z unit '" << tt->zUnit() << "'");
     return VprofGraphData_cp();
   }
 
@@ -281,21 +281,21 @@ float kindex(VprofGraphData_cp tt, VprofGraphData_cp td)
   // K-index = (t+td)850 - (t-td)700 - (t)500
 
   if (!all_valid(tt)) {
-    METLIBS_LOG_INFO("invalid tt");
+    METLIBS_LOG_DEBUG("invalid tt");
     return vprof::UNDEF;
   }
   if (!all_valid(td)) {
-    METLIBS_LOG_INFO("invalid td");
+    METLIBS_LOG_DEBUG("invalid td");
     return vprof::UNDEF;
   }
   if (!check_same_z(tt, td)) {
-    METLIBS_LOG_INFO("z mismatch tt - td");
+    METLIBS_LOG_DEBUG("z mismatch tt - td");
     return vprof::UNDEF;
   }
 
   // if (!vcross::util::unitsConvertible(tt->zUnit(), "hPa"))
   if (tt->zUnit() != "hPa") { // FIXME
-    METLIBS_LOG_INFO("bad tt z unit '" << tt->zUnit() << "'");
+    METLIBS_LOG_DEBUG("bad tt z unit '" << tt->zUnit() << "'");
     return vprof::UNDEF;
   }
 

@@ -728,6 +728,7 @@ Values_p FimexReftimeSource::getSlicedValues(CDMReader_p reader, CoordinateSyste
 bool FimexReftimeSource::makeReader()
 {
   METLIBS_LOG_SCOPE(LOGVAL(mFileName) << LOGVAL(mFileType) << LOGVAL(mFileConfig));
+  METLIBS_LOG_INFO(LOGVAL(mFileName));
   try {
     mReader = CDMFileReaderFactory::create(mFileType, mFileName, mFileConfig);
     return true;
