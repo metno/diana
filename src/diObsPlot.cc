@@ -2003,7 +2003,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
 
   //Weather - WW
   float VVxpos = xytab(lpos + 14).x() + 22;
-  if (pFlag.count("ww") && (f_p = dta.get_float("ww"))) {
+  if (pFlag.count("ww") && (f_p = dta.get_float("ww")) && ttt_p) {
     checkColourCriteria(gl, "ww", *f_p);
     const QPointF wwxy = xytab(lpos + 12);
     VVxpos = wwxy.x() - 20;
