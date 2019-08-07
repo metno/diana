@@ -444,7 +444,7 @@ std::string SatDialog::pictureString(SatPlotCommand_cp cmd, bool timefile)
   if (cmd->mosaic)
     str += " MOSAIC ";
   str += " " + cmd->subtype_name() + " " + cmd->plotChannels + " ";
-  if (timefile && cmd->hasFileName())
+  if (timefile && cmd->hasFileTime())
     str += cmd->filetime.isoTime();
   return str;
 }
@@ -894,7 +894,7 @@ void SatDialog::emitSatTimes(bool update)
       //get times to send to timeslider
       for (const auto& f : sdd_->getSatFiles(cmd->sist, update))
         times.insert(f.time);
-    } else {
+    } else if (cmd->hasFileTime()) {
       times.insert(cmd->filetime);
     }
   }
