@@ -1,3 +1,10 @@
+diana-3.52 (3.52.0~rc2-1) unstable; urgency=low
+
+  * bugfix SatDialog: no undef time for missing file
+  * bugfix OBS synop plot
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Wed, 07 Aug 2019 08:00:08 +0200
+
 diana-3.52 (3.52.0~rc1-1) unstable; urgency=low
 
   * do not restore last product in ObsDialog
