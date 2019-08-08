@@ -30,6 +30,7 @@
 #ifndef MISC_UTIL_H
 #define MISC_UTIL_H
 
+#include <memory>
 #include <set>
 #include <vector>
 
@@ -151,6 +152,17 @@ cast_adaptor_const<T, C, dynamic_caster<T, typename C::value_type>> dynamic_cont
 {
   return cast_adaptor_const<T, C, dynamic_caster<T, typename C::value_type>>(container);
 }
+
+template <class T>
+inline T* copy_array(const T* array, size_t size)
+{
+  if (!array)
+    return nullptr;
+  std::unique_ptr<T[]> copy(new T[size]);
+  std::copy(array, array + size, copy.get());
+  return copy.release();
+}
+
 } // namespace diutil
 
 #endif // MISC_UTIL_H

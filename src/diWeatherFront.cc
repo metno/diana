@@ -27,16 +27,17 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "diana_config.h"
-
 #include "diWeatherFront.h"
 
 #include "diGLPainter.h"
 #include "diGlUtilities.h"
 #include "diStaticPlot.h"
+#include "util/misc_util.h"
+
 #include <mi_fieldcalc/math_util.h>
 
 #include <puTools/miStringFunctions.h>
+
 #include <sstream>
 
 #define MILOGGER_CATEGORY "diana.WeatherFront"
@@ -97,25 +98,40 @@ WeatherFront::WeatherFront(const std::string& tystring)
     METLIBS_LOG_ERROR("type '" << tystring << "' not found!");
 }
 
-WeatherFront::WeatherFront(const WeatherFront &rhs)
-  : ObjectPlot(rhs)
+WeatherFront::WeatherFront(const WeatherFront& o)
+    : ObjectPlot(o)
+    , linewidth(o.linewidth)
+    , scaledlinewidth(o.scaledlinewidth)
+    , npoints(o.npoints)
+    , xplot(diutil::copy_array(o.xplot.get(), npoints))
+    , yplot(diutil::copy_array(o.yplot.get(), npoints))
 {
   METLIBS_LOG_SCOPE();
-  linewidth=rhs.linewidth;    // default linewidth of front
-  rubber = false; //draw rubber ?
-  s_length = rhs.s_length;
-  x_s = new float[s_length];
-  y_s = new float[s_length];
-  for (int i = 0;i<s_length;i++){
-    x_s[i] = rhs.x_s[i];
-    y_s[i] = rhs.y_s[i];
-  }
 }
 
 WeatherFront::~WeatherFront()
 {
 }
 
+WeatherFront& WeatherFront::operator=(WeatherFront rhs)
+{
+  using std::swap;
+  swap(*this, rhs);
+  return *this;
+}
+
+void WeatherFront::swap(WeatherFront& o)
+{
+  ObjectPlot::swap(o);
+
+  using std::swap;
+  swap(linewidth, o.linewidth);
+  swap(scaledlinewidth, o.scaledlinewidth);
+  swap(npoints, o.npoints);
+  swap(xplot, o.xplot);
+  swap(yplot, o.yplot);
+  swap(first, o.first);
+}
 
 void WeatherFront::defineFronts(vector<editToolInfo> fronts)
 {
@@ -1131,9 +1147,8 @@ void WeatherFront::drawSigweather(DiGLPainter* gl)
     x_s[i]=xplot[i];
     y_s[i]=yplot[i];
   }
-  delete[] xplot;
-  delete[] yplot;
-  xplot = yplot = 0;
+  xplot.reset(nullptr);
+  yplot.reset(nullptr);
   //smooth once more for better fit...
   first=false;
   if (!smooth())
@@ -1149,9 +1164,8 @@ void WeatherFront::drawSigweather(DiGLPainter* gl)
     const QPointF xxyy(xplot[i]+deltax/2, yplot[i]+deltay/2);
     drawHalfCircle(gl, false, xxyy, atan2(deltay,deltax)*RAD_TO_DEG, hyp / 2);
   }
-  delete[] xplot;
-  delete[] yplot;
-  xplot = yplot = 0;
+  xplot.reset(nullptr);
+  yplot.reset(nullptr);
   recalculate();
 }
 
@@ -1177,8 +1191,8 @@ bool WeatherFront::smooth()
   } else
     nplot = npoints;
   radius = totalLength / (nplot - 1);
-  xplot = new float[nplot];
-  yplot = new float[nplot];
+  xplot.reset(new float[nplot]);
+  yplot.reset(new float[nplot]);
   xplot[0] = x_s[0];
   yplot[0] = y_s[0];
   int j, i_s = 0;//index of x_s,y_s

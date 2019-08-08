@@ -49,8 +49,6 @@ class StaticPlot;
 class Plot {
 public:
   Plot();
-  Plot(const Plot&) = delete;
-  Plot& operator=(const Plot&) = delete;
   virtual ~Plot();
 
   bool operator==(const Plot &rhs) const;

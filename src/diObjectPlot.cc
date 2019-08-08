@@ -33,6 +33,7 @@
 
 #include "diGLPainter.h"
 #include "diStaticPlot.h"
+#include "util/misc_util.h"
 
 #include <mi_fieldcalc/math_util.h>
 
@@ -51,35 +52,9 @@ using namespace std;
 const int DIV_SPLINE = 5;
 
 // static
-int ObjectPlot::siglinewidth=2;
+const int ObjectPlot::siglinewidth = 2;
 // static
 map <std::string,std::string> ObjectPlot::editTranslations;
-
-ObjectPlot::ObjectPlot(int objTy)
-  : typeOfObject(objTy)
-{
-  METLIBS_LOG_SCOPE();
-  initVariables();
-}
-
-ObjectPlot::ObjectPlot(const ObjectPlot &rhs)
-{
-  METLIBS_LOG_SCOPE();
-  memberCopy(rhs);
-}
-
-ObjectPlot& ObjectPlot::operator=(const ObjectPlot &rhs)
-{
-  METLIBS_LOG_SCOPE();
-  if (this != &rhs) {
-    delete[] x;
-    delete[] y;
-    delete[] x_s;
-    delete[] y_s;
-    memberCopy(rhs);
-  }
-  return *this;
-}
 
 ObjectPlot::~ObjectPlot()
 {
@@ -90,90 +65,116 @@ ObjectPlot::~ObjectPlot()
   delete[] y_s;
 }
 
-void ObjectPlot::initVariables()
-{
-  isVisible=  true;
-  isSelected=  false;
-  spline=true;
-  rotation=   0.0f;
-  basisColor= "black";
-  objectColour=Colour("black");
-
-  currentState = active;  // points can be added
-  addTop=false; //add elements to top instead of bottom
-  stayMarked=false;
-  joinedMarked=false;
-  inBoundBox=false;
-
-  boundBox.x1= +INT_MAX;
-  boundBox.x2= -INT_MAX;
-  boundBox.y1= +INT_MAX;
-  boundBox.y2= -INT_MAX;
-
-  w=10.0f;
-  h=10.0f;
-  window_dw=1;
-  window_dh=1;
-  setWindowInfo();
-
-  //sensitivity to mark rectangle
-  fSense= 2.5;
-  nodePoints.clear();
-
-  // Spline curve variables
-  s_length = 0;
-  x = NULL;
-  y = NULL;
-  x_s = NULL;
-  y_s = NULL;
-
-  rubber = false;
-
-  region ="NONE";
-  scaleToField= 1.0;
-}
-
-
-void ObjectPlot::memberCopy(const ObjectPlot &rhs)
+ObjectPlot::ObjectPlot(int objTy)
+    : addTop(false) // add elements to top instead of bottom
+    , window_dw(1)
+    , window_dh(1)
+    , w(10.0f)
+    , h(10.0f)
+    , basisColor("black")
+    , region("NONE")
+    , rubber(false)
+    , spline(true)
+    , inBoundBox(false)
+    , typeOfObject(objTy)
+    , stayMarked(false)
+    , joinedMarked(false)
+    , isVisible(true)
+    , isSelected(false)
+    , rotation(0.0f)
+    , objectColour(Colour("black"))
+    , currentState(active) // points can be added
+    , fSense(2.5)          // sensitivity to mark rectangle
+    , boundBox(+INT_MAX, +INT_MAX, -INT_MAX, -INT_MAX)
+    , x(nullptr)
+    , y(nullptr)
+    , x_s(nullptr)
+    , y_s(nullptr)
+    , s_length(0)
+    , scaleToField(1.0)
 {
   METLIBS_LOG_SCOPE();
-  s_length = 0;
-  x = NULL;
-  y = NULL;
-  x_s = NULL;
-  y_s = NULL;
-
-  isVisible= rhs.isVisible;
-  isSelected= rhs.isSelected;
-  spline=rhs.spline;
-  rubber=false;
-  rubberx=rhs.rubberx;
-  rubbery=rhs.rubbery;
-  rotation= rhs.rotation;
-  basisColor = rhs.basisColor;
-  objectColour = rhs.objectColour;
-  objectBorderColour = rhs.objectBorderColour;
-  itsLinetype = rhs.itsLinetype;
-  drawIndex = rhs.drawIndex;
-  currentState = rhs.currentState;
-  addTop = rhs.addTop;
-  boundBox = rhs.boundBox;
-  w = rhs.w;
-  h = rhs.h;
-  window_dw = rhs.window_dw;
-  window_dh = rhs.window_dh;
-  fSense = rhs.fSense;
-  nodePoints=rhs.nodePoints;
-  stayMarked = false;
-  joinedMarked=false;
-  inBoundBox=false;
-  type = rhs.type;
-  typeOfObject = rhs.typeOfObject;
-  scaleToField= rhs.scaleToField;
-  region = rhs.region;
-  // more is to be added here
+  setWindowInfo();
 }
 
+void ObjectPlot::swap(ObjectPlot& o)
+{
+  using std::swap;
+  PlotOptionsPlot::swap(o);
+
+  swap(addTop, o.addTop);
+  swap(window_dw, o.window_dw);
+  swap(window_dh, o.window_dh);
+  swap(w, o.w);
+  swap(h, o.h);
+  swap(basisColor, o.basisColor);
+  swap(region, o.region);
+  swap(rubber, o.rubber);
+  swap(spline, o.spline);
+  swap(inBoundBox, o.inBoundBox);
+  swap(typeOfObject, o.typeOfObject);
+  swap(stayMarked, o.stayMarked);
+  swap(joinedMarked, o.joinedMarked);
+  swap(isVisible, o.isVisible);
+  swap(isSelected, o.isSelected);
+  swap(rotation, o.rotation);
+  swap(objectColour, o.objectColour);
+  swap(currentState, o.currentState);
+  swap(fSense, o.fSense);
+  swap(boundBox, o.boundBox);
+  swap(x, o.x);
+  swap(y, o.y);
+  swap(x_s, o.x_s);
+  swap(y_s, o.y_s);
+  swap(s_length, o.s_length);
+  swap(scaleToField, o.scaleToField);
+
+  swap(rubberx, o.rubberx);
+  swap(rubbery, o.rubbery);
+  swap(objectBorderColour, o.objectBorderColour);
+  swap(itsLinetype, o.itsLinetype);
+  swap(drawIndex, o.drawIndex);
+  swap(nodePoints, o.nodePoints);
+  swap(type, o.type);
+}
+
+ObjectPlot::ObjectPlot(const ObjectPlot& rhs)
+    : addTop(rhs.addTop)
+    , window_dw(rhs.window_dw)
+    , window_dh(rhs.window_dh)
+    , w(rhs.w)
+    , h(rhs.h)
+    , basisColor(rhs.basisColor)
+    , region(rhs.region)
+    , rubber(rhs.rubber)
+    , spline(rhs.spline)
+    , rubberx(rhs.rubberx)
+    , rubbery(rhs.rubbery)
+    , inBoundBox(rhs.inBoundBox)
+    , type(rhs.type)
+    , typeOfObject(rhs.typeOfObject)
+    , drawIndex(rhs.drawIndex)
+    , stayMarked(rhs.stayMarked)
+    , joinedMarked(rhs.joinedMarked)
+    , isVisible(rhs.isVisible)
+    , isSelected(rhs.isSelected)
+    , rotation(rhs.rotation)
+    , objectColour(rhs.objectColour)
+    , objectBorderColour(rhs.objectBorderColour)
+    , itsLinetype(rhs.itsLinetype)
+    , currentState(rhs.currentState)
+    , fSense(rhs.fSense)
+    , boundBox(rhs.boundBox)
+    , nodePoints(rhs.nodePoints)
+    , x(diutil::copy_array(rhs.x, nodePoints.size()))
+    , y(diutil::copy_array(rhs.y, nodePoints.size()))
+    , x_s(diutil::copy_array(rhs.x_s, rhs.s_length))
+    , y_s(diutil::copy_array(rhs.y_s, rhs.s_length))
+    , s_length(rhs.s_length)
+    , scaleToField(rhs.scaleToField)
+{
+  METLIBS_LOG_SCOPE();
+}
 
 void ObjectPlot::defineTranslations(){
   //set map to translate from norwegian object names (used in old files)

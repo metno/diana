@@ -49,6 +49,8 @@ public:
   /// return the current PlotOptions
   const PlotOptions& getPlotOptions() const { return poptions; }
 
+  void swap(PlotOptionsPlot& b);
+
 protected:
   PlotOptions poptions;
   miutil::KeyValue_v ooptions;

@@ -34,6 +34,8 @@
 #include "diStaticPlot.h"
 #include "diWeatherArea.h"
 #include "polyStipMasks.h"
+#include "util/misc_util.h"
+
 #include <mi_fieldcalc/math_util.h>
 
 #include <puTools/miStringFunctions.h>
@@ -52,24 +54,27 @@ vector<editToolInfo> WeatherArea::allAreas; //info about areas
 map<std::string, int> WeatherArea::areaTypes; //finds area type number from name
 float WeatherArea::defaultLineWidth = 4;
 
-WeatherArea::WeatherArea() :
-  ObjectPlot(wArea), linewidth(defaultLineWidth), fillArea(false), itsFilltype(NULL)
+WeatherArea::WeatherArea()
+    : WeatherArea(0)
 {
-  METLIBS_LOG_SCOPE();
-
-  setType(0);
 }
 
-WeatherArea::WeatherArea(int ty) :
-  ObjectPlot(wArea), linewidth(defaultLineWidth), fillArea(false), itsFilltype(NULL)
+WeatherArea::WeatherArea(int ty)
+    : ObjectPlot(wArea)
+    , linewidth(defaultLineWidth)
+    , fillArea(false)
+    , itsFilltype(nullptr)
+    , xplot(nullptr)
+    , yplot(nullptr)
+    , npoints(0)
+    , first(true)
 {
   METLIBS_LOG_SCOPE();
-
   setType(ty);
 }
 
-WeatherArea::WeatherArea(std::string tystring) :
-  ObjectPlot(wArea), linewidth(defaultLineWidth), fillArea(false), itsFilltype(NULL)
+WeatherArea::WeatherArea(const std::string& tystring)
+    : WeatherArea(0) // bad, area type will be set twice
 {
   METLIBS_LOG_SCOPE();
 
@@ -80,6 +85,39 @@ WeatherArea::WeatherArea(std::string tystring) :
 
 WeatherArea::~WeatherArea()
 {
+}
+
+WeatherArea::WeatherArea(const WeatherArea& rhs)
+    : ObjectPlot(rhs)
+    , linewidth(rhs.linewidth)
+    , fillArea(rhs.fillArea)
+    , itsFilltype(rhs.itsFilltype)
+    , xplot(diutil::copy_array(rhs.xplot.get(), rhs.npoints))
+    , yplot(diutil::copy_array(rhs.yplot.get(), rhs.npoints))
+    , npoints(rhs.npoints)
+    , first(rhs.first) // sigweather drawing
+{
+}
+
+WeatherArea& WeatherArea::operator=(WeatherArea rhs)
+{
+  swap(rhs);
+  return *this;
+}
+
+void WeatherArea::swap(WeatherArea& rhs)
+{
+  ObjectPlot::swap(rhs);
+
+  using std::swap;
+  swap(linewidth, rhs.linewidth);
+  swap(fillArea, rhs.fillArea);
+  swap(itsFilltype, rhs.itsFilltype);
+  swap(npoints, rhs.npoints);
+  swap(first, rhs.first);
+
+  swap(xplot, rhs.xplot);
+  swap(yplot, rhs.yplot);
 }
 
 void WeatherArea::defineAreas(vector<editToolInfo> areas)
@@ -180,7 +218,7 @@ void WeatherArea::setState(const state s)
   currentState = s;
 }
 
-void WeatherArea::plot(DiGLPainter* gl, PlotOrder zorder)
+void WeatherArea::plot(DiGLPainter* gl, PlotOrder /*zorder*/)
 {
   if (!isEnabled())
     return;
@@ -330,23 +368,25 @@ void WeatherArea::setType(int ty)
     type = allAreas.size() - 1;
   else
     return;
-  setIndex(allAreas[type].index);
-  setBasisColor(allAreas[type].colour);
-  setObjectBorderColor(allAreas[type].borderColour);
-  setSpline(allAreas[type].spline);
-  setLineType(allAreas[type].linetype);
-  setLineWidth(defaultLineWidth + allAreas[type].sizeIncrement);
-  setFillArea(allAreas[type].filltype);
 
+  const editToolInfo& eti = allAreas[type];
+  setIndex(eti.index);
+  setBasisColor(eti.colour);
+  setObjectBorderColor(eti.borderColour);
+  setSpline(eti.spline);
+  setLineType(eti.linetype);
+  setLineWidth(defaultLineWidth + eti.sizeIncrement);
+  setFillArea(eti.filltype);
 }
 
 bool WeatherArea::setType(const std::string& tystring)
 {
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("WeatherArea::setType(std::string)=" << tystring);
+  METLIBS_LOG_SCOPE(LOGVAL(tystring));
 #endif
-  if (areaTypes.find(tystring) != areaTypes.end()) {
-    type = areaTypes[tystring];
+  const auto it = areaTypes.find(tystring);
+  if (it != areaTypes.end()) {
+    type = it->second;
     setType(type);
     return true;
   }
@@ -394,7 +434,6 @@ void WeatherArea::setSelected(bool s)
   isSelected = s;
   fillArea = s;
   itsFilltype = NULL;
-
 }
 
 
@@ -480,11 +519,8 @@ void WeatherArea::drawSigweather(DiGLPainter* gl)
     x_s[i] = xplot[i];
     y_s[i] = yplot[i];
   }
-  if (xplot != 0)
-    delete[] xplot;
-  if (yplot != 0)
-    delete[] yplot;
-  xplot = yplot = 0;
+  xplot.reset(nullptr);
+  yplot.reset(nullptr);
   //smooth once more for better fit...
   first = false;
   if (!smooth())
@@ -517,11 +553,8 @@ void WeatherArea::drawSigweather(DiGLPainter* gl)
       gl->Vertex2f(xflag[j], yflag[j]);
     gl->End();
   }
-  if (xplot != 0)
-    delete[] xplot;
-  if (yplot != 0)
-    delete[] yplot;
-  xplot = yplot = 0;
+  xplot.reset(nullptr);
+  yplot.reset(nullptr);
   recalculate();
 }
 
@@ -545,8 +578,8 @@ bool WeatherArea::smooth()
   } else
     nplot = npoints;
   radius = totalLength / (nplot - 1);
-  xplot = new float[nplot];
-  yplot = new float[nplot];
+  xplot.reset(new float[nplot]);
+  yplot.reset(new float[nplot]);
   xplot[0] = x_s[0];
   yplot[0] = y_s[0];
   int j, i_s = 0;//index of x_s,y_s
@@ -605,4 +638,3 @@ void WeatherArea::flip()
     nodePoints[end - 1 - j].ry() = y;
   }
 }
-

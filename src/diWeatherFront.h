@@ -45,8 +45,8 @@ private:
   static std::vector<editToolInfo>  allFronts;
   static std::map<std::string,int> frontTypes;  //finds front type number from name
   int npoints;
-  float * xplot;
-  float * yplot;
+  std::unique_ptr<float[]> xplot;
+  std::unique_ptr<float[]> yplot;
   bool first;
 
   void drawColds(DiGLPainter* gl);         // draws the blue triangles
@@ -66,8 +66,6 @@ private:
 
 public:
   WeatherFront();
-  WeatherFront(const WeatherFront &rhs);
-  WeatherFront& operator=(const WeatherFront &rhs);
 
   /// constructor with integer front type as argument
   WeatherFront(int ty);
@@ -76,6 +74,10 @@ public:
   WeatherFront(const std::string& tystring);
 
   ~WeatherFront();
+
+  WeatherFront(const WeatherFront& rhs);
+  WeatherFront& operator=(WeatherFront rhs);
+  void swap(WeatherFront& o);
 
   /// define map to find front type number from name
   static void defineFronts(std::vector<editToolInfo> fronts);
@@ -111,4 +113,8 @@ public:
   float  getDistY(){return distY;}
 };
 
+inline void swap(WeatherFront& a, WeatherFront& b)
+{
+  a.swap(b);
+}
 #endif

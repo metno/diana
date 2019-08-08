@@ -62,7 +62,6 @@ set <std::string> WeatherSymbol::textlist; //texts used in combobox
 
 WeatherSymbol::WeatherSymbol()
   : ObjectPlot(wSymbol)
-  , complexSymbol(0)
 {
   METLIBS_LOG_SCOPE();
 
@@ -75,7 +74,6 @@ WeatherSymbol::WeatherSymbol()
 
 WeatherSymbol::WeatherSymbol(int ty)
   : ObjectPlot(wSymbol)
-  , complexSymbol(0)
 {
   METLIBS_LOG_SCOPE();
   setType(ty);
@@ -84,7 +82,6 @@ WeatherSymbol::WeatherSymbol(int ty)
 WeatherSymbol::WeatherSymbol(const string& tystring, int objTy)
     : ObjectPlot(objTy)
     , symbolSize(defaultSize)
-    , complexSymbol(0)
 {
   METLIBS_LOG_SCOPE();
   if (tystring.empty())
@@ -93,10 +90,34 @@ WeatherSymbol::WeatherSymbol(const string& tystring, int objTy)
     METLIBS_LOG_ERROR("WeatherSymbol constructor error, type " << tystring << " not found !!!");
 }
 
+WeatherSymbol::WeatherSymbol(const WeatherSymbol& other)
+    : ObjectPlot(other)
+    , symbolSize(other.symbolSize)
+    , symbolString(other.symbolString)
+    , complexSymbol(other.complexSymbol ? new ComplexSymbolPlot(*other.complexSymbol) : nullptr)
+{
+}
+
+WeatherSymbol& WeatherSymbol::operator=(WeatherSymbol other)
+{
+  using std::swap;
+  swap(*this, other);
+  return *this;
+}
+
+void WeatherSymbol::swap(WeatherSymbol& o)
+{
+  ObjectPlot::swap(o);
+
+  using std::swap;
+  swap(symbolSize, o.symbolSize);
+  swap(symbolString, o.symbolString);
+  swap(complexSymbol, o.complexSymbol);
+}
+
 WeatherSymbol::~WeatherSymbol()
 {
   METLIBS_LOG_SCOPE();
-  delete complexSymbol;
 }
 
 
@@ -262,7 +283,7 @@ void WeatherSymbol::addPoint( float x , float y)
   }
 }
 
-void WeatherSymbol::plot(DiGLPainter* gl, PlotOrder zorder)
+void WeatherSymbol::plot(DiGLPainter* gl, PlotOrder /*zorder*/)
 {
   METLIBS_LOG_SCOPE(LOGVAL(drawIndex));
 
@@ -355,6 +376,7 @@ void WeatherSymbol::setSymbolSize(float si)
 
 void WeatherSymbol::increaseSize(float val)
 {
+  METLIBS_LOG_SCOPE(LOGVAL(val) << LOGVAL(symbolSize) << LOGVAL(drawIndex));
   if(symbolSize<2.0)
     val/=10.;
   setSymbolSize(symbolSize+val);
@@ -410,7 +432,7 @@ void WeatherSymbol::setType(int ty)
       setSymbolSize(defaultComplexSize);
 
     if ((drawIndex == 900 || drawIndex>=1000) && complexSymbol==0) {
-      complexSymbol= new ComplexSymbolPlot(drawIndex);
+      complexSymbol.reset(new ComplexSymbolPlot(drawIndex));
       complexSymbol->setBorderColour(allSymbols[type].borderColour);
       setSymbolSize(defaultComplexSize + allSymbols[type].sizeIncrement);
       if (drawIndex == 900)

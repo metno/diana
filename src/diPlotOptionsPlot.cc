@@ -41,3 +41,10 @@ void PlotOptionsPlot::setPlotInfo(const miutil::KeyValue_v& kvs)
   PlotOptions::parsePlotOption(kvs, poptions, ooptions);
   setEnabled(poptions.enabled);
 }
+
+void PlotOptionsPlot::swap(PlotOptionsPlot& o)
+{
+  using std::swap;
+  swap(poptions, o.poptions);
+  swap(ooptions, o.ooptions);
+}

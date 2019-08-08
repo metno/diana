@@ -98,8 +98,6 @@ private:
   void  setRotation(float r){rotation=r;}
   std::string region; //from which region (i.e. VA,VV,VNN)
 
-  void memberCopy(const ObjectPlot &rhs);
-
 protected:
   bool rubber;
   bool spline;                    // draw spline
@@ -108,7 +106,7 @@ protected:
   int type;
   int typeOfObject;
   int drawIndex;
-  static int siglinewidth;
+  static const int siglinewidth;
   bool stayMarked;    // object stays marked if cursor is moved
   bool joinedMarked;  // object is joined and marked
   bool markedChanged; // markers changed in editCheckPosition
@@ -148,13 +146,15 @@ protected:
   virtual bool setType(const std::string&) { return false; }
   virtual void setIndex(int index){drawIndex=index;}
 
+protected:
+  void swap(ObjectPlot& b);
+
 public:
   /// constructor taking type of object as argument
   ObjectPlot(int objTy);
   ~ObjectPlot();
 
   ObjectPlot(const ObjectPlot& rhs);
-  ObjectPlot& operator=(const ObjectPlot &rhs);
 
   /// returns true if typeOfObject equals Obtype
   bool objectIs(int Obtype) const { return (typeOfObject == Obtype); }
@@ -293,7 +293,7 @@ public:
   virtual bool visible(){return isVisible;}                  ///< returns true if object visible
   virtual bool selected(){return isSelected;}                ///< returns true if object selected
   virtual bool isInsideArea(float /*x*/, float /*y*/){return true;}
-  std::string getName(){return name;}                           ///< returns object name
+  const std::string& getName() { return name; }                 ///< returns object name
   void setName(std::string n){name=n;}                          ///< sets object name
 };
 

@@ -55,8 +55,8 @@ private:
   void drawSigweather(DiGLPainter* gl);
   bool smooth();
 
-  float * xplot;
-  float * yplot;
+  std::unique_ptr<float[]> xplot;
+  std::unique_ptr<float[]> yplot;
   int npoints;
   bool first; //sigweather drawing
   float getLineWidth(){return linewidth;}
@@ -69,9 +69,14 @@ public:
   /// constructor with integer area type as argument
   WeatherArea(int ty);
   /// constructor with name of area type as argument
-  WeatherArea(std::string tystring);
+  WeatherArea(const std::string& tystring);
 
   ~WeatherArea();
+
+  WeatherArea(const WeatherArea& rhs);
+  WeatherArea& operator=(WeatherArea rhs);
+  void swap(WeatherArea& o);
+
   /// define map to find area type number from name
   static void defineAreas(std::vector<editToolInfo> areas);
   /// set default line width from setup

@@ -47,7 +47,7 @@ class WeatherSymbol: public ObjectPlot
 private:
   float symbolSize;
   std::string symbolString;
-  ComplexSymbolPlot * complexSymbol;
+  std::unique_ptr<ComplexSymbolPlot> complexSymbol;
 
   static std::vector<editToolInfo>  allSymbols;
   static std::vector<editToolInfo> allRegions;
@@ -69,6 +69,10 @@ public:
   /// constructor with symbol name and type of object as argument
   WeatherSymbol(const std::string& tystring, int objTy);
   ~WeatherSymbol();
+
+  WeatherSymbol(const WeatherSymbol& rhs);
+  WeatherSymbol& operator=(WeatherSymbol rhs);
+  void swap(WeatherSymbol& o);
 
   /// define map to find symbol type number from name
   static void defineSymbols(std::vector<editToolInfo> symbols);
@@ -156,7 +160,11 @@ public:
   /// change text to be drawn
   void changeComplexText(const std::vector<std::string>& symbolText, const std::vector<std::string>& xText);
   void changeMultilineText(const std::vector<std::string>& symbolText);
-
 };
+
+inline void swap(WeatherSymbol& a, WeatherSymbol& b)
+{
+  a.swap(b);
+}
 
 #endif
