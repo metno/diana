@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,59 +27,38 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "diana_config.h"
-
 #include <diUndoFront.h>
 #include <diWeatherFront.h>
 #include <diWeatherSymbol.h>
 #include <diWeatherArea.h>
 
-UndoFront::UndoFront(){
-  //  cerr << "undo front constructor " << endl;
-  Last = NULL;
-  Next = NULL;
+UndoFront::UndoFront()
+    : Last(nullptr)
+    , Next(nullptr)
+{
 }
 
-UndoFront::~UndoFront(){
-  //  cerr << "undo front destructor " << endl;
-  int i,n;
-
-  n= saveobjects.size();
-  for (i = 0;i<n;i++)
-    delete saveobjects[i].object;
-  saveobjects.clear();
-
+UndoFront::~UndoFront()
+{
+  for (saveObject& so : saveobjects)
+    delete so.object;
 }
 
-
-void UndoFront::undoAdd(action todo,ObjectPlot * UndoObject, int place)
+void UndoFront::undoAdd(action todo, ObjectPlot* UndoObject, int place)
 {
   //add object to undo buffer
   saveObject so;
-  so.todo= todo;
-  if (UndoObject == 0) so.object = 0;
+  so.todo = todo;
+  if (!UndoObject)
+    so.object = 0;
   else if (UndoObject->objectIs(wFront))
     so.object = new WeatherFront(*((WeatherFront*)(UndoObject)));
   else if (UndoObject->objectIs(wSymbol))
     so.object = new WeatherSymbol(*((WeatherSymbol*)(UndoObject)));
   else if (UndoObject->objectIs(wArea))
     so.object = new WeatherArea(*((WeatherArea*)(UndoObject)));
+  else
+    so.object = 0;
   so.place = place;
   saveobjects.push_back(so);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

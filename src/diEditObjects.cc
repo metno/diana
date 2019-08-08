@@ -687,11 +687,10 @@ bool EditObjects::editCheckPosition(const float x, const float y)
 bool EditObjects::editIncreaseSize(float val)
 {
   bool doCombine=false;
-  int edsize = objects.size();
-  for (int i = 0; i< edsize;i++){
-    if (objects[i]->ismarkAllPoints()){
-      objects[i]->increaseSize(val);
-      if (objects[i]->objectIs(Border))
+  for (ObjectPlot* op : objects) {
+    if (op->ismarkAllPoints()) {
+      op->increaseSize(val);
+      if (op->objectIs(Border))
         doCombine= true;
     }
   }
@@ -701,10 +700,9 @@ bool EditObjects::editIncreaseSize(float val)
 void EditObjects::editRotateObjects(float val)
 {
   //only rotates complex objects !!!
-  int edsize = objects.size();
-  for (int i = 0; i< edsize;i++){
-    if (objects[i]->isComplex() && objects[i]->ismarkAllPoints()){
-      objects[i]->rotateObject(val);
+  for (ObjectPlot* op : objects) {
+    if (op->isComplex() && op->ismarkAllPoints()) {
+      op->rotateObject(val);
     }
   }
 }
@@ -712,49 +710,41 @@ void EditObjects::editRotateObjects(float val)
 
 void EditObjects::editHideBox()
 {
-  int edsize = objects.size();
-  for (int i = 0; i< edsize;i++){
-    if (objects[i]->isComplex() && objects[i]->ismarkAllPoints()){
-      objects[i]->hideBox();
+  for (ObjectPlot* op : objects) {
+    if (op->isComplex() && op->ismarkAllPoints()) {
+      op->hideBox();
     }
   }
 }
 
 void EditObjects::editDefaultSize()
 {
-  int edsize = objects.size();
-  for (int i =0; i< edsize;i++){
-    if (objects[i]->ismarkAllPoints()){
-      objects[i]->setDefaultSize();
+  for (ObjectPlot* op : objects) {
+    if (op->ismarkAllPoints()) {
+      op->setDefaultSize();
     }
   }
 }
 
 void EditObjects::editDefaultSizeAll()
 {
-  int edsize = objects.size();
-  for (int i =0; i< edsize;i++){
-    objects[i]->setDefaultSize();
+  for (ObjectPlot* op : objects) {
+    op->setDefaultSize();
   }
 }
-
 
 void EditObjects::editHideAll()
 {
-  int edsize = objects.size();
-  for (int i =0; i< edsize;i++){
-    objects[i]->setVisible(false);
-    objects[i]->unmarkAllPoints();
+  for (ObjectPlot* op : objects) {
+    op->setVisible(false);
+    op->unmarkAllPoints();
   }
-
 }
-
 
 void EditObjects::editUnHideAll()
 {
-  int edsize = objects.size();
-  for (int i =0; i< edsize;i++){
-    objects[i]->setVisible(true);
+  for (ObjectPlot* op : objects) {
+    op->setVisible(true);
   }
 }
 
@@ -762,10 +752,9 @@ void EditObjects::editHideCombineObjects(std::string region)
 {
   METLIBS_LOG_SCOPE(LOGVAL(region));
 
-  int edsize = objects.size();
-  for (int i =0; i< edsize;i++){
-    if(objects[i]->getRegion() != region)
-      objects[i]->setVisible(false);
+  for (ObjectPlot* op : objects) {
+    if (op->getRegion() != region)
+      op->setVisible(false);
   }
 }
 
@@ -776,10 +765,9 @@ void EditObjects::editHideCombineObjects(int ir)
 
   std::string region = WeatherSymbol::getAllRegions(ir);
   if (!region.empty()){
-    int edsize = objects.size();
-    for (int i =0; i< edsize;i++){
-      if(objects[i]->getRegion() != region)
-        objects[i]->setVisible(false);
+    for (ObjectPlot* op : objects) {
+      if (op->getRegion() != region)
+        op->setVisible(false);
     }
   }
 }
@@ -808,9 +796,8 @@ void EditObjects::setAllPassive()
   METLIBS_LOG_SCOPE();
 
   //Sets current status of the objects to passive
-  int edsize=objects.size();
-  for (int i=0; i< edsize;i++){
-    objects[i]->setState(ObjectPlot::passive);
+  for (ObjectPlot* op : objects) {
+    op->setState(ObjectPlot::passive);
   }
   createobject= false;
   inDrawing=false;
@@ -861,12 +848,9 @@ void EditObjects::checkJoinPoints()
 void EditObjects::changeDefaultSize()
 {
   //set symbol default size to size of last read object !
-  vector <ObjectPlot*>::iterator p = objects.begin();
-  while (p!=objects.end()){
-    ObjectPlot * pobject = *p;
-    if (pobject->objectIs(wSymbol))
-      pobject->changeDefaultSize();
-    p++;
+  for (ObjectPlot* op : objects) {
+    if (op->objectIs(wSymbol))
+      op->changeDefaultSize();
   }
 }
 
@@ -1047,8 +1031,10 @@ bool EditObjects::saveCurrentFronts(operation iop, UndoFront * undo)
     break;
   case IncreaseSize:
     for (int i =0; i < edsize; i++) {
-      if (objects[i]->ismarkSomePoint()){
-        if (!objects[i]->objectIs(wSymbol)) continue;
+      ObjectPlot* op = objects[i];
+      if (op->ismarkSomePoint()) {
+        if (!op->objectIs(wSymbol))
+          continue;
         // now check if previous operation was IncreaseSize and the
         //same symbols were affected
         bool saveThis = true;
@@ -1062,9 +1048,9 @@ bool EditObjects::saveCurrentFronts(operation iop, UndoFront * undo)
             p2++;
           }
         }
-        ObjectPlot * pold = objects[i];
-        undo->undoAdd(Replace,pold,i);
-        if (saveThis) frontsChanged = true;
+        undo->undoAdd(Replace, op, i);
+        if (saveThis)
+          frontsChanged = true;
       }
     }
     break;
