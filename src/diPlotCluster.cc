@@ -154,12 +154,15 @@ bool PlotCluster::enablePlotElement(const PlotElement& pe)
 
 void PlotCluster::changeProjection(const Area& mapArea, const Rectangle& plotSize)
 {
+  mapArea_ = mapArea;
+  plotSize_ = plotSize;
   for (Plot* p : plots_)
     p->changeProjection(mapArea, plotSize);
 }
 
 void PlotCluster::changeTime(const miutil::miTime& mapTime)
 {
+  mapTime_ = mapTime;
   for (Plot* p : plots_)
     p->changeTime(mapTime);
 }
@@ -178,5 +181,7 @@ void PlotCluster::processInputPE(const PlotCommand_cpv&) {}
 void PlotCluster::add(Plot* plot)
 {
   plot->setCanvas(canvas_);
+  plot->changeTime(mapTime_);
+  plot->changeProjection(mapArea_, plotSize_);
   plots_.push_back(plot);
 }

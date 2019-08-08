@@ -31,6 +31,7 @@
 #define PLOTCLUSTER_H
 
 #include "diAnnotationPlot.h" // AnnotationPlot::Annotation
+#include "diArea.h"
 #include "diPlot.h"
 #include "diPlotCommand.h"
 #include "diPlotElement.h"
@@ -89,6 +90,10 @@ protected:
 private:
   const std::string& pck_;
   const std::string& pek_;
+
+  miutil::miTime mapTime_;
+  Area mapArea_;
+  Rectangle plotSize_;
 };
 
 #endif // PLOTCLUSTER_H
