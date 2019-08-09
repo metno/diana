@@ -1,3 +1,12 @@
+diana-3.52 (3.52.0~rc3-1) unstable; urgency=low
+
+  *  bugfix StationPlot icon
+  *  bugfix ObjectsPlotCommand
+  *  bugfix weather objects copy ctor
+  *  set time and projection in PlotCluster::add
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Fri, 09 Aug 2019 08:00:08 +0200
+
 diana-3.52 (3.52.0~rc2-1) unstable; urgency=low
 
   * bugfix SatDialog: no undef time for missing file
