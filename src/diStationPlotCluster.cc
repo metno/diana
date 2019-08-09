@@ -100,13 +100,9 @@ void StationPlotCluster::processInputPE(const PlotCommand_cpv& inp)
     }
 
     if (plot) {
-      if (c->select == "hidden") {
-        plot->hide();
-        stam_->initDialog().chosen[c->url] = false;
-      } else {
-        plot->show();
-        stam_->initDialog().chosen[c->url] = true;
-      }
+      const bool visible = (c->select != "hidden");
+      plot->setVisible(visible);
+      stam_->initDialog().chosen[c->url] = visible;
 
       if (c->select == "selected") {
         stam_->initDialog().selected = c->name;
@@ -129,7 +125,7 @@ void StationPlotCluster::putStations(StationPlot* stationPlot)
   if (p != plots_.end()) {
     StationPlot* old = static_cast<StationPlot*>(*p);
     if (!old->isVisible())
-      stationPlot->hide();
+      stationPlot->setVisible(false);
     stationPlot->setEnabled(old->isEnabled());
     delete old;
     *p = stationPlot;

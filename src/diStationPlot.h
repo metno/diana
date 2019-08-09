@@ -169,10 +169,6 @@ public:
   const std::string& getPlotName() const override;
   const std::string& getIconName() const override;
 
-  /// hide stations
-  void hide();
-  // show stations
-  void show();
   /// unselects all stations
   void unselect();
   /// returns true if stationplot visible

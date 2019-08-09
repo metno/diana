@@ -206,7 +206,7 @@ StationPlot::StationPlot(const string& commondesc, const string& common,
 
   defineCoordinates();
 
-  hide();
+  setVisible(false);
 }
 
 void StationPlot::init()
@@ -216,7 +216,7 @@ void StationPlot::init()
   stationAreas.push_back(area);
 
   //coordinates to be plotted
-  show();
+  setVisible(true);
   useImage = true;
   useStationNameNormal = false;
   useStationNameSelected = false;
@@ -419,25 +419,16 @@ std::string StationPlot::getEnabledStateKey() const
   return "stationplot-" + getName();
 }
 
-void StationPlot::hide()
+void StationPlot::setVisible(bool vis)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
 #endif
 
-  visible = false;
+  visible = vis;
   unselect();
-}
-
-void StationPlot::show()
-{
-#ifdef DEBUGPRINT
-  METLIBS_LOG_SCOPE();
-#endif
-
-  visible = true;
-  unselect();
-  switchProjection();
+  if (visible)
+    switchProjection();
 }
 
 void StationPlot::unselect()
@@ -450,14 +441,6 @@ void StationPlot::unselect()
 bool StationPlot::isVisible() const
 {
   return visible;
-}
-
-void StationPlot::setVisible(bool on)
-{
-  if (on)
-    show();
-  else
-    hide();
 }
 
 const std::string& StationPlot::getPlotName() const
@@ -987,9 +970,9 @@ bool StationPlot::stationCommand(const string& command,
 bool StationPlot::stationCommand(const string& command)
 {
   if (command == "show") {
-    show();
+    setVisible(true);
   } else if (command == "hide") {
-    hide();
+    setVisible(false);
   } else if (command == "unselect") {
     unselect();
   } else if (command == "showPositionName" ) {
