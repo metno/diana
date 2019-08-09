@@ -87,3 +87,9 @@ const std::string& Plot::getPlotName() const
 {
   return plotname;
 }
+
+const std::string& Plot::getIconName() const
+{
+  static const std::string EMPTY;
+  return EMPTY;
+}

@@ -82,6 +82,9 @@ public:
   /// return name of this plot object
   virtual const std::string& getPlotName() const;
 
+  /// return name of this plot object
+  virtual const std::string& getIconName() const;
+
 private:
   bool enabled;               // plot enabled
   std::string plotname;       // name of plot

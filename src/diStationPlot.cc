@@ -466,6 +466,11 @@ const std::string& StationPlot::getPlotName() const
   return isVisible() ? Plot::getPlotName() : EMPTY;
 }
 
+const std::string& StationPlot::getIconName() const
+{
+  return iconName;
+}
+
 void StationPlot::defineCoordinates()
 {
   //should be called from constructor and when new stations have

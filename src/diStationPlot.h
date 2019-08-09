@@ -167,6 +167,7 @@ public:
   std::string getEnabledStateKey() const override;
 
   const std::string& getPlotName() const override;
+  const std::string& getIconName() const override;
 
   /// hide stations
   void hide();
@@ -227,8 +228,6 @@ public:
   void setUseStationName(bool normal, bool selected);
   void setIcon(const std::string& icon)
     { iconName = icon; }
-  const std::string& getIcon() const
-    { return iconName; }
   bool stationCommand(const std::string& Command,
       const std::vector<std::string>& data,
       const std::string& misc="");
