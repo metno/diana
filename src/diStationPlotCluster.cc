@@ -73,7 +73,7 @@ void StationPlotCluster::processInputPE(const PlotCommand_cpv& inp)
   // show and select/unselect them.
 
   for (StationPlot* sp : diutil::static_content_cast<StationPlot*>(plots_))
-    sp->setVisible(!sp->isVisible());
+    sp->unselect();
 
   for (PlotCommand_cp pc : inp) {
     StationPlotCommand_cp c = std::dynamic_pointer_cast<const StationPlotCommand>(pc);
