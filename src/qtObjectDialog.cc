@@ -470,7 +470,7 @@ PlotCommand_cpv ObjectDialog::getOKString()
 
     cmd->timeDiff = m_totalminutes;
     if (alpha->isChecked())
-      cmd->alpha = m_alphanr;
+      cmd->alpha = int(m_alphanr * 255.0f);
 
     vstr.push_back(cmd);
   }

@@ -118,7 +118,7 @@ private:
   float m_scalediff;
 
   float m_alphascale;
-  float m_alphanr;
+  float m_alphanr; // 0..1
 
   bool useArchive;
   std::vector<std::string> objectnames;
