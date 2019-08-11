@@ -337,6 +337,8 @@ bool WeatherObjects::readEditDrawString(const std::string& inputString, bool rep
     }
   }
 
+  switchProjection(mapArea);
+
   return true;
 }
 
