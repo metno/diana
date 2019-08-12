@@ -509,7 +509,7 @@ command_result Bdiana::prepareInput(istream& is)
   }
 
   // substitute environment variables and key-values
-  for (std::string& line : lines) {
+  for (std::string& line : tmplines) {
     SetupParser::checkEnvironment(line);
     for (const keyvalue& kv : keys)
       miutil::replace(line, "$" + kv.key, kv.value);

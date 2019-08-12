@@ -53,7 +53,6 @@ AnnotationDialog::AnnotationDialog( QWidget* parent, Controller* llctrl )
 : QDialog(parent)
 {
   setWindowTitle(tr("Annotations"));
-  setFocusPolicy(Qt::StrongFocus);
 
   m_ctrl=llctrl;
 
