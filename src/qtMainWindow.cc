@@ -2595,7 +2595,7 @@ vector<string> DianaMainWindow::writeLog(const string& thisVersion, const string
   saveDialogPos(vstr, "ObjectDialog", objm);
   saveDialogPos(vstr, "TrajectoryDialog", trajm);
   saveDialogSize(vstr, "Textview", textview);
-  saveDialogPos(vstr, "Textview.pos", textview);
+  saveDialogPos(vstr, "Textview", textview);
 
   map<QAction*, DataDialog*>::iterator it;
   for (it = dialogs.begin(); it != dialogs.end(); ++it) {
