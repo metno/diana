@@ -1,3 +1,9 @@
+diana-3.52 (3.52.0~rc6-1) unstable; urgency=low
+
+  * Fixed commit b26d7fb933ee3c708dbced79f0dfd47d1dcab386
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 12 Aug 2019 14:15:27 +0200
+
 diana-3.52 (3.52.0~rc5-1) unstable; urgency=low
 
   * bugfix - update locationPlot
