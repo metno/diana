@@ -895,6 +895,7 @@ AreaObjectsCluster* PlotModule::areaobjects()
 void PlotModule::putLocation(const LocationData& locationdata)
 {
   locationplots_->putLocation(locationdata);
+  notifyChangeProjection();
   setAnnotations();
 }
 
