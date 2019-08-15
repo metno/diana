@@ -74,8 +74,7 @@ void MapPlotCluster::processInputPE(const PlotCommand_cpv& inp)
       if (p) { // not already taken
         MapPlot* mp = static_cast<MapPlot*>(p);
         const bool use_plot = mp->prepare(pc, true);
-        if (bgcolourname_.empty())
-          bgcolourname_ = mp->bgcolourname();
+        bgcolourname_ = mp->bgcolourname();
         if (use_plot) {
           std::swap(p, to_reuse); // re-use, p = nullptr
           break;
@@ -88,8 +87,7 @@ void MapPlotCluster::processInputPE(const PlotCommand_cpv& inp)
       // make new mapPlot object and push it on the list
       std::unique_ptr<MapPlot> mp(new MapPlot());
       const bool use_plot = mp->prepare(pc, false);
-      if (bgcolourname_.empty())
-        bgcolourname_ = mp->bgcolourname();
+      bgcolourname_ = mp->bgcolourname();
       if (use_plot)
         add(mp.release());
     }
