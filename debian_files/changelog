@@ -1,3 +1,10 @@
+diana-3.52 (3.52.0~rc8-1) unstable; urgency=low
+
+  * bugfix MapPlot - backgroundcolour
+  * bugfix bdiana - setTime
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 15 Aug 2019 13:29:50 +0200
+
 diana-3.52 (3.52.0~rc7-1) unstable; urgency=low
 
   * Bugfix - save textview position
