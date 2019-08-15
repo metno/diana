@@ -177,7 +177,6 @@ void PlotCluster::processInputPE(const PlotCommand_cpv&) {}
 void PlotCluster::add(Plot* plot)
 {
   plot->setCanvas(canvas_);
-  plot->changeTime(mapTime_);
   plot->changeProjection(mapArea_, plotSize_);
   plots_.push_back(plot);
 }

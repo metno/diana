@@ -877,6 +877,7 @@ void Bdiana::setTimeChoice(BdianaSource::TimeChoice tc)
 {
   main.setTimeChoice(tc);
   vc.setTimeChoice(tc);
+
   vprof.setTimeChoice(tc);
   wavespec.setTimeChoice(tc);
 }
@@ -1103,7 +1104,6 @@ command_result Bdiana::handlePlotCommand(int& k)
 
   if (!ensureSetup())
     return cmd_abort;
-
   std::vector<std::string> pcom = FIND_END_COMMAND(k, com_endplot, com_plotend);
   if (output_format == output_shape) {
     for (std::string& line : pcom) {
@@ -1147,7 +1147,6 @@ command_result Bdiana::handlePlotCommand(int& k)
 
     // necessary to set time before plotCommands()..?
     miTime thetime = miTime::nowTime();
-    main.setTime(thetime);
     main.commands(pcom);
 
     if (!set_ptime(main))
