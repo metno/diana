@@ -337,7 +337,10 @@ void ObsAscii::decodeData()
     for (size_t i=0; i<tmp_nColumn; i++) {
       diutil::remove_quote(pstr[i]);
       if (not asciiColumnUndefined.count(pstr[i]))
-        obsData.put_string(m_columnName[i], pstr[i]);
+        if (m_columnType[i] == "r")
+          obsData.put_float(m_columnName[i], miutil::to_float(pstr[i]));
+        else
+          obsData.put_string(m_columnName[i], pstr[i]);
     }
 
     if (checkColumn(idx_x, pstr))
