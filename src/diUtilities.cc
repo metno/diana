@@ -119,11 +119,12 @@ bool getFromHttp(const std::string &url_, string_v& lines)
   curl_easy_setopt(easy_handle, CURLOPT_WRITEDATA, &lines);
   const CURLcode res = curl_easy_perform(easy_handle);
   long http_code = 0;
-  curl_easy_getinfo(easy_handle, CURLINFO_RESPONSE_CODE, &http_code);
+  if (res == CURLE_OK)
+    curl_easy_getinfo(easy_handle, CURLINFO_RESPONSE_CODE, &http_code);
   curl_easy_cleanup(easy_handle);
 
   METLIBS_LOG_DEBUG(LOGVAL(res) << LOGVAL(http_code));
-  return (res == 0) and http_code == 200;
+  return (res == CURLE_OK) and http_code == 200;
 }
 
 bool getFromAny(const std::string &uof, string_v& lines)
