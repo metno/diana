@@ -97,7 +97,7 @@ inline KeyValue_v& operator<<(KeyValue_v& ostr, const KeyValue& kv)
 inline KeyValue_v operator<<(KeyValue_v&& ostr, const KeyValue& kv)
 {
   ostr.push_back(kv);
-  return ostr;
+  return std::move(ostr);
 }
 
 inline KeyValue_v& operator<<(KeyValue_v& ostr, const KeyValue_v& kvs)
