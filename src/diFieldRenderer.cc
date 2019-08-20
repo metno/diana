@@ -80,7 +80,7 @@ void FieldRenderer::getVectorAnnotation(float& size, std::string& text)
 void FieldRenderer::clearData()
 {
   METLIBS_LOG_SCOPE();
-  tmpfields_.clear();
+  diutil::delete_all_and_clear(tmpfields_);
   fields_.clear();
 }
 
@@ -89,10 +89,7 @@ void FieldRenderer::setData(const std::vector<Field*>& fields, const miutil::miT
   METLIBS_LOG_SCOPE(LOGVAL(fields.size()) << LOGVAL(t.isoTime()));
 
   clearData();
-
   fields_ = fields;
-  tmpfields_.clear();
-
   ftime_ = t;
 }
 
