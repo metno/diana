@@ -61,6 +61,7 @@ public:
 
 private:
   void drawLineOrPoint(DiGLPainter* gl, int l);
+  void switchProjection(const Area& mapArea);
 
 private:
   struct InternalLocationInfo {

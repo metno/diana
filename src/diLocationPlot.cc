@@ -125,7 +125,7 @@ bool LocationPlot::setData(const LocationData& locationdata)
 
   px = new float[numPos];
   py = new float[numPos];
-  posArea = Area(); // impossible area spec
+  switchProjection(posArea);
 
   visible = true;
 
@@ -140,9 +140,12 @@ void LocationPlot::changeProjection(const Area& mapArea, const Rectangle& plotSi
   METLIBS_LOG_SCOPE();
 
   sizeOfCross_ = plotSize.width() * 0.004;
+  if (posArea.P() != mapArea.P())
+    switchProjection(mapArea);
+}
 
-  if (posArea.P() == mapArea.P())
-    return;
+void LocationPlot::switchProjection(const Area& mapArea)
+{
   posArea = mapArea;
 
   if (numPos < 1)
