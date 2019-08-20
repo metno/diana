@@ -143,6 +143,11 @@ bool MapPlot::prepare(const PlotCommand_cp& pc, bool ifequal)
 
   mapinfo= tmpinfo;
 
+  if (!bgcolourname_.empty() && cmd->size() == 1) {
+    //just background colour, no map. No reason to make MapPlot object
+    return false;
+  }
+
   // fill in new options for mapinfo and make proper PlotOptions
   // the different map-elements
   mapm.fillMapInfo(cmd->all(), mapinfo, contopts, landopts, lonopts, latopts, ffopts);

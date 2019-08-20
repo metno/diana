@@ -60,11 +60,15 @@ const std::string& MapPlotCluster::getBackColour() const
   return bgcolourname_;
 }
 
+void MapPlotCluster::setBackColourFromPlot(const MapPlot* mp)
+{
+  if (!mp->bgcolourname().empty())
+    bgcolourname_ = mp->bgcolourname();
+}
+
 void MapPlotCluster::processInputPE(const PlotCommand_cpv& inp)
 {
   METLIBS_LOG_SCOPE();
-
-  bgcolourname_.clear();
 
   std::vector<Plot*> plots = std::move(plots_); // old vector of map plots
 
@@ -74,7 +78,7 @@ void MapPlotCluster::processInputPE(const PlotCommand_cpv& inp)
       if (p) { // not already taken
         MapPlot* mp = static_cast<MapPlot*>(p);
         const bool use_plot = mp->prepare(pc, true);
-        bgcolourname_ = mp->bgcolourname();
+        setBackColourFromPlot(mp);
         if (use_plot) {
           std::swap(p, to_reuse); // re-use, p = nullptr
           break;
@@ -87,7 +91,7 @@ void MapPlotCluster::processInputPE(const PlotCommand_cpv& inp)
       // make new mapPlot object and push it on the list
       std::unique_ptr<MapPlot> mp(new MapPlot());
       const bool use_plot = mp->prepare(pc, false);
-      bgcolourname_ = mp->bgcolourname();
+      setBackColourFromPlot(mp.get());
       if (use_plot)
         add(mp.release());
     }

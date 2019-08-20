@@ -32,6 +32,8 @@
 
 #include "diPlotCluster.h"
 
+class MapPlot;
+
 class MapPlotCluster : public PlotCluster
 {
 public:
@@ -45,6 +47,9 @@ public:
 
 protected:
   void processInputPE(const PlotCommand_cpv& cmds) override;
+
+private:
+  void setBackColourFromPlot(const MapPlot* mp);
 
 private:
   std::string bgcolourname_;
