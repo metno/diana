@@ -2469,7 +2469,7 @@ como aprovado y listo.</translation>
     </message>
     <message>
         <location line="-2"/>
-        <source>Grid values-&gt;setToolTip( but only when a few grid points are visible</source>
+        <source>Grid values, but only when a few grid points are visible</source>
         <translation>valores de red¨¨Instalar herramienta de consejo( pero solo cuando son visibles algunos puintos de la red)</translation>
     </message>
     <message>

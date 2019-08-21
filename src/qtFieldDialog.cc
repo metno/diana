@@ -516,8 +516,7 @@ void FieldDialog::toolTips()
   changeModelButton->setToolTip(tr("change model/termin"));
   allTimeStepButton->setToolTip(tr("all time steps / only common time steps"));
 
-  gridValueCheckBox->setToolTip(tr(
-      "Grid values->setToolTip( but only when a few grid points are visible"));
+  gridValueCheckBox->setToolTip(tr("Grid values but only when a few grid points are visible"));
   valueLabelCheckBox->setToolTip(tr("numbers on the contour lines"));
   labelSizeSpinBox->setToolTip(tr("Size of numbers on the countour lines and size of values in the plot type \"value\""));
   valuePrecisionBox->setToolTip(tr("Value precision, used in the plot type \"value\""));

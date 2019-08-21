@@ -2684,7 +2684,7 @@ Vil du spara innan du avslutar?</translation>
     </message>
     <message>
         <location line="+188"/>
-        <source>Grid values-&gt;setToolTip( but only when a few grid points are visible</source>
+        <source>Grid values, but only when a few grid points are visible</source>
         <translation>Gridvärden, men bara när gridpunkterna är synliga </translation>
     </message>
     <message>

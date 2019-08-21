@@ -2495,7 +2495,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     </message>
     <message>
         <location line="+2"/>
-        <source>Grid values-&gt;setToolTip( but only when a few grid points are visible</source>
+        <source>Grid values, but only when a few grid points are visible</source>
         <translation>Сеточные значения-&gt;setToolTip (но только когда видно не очень много точек сетки</translation>
     </message>
     <message>
