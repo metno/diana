@@ -2344,7 +2344,7 @@ bool FieldRenderer::plotNumbers(DiGLPainter* gl)
   if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
     return false;
 
-  int autostep;
+  int autostep = poptions_.density;
   float dist;
   setAutoStep(x, y, ix1, ix2, iy1, iy2, 25, autostep, dist);
   if (autostep > 1)
