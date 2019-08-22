@@ -57,6 +57,7 @@ void AreaObjectsCluster::plot(DiGLPainter* gl, PlotOrder zorder)
 
 void AreaObjectsCluster::changeProjection(const Area& mapArea, const Rectangle& plotSize)
 {
+  PlotCluster::changeProjection(mapArea, plotSize);
   for (AreaObjects& ao : vareaobjects)
     ao.changeProjection(mapArea, plotSize);
 }
@@ -75,9 +76,11 @@ void AreaObjectsCluster::makeAreaObjects(std::string name, std::string areastrin
   //check if dataset with this id/name already exist
   areaobjects_v::iterator it =
       std::find_if(vareaobjects.begin(), vareaobjects.end(), [&](const AreaObjects& ao) { return id == ao.getId() && name == ao.getName(); });
-  if (it == vareaobjects.end())
+  if (it == vareaobjects.end()) {
     // not found, add new at end
     it = vareaobjects.insert(it, AreaObjects());
+    it->changeProjection(currentMapArea(), currentPlotSize());
+  }
   it->makeAreas(name, icon, areastring, id);
 }
 

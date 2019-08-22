@@ -47,11 +47,13 @@ ObjectPlotCluster::~ObjectPlotCluster() {}
 
 void ObjectPlotCluster::changeProjection(const Area& mapArea, const Rectangle& plotSize)
 {
+  PlotCluster::changeProjection(mapArea, plotSize);
   objm->changeProjection(mapArea, plotSize);
 }
 
 void ObjectPlotCluster::changeTime(const miutil::miTime& mapTime)
 {
+  PlotCluster::changeTime(mapTime);
   objm->prepareObjects(mapTime);
 }
 

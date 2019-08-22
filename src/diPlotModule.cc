@@ -888,6 +888,8 @@ AreaObjectsCluster* PlotModule::areaobjects()
 {
   if (!areaobjects_.get()) {
     areaobjects_.reset(new AreaObjectsCluster());
+    areaobjects_->changeProjection(staticPlot_->getMapArea(), staticPlot_->getPlotSize());
+    areaobjects_->changeTime(staticPlot_->getTime());
   }
   return areaobjects_.get();
 }
