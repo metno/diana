@@ -1,3 +1,10 @@
+diana-3.52 (3.52.0~rc9-1) unstable; urgency=low
+
+  * ObsAscii float / synop support
+  * bugfixes
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Fri, 23 Aug 2019 08:00:08 +0200
+
 diana-3.52 (3.52.0~rc8-1) unstable; urgency=low
 
   * bugfix MapPlot - backgroundcolour
