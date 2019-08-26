@@ -108,7 +108,7 @@ std::string get_popup_text(const ObsData& dt, const std::string& key)
 bool isauto(const ObsData& obs)
 {
   const float* pauto = obs.get_float("auto");
-  return pauto && (*pauto != 0);
+  return pauto && (*pauto == 0);
 }
 
 bool isdata(const ObsData& obs)
