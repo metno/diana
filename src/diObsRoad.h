@@ -33,7 +33,6 @@
 #ifdef ROADOBS
 #include "diCommonTypes.h"
 #include "diObsData.h"
-#include "diObsMetaData.h"
 #include "diObsPlot.h"
 #include "diObsReader.h"
 #include "diStationTypes.h"
@@ -111,6 +110,8 @@ private:
   VprofSimpleValues_p vp;
   VprofSimpleData_p temperature, dewpoint_temperature, wind_dd, wind_ff, wind_sig;
   VerticalAxis vertical_axis_;
+  // New obsData interface
+  bool isAuto(const ObsData& obs);  
 
 public:
   ObsRoad(const std::string& filename, const std::string& databasefile, const std::string& stationfile, const std::string& headerfile,
@@ -130,10 +131,6 @@ public:
   // from ObsPlot
   void amountOfClouds_1_4(ObsData& dta, bool metar);
   void amountOfClouds_1(ObsData& dta, bool metar);
-
-  // from ObsAscii
-  void yoyoPlot(const miutil::miTime& filetime, ObsDataRequest_cp request);
-  void yoyoMetadata(ObsMetaData* metaData);
 
   VprofValues_p getVprofPlot(const std::string& modelName, const std::string& station, const miutil::miTime& time);
 
