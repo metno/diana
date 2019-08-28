@@ -528,7 +528,7 @@ std::vector<PlotCluster*> PlotModule::clusters() const
       locationplots_.get()
       // clang-format on
   };
-  pcs.erase(std::remove_if(pcs.begin(), pcs.end(), [](PlotCluster* pc) { return pc == nullptr; }), pcs.end());
+  pcs.erase(std::remove(pcs.begin(), pcs.end(), nullptr), pcs.end());
   return pcs;
 }
 
