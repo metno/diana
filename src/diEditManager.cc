@@ -1078,12 +1078,10 @@ bool EditManager::makeNewFile(int fnum, bool local, QString& message)
     const QString qofi = QString::fromStdString(ofi);
     const QString qtfi = QString::fromStdString(EdProd.templateFilename);
     if (QFile::exists(qofi) && !QFile::remove(qofi)) {
-      message = "Copy from " + qtfi + " to " + qofi + "  failed. (File exsists, but can't be overwritten.)";
-      return false;
+      METLIBS_LOG_WARN("Copy from " << qtfi.toStdString() << " to " << qofi.toStdString() << "  failed. (File exsists, but can't be overwritten.)");
     }
     if (!qfile.copy(qofi)) {
-      message = "Copy from " + qtfi + " to " + qofi + "  failed";
-      return false;
+      METLIBS_LOG_WARN("Copy from " << qtfi.toStdString() << " to " << qofi.toStdString() << "  failed");
     }
 
     const std::string modelName = ofi;
@@ -1277,15 +1275,12 @@ void EditManager::removeFiles(const std::string& fileString, int autoremove)
   }
 }
 
-bool EditManager::writeEditProduct(QString&  message,
-    const bool wfield,
-    const bool wobjects,
-    const bool send,
-    const bool isapproved){
+void EditManager::writeEditProduct(QString& message, const bool wfield, const bool wobjects, const bool send, const bool isapproved)
+{
+  METLIBS_LOG_SCOPE();
 
-  METLIBS_LOG_DEBUG("EditManager::writeEditProduct");
   message.clear();
-  //
+
   for (size_t i=0; i<EdProd.local_savedirs.size();++i) {
   QDir qdir(EdProd.local_savedirs[i].c_str());
     if ( !qdir.exists() ) {
@@ -1310,7 +1305,7 @@ bool EditManager::writeEditProduct(QString&  message,
       }
     }
   }
-  bool res= true;
+
   miTime t = producttime;
 
   if (wfield) {
@@ -1319,8 +1314,7 @@ bool EditManager::writeEditProduct(QString&  message,
         if(fedits[i]->writeEditFieldFile(EdProd.fields[i].localFilename[j]) ) {
           METLIBS_LOG_INFO("Writing field:" << EdProd.fields[i].localFilename[j]);
         } else {
-          res= false;
-          message += QString("Could not write field to file:") + QString(EdProd.fields[i].localFilename[j].c_str()) + "\n";
+          message += QString("Could not write field to file:") + QString(EdProd.fields[i].localFilename[j].c_str()) + "\n\n";
         }
       }
       if(EdProdId.sendable ) {
@@ -1329,8 +1323,7 @@ bool EditManager::writeEditProduct(QString&  message,
             if(fedits[i]->writeEditFieldFile(EdProd.fields[i].prodFilename[j]) ) {
               METLIBS_LOG_INFO("Writing field:" << EdProd.fields[i].prodFilename[j]);
             } else {
-              res= false;
-              message += "Could not write field to file:" + QString(EdProd.fields[i].prodFilename[j].c_str()) + "\n";
+              message += "Could not write field to file:" + QString(EdProd.fields[i].prodFilename[j].c_str()) + "\n\n";
             }
           }
           if( isapproved ) {
@@ -1340,13 +1333,11 @@ bool EditManager::writeEditProduct(QString&  message,
             METLIBS_LOG_INFO("Writing field:" << prodFile.toStdString());
             if ( QFile::exists(prodFile) && !QFile::remove(prodFile) ) {
               METLIBS_LOG_WARN("Could not save file: "<<prodFile.toStdString()<<"(File already exists and could not be removed)");
-              res = false;
-              message += "Could not write field to file:" + prodFile + "\n";
+              message += "Could not write field to file:" + prodFile + "\n\n";
             } else if (!qfile.copy(prodFile) ) {
               METLIBS_LOG_WARN("Could not copy file: "<<prodFile.toStdString());
               makeNewFile(i,false,message);
-              res = false;
-              message += "Could not write field to file:" + prodFile + "\n";
+              message += "Could not write field to file:" + prodFile + "\n\n";
             }
           }
         }
@@ -1370,9 +1361,8 @@ bool EditManager::writeEditProduct(QString&  message,
  	if( QFile::exists(QString(objectsFilename.c_str())) && !QFile::remove(QString(objectsFilename.c_str())))
 	      METLIBS_LOG_WARN("Could not save file: "<<objectsFilename<<" (File already exists and could not be removed)");
         if (!objm->writeEditDrawFile(objectsFilename,editObjectsString)){
-          res= false;
           saveok= false;
-          message += "Could not write objects to file:" + QString(objectsFilename.c_str()) + "\n";
+          message += "Could not write objects to file:" + QString(objectsFilename.c_str()) + "\n\n";
         }
       }
 
@@ -1384,9 +1374,8 @@ bool EditManager::writeEditProduct(QString&  message,
 	    if( QFile::exists(QString(objectsFilename.c_str())) && !QFile::remove(QString(objectsFilename.c_str())))
 	      METLIBS_LOG_WARN("Could not save file: "<<objectsFilename<<" (File already exists and could not be removed)");
 	    if (!objm->writeEditDrawFile(objectsFilename,editObjectsString)){
-              res= false;
               saveok= false;
-              message += "Could not write objects to file:" + QString(objectsFilename.c_str()) + "\n";
+              message += "Could not write objects to file:" + QString(objectsFilename.c_str()) + "\n\n";
             }
           }
 
@@ -1397,11 +1386,9 @@ bool EditManager::writeEditProduct(QString&  message,
             QString prodFile = workFile.replace("work","products");
 	    if ( QFile::exists(prodFile) && !QFile::remove(prodFile) ) {
               METLIBS_LOG_WARN("Could not save file: "<<prodFile.toStdString()<<"(File already exists and could not be removed)");
-              res = false;
               message += "Could not write objects to file:" + prodFile + "\n";
             } else if (!qfile.copy(prodFile) ) {
               METLIBS_LOG_WARN("Could not copy file: "<<prodFile.toStdString());
-              res = false;
               message += "Could not write objects to file:" +  prodFile+ "\n";
             }
           }
@@ -1430,7 +1417,6 @@ bool EditManager::writeEditProduct(QString&  message,
               commentFilenamePart,t);
 
           if (!objm->writeEditDrawFile(commentFilename,editCommentString)){
-            res= false;
             saveok= false;
             message += "Could not write comments to file:" + QString(commentFilename.c_str()) + "\n";
           }
@@ -1443,7 +1429,6 @@ bool EditManager::writeEditProduct(QString&  message,
                   commentFilenamePart,t);
 
               if (!objm->writeEditDrawFile(commentFilename,editCommentString)){
-                res= false;
                 saveok= false;
                 message += "Could not write comments to file:" + QString(commentFilename.c_str()) + "\n";
               }
@@ -1455,13 +1440,11 @@ bool EditManager::writeEditProduct(QString&  message,
             QString prodFile = workFile.replace("work","products");
 	    if ( QFile::exists(prodFile) && !QFile::remove(prodFile) ) {
               METLIBS_LOG_WARN("Could not save file: "<<prodFile.toStdString()<<"(File already exists and could not be removed)");
-              res = false;
               message += "Could not write field to file:" + prodFile + "\n";
             }
 
             if (!qfile.copy(prodFile) ) {
               METLIBS_LOG_WARN("Could not copy file: "<<prodFile.toStdString());
-              res = false;
               message += "Could not write field to file:" +  prodFile+ "\n";
             }
           }
@@ -1499,7 +1482,6 @@ bool EditManager::writeEditProduct(QString&  message,
       }
     }
   }
-  return res;
 }
 
 

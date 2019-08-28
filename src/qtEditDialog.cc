@@ -1069,24 +1069,14 @@ void EditDialog::ComboBoxData(QComboBox*, int mindex)
 
 }
 
-
-bool EditDialog::saveEverything(bool send, bool approved)
+void EditDialog::saveEverything(bool send, bool approved)
 {
   ecomment->saveComment();
   QString message;
-  bool res = m_editm->writeEditProduct(message,true,true,send,approved);
+  m_editm->writeEditProduct(message, true, true, send, approved);
 
-  if (!res){
-    // EditManager might have solved the problem, try once more
-    res = m_editm->writeEditProduct(message,true,true,send,approved);
-    if (!res){
-      message= tr("Problems saving product: ") +
-          message;
-      QMessageBox::warning( this, tr("Save error:"),
-          message);
-
-      return false;
-    }
+  if (!message.isEmpty()) {
+    QMessageBox::warning(this, tr("Save error:"), message);
   }
 
   miutil::miTime t= miutil::miTime::nowTime();
@@ -1104,8 +1094,6 @@ bool EditDialog::saveEverything(bool send, bool approved)
   }
 
   lStatus->setText(qs);
-
-  return true;
 }
 
 void  EditDialog::saveClicked()

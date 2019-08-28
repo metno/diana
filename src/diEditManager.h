@@ -172,11 +172,7 @@ public:
   /// returns true if last saved product has not been sent !
   bool unsentEditChanges();
   /// save field and objects to file and/or database
-  bool writeEditProduct(QString&  message,
-			const bool wfield =true,
-			const bool wobjects =true,
-                        const bool send = false,
-			const bool isapproved = false);
+  void writeEditProduct(QString& message, const bool wfield = true, const bool wobjects = true, const bool send = false, const bool isapproved = false);
   /// returns the current product time
   bool getProductTime(miutil::miTime& t) const;
   /// returns the current product name
