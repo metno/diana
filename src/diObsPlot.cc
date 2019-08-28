@@ -747,21 +747,16 @@ void ObsPlot::priority_sort()
   //sort the observations according to priority list
   int numObs = getObsCount();
 
-  //  METLIBS_LOG_DEBUG("Priority_sort:"<<numObs);
   int i;
 
   all_from_file.resize(numObs);
 
-  // AF: synop: put automatic stations after other types (fixed,ship)
-  //     (how to detect other obs. types, temp,aireps,... ???????)
-  // FIXME: ix from database ?
   vector<int> automat;
   int n = 0;
   for (i = 0; i < numObs; i++) {
     ObsData& obs = obsp[i];
 
-    const float* pix;
-    if (((pix = obs.get_float("ix")) && *pix < 4) || !isauto(obs))
+    if (!isauto(obs))
       all_from_file[n++] = i;
     else
       automat.push_back(i);
