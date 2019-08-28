@@ -1145,8 +1145,6 @@ command_result Bdiana::handlePlotCommand(int& k)
     // keeparea= true : keep previous used area (if possible)
     main.controller->keepCurrentArea(main.keeparea);
 
-    // necessary to set time before plotCommands()..?
-    miTime thetime = miTime::nowTime();
     main.commands(pcom);
 
     if (!set_ptime(main))
