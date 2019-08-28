@@ -93,7 +93,7 @@ private:
   void CombineEditMethods();
   void ListWidgetData( QListWidget* list, int mindex, int index);
   void ComboBoxData( QComboBox* box, int mindex);
-  bool saveEverything(bool send, bool approved);
+  void saveEverything(bool send, bool approved);
   void updateLabels();
 
   void getFieldClassSpecs();
