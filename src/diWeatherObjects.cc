@@ -108,12 +108,11 @@ void WeatherObjects::plot(DiGLPainter* gl, PlotOrder porder)
 {
   METLIBS_LOG_SCOPE();
 
-  if (!enabled || (porder != PO_LINES && porder != PO_OVERLAY))
+  if (!enabled || (porder != PO_LINES && porder != PO_OVERLAY) || empty())
     return;
 
   if (mapArea.P() != itsArea.P()) {
-    if (!switchProjection(mapArea))
-      METLIBS_LOG_WARN("error switching projection");
+    switchProjection(mapArea);
   }
 
   const objectType order[] = {wArea, wFront, wSymbol, wText, Border, RegionName, ShapeXXX};
