@@ -1,3 +1,9 @@
+diana-3.52 (3.52.0~rc10-1) unstable; urgency=low
+
+  * bugfixes
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Thu, 29 Aug 2019 08:00:08 +0200
+
 diana-3.52 (3.52.0~rc9-1) unstable; urgency=low
 
   * ObsAscii float / synop support
