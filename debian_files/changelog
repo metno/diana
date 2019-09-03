@@ -1,3 +1,9 @@
+diana-3.52 (3.52.0-1) unstable; urgency=low
+
+  * 3.52.0
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 03 Sep 2019 17:06:31 +0200
+
 diana-3.52 (3.52.0~rc10-1) unstable; urgency=low
 
   * bugfixes
