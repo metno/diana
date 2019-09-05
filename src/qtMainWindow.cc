@@ -1903,8 +1903,40 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
   // show the latest timestep
   else if (command == qmstrings::directory_changed) {
     if (doAutoUpdate) {
-      om->updateTimes();
-      sm->updateTimes();
+      if (timeNavigator->isTimerOn() != 0) {
+        // These uppdates the timeSliders internal list, if needed
+        sm->updateTimes();
+        om->updateTimes();
+      }
+      else {
+	    // No sequence running, get the time selected
+		miutil::miTime tp = timeNavigator->selectedTime();
+        METLIBS_LOG_DEBUG("selected time: " << tp);
+        // These uppdates the timeSliders internal list, if needed
+        sm->updateTimes();
+        om->updateTimes();
+        // Get all times from timeSlider.
+        std::vector<miutil::miTime> times = timeNavigator->animationTimes();
+        miutil::miTime t;
+        
+        // Get the last time from timeSlider.
+        if (times.size() > 0) {
+          t = times[times.size() - 1];
+        }
+      
+        // Check if slider was not on latest timestep
+        // or new image file arrived.
+        // If t > tp force repaint...
+		// This should be valid when new file has arrived.
+        if (!t.undef()) { 
+		  if(t > tp) {
+			METLIBS_LOG_DEBUG("satfile, radar or obsfile created/deleted!");
+		    handlingTimeMessage = true;
+			timeNavigator->requestTime(t); // triggers "timeSelected" signal, connected to "setPlotTime"
+			handlingTimeMessage = false;
+		  }
+		}
+      }
     }
   }
 
