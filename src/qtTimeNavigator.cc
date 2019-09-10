@@ -214,6 +214,26 @@ std::vector<miutil::miTime> TimeNavigator::animationTimes() const
   return times;
 }
 
+miutil::miTime TimeNavigator::getLatestPlotTime() 
+{ 
+  return tslider->getLatestPlotTime();
+}
+
+void TimeNavigator::setPalette(QPalette & p)
+{
+  tslider->setPalette(p);
+}
+
+void TimeNavigator::resetPalette()
+{
+  tslider->resetPalette();
+}
+
+bool TimeNavigator::getUseMinMax()
+{
+  tslider->getUseMinMax();
+}
+
 void TimeNavigator::timerEvent(QTimerEvent *e)
 {
   if (e->timerId() == animationTimer) {

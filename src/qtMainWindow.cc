@@ -1606,6 +1606,21 @@ void DianaMainWindow::connectionClosed()
 {
   //  METLIBS_LOG_DEBUG("Connection closed");
   qsocket = false;
+  
+  if (!timeNavigator->getUseMinMax())
+  {
+	  if (!doAutoUpdate)
+	  {
+		timeNavigator->resetPalette();
+	  }
+	  else
+	  {
+		//Autoupdate selected but not connected
+		// set timeslider color red
+		QPalette p(Qt::red);
+		timeNavigator->setPalette(p);
+	  }
+  }
 
   contr->stationCommand("delete","all");
   contr->areaObjectsCommand("delete","all", std::vector<std::string>(1, "all"),-1);
@@ -1848,6 +1863,10 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
 
   else if (command == qmstrings::newclient) {
     qsocket = true;
+	if (!timeNavigator->getUseMinMax())
+    {
+		timeNavigator->resetPalette();
+	}
     autoredraw[qletter.getCommonValue(0).toInt()] = true;
     autoredraw[0] = true; //from server
   }
@@ -1909,33 +1928,43 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
         om->updateTimes();
       }
       else {
-	    // No sequence running, get the time selected
-		miutil::miTime tp = timeNavigator->selectedTime();
-        METLIBS_LOG_DEBUG("selected time: " << tp);
-        // These uppdates the timeSliders internal list, if needed
-        sm->updateTimes();
-        om->updateTimes();
-        // Get all times from timeSlider.
-        std::vector<miutil::miTime> times = timeNavigator->animationTimes();
-        miutil::miTime t;
-        
-        // Get the last time from timeSlider.
-        if (times.size() > 0) {
-          t = times[times.size() - 1];
-        }
-      
-        // Check if slider was not on latest timestep
-        // or new image file arrived.
-        // If t > tp force repaint...
-		// This should be valid when new file has arrived.
-        if (!t.undef()) { 
-		  if(t > tp) {
-			METLIBS_LOG_DEBUG("satfile, radar or obsfile created/deleted!");
-		    handlingTimeMessage = true;
-			timeNavigator->requestTime(t); // triggers "timeSelected" signal, connected to "setPlotTime"
-			handlingTimeMessage = false;
-		  }
+	// No sequence running, get the time selected
+	miutil::miTime ts = timeNavigator->selectedTime();
+    METLIBS_LOG_DEBUG("selected time: " << ts);
+	
+	// Get last time from timeSlider.
+	miutil::miTime tb = timeNavigator->getLatestPlotTime();
+    METLIBS_LOG_DEBUG("latest time before: " << tb);
+	
+    // These uppdates the timeSliders internal list, if needed
+    sm->updateTimes();
+    om->updateTimes();
+	
+	// Get latest time after update.
+	miutil::miTime ta = timeNavigator->getLatestPlotTime();
+    METLIBS_LOG_DEBUG("latest time after: " << ta);
+	
+	if (!timeNavigator->getUseMinMax())
+	{
+		if (ts < tb)
+		{
+		  // set timeslider color red
+		  QPalette p(Qt::red);
+		  timeNavigator->setPalette(p);
+		} else {
+		  timeNavigator->resetPalette();
 		}
+	}
+        
+        // Check if timeSlider was on last timestep
+    if (!ts.undef()&&!tb.undef()&& ts==tb) {
+	  if (!ta.undef()) {
+	    METLIBS_LOG_DEBUG("satfile, radar or obsfile created/deleted!");
+	    handlingTimeMessage = true;
+	    timeNavigator->requestTime(ta); // triggers "timeSelected" signal, connected to "setPlotTime"
+	    handlingTimeMessage = false;
+	  }
+	}
       }
     }
   }
@@ -1992,6 +2021,51 @@ void DianaMainWindow::autoUpdate()
   METLIBS_LOG_SCOPE();
   doAutoUpdate = !doAutoUpdate;
   METLIBS_LOG_DEBUG(LOGVAL(doAutoUpdate));
+  // Check if connected
+  if (qsocket)
+  {
+	  // We dont care if restricted interval
+	  if (!timeNavigator->getUseMinMax())
+	  {
+		  if (!doAutoUpdate)
+		  {
+			timeNavigator->resetPalette();
+		  }
+		  else {
+			miutil::miTime ts = timeNavigator->selectedTime();
+			METLIBS_LOG_DEBUG("selected time: " << ts);
+			
+			// Get latest plottime from timeSlider.
+			miutil::miTime tb = timeNavigator->getLatestPlotTime();
+			METLIBS_LOG_DEBUG("latest time : " << tb);
+			if (ts < tb)
+			{
+			  // set timeslider color red
+			  QPalette p(Qt::red);
+			  timeNavigator->setPalette(p);
+			} else {
+			  timeNavigator->resetPalette();
+			}
+		  }
+	  }
+  } else {
+	  // We dont care if restricted interval
+	  if (!timeNavigator->getUseMinMax())
+	  {
+		  if (!doAutoUpdate)
+		  {
+			timeNavigator->resetPalette();
+		  }
+		  else
+		  {
+			//Autoupdate selected but not connected
+			// set timeslider color red
+			QPalette p(Qt::red);
+			timeNavigator->setPalette(p);
+		  }
+	  }
+  }
+ 
   autoUpdateAction->setChecked(doAutoUpdate);
 }
 

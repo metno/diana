@@ -66,6 +66,9 @@ public:
   void startAnimation(){startani= true;}
   ///Remove times from data type
   void deleteType(const std::string& type);
+  miutil::miTime getLatestPlotTime();
+  void resetPalette();
+  bool getUseMinMax();
   
 public Q_SLOTS:
   void setMinMax(const miutil::miTime& t1, const miutil::miTime& t2);

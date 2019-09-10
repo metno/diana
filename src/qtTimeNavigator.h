@@ -62,6 +62,11 @@ public:
 
   QToolBar* toolbar()
     { return toolbar_; }
+    
+  miutil::miTime getLatestPlotTime();
+  void setPalette(QPalette & p);
+  void resetPalette();
+  bool getUseMinMax();
 
 protected:
   void timerEvent(QTimerEvent*);

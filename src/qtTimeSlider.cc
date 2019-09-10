@@ -76,6 +76,32 @@ miutil::miTime TimeSlider::Value()
     return miutil::miTime::nowTime();
 }
 
+miutil::miTime TimeSlider::getLatestPlotTime()
+{
+  std::set<miutil::miTime>::iterator tl = orig_times.end();
+  miutil::miTime tlatest;
+  int i = 0;
+  for (; tl!=orig_times.begin(); tl--) {
+	  if (i==1)
+	  {
+		METLIBS_LOG_DEBUG("latest time " << *tl);
+		tlatest = *tl;
+		break;
+      }
+	  i++;	  
+	
+  }
+  return tlatest;
+}
+
+bool TimeSlider::getUseMinMax()
+{
+	if (orig_times.size() != times.size() || useminmax)
+		return true;
+	else
+		return false;
+}
+
 bool TimeSlider::hasTime(const miutil::miTime& time) const
 {
   return (std::find(times.begin(), times.end(), time) != times.end());
@@ -101,6 +127,11 @@ void TimeSlider::setMinMax(const miutil::miTime& t1, const miutil::miTime& t2)
   }
 
   updateList();
+}
+
+void TimeSlider::resetPalette()
+{
+  setPalette(pal);
 }
 
 void TimeSlider::clearMinMax()
