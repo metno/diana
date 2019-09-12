@@ -1,7 +1,7 @@
 /*
  based on libglText - OpenGL Text Rendering Library
 
- Copyright (C) 2006-2018 met.no
+ Copyright (C) 2006-2019 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -71,7 +71,7 @@ private:
 
 private:
   bool _addSize(const int, int&);
-  bool _findSize(const int, int&, const bool = false);
+  bool _findSize(const int, int&);
   bool _checkFont();
   bool _calcScaling();
   void prepareDraw(float x, float y, float angle);

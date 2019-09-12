@@ -1,7 +1,7 @@
 /*
  based on libglText - OpenGL Text Rendering Library
 
- Copyright (C) 2006-2018 met.no
+ Copyright (C) 2006-2019 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -73,10 +73,11 @@ FontFamily::FontFamily(bool bitmap)
 {
 }
 
-bool FontFamily::_findSize(const int size, int& index, bool exact)
+bool FontFamily::_findSize(const int size, int& index)
 {
   if (!numSizes)
     return false;
+  // must update index as it is used as nearest size if _addSize fails
   int diff = 100000, cdiff;
   for (int i = 0; i < numSizes; i++) {
     cdiff = abs(size - Sizes[i]);
@@ -85,7 +86,7 @@ bool FontFamily::_findSize(const int size, int& index, bool exact)
       index = i;
     }
   }
-  return (exact ? diff == 0 : (diff < 1000));
+  return (diff == 0);
 }
 
 bool FontFamily::_addSize(const int size, int &index)
@@ -147,7 +148,7 @@ bool FontFamily::_calcScaling()
   xscale = 1;
 
   // find correct sizeindex
-  if (!_findSize(size, SizeIndex, true)) {
+  if (!_findSize(size, SizeIndex)) {
     if (!_addSize(size, SizeIndex)) {
       xscale = size / float(Sizes[SizeIndex]);
       METLIBS_LOG_DEBUG("font size not found, using GL scaling factor " << xscale);
