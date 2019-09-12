@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2018 met.no
+  Copyright (C) 2015-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -48,7 +48,12 @@
 #include <miLogger/miLogging.h>
 
 DiOpenGLCanvas::DiOpenGLCanvas(QGLWidget* widget)
-  : mWidget(widget)
+    : fp_(new FontManager)
+    , vpw_(1)
+    , vph_(1)
+    , glw_(1)
+    , glh_(1)
+    , mWidget(widget)
 {
 }
 
@@ -61,6 +66,7 @@ void DiOpenGLCanvas::parseFontSetup(const std::vector<std::string>& sect_fonts)
   METLIBS_LOG_SCOPE();
   fp()->clearFamilies();
   DiGLCanvas::parseFontSetup(sect_fonts);
+  applyVpGlSize();
 }
 
 void DiOpenGLCanvas::defineFont(const std::string& fontfam, const std::string& fontfilename, diutil::FontFace face, bool use_bitmap)
@@ -69,16 +75,19 @@ void DiOpenGLCanvas::defineFont(const std::string& fontfam, const std::string& f
   fp()->defineFont(fontfam, fontfilename, face, use_bitmap);
 }
 
-void DiOpenGLCanvas::initializeFP()
-{
-  METLIBS_LOG_SCOPE();
-  mFP.reset(new FontManager);
-}
-
 void DiOpenGLCanvas::setVpGlSize(int vpw, int vph, float glw, float glh)
 {
-  METLIBS_LOG_SCOPE(LOGVAL(vpw) << LOGVAL(vph) << LOGVAL(glw) << LOGVAL(glh));
-  fp()->setVpGlSize(vpw, vph, glw, glh);
+  vpw_ = vpw;
+  vph_ = vph;
+  glw_ = glw;
+  glh_ = glh;
+
+  applyVpGlSize();
+}
+
+void DiOpenGLCanvas::applyVpGlSize()
+{
+  fp()->setVpGlSize(vpw_, vph_, glw_, glh_);
 }
 
 bool DiOpenGLCanvas::selectFont(const std::string& family)

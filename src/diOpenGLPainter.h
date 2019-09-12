@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2018 met.no
+  Copyright (C) 2015-2019 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -50,8 +50,7 @@ public:
   bool setFontSize(float size) override;
   bool getTextRect(const QString& text, float& x, float& y, float& w, float& h) override;
 
-  inline FontManager* fp()
-    { if (!mFP.get()) initializeFP(); return mFP.get(); }
+  inline FontManager* fp() { return fp_.get(); }
 
   void DeleteLists(GLuint list, GLsizei range) Q_DECL_OVERRIDE;
   GLuint GenLists(GLsizei range) Q_DECL_OVERRIDE;
@@ -66,10 +65,12 @@ protected:
   bool hasFont(const std::string& family) override;
 
 private:
-  void initializeFP();
+  void applyVpGlSize();
 
 private:
-  std::unique_ptr<FontManager> mFP;
+  std::unique_ptr<FontManager> fp_;
+  int vpw_, vph_;
+  float glw_, glh_;
   QGLWidget* mWidget;
 };
 
