@@ -29,13 +29,17 @@
 #ifndef _diFontManager_h
 #define _diFontManager_h
 
-#include "diFontFamily.h"
+#include "diFont.h"
 
 #include <qglobal.h>
 
+#include <map>
+#include <memory>
 #include <set>
 #include <string>
-#include <map>
+
+class FontFamily;
+typedef std::shared_ptr<FontFamily> FontFamily_p;
 
 /**
  \brief Font manager for text plotting
@@ -46,9 +50,9 @@
  */
 class FontManager {
 private:
-  typedef std::map<std::string, FontFamily*> families_t;
+  typedef std::map<std::string, FontFamily_p> families_t;
   families_t families;
-  FontFamily *currentFamily;
+  FontFamily_p currentFamily;
 
   //! find font family and update currentFamily
   void findFamily(const std::string& family);

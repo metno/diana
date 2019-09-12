@@ -55,8 +55,7 @@ const float FACTOR = 1.35;
 
 void FontFamily::ttfont::destroy()
 {
-  delete pfont;
-  pfont = 0;
+  pfont = nullptr;
 }
 
 FontFamily::FontFamily(bool bitmap)
@@ -187,14 +186,14 @@ bool FontFamily::_checkFont()
     METLIBS_LOG_ERROR("font not defined Face:" << diutil::fontFaceToString(Face) << " SizeIndex=" << SizeIndex << "/" << numSizes);
     return false;
   }
-  if (!(tf->created)) {
+  if (!tf->created) {
     METLIBS_LOG_INFO("creating font from file '" << fontname << "'"
                                                  << " Face:" << diutil::fontFaceToString(Face) << " Size:" << Sizes[SizeIndex]);
     tf->created = true;
     if (mUseBitmap)
-      tf->pfont = new FTGLBitmapFont(fontname.c_str());
+      tf->pfont = std::make_shared<FTGLBitmapFont>(fontname.c_str());
     else
-      tf->pfont = new FTGLPolygonFont(fontname.c_str());
+      tf->pfont = std::make_shared<FTGLPolygonFont>(fontname.c_str());
     FT_Error error = tf->pfont->Error();
     if (error != 0) {
       METLIBS_LOG_ERROR("could not create font from file '" << fontname << "', error=" << error);

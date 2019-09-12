@@ -29,9 +29,12 @@
 #define DIFONTFAMILY_H 1
 
 #include "diFont.h"
+
+#include <memory>
 #include <string>
 
 class FTFont; // either from miFTGL or standard FTGL
+typedef std::shared_ptr<FTFont> FTFont_p;
 
 class FontFamily {
 public:
@@ -63,7 +66,7 @@ private:
   struct ttfont {
     std::string fontname; //! the font filename
     bool created; //! true if there was an attempt to create this font
-    FTFont *pfont; //! the FTGL font instance
+    FTFont_p pfont; //! the FTGL font instance
     ttfont() : created(false), pfont(0) { }
     ~ttfont() { destroy(); }
     void destroy();

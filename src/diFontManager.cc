@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2018 met.no
+ Copyright (C) 2006-2019 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -27,9 +27,8 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "diana_config.h"
-
 #include "diFontManager.h"
+
 #include "diFontFamily.h"
 
 #include <puTools/miStringFunctions.h>
@@ -38,7 +37,6 @@
 #include <miLogger/miLogging.h>
 
 FontManager::FontManager()
-  : currentFamily(0)
 {
 }
 
@@ -49,8 +47,6 @@ FontManager::~FontManager()
 
 void FontManager::clearFamilies()
 {
-  for (families_t::iterator it = families.begin(); it != families.end(); ++it)
-    delete it->second;
   families.clear();
   currentFamily = 0;
 }
@@ -58,9 +54,9 @@ void FontManager::clearFamilies()
 void FontManager::defineFont(const std::string& fontfam, const std::string& fontfilename, diutil::FontFace fontface, bool use_bitmap)
 {
   families_t::iterator it = families.find(fontfam);
-  FontFamily* f;
+  FontFamily_p f;
   if (it == families.end()) {
-    f = new FontFamily(use_bitmap);
+    f = std::make_shared<FontFamily>(use_bitmap);
 
     if (families.empty())
       currentFamily = f;
@@ -78,7 +74,7 @@ void FontManager::findFamily(const std::string& family)
     currentFamily = itF->second;
   } else {
     METLIBS_LOG_ERROR("unknown font family: '" << family << "'");
-    currentFamily = 0;
+    currentFamily = nullptr;
   }
 }
 
@@ -132,8 +128,8 @@ bool FontManager::drawStr(const std::wstring& s, float x, float y, float a)
 // set viewport size in physical coordinates (pixels)
 void FontManager::setVpGlSize(int vpw, int vph, float glw, float glh)
 {
-  for (families_t::iterator it = families.begin(); it != families.end(); ++it)
-    it->second->setVpGlSize(vpw, vph, glw, glh);
+  for (const auto& it : families)
+    it.second->setVpGlSize(vpw, vph, glw, glh);
 }
 
 bool FontManager::getStringRect(const std::string& s, float& x, float& y, float& w, float& h)
