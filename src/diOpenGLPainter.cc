@@ -64,9 +64,11 @@ DiOpenGLCanvas::~DiOpenGLCanvas()
 void DiOpenGLCanvas::parseFontSetup(const std::vector<std::string>& sect_fonts)
 {
   METLIBS_LOG_SCOPE();
+  mWidget->makeCurrent();
   fp()->clearFamilies();
   DiGLCanvas::parseFontSetup(sect_fonts);
   applyVpGlSize();
+  mWidget->doneCurrent();
 }
 
 void DiOpenGLCanvas::defineFont(const std::string& fontfam, const std::string& fontfilename, diutil::FontFace face, bool use_bitmap)
