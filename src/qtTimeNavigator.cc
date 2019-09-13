@@ -29,8 +29,8 @@
 
 #include "qtTimeNavigator.h"
 
-#include "qtTimeSlider.h"
 #include "qtTimeControl.h"
+#include "qtTimeSlider.h"
 #include "qtTimeStepSpinbox.h"
 
 #include <QAction>
@@ -43,20 +43,20 @@
 #include <clock.xpm>
 #include <forover.xpm>
 #include <loop.xpm>
+#include <slutt.xpm>
 #include <start.xpm>
 #include <stopp.xpm>
-#include <slutt.xpm>
 
 namespace {
 const QString styleTimeFound("QLabel { color : black; }");
 const QString styleTimeMissing("QLabel { color : red; }");
 } // namespace
 
-TimeNavigator::TimeNavigator(QWidget *parent)
-  : QObject(parent)
-  , animationDirection_(0)
-  , timeout_ms(100)
-  , timeloop(false)
+TimeNavigator::TimeNavigator(QWidget* parent)
+    : QObject(parent)
+    , animationDirection_(0)
+    , timeout_ms(100)
+    , timeloop(false)
 {
   createUi(parent);
 }
@@ -65,95 +65,86 @@ void TimeNavigator::createUi(QWidget* parent)
 {
   // timecommands ======================
   // --------------------------------------------------------------------
-  timeBackwardAction = new QAction(QIcon( QPixmap(start_xpm )),tr("Run Backwards"), this);
+  timeBackwardAction = new QAction(QIcon(QPixmap(start_xpm)), tr("Run Backwards"), this);
   timeBackwardAction->setShortcutContext(Qt::ApplicationShortcut);
-  timeBackwardAction->setShortcut(Qt::SHIFT+Qt::CTRL+Qt::Key_Left);
+  timeBackwardAction->setShortcut(Qt::SHIFT + Qt::CTRL + Qt::Key_Left);
   timeBackwardAction->setCheckable(true);
   timeBackwardAction->setIconVisibleInMenu(true);
-  connect( timeBackwardAction, SIGNAL( triggered() ) ,  SLOT( animationBackward() ) );
+  connect(timeBackwardAction, SIGNAL(triggered()), SLOT(animationBackward()));
   // --------------------------------------------------------------------
-  timeForewardAction = new QAction(QIcon( QPixmap(slutt_xpm )),tr("Run Forewards"), this);
+  timeForewardAction = new QAction(QIcon(QPixmap(slutt_xpm)), tr("Run Forewards"), this);
   timeForewardAction->setShortcutContext(Qt::ApplicationShortcut);
-  timeForewardAction->setShortcut(Qt::SHIFT+Qt::CTRL+Qt::Key_Right);
+  timeForewardAction->setShortcut(Qt::SHIFT + Qt::CTRL + Qt::Key_Right);
   timeForewardAction->setCheckable(true);
   timeForewardAction->setIconVisibleInMenu(true);
-  connect( timeForewardAction, SIGNAL( triggered() ) ,  SLOT( animationForward() ) );
+  connect(timeForewardAction, SIGNAL(triggered()), SLOT(animationForward()));
   // --------------------------------------------------------------------
-  timeStepBackwardAction = new QAction(QIcon( QPixmap(bakover_xpm )),tr("Step Backwards"), this);
-  timeStepBackwardAction->setShortcut(Qt::CTRL+Qt::Key_Left);
+  timeStepBackwardAction = new QAction(QIcon(QPixmap(bakover_xpm)), tr("Step Backwards"), this);
+  timeStepBackwardAction->setShortcut(Qt::CTRL + Qt::Key_Left);
   timeStepBackwardAction->setCheckable(false);
   timeStepBackwardAction->setIconVisibleInMenu(true);
-  connect( timeStepBackwardAction, SIGNAL( triggered() ) ,  SLOT( stepTimeBackward() ) );
+  connect(timeStepBackwardAction, SIGNAL(triggered()), SLOT(stepTimeBackward()));
   // --------------------------------------------------------------------
-  timeStepForewardAction = new QAction(QIcon( QPixmap(forward_xpm )),tr("Step Forewards"), this);
-  timeStepForewardAction->setShortcut(Qt::CTRL+Qt::Key_Right);
+  timeStepForewardAction = new QAction(QIcon(QPixmap(forward_xpm)), tr("Step Forewards"), this);
+  timeStepForewardAction->setShortcut(Qt::CTRL + Qt::Key_Right);
   timeStepForewardAction->setCheckable(false);
   timeStepForewardAction->setIconVisibleInMenu(true);
-  connect( timeStepForewardAction, SIGNAL( triggered() ) ,  SLOT( stepTimeForward() ) );
+  connect(timeStepForewardAction, SIGNAL(triggered()), SLOT(stepTimeForward()));
   // --------------------------------------------------------------------
-  timeStopAction = new QAction(QIcon( QPixmap(stop_xpm )),tr("Stop"), this );
+  timeStopAction = new QAction(QIcon(QPixmap(stop_xpm)), tr("Stop"), this);
   timeStopAction->setShortcutContext(Qt::ApplicationShortcut);
-  timeStopAction->setShortcut(Qt::SHIFT+Qt::CTRL+Qt::Key_Down);
+  timeStopAction->setShortcut(Qt::SHIFT + Qt::CTRL + Qt::Key_Down);
   timeStopAction->setCheckable(false);
   timeStopAction->setIconVisibleInMenu(true);
-  connect( timeStopAction, SIGNAL( triggered() ) ,  SLOT( animationStop() ) );
+  connect(timeStopAction, SIGNAL(triggered()), SLOT(animationStop()));
   // --------------------------------------------------------------------
-  timeLoopAction = new QAction(QIcon( QPixmap(loop_xpm )),tr("Run in loop"), this );
+  timeLoopAction = new QAction(QIcon(QPixmap(loop_xpm)), tr("Run in loop"), this);
   timeLoopAction->setShortcutContext(Qt::ApplicationShortcut);
-  timeLoopAction->setShortcut(Qt::SHIFT+Qt::CTRL+Qt::Key_Up);
+  timeLoopAction->setShortcut(Qt::SHIFT + Qt::CTRL + Qt::Key_Up);
   timeLoopAction->setCheckable(true);
   timeLoopAction->setIconVisibleInMenu(true);
-  connect( timeLoopAction, SIGNAL( triggered() ) ,  SLOT( animationLoop() ) );
+  connect(timeLoopAction, SIGNAL(triggered()), SLOT(animationLoop()));
   // --------------------------------------------------------------------
-  timeControlAction = new QAction(QIcon( QPixmap( clock_xpm )),tr("Time control"), this );
+  timeControlAction = new QAction(QIcon(QPixmap(clock_xpm)), tr("Time control"), this);
   timeControlAction->setCheckable(true);
   timeControlAction->setIconVisibleInMenu(true);
-  connect( timeControlAction, SIGNAL( triggered() ) ,  SLOT( timecontrolslot() ) );
+  connect(timeControlAction, SIGNAL(triggered()), SLOT(timecontrolslot()));
   // --------------------------------------------------------------------
 
-  //Time step up/down
-  timeStepUpAction = new QShortcut(Qt::CTRL+Qt::Key_Up, parent);
+  // Time step up/down
+  timeStepUpAction = new QShortcut(Qt::CTRL + Qt::Key_Up, parent);
   connect(timeStepUpAction, SIGNAL(activated()), SLOT(increaseTimeStep()));
-  timeStepDownAction = new QShortcut(Qt::CTRL+Qt::Key_Down, parent);
+  timeStepDownAction = new QShortcut(Qt::CTRL + Qt::Key_Down, parent);
   connect(timeStepDownAction, SIGNAL(activated()), SLOT(decreaseTimeStep()));
 
   // ----------------Timer widgets -------------------------
 
-  tslider= new TimeSlider(Qt::Horizontal, parent);
+  tslider = new TimeSlider(Qt::Horizontal, parent);
   tslider->setMinimumWidth(90);
-  //tslider->setMaximumWidth(90);
+  // tslider->setMaximumWidth(90);
   connect(tslider, &TimeSlider::valueChanged, this, &TimeNavigator::updateTimeLabelFromSlider);
   connect(tslider, &TimeSlider::sliderReleased, this, &TimeNavigator::timeSliderReleased);
   connect(tslider, &TimeSlider::sliderSet, this, &TimeNavigator::updateTimeLabelFromSlider);
   connect(tslider, &TimeSlider::lastStep, this, &TimeNavigator::lastStep);
 
-  timestep= new TimeStepSpinbox(parent);
-  connect(tslider,SIGNAL(minInterval(int)),
-      timestep,SLOT(setValue(int)));
-  connect(tslider,SIGNAL(timeSteps(int,int)),
-      timestep,SLOT(setTimeSteps(int,int)));
-  connect(tslider,SIGNAL(enableSpin(bool)),
-      timestep,SLOT(setEnabled(bool)));
-  connect(timestep,SIGNAL(valueChanged(int)),
-      tslider,SLOT(setInterval(int)));
+  timestep = new TimeStepSpinbox(parent);
+  connect(tslider, SIGNAL(minInterval(int)), timestep, SLOT(setValue(int)));
+  connect(tslider, SIGNAL(timeSteps(int, int)), timestep, SLOT(setTimeSteps(int, int)));
+  connect(tslider, SIGNAL(enableSpin(bool)), timestep, SLOT(setEnabled(bool)));
+  connect(timestep, SIGNAL(valueChanged(int)), tslider, SLOT(setInterval(int)));
 
-
-  timelabel= new QLabel("0000-00-00 00:00:00", parent);
+  timelabel = new QLabel("0000-00-00 00:00:00", parent);
   timelabel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
   timelabel->setMinimumSize(timelabel->sizeHint());
 
   timecontrol = new TimeControl(parent);
-  connect(timecontrol, SIGNAL(timeoutChanged(float)),
-      SLOT(timeoutChanged(float)));
-  connect(timecontrol, SIGNAL(minmaxValue(const miutil::miTime&, const miutil::miTime&)),
-      tslider, SLOT(setMinMax(const miutil::miTime&, const miutil::miTime&)));
-  connect(timecontrol, SIGNAL(clearMinMax()),
-      tslider, SLOT(clearMinMax()));
+  connect(timecontrol, SIGNAL(timeoutChanged(float)), SLOT(timeoutChanged(float)));
+  connect(timecontrol, SIGNAL(minmaxValue(const miutil::miTime&, const miutil::miTime&)), tslider,
+          SLOT(setMinMax(const miutil::miTime&, const miutil::miTime&)));
+  connect(timecontrol, SIGNAL(clearMinMax()), tslider, SLOT(clearMinMax()));
   connect(tslider, &TimeSlider::newTimes, timecontrol, &TimeControl::setTimes);
-  connect(timecontrol, SIGNAL(data(std::string)),
-      tslider, SLOT(useData(std::string)));
-  connect(timecontrol, SIGNAL(timecontrolHide()),
-      SLOT(timecontrolslot()));
+  connect(timecontrol, SIGNAL(data(std::string)), tslider, SLOT(useData(std::string)));
+  connect(timecontrol, SIGNAL(timecontrolHide()), SLOT(timecontrolslot()));
 
   toolbar_ = new QToolBar("TimerToolBar", parent);
   toolbar_->setObjectName("TimerToolBar");
@@ -185,7 +176,7 @@ miutil::miTime TimeNavigator::selectedTime()
 void TimeNavigator::removeTimes(int id)
 {
   const std::vector<std::string> type = timecontrol->deleteType(id);
-  for(unsigned int i=0;i<type.size();i++)
+  for (unsigned int i = 0; i < type.size(); i++)
     tslider->deleteType(type[i]);
 }
 
@@ -214,27 +205,12 @@ std::vector<miutil::miTime> TimeNavigator::animationTimes() const
   return times;
 }
 
-miutil::miTime TimeNavigator::getLatestPlotTime() 
-{ 
+miutil::miTime TimeNavigator::getLatestPlotTime()
+{
   return tslider->getLatestPlotTime();
 }
 
-void TimeNavigator::setPalette(QPalette & p)
-{
-  tslider->setPalette(p);
-}
-
-void TimeNavigator::resetPalette()
-{
-  tslider->resetPalette();
-}
-
-bool TimeNavigator::getUseMinMax()
-{
-  tslider->getUseMinMax();
-}
-
-void TimeNavigator::timerEvent(QTimerEvent *e)
+void TimeNavigator::timerEvent(QTimerEvent* e)
 {
   if (e->timerId() == animationTimer) {
     miutil::miTime t;
@@ -303,7 +279,7 @@ void TimeNavigator::updateTimeLabelText()
 
 void TimeNavigator::animationLoop()
 {
-  timeloop= !timeloop;
+  timeloop = !timeloop;
   tslider->setLoop(timeloop);
 
   timeLoopAction->setChecked(timeloop);
@@ -329,17 +305,17 @@ void TimeNavigator::startAnimation(int direction)
     animationStop();
 
   tslider->startAnimation();
-  animationTimer= startTimer(timeout_ms);
+  animationTimer = startTimer(timeout_ms);
   animationDirection_ = direction;
 }
 
 void TimeNavigator::animationStop()
 {
-  timeBackwardAction->setChecked( false );
-  timeForewardAction->setChecked( false );
+  timeBackwardAction->setChecked(false);
+  timeForewardAction->setChecked(false);
 
   killTimer(animationTimer);
-  animationDirection_=0;
+  animationDirection_ = 0;
 }
 
 void TimeNavigator::stepTime(int direction)
@@ -364,27 +340,27 @@ void TimeNavigator::stepTimeBackward()
 
 void TimeNavigator::decreaseTimeStep()
 {
-  int v= timestep->value() - timestep->singleStep();
-  if (v<0)
-    v=0;
+  int v = timestep->value() - timestep->singleStep();
+  if (v < 0)
+    v = 0;
   timestep->setValue(v);
 }
 
 void TimeNavigator::increaseTimeStep()
 {
-  int v= timestep->value() + timestep->singleStep();
+  int v = timestep->value() + timestep->singleStep();
   timestep->setValue(v);
 }
 
 void TimeNavigator::timeoutChanged(float value)
 {
-  int msecvalue= static_cast<int>(value*1000);
+  int msecvalue = static_cast<int>(value * 1000);
   if (msecvalue != timeout_ms) {
-    timeout_ms= msecvalue;
+    timeout_ms = msecvalue;
 
-    if (animationDirection_!=0) {
+    if (animationDirection_ != 0) {
       killTimer(animationTimer);
-      animationTimer= startTimer(timeout_ms);
+      animationTimer = startTimer(timeout_ms);
     }
   }
 }

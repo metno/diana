@@ -37,40 +37,38 @@
 using namespace std;
 
 TimeSlider::TimeSlider(QWidget* parent)
-  : QSlider(parent)
-  , loop(false)
+    : QSlider(parent)
+    , loop(false)
 {
   init();
 }
 
-
-TimeSlider::TimeSlider(Qt::Orientation ori, QWidget *parent)
-  : QSlider(ori, parent)
-  , loop(false)
+TimeSlider::TimeSlider(Qt::Orientation ori, QWidget* parent)
+    : QSlider(ori, parent)
+    , loop(false)
 {
   init();
 }
-
 
 void TimeSlider::init()
 {
   plottimes_t tmp;
-  tlist["field"]= tmp;
-  tlist["sat"]= tmp;
-  tlist["obs"]= tmp;
-  tlist["product"]= tmp;
+  tlist["field"] = tmp;
+  tlist["sat"] = tmp;
+  tlist["obs"] = tmp;
+  tlist["product"] = tmp;
 
-  interval= 0.0;
+  interval = 0.0;
   setEnabled(false);
-  useminmax= false;
-  pal= palette();
-  startani= false;
+  useminmax = false;
+  pal = palette();
+  startani = false;
 }
 
 miutil::miTime TimeSlider::Value()
 {
   int v = value();
-  if (v>= 0 && v < int(times.size()))
+  if (v >= 0 && v < int(times.size()))
     return times[size_t(v)];
   else
     return miutil::miTime::nowTime();
@@ -81,25 +79,15 @@ miutil::miTime TimeSlider::getLatestPlotTime()
   std::set<miutil::miTime>::iterator tl = orig_times.end();
   miutil::miTime tlatest;
   int i = 0;
-  for (; tl!=orig_times.begin(); tl--) {
-	  if (i==1)
-	  {
-		METLIBS_LOG_DEBUG("latest time " << *tl);
-		tlatest = *tl;
-		break;
-      }
-	  i++;	  
-	
+  for (; tl != orig_times.begin(); tl--) {
+    if (i == 1) {
+      METLIBS_LOG_DEBUG("latest time " << *tl);
+      tlatest = *tl;
+      break;
+    }
+    i++;
   }
   return tlatest;
-}
-
-bool TimeSlider::getUseMinMax()
-{
-	if (orig_times.size() != times.size() || useminmax)
-		return true;
-	else
-		return false;
 }
 
 bool TimeSlider::hasTime(const miutil::miTime& time) const
@@ -109,7 +97,7 @@ bool TimeSlider::hasTime(const miutil::miTime& time) const
 
 void TimeSlider::setInterval(int in)
 {
-  interval= in;
+  interval = in;
 }
 
 void TimeSlider::setMinMax(const miutil::miTime& t1, const miutil::miTime& t2)
@@ -129,14 +117,9 @@ void TimeSlider::setMinMax(const miutil::miTime& t1, const miutil::miTime& t2)
   updateList();
 }
 
-void TimeSlider::resetPalette()
-{
-  setPalette(pal);
-}
-
 void TimeSlider::clearMinMax()
 {
-  useminmax= false;
+  useminmax = false;
   // reset colours..
   setPalette(pal);
   updateList();
@@ -144,7 +127,7 @@ void TimeSlider::clearMinMax()
 
 void TimeSlider::setLoop(bool b)
 {
-  loop= b;
+  loop = b;
 }
 
 bool TimeSlider::nextTime(const int dir, miutil::miTime& time)
@@ -237,7 +220,7 @@ static const struct DataTypeUse
 
 void TimeSlider::updateList()
 {
-  const int maxticks= 20;
+  const int maxticks = 20;
 
   orig_times.clear();
 
@@ -282,57 +265,57 @@ void TimeSlider::updateList()
   }
   times = std::vector<miutil::miTime>(qs, qe);
 
-  const int n= times.size();
-  if (n>1) {
+  const int n = times.size();
+  if (n > 1) {
     // find time-intervals
-    int iv, miniv=INT_MAX, maxiv=0;
-    for (int i=1; i<n; i++){
-      iv= miutil::miTime::minDiff(times[i],times[i-1]);
-      if (iv<miniv)
-        miniv= iv;
-      if (iv>maxiv)
-        maxiv= iv;
+    int iv, miniv = INT_MAX, maxiv = 0;
+    for (int i = 1; i < n; i++) {
+      iv = miutil::miTime::minDiff(times[i], times[i - 1]);
+      if (iv < miniv)
+        miniv = iv;
+      if (iv > maxiv)
+        maxiv = iv;
     }
-    if (miniv<1)
-      miniv= 1;
-    int meaniv = (miniv+maxiv)/2;
-    //HK added next line in order to avoid division by zero
-    if (meaniv<1)
-      meaniv= 1;
+    if (miniv < 1)
+      miniv = 1;
+    int meaniv = (miniv + maxiv) / 2;
+    // HK added next line in order to avoid division by zero
+    if (meaniv < 1)
+      meaniv = 1;
     // calculate reasonable tickmarks
-    iv= 180/meaniv;
-    if (iv==0)
-      iv= 1;
-    while (n/iv>maxticks)
-      iv*= 2;
+    iv = 180 / meaniv;
+    if (iv == 0)
+      iv = 1;
+    while (n / iv > maxticks)
+      iv *= 2;
 
     setTickPosition(TicksBelow);
     setTickInterval(iv);
     setSingleStep(1);
     setPageStep(iv);
 
-    float hourinterval= miniv/60.0;
+    float hourinterval = miniv / 60.0;
     // emit smallest timeinterval (in hours)
     // and steps for interval-spinbox
-    if(hourinterval<1) {
-      if (hourinterval>interval)
+    if (hourinterval < 1) {
+      if (hourinterval > interval)
         emit minInterval(0);
-      emit timeSteps(1,2);
+      emit timeSteps(1, 2);
     } else {
-      emit timeSteps(int(hourinterval),int(2*hourinterval));
+      emit timeSteps(int(hourinterval), int(2 * hourinterval));
     }
 
     emit enableSpin(true);
     setEnabled(true);
-    setRange(0,n-1);
+    setRange(0, n - 1);
     setFirstTime(prevtime);
-  } else if(n==1){
+  } else if (n == 1) {
     setFirstTime(prevtime);
-    //emit minInterval(0);
+    // emit minInterval(0);
     emit enableSpin(false);
     setEnabled(false);
   } else {
-    //emit minInterval(0);
+    // emit minInterval(0);
     emit enableSpin(false);
     setEnabled(false);
   }
@@ -354,7 +337,6 @@ bool TimeSlider::setTimeForDataType(const std::string& datatype, const miutil::m
   return true;
 }
 
-
 // Set slider to reasonable value - called after
 // changes in the total timeseries. Try to keep current
 // time close to previous selected time - if that is impossible,
@@ -364,27 +346,27 @@ void TimeSlider::setFirstTime(const miutil::miTime& t)
   miutil::miTime ptime;
   miutil::miTime now = miutil::miTime::nowTime();
   if (t.undef()) { // only very first time we enter setFirstTime
-    ptime= now;  // try to choose nowtime
+    ptime = now;   // try to choose nowtime
   } else
-    ptime= t;
+    ptime = t;
 
-  int n= times.size();
+  int n = times.size();
   int i;
 
-  for (i=0; i<n && times[i]<ptime; i++)
+  for (i = 0; i < n && times[i] < ptime; i++)
     ;
-  if (i==n)
-    i= n-1;
+  if (i == n)
+    i = n - 1;
 
   if (times[i] == ptime) { // exact time
     setSliderValue(i);
-  } else if (i>=n-1 || i==0) { // previous time outside interval
+  } else if (i >= n - 1 || i == 0) { // previous time outside interval
     // check if nowtime inside interval
-    if (now>=times[0] && now<=times[n-1]) {
-      for (i=0; i<n && times[i]<now; i++)
+    if (now >= times[0] && now <= times[n - 1]) {
+      for (i = 0; i < n && times[i] < now; i++)
         ;
-      if (i==n)
-        i= n-1;
+      if (i == n)
+        i = n - 1;
       setSliderValue(i);
 
     } else {
@@ -392,12 +374,12 @@ void TimeSlider::setFirstTime(const miutil::miTime& t)
       if (now < times[0]) {
         setSliderValue(0);
       } else if (tlist["field"].size() == 0) {
-        setSliderValue(n-1);
+        setSliderValue(n - 1);
       } else {
-        miutil::miTime tmax= times[n-1];
+        miutil::miTime tmax = times[n - 1];
         tmax.addHour(24);
-        if (now<tmax)
-          setSliderValue(n-1);
+        if (now < tmax)
+          setSliderValue(n - 1);
         else
           setSliderValue(0);
       }
@@ -405,24 +387,23 @@ void TimeSlider::setFirstTime(const miutil::miTime& t)
 
   } else {
     // find closest time
-    int nsec= miutil::miTime::secDiff(times[i],ptime);
-    int psec= miutil::miTime::secDiff(ptime,times[i-1]);
+    int nsec = miutil::miTime::secDiff(times[i], ptime);
+    int psec = miutil::miTime::secDiff(ptime, times[i - 1]);
     if (nsec < psec)
       setSliderValue(i);
     else
-      setSliderValue(i-1);
+      setSliderValue(i - 1);
   }
 
   emit sliderSet();
 }
 
-
 // Set slider to value v (if legal value)
 // Remember corresponding miutil::miTime as prevtime.
 bool TimeSlider::setSliderValue(int v)
 {
-  int n= times.size();
-  if (v>=0 && v<n) {
+  int n = times.size();
+  if (v >= 0 && v < n) {
     setValue(v);
     prevtime = times[v];
     return true;
@@ -431,17 +412,16 @@ bool TimeSlider::setSliderValue(int v)
   }
 }
 
-
 // set slider to value corresponding to a miutil::miTime
 // For illegal values: do nothing
 void TimeSlider::set(const miutil::miTime& t)
 {
-  int n= times.size();
-  int v=-1, i;
-  for (i=0; i<n && times[i]<t; i++) {
+  int n = times.size();
+  int v = -1, i;
+  for (i = 0; i < n && times[i] < t; i++) {
   }
-  if ((i<n) && (t==times[i]))
-    v=i;
+  if ((i < n) && (t == times[i]))
+    v = i;
 
   setSliderValue(v);
 }

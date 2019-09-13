@@ -39,12 +39,12 @@
 
 #include <puTools/miTime.h>
 
-#include <QMainWindow>
-#include <QLabel>
 #include <QFocusEvent>
+#include <QLabel>
+#include <QMainWindow>
 
-#include <vector>
 #include <deque>
+#include <vector>
 
 class QAction;
 class QDockWidget;
@@ -101,11 +101,11 @@ class MovieMaker;
 
 */
 
-class DianaMainWindow: public QMainWindow
+class DianaMainWindow : public QMainWindow
 {
   Q_OBJECT
 public:
-  DianaMainWindow(Controller*, const QString& instancename="Diana");
+  DianaMainWindow(Controller*, const QString& instancename = "Diana");
   ~DianaMainWindow();
 
   /// check if news file has changed since last startup
@@ -113,7 +113,7 @@ public:
   void start();
 
   /// Returns the application's main window instance.
-  static DianaMainWindow *instance();
+  static DianaMainWindow* instance();
 
   static std::string getLogFileDir();
   static std::string getLogFileExt();
@@ -127,10 +127,10 @@ public:
   void applyQuickMenu(const QString& qmenu, const QString& qitem);
 
 protected:
-  void focusInEvent ( QFocusEvent * );
-  void closeEvent( QCloseEvent* );
-  void dragEnterEvent(QDragEnterEvent *event);
-  void dropEvent(QDropEvent *event);
+  void focusInEvent(QFocusEvent*);
+  void closeEvent(QCloseEvent*);
+  void dragEnterEvent(QDragEnterEvent* event);
+  void dropEvent(QDropEvent* event);
   bool event(QEvent* event);
 
 private Q_SLOTS:
@@ -163,7 +163,7 @@ private Q_SLOTS:
   void measurementsPositions(bool);
   void catchMouseGridPos(QMouseEvent*);
   void catchMouseRightPos(QMouseEvent*);
-  void catchMouseMovePos(QMouseEvent*,bool);
+  void catchMouseMovePos(QMouseEvent*, bool);
   void catchKeyPress(QKeyEvent*);
   void catchMouseDoubleClick(QMouseEvent*);
   void catchElement(QMouseEvent*);
@@ -183,7 +183,7 @@ private Q_SLOTS:
   void filequit();
   void writeLogFile();
 
-  void info_activated(QAction *);
+  void info_activated(QAction*);
   void hideVprofWindow();
   void hideSpectrumWindow();
   void stationChangedSlot(const std::vector<std::string>&);
@@ -208,6 +208,7 @@ private Q_SLOTS:
 
   void updateObs();
   void autoUpdate();
+  void checkAutoUpdate();
   void updateGLSlot();
   void showElements();
   void archiveMode();
@@ -236,7 +237,7 @@ private Q_SLOTS:
   void toggleEditDrawingMode();
   void setEditDrawingMode(bool);
 
-  void setWorkAreaCursor(const QCursor &);
+  void setWorkAreaCursor(const QCursor&);
   void unsetWorkAreaCursor();
 
   void updatePlotElements();
@@ -260,93 +261,93 @@ private:
   DianaImageSource* imageSource();
 
 private:
-  bool browsing;       // user browsing through plot-stack
-  BrowserBox* browser; // shows plot-stack
-  bool updateBrowser();// update browser-window
+  bool browsing;        // user browsing through plot-stack
+  BrowserBox* browser;  // shows plot-stack
+  bool updateBrowser(); // update browser-window
   bool doAutoUpdate;
 
-  int displayWidth,displayHeight;
+  int displayWidth, displayHeight;
 
-  QAction * optOnOffAction;
-  QAction * optArchiveAction;
-  QAction * optAutoElementAction;
-  QAction * optAnnotationAction;
-  QAction * optScrollwheelZoomAction;
-  QAction * optFontAction;
+  QAction* optOnOffAction;
+  QAction* optArchiveAction;
+  QAction* optAutoElementAction;
+  QAction* optAnnotationAction;
+  QAction* optScrollwheelZoomAction;
+  QAction* optFontAction;
 
-  QAction * showHideAllAction;
-  QAction * showQuickmenuAction;
-  QAction * showMapDialogAction;
-  QAction * showEditDialogAction;
-  QAction * showTrajecDialogAction;
-  QAction * showAnnotationDialogAction;
-  QAction * showMeasurementsDialogAction;
+  QAction* showHideAllAction;
+  QAction* showQuickmenuAction;
+  QAction* showMapDialogAction;
+  QAction* showEditDialogAction;
+  QAction* showTrajecDialogAction;
+  QAction* showAnnotationDialogAction;
+  QAction* showMeasurementsDialogAction;
 
-  QAction * toolLevelUpAction;
-  QAction * toolLevelDownAction;
+  QAction* toolLevelUpAction;
+  QAction* toolLevelDownAction;
 
-  QAction * toolIdnumUpAction;
-  QAction * toolIdnumDownAction;
+  QAction* toolIdnumUpAction;
+  QAction* toolIdnumDownAction;
 
-  QAction * autoUpdateAction;
+  QAction* autoUpdateAction;
 
-  QMenu * showmenu;
+  QMenu* showmenu;
 
-  QToolBar * mainToolbar;
-  QToolBar * levelToolbar;
+  QToolBar* mainToolbar;
+  QToolBar* levelToolbar;
 
   TimeNavigator* timeNavigator;
 
   // printerdefinitions
   printOptions priop;
 
-  WorkArea          * w;
-  QuickMenu         * qm;
-  MapDialog         * mm;
+  WorkArea* w;
+  QuickMenu* qm;
+  MapDialog* mm;
   QDockWidget* mmdock;
-  EditDialog        * em;
-  FieldDialog       * fm;
-  ObsDialog         * om;
-  SatDialog         * sm;
-  StationDialog     * stm;
-  ObjectDialog      * objm;
-  TrajectoryDialog  * trajm;
-  AnnotationDialog  * annom;
-  MeasurementsDialog   * measurementsm;
-  HelpDialog        * help;
-  EditItems::ToolBar * editDrawingToolBar;
+  EditDialog* em;
+  FieldDialog* fm;
+  ObsDialog* om;
+  SatDialog* sm;
+  StationDialog* stm;
+  ObjectDialog* objm;
+  TrajectoryDialog* trajm;
+  AnnotationDialog* annom;
+  MeasurementsDialog* measurementsm;
+  HelpDialog* help;
+  EditItems::ToolBar* editDrawingToolBar;
 
-  bool                markTrajPos; //left mouse click -> mark trajectory position
-  bool                markMeasurementsPos; //left mouse click -> mark measurement position
+  bool markTrajPos;         // left mouse click -> mark trajectory position
+  bool markMeasurementsPos; // left mouse click -> mark measurement position
 
-  VprofWindow       * vpWindow;
+  VprofWindow* vpWindow;
   std::unique_ptr<VcrossInterface> vcInterface;
   bool vcrossEditManagerConnected;
 
-  SpectrumWindow    * spWindow;
-  std::map<std::string,InfoFile> infoFiles;
+  SpectrumWindow* spWindow;
+  std::map<std::string, InfoFile> infoFiles;
 
   ExportImageDialog* exportImageDialog_;
 
   // statusbar widgets
-  StatusGeopos      * sgeopos;
-  StatusPlotButtons * statusbuttons;
-  ShowSatValues     * showsatval;
-  QLabel            * archiveL;
-  ClientSelection   * pluginB;
+  StatusGeopos* sgeopos;
+  StatusPlotButtons* statusbuttons;
+  ShowSatValues* showsatval;
+  QLabel* archiveL;
+  ClientSelection* pluginB;
 
   Controller* contr;
 
   std::unique_ptr<DianaImageSource> imageSource_;
 
-  bool          showelem;    ///> show on/off buttons
-  bool          autoselect;  ///> autoselect element on mousemove
+  bool showelem;   ///> show on/off buttons
+  bool autoselect; ///> autoselect element on mousemove
 
-  //QSocket
-  TextView *textview;
+  // QSocket
+  TextView* textview;
   bool qsocket;
   bool handlingTimeMessage;
-  std::map<int,bool> autoredraw;
+  std::map<int, bool> autoredraw;
 
   void levelChange(int increment, int axis);
 
@@ -355,19 +356,17 @@ private:
   std::string saveDocState();
   void restoreDocState(const std::string& logstr);
 
-  std::vector<std::string> writeLog(const std::string& thisVersion,
-      const std::string& thisBuild);
-  void readLog(const std::vector<std::string>& vstr,
-      const std::string& thisVersion, std::string& logVersion);
+  std::vector<std::string> writeLog(const std::string& thisVersion, const std::string& thisBuild);
+  void readLog(const std::vector<std::string>& vstr, const std::string& thisVersion, std::string& logVersion);
   void getDisplaySize();
   void vprofStartup();
   void spectrumStartup();
-  void getPlotStrings(PlotCommand_cpv &pstr, std::vector<std::string> &shortnames);
+  void getPlotStrings(PlotCommand_cpv& pstr, std::vector<std::string>& shortnames);
 
   std::map<QAction*, DataDialog*> dialogs;
   std::map<std::string, DataDialog*> dialogNames;
 
-  static DianaMainWindow *self;   // singleton instance pointer
+  static DianaMainWindow* self; // singleton instance pointer
 };
 
 #endif

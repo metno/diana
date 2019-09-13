@@ -49,24 +49,19 @@ class TimeNavigator : public QObject
 {
   Q_OBJECT
 public:
-  explicit TimeNavigator(QWidget *parent = 0);
+  explicit TimeNavigator(QWidget* parent = 0);
 
   void requestTime(const miutil::miTime&);
   bool hasTimes() const;
   miutil::miTime selectedTime();
   void removeTimes(int id);
-  void useData(const std::string& type, int id=-1);
-  bool isTimerOn() const
-    { return animationDirection_ != 0; }
+  void useData(const std::string& type, int id = -1);
+  bool isTimerOn() const { return animationDirection_ != 0; }
   std::vector<miutil::miTime> animationTimes() const;
 
-  QToolBar* toolbar()
-    { return toolbar_; }
-    
+  QToolBar* toolbar() { return toolbar_; }
+
   miutil::miTime getLatestPlotTime();
-  void setPalette(QPalette & p);
-  void resetPalette();
-  bool getUseMinMax();
 
 protected:
   void timerEvent(QTimerEvent*);
@@ -127,7 +122,7 @@ private:
   TimeSlider* tslider;       ///> the time slider
   TimeStepSpinbox* timestep; ///> the timestep widget
   TimeControl* timecontrol;  ///> time control dialog
-  QLabel *timelabel;         ///> showing current time
+  QLabel* timelabel;         ///> showing current time
 };
 
 #endif // TIMENAVIGATOR_H
