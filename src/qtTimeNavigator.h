@@ -62,6 +62,8 @@ public:
 
   QToolBar* toolbar()
     { return toolbar_; }
+	
+  miutil::miTime getLatestPlotTime();
 
 protected:
   void timerEvent(QTimerEvent*);

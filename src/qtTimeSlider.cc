@@ -76,6 +76,22 @@ miutil::miTime TimeSlider::Value()
     return miutil::miTime::nowTime();
 }
 
+miutil::miTime TimeSlider::getLatestPlotTime()
+{
+  std::set<miutil::miTime>::iterator tl = orig_times.end();
+  miutil::miTime tlatest;
+  int i = 0;
+  for (; tl != orig_times.begin(); tl--) {
+    if (i == 1) {
+      METLIBS_LOG_DEBUG("latest time " << *tl);
+      tlatest = *tl;
+      break;
+    }
+    i++;
+  }
+  return tlatest;
+}
+
 bool TimeSlider::hasTime(const miutil::miTime& time) const
 {
   return (std::find(times.begin(), times.end(), time) != times.end());
