@@ -662,6 +662,7 @@ SET_PROPERTY(SOURCE ${LIBDIANAUI_UIS} ${DIANA_UIS} diBuild.cc PROPERTY SKIP_AUTO
 SET(TS_DIR "${CMAKE_SOURCE_DIR}/share/diana/lang")
 METNO_QT_CREATE_TRANSLATION(LIBDIANAUI_QM
   TSFILES
+   ${TS_DIR}/diana_bn.ts
    ${TS_DIR}/diana_en.ts
    ${TS_DIR}/diana_es.ts
    ${TS_DIR}/diana_no.ts
