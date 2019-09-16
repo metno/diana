@@ -501,6 +501,7 @@ void WeatherObjects::addObject(ObjectPlot* object, bool replace)
     objects.erase(std::remove_if(objects.begin(), objects.end(), [&](ObjectPlot* op) { return op->getName() == object->getName(); }), objects.end());
   }
 
+  switchProjection(mapArea);
   objects.push_back(object);
   object->setRegion(prefix);
 }
