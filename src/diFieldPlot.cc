@@ -54,7 +54,6 @@ FieldPlot::FieldPlot(FieldPlotManager* fieldplotm)
     , renderer_(std::make_shared<FieldRenderer>())
 {
   METLIBS_LOG_SCOPE();
-  renderer_->setBackgroundColour(getStaticPlot()->getBackgroundColour());
   renderer_->setGridConverter(&getStaticPlot()->gc);
 }
 
@@ -566,6 +565,7 @@ void FieldPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     gl->Disable(DiGLPainter::gl_MULTISAMPLE);
 
   renderer_->setPlotOptions(poptions);
+  renderer_->setBackgroundColour(getStaticPlot()->getBackgroundColour());
   renderer_->setMap(getStaticPlot()->plotArea());
   renderer_->plot(gl, zorder);
 }
