@@ -1,3 +1,12 @@
+diana-3.52 (3.52.1-1) unstable; urgency=low
+
+  * bugfix WeatherObjects: use map projection before adding object
+  * bugfix FieldPlot frame bg fill
+  * bugfix DiOpenGLCanvas: make QGLWidget current before loading fonts
+  * bugfix DiOpenGLCanvas: re-apply vpgl size after parseFontSetup
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 16 Sep 2019 13:55:00 +0200
+
 diana-3.52 (3.52.0-1) unstable; urgency=low
 
   * 3.52.0
