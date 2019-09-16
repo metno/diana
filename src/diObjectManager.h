@@ -221,7 +221,7 @@ public:
   /// returns true if x,y over any symbols,fronts,areas
   bool editCheckPosition(const float x, const float y);
   /// adds a point at x,y to objects being edited
-  void editAddPoint(const float x, const float y);
+  void editAddPoint(float x, float y);
   /// move marked points, x and y are the distance to be moved
   bool editMoveMarkedPoints(const float x, const float y);
   /// rotate front when one point marked, x and y are the distance to be rotated

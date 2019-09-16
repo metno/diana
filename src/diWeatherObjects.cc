@@ -54,6 +54,21 @@ using namespace std;
 
 namespace {
 const std::string ObjectTypeNames[] = {"edittool", "front", "symbol", "area", "anno"};
+
+const Area geoArea(Projection::geographic(), Rectangle());
+
+bool convertProjection(const Projection& from, const Projection& to, int n, float* x, float* y)
+{
+  if (from == to)
+    return true;
+  else if (from == geoArea.P())
+    return to.convertFromGeographic(n, x, y);
+  else if (to == geoArea.P())
+    return from.convertToGeographic(n, x, y);
+  else
+    return to.convertPoints(from, n, x, y);
+}
+
 } // namespace
 
 WeatherObjects::WeatherObjects()
@@ -63,8 +78,6 @@ WeatherObjects::WeatherObjects()
 {
   METLIBS_LOG_SCOPE();
 
-  // correct spec. when making Projection for long/lat coordinates
-  geoArea.setP(Projection::geographic());
   itsArea = geoArea;
 
   //use all objects if nothing else specified
@@ -74,6 +87,12 @@ WeatherObjects::WeatherObjects()
 
 WeatherObjects::~WeatherObjects()
 {
+}
+
+// static
+const Area& WeatherObjects::getGeoArea()
+{
+  return geoArea;
 }
 
 const miutil::miTime& WeatherObjects::getTime() const
@@ -131,6 +150,16 @@ void WeatherObjects::changeProjection(const Area& newArea, const Rectangle& /*pl
   mapArea = newArea;
 }
 
+bool WeatherObjects::convertFromProjection(const Area& pointProjection, int n, float* x, float* y)
+{
+  return convertProjection(pointProjection.P(), itsArea.P(), n, x, y);
+}
+
+bool WeatherObjects::convertToProjection(const Area& pointProjection, int n, float* x, float* y)
+{
+  return convertProjection(itsArea.P(), pointProjection.P(), n, x, y);
+}
+
 bool WeatherObjects::switchProjection(const Area& newArea)
 {
   METLIBS_LOG_SCOPE("Change projection from " << itsArea <<" to " << newArea);
@@ -163,16 +192,7 @@ bool WeatherObjects::switchProjection(const Area& newArea)
   xpos[n]=xcopy;
   ypos[n]=ycopy;
 
-  bool converted;
-  if (itsArea.P() == geoArea.P()) {
-    converted = newArea.P().convertFromGeographic(npos, xpos.get(), ypos.get());
-  } else if (newArea.P() == geoArea.P()) {
-    converted = itsArea.P().convertToGeographic(npos, xpos.get(), ypos.get());
-  } else {
-    converted = newArea.P().convertPoints(itsArea.P(), npos, xpos.get(), ypos.get());
-  }
-
-  if (!converted) {
+  if (!convertToProjection(newArea, npos, xpos.get(), ypos.get())) {
     METLIBS_LOG_ERROR("coordinate conversion error");
     return false;
   }
@@ -501,7 +521,6 @@ void WeatherObjects::addObject(ObjectPlot* object, bool replace)
     objects.erase(std::remove_if(objects.begin(), objects.end(), [&](ObjectPlot* op) { return op->getName() == object->getName(); }), objects.end());
   }
 
-  switchProjection(mapArea);
   objects.push_back(object);
   object->setRegion(prefix);
 }

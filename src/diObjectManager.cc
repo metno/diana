@@ -934,16 +934,18 @@ void ObjectManager::editDeleteMarkedPoints()
     doCombine = combiningobjects.editDeleteMarkedPoints();
 }
 
-
-void ObjectManager::editAddPoint(const float x, const float y)
+void ObjectManager::editAddPoint(float x, float y)
 {
   METLIBS_LOG_SCOPE();
+  // x,y are in plotm->getMapArea coordinates
 
   if(mapmode== draw_mode){
     editPrepareChange(AddPoint);
+    editobjects.convertFromProjection(plotm->getMapArea(), 1, &x, &y); // convert x,y to editobjects' current projection
     editobjects.editAddPoint(x,y);
     editPostOperation();
   } else if (mapmode==combine_mode)
+    combiningobjects.convertFromProjection(plotm->getMapArea(), 1, &x, &y); // convert x,y to combiningobjects' current projection
     doCombine=combiningobjects.editAddPoint(x,y);
 }
 

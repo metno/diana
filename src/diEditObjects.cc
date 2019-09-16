@@ -486,7 +486,7 @@ void EditObjects::editCopyObjects()
     }
   }
   copyObjects.setArea(itsArea);
-  copyObjects.switchProjection(geoArea);
+  copyObjects.switchProjection(getGeoArea());
 }
 
 

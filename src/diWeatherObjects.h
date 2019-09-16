@@ -97,6 +97,9 @@ public:
   /// force projection to newArea projection
   bool switchProjection(const Area& newArea);
 
+  bool convertFromProjection(const Area& pointProjection, int n, float* x, float* y);
+  bool convertToProjection(const Area& pointProjection, int n, float* x, float* y);
+
   /// read file with comments
   bool readEditCommentFile(const std::string fn);
 
@@ -149,6 +152,9 @@ public:
   /// x,y for copied objects
   float xcopy,ycopy;
 
+protected:
+  static const Area& getGeoArea();
+
 private:
   std::map<std::string,bool> useobject;
   bool enabled;
@@ -157,7 +163,6 @@ protected:
   std::string prefix;               //VA,VV,VNN...
   Area itsArea;                  // current object area
   Area mapArea;                  // map object area, to be used for next plot
-  Area geoArea;
 
   miutil::miTime itsTime;                //plot time
   std::string itsOldComments;       // the comment string to edit
