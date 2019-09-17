@@ -944,9 +944,10 @@ void ObjectManager::editAddPoint(float x, float y)
     editobjects.convertFromProjection(plotm->getMapArea(), 1, &x, &y); // convert x,y to editobjects' current projection
     editobjects.editAddPoint(x,y);
     editPostOperation();
-  } else if (mapmode==combine_mode)
+  } else if (mapmode==combine_mode) {
     combiningobjects.convertFromProjection(plotm->getMapArea(), 1, &x, &y); // convert x,y to combiningobjects' current projection
     doCombine=combiningobjects.editAddPoint(x,y);
+  }
 }
 
 
