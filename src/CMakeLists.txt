@@ -513,6 +513,8 @@ SET (LIBDIANAUI_XPM
   active_object.xpm
   apply.xpm
   autoupdate.xpm
+  autoupdate_red.xpm
+  autoupdate_yellow.xpm
   back.xpm
   bakover.xpm
   balloon.xpm

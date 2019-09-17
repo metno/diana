@@ -208,6 +208,7 @@ private Q_SLOTS:
 
   void updateObs();
   void autoUpdate();
+  void checkAutoUpdate();
   void updateGLSlot();
   void showElements();
   void archiveMode();

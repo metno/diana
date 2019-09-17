@@ -164,6 +164,8 @@
 #include <ruler.xpm>
 #include <info.xpm>
 #include <autoupdate.xpm>
+#include <autoupdate_red.xpm>
+#include <autoupdate_yellow.xpm>
 #include <drawing.xpm>
 #include <editdrawing.xpm>
 
@@ -210,6 +212,7 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
   connect(timeNavigator, &TimeNavigator::lastStep, om, &ObsDialog::updateTimes);
   connect(timeNavigator, &TimeNavigator::lastStep, sm, &SatDialog::updateTimes);
   connect(timeNavigator, &TimeNavigator::lastStep, objm, &ObjectDialog::updateTimes);
+  connect(timeNavigator, &TimeNavigator::lastStep, this, &DianaMainWindow::checkAutoUpdate);
 
   //-------- The Actions ---------------------------------
 
@@ -438,7 +441,7 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
 
   // Autoupdate ===============================
   // --------------------------------------------------------------------
-  autoUpdateAction = new QAction(QIcon( QPixmap(autoupdate_xpm)),
+  autoUpdateAction = new QAction(QIcon( QPixmap(autoupdate_yellow_xpm)),
       tr("Automatic updates"), this );
   autoUpdateAction->setCheckable(true);
   autoUpdateAction->setIconVisibleInMenu(true);
@@ -1606,6 +1609,10 @@ void DianaMainWindow::connectionClosed()
 {
   //  METLIBS_LOG_DEBUG("Connection closed");
   qsocket = false;
+  
+  if (doAutoUpdate) {
+    autoUpdateAction->setIcon(QIcon(QPixmap(autoupdate_red_xpm)));
+  }
 
   contr->stationCommand("delete","all");
   contr->areaObjectsCommand("delete","all", std::vector<std::string>(1, "all"),-1);
@@ -1848,6 +1855,9 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
 
   else if (command == qmstrings::newclient) {
     qsocket = true;
+	if (doAutoUpdate) {
+      autoUpdateAction->setIcon(QIcon(QPixmap(autoupdate_xpm)));
+    }
     autoredraw[qletter.getCommonValue(0).toInt()] = true;
     autoredraw[0] = true; //from server
   }
@@ -1903,11 +1913,32 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
   // show the latest timestep
   else if (command == qmstrings::directory_changed) {
     if (doAutoUpdate) {
-      om->updateTimes();
-      sm->updateTimes();
-    }
-  }
+      if (timeNavigator->isTimerOn() != 0) {
+        sm->updateTimes();
+        om->updateTimes();
+      } else {
+        miutil::miTime ts = timeNavigator->selectedTime();
+        // Get latest time before update.
+        miutil::miTime tb = timeNavigator->getLastTime();
 
+        sm->updateTimes();
+        om->updateTimes();
+
+        // Get latest time after update.
+        miutil::miTime ta = timeNavigator->getLastTime();
+        if (!ts.undef() && !tb.undef() && !ta.undef()) {
+          if (ts < tb) {
+            autoUpdateAction->setIcon(QIcon(QPixmap(autoupdate_red_xpm)));
+          } else {
+            autoUpdateAction->setIcon(QIcon(QPixmap(autoupdate_xpm)));
+            handlingTimeMessage = true;
+            timeNavigator->requestTime(ta); // triggers "timeSelected" signal, connected to "setPlotTime"
+            handlingTimeMessage = false;
+          }
+        }
+	  }
+	}
+  }
   // If autoupdate is active, do the same thing as
   // when the user presses the updateObs button.
   else if (command == qmstrings::file_changed) {
@@ -1960,7 +1991,25 @@ void DianaMainWindow::autoUpdate()
   METLIBS_LOG_SCOPE();
   doAutoUpdate = !doAutoUpdate;
   METLIBS_LOG_DEBUG(LOGVAL(doAutoUpdate));
+  
+  if (!doAutoUpdate) {
+    autoUpdateAction->setIcon(QIcon(QPixmap(autoupdate_yellow_xpm)));
+  } else {
+    // Check if connected 
+    if (qsocket) {
+      autoUpdateAction->setIcon(QIcon(QPixmap(autoupdate_xpm)));
+    } else {
+      autoUpdateAction->setIcon(QIcon(QPixmap(autoupdate_red_xpm)));
+    }
+  }
   autoUpdateAction->setChecked(doAutoUpdate);
+}
+
+void DianaMainWindow::checkAutoUpdate()
+{
+  if (qsocket &&  doAutoUpdate) {
+    autoUpdateAction->setIcon(QIcon(QPixmap(autoupdate_xpm)));
+  }
 }
 
 void DianaMainWindow::requestBackgroundBufferUpdate()
