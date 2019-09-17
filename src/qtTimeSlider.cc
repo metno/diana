@@ -125,7 +125,7 @@ bool TimeSlider::nextTime(const int dir, miutil::miTime& time)
     const int v = value(), n = times.size();
     if (n == 0 || v < 0 || v >= n)
       return false;
-    if (v == n - 1)
+    if (v == n - 1 && times[v] == *orig_times.rbegin())
       Q_EMIT lastStep(); // might change 'times'
   }
 
