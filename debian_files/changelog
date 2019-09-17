@@ -1,3 +1,9 @@
+diana-3.52 (3.52.3-1) unstable; urgency=low
+
+  * bugfix ObjectManager
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 17 Sep 2019 08:00:08 +0200
+
 diana-3.52 (3.52.2-1) unstable; urgency=low
 
   * bugfix ObjectManager / WeatherObjects
