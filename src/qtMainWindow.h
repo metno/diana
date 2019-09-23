@@ -208,6 +208,7 @@ private Q_SLOTS:
 
   void updateObs();
   void autoUpdate();
+  void checkAutoUpdate();
   void updateGLSlot();
   void showElements();
   void archiveMode();
@@ -247,6 +248,9 @@ Q_SIGNALS:
   void instanceNameChanged(const QString&);
 
 private:
+  enum AutoUpdateStatus { AUTOUPDATE_OFF, AUTOUPDATE_ON, AUTOUPDATE_WARN, N_AUTOUPDATE = AUTOUPDATE_WARN };
+
+private:
   /// Adds a dialog for use with a manager.
   void addDialog(DataDialog* dialog);
 
@@ -258,6 +262,8 @@ private:
   void createHelpDialog();
   void vcrossEditManagerEnableSignals();
   DianaImageSource* imageSource();
+
+  void showAutoUpdateStatus(AutoUpdateStatus aus);
 
 private:
   bool browsing;       // user browsing through plot-stack

@@ -214,6 +214,11 @@ std::vector<miutil::miTime> TimeNavigator::animationTimes() const
   return times;
 }
 
+miutil::miTime TimeNavigator::getLastTime()
+{
+  return tslider->getLastTime();
+}
+
 void TimeNavigator::timerEvent(QTimerEvent *e)
 {
   if (e->timerId() == animationTimer) {
