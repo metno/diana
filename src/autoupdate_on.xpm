@@ -1,5 +1,5 @@
 /* XPM */
-static const char *autoupdate_xpm[] = {
+static const char *autoupdate_on_xpm[] = {
 "32 32 124 2",
 "  	c None",
 ". 	c #B2D3D5",

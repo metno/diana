@@ -1,5 +1,5 @@
 /* XPM */
-static const char * autoupdate_red_xpm[] = {
+static const char * autoupdate_warn_xpm[] = {
 "32 32 116 2",
 "  	c None",
 ". 	c #FF6666",

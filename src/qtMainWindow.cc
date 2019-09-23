@@ -139,35 +139,33 @@
 #define MILOGGER_CATEGORY "diana.MainWindow"
 #include <qUtilities/miLoggingQt.h>
 
+#include <Tool_32_draw.xpm>
+#include <autoupdate_off.xpm>
+#include <autoupdate_on.xpm>
+#include <autoupdate_warn.xpm>
+#include <balloon.xpm>
 #include <diana_icon.xpm>
-#include <pick.xpm>
+#include <drawing.xpm>
 #include <earth3.xpm>
-//#include <fileprint.xpm>
-//#include <question.xpm>
-#include <thumbs_up.xpm>
-#include <thumbs_down.xpm>
+#include <editdrawing.xpm>
+#include <felt.xpm>
+#include <front.xpm>
+#include <idnumDown.xpm>
+#include <idnumUp.xpm>
+#include <info.xpm>
+#include <levelDown.xpm>
+#include <levelUp.xpm>
+#include <pick.xpm>
+#include <ruler.xpm>
+#include <sat.xpm>
+#include <spectrum.xpm>
+#include <station.xpm>
 #include <synop.xpm>
 #include <synop_red.xpm>
-#include <felt.xpm>
-#include <Tool_32_draw.xpm>
-#include <sat.xpm>
-#include <station.xpm>
-#include <levelUp.xpm>
-#include <levelDown.xpm>
-#include <idnumUp.xpm>
-#include <idnumDown.xpm>
-#include <front.xpm>
-#include <balloon.xpm>
-#include <vcross.xpm>
-#include <spectrum.xpm>
+#include <thumbs_down.xpm>
+#include <thumbs_up.xpm>
 #include <traj.xpm>
-#include <ruler.xpm>
-#include <info.xpm>
-#include <autoupdate.xpm>
-#include <autoupdate_red.xpm>
-#include <autoupdate_yellow.xpm>
-#include <drawing.xpm>
-#include <editdrawing.xpm>
+#include <vcross.xpm>
 
 #define DIANA_RESTORE_DIALOG_POSITIONS
 //#define DISABLE_VPROF 1
@@ -439,15 +437,6 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
   obsUpdateAction->setIconVisibleInMenu(true);
   connect( obsUpdateAction, SIGNAL( triggered() ), SLOT(updateObs()));
 
-  // Autoupdate ===============================
-  // --------------------------------------------------------------------
-  autoUpdateAction = new QAction(QIcon( QPixmap(autoupdate_yellow_xpm)),
-      tr("Automatic updates"), this );
-  autoUpdateAction->setCheckable(true);
-  autoUpdateAction->setIconVisibleInMenu(true);
-  doAutoUpdate = false;
-  connect( autoUpdateAction, SIGNAL( triggered() ), SLOT(autoUpdate()));
-
   // edit  ===============================
   // --------------------------------------------------------------------
   QAction* undoAction = new QAction(this);
@@ -582,16 +571,22 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
   levelToolbar->addAction( toolIdnumDownAction );
   levelToolbar->addSeparator();
   levelToolbar->addAction( obsUpdateAction );
-#ifdef SMHI
-  levelToolbar->addAction( autoUpdateAction );
-#endif
-  /**************** Toolbar Buttons *********************************************/
 
-  //  mainToolbar = new QToolBar(this);
-  //  addToolBar(Qt::RightToolBarArea,mainToolbar);
+  // Autoupdate button / functionality is enabled via setup file
+  if (LocalSetupParser::basicValue("autoupdate") == "true") {
+    autoUpdateAction = new QAction(tr("Automatic updates"), this);
+    showAutoUpdateStatus(AUTOUPDATE_OFF);
+    autoUpdateAction->setCheckable(true);
+    autoUpdateAction->setIconVisibleInMenu(true);
+    doAutoUpdate = false;
+    connect(autoUpdateAction, &QAction::triggered, this, &DianaMainWindow::autoUpdate);
 
-  mainToolbar->addAction( showResetAreaAction         );
+    levelToolbar->addAction(autoUpdateAction);
+  } else {
+    autoUpdateAction = nullptr;
+  }
 
+  mainToolbar->addAction(showResetAreaAction);
 
   /****************** Status bar *****************************/
 
@@ -1605,13 +1600,37 @@ void DianaMainWindow::applyQuickMenu(const QString& menu, const QString& item)
   qm->applyPlot();
 }
 
+void DianaMainWindow::showAutoUpdateStatus(AutoUpdateStatus aus)
+{
+  if (autoUpdateAction) {
+    const char** icon;
+    QString tooltip;
+    switch (aus) {
+    case AUTOUPDATE_OFF:
+      icon = autoupdate_off_xpm;
+      tooltip = tr("Automatic updates mode is available but off");
+      break;
+    case AUTOUPDATE_ON:
+      icon = autoupdate_on_xpm;
+      tooltip = tr("Automatic updates mode is available and on");
+      break;
+    case AUTOUPDATE_WARN:
+      icon = autoupdate_warn_xpm;
+      tooltip = tr("Automatic updates mode is available but there is a warning");
+      break;
+    }
+    autoUpdateAction->setIcon(QIcon(QPixmap(icon)));
+    autoUpdateAction->setToolTip(tooltip);
+  }
+}
+
 void DianaMainWindow::connectionClosed()
 {
   //  METLIBS_LOG_DEBUG("Connection closed");
   qsocket = false;
   
   if (doAutoUpdate) {
-    autoUpdateAction->setIcon(QIcon(QPixmap(autoupdate_red_xpm)));
+    showAutoUpdateStatus(AUTOUPDATE_WARN);
   }
 
   contr->stationCommand("delete","all");
@@ -1855,8 +1874,8 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
 
   else if (command == qmstrings::newclient) {
     qsocket = true;
-	if (doAutoUpdate) {
-      autoUpdateAction->setIcon(QIcon(QPixmap(autoupdate_xpm)));
+    if (doAutoUpdate) {
+      showAutoUpdateStatus(AUTOUPDATE_ON);
     }
     autoredraw[qletter.getCommonValue(0).toInt()] = true;
     autoredraw[0] = true; //from server
@@ -1917,27 +1936,27 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
         sm->updateTimes();
         om->updateTimes();
       } else {
-        miutil::miTime ts = timeNavigator->selectedTime();
-        // Get latest time before update.
-        miutil::miTime tb = timeNavigator->getLastTime();
+        const miutil::miTime ts = timeNavigator->selectedTime();
+        // get last time before update
+        const miutil::miTime tb = timeNavigator->getLastTime();
 
         sm->updateTimes();
         om->updateTimes();
 
-        // Get latest time after update.
-        miutil::miTime ta = timeNavigator->getLastTime();
+        // get last time after update
+        const miutil::miTime ta = timeNavigator->getLastTime();
         if (!ts.undef() && !tb.undef() && !ta.undef()) {
           if (ts < tb) {
-            autoUpdateAction->setIcon(QIcon(QPixmap(autoupdate_red_xpm)));
+            showAutoUpdateStatus(AUTOUPDATE_WARN);
           } else {
-            autoUpdateAction->setIcon(QIcon(QPixmap(autoupdate_xpm)));
+            showAutoUpdateStatus(AUTOUPDATE_ON);
             handlingTimeMessage = true;
             timeNavigator->requestTime(ta); // triggers "timeSelected" signal, connected to "setPlotTime"
             handlingTimeMessage = false;
           }
         }
-	  }
-	}
+      }
+    }
   }
   // If autoupdate is active, do the same thing as
   // when the user presses the updateObs button.
@@ -1993,22 +2012,19 @@ void DianaMainWindow::autoUpdate()
   METLIBS_LOG_DEBUG(LOGVAL(doAutoUpdate));
   
   if (!doAutoUpdate) {
-    autoUpdateAction->setIcon(QIcon(QPixmap(autoupdate_yellow_xpm)));
+    showAutoUpdateStatus(AUTOUPDATE_OFF);
+  } else if (qsocket) {
+    showAutoUpdateStatus(AUTOUPDATE_ON);
   } else {
-    // Check if connected 
-    if (qsocket) {
-      autoUpdateAction->setIcon(QIcon(QPixmap(autoupdate_xpm)));
-    } else {
-      autoUpdateAction->setIcon(QIcon(QPixmap(autoupdate_red_xpm)));
-    }
+    showAutoUpdateStatus(AUTOUPDATE_WARN);
   }
   autoUpdateAction->setChecked(doAutoUpdate);
 }
 
 void DianaMainWindow::checkAutoUpdate()
 {
-  if (qsocket &&  doAutoUpdate) {
-    autoUpdateAction->setIcon(QIcon(QPixmap(autoupdate_xpm)));
+  if (qsocket && doAutoUpdate) {
+    showAutoUpdateStatus(AUTOUPDATE_ON);
   }
 }
 

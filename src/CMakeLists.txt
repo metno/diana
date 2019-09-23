@@ -512,9 +512,9 @@ SET (LIBDIANAUI_QTFORMS
 SET (LIBDIANAUI_XPM
   active_object.xpm
   apply.xpm
-  autoupdate.xpm
-  autoupdate_red.xpm
-  autoupdate_yellow.xpm
+  autoupdate_off.xpm
+  autoupdate_on.xpm
+  autoupdate_warn.xpm
   back.xpm
   bakover.xpm
   balloon.xpm

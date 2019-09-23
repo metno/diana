@@ -1,5 +1,5 @@
 /* XPM */
-static const char * autoupdate_yellow_xpm[] = {
+static const char * autoupdate_off_xpm[] = {
 "32 32 108 2",
 "  	c None",
 ". 	c #F2FE91",
