@@ -107,7 +107,7 @@ SatDialogAdvanced::SatDialogAdvanced(QWidget* parent, const SliderValues& sv_cut
 
   colourList = new QListWidget( this );
   colourList->setSelectionMode(QAbstractItemView::MultiSelection);
-  connect(colourList, SIGNAL(itemClicked(QListWidgetItem*)), SIGNAL(SatChanged()));
+  connect(colourList, SIGNAL(itemSelectionChanged()), SIGNAL(SatChanged()));
   connect(colourList, SIGNAL(itemSelectionChanged()), SLOT(colourcutOn()));
 
   QGridLayout*sliderlayout = new QGridLayout( this );
