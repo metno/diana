@@ -70,7 +70,7 @@ std::vector<ObsDialogInfo::Par> ObsReaderMetnoUrl::getParameters()
   url.setQuery(qurlq);
 
   ObsAscii obsAscii(std::string(url.toEncoded()), NO_HEADERFILE, headerinfo_);
-  for (const std::string& cn : obsAscii.getColumnNames())
-    parameters.push_back(ObsDialogInfo::Par(cn));
+  for (const ObsAscii::Column& cn : obsAscii.getColumns())
+    parameters.push_back(ObsDialogInfo::Par(cn.name,cn.tooltip));
   return parameters;
 }

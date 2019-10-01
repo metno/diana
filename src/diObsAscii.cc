@@ -150,27 +150,27 @@ void ObsAscii::parseHeaderBrackets(const std::string& str)
 
   if (pstr[0] == "COLUMNS") {
     if (not separator.empty())
-      pstr= miutil::split(str, separator);
-    for (size_t j=1; j<pstr.size(); j++) {
+      pstr = miutil::split(str, separator);
+    for (size_t j = 1; j < pstr.size(); j++) {
       diutil::remove_quote(pstr[j]);
       const vector<std::string> vs = miutil::split(pstr[j], ":");
+      Column col;
       if (vs.size()>1) {
-        m_columnName.push_back(vs[0]);
-        m_columnType.push_back(miutil::to_lower(vs[1]));
-        if (vs.size()>2) {
-          m_columnTooltip.push_back(vs[2]);
-        } else {
-          m_columnTooltip.push_back("");
+        col.name = vs[0];
+        col.type = miutil::to_lower(vs[1]);
+        if (vs.size() > 2) {
+          col.tooltip = vs[2];
         }
+        column.push_back(col);
       }
     }
   } else if (pstr[0] == "UNDEFINED") {
     const std::vector<std::string> vs= miutil::split(pstr[1], ",");
     asciiColumnUndefined.insert(vs.begin(), vs.end());
-  } else if (pstr[0] == "SKIP_DATA_LINES" && pstr.size()>1) {
+  } else if (pstr[0] == "SKIP_DATA_LINES") {
     asciiSkipDataLines = miutil::to_int(pstr[1]);
   } else if (pstr[0] == "LABEL") {
-    labels.push_back(LabelPlotCommand::fromString(str.substr(5)));
+    labels.push_back(LabelPlotCommand::fromString(pstr[1]));
   } else if (pstr[0] == "SEPARATOR") {
     separator = pstr[1];
   }
@@ -214,6 +214,7 @@ void ObsAscii::decodeHeader()
   m_columnType.clear();
   m_columnName.clear();
   m_columnTooltip.clear();
+  column.clear();
   asciiColumnUndefined.clear();
 
   // parse header
@@ -225,15 +226,15 @@ void ObsAscii::decodeHeader()
   for (size_t i=0; i<vstr.size(); ++i)
     parseHeaderBrackets(vstr[i]);
   
-  METLIBS_LOG_DEBUG("#columns: " << m_columnType.size() << LOGVAL(asciiSkipDataLines));
+  METLIBS_LOG_DEBUG("#columns: " << column.size() << LOGVAL(asciiSkipDataLines));
   
   knots=false;
-  for (size_t i=0; i<m_columnType.size(); i++) {
-    METLIBS_LOG_DEBUG("column " << i << " : " << m_columnName[i] << "  " << m_columnType[i]);
+  for (size_t i=0; i<column.size(); i++) {
+    METLIBS_LOG_DEBUG("column " << i << " : " << column[i].name << "  " << column[i].type);
 
-    const std::string& ct = m_columnType[i];
+    const std::string& ct = column[i].type;
     const std::string ct_lower = miutil::to_lower(ct);
-    const std::string cn_lower = miutil::to_lower(m_columnName[i]);
+    const std::string cn_lower = miutil::to_lower(column[i].name);
 
     if      (ct=="d")
       idx_date = i;
@@ -333,14 +334,14 @@ void ObsAscii::decodeData()
 
     ObsData  obsData;
 
-    const size_t tmp_nColumn = std::min(pstr.size(), m_columnType.size());
+    const size_t tmp_nColumn = std::min(pstr.size(), column.size());
     for (size_t i=0; i<tmp_nColumn; i++) {
       diutil::remove_quote(pstr[i]);
       if (!asciiColumnUndefined.count(pstr[i])) {
-        if (m_columnType[i] == "r") {
-          obsData.put_float(m_columnName[i], miutil::to_float(pstr[i]));
+        if (column[i].type == "r") {
+          obsData.put_float(column[i].name, miutil::to_float(pstr[i]));
         } else {
-          obsData.put_string(m_columnName[i], pstr[i]);
+          obsData.put_string(column[i].name, pstr[i]);
         }
       }
     }

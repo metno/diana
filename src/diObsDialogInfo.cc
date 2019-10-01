@@ -61,12 +61,12 @@ void ObsDialogInfo::PlotType::addExtraParameterButtons()
   }
 }
 
-ObsDialogInfo::Par::Par(const std::string& name_)
+ObsDialogInfo::Par::Par(const std::string& name_, const std::string& button_tip_)
     : name(name_)
     , type(ObsDialogInfo::pt_std)
     , symbol(-1)
     , precision(0)
-    , button_tip(name_)
+    , button_tip(button_tip_)
     , button_low(-50)
     , button_high(50)
 {
@@ -180,7 +180,7 @@ ObsDialogInfo::Par ObsDialogInfo::findPar(const std::string& name)
     if (p.name == name)
       return p;
   }
-  return Par(name);
+  return Par(name,name);
 }
 
 // static

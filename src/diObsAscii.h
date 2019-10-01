@@ -46,6 +46,13 @@
   In-house met.no format
 */
 class ObsAscii {
+public:
+  struct Column
+  {
+    std::string type;
+    std::string name;
+    std::string tooltip;
+  };
 private:
   bool m_needDataRead;
   std::string m_filename;
@@ -84,7 +91,7 @@ private:
   std::vector<std::string> m_columnType;
   std::vector<std::string> m_columnName;
   std::vector<std::string> m_columnTooltip;
-
+  std::vector<Column> column;
   void readDecodeData();
   void readData(const std::string &filename);
   void decodeData();
@@ -105,8 +112,8 @@ public:
 
   PlotCommand_cpv getLabels() const
     { return labels; }
-  const std::vector<std::string>& getColumnNames() const
-    { return m_columnName; }
+  const std::vector<Column>& getColumns() const
+    { return column; }
 
   const std::vector<ObsData> &getObsData(const miutil::miTime &filetime, const miutil::miTime &time, int timeDiff);
 };

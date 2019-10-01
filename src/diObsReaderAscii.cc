@@ -65,8 +65,8 @@ std::vector<ObsDialogInfo::Par> ObsReaderAscii::getParameters()
       const diutil::string_v matches = diutil::glob(pattern.front().pattern);
       if (!matches.empty()) {
         ObsAscii obsAscii = ObsAscii(matches.front(), headerfile_, EMPTY_HEADERINFO);
-        for (const std::string& cn : obsAscii.getColumnNames())
-          parameters_.push_back(ObsDialogInfo::Par(cn));
+        for (const ObsAscii::Column& cn : obsAscii.getColumns())
+          parameters_.push_back(ObsDialogInfo::Par(cn.name,cn.tooltip));
       }
     }
   }

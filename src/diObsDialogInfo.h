@@ -53,7 +53,7 @@ struct ObsDialogInfo
     int button_low;
     int button_high;
 
-    Par(const std::string& name);
+    Par(const std::string& name,  const std::string& button_tip);
     Par(const std::string& name, ParType type, int symbol, int precision, const std::string& button_tip, int button_low, int button_high);
   };
 
