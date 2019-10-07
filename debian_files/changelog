@@ -1,3 +1,9 @@
+diana-3.52 (3.52.4-1) unstable; urgency=low
+
+  * EditManager - startEdit
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 07 Oct 2019 13:30:58 +0200
+
 diana-3.52 (3.52.3-1) unstable; urgency=low
 
   * bugfix ObjectManager
