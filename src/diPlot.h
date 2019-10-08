@@ -69,7 +69,7 @@ public:
   const StaticPlot* getStaticPlot() const;
 
   /// enable this plot object
-  void setEnabled(bool enable=true);
+  virtual void setEnabled(bool enable=true);
 
   /// is this plot object enabled
   bool isEnabled() const
