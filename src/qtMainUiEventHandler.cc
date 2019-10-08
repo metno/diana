@@ -52,7 +52,7 @@ void MainUiEventHandler::setFlagsFromEventResult(const EventResult& res)
   changeCursor(res.newcursor);
   p->enable_background_buffer = res.enable_background_buffer;
   if (res.repaint && res.update_background_buffer)
-    p->update_background_buffer = true;
+    p->requestBackgroundBufferUpdate();
 }
 
 // Sends all QMouseEvents off to controller. Return values are checked,
@@ -138,7 +138,7 @@ bool MainUiEventHandler::handleWheelEvents(QWheelEvent* we)
 
       p->controller()->zoomAt(numSteps, frac_x, frac_y);
 
-      p->update_background_buffer = true;
+      p->requestBackgroundBufferUpdate();
       return true;
     }
   }
