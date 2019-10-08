@@ -52,7 +52,6 @@
 #include <QTextCodec>
 
 #include <boost/range/adaptor/reversed.hpp>
-#include <boost/range.hpp>
 
 #include <fstream>
 #include <iomanip>
@@ -657,7 +656,7 @@ bool ObsPlot::setData()
     time_sort();
 
   // sort according to parameter
-  for (const std::pair<string,bool>& sc : sortcriteria)
+  for (const auto& sc : sortcriteria)
     parameter_sort(sc.first, sc.second);
 
   if (plottype() == OPT_METAR && metarMap.empty())
