@@ -35,8 +35,6 @@
 #include "diPlotElement.h"
 #include "diTimeTypes.h"
 
-#include "diField/diArea.h"
-
 #include <QObject>
 
 #include <string>
