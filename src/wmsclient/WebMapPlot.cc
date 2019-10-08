@@ -51,7 +51,6 @@
 
 static const std::string EMPTY_STRING;
 static const std::vector<std::string> EMPTY_STRING_V;
-static const bool DEBUG_TILE_BORDERS = true;
 
 WebMapPlot::WebMapPlot(WebMapService* service, const std::string& layer)
     : mService(service)
