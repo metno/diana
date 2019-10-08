@@ -183,9 +183,13 @@ void PlotModule::processInput(const PlotCommand_cpv& vpi)
 
   if (!mapplots_->getBackColour().empty())
     staticPlot_->setBgColour(mapplots_->getBackColour());
-  defineMapArea();
   staticPlot_->setVerticalLevel(fieldplots_->getVerticalLevel());  // vertical level for observations "as field"
-  // changeProjection()?
+
+  const Area mapAreaBefore = staticPlot_->getMapArea();
+  defineMapArea();
+  if (mapAreaBefore == staticPlot_->getMapArea())
+    notifyChangeProjection(); // new plots must receive a changeProjection call
+
   // changeTime()?
 }
 
