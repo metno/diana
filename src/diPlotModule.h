@@ -168,7 +168,7 @@ public:
   void plot(DiGLPainter* gl, bool under = true, bool over = true);
 
   /// split plot info strings and reroute them to appropriate handlers
-  void preparePlots(const PlotCommand_cpv&);
+  void processInput(const PlotCommand_cpv&);
 
   /// get annotations
   const std::vector<AnnotationPlot*>& getAnnotations();

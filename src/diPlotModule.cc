@@ -130,7 +130,7 @@ void PlotModule::setCanvas(DiCanvas* canvas)
   updateCanvasSize();
 }
 
-void PlotModule::preparePlots(const PlotCommand_cpv& vpi)
+void PlotModule::processInput(const PlotCommand_cpv& vpi)
 {
   METLIBS_LOG_SCOPE();
 

@@ -164,7 +164,7 @@ void Controller::plotCommands(const PlotCommand_cpv& inp)
       METLIBS_LOG_DEBUG("inp['" << q << "]='" << inp[q]->toString() << "'");
   }
 
-  plotm->preparePlots(inp);
+  plotm->processInput(inp);
 }
 
 void Controller::plot(DiGLPainter* gl, bool under, bool over)
