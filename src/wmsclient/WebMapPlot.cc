@@ -60,6 +60,8 @@ WebMapPlot::WebMapPlot(WebMapService* service, const std::string& layer)
     , mTimeSelected(-1)
     , mTimeTolerance(-1)
     , mTimeOffset(0)
+    , mLegendOffsetX(-10)
+    , mLegendOffsetY(10)
     , mAlphaOffset(0)
     , mAlphaScale(1)
     , mMakeGrey(false)
@@ -170,6 +172,14 @@ void PaintTilesCB::pixelLine(const diutil::PointI &s, const diutil::PointD& xyf0
   }
 }
 
+float edgeOffset(float distance, int edge)
+{
+  if (distance >= 0)
+    return distance;
+  else
+    return distance + edge;
+}
+
 } // namespace
 
 void WebMapPlot::plot(DiGLPainter* gl, PlotOrder porder)
@@ -221,11 +231,11 @@ void WebMapPlot::plot(DiGLPainter* gl, PlotOrder porder)
     gl->drawScreenImage(QPointF(0,0), diutil::convertImage(target, mAlphaOffset, mAlphaScale, mMakeGrey));
 
     const QImage li = mRequest->legendImage();
-    if (!li.isNull()) {
+    if (!li.isNull() && mLegendOffsetX != 0 && mLegendOffsetY != 0 && li.width() > 0 && li.height() > 0) {
       METLIBS_LOG_DEBUG("about to plot legend...");
-      const QPointF screenpos(getStaticPlot()->getPhysWidth() - 10 - li.width(),
-                              getStaticPlot()->getPhysHeight() - 10 - li.height());
-      gl->drawScreenImage(screenpos, li);
+      const float x = edgeOffset(mLegendOffsetX, getStaticPlot()->getPhysWidth() - li.width());
+      const float y = edgeOffset(mLegendOffsetY, getStaticPlot()->getPhysHeight() - li.height());
+      gl->drawScreenImage(QPointF(x, y), li);
     }
   } else {
     METLIBS_LOG_DEBUG("waiting for tiles...");

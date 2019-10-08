@@ -128,6 +128,9 @@ private:
   int mTimeOffset; // time offset in seconds
   std::string mFixedTime;
 
+  int mLegendOffsetX; // legend position x offset (<0 from left, >0 from right, ==0 off)
+  int mLegendOffsetY; // legend position y offset (<0 from bottom, >0 from top, ==0 off)
+
   std::string mCRS;
   float mAlphaOffset, mAlphaScale;
   bool mMakeGrey;
