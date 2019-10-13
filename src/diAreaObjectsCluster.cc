@@ -51,8 +51,44 @@ AreaObjectsCluster::~AreaObjectsCluster()
 
 void AreaObjectsCluster::plot(DiGLPainter* gl, PlotOrder zorder)
 {
+  METLIBS_LOG_WARN("plotareaobj");
   for (AreaObjects& ao : vareaobjects)
     ao.plot(gl, zorder);
+}
+
+void AreaObjectsCluster::addPlotElements(std::vector<PlotElement>& pel)
+{
+  for (size_t j = 0; j < vareaobjects.size(); j++) {
+    AreaObjects& ao = vareaobjects[j];
+    const std::string& nm = ao.getName();
+    if (!nm.empty()) {
+      std::string str = nm + "# " + miutil::from_number(int(j));
+      pel.push_back(PlotElement("AREAOBJECTS", str, ao.getIcon(), ao.isEnabled()));
+    }
+  }
+}
+
+bool AreaObjectsCluster::enablePlotElement(const PlotElement& pe)
+{
+  if (pe.type != "AREAOBJECTS")
+    return false;
+
+  for (size_t i = 0; i < vareaobjects.size(); i++) {
+    AreaObjects& ao = vareaobjects[i];
+    const std::string& nm = ao.getName();
+    if (!nm.empty()) {
+      std::string str = nm + "# " + miutil::from_number(int(i));
+      if (str == pe.str) {
+        if (ao.isEnabled() != pe.enabled) {
+          ao.enable(pe.enabled);
+          return true;
+        } else {
+          break;
+        }
+      }
+    }
+  }
+  return false;
 }
 
 void AreaObjectsCluster::changeProjection(const Area& mapArea, const Rectangle& plotSize)
