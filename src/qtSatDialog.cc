@@ -110,11 +110,8 @@ SatDialog::SatDialog(SatDialogData* sdd, QWidget* parent)
   connect(imageNameBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &SatDialog::imageNameBoxActivated);
 
   //fileListWidget contains filetypes for each satellite
-  //NOAA Europa N-Europa etc.
-  //METEOSAT Visuell, IR
-  //insert filetypes for default sat - m_image[0]-NOAA
+  //insert filetypes for default sat - m_image[0]
   subtypeNameList = new QListWidget(this);
-  subtypeNameList->setMinimumHeight(HEIGHTLISTBOX);
 
   updateSubTypeList(0);
   connect(subtypeNameList, &QListWidget::itemClicked, this, &SatDialog::subtypeNameListClicked);
@@ -132,31 +129,23 @@ SatDialog::SatDialog(SatDialogData* sdd, QWidget* parent)
   timefileLayout->addWidget(fileButton);
   timefileBut->setExclusive( true );
   autoButton->setChecked(true);
-  //timefileClicked is called when auto,tid,fil buttons clicked
+  //timefileClicked is called when auto/time/file buttons are clicked
   connect(timefileBut, static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), this, &SatDialog::timefileClicked);
 
-  //list of times or files will be filled when "tid","fil" clicked
-  // (in timefileClicked)
+  //list of times/files will be filled when time/file are clicked
 
   timefileList = new QListWidget( this);
-  timefileList->setMinimumHeight(HEIGHTLISTBOX);
 
-  //timefileListSlot called when an item (time of file) highlighted in
-  // timefileList
   connect(timefileList, &QListWidget::itemClicked, this, &SatDialog::timefileListSlot);
 
   //channelbox filled with available channels
   QLabel *channellabel= TitleLabel( tr("Channels"), this);
   channelbox = new QListWidget( this);
-  channelbox->setMinimumHeight(HEIGHTLISTBOX);
-
-  //channelboxSlot called when an item highlighted in channelbox
   connect(channelbox, &QListWidget::itemClicked, this, &SatDialog::channelboxSlot);
 
   //pictures contains one or more selected pictures !
   QLabel* picturesLabel = TitleLabel(tr("Selected pictures"), this);
   pictures = new QListWidget( this );
-  pictures->setMinimumHeight(HEIGHTLISTBOX);
   connect(pictures, &QListWidget::itemClicked, this, &SatDialog::picturesSlot);
 
   //**  all the other QT buttons
@@ -269,8 +258,6 @@ void SatDialog::imageNameBoxActivated(int in)
 {
   METLIBS_LOG_SCOPE();
 
-  //insert in fileListWidget the list of files for selected satellite
-  //but no file is selected, takes to much time
   updateSubTypeList(in);
 
   //clear timefileList and channelbox
@@ -284,7 +271,6 @@ void SatDialog::subtypeNameListClicked(QListWidgetItem* item)
   METLIBS_LOG_SCOPE();
 
   diutil::OverrideCursor waitCursor;
-  const int index = timefileBut->checkedId();
 
   //restore options if possible
   const std::string image_name = imageNameBox->currentText().toStdString();
@@ -294,60 +280,45 @@ void SatDialog::subtypeNameListClicked(QListWidgetItem* item)
     const subtypeoptions_t::const_iterator ita = itn->second.find(subtype_name);
     if (ita != itn->second.end()) {
       putOptions(ita->second);
-      return;
     }
   }
 
-  timefileBut->button(index)->setChecked(true);
-  timefileClicked(index);
+  updateTimefileList(true);
+  updateChannelBox(true);
+  emitSatTimes(false);
 }
 
 /*********************************************/
 void SatDialog::timefileClicked(int tt)
 {
-  /* DESCRIPTION: This function is called when timefileBut (auto/tid/fil)is
-   selected, and is returned without doing anything if the new value
-   selected is equal to the old one
+  /* DESCRIPTION: This function is called when timefileBut (auto/time/file)is
+   selected
    */
   METLIBS_LOG_SCOPE(LOGVAL(tt));
 
   if (subtypeNameList->currentRow() == -1)
     return;
 
-  //update list of files
-  updateTimefileList(true);
-
-  const bool autofile = (tt == 0);
-  if (autofile) {
-    updateChannelBox(true);
-  } else {
-    // "time"/"file" clicked
-    timefileListSlot(timefileList->currentItem());
-  }
+  updateTimefileList(false);
+  updateChannelBox(true);
+  emitSatTimes(false);
 }
 
 /*********************************************/
 void SatDialog::timefileListSlot(QListWidgetItem *)
 {
   /* DESCRIPTION: This function is called when the signal highlighted() is
-   sent from the list of time/file and a new list item is highlighted
+   sent from the list of time/file
    */
   METLIBS_LOG_SCOPE();
 
-  int index = timefileList->currentRow();
-
-  if (index < 0 && timefileList->count() > 0)
-    index = 0;
-
-  if (index < 0 || int(files.size()) <= index)
-    return;
-
-  m_time = files[index].time;
-  plottimes_t tt;
-  tt.insert(m_time);
-  emitTimes(tt, false);
-
-  updateChannelBox(true);
+  int current_timefile = timefileList->currentRow();
+  int current_picture = pictures->currentRow();
+  if (current_picture > -1 && int(m_state.size()) > current_picture) {
+    m_state[current_picture]->filename = files[current_timefile].name;
+    m_state[current_picture]->filetime = files[current_timefile].time;
+    m_time = files[current_timefile].time;
+  }
 }
 
 /*********************************************/
@@ -463,20 +434,17 @@ void SatDialog::picturesSlot(QListWidgetItem*)
 
     if (cmd->isAuto()) {
       autoButton->setChecked(true);
-      updateTimefileList(true);
+      updateTimefileList(false);
     } else {
       if (cmd->hasFileTime())
         timeButton->setChecked(true);
       else // if (cmd->hasFileName())
         fileButton->setChecked(true);
-      updateTimefileList(true);
+      updateTimefileList(false);
       if (cmd->hasFileTime())
         selectTextInList(timefileList, cmd->filetime.isoTime());
       else // if (cmd->hasFileName())
         selectTextInList(timefileList, cmd->filename);
-      plottimes_t tt;
-      tt.insert(files[timefileList->currentRow()].time);
-      emitTimes(tt, false);
     }
 
     updateChannelBox(false);
@@ -681,37 +649,19 @@ void SatDialog::putOKString(const PlotCommand_cpv& vstr)
     }
     m_state.push_back(ccmd); // add modified copy
   }
-  if (!m_state.empty())
-    updatePictures(0, true);
+
+  emitSatTimes(true);
+
+  updatePictures(0, true);
 }
 
 void SatDialog::putOptions(SatPlotCommand_cp cmd)
 {
   METLIBS_LOG_SCOPE();
-  if (cmd->hasFileTime()) {
-    timefileBut->button(1)->setChecked(true);
-    updateTimefileList(true);
-    int nt = files.size();
-    for (int j = 0; j < nt; j++) {
-      if (cmd->filetime == files[j].time)
-        timefileList->setCurrentRow(j);
-    }
-  } else if (cmd->hasFileName()) {
-    timefileBut->button(2)->setChecked(true);;
-    updateTimefileList(true);
-    int nf = files.size();
-    for (int j = 0; j < nf; j++) {
-      if (cmd->filename == files[j].name)
-        timefileList->setCurrentRow(j);
-    }
-  } else {
-    timefileBut->button(0)->setChecked(true); //auto
-    updateTimefileList(true);
-  }
 
-  updateChannelBox(false);
   if (!selectTextInList(channelbox, cmd->plotChannels))
     return;
+
   m_channelstr = cmd->plotChannels;
   channelboxSlot(channelbox->currentItem());
 
@@ -770,8 +720,6 @@ void SatDialog::updateTimefileList(bool update)
   if (autoButton->isChecked())
     return;
 
-  channelbox->clear();
-
   if (files.empty())
     return;
 
@@ -794,8 +742,8 @@ void SatDialog::updateTimefileList(bool update)
       }
     }
 
-    m_time = miutil::miTime();
     timefileList->setCurrentRow(0);
+    m_time = files[0].time;
   }
 }
 
@@ -864,8 +812,6 @@ void SatDialog::updatePictures(int index, bool updateAbove)
   }
 
   enableUpDownButtons();
-
-  emitSatTimes(false);
 }
 
 void SatDialog::updateColours()
@@ -894,8 +840,6 @@ void SatDialog::emitSatTimes(bool update)
       //get times to send to timeslider
       for (const auto& f : sdd_->getSatFiles(cmd->sist, update))
         times.insert(f.time);
-    } else if (cmd->hasFileTime()) {
-      times.insert(cmd->filetime);
     }
   }
 
