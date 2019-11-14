@@ -296,7 +296,7 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
     METLIBS_LOG_ERROR("no TIFFTAG_PHOTOMETRIC in '" << infile << "'");
     return -1;
   }
-  if (pmi == 3) {
+  if (pmi == PHOTOMETRIC_PALETTE) { // see tiff.h for the constants
     unsigned short int *red, *green, *blue;
     if (!TIFFGetField(in.get(), TIFFTAG_COLORMAP, &red, &green, &blue)) {
       METLIBS_LOG_ERROR("no TIFFTAG_COLORMAP in '" << infile << "'");
@@ -310,13 +310,13 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
     }
   }
   // Rest is added by Niklas, for making greyscales of Storm single channel images...
-  else if (pmi == 0) {
+  else if (pmi == PHOTOMETRIC_MINISWHITE) {
     for (int i=0; i<256; i++) {
       ginfo.cmap[0][i] = (255-i)*256;
       ginfo.cmap[1][i] = (255-i)*256;
       ginfo.cmap[2][i] = (255-i)*256;
     }
-  } else if (pmi == 1) {
+  } else if (pmi == PHOTOMETRIC_MINISBLACK) {
     for (int i=0; i<256; i++) {
       ginfo.cmap[0][i] = i*256;
       ginfo.cmap[1][i] = i*256;
@@ -580,7 +580,7 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
 
   METLIBS_LOG_DEBUG(LOGVAL(ginfo.Ax) << LOGVAL(ginfo.Ay) << LOGVAL(ginfo.Bx) << LOGVAL(ginfo.By) << LOGVAL(ginfo.proj_string));
 
-  if (pmi == 3)
+  if (pmi == PHOTOMETRIC_PALETTE)
     return 2;
   else
     return 0;
