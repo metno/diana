@@ -88,7 +88,7 @@ bool GEOtiff::readGEOtiffHeader(SatFileInfo& file)
   }
   file.opened = true;
 
-  file.channel = miutil::split(ginfo.channel, " ");
+  file.channel = miutil::split(file.channelinfo, " ");
   return true;
 }
 
