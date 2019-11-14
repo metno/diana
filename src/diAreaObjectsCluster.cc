@@ -63,14 +63,14 @@ void AreaObjectsCluster::addPlotElements(std::vector<PlotElement>& pel)
     const std::string& nm = ao.getName();
     if (!nm.empty()) {
       std::string str = nm + "# " + miutil::from_number(int(j));
-      pel.push_back(PlotElement("AREAOBJECTS", str, ao.getIcon(), ao.isEnabled()));
+      pel.push_back(PlotElement(AREAOBJECTS, str, ao.getIcon(), ao.isEnabled()));
     }
   }
 }
 
 bool AreaObjectsCluster::enablePlotElement(const PlotElement& pe)
 {
-  if (pe.type != "AREAOBJECTS")
+  if (pe.type != AREAOBJECTS)
     return false;
 
   for (size_t i = 0; i < vareaobjects.size(); i++) {
