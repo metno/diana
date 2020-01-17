@@ -91,7 +91,7 @@
     <message>
         <location line="+9"/>
         <source>Hide</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Убрать</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -102,13 +102,6 @@
         <location line="+1"/>
         <source>Apply</source>
         <translation type="unfinished">Применить</translation>
-    </message>
-</context>
-<context>
-    <name>ComplexPressureText</name>
-    <message>
-        <source>Write text</source>
-        <translation type="obsolete">Ввести текст</translation>
     </message>
 </context>
 <context>
@@ -149,7 +142,7 @@
     <message>
         <location line="-21"/>
         <source>Hide</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Убрать</translation>
     </message>
     <message>
         <location line="+49"/>
@@ -200,26 +193,14 @@
 <context>
     <name>DianaMainWindow</name>
     <message>
-        <source>&amp;Save picture...</source>
-        <translation type="obsolete">&amp;Сохранить картинку...</translation>
-    </message>
-    <message>
-        <source>&amp;Email picture...</source>
-        <translation type="obsolete">&amp;Отправить картинку...</translation>
-    </message>
-    <message>
-        <source>Save &amp;animation...</source>
-        <translation type="obsolete">Сохранить &amp;анимацию...</translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtMainWindow.cc" line="+218"/>
+        <location filename="../../../src/qtMainWindow.cc" line="+219"/>
         <source>&amp;Export image/movie...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Ctrl+Shift+P</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location line="+3"/>
@@ -316,26 +297,28 @@
         <source>Maps</source>
         <translation>Карты</translation>
     </message>
-    <message>
-        <source>&amp;Fields</source>
-        <translation type="vanished">П&amp;оля</translation>
+    <message numerus="yes">
+        <location line="+2805"/>
+        <source>Imported %n symbol(s).</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+2"/>
+        <source>Imported %n drawing(s).</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
-        <source>&amp;Observations</source>
-        <translation type="vanished">&amp;Наблюдения</translation>
-    </message>
-    <message>
-        <source>&amp;Satellites and Radar</source>
-        <translation type="vanished">Спутники и &amp;радар</translation>
-    </message>
-    <message>
-        <location line="+6"/>
+        <location line="-2801"/>
         <source>&amp;Product Editing</source>
         <translation>&amp;Редактирование продукции</translation>
-    </message>
-    <message>
-        <source>O&amp;bjects</source>
-        <translation type="vanished">О&amp;бъекты</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -383,22 +366,27 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+294"/>
+        <location line="+291"/>
         <source>Map and Area</source>
         <translation type="unfinished">Карта и область</translation>
     </message>
     <message>
-        <location line="+1330"/>
-        <source>build: </source>
+        <location line="+931"/>
+        <source>Automatic updates mode is available but off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>commit: </source>
+        <location line="+4"/>
+        <source>Automatic updates mode is available and on</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+106"/>
+        <location line="+4"/>
+        <source>Automatic updates mode is available but there is a warning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+565"/>
         <source>An error occured while re-reading the setup file &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -417,30 +405,8 @@
         <source>Imported model data to the &quot;%1&quot; field group.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message numerus="yes">
-        <location line="+2"/>
-        <source>Imported %1 symbol(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location line="+2"/>
-        <source>Imported %1 drawing(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
     <message>
-        <source>Field E&amp;dit</source>
-        <translation type="obsolete">&amp;Редактирование поля</translation>
-    </message>
-    <message>
-        <location line="-2673"/>
+        <location line="-2733"/>
         <source>Documentation</source>
         <translation>Документация</translation>
     </message>
@@ -455,42 +421,9 @@
         <translation>&amp;Новости</translation>
     </message>
     <message>
-        <source>&amp;Report bug</source>
-        <translation type="obsolete">Сообщить об &amp;ошибке</translation>
-    </message>
-    <message>
         <location line="+8"/>
         <source>About Diana</source>
         <translation>О Diana</translation>
-    </message>
-    <message>
-        <source>Run Backwards</source>
-        <translation type="vanished">Демонстрировать назад</translation>
-    </message>
-    <message>
-        <source>Run Forewards</source>
-        <translation type="vanished">Демонстрировать вперед</translation>
-    </message>
-    <message>
-        <source>Step Backwards</source>
-        <translation type="vanished">Шаг назад</translation>
-    </message>
-    <message>
-        <source>Step Forewards</source>
-        <translatorcomment>Шаг назад</translatorcomment>
-        <translation type="vanished">Шаг вперед</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation type="vanished">Стоп</translation>
-    </message>
-    <message>
-        <source>Run in loop</source>
-        <translation type="vanished">Демонстрировать в цикле</translation>
-    </message>
-    <message>
-        <source>Time control</source>
-        <translation type="vanished">Контроль времени</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -518,12 +451,12 @@
         <translation>Обновить наблюдения</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+141"/>
         <source>Automatic updates</source>
         <translation>Автоматические обновления</translation>
     </message>
     <message>
-        <location line="+45"/>
+        <location line="-98"/>
         <source>File</source>
         <translation>Файл</translation>
     </message>
@@ -548,32 +481,12 @@
         <translation>&amp;Помощь</translation>
     </message>
     <message>
-        <location line="+59"/>
+        <location line="+65"/>
         <source>ARCHIVE</source>
         <translation>АРХИВ</translation>
     </message>
     <message>
-        <source>Diana</source>
-        <translation type="obsolete">Diana</translation>
-    </message>
-    <message>
-        <source>Do you want to stay connected to profet?</source>
-        <translation type="obsolete">Вы хотите остаться на связи с profet?</translation>
-    </message>
-    <message>
-        <source>Quit and disconnect</source>
-        <translation type="obsolete">Выйти и отсоединиться</translation>
-    </message>
-    <message>
-        <source>Quit and stay connected </source>
-        <translation type="obsolete">Выйти и остаться на связи</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation type="obsolete">&amp;Отмена</translation>
-    </message>
-    <message>
-        <location line="+1396"/>
+        <location line="+1463"/>
         <source>Diana - a 2D presentation system for meteorological data, including fields, observations,
 satellite- and radarimages, vertical profiles and cross sections.
 Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas, symbols etc.
@@ -587,85 +500,9 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>Для сообщения об ошибки или предложения о улучшении, пожалуйста воспользуйтесь инструментарием для коррекции ошибок по адресу http://diana.bugs.met.no ( - только для норвежцев).</translation>
     </message>
     <message>
-        <location line="+2"/>
-        <source>version:</source>
-        <translation>версия:</translation>
-    </message>
-    <message>
-        <source>build:</source>
-        <translation type="obsolete">создание:</translation>
-    </message>
-    <message>
-        <location line="+4"/>
+        <location line="+6"/>
         <source>about Diana</source>
         <translation>о Diana</translation>
-    </message>
-    <message>
-        <source>Save plot as image</source>
-        <translation type="obsolete">Сохранить изображение как картинку</translation>
-    </message>
-    <message>
-        <source>Images (*.png *.xpm *.bmp *.eps);;All (*.*)</source>
-        <translation type="obsolete">Картинки (*.png *.xpm *.bmp *.eps);;Все (*.*)</translation>
-    </message>
-    <message>
-        <source>Save animation from current fields, satellite images, etc.</source>
-        <translation type="obsolete">Сохранить анимацию из текущих полей, спутниковых изображений и т.д. (*.mpg или *.avi)</translation>
-    </message>
-    <message>
-        <source>Movies (*.mp4 *.mpg *.avi);;All (*.*)</source>
-        <translation type="obsolete">Видео (*.mp4 *.mpg *.avi);;Все (*.*)</translation>
-    </message>
-    <message>
-        <source>Making animation</source>
-        <translation type="vanished">Подготовка анимации</translation>
-    </message>
-    <message>
-        <source>This may take some time, depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin.</source>
-        <translation type="vanished">Операция может занять некоторое время - в зависимости от числа и выбранной задержки. Пока процесс не завершится - Diana не может использоватся. По завершении процесса будет показано сообдение. Нажмите Ok для старта.</translation>
-    </message>
-    <message>
-        <source>Creating animation...</source>
-        <translation type="vanished">Создание анимации...</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="vanished">Спрятать</translation>
-    </message>
-    <message>
-        <source>Done</source>
-        <translation type="vanished">Готово</translation>
-    </message>
-    <message>
-        <source>Animation completed.</source>
-        <translation type="vanished">Анимация завершена.</translation>
-    </message>
-    <message>
-        <source>Compiled without video export</source>
-        <translation type="obsolete">Собрана без опции экспорта видео</translation>
-    </message>
-    <message>
-        <source>Diana must be compiled with VIDEO_EXPORT defined to use this feature.</source>
-        <translation type="obsolete">Diana должна быть откомпилирована с определенной VIDEO_EXPORT для использования этой возможности.</translation>
-    </message>
-</context>
-<context>
-    <name>DianaProfetGUI</name>
-    <message>
-        <source>Edit Object</source>
-        <translation type="obsolete">Редактировать объект</translation>
-    </message>
-    <message>
-        <source>Delete Object</source>
-        <translation type="obsolete">Удалить объект</translation>
-    </message>
-    <message>
-        <source>Time smooth</source>
-        <translation type="obsolete">Сглаживание во времени</translation>
-    </message>
-    <message>
-        <source>You have moved a set of objects to new locations. Would you like to save the changes?</source>
-        <translation type="obsolete">Вы переместили набор объектов на новые места. Желаете ли Вы сохранить изменения?</translation>
     </message>
 </context>
 <context>
@@ -1085,12 +922,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+885"/>
-        <source>Problems saving product: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+45"/>
+        <location line="+918"/>
         <source>Warning - approve product</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1100,23 +932,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Product</source>
-        <translation type="obsolete">Результат</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation type="obsolete">Сохранить</translation>
-    </message>
-    <message>
-        <source>Send</source>
-        <translation type="obsolete">Отправить</translation>
-    </message>
-    <message>
-        <source>Obs. timestep:</source>
-        <translation type="obsolete">Врем. шаг наблюдений:</translation>
-    </message>
-    <message>
-        <location line="-908"/>
+        <location line="-896"/>
         <source>Pause</source>
         <translation>Пауза</translation>
     </message>
@@ -1139,24 +955,6 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <location line="+3"/>
         <source>Help</source>
         <translation>Помощь</translation>
-    </message>
-    <message>
-        <source>New analysis</source>
-        <translation type="obsolete">Новый анализ</translation>
-    </message>
-    <message>
-        <source>This will delete all your edits so far.
- Do you really want them to disappear?</source>
-        <translation type="obsolete">Это удалить все сделанные Вами изменения.
-Вы действительно этого хотите?</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation type="obsolete">Новый</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Отмена</translation>
     </message>
     <message>
         <location line="+79"/>
@@ -1216,47 +1014,17 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>Выход из слияния</translation>
     </message>
     <message>
-        <source>Send product</source>
-        <translation type="obsolete">Отправить результат</translation>
-    </message>
-    <message>
-        <source>Start distribution of product to all regions.
- Use &quot;Approve produkt&quot; to give product official status
- as approved and ready.</source>
-        <translation type="obsolete">Начать распространение продукции во все регионы.
- Используйте &quot;Одобрить продукцию&quot; для получения ей
- официального статуса готовой и одобренной.</translation>
-    </message>
-    <message>
-        <source>&amp;Distribution only</source>
-        <translation type="obsolete">&amp;Только распространение</translation>
-    </message>
-    <message>
-        <source>&amp;Approve product</source>
-        <translation type="obsolete">&amp;Одобрить продукцию</translation>
-    </message>
-    <message>
-        <location line="+302"/>
+        <location line="+290"/>
         <source>&amp;Cancel</source>
         <translation>О&amp;тмена</translation>
     </message>
     <message>
-        <source>Problem saving/sending product
-</source>
-        <translation type="obsolete">Проблема сохранения/отправки результата</translation>
-    </message>
-    <message>
-        <source>Message from server:
-</source>
-        <translation type="obsolete">Сообщение сервера:</translation>
-    </message>
-    <message>
-        <location line="-114"/>
+        <location line="-108"/>
         <source>Save error:</source>
         <translation>Ошибка сохранения:</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+4"/>
         <source>Saved</source>
         <translation>Сохранено</translation>
     </message>
@@ -1276,7 +1044,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>(одобрен)</translation>
     </message>
     <message>
-        <location line="+94"/>
+        <location line="+92"/>
         <source>Exit editing</source>
         <translation>Выход из редактирования</translation>
     </message>
@@ -1296,22 +1064,6 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <location line="+0"/>
         <source>&amp;Don&apos;t save</source>
         <translation>&amp;Не сохранять</translation>
-    </message>
-    <message>
-        <source>Send analysis</source>
-        <translation type="vanished">Отправить анализ</translation>
-    </message>
-    <message>
-        <source>Send last saved analysis to the database?</source>
-        <translation type="vanished">Сохранить последние изменения анализа в базу данных?</translation>
-    </message>
-    <message>
-        <source>&amp;Send</source>
-        <translation type="vanished">&amp;Отправить</translation>
-    </message>
-    <message>
-        <source>&amp;Don&apos;t send</source>
-        <translation type="vanished">Не &amp;отправлять</translation>
     </message>
     <message>
         <location line="+118"/>
@@ -1338,25 +1090,6 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     </message>
 </context>
 <context>
-    <name>EditDrawingLayersPane</name>
-    <message>
-        <source>Refresh</source>
-        <translation type="obsolete">Обновить</translation>
-    </message>
-    <message>
-        <source>Merge</source>
-        <translation type="obsolete">Слить</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Удалить</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation type="obsolete">Сохранить</translation>
-    </message>
-</context>
-<context>
     <name>EditItemManager</name>
     <message>
         <location filename="../../../src/diEditItemManager.cc" line="+124"/>
@@ -1367,14 +1100,6 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <location line="+1"/>
         <source>Ctrl+X</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="obsolete">&amp;Копировать</translation>
-    </message>
-    <message>
-        <source>&amp;Paste</source>
-        <translation type="obsolete">&amp;Вставить</translation>
     </message>
     <message>
         <location line="-3"/>
@@ -1614,7 +1339,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     <message>
         <location line="+14"/>
         <source>Hide</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Убрать</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -1724,48 +1449,6 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     </message>
 </context>
 <context>
-    <name>EditItemsStyle::SPE_decoration1_colour</name>
-    <message>
-        <source>off</source>
-        <translation type="obsolete">выкл</translation>
-    </message>
-</context>
-<context>
-    <name>EditItemsStyle::SPE_decoration2_colour</name>
-    <message>
-        <source>off</source>
-        <translation type="obsolete">выкл</translation>
-    </message>
-</context>
-<context>
-    <name>EditItemsStyle::SPE_fillcolour</name>
-    <message>
-        <source>off</source>
-        <translation type="obsolete">выкл</translation>
-    </message>
-</context>
-<context>
-    <name>EditItemsStyle::SPE_linecolour</name>
-    <message>
-        <source>off</source>
-        <translation type="obsolete">выкл</translation>
-    </message>
-</context>
-<context>
-    <name>EditItemsStyle::SPE_symbolcolour</name>
-    <message>
-        <source>off</source>
-        <translation type="obsolete">выкл</translation>
-    </message>
-</context>
-<context>
-    <name>EditItemsStyle::SPE_textcolour</name>
-    <message>
-        <source>off</source>
-        <translation type="obsolete">выкл</translation>
-    </message>
-</context>
-<context>
     <name>EditNewDialog</name>
     <message>
         <location filename="../../../src/qtEditNewDialog.cc" line="+65"/>
@@ -1786,10 +1469,6 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <location line="+5"/>
         <source>Product Id:</source>
         <translation>ID продукции:</translation>
-    </message>
-    <message>
-        <source>Log in</source>
-        <translation type="obsolete">Загрузиться</translation>
     </message>
     <message>
         <location line="+20"/>
@@ -1881,32 +1560,6 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>OK объединить</translation>
     </message>
     <message>
-        <source>product free</source>
-        <translation type="obsolete">продукция свободна</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to take over this product?
-</source>
-        <translation type="obsolete">Вы уверены, что хотите принять эту продукцию?</translation>
-    </message>
-    <message>
-        <source>Warning!</source>
-        <translation type="obsolete">Внимание!</translation>
-    </message>
-    <message>
-        <source>Yes</source>
-        <translation type="obsolete">Да</translation>
-    </message>
-    <message>
-        <source>Username and server required</source>
-        <translation type="obsolete">Требуются имена пользователя и сервера</translation>
-    </message>
-    <message>
-        <source>Can not log in. Message from server:
-</source>
-        <translation type="obsolete">Не могу загрузиться. Сообщение сервера:</translation>
-    </message>
-    <message>
         <location line="+329"/>
         <source>Product made earlier than normal!</source>
         <translation>Продукция подготовлена раньше, чем обычно!</translation>
@@ -1927,16 +1580,6 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <location line="+26"/>
         <source>Continue</source>
         <translation>Продолжить</translation>
-    </message>
-    <message>
-        <source>Diana database message</source>
-        <translation type="obsolete">Сообщение базы данных DIANA</translation>
-    </message>
-    <message>
-        <source>Product not available.
- Can not start production</source>
-        <translation type="obsolete">Продукция недоступна.
-Не могу начать подготовку</translation>
     </message>
 </context>
 <context>
@@ -2132,18 +1775,6 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Done</source>
-        <translation type="vanished">Готово</translation>
-    </message>
-    <message>
-        <source>Making animation</source>
-        <translation type="obsolete">Подготовка анимации</translation>
-    </message>
-    <message>
-        <source>This may take some time, depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin.</source>
-        <translation type="obsolete">Операция может занять некоторое время - в зависимости от числа и выбранной задержки. Пока процесс не завершится - Diana не может использоватся. По завершении процесса будет показано сообдение. Нажмите Ok для старта.</translation>
-    </message>
-    <message>
         <location line="+111"/>
         <source>Creating animation...</source>
         <translation type="unfinished">Создание анимации...</translation>
@@ -2151,11 +1782,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     <message>
         <location line="+0"/>
         <source>Hide</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Animation completed.</source>
-        <translation type="obsolete">Анимация завершена.</translation>
+        <translation type="unfinished">Убрать</translation>
     </message>
     <message>
         <location line="+19"/>
@@ -2185,10 +1812,6 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <source>Close</source>
         <translation type="unfinished">Закрыть</translation>
     </message>
-    <message>
-        <source>Zoom out</source>
-        <translation type="obsolete">Уменьшить</translation>
-    </message>
 </context>
 <context>
     <name>FieldDialog</name>
@@ -2202,66 +1825,6 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <location line="-91"/>
         <source>EDIT</source>
         <translation>Редактировать</translation>
-    </message>
-    <message>
-        <source>EPS Probability</source>
-        <translation type="obsolete">EPS вероятность</translation>
-    </message>
-    <message>
-        <source>EPS Clusters</source>
-        <translation type="obsolete">EPS кластеры</translation>
-    </message>
-    <message>
-        <source>EPS Members</source>
-        <translation type="obsolete">EPS члены</translation>
-    </message>
-    <message>
-        <source>Analysis</source>
-        <translation type="obsolete">Анализ</translation>
-    </message>
-    <message>
-        <source>Constant fields</source>
-        <translation type="obsolete">Постоянные поля</translation>
-    </message>
-    <message>
-        <source>Surface etc.</source>
-        <translation type="obsolete">Поверхность и т.д.</translation>
-    </message>
-    <message>
-        <source>Pressure Levels</source>
-        <translation type="obsolete">Уровни давления</translation>
-    </message>
-    <message>
-        <source>FlightLevels</source>
-        <translation type="obsolete">Уровни полета</translation>
-    </message>
-    <message>
-        <source>Model Levels</source>
-        <translation type="obsolete">Уровни модели</translation>
-    </message>
-    <message>
-        <source>Isentropic Levels</source>
-        <translation type="obsolete">Изэнтропические уровни</translation>
-    </message>
-    <message>
-        <source>Temperature Levels</source>
-        <translation type="obsolete">Уровни температуры</translation>
-    </message>
-    <message>
-        <source>PV Levels</source>
-        <translation type="obsolete">Уровни PV</translation>
-    </message>
-    <message>
-        <source>Ocean Depths</source>
-        <translation type="obsolete">Глубины океана</translation>
-    </message>
-    <message>
-        <source>Ocean Model Levels</source>
-        <translation type="obsolete">Уровни модели океана</translation>
-    </message>
-    <message>
-        <source>Model group</source>
-        <translation type="obsolete">Группа модели</translation>
     </message>
     <message>
         <location line="+56"/>
@@ -2379,10 +1942,6 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>Плотность</translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation type="vanished">Помощь</translation>
-    </message>
-    <message>
         <location line="+13"/>
         <source>All time steps</source>
         <translation type="unfinished"></translation>
@@ -2396,18 +1955,6 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <location line="+0"/>
         <source>More&gt;&gt;</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="vanished">Убрать</translation>
-    </message>
-    <message>
-        <source>Apply+Hide</source>
-        <translation type="vanished">Применить+убрать</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation type="vanished">Применить</translation>
     </message>
     <message>
         <location line="+134"/>
@@ -2466,18 +2013,6 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>history back</source>
-        <translation type="obsolete">история назад</translation>
-    </message>
-    <message>
-        <source>history forward</source>
-        <translation type="obsolete">история вперед</translation>
-    </message>
-    <message>
-        <source>use history shown</source>
-        <translation type="obsolete">Использловать показанную историю</translation>
-    </message>
-    <message>
         <location line="-882"/>
         <source>Title</source>
         <translation type="unfinished"></translation>
@@ -2491,10 +2026,6 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <location line="+425"/>
         <source>all time steps / only common time steps</source>
         <translation>все шаги по времени/только обычные шаги по времени</translation>
-    </message>
-    <message>
-        <source>Grid values, but only when a few grid points are visible</source>
-        <translation type="vanished">Сеточные значения-&gt;setToolTip (но только когда видно не очень много точек сетки</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -2718,13 +2249,6 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     </message>
 </context>
 <context>
-    <name>LayersPaneBase</name>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Удалить</translation>
-    </message>
-</context>
-<context>
     <name>LineStyleButton</name>
     <message>
         <location filename="../../../src/qtStyleButtons.cc" line="+146"/>
@@ -2770,33 +2294,6 @@ Type: %3</source>
         <location line="+10"/>
         <source>&amp;Color</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>LoginDialog</name>
-    <message>
-        <source>Diana db login</source>
-        <translation type="obsolete">Login базы данных DIANA</translation>
-    </message>
-    <message>
-        <source>Database server:</source>
-        <translation type="obsolete">Сервер баз данных:</translation>
-    </message>
-    <message>
-        <source>Username:</source>
-        <translation type="obsolete">Имя пользователя:</translation>
-    </message>
-    <message>
-        <source>Password:</source>
-        <translation type="obsolete">Пароль:</translation>
-    </message>
-    <message>
-        <source>Log in</source>
-        <translation type="obsolete">Загрузиться</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Отмена</translation>
     </message>
 </context>
 <context>
@@ -2912,21 +2409,9 @@ Type: %3</source>
         <translation>Очистить список выбранных карт</translation>
     </message>
     <message>
-        <source>Contour lines</source>
-        <translation type="vanished">Линии контура</translation>
-    </message>
-    <message>
         <location line="+45"/>
         <source>Draw contour lines (mandatory for maps without filled land)</source>
         <translation>Рисовать контурные линии (обязательно для карт без закрашенной суши)</translation>
-    </message>
-    <message>
-        <source>Line thickness</source>
-        <translation type="vanished">Шир. линий</translation>
-    </message>
-    <message>
-        <source>Line type</source>
-        <translation type="vanished">Тип линий</translation>
     </message>
     <message>
         <location line="-132"/>
@@ -2942,17 +2427,9 @@ Type: %3</source>
         <translation>Полож. карты</translation>
     </message>
     <message>
-        <source>Filled land</source>
-        <translation type="vanished">Закрашенная суша</translation>
-    </message>
-    <message>
         <location line="-10"/>
         <source>Draw land with separate colour (only available for selected maps)</source>
         <translation>Рисовать сушу разными цветами (доступно только для выбранных карт)</translation>
-    </message>
-    <message>
-        <source>Longitude lines</source>
-        <translation type="vanished">Линии долготы</translation>
     </message>
     <message>
         <location line="-169"/>
@@ -2965,25 +2442,9 @@ Type: %3</source>
         <translation>Частота</translation>
     </message>
     <message>
-        <source>Show value</source>
-        <translation type="vanished">Пок. знач.</translation>
-    </message>
-    <message>
-        <source>Latitude lines</source>
-        <translation type="vanished">Линии широты</translation>
-    </message>
-    <message>
         <location line="-16"/>
         <source>Show latitude-lines on the map</source>
         <translation>Показать линии широты на карте</translation>
-    </message>
-    <message>
-        <source>Show latitude-values</source>
-        <translation type="vanished">Показать значения широты</translation>
-    </message>
-    <message>
-        <source>Show frame</source>
-        <translation type="vanished">Показать рамку</translation>
     </message>
     <message>
         <location line="-71"/>
@@ -3250,29 +2711,9 @@ Type: %3</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <source>Refresh</source>
-        <translation type="vanished">Обновить</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="vanished">Помощь</translation>
-    </message>
-    <message>
         <location line="+4"/>
         <source>Comments</source>
         <translation type="unfinished">Комментарии</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="vanished">Убрать</translation>
-    </message>
-    <message>
-        <source>Apply+Hide</source>
-        <translation type="vanished">Применить и убрать</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation type="vanished">Применить</translation>
     </message>
 </context>
 <context>
@@ -3316,26 +2757,6 @@ Type: %3</source>
         <location line="+1"/>
         <source>Show all plot types</source>
         <translation>Показать все типы изображений</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="vanished">Помощь</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="vanished">Обновить</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="vanished">Убрать</translation>
-    </message>
-    <message>
-        <source>Apply + Hide</source>
-        <translation type="vanished">Применить + убрать</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation type="vanished">Применить</translation>
     </message>
     <message>
         <location line="+321"/>
@@ -3457,25 +2878,9 @@ Type: %3</source>
         <translation>Нет</translation>
     </message>
     <message>
-        <source>Default</source>
-        <translation type="vanished">По умолчанию</translation>
-    </message>
-    <message>
-        <source>Depth</source>
-        <translation type="vanished">Глубина</translation>
-    </message>
-    <message>
-        <source>Pressure</source>
-        <translation type="vanished">Давление</translation>
-    </message>
-    <message>
         <location line="+14"/>
         <source>As field</source>
         <translation>Как поле</translation>
-    </message>
-    <message>
-        <source>deviation</source>
-        <translation type="vanished">отклонение</translation>
     </message>
     <message>
         <location line="+15"/>
@@ -3503,18 +2908,10 @@ Type: %3</source>
         <translation>Название параметра</translation>
     </message>
     <message>
-        <source>All observations (mixing different times)</source>
-        <translation type="vanished">Все наблюдения (смесь для разных времен)</translation>
-    </message>
-    <message>
         <location line="+4"/>
         <source>PPPP - MSLP-field</source>
         <translatorcomment>No need to translate</translatorcomment>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Aireps in all levels</source>
-        <translation type="vanished">AIREPS на всех уровнях</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -3656,10 +3053,6 @@ Type: %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Affecting synoptic data: All observations in the time interval given, mixing observations with different times</source>
-        <translation type="vanished">Для синоптических данных: все наблюдения (вперемешку) для заданного временного интервала</translation>
-    </message>
-    <message>
         <location line="+1"/>
         <source>Max time difference</source>
         <translation>Максимальное временное различие</translation>
@@ -3683,372 +3076,6 @@ Type: %3</source>
         <location line="+71"/>
         <source>ALL</source>
         <translation>ВСЕ</translation>
-    </message>
-</context>
-<context>
-    <name>PaintToolBar</name>
-    <message>
-        <source>Paint Operations</source>
-        <translation type="obsolete">Рисовать наблюдения</translation>
-    </message>
-    <message>
-        <source>&amp;Select</source>
-        <translation type="obsolete">&amp;Выбрать</translation>
-    </message>
-    <message>
-        <source>&amp;Draw</source>
-        <translation type="obsolete">&amp;Нарисовать</translation>
-    </message>
-    <message>
-        <source>&amp;Include</source>
-        <translation type="obsolete">&amp;Включить</translation>
-    </message>
-    <message>
-        <source>&amp;Cut</source>
-        <translation type="obsolete">&amp;Вырезать</translation>
-    </message>
-    <message>
-        <source>&amp;Move</source>
-        <translation type="obsolete">&amp;Переместить</translation>
-    </message>
-    <message>
-        <source>&amp;Add Point</source>
-        <translation type="obsolete">&amp;Добавить точку</translation>
-    </message>
-    <message>
-        <source>&amp;Remove Point</source>
-        <translation type="obsolete">&amp;Удалить точку</translation>
-    </message>
-    <message>
-        <source>&amp;Move Point</source>
-        <translation type="obsolete">&amp;Переместить точку</translation>
-    </message>
-    <message>
-        <source>&amp;Spatial Interpolation</source>
-        <translation type="obsolete">&amp;Пространственная интерполяция</translation>
-    </message>
-    <message>
-        <source>&amp;Undo</source>
-        <translation type="obsolete">&amp;Отменить</translation>
-    </message>
-    <message>
-        <source>&amp;Redo</source>
-        <translation type="obsolete">&amp;Вернуть</translation>
-    </message>
-    <message>
-        <source>&amp;Help</source>
-        <translation type="obsolete">&amp;Помощь</translation>
-    </message>
-</context>
-<context>
-    <name>PolygonBookmarkDialog</name>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="obsolete">&amp;Копировать</translation>
-    </message>
-    <message>
-        <source>Copy polygon</source>
-        <translation type="obsolete">Копировать полигон</translation>
-    </message>
-    <message>
-        <source>Cut</source>
-        <translation type="obsolete">Вырезать</translation>
-    </message>
-    <message>
-        <source>Cut polygon</source>
-        <translation type="obsolete">Вырезать полигон</translation>
-    </message>
-    <message>
-        <source>&amp;Paste</source>
-        <translation type="obsolete">&amp;Вставить</translation>
-    </message>
-    <message>
-        <source>Paste polygon</source>
-        <translation type="obsolete">Вставить полигон</translation>
-    </message>
-    <message>
-        <source>&amp;Delete</source>
-        <translation type="obsolete">&amp;Удалить</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="obsolete">Удалить</translation>
-    </message>
-    <message>
-        <source>Move to Trash</source>
-        <translation type="obsolete">Переместить в корзину</translation>
-    </message>
-    <message>
-        <source>Collapse All</source>
-        <translation type="obsolete">Соединить все</translation>
-    </message>
-    <message>
-        <source>Collapse the whole tree</source>
-        <translation type="obsolete">Соединить все дерево</translation>
-    </message>
-    <message>
-        <source>expand All</source>
-        <translation type="obsolete">расширить все</translation>
-    </message>
-    <message>
-        <source>expand the whole tree</source>
-        <translation type="obsolete">расширить все дерево</translation>
-    </message>
-    <message>
-        <source>New Folder</source>
-        <translation type="obsolete">Новая папка</translation>
-    </message>
-    <message>
-        <source>Create a new folder</source>
-        <translation type="obsolete">Создать новую директорию</translation>
-    </message>
-    <message>
-        <source>Rename</source>
-        <translation type="obsolete">Переименовать</translation>
-    </message>
-    <message>
-        <source>Rename a Folder/Bookmark</source>
-        <translation type="obsolete">Переименовать папку/закладку</translation>
-    </message>
-    <message>
-        <source>Select</source>
-        <translation type="obsolete">Выбрать</translation>
-    </message>
-    <message>
-        <source>Space</source>
-        <translation type="obsolete">Место</translation>
-    </message>
-    <message>
-        <source>Select and exit</source>
-        <translation type="obsolete">Выбрать и выйти</translation>
-    </message>
-    <message>
-        <source>Return</source>
-        <translation type="obsolete">Назад</translation>
-    </message>
-    <message>
-        <source>&amp;Quit</source>
-        <translation type="obsolete">&amp;Выход</translation>
-    </message>
-    <message>
-        <source>Quit</source>
-        <translation type="obsolete">Выход</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation type="obsolete">Редактировать</translation>
-    </message>
-</context>
-<context>
-    <name>PolygonBookmarkModel</name>
-    <message>
-        <source>Polygon Bookmarks</source>
-        <translation type="obsolete">Закладки для полигона</translation>
-    </message>
-</context>
-<context>
-    <name>ProfetChatWidget</name>
-    <message>
-        <source>Messages</source>
-        <translation type="obsolete">Сообщения</translation>
-    </message>
-    <message>
-        <source>&amp;Send</source>
-        <translation type="obsolete">&amp;Отправить</translation>
-    </message>
-    <message>
-        <source>Users</source>
-        <translation type="obsolete">Пользователи</translation>
-    </message>
-</context>
-<context>
-    <name>ProfetObjectDialog</name>
-    <message>
-        <source>New Object</source>
-        <translation type="obsolete">Новый объект</translation>
-    </message>
-    <message>
-        <source>View Object</source>
-        <translation type="obsolete">Смотреть объект</translation>
-    </message>
-    <message>
-        <source>Current Object</source>
-        <translation type="obsolete">Текущий объект</translation>
-    </message>
-    <message>
-        <source>Algorithm</source>
-        <translation type="obsolete">Алгоритм</translation>
-    </message>
-    <message>
-        <source>Area</source>
-        <translation type="obsolete">Область</translation>
-    </message>
-    <message>
-        <source>Parameters</source>
-        <translation type="obsolete">Параметры</translation>
-    </message>
-    <message>
-        <source>Reason</source>
-        <translation type="obsolete">Причина</translation>
-    </message>
-    <message>
-        <source>Statistics</source>
-        <translation type="obsolete">Статистика</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation type="obsolete">Сохранить</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="obsolete">Закрыть</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Отмена</translation>
-    </message>
-    <message>
-        <source>&lt;font color=red&gt;&lt;b&gt;EMPTY OBJECT - NOTHING TO EDIT!&lt;/b&gt;&lt;/font&gt;</source>
-        <translation type="obsolete">&lt;font шрифта=красный&gt;&lt;b&gt; ПУСТОЙ ОБЪЕКТ - НЕЧЕГО РЕДАКТИРОВАТЬ!&lt;/b&gt;&lt;/font&gt;</translation>
-    </message>
-</context>
-<context>
-    <name>ProfetSessionDialog</name>
-    <message>
-        <source>Edit Field Session at: </source>
-        <translation type="obsolete">Редактировать новую сессию как:</translation>
-    </message>
-    <message>
-        <source>Objects</source>
-        <translation type="obsolete">Объекты</translation>
-    </message>
-    <message>
-        <source>View</source>
-        <translation type="obsolete">Просмотр</translation>
-    </message>
-    <message>
-        <source>Auto Zoom</source>
-        <translation type="obsolete">Авто масштаб</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation type="obsolete">Новый</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation type="obsolete">Редактировать</translation>
-    </message>
-    <message>
-        <source>Timesmooth</source>
-        <translation type="obsolete">Сглаживание во времени</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="obsolete">Удалить</translation>
-    </message>
-    <message>
-        <source>Update</source>
-        <translation type="obsolete">Обновить</translation>
-    </message>
-    <message>
-        <source>Update view, color definitions etc</source>
-        <translation type="obsolete">Обновить вид, определения цветов, и т.д.</translation>
-    </message>
-    <message>
-        <source>Reconnect...</source>
-        <translation type="obsolete">Восстановление соединение...</translation>
-    </message>
-    <message>
-        <source>Reconnect to PODS</source>
-        <translation type="obsolete">Восстановление соединения с PODS</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="obsolete">Закрыть</translation>
-    </message>
-</context>
-<context>
-    <name>ProfetTimeSmoothDialog</name>
-    <message>
-        <source>&amp;Undo</source>
-        <translation type="obsolete">&amp;Отменить</translation>
-    </message>
-    <message>
-        <source>Undo</source>
-        <translation type="obsolete">Отменить</translation>
-    </message>
-    <message>
-        <source>&amp;Redo</source>
-        <translation type="obsolete">&amp;Вернуть</translation>
-    </message>
-    <message>
-        <source>redo</source>
-        <translation type="obsolete">вернуть</translation>
-    </message>
-    <message>
-        <source>&amp;Run</source>
-        <translation type="obsolete">&amp;Запустить</translation>
-    </message>
-    <message>
-        <source>Run the current objects</source>
-        <translation type="obsolete">Запустить текущие объекты</translation>
-    </message>
-    <message>
-        <source>&amp;Quit</source>
-        <translation type="obsolete">&amp;Выход</translation>
-    </message>
-    <message>
-        <source>Close this window</source>
-        <translation type="obsolete">Закрыть это окно</translation>
-    </message>
-    <message>
-        <source>Action</source>
-        <translation type="obsolete">Действие</translation>
-    </message>
-    <message>
-        <source>&amp;Copy</source>
-        <translation type="obsolete">&amp;Копировать</translation>
-    </message>
-    <message>
-        <source>Copy from the parent object </source>
-        <translation type="obsolete">Копировать из родительского объекта</translation>
-    </message>
-    <message>
-        <source>&amp;Linear</source>
-        <translation type="obsolete">&amp;Линейная</translation>
-    </message>
-    <message>
-        <source>Linear Interpolation</source>
-        <translation type="obsolete">Линейная интерполяция</translation>
-    </message>
-    <message>
-        <source>&amp;Reset Line</source>
-        <translation type="obsolete">&amp;Сбросить свойства линии</translation>
-    </message>
-    <message>
-        <source>Method</source>
-        <translation type="obsolete">Метод</translation>
-    </message>
-    <message>
-        <source>Parameters</source>
-        <translation type="obsolete">Параметры</translation>
-    </message>
-    <message>
-        <source>timesmooth</source>
-        <translation type="obsolete">сглаживание во времени</translation>
-    </message>
-    <message>
-        <source>There are changed and unprocessed objects.
-Do you want to run your changes first?</source>
-        <translation type="obsolete">Имеются измененные и необработанные объекты.
-Вы не хотите сначала сохранить сделанные изменения?</translation>
-    </message>
-</context>
-<context>
-    <name>ProfetWaitDialog</name>
-    <message>
-        <source>Reconnecting..</source>
-        <translation type="obsolete">Восстановление соединения..</translation>
     </message>
 </context>
 <context>
@@ -4096,7 +3123,7 @@ Do you want to run your changes first?</source>
     <message>
         <location line="+1"/>
         <source>Line width</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ширина линии</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -4280,14 +3307,6 @@ Do you want to run your changes first?</source>
         <location line="+5"/>
         <source>&amp;Change name..</source>
         <translation>&amp;Изменить имя..</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="vanished">Удалить</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation type="vanished">Копировать</translation>
     </message>
     <message>
         <location line="+106"/>
@@ -4544,14 +3563,6 @@ Do you want to run your changes first?</source>
         <translation>Обновить команду с текущим изображением</translation>
     </message>
     <message>
-        <source>&amp;Reset..</source>
-        <translation type="vanished">&amp;Восстановить..</translation>
-    </message>
-    <message>
-        <source>Reset command to original copy</source>
-        <translation type="vanished">Восстановить команду исходным значением</translation>
-    </message>
-    <message>
         <location line="+38"/>
         <source>Command field</source>
         <translation>Область команды</translation>
@@ -4633,10 +3644,6 @@ Do you want to run your changes first?</source>
         <source>Yes, keep menu name</source>
         <translation>Да, сохранить имя меню</translation>
     </message>
-    <message>
-        <source>Replace command with original copy?</source>
-        <translation type="vanished">Заменить команду исходной?</translation>
-    </message>
 </context>
 <context>
     <name>SatDialog</name>
@@ -4701,14 +3708,6 @@ Do you want to run your changes first?</source>
         <translation>Врем. разл</translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation type="vanished">Помощь</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="vanished">Обновить</translation>
-    </message>
-    <message>
         <location line="+13"/>
         <source>&lt;&lt;Less</source>
         <translation type="unfinished"></translation>
@@ -4717,30 +3716,6 @@ Do you want to run your changes first?</source>
         <location line="+0"/>
         <source>More&gt;&gt;</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="vanished">Убрать</translation>
-    </message>
-    <message>
-        <source>Apply+hide</source>
-        <translation type="vanished">Применить+убрать</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation type="vanished">Применить</translation>
-    </message>
-    <message>
-        <source>Chosen picture</source>
-        <translation type="vanished">Выбранное изображение</translation>
-    </message>
-    <message>
-        <source>No longer available on disk</source>
-        <translation type="vanished">Более недоступно на диске</translation>
-    </message>
-    <message>
-        <source>Satellite dialog - info</source>
-        <translation type="vanished">Спутниковый диалог - инфо</translation>
     </message>
 </context>
 <context>
@@ -4812,33 +3787,9 @@ Do you want to run your changes first?</source>
 <context>
     <name>SpectrumModelDialog</name>
     <message>
-        <source>Diana Wavespectrum - models</source>
-        <translation type="obsolete">Волновой спектр Diana - модели</translation>
-    </message>
-    <message>
-        <source>As field</source>
-        <translation type="obsolete">Как поле</translation>
-    </message>
-    <message>
-        <source>Observations</source>
-        <translation type="obsolete">Наблюдения</translation>
-    </message>
-    <message>
-        <source>Model</source>
-        <translation type="obsolete">Модель</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation type="obsolete">Файл</translation>
-    </message>
-    <message>
         <location filename="../../../src/qtSpectrumModelDialog.cc" line="+73"/>
         <source>Help</source>
         <translation>Помощь</translation>
-    </message>
-    <message>
-        <source>Delete All</source>
-        <translation type="obsolete">Удалить все</translation>
     </message>
     <message>
         <location line="-13"/>
@@ -5046,14 +3997,6 @@ Do you want to run your changes first?</source>
         <source>Select ensemble member</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Save plot as image</source>
-        <translation type="vanished">Сохранить рисунок как картинку</translation>
-    </message>
-    <message>
-        <source>Images (*.png *.xpm *.bmp *.eps);;All (*.*)</source>
-        <translation type="obsolete">Картинки (*.png *.xpm *.bmp *.eps);;Все (*.*)</translation>
-    </message>
 </context>
 <context>
     <name>StationDialog</name>
@@ -5081,14 +4024,6 @@ Do you want to run your changes first?</source>
         <location line="+1"/>
         <source>Show station names on the map</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="obsolete">Помощь</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation type="obsolete">Применить</translation>
     </message>
 </context>
 <context>
@@ -5383,14 +4318,6 @@ Do you want to run your changes first?</source>
         <translation>Тип линии</translation>
     </message>
     <message>
-        <source>Time marks</source>
-        <translation type="obsolete">Временные отметки</translation>
-    </message>
-    <message>
-        <source>Off</source>
-        <translation type="obsolete">Выкл</translation>
-    </message>
-    <message>
         <location line="+6"/>
         <source>No. of positions</source>
         <translation type="unfinished">No позиций</translation>
@@ -5467,82 +4394,6 @@ Do you want to run your changes first?</source>
     </message>
 </context>
 <context>
-    <name>UffdaDialog</name>
-    <message>
-        <source>Selected positions</source>
-        <translation type="vanished">Выбранные позиции</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="vanished">Удалить</translation>
-    </message>
-    <message>
-        <source>Delete All</source>
-        <translation type="vanished">Удалить все</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation type="vanished">Сохранить</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="vanished">Помощь</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="vanished">Убрать</translation>
-    </message>
-    <message>
-        <source>Send</source>
-        <translation type="vanished">Отправить</translation>
-    </message>
-    <message>
-        <source>Data saved in</source>
-        <translation type="vanished">Данные сохранены в</translation>
-    </message>
-    <message>
-        <source>Data not saved</source>
-        <translation type="vanished">Данные не сохранены</translation>
-    </message>
-    <message>
-        <source>Data sent to</source>
-        <translation type="vanished">Данные отправлены</translation>
-    </message>
-    <message>
-        <source>Check incoming mail for receipt (up to 2 minutes)!</source>
-        <translation type="vanished">Проверить входящую почту (до двух минут)!</translation>
-    </message>
-    <message>
-        <source>(Data also saved in local file</source>
-        <translation type="vanished">(Данные также сохраненные в локальном файле</translation>
-    </message>
-    <message>
-        <source>Data not sent to</source>
-        <translation type="vanished">Данные не отправлены</translation>
-    </message>
-    <message>
-        <source>Incomplete information</source>
-        <translation type="vanished">Неполная информация</translation>
-    </message>
-    <message>
-        <source>You have not sent Uffda data !
- Send before exiting?</source>
-        <translation type="vanished">Вы не отправили данные Uffda! Отправить перед выходом?</translation>
-    </message>
-    <message>
-        <source>&amp;Send</source>
-        <translation type="vanished">&amp;Отправить</translation>
-    </message>
-    <message>
-        <source>&amp;Don&apos;t send</source>
-        <translation type="vanished">&amp;Не отправлять</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation type="vanished">&amp;Отмена</translation>
-    </message>
-</context>
-<context>
     <name>VcrossAddPlotDialog</name>
     <message>
         <location filename="../../../src/vcross_qt/vcross_plot_add_dialog.ui" line="+14"/>
@@ -5588,217 +4439,6 @@ Do you want to run your changes first?</source>
         <location line="+3"/>
         <source>Chosen reference time: %1</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>VcrossDialog</name>
-    <message>
-        <source>Vertical Cross Sections</source>
-        <translation type="obsolete">Вертикальные сечения</translation>
-    </message>
-    <message>
-        <source>Models</source>
-        <translation type="obsolete">Модели</translation>
-    </message>
-    <message>
-        <source>Fields</source>
-        <translation type="obsolete">Поля</translation>
-    </message>
-    <message>
-        <source>Selected Fields</source>
-        <translation type="obsolete">Выбранные поля</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="obsolete">Удалить</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation type="obsolete">Копировать</translation>
-    </message>
-    <message>
-        <source>Delete All</source>
-        <translation type="obsolete">Удалить все</translation>
-    </message>
-    <message>
-        <source>Model</source>
-        <translation type="obsolete">Модель</translation>
-    </message>
-    <message>
-        <source>Colour</source>
-        <translation type="obsolete">Цвет</translation>
-    </message>
-    <message>
-        <source>off</source>
-        <translation type="obsolete">выкл</translation>
-    </message>
-    <message>
-        <source>Line width</source>
-        <translation type="obsolete">Толщина линии</translation>
-    </message>
-    <message>
-        <source>Line type</source>
-        <translation type="obsolete">Тип линии</translation>
-    </message>
-    <message>
-        <source>Line interval</source>
-        <translation type="obsolete">Интервал между линиями</translation>
-    </message>
-    <message>
-        <source>Density</source>
-        <translation type="obsolete">Плотность</translation>
-    </message>
-    <message>
-        <source>Unit</source>
-        <translation type="obsolete">Единица</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="obsolete">Помощь</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="obsolete">Убрать</translation>
-    </message>
-    <message>
-        <source>Apply+Hide</source>
-        <translation type="obsolete">Применить+убрать</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation type="obsolete">Применить</translation>
-    </message>
-    <message>
-        <source>move selected field up</source>
-        <translation type="obsolete">переместить выбранное поле вверх</translation>
-    </message>
-    <message>
-        <source>move selected field down</source>
-        <translation type="obsolete">переместить выбранное поле вниз</translation>
-    </message>
-    <message>
-        <source>remove selected field</source>
-        <translation type="obsolete">удалить выбранное поле</translation>
-    </message>
-    <message>
-        <source>remove all selected fields</source>
-        <translation type="obsolete">Удалить все выбранные поля</translation>
-    </message>
-    <message>
-        <source>copy field</source>
-        <translation type="obsolete">копировать поле</translation>
-    </message>
-    <message>
-        <source>reset plot layout</source>
-        <translation type="obsolete">Восстановить область изображения</translation>
-    </message>
-    <message>
-        <source>change model/modeltime</source>
-        <translation type="obsolete">сменить модель/модельное время</translation>
-    </message>
-    <message>
-        <source>history backward</source>
-        <translation type="obsolete">история назад</translation>
-    </message>
-    <message>
-        <source>history forward</source>
-        <translation type="obsolete">история вперед</translation>
-    </message>
-    <message>
-        <source>use current history</source>
-        <translation type="obsolete">использовать текущую историю</translation>
-    </message>
-    <message>
-        <source>Size of min/max marker</source>
-        <translation type="obsolete">Размер мин/макс отметки</translation>
-    </message>
-    <message>
-        <source>Find min/max value above this vertical level (unit hPa)</source>
-        <translation type="obsolete">Найти макс/мин значение выше данного вертикального уровня (гПа)</translation>
-    </message>
-    <message>
-        <source>Find min/max value below this vertical level (unit hPa)</source>
-        <translation type="obsolete">Найти макс/мин значение ниже данного вертикального уровня (гПа)</translation>
-    </message>
-    <message>
-        <source>Min/max values</source>
-        <translation type="obsolete">Мин/макс значения</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation type="obsolete">Размер</translation>
-    </message>
-    <message>
-        <source>Level low</source>
-        <translation type="obsolete">Нижний уровень</translation>
-    </message>
-    <message>
-        <source>Level high</source>
-        <translation type="obsolete">Верхний уровень</translation>
-    </message>
-    <message>
-        <source>Smooth lines</source>
-        <translation type="obsolete">Сгладить линии</translation>
-    </message>
-    <message>
-        <source>Off</source>
-        <translation type="obsolete">Выкл</translation>
-    </message>
-    <message>
-        <source>Digit size</source>
-        <translation type="obsolete">Размер цифр</translation>
-    </message>
-    <message>
-        <source>Time offset</source>
-        <translation type="obsolete">Врем. отступ</translation>
-    </message>
-    <message>
-        <source> hour(s)</source>
-        <translation type="obsolete">час(ы)</translation>
-    </message>
-    <message>
-        <source>Zero-line</source>
-        <translation type="obsolete">Нулевая линия</translation>
-    </message>
-    <message>
-        <source>Number on line</source>
-        <translation type="obsolete">Число на линии</translation>
-    </message>
-    <message>
-        <source>Palette</source>
-        <translation type="obsolete">Палитра</translation>
-    </message>
-    <message>
-        <source>Palette (-)</source>
-        <translation type="obsolete">Палитра(-)</translation>
-    </message>
-    <message>
-        <source>Pattern</source>
-        <translation type="obsolete">Закраска</translation>
-    </message>
-    <message>
-        <source>Alpha</source>
-        <translation type="obsolete">Альфа</translation>
-    </message>
-    <message>
-        <source>Basis value</source>
-        <translation type="obsolete">Базовое значение</translation>
-    </message>
-    <message>
-        <source>Min</source>
-        <translation type="obsolete">Мин</translation>
-    </message>
-    <message>
-        <source>Max</source>
-        <translation type="obsolete">Макс</translation>
-    </message>
-    <message>
-        <source>Repeat</source>
-        <translation type="obsolete">Повторить</translation>
-    </message>
-    <message>
-        <source>Auto</source>
-        <translation type="obsolete">Авто</translation>
     </message>
 </context>
 <context>
@@ -5956,10 +4596,6 @@ Do you want to run your changes first?</source>
         <translation>Дистанция</translation>
     </message>
     <message>
-        <source>Grid x,y positions</source>
-        <translation type="obsolete">Сеточные позиции x,y</translation>
-    </message>
-    <message>
         <location line="+16"/>
         <source>Geographical positions</source>
         <translation>Географическип позиции</translation>
@@ -5993,10 +4629,6 @@ Do you want to run your changes first?</source>
         <location line="+1"/>
         <source>Extrapolate to ocean floor</source>
         <translation>Экстраполировать на океанское дно</translation>
-    </message>
-    <message>
-        <source>Thick arrows</source>
-        <translation type="obsolete">толстый стрелки</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -6115,21 +4747,9 @@ Do you want to run your changes first?</source>
 <context>
     <name>VcrossStyleWidget</name>
     <message>
-        <source>Form</source>
-        <translation type="obsolete">Форма</translation>
-    </message>
-    <message>
         <location filename="../../../src/vcross_qt/vcross_style_widget.ui" line="+28"/>
         <source>Basic</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Line interval</source>
-        <translation type="obsolete">Интервал между линиями</translation>
-    </message>
-    <message>
-        <source>Colour</source>
-        <translation type="obsolete">Цвет</translation>
     </message>
     <message>
         <location line="+83"/>
@@ -6140,10 +4760,6 @@ Do you want to run your changes first?</source>
         <location line="+20"/>
         <source>Value labels</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation type="obsolete">Размер</translation>
     </message>
     <message>
         <location line="+60"/>
@@ -6161,25 +4777,9 @@ Do you want to run your changes first?</source>
         <translation type="unfinished">Палитра</translation>
     </message>
     <message>
-        <source>Repeat</source>
-        <translation type="obsolete">Повторить</translation>
-    </message>
-    <message>
-        <source>Colours</source>
-        <translation type="obsolete">Цвета</translation>
-    </message>
-    <message>
         <location line="+46"/>
         <source>Colours (-)</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Alpha</source>
-        <translation type="obsolete">Альфа</translation>
-    </message>
-    <message>
-        <source>Basis value</source>
-        <translation type="obsolete">Базовое значение</translation>
     </message>
     <message>
         <location line="+73"/>
@@ -6190,10 +4790,6 @@ Do you want to run your changes first?</source>
         <location line="+12"/>
         <source>Min</source>
         <translation type="unfinished">Мин</translation>
-    </message>
-    <message>
-        <source>Max</source>
-        <translation type="obsolete">Макс</translation>
     </message>
     <message>
         <location line="-349"/>
@@ -6302,10 +4898,6 @@ Do you want to run your changes first?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Unit</source>
-        <translation type="obsolete">Единица</translation>
-    </message>
-    <message>
         <location line="+10"/>
         <source>X scale</source>
         <translation type="unfinished"></translation>
@@ -6355,32 +4947,16 @@ Do you want to run your changes first?</source>
     <message>
         <location line="+4"/>
         <source> hour(s)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"> час(ы)</translation>
     </message>
     <message>
         <location line="+47"/>
         <source>Pattern</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Заливка</translation>
     </message>
 </context>
 <context>
     <name>VcrossWindow</name>
-    <message>
-        <source>Diana Vertical Cross Sections</source>
-        <translation type="obsolete">Вертикальные сечения Diana</translation>
-    </message>
-    <message>
-        <source>Print</source>
-        <translation type="obsolete">Печать</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation type="obsolete">Сохранить</translation>
-    </message>
-    <message>
-        <source>Quit</source>
-        <translation type="obsolete">Выход</translation>
-    </message>
     <message>
         <location filename="../../../src/vcross_qt/vcross_window.ui" line="+14"/>
         <source>Vertical Cross Sections</source>
@@ -6616,49 +5192,13 @@ Do you want to run your changes first?</source>
         <translation type="unfinished">Очистить</translation>
     </message>
     <message>
-        <source>Draw cross/Clear</source>
-        <translation type="obsolete">Рисовать крест/Очистить</translation>
-    </message>
-    <message>
         <location line="-253"/>
         <source>Draw/Edit</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>P&amp;revious plot</source>
-        <translation type="obsolete">&amp;Предыдущее изображение</translation>
-    </message>
-    <message>
-        <source>&amp;Next plot</source>
-        <translation type="obsolete">&amp;Следующее изображение</translation>
-    </message>
-    <message>
-        <source>Save plot as image</source>
-        <translation type="vanished">Сохранить изображение как картинку</translation>
-    </message>
-    <message>
-        <source>Images (*.png *.xpm *.bmp *.eps);;All (*.*)</source>
-        <translation type="obsolete">Картинки (*.png *.xpm *.bmp *.eps);;Все (*.*)</translation>
-    </message>
 </context>
 <context>
     <name>VprofModelDialog</name>
-    <message>
-        <source>Diana Vertical Profiles - Models</source>
-        <translation type="obsolete">Вертикальные профили Diana - Модели</translation>
-    </message>
-    <message>
-        <source>As field</source>
-        <translation type="obsolete">Как поле</translation>
-    </message>
-    <message>
-        <source>Model</source>
-        <translation type="obsolete">Модель</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation type="obsolete">Файл</translation>
-    </message>
     <message>
         <location filename="../../../src/vprof/qtVprofModelDialog.cc" line="+77"/>
         <source>Help</source>
@@ -6668,10 +5208,6 @@ Do you want to run your changes first?</source>
         <location line="+6"/>
         <source>Delete all</source>
         <translation>Удалить все</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="obsolete">Обновить</translation>
     </message>
     <message>
         <location line="-19"/>
@@ -6926,10 +5462,6 @@ Do you want to run your changes first?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Refresh</source>
-        <translation type="obsolete">Обновить</translation>
-    </message>
-    <message>
         <location line="+4"/>
         <source>Print</source>
         <translation>Печать</translation>
@@ -6963,14 +5495,6 @@ Do you want to run your changes first?</source>
         <location line="+40"/>
         <source>Select ensemble member</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save plot as image</source>
-        <translation type="vanished">Сохранить изображение как картинку</translation>
-    </message>
-    <message>
-        <source>Images (*.png *.xpm *.bmp *.eps);;All (*.*)</source>
-        <translation type="obsolete">Картинки (*.png *.xpm *.bmp *.eps);;Все (*.*)</translation>
     </message>
 </context>
 <context>

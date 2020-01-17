@@ -104,17 +104,6 @@
     </message>
 </context>
 <context>
-    <name>ComplexPressureText</name>
-    <message>
-        <source>OK</source>
-        <translation type="obsolete">OK</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Cancel</translation>
-    </message>
-</context>
-<context>
     <name>ComplexText</name>
     <message>
         <location filename="../../../src/qtComplexText.cc" line="+92"/>
@@ -203,7 +192,7 @@
 <context>
     <name>DianaMainWindow</name>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="+222"/>
+        <location filename="../../../src/qtMainWindow.cc" line="+223"/>
         <source>&amp;Print...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -368,12 +357,43 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1727"/>
-        <source>An error occured while re-reading the setup file &apos;%1&apos;.</source>
+        <location line="+1218"/>
+        <source>Automatic updates mode is available but off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-1719"/>
+        <location line="+4"/>
+        <source>Automatic updates mode is available and on</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>Automatic updates mode is available but there is a warning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+565"/>
+        <source>An error occured while re-reading the setup file &apos;%1&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location line="+926"/>
+        <source>Imported %n symbol(s).</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+2"/>
+        <source>Imported %n drawing(s).</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <location line="-2711"/>
         <source>Level up</source>
         <translation type="unfinished"></translation>
     </message>
@@ -403,12 +423,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+141"/>
         <source>Automatic updates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+45"/>
+        <location line="-98"/>
         <source>File</source>
         <translation type="unfinished"></translation>
     </message>
@@ -433,7 +453,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+59"/>
+        <location line="+65"/>
         <source>ARCHIVE</source>
         <translation type="unfinished"></translation>
     </message>
@@ -443,13 +463,9 @@
         <translation type="unfinished">Map and Area</translation>
     </message>
     <message>
-        <location line="+1437"/>
+        <location line="+1504"/>
         <source>Error</source>
         <translation>Error</translation>
-    </message>
-    <message>
-        <source>Problem with creating animation.</source>
-        <translation type="vanished">Problem with creating animation.</translation>
     </message>
     <message>
         <location line="-112"/>
@@ -460,33 +476,18 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-1789"/>
+        <location line="-1853"/>
         <source>&amp;Export image/movie...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1791"/>
+        <location line="+1855"/>
         <source>To report a bug or enter an enhancement request, please use the bug tracking tool at http://diana.bugs.met.no (met.no users only). 
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+2"/>
-        <source>version:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>build: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>commit: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+2"/>
+        <location line="+6"/>
         <source>about Diana</source>
         <translation type="unfinished"></translation>
     </message>
@@ -499,22 +500,6 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <location line="+47"/>
         <source>Imported model data to the &quot;%1&quot; field group.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message numerus="yes">
-        <location line="+2"/>
-        <source>Imported %1 symbol(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location line="+2"/>
-        <source>Imported %1 drawing(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
     </message>
 </context>
 <context>
@@ -1016,17 +1001,12 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+186"/>
-        <source>Problems saving product: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+2"/>
+        <location line="+182"/>
         <source>Save error:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+4"/>
         <source>Saved</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1046,7 +1026,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+25"/>
+        <location line="+23"/>
         <source>Warning - approve product</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1959,10 +1939,6 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished">Density</translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation type="obsolete">Help</translation>
-    </message>
-    <message>
         <location line="+13"/>
         <source>All time steps</source>
         <translation type="unfinished"></translation>
@@ -1976,18 +1952,6 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <location line="+0"/>
         <source>More&gt;&gt;</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="obsolete">Hide</translation>
-    </message>
-    <message>
-        <source>Apply+Hide</source>
-        <translation type="obsolete">Apply+Hide</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation type="obsolete">Apply</translation>
     </message>
     <message>
         <location line="+134"/>
@@ -2735,25 +2699,9 @@ Type: %3</translation>
         <translation type="unfinished">Delete</translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation type="obsolete">Help</translation>
-    </message>
-    <message>
         <location line="+4"/>
         <source>Comments</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="obsolete">Hide</translation>
-    </message>
-    <message>
-        <source>Apply+Hide</source>
-        <translation type="obsolete">Apply+Hide</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation type="obsolete">Apply</translation>
     </message>
 </context>
 <context>
@@ -2797,18 +2745,6 @@ Type: %3</translation>
         <location line="+1"/>
         <source>Show all plot types</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="obsolete">Help</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="obsolete">Hide</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation type="obsolete">Apply</translation>
     </message>
     <message>
         <location line="+321"/>
@@ -3358,10 +3294,6 @@ Type: %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation type="obsolete">Remove</translation>
-    </message>
-    <message>
         <location line="+106"/>
         <source>Paste</source>
         <translation type="unfinished"></translation>
@@ -3695,10 +3627,6 @@ Type: %3</translation>
         <source>Yes, keep menu name</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>OK</source>
-        <translation type="obsolete">OK</translation>
-    </message>
 </context>
 <context>
     <name>SatDialog</name>
@@ -3763,10 +3691,6 @@ Type: %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation type="obsolete">Help</translation>
-    </message>
-    <message>
         <location line="+13"/>
         <source>&lt;&lt;Less</source>
         <translation type="unfinished"></translation>
@@ -3775,14 +3699,6 @@ Type: %3</translation>
         <location line="+0"/>
         <source>More&gt;&gt;</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="obsolete">Hide</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation type="obsolete">Apply</translation>
     </message>
 </context>
 <context>
@@ -4091,22 +4007,6 @@ Type: %3</translation>
         <location line="+1"/>
         <source>Show station names on the map</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="obsolete">Help</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="obsolete">Hide</translation>
-    </message>
-    <message>
-        <source>Apply+Hide</source>
-        <translation type="obsolete">Apply+Hide</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation type="obsolete">Apply</translation>
     </message>
 </context>
 <context>
@@ -4473,21 +4373,6 @@ Type: %3</translation>
         <location line="+171"/>
         <source>No field selected</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>UffdaDialog</name>
-    <message>
-        <source>Delete</source>
-        <translation type="obsolete">Delete</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="obsolete">Help</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="obsolete">Hide</translation>
     </message>
 </context>
 <context>

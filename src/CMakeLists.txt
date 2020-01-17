@@ -667,6 +667,8 @@ METNO_QT_CREATE_TRANSLATION(LIBDIANAUI_QM
    ${TS_DIR}/diana_bn.ts
    ${TS_DIR}/diana_en.ts
    ${TS_DIR}/diana_es.ts
+   ${TS_DIR}/diana_my.ts
+   ${TS_DIR}/diana_pt.ts
    ${TS_DIR}/diana_no.ts
    ${TS_DIR}/diana_ru.ts
    ${TS_DIR}/diana_sv.ts
@@ -681,6 +683,7 @@ METNO_QT_CREATE_TRANSLATION(LIBDIANAUI_QM
 
   UPDATE_OPTIONS
    -locations relative
+   #-no-obsolete
 
   UPDATE_TARGET
    lupdate

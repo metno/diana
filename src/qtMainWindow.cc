@@ -2073,9 +2073,9 @@ void DianaMainWindow::about()
       +"\n"
       + tr("To report a bug or enter an enhancement request, please use the bug tracking tool at http://diana.bugs.met.no (met.no users only). \n")
       +"\n\n"
-      + tr("version:") + " " + VERSION + "\n"
-      + tr("build: ") + " " + diana_build_string + "\n"
-      + tr("commit: ") + " " + diana_build_commit;
+      + "version: " + VERSION + "\n"
+      + "build: " + diana_build_string + "\n"
+      + "commit: " + diana_build_commit;
 
   QMessageBox::about( this, tr("about Diana"), str );
 }
@@ -3107,9 +3107,9 @@ void DianaMainWindow::dropEvent(QDropEvent *event)
     fm->updateDialog();
     statusBar()->showMessage(tr("Imported model data to the \"%1\" field group.").arg(filegroup), 2000);
   } else if (symbolsAdded > 0) {
-    statusBar()->showMessage(tr("Imported %1 symbol(s).", "", symbolsAdded).arg(symbolsAdded), 2000);
+    statusBar()->showMessage(tr("Imported %n symbol(s).", "", symbolsAdded).arg(symbolsAdded), 2000);
   } else if (drawingsAdded > 0) {
-    statusBar()->showMessage(tr("Imported %1 drawing(s).", "", drawingsAdded).arg(drawingsAdded), 2000);
+    statusBar()->showMessage(tr("Imported %n drawing(s).", "", drawingsAdded).arg(drawingsAdded), 2000);
   }
 }
 

@@ -104,21 +104,6 @@
     </message>
 </context>
 <context>
-    <name>ComplexPressureText</name>
-    <message>
-        <source>Write text</source>
-        <translation type="obsolete">Escribir texto</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation type="obsolete">OK</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Cancelar</translation>
-    </message>
-</context>
-<context>
     <name>ComplexText</name>
     <message>
         <location filename="../../../src/qtComplexText.cc" line="+92"/>
@@ -207,19 +192,7 @@
 <context>
     <name>DianaMainWindow</name>
     <message>
-        <source>&amp;Save picture...</source>
-        <translation type="obsolete">&amp;Guardar figura...</translation>
-    </message>
-    <message>
-        <source>&amp;Email picture...</source>
-        <translation type="obsolete">&amp;Enviar figura a correo electrónico...</translation>
-    </message>
-    <message>
-        <source>Save &amp;animation...</source>
-        <translation type="obsolete">Guardar &amp;animación...</translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtMainWindow.cc" line="+222"/>
+        <location filename="../../../src/qtMainWindow.cc" line="+223"/>
         <source>&amp;Print...</source>
         <translation>&amp;Imprimir...</translation>
     </message>
@@ -304,39 +277,50 @@
         <translation>&amp;Menú rápido</translation>
     </message>
     <message>
-        <location line="+385"/>
+        <location line="+382"/>
         <source>Map and Area</source>
         <translation type="unfinished">Mapa y Area</translation>
     </message>
     <message>
-        <location line="+1437"/>
-        <source>An error occured while re-reading the setup file &apos;%1&apos;.</source>
+        <location line="+931"/>
+        <source>Automatic updates mode is available but off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Maps</source>
-        <translation type="obsolete">&amp;Mapas</translation>
+        <location line="+4"/>
+        <source>Automatic updates mode is available and on</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Fields</source>
-        <translation type="vanished">&amp;Campos</translation>
+        <location line="+4"/>
+        <source>Automatic updates mode is available but there is a warning</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Observations</source>
-        <translation type="vanished">&amp;Observaciones</translation>
+        <location line="+565"/>
+        <source>An error occured while re-reading the setup file &apos;%1&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location line="+926"/>
+        <source>Imported %n symbol(s).</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+2"/>
+        <source>Imported %n drawing(s).</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
-        <source>&amp;Satellites and Radar</source>
-        <translation type="obsolete">&amp;Satelites y Radar</translation>
-    </message>
-    <message>
-        <location line="-1809"/>
+        <location line="-2801"/>
         <source>&amp;Product Editing</source>
         <translation>&amp;Editar Producto</translation>
-    </message>
-    <message>
-        <source>O&amp;bjects</source>
-        <translation type="vanished">&amp;Objetos</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -364,10 +348,6 @@
         <translation>Alejarse</translation>
     </message>
     <message>
-        <source>&amp;Uffda Service</source>
-        <translation type="vanished">&amp;Servicio Uffda</translation>
-    </message>
-    <message>
         <location line="-55"/>
         <source>Maps</source>
         <translation type="unfinished">Mapas</translation>
@@ -386,10 +366,6 @@
         <location line="+134"/>
         <source>&amp;Measurements</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Field E&amp;dit</source>
-        <translation type="obsolete">&amp;Editar Campo</translation>
     </message>
     <message>
         <location line="+11"/>
@@ -432,34 +408,6 @@
         <translation>Acerca de Diana</translation>
     </message>
     <message>
-        <source>Run Backwards</source>
-        <translation type="vanished">Ejecutar hacia atrás</translation>
-    </message>
-    <message>
-        <source>Run Forewards</source>
-        <translation type="vanished">Ejecutar hacia adelante</translation>
-    </message>
-    <message>
-        <source>Step Backwards</source>
-        <translation type="vanished">Paso Previo</translation>
-    </message>
-    <message>
-        <source>Step Forewards</source>
-        <translation type="vanished">Paso Siguiente</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation type="vanished">Detener</translation>
-    </message>
-    <message>
-        <source>Run in loop</source>
-        <translation type="vanished">Ejecutar en un bucle</translation>
-    </message>
-    <message>
-        <source>Time control</source>
-        <translation type="vanished">Control de tiempo</translation>
-    </message>
-    <message>
         <location line="+8"/>
         <source>Level up</source>
         <translation>Nivel superior</translation>
@@ -485,12 +433,12 @@
         <translation>Actualizar observaciones</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+141"/>
         <source>Automatic updates</source>
         <translation>Actualizaciones automáticas</translation>
     </message>
     <message>
-        <location line="+45"/>
+        <location line="-98"/>
         <source>File</source>
         <translation>Archivo</translation>
     </message>
@@ -515,26 +463,12 @@
         <translation>&amp;Ayuda</translation>
     </message>
     <message>
-        <location line="+59"/>
+        <location line="+65"/>
         <source>ARCHIVE</source>
         <translation>ARCHIVO</translation>
     </message>
     <message>
-        <source>Diana</source>
-        <translation type="obsolete">Diana</translation>
-    </message>
-    <message>
-        <location line="+1401"/>
-        <source>build: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>commit: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+106"/>
+        <location line="+1575"/>
         <source>Error</source>
         <translation>Error</translation>
     </message>
@@ -548,44 +482,8 @@
         <source>Imported model data to the &quot;%1&quot; field group.</source>
         <translation type="unfinished"></translation>
     </message>
-    <message numerus="yes">
-        <location line="+2"/>
-        <source>Imported %1 symbol(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location line="+2"/>
-        <source>Imported %1 drawing(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
     <message>
-        <source>End Profet</source>
-        <translation type="obsolete">Terminar Profet</translation>
-    </message>
-    <message>
-        <source>Do you want to stay connected to profet?</source>
-        <translation type="obsolete">¿Quiere seguir conectado a profet?</translation>
-    </message>
-    <message>
-        <source>Quit and disconnect</source>
-        <translation type="obsolete">Salir y desconectar</translation>
-    </message>
-    <message>
-        <source>Quit and stay connected </source>
-        <translation type="obsolete">Salir y permanecer conectado</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation type="obsolete">&amp;Cancelar</translation>
-    </message>
-    <message>
-        <location line="-1040"/>
+        <location line="-1036"/>
         <source>Diana - a 2D presentation system for meteorological data, including fields, observations,
 satellite- and radarimages, vertical profiles and cross sections.
 Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas, symbols etc.
@@ -602,74 +500,13 @@ Diana tiene herramientas para editar campos en pantalla y dibujar objetos (frent
         <translation>Para enviar un reporte de un problema del programa o una solicitud de mejora, por favor use el programa se seguimiento de errores en http://diana.bugs.met.no (sólo usuarios de met.no).</translation>
     </message>
     <message>
-        <location line="+2"/>
-        <source>version:</source>
-        <translation>versión:</translation>
-    </message>
-    <message>
-        <source>build:</source>
-        <translation type="obsolete">modelo:</translation>
-    </message>
-    <message>
-        <location line="+4"/>
+        <location line="+6"/>
         <source>about Diana</source>
         <translation>acerca de Diana</translation>
-    </message>
-    <message>
-        <source>Save plot as image</source>
-        <translation type="obsolete">Grabar figura como imágen</translation>
-    </message>
-    <message>
-        <source>Images (*.png *.xpm *.bmp *.eps);;All (*.*)</source>
-        <translation type="obsolete">Imágenes (*.png *.xpm *.bmp *.eps);;Todas (*.*)</translation>
-    </message>
-    <message>
-        <source>Save animation from current fields, satellite images, etc., using current settings</source>
-        <translation type="obsolete">Grabar animación de campos actuales, imágenes de satélite, etc., usando configuración actual</translation>
-    </message>
-    <message>
-        <source>Movies (*.mp4 *.mpg *.avi);;All (*.*)</source>
-        <translation type="obsolete">Películas (*.mp4 *.mpg *.avi);; Todas (*.*)</translation>
-    </message>
-    <message>
-        <source>Making animation</source>
-        <translation type="vanished">Haciendo animación</translation>
-    </message>
-    <message>
-        <source>This may take some time (up to several minutes), depending on the number of timesteps and selected delay. Diana cannot be used until this process is completed. A message will be displayed upon completion. Press OK to begin.</source>
-        <translation type="obsolete">Esto puede tomar algun tiempo(algunos minutos), dependiendo del numero de pasos de tiempo y el retraso seleccionado. Diana no se puede usar hasta que el proceso este completo. Se ,mostrara un mensaje una vez que este completo. Presione OK para empezar.</translation>
-    </message>
-    <message>
-        <source>Creating animation...</source>
-        <translation type="vanished">Creando animación...</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="vanished">Esconder</translation>
-    </message>
-    <message>
-        <source>Done</source>
-        <translation type="vanished">Hecho</translation>
-    </message>
-    <message>
-        <source>Animation completed.</source>
-        <translation type="vanished">Animación terminada.</translation>
-    </message>
-    <message>
-        <source>Compiled without video export</source>
-        <translation type="obsolete">Compilado sin opción de exportar a video</translation>
-    </message>
-    <message>
-        <source>Diana must be compiled with VIDEO_EXPORT defined to use this feature.</source>
-        <translation type="obsolete">Diana debe ser compilado con VIDEO_EXPORT definido para usar esta opción.</translation>
     </message>
 </context>
 <context>
     <name>EditComment</name>
-    <message>
-        <source>Comments[*]</source>
-        <translation type="obsolete">Comentarios[*]</translation>
-    </message>
     <message>
         <location filename="../../../src/qtEditComment.cc" line="+65"/>
         <source>Show previous comments</source>
@@ -1085,12 +922,7 @@ Diana tiene herramientas para editar campos en pantalla y dibujar objetos (frent
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+885"/>
-        <source>Problems saving product: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+45"/>
+        <location line="+918"/>
         <source>Warning - approve product</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1100,23 +932,7 @@ Diana tiene herramientas para editar campos en pantalla y dibujar objetos (frent
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Product</source>
-        <translation type="obsolete">Producto</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation type="obsolete">Guardar</translation>
-    </message>
-    <message>
-        <source>Send</source>
-        <translation type="obsolete">Enviar</translation>
-    </message>
-    <message>
-        <source>Obs. timestep:</source>
-        <translation type="obsolete">Tiempo de observ.:</translation>
-    </message>
-    <message>
-        <location line="-908"/>
+        <location line="-896"/>
         <source>Pause</source>
         <translation>Pausa</translation>
     </message>
@@ -1139,24 +955,6 @@ Diana tiene herramientas para editar campos en pantalla y dibujar objetos (frent
         <location line="+3"/>
         <source>Help</source>
         <translation>Ayuda</translation>
-    </message>
-    <message>
-        <source>New analysis</source>
-        <translation type="obsolete">Análisis nuevo</translation>
-    </message>
-    <message>
-        <source>This will delete all your edits so far.
- Do you really want them to disappear?</source>
-        <translation type="obsolete">Esto borrara todas sus ediciones hechas hasta el momento.
-¿Está seguri que quiere eliminarlas?</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation type="obsolete">Nuevo</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Cancelar</translation>
     </message>
     <message>
         <location line="+79"/>
@@ -1216,49 +1014,17 @@ Diana tiene herramientas para editar campos en pantalla y dibujar objetos (frent
         <translation>Salir mezclar</translation>
     </message>
     <message>
-        <source>Send product</source>
-        <translation type="obsolete">Enviar producto</translation>
-    </message>
-    <message>
-        <source>Start distribution of product to all regions.
- Use &quot;Approve produkt&quot; to give product official status
- as approved and ready.</source>
-        <translation type="obsolete">Empezar distribucion de productos a toda la region
-Use&quot; Aprobar producto&quot; para dar el estado oficial del producto
-como aprovado y listo.</translation>
-    </message>
-    <message>
-        <source>&amp;Distribution only</source>
-        <translation type="obsolete">&amp;Solo distribución</translation>
-    </message>
-    <message>
-        <source>&amp;Approve product</source>
-        <translation type="obsolete">&amp;Producto aprobado</translation>
-    </message>
-    <message>
-        <location line="+302"/>
+        <location line="+290"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Cancelar</translation>
     </message>
     <message>
-        <source>Problem saving/sending product
-</source>
-        <translation type="obsolete">Problema guardando/enviando producto
-</translation>
-    </message>
-    <message>
-        <source>Message from server:
-</source>
-        <translation type="obsolete">Mensaje del servidor:
-</translation>
-    </message>
-    <message>
-        <location line="-114"/>
+        <location line="-108"/>
         <source>Save error:</source>
         <translation>Error al guardar:</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+4"/>
         <source>Saved</source>
         <translation>Guardado</translation>
     </message>
@@ -1278,7 +1044,7 @@ como aprovado y listo.</translation>
         <translation>(aprobado)</translation>
     </message>
     <message>
-        <location line="+94"/>
+        <location line="+92"/>
         <source>Exit editing</source>
         <translation>Salir edición</translation>
     </message>
@@ -1298,22 +1064,6 @@ como aprovado y listo.</translation>
         <location line="+0"/>
         <source>&amp;Don&apos;t save</source>
         <translation>&amp;No guardar</translation>
-    </message>
-    <message>
-        <source>Send analysis</source>
-        <translation type="vanished">Enviar análisis</translation>
-    </message>
-    <message>
-        <source>Send last saved analysis to the database?</source>
-        <translation type="vanished">¿Enviar el último análisis guardado a la base de datos?</translation>
-    </message>
-    <message>
-        <source>&amp;Send</source>
-        <translation type="vanished">&amp;Enviar</translation>
-    </message>
-    <message>
-        <source>&amp;Don&apos;t send</source>
-        <translation type="vanished">&amp;No enviar</translation>
     </message>
     <message>
         <location line="+118"/>
@@ -1337,32 +1087,6 @@ como aprovado y listo.</translation>
         <location line="+209"/>
         <source>Not saved</source>
         <translation>No grabado</translation>
-    </message>
-</context>
-<context>
-    <name>EditDrawingDialog</name>
-    <message>
-        <source>Hide</source>
-        <translation type="obsolete">Esconder</translation>
-    </message>
-</context>
-<context>
-    <name>EditDrawingLayersPane</name>
-    <message>
-        <source>Refresh</source>
-        <translation type="obsolete">Refrescar</translation>
-    </message>
-    <message>
-        <source>Merge</source>
-        <translation type="obsolete">Mezclar</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Remover</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation type="obsolete">Guardar</translation>
     </message>
 </context>
 <context>
@@ -1723,48 +1447,6 @@ como aprovado y listo.</translation>
     </message>
 </context>
 <context>
-    <name>EditItemsStyle::SPE_decoration1_colour</name>
-    <message>
-        <source>off</source>
-        <translation type="obsolete">apagar</translation>
-    </message>
-</context>
-<context>
-    <name>EditItemsStyle::SPE_decoration2_colour</name>
-    <message>
-        <source>off</source>
-        <translation type="obsolete">apagar</translation>
-    </message>
-</context>
-<context>
-    <name>EditItemsStyle::SPE_fillcolour</name>
-    <message>
-        <source>off</source>
-        <translation type="obsolete">apagar</translation>
-    </message>
-</context>
-<context>
-    <name>EditItemsStyle::SPE_linecolour</name>
-    <message>
-        <source>off</source>
-        <translation type="obsolete">apagar</translation>
-    </message>
-</context>
-<context>
-    <name>EditItemsStyle::SPE_symbolcolour</name>
-    <message>
-        <source>off</source>
-        <translation type="obsolete">apagar</translation>
-    </message>
-</context>
-<context>
-    <name>EditItemsStyle::SPE_textcolour</name>
-    <message>
-        <source>off</source>
-        <translation type="obsolete">apagar</translation>
-    </message>
-</context>
-<context>
     <name>EditNewDialog</name>
     <message>
         <location filename="../../../src/qtEditNewDialog.cc" line="+65"/>
@@ -1785,10 +1467,6 @@ como aprovado y listo.</translation>
         <location line="+5"/>
         <source>Product Id:</source>
         <translation>Código de producto:</translation>
-    </message>
-    <message>
-        <source>Log in</source>
-        <translation type="obsolete">Ingresar</translation>
     </message>
     <message>
         <location line="+20"/>
@@ -1879,33 +1557,6 @@ como aprovado y listo.</translation>
         <translation>OK Combinar</translation>
     </message>
     <message>
-        <source>product free</source>
-        <translation type="obsolete">sin productos</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to take over this product?
-</source>
-        <translation type="obsolete">¿ Esta seguro de que quiere encargarse de este grupo?</translation>
-    </message>
-    <message>
-        <source>Warning!</source>
-        <translation type="obsolete">¡Advertencia!</translation>
-    </message>
-    <message>
-        <source>Yes</source>
-        <translation type="obsolete">Si</translation>
-    </message>
-    <message>
-        <source>Username and server required</source>
-        <translation type="obsolete">Nombre de usuario y servidor necesarios</translation>
-    </message>
-    <message>
-        <source>Can not log in. Message from server:
-</source>
-        <translation type="obsolete">No puedo ingresar. Mensaje del servidor:
-</translation>
-    </message>
-    <message>
         <location line="+329"/>
         <source>Product made earlier than normal!</source>
         <translation>¡Producto hecho mas temprano de lo normal!</translation>
@@ -1926,16 +1577,6 @@ como aprovado y listo.</translation>
         <location line="+26"/>
         <source>Continue</source>
         <translation>Continuar</translation>
-    </message>
-    <message>
-        <source>Diana database message</source>
-        <translation type="obsolete">Mensaje de la base de datos Diana</translation>
-    </message>
-    <message>
-        <source>Product not available.
- Can not start production</source>
-        <translation type="obsolete">Producto no disponible.
- No puedo empezar la producción</translation>
     </message>
 </context>
 <context>
@@ -2131,14 +1772,6 @@ como aprovado y listo.</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Done</source>
-        <translation type="vanished">Hecho</translation>
-    </message>
-    <message>
-        <source>Making animation</source>
-        <translation type="obsolete">Haciendo animación</translation>
-    </message>
-    <message>
         <location line="+111"/>
         <source>Creating animation...</source>
         <translation type="unfinished">Creando animación...</translation>
@@ -2147,10 +1780,6 @@ como aprovado y listo.</translation>
         <location line="+0"/>
         <source>Hide</source>
         <translation type="unfinished">Esconder</translation>
-    </message>
-    <message>
-        <source>Animation completed.</source>
-        <translation type="obsolete">Animación terminada.</translation>
     </message>
     <message>
         <location line="+19"/>
@@ -2180,10 +1809,6 @@ como aprovado y listo.</translation>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Zoom out</source>
-        <translation type="obsolete">Alejarse</translation>
-    </message>
 </context>
 <context>
     <name>FieldDialog</name>
@@ -2197,66 +1822,6 @@ como aprovado y listo.</translation>
         <location line="-91"/>
         <source>EDIT</source>
         <translation>EDITAR</translation>
-    </message>
-    <message>
-        <source>EPS Probability</source>
-        <translation type="obsolete">Probabilidad EPS</translation>
-    </message>
-    <message>
-        <source>EPS Clusters</source>
-        <translation type="obsolete">Grupo EPS</translation>
-    </message>
-    <message>
-        <source>EPS Members</source>
-        <translation type="obsolete">Miembro EPS</translation>
-    </message>
-    <message>
-        <source>Analysis</source>
-        <translation type="obsolete">Análisis</translation>
-    </message>
-    <message>
-        <source>Constant fields</source>
-        <translation type="obsolete">Campos constantes</translation>
-    </message>
-    <message>
-        <source>Surface etc.</source>
-        <translation type="obsolete">Superficie etc.</translation>
-    </message>
-    <message>
-        <source>Pressure Levels</source>
-        <translation type="obsolete">Niveles de Presión</translation>
-    </message>
-    <message>
-        <source>FlightLevels</source>
-        <translation type="obsolete">Niveles de Vuelo</translation>
-    </message>
-    <message>
-        <source>Model Levels</source>
-        <translation type="obsolete">Niveles del Modelo</translation>
-    </message>
-    <message>
-        <source>Isentropic Levels</source>
-        <translation type="obsolete">Niveles Isentrópicos</translation>
-    </message>
-    <message>
-        <source>Temperature Levels</source>
-        <translation type="obsolete">Niveles de Temperatura</translation>
-    </message>
-    <message>
-        <source>PV Levels</source>
-        <translation type="obsolete">Niveles de VP</translation>
-    </message>
-    <message>
-        <source>Ocean Depths</source>
-        <translation type="obsolete">Profundidades del Océano</translation>
-    </message>
-    <message>
-        <source>Ocean Model Levels</source>
-        <translation type="obsolete">Niveles del Modelo Oceánico</translation>
-    </message>
-    <message>
-        <source>Model group</source>
-        <translation type="obsolete">Grupo de modelo</translation>
     </message>
     <message>
         <location line="+56"/>
@@ -2314,10 +1879,6 @@ como aprovado y listo.</translation>
         <translation>Modelo</translation>
     </message>
     <message>
-        <source>R</source>
-        <translation type="obsolete">R</translation>
-    </message>
-    <message>
         <location line="+25"/>
         <source>Plot type</source>
         <translation type="unfinished"></translation>
@@ -2368,10 +1929,6 @@ como aprovado y listo.</translation>
         <translation type="unfinished">Por Defecto</translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation type="vanished">Ayuda</translation>
-    </message>
-    <message>
         <location line="+53"/>
         <source>All time steps</source>
         <translation>Todos los pasos de tiempo</translation>
@@ -2385,18 +1942,6 @@ como aprovado y listo.</translation>
         <location line="+0"/>
         <source>More&gt;&gt;</source>
         <translation>Mayor&gt;&gt;</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="vanished">Esconder</translation>
-    </message>
-    <message>
-        <source>Apply+Hide</source>
-        <translation type="vanished">Aplicar+Esconder</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation type="vanished">Aplicar</translation>
     </message>
     <message>
         <location line="+134"/>
@@ -2445,18 +1990,6 @@ como aprovado y listo.</translation>
         <translation>cambiar modelo/termin</translation>
     </message>
     <message>
-        <source>history back</source>
-        <translation type="obsolete">historial retroceder</translation>
-    </message>
-    <message>
-        <source>history forward</source>
-        <translation type="obsolete">historial adelantar</translation>
-    </message>
-    <message>
-        <source>use history shown</source>
-        <translation type="obsolete">usar historial mostrado</translation>
-    </message>
-    <message>
         <location line="+1"/>
         <source>all time steps / only common time steps</source>
         <translation>todos los pasos de tiempo / solo pasos de tiempo comunes</translation>
@@ -2465,10 +1998,6 @@ como aprovado y listo.</translation>
         <location line="+3"/>
         <source>numbers on the contour lines</source>
         <translation>números en las líneas de contorno</translation>
-    </message>
-    <message>
-        <source>Grid values, but only when a few grid points are visible</source>
-        <translation type="vanished">valores de red¨¨Instalar herramienta de consejo( pero solo cuando son visibles algunos puintos de la red)</translation>
     </message>
     <message>
         <location line="-429"/>
@@ -2717,13 +2246,6 @@ como aprovado y listo.</translation>
     </message>
 </context>
 <context>
-    <name>LayersPaneBase</name>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Remover</translation>
-    </message>
-</context>
-<context>
     <name>LineStyleButton</name>
     <message>
         <location filename="../../../src/qtStyleButtons.cc" line="+146"/>
@@ -2771,33 +2293,6 @@ Tipo: %3</translation>
         <location line="+10"/>
         <source>&amp;Color</source>
         <translation type="unfinished">&amp;Color</translation>
-    </message>
-</context>
-<context>
-    <name>LoginDialog</name>
-    <message>
-        <source>Diana db login</source>
-        <translation type="obsolete">Ingreso Base de Datos Diana</translation>
-    </message>
-    <message>
-        <source>Database server:</source>
-        <translation type="obsolete">Servidor base de datos:</translation>
-    </message>
-    <message>
-        <source>Username:</source>
-        <translation type="obsolete">Usuario:</translation>
-    </message>
-    <message>
-        <source>Password:</source>
-        <translation type="obsolete">Clave:</translation>
-    </message>
-    <message>
-        <source>Log in</source>
-        <translation type="obsolete">Ingresar</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Cancelar</translation>
     </message>
 </context>
 <context>
@@ -2984,10 +2479,6 @@ Tipo: %3</translation>
         <location line="+21"/>
         <source>Con&amp;tour lines</source>
         <translation type="unfinished">Lineas de con&amp;torno</translation>
-    </message>
-    <message>
-        <source>&amp;Filled land</source>
-        <translation type="obsolete">&amp;Tierra rellenada</translation>
     </message>
     <message>
         <location line="+52"/>
@@ -3219,29 +2710,9 @@ Tipo: %3</translation>
         <translation>Borrar</translation>
     </message>
     <message>
-        <source>Refresh</source>
-        <translation type="vanished">Refrescar</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="vanished">Ayuda</translation>
-    </message>
-    <message>
         <location line="+4"/>
         <source>Comments</source>
         <translation>Comentarios</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="vanished">Esconder</translation>
-    </message>
-    <message>
-        <source>Apply+Hide</source>
-        <translation type="vanished">Aplicar+Esconder</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation type="vanished">Aplicar</translation>
     </message>
 </context>
 <context>
@@ -3285,26 +2756,6 @@ Tipo: %3</translation>
         <location line="+1"/>
         <source>Show all plot types</source>
         <translation>Mostrar todos los tipos de gráficos</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="vanished">Ayuda</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="vanished">Refrescar</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="vanished">Esconder</translation>
-    </message>
-    <message>
-        <source>Apply + Hide</source>
-        <translation type="vanished">Aplicar+Esconder</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation type="vanished">Aplicar</translation>
     </message>
     <message>
         <location line="+321"/>
@@ -3426,25 +2877,9 @@ Tipo: %3</translation>
         <translation>Ninguno</translation>
     </message>
     <message>
-        <source>Default</source>
-        <translation type="vanished">Por Defecto</translation>
-    </message>
-    <message>
-        <source>Depth</source>
-        <translation type="vanished">Profundidad</translation>
-    </message>
-    <message>
-        <source>Pressure</source>
-        <translation type="vanished">Presión</translation>
-    </message>
-    <message>
         <location line="+14"/>
         <source>As field</source>
         <translation>Como campo</translation>
-    </message>
-    <message>
-        <source>deviation</source>
-        <translation type="vanished">desviación</translation>
     </message>
     <message>
         <location line="+15"/>
@@ -3472,17 +2907,9 @@ Tipo: %3</translation>
         <translation>Nombre del parámetro</translation>
     </message>
     <message>
-        <source>All observations (mixing different times)</source>
-        <translation type="vanished">Todas las observaciones (mezclando tiempos distintos)</translation>
-    </message>
-    <message>
         <location line="+4"/>
         <source>PPPP - MSLP-field</source>
         <translation>PPP- campo MSLP</translation>
-    </message>
-    <message>
-        <source>Aireps in all levels</source>
-        <translation type="vanished">Aireps en todos los niveles</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -3622,10 +3049,6 @@ Tipo: %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Affecting synoptic data: All observations in the time interval given, mixing observations with different times</source>
-        <translation type="vanished">Afectando dato sinoptico: Todas las observaciones  en un intervalo de tiempo dado, mezclar observaciones con distintos tiempos</translation>
-    </message>
-    <message>
         <location line="+1"/>
         <source>Max time difference</source>
         <translation>Diferencia de tiempo máxima</translation>
@@ -3649,116 +3072,6 @@ Tipo: %3</translation>
         <location line="+71"/>
         <source>ALL</source>
         <translation>TODOS</translation>
-    </message>
-</context>
-<context>
-    <name>PaintToolBar</name>
-    <message>
-        <source>Paint Operations</source>
-        <translation type="obsolete">Operaciones de Dibujo</translation>
-    </message>
-    <message>
-        <source>&amp;Select</source>
-        <translation type="obsolete">&amp;Seleccionar</translation>
-    </message>
-    <message>
-        <source>&amp;Draw</source>
-        <translation type="obsolete">&amp;Dibujar</translation>
-    </message>
-    <message>
-        <source>&amp;Include</source>
-        <translation type="obsolete">&amp;Incluir</translation>
-    </message>
-    <message>
-        <source>&amp;Cut</source>
-        <translation type="obsolete">&amp;Cortar</translation>
-    </message>
-    <message>
-        <source>&amp;Move</source>
-        <translation type="obsolete">&amp;Mover</translation>
-    </message>
-    <message>
-        <source>&amp;Add Point</source>
-        <translation type="obsolete">&amp;Agregar Punto</translation>
-    </message>
-    <message>
-        <source>&amp;Remove Point</source>
-        <translation type="obsolete">&amp;Remover Punto</translation>
-    </message>
-    <message>
-        <source>&amp;Move Point</source>
-        <translation type="obsolete">&amp;Mover Punto</translation>
-    </message>
-    <message>
-        <source>&amp;Spatial Interpolation</source>
-        <translation type="obsolete">&amp;Interpolación Espacial</translation>
-    </message>
-    <message>
-        <source>&amp;Undo</source>
-        <translation type="obsolete">&amp;Deshacer</translation>
-    </message>
-    <message>
-        <source>&amp;Redo</source>
-        <translation type="obsolete">&amp;Rehacer</translation>
-    </message>
-    <message>
-        <source>&amp;Help</source>
-        <translation type="obsolete">&amp;Ayuda</translation>
-    </message>
-</context>
-<context>
-    <name>PolygonBookmarkDialog</name>
-    <message>
-        <source>Cut</source>
-        <translation type="obsolete">Cortar</translation>
-    </message>
-    <message>
-        <source>Quit</source>
-        <translation type="obsolete">Salir</translation>
-    </message>
-</context>
-<context>
-    <name>ProfetChatWidget</name>
-    <message>
-        <source>&amp;Send</source>
-        <translation type="obsolete">&amp;Enviar</translation>
-    </message>
-</context>
-<context>
-    <name>ProfetObjectDialog</name>
-    <message>
-        <source>Save</source>
-        <translation type="obsolete">Guardar</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Cancelar</translation>
-    </message>
-</context>
-<context>
-    <name>ProfetSessionDialog</name>
-    <message>
-        <source>Objects</source>
-        <translation type="obsolete">Objetos</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation type="obsolete">Nuevo</translation>
-    </message>
-</context>
-<context>
-    <name>ProfetTimeSmoothDialog</name>
-    <message>
-        <source>&amp;Undo</source>
-        <translation type="obsolete">&amp;Deshacer</translation>
-    </message>
-    <message>
-        <source>Undo</source>
-        <translation type="obsolete">Deshacer</translation>
-    </message>
-    <message>
-        <source>&amp;Redo</source>
-        <translation type="obsolete">&amp;Rehacer</translation>
     </message>
 </context>
 <context>
@@ -3990,14 +3303,6 @@ Tipo: %3</translation>
         <location line="+5"/>
         <source>&amp;Change name..</source>
         <translation>&amp;Cambiar nombre..</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="vanished">Remover</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation type="vanished">Copiar</translation>
     </message>
     <message>
         <location line="+106"/>
@@ -4252,14 +3557,6 @@ Tipo: %3</translation>
         <translation>Actualizar comando con el grafico actual</translation>
     </message>
     <message>
-        <source>&amp;Reset..</source>
-        <translation type="vanished">&amp;Redefinir..</translation>
-    </message>
-    <message>
-        <source>Reset command to original copy</source>
-        <translation type="vanished">Resetear comando a la copia original</translation>
-    </message>
-    <message>
         <location line="+38"/>
         <source>Command field</source>
         <translation>Campo de comando</translation>
@@ -4321,10 +3618,6 @@ Tipo: %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Be aware that this is a static/official menuitem, and you are not guaranteed to be able to keep all changes.</source>
-        <translation type="obsolete">Ten en cuenta que esto es un item de menu estático/oficial; y no se te asegura el poder guardar todos los cambios.</translation>
-    </message>
-    <message>
         <location line="-13"/>
         <source>Yes</source>
         <translation>Sí</translation>
@@ -4336,10 +3629,6 @@ Tipo: %3</translation>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <source>The name can also be automatically created from the underlying data in the plot</source>
-        <translation type="obsolete">El nombre tambien pude ser creado automaticamente desde los datos subyacentes en el grafico</translation>
-    </message>
-    <message>
         <location line="-2"/>
         <source>Yes, make new menu name</source>
         <translation>Sí, hacer nuevo nombre de menú</translation>
@@ -4348,57 +3637,6 @@ Tipo: %3</translation>
         <location line="+1"/>
         <source>Yes, keep menu name</source>
         <translation>Sí, mantener nombre de menú</translation>
-    </message>
-    <message>
-        <source>Replace command with original copy?</source>
-        <translation type="vanished">¿Reemplazar comando  con una copia original?</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation type="vanished">OK</translation>
-    </message>
-</context>
-<context>
-    <name>RadarEchoDialog</name>
-    <message>
-        <source>Radar echo</source>
-        <translation type="obsolete">Eco de radar</translation>
-    </message>
-    <message>
-        <source>Select positions on map</source>
-        <translation type="obsolete">Seleccionar posiciones en el mapa</translation>
-    </message>
-    <message>
-        <source>Write positions (Lat Lon):</source>
-        <translation type="obsolete">Escriba posiciones (Lat Lon):</translation>
-    </message>
-    <message>
-        <source>Clear</source>
-        <translation type="obsolete">Limpiar</translation>
-    </message>
-    <message>
-        <source>Calculate</source>
-        <translation type="obsolete">Calcular</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="obsolete">Ayuda</translation>
-    </message>
-    <message>
-        <source>Print</source>
-        <translation type="obsolete">Imprimir</translation>
-    </message>
-    <message>
-        <source>Print calc. positions to file: trajectory.txt</source>
-        <translation type="obsolete">Imprimir posiciones calculadas a archivo:trajectory.txt</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="obsolete">Esconder</translation>
-    </message>
-    <message>
-        <source>Quit</source>
-        <translation type="obsolete">Salir</translation>
     </message>
 </context>
 <context>
@@ -4464,14 +3702,6 @@ Tipo: %3</translation>
         <translation>Diferencia de tiempo</translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation type="vanished">Ayuda</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="vanished">Refrescar</translation>
-    </message>
-    <message>
         <location line="+13"/>
         <source>&lt;&lt;Less</source>
         <translation>&lt;&lt;Menor</translation>
@@ -4480,30 +3710,6 @@ Tipo: %3</translation>
         <location line="+0"/>
         <source>More&gt;&gt;</source>
         <translation>Mayor&gt;&gt;</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="vanished">Esconder</translation>
-    </message>
-    <message>
-        <source>Apply+hide</source>
-        <translation type="vanished">Aplicar+esconder</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation type="vanished">Aplicar</translation>
-    </message>
-    <message>
-        <source>Chosen picture</source>
-        <translation type="vanished">Figura escogida</translation>
-    </message>
-    <message>
-        <source>No longer available on disk</source>
-        <translation type="vanished">Ya no está disponible en el disco</translation>
-    </message>
-    <message>
-        <source>Satellite dialog - info</source>
-        <translation type="vanished">Diálogo satélite - info</translation>
     </message>
 </context>
 <context>
@@ -4575,33 +3781,9 @@ Tipo: %3</translation>
 <context>
     <name>SpectrumModelDialog</name>
     <message>
-        <source>Diana Wavespectrum - models</source>
-        <translation type="obsolete">Espectro de Ondas Diana - modelos</translation>
-    </message>
-    <message>
-        <source>As field</source>
-        <translation type="obsolete">Como campo</translation>
-    </message>
-    <message>
-        <source>Observations</source>
-        <translation type="obsolete">Observaciones</translation>
-    </message>
-    <message>
-        <source>Model</source>
-        <translation type="obsolete">Modelo</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation type="obsolete">Archivo</translation>
-    </message>
-    <message>
         <location filename="../../../src/qtSpectrumModelDialog.cc" line="+73"/>
         <source>Help</source>
         <translation>Ayuda</translation>
-    </message>
-    <message>
-        <source>Delete All</source>
-        <translation type="obsolete">Borrar todo</translation>
     </message>
     <message>
         <location line="-13"/>
@@ -4809,14 +3991,6 @@ Tipo: %3</translation>
         <source>Select ensemble member</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Save plot as image</source>
-        <translation type="vanished">Guardar gráfico como imagen</translation>
-    </message>
-    <message>
-        <source>Images (*.png *.xpm *.bmp *.eps);;All (*.*)</source>
-        <translation type="obsolete">Imágenes (*.png *.xpm *.bmp *.eps);;Todas (*.*)</translation>
-    </message>
 </context>
 <context>
     <name>StationDialog</name>
@@ -4844,22 +4018,6 @@ Tipo: %3</translation>
         <location line="+1"/>
         <source>Show station names on the map</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="obsolete">Ayuda</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="obsolete">Esconder</translation>
-    </message>
-    <message>
-        <source>Apply+Hide</source>
-        <translation type="obsolete">Aplicar+Esconder</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation type="obsolete">Aplicar</translation>
     </message>
 </context>
 <context>
@@ -4931,10 +4089,6 @@ Tipo: %3</translation>
         <location line="+1"/>
         <source> Horiz:</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Field grid</source>
-        <translation type="obsolete">Grilla de campo</translation>
     </message>
     <message>
         <location line="-98"/>
@@ -5020,7 +4174,7 @@ Tipo: %3</translation>
     <message>
         <location line="+17"/>
         <source>Time offset</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Compensacion de tiempo</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -5157,14 +4311,6 @@ Tipo: %3</translation>
         <translation>Tipo de línea</translation>
     </message>
     <message>
-        <source>Time marks</source>
-        <translation type="obsolete">Marcadores de tiempo</translation>
-    </message>
-    <message>
-        <source>Off</source>
-        <translation type="obsolete">Apagar</translation>
-    </message>
-    <message>
         <location line="+6"/>
         <source>No. of positions</source>
         <translation type="unfinished">Número de posiciones</translation>
@@ -5241,91 +4387,6 @@ Tipo: %3</translation>
     </message>
 </context>
 <context>
-    <name>UffdaDialog</name>
-    <message>
-        <source>Uffda</source>
-        <translation type="vanished">Uffda</translation>
-    </message>
-    <message>
-        <source>Selected positions</source>
-        <translation type="vanished">Seleccione posiciones</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="vanished">Borrar</translation>
-    </message>
-    <message>
-        <source>Delete All</source>
-        <translation type="vanished">Borrar Todo</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation type="vanished">Guardar</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="vanished">Ayuda</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="vanished">Esconder</translation>
-    </message>
-    <message>
-        <source>Send</source>
-        <translation type="vanished">Enviar</translation>
-    </message>
-    <message>
-        <source>Data saved in</source>
-        <translation type="vanished">Datos guardados en</translation>
-    </message>
-    <message>
-        <source>Data not saved</source>
-        <translation type="vanished">Datos no guardados</translation>
-    </message>
-    <message>
-        <source>Uffda - info</source>
-        <translation type="vanished">Informacion Uffda</translation>
-    </message>
-    <message>
-        <source>Data sent to</source>
-        <translation type="vanished">Datos enviados a</translation>
-    </message>
-    <message>
-        <source>Check incoming mail for receipt (up to 2 minutes)!</source>
-        <translation type="vanished">!Revisar correos entrates para recibir(hasta dos minutos)!</translation>
-    </message>
-    <message>
-        <source>(Data also saved in local file</source>
-        <translation type="vanished">(Datos también guardados en archivo local</translation>
-    </message>
-    <message>
-        <source>Data not sent to</source>
-        <translation type="vanished">Datos no enviados a</translation>
-    </message>
-    <message>
-        <source>Incomplete information</source>
-        <translation type="vanished">Información incompleta</translation>
-    </message>
-    <message>
-        <source>You have not sent Uffda data !
- Send before exiting?</source>
-        <translation type="vanished">No has enviado los datos Uffda
-Enviar antes de salir?</translation>
-    </message>
-    <message>
-        <source>&amp;Send</source>
-        <translation type="vanished">&amp;Enviar</translation>
-    </message>
-    <message>
-        <source>&amp;Don&apos;t send</source>
-        <translation type="vanished">&amp;No enviar</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation type="vanished">&amp;Cancelar</translation>
-    </message>
-</context>
-<context>
     <name>VcrossAddPlotDialog</name>
     <message>
         <location filename="../../../src/vcross_qt/vcross_plot_add_dialog.ui" line="+14"/>
@@ -5371,209 +4432,6 @@ Enviar antes de salir?</translation>
         <location line="+3"/>
         <source>Chosen reference time: %1</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>VcrossDialog</name>
-    <message>
-        <source>Vertical Cross Sections</source>
-        <translation type="obsolete">Lectura de anillos vertical</translation>
-    </message>
-    <message>
-        <source>Models</source>
-        <translation type="obsolete">Modelos</translation>
-    </message>
-    <message>
-        <source>Fields</source>
-        <translation type="obsolete">Campos</translation>
-    </message>
-    <message>
-        <source>Selected Fields</source>
-        <translation type="obsolete">Campos Seleccionados</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="obsolete">Borrar</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation type="obsolete">Copiar</translation>
-    </message>
-    <message>
-        <source>Delete All</source>
-        <translation type="obsolete">Borrar Todo</translation>
-    </message>
-    <message>
-        <source>Model</source>
-        <translation type="obsolete">Modelo</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation type="obsolete">OK</translation>
-    </message>
-    <message>
-        <source>R</source>
-        <translation type="obsolete">R</translation>
-    </message>
-    <message>
-        <source>Colour</source>
-        <translation type="obsolete">Color</translation>
-    </message>
-    <message>
-        <source>off</source>
-        <translation type="obsolete">apagar</translation>
-    </message>
-    <message>
-        <source>Line width</source>
-        <translation type="obsolete">Ancho de línea</translation>
-    </message>
-    <message>
-        <source>Line type</source>
-        <translation type="obsolete">Tipo de línea</translation>
-    </message>
-    <message>
-        <source>Line interval</source>
-        <translation type="obsolete">Intervalo de línea</translation>
-    </message>
-    <message>
-        <source>Density</source>
-        <translation type="obsolete">Densidad</translation>
-    </message>
-    <message>
-        <source>Unit</source>
-        <translation type="obsolete">Unidad</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="obsolete">Ayuda</translation>
-    </message>
-    <message>
-        <source>&lt;&lt;Less</source>
-        <translation type="obsolete">&lt;&lt;Menor</translation>
-    </message>
-    <message>
-        <source>More&gt;&gt;</source>
-        <translation type="obsolete">Mayor&gt;&gt;</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="obsolete">Esconder</translation>
-    </message>
-    <message>
-        <source>Apply+Hide</source>
-        <translation type="obsolete">Aplicar+Esconder</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation type="obsolete">Aplicar</translation>
-    </message>
-    <message>
-        <source>move selected field up</source>
-        <translation type="obsolete">mover campo seleccionado arriba</translation>
-    </message>
-    <message>
-        <source>move selected field down</source>
-        <translation type="obsolete">mover campo seleccionado abajo</translation>
-    </message>
-    <message>
-        <source>remove selected field</source>
-        <translation type="obsolete">remover campo seleccionado</translation>
-    </message>
-    <message>
-        <source>remove all selected fields</source>
-        <translation type="obsolete">remover todos los campos seleccionados</translation>
-    </message>
-    <message>
-        <source>copy field</source>
-        <translation type="obsolete">copiar campo</translation>
-    </message>
-    <message>
-        <source>reset plot layout</source>
-        <translation type="obsolete">resetear disposicion del grafico</translation>
-    </message>
-    <message>
-        <source>change model/modeltime</source>
-        <translation type="obsolete">cambiar modelo/tiempo de modelo</translation>
-    </message>
-    <message>
-        <source>history backward</source>
-        <translation type="obsolete">historial retroceder</translation>
-    </message>
-    <message>
-        <source>history forward</source>
-        <translation type="obsolete">historial adelantar</translation>
-    </message>
-    <message>
-        <source>use current history</source>
-        <translation type="obsolete">usar historial actual</translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation type="obsolete">Tamaño</translation>
-    </message>
-    <message>
-        <source>Smooth lines</source>
-        <translation type="obsolete">Suavizar lineas</translation>
-    </message>
-    <message>
-        <source>Off</source>
-        <translation type="obsolete">Apagar</translation>
-    </message>
-    <message>
-        <source>Digit size</source>
-        <translation type="obsolete">Tamaño de dígito</translation>
-    </message>
-    <message>
-        <source>Time offset</source>
-        <translation type="obsolete">Tiempo de compensacion</translation>
-    </message>
-    <message>
-        <source> hour(s)</source>
-        <translation type="obsolete">hora(s)</translation>
-    </message>
-    <message>
-        <source>Zero-line</source>
-        <translation type="obsolete">Línea cero</translation>
-    </message>
-    <message>
-        <source>Number on line</source>
-        <translation type="obsolete">Número en línea</translation>
-    </message>
-    <message>
-        <source>Palette</source>
-        <translation type="obsolete">Paleta</translation>
-    </message>
-    <message>
-        <source>Palette (-)</source>
-        <translation type="obsolete">Paleta (-)</translation>
-    </message>
-    <message>
-        <source>Pattern</source>
-        <translation type="obsolete">Patrón</translation>
-    </message>
-    <message>
-        <source>Alpha</source>
-        <translation type="obsolete">Alfa</translation>
-    </message>
-    <message>
-        <source>Basis value</source>
-        <translation type="obsolete">Valor base</translation>
-    </message>
-    <message>
-        <source>Min</source>
-        <translation type="obsolete">Min</translation>
-    </message>
-    <message>
-        <source>Max</source>
-        <translation type="obsolete">Max</translation>
-    </message>
-    <message>
-        <source>Repeat</source>
-        <translation type="obsolete">Repetir</translation>
-    </message>
-    <message>
-        <source>Auto</source>
-        <translation type="obsolete">Auto</translation>
     </message>
 </context>
 <context>
@@ -5731,10 +4589,6 @@ Enviar antes de salir?</translation>
         <translation>Distancia</translation>
     </message>
     <message>
-        <source>Grid x,y positions</source>
-        <translation type="obsolete">Posicion x,y</translation>
-    </message>
-    <message>
         <location line="+16"/>
         <source>Geographical positions</source>
         <translation>Posiciones geográficas</translation>
@@ -5768,10 +4622,6 @@ Enviar antes de salir?</translation>
         <location line="+1"/>
         <source>Extrapolate to ocean floor</source>
         <translation>Extrapolar al fondo del océano</translation>
-    </message>
-    <message>
-        <source>Thick arrows</source>
-        <translation type="obsolete">Flechas gruesas</translation>
     </message>
     <message>
         <location line="+5"/>
@@ -5890,29 +4740,9 @@ Enviar antes de salir?</translation>
 <context>
     <name>VcrossStyleWidget</name>
     <message>
-        <source>Form</source>
-        <translation type="obsolete">Forma</translation>
-    </message>
-    <message>
         <location filename="../../../src/vcross_qt/vcross_style_widget.ui" line="+28"/>
         <source>Basic</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Line width</source>
-        <translation type="obsolete">Ancho de línea</translation>
-    </message>
-    <message>
-        <source>Line interval</source>
-        <translation type="obsolete">Intervalo de línea</translation>
-    </message>
-    <message>
-        <source>Colour</source>
-        <translation type="obsolete">Color</translation>
-    </message>
-    <message>
-        <source>Line type</source>
-        <translation type="obsolete">Tipo de línea</translation>
     </message>
     <message>
         <location line="+83"/>
@@ -5923,10 +4753,6 @@ Enviar antes de salir?</translation>
         <location line="+20"/>
         <source>Value labels</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Size</source>
-        <translation type="obsolete">Tamaño</translation>
     </message>
     <message>
         <location line="+60"/>
@@ -5944,25 +4770,9 @@ Enviar antes de salir?</translation>
         <translation type="unfinished">Paleta</translation>
     </message>
     <message>
-        <source>Repeat</source>
-        <translation type="obsolete">Repetir</translation>
-    </message>
-    <message>
-        <source>Colours</source>
-        <translation type="obsolete">Colores</translation>
-    </message>
-    <message>
         <location line="+46"/>
         <source>Colours (-)</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Alpha</source>
-        <translation type="obsolete">Alfa</translation>
-    </message>
-    <message>
-        <source>Basis value</source>
-        <translation type="obsolete">Valor base</translation>
     </message>
     <message>
         <location line="+73"/>
@@ -5973,10 +4783,6 @@ Enviar antes de salir?</translation>
         <location line="+12"/>
         <source>Min</source>
         <translation type="unfinished">Min</translation>
-    </message>
-    <message>
-        <source>Max</source>
-        <translation type="obsolete">Max</translation>
     </message>
     <message>
         <location line="-349"/>
@@ -6085,10 +4891,6 @@ Enviar antes de salir?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Unit</source>
-        <translation type="obsolete">Unidad</translation>
-    </message>
-    <message>
         <location line="+10"/>
         <source>X scale</source>
         <translation type="unfinished"></translation>
@@ -6113,7 +4915,7 @@ Enviar antes de salir?</translation>
         <location line="+6"/>
         <location line="+145"/>
         <source>Auto</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Automático</translation>
     </message>
     <message>
         <location line="-111"/>
@@ -6133,7 +4935,7 @@ Enviar antes de salir?</translation>
     <message>
         <location line="+16"/>
         <source>Time offset</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Compensacion de tiempo</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -6148,34 +4950,6 @@ Enviar antes de salir?</translation>
 </context>
 <context>
     <name>VcrossWindow</name>
-    <message>
-        <source>Diana Vertical Cross Sections</source>
-        <translation type="obsolete">Secciones verticales de Diana</translation>
-    </message>
-    <message>
-        <source>Model/field</source>
-        <translation type="obsolete">Modelo/campo</translation>
-    </message>
-    <message>
-        <source>Settings</source>
-        <translation type="obsolete">Configuraciones</translation>
-    </message>
-    <message>
-        <source>TimeGraph</source>
-        <translation type="obsolete">Gráfico de Tiempo</translation>
-    </message>
-    <message>
-        <source>Print</source>
-        <translation type="obsolete">Imprimir</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation type="obsolete">Guardar</translation>
-    </message>
-    <message>
-        <source>Quit</source>
-        <translation type="obsolete">Salir</translation>
-    </message>
     <message>
         <location filename="../../../src/vcross_qt/vcross_window.ui" line="+14"/>
         <source>Vertical Cross Sections</source>
@@ -6411,65 +5185,13 @@ Enviar antes de salir?</translation>
         <translation type="unfinished">Limpiar</translation>
     </message>
     <message>
-        <source>Draw cross/Clear</source>
-        <translation type="obsolete">Dibujar cruz/Borrar</translation>
-    </message>
-    <message>
         <location line="-253"/>
         <source>Draw/Edit</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Add to q&amp;uickmenu</source>
-        <translation type="obsolete">Agregar al &amp;menú rápido</translation>
-    </message>
-    <message>
-        <source>P&amp;revious plot</source>
-        <translation type="obsolete">Gráfico &amp;anterior</translation>
-    </message>
-    <message>
-        <source>&amp;Next plot</source>
-        <translation type="obsolete">Gráfico &amp;siguiente</translation>
-    </message>
-    <message>
-        <source>Save plot as image</source>
-        <translation type="vanished">Guardar gráfico como imagen</translation>
-    </message>
-    <message>
-        <source>Images (*.png *.xpm *.bmp *.eps);;All (*.*)</source>
-        <translation type="obsolete">Imágenes (*.png *.xpm *.bmp *.eps);;Todas (*.*)</translation>
-    </message>
 </context>
 <context>
     <name>VprofModelDialog</name>
-    <message>
-        <source>Diana Vertical Profiles - Models</source>
-        <translation type="obsolete">Perfiles Verticales Diana - Modelos</translation>
-    </message>
-    <message>
-        <source>As field</source>
-        <translation type="obsolete">Como campo</translation>
-    </message>
-    <message>
-        <source>Observations:TEMP</source>
-        <translation type="obsolete">Observaciones: TEMP</translation>
-    </message>
-    <message>
-        <source>Observations:PILOT</source>
-        <translation type="obsolete">Observaciones:PILOT</translation>
-    </message>
-    <message>
-        <source>Observations:AMDAR</source>
-        <translation type="obsolete">Observaciones:AMDAR</translation>
-    </message>
-    <message>
-        <source>Model</source>
-        <translation type="obsolete">Modelo</translation>
-    </message>
-    <message>
-        <source>File</source>
-        <translation type="obsolete">Archivo</translation>
-    </message>
     <message>
         <location filename="../../../src/vprof/qtVprofModelDialog.cc" line="+77"/>
         <source>Help</source>
@@ -6479,10 +5201,6 @@ Enviar antes de salir?</translation>
         <location line="+6"/>
         <source>Delete all</source>
         <translation>Borrar todo</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="obsolete">Refrescar</translation>
     </message>
     <message>
         <location line="-19"/>
@@ -6769,14 +5487,6 @@ Enviar antes de salir?</translation>
         <source>Select ensemble member</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Save plot as image</source>
-        <translation type="vanished">Guardar figura como imágen</translation>
-    </message>
-    <message>
-        <source>Images (*.png *.xpm *.bmp *.eps);;All (*.*)</source>
-        <translation type="obsolete">Imágenes (*.png *.xpm *.bmp *.eps);;Todas (*.*)</translation>
-    </message>
 </context>
 <context>
     <name>WebMapDialog</name>
@@ -6986,13 +5696,6 @@ Enviar antes de salir?</translation>
         <location line="+54"/>
         <source>Next</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>WorkArea</name>
-    <message>
-        <source>Failed to create OpenGL rendering context on this display</source>
-        <translation type="obsolete">Fallo el proceso de creacion de OpenGL en la pantalla</translation>
     </message>
 </context>
 </TS>

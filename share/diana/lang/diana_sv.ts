@@ -104,21 +104,6 @@
     </message>
 </context>
 <context>
-    <name>ComplexPressureText</name>
-    <message>
-        <source>Write text</source>
-        <translation type="vanished">Skriv text</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation type="vanished">OK</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="vanished">Avbryt</translation>
-    </message>
-</context>
-<context>
     <name>ComplexText</name>
     <message>
         <location filename="../../../src/qtComplexText.cc" line="+92"/>
@@ -207,15 +192,7 @@
 <context>
     <name>DianaMainWindow</name>
     <message>
-        <source>Diana</source>
-        <translation type="obsolete">Diana</translation>
-    </message>
-    <message>
-        <source>&amp;Save picture...</source>
-        <translation type="obsolete">Spara &amp;bild...</translation>
-    </message>
-    <message>
-        <location filename="../../../src/qtMainWindow.cc" line="+222"/>
+        <location filename="../../../src/qtMainWindow.cc" line="+223"/>
         <source>&amp;Print...</source>
         <translation>&amp;Skriv ut...</translation>
     </message>
@@ -289,26 +266,26 @@
         <source>&amp;Quickmenu</source>
         <translation>&amp;Snabbmeny</translation>
     </message>
-    <message>
-        <source>&amp;Fields</source>
-        <translation type="vanished">&amp;Fält</translation>
+    <message numerus="yes">
+        <location line="+2812"/>
+        <source>Imported %n symbol(s).</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <location line="+2"/>
+        <source>Imported %n drawing(s).</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
-        <source>&amp;Observations</source>
-        <translation type="vanished">&amp;Observationer</translation>
-    </message>
-    <message>
-        <source>&amp;Satellites and Radar</source>
-        <translation type="vanished">&amp;Satellit och Radar</translation>
-    </message>
-    <message>
-        <location line="+13"/>
+        <location line="-2801"/>
         <source>&amp;Product Editing</source>
         <translation>&amp;Produkteditering</translation>
-    </message>
-    <message>
-        <source>O&amp;bjects</source>
-        <translation type="vanished">O&amp;bjekt</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -336,10 +313,6 @@
         <translation>V&amp;ågspektra</translation>
     </message>
     <message>
-        <source>&amp;Uffda Service</source>
-        <translation type="vanished">&amp;Uffda tjeneste</translation>
-    </message>
-    <message>
         <location line="+15"/>
         <source>&amp;Measurements</source>
         <translation>&amp;Mätningar</translation>
@@ -365,40 +338,12 @@
         <translation>Om Diana</translation>
     </message>
     <message>
-        <location line="+1727"/>
+        <location line="+1791"/>
         <source>An error occured while re-reading the setup file &apos;%1&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Run Backwards</source>
-        <translation type="vanished">Kör Bakåt</translation>
-    </message>
-    <message>
-        <source>Run Forewards</source>
-        <translation type="vanished">Kör Framåt</translation>
-    </message>
-    <message>
-        <source>Step Backwards</source>
-        <translation type="vanished">Ett steg bakåt</translation>
-    </message>
-    <message>
-        <source>Step Forewards</source>
-        <translation type="vanished">Ett steg framåt</translation>
-    </message>
-    <message>
-        <source>Stop</source>
-        <translation type="vanished">Stopp</translation>
-    </message>
-    <message>
-        <source>Run in loop</source>
-        <translation type="vanished">Loopa</translation>
-    </message>
-    <message>
-        <source>Time control</source>
-        <translation type="vanished">Tidskontroll</translation>
-    </message>
-    <message>
-        <location line="-1719"/>
+        <location line="-1783"/>
         <source>Level up</source>
         <translation>Nivå opp</translation>
     </message>
@@ -408,17 +353,22 @@
         <translation>Nivå ned</translation>
     </message>
     <message>
-        <location line="+1604"/>
-        <source>build: </source>
+        <location line="+1202"/>
+        <source>Automatic updates mode is available but off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>commit: </source>
+        <location line="+4"/>
+        <source>Automatic updates mode is available and on</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+106"/>
+        <location line="+4"/>
+        <source>Automatic updates mode is available but there is a warning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+565"/>
         <source>Error</source>
         <translation>Feil</translation>
     </message>
@@ -430,40 +380,20 @@
     <message>
         <location line="+47"/>
         <source>Imported model data to the &quot;%1&quot; field group.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message numerus="yes">
-        <location line="+2"/>
-        <source>Imported %1 symbol(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location line="+2"/>
-        <source>Imported %1 drawing(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
+        <translation type="unfinished">Adderat model data till &quot;%1&quot; fält grupp.</translation>
     </message>
     <message>
-        <source>Added model data to &quot;%1&quot; field group.</source>
-        <translation type="obsolete">Adderat model data till &quot;%1&quot; fält grupp.</translation>
-    </message>
-    <message>
-        <location line="-2552"/>
+        <location line="-2621"/>
         <source>O&amp;ptions</source>
         <translation>&amp;Välj</translation>
     </message>
     <message>
-        <location line="-136"/>
+        <location line="-127"/>
         <source>Zoom out</source>
         <translation>Zooma ut</translation>
     </message>
     <message>
-        <location line="+166"/>
+        <location line="+157"/>
         <source>Show</source>
         <translation>Visa</translation>
     </message>
@@ -473,7 +403,7 @@
         <translation>&amp;Hjälp</translation>
     </message>
     <message>
-        <location line="-117"/>
+        <location line="-108"/>
         <source>Update observations</source>
         <translation>Uppdatera observationer</translation>
     </message>
@@ -485,10 +415,10 @@
     <message>
         <location line="+1"/>
         <source>Ctrl+Shift+P</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Shift+P</translation>
     </message>
     <message>
-        <location line="+392"/>
+        <location line="+389"/>
         <source>ARCHIVE</source>
         <translation>ARKIV</translation>
     </message>
@@ -498,25 +428,12 @@
         <translation type="unfinished">Karta och Område</translation>
     </message>
     <message>
-        <location line="+1329"/>
-        <source>version:</source>
-        <translation>version:</translation>
-    </message>
-    <message>
-        <location line="+4"/>
+        <location line="+1400"/>
         <source>about Diana</source>
         <translation>om Diana</translation>
     </message>
     <message>
-        <source>Images (*.png *.xpm *.bmp *.eps);;All (*.*)</source>
-        <translation type="obsolete">Bilder (*.png *.xpm *.bmp *.eps);;Alle (*.*)</translation>
-    </message>
-    <message>
-        <source>Save plot as image</source>
-        <translation type="obsolete">Spara plott som bild</translation>
-    </message>
-    <message>
-        <location line="-1598"/>
+        <location line="-1662"/>
         <source>EPS cluster/member etc up</source>
         <translation>EPS cluster/medlem mm. upp</translation>
     </message>
@@ -526,11 +443,7 @@
         <translation>EPS cluster/medlem mm. ned</translation>
     </message>
     <message>
-        <source>build:</source>
-        <translation type="obsolete">Bygge:</translation>
-    </message>
-    <message>
-        <location line="+61"/>
+        <location line="+52"/>
         <source>File</source>
         <translation>Fil</translation>
     </message>
@@ -540,11 +453,7 @@
         <translation>Info</translation>
     </message>
     <message>
-        <source>Save &amp;animation...</source>
-        <translation type="obsolete">Spara &amp;animation...</translation>
-    </message>
-    <message>
-        <location line="+1498"/>
+        <location line="+1571"/>
         <source>Diana - a 2D presentation system for meteorological data, including fields, observations,
 satellite- and radarimages, vertical profiles and cross sections.
 Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas, symbols etc.
@@ -552,13 +461,9 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>Diana - ett program för presentation av fält, observationer och satellitbilder med verktyg för fälteditering och ritning av fronter och symboler.</translation>
     </message>
     <message>
-        <location line="-1633"/>
+        <location line="-1697"/>
         <source>Documentation</source>
         <translation>Dokumentation</translation>
-    </message>
-    <message>
-        <source>&amp;Email picture...</source>
-        <translation type="obsolete">Sänd bild som &amp;epost...</translation>
     </message>
     <message>
         <location line="-118"/>
@@ -571,37 +476,13 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>Karta</translation>
     </message>
     <message>
-        <location line="+1705"/>
+        <location line="+1769"/>
         <source>To report a bug or enter an enhancement request, please use the bug tracking tool at http://diana.bugs.met.no (met.no users only). 
 </source>
         <translation>För att rapportera en bugg eller ett förbättringsförslag, vänligen använd https://redmine.smhi.se/ projekt Diana (Endast SMHI användare).</translation>
     </message>
     <message>
-        <source>Making animation</source>
-        <translation type="vanished">Skapar animation</translation>
-    </message>
-    <message>
-        <source>Done</source>
-        <translation type="vanished">Klar</translation>
-    </message>
-    <message>
-        <source>Animation completed.</source>
-        <translation type="vanished">Animation klar.</translation>
-    </message>
-    <message>
-        <source>Compiled without video export</source>
-        <translation type="obsolete">Kompilerad utan video export</translation>
-    </message>
-    <message>
-        <source>Diana must be compiled with VIDEO_EXPORT defined to use this feature.</source>
-        <translation type="obsolete">Diana måste vara kompilerad med VIDEO EXPORT för att kunna använda detta val.</translation>
-    </message>
-    <message>
-        <source>Movies (*.mp4 *.mpg *.avi);;All (*.*)</source>
-        <translation type="obsolete">&gt;Filmer (*.mp4 *.mpg *.avi);;Alla (*.*)</translation>
-    </message>
-    <message>
-        <location line="-1783"/>
+        <location line="-1847"/>
         <source>Print pre&amp;view...</source>
         <translation>Förhands&amp;granska...</translation>
     </message>
@@ -611,48 +492,14 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>Läs setupfil</translation>
     </message>
     <message>
-        <source>Toggle Stations</source>
-        <translation type="vanished">Visa stationer</translation>
-    </message>
-    <message>
         <location line="+139"/>
         <source>Edit Drawing Mode</source>
         <translation>Editera/Rita</translation>
     </message>
     <message>
-        <source>Save animation from current fields, satellite images, etc.</source>
-        <translation type="obsolete">Spara information från fält, bilder, osv. (*.mpg eller *.avi)</translation>
-    </message>
-    <message>
-        <source>Creating animation...</source>
-        <translation type="vanished">Skapa animation…</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="vanished">Dölj</translation>
-    </message>
-    <message>
-        <location line="+74"/>
+        <location line="+208"/>
         <source>Automatic updates</source>
         <translation>Automatisk uppdatering</translation>
-    </message>
-</context>
-<context>
-    <name>DrawingLayersPane</name>
-    <message>
-        <source>Duplicate to editable</source>
-        <translation type="obsolete">Kopiera till editerbar</translation>
-    </message>
-</context>
-<context>
-    <name>DrawingModel</name>
-    <message>
-        <source>Name</source>
-        <translation type="obsolete">Namn</translation>
-    </message>
-    <message>
-        <source>Source</source>
-        <translation type="obsolete">Källa</translation>
     </message>
 </context>
 <context>
@@ -759,28 +606,6 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation>Editering</translation>
     </message>
     <message>
-        <source>Obs. timestep:</source>
-        <translation type="obsolete">Obs. tidssteg:</translation>
-    </message>
-    <message>
-        <source>New analysis</source>
-        <translation type="obsolete">Ny analys</translation>
-    </message>
-    <message>
-        <source>This will delete all your edits so far.
- Do you really want them to disappear?</source>
-        <translation type="obsolete">Detta kommer ta borta alla dina editeringa du har gjort.
-Vill du verkligen att de ska försvinna?</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <translation type="obsolete">Ny</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Avbryt</translation>
-    </message>
-    <message>
         <location line="-30"/>
         <location line="+174"/>
         <source>Circle</source>
@@ -832,16 +657,7 @@ Vill du verkligen att de ska försvinna?</translation>
         <translation>Ellips form</translation>
     </message>
     <message>
-        <location line="+743"/>
-        <source>Problems saving product: </source>
-        <translation>Problem med att spara produkt: </translation>
-    </message>
-    <message>
-        <source>Error approve product</source>
-        <translation type="obsolete">Problem att godkänna produkt</translation>
-    </message>
-    <message>
-        <location line="+116"/>
+        <location line="+847"/>
         <source>&amp;Cancel</source>
         <translation>&amp;Avbryt</translation>
     </message>
@@ -869,7 +685,7 @@ Vill du verkligen att de ska försvinna?</translation>
         <translation>Ej sparad</translation>
     </message>
     <message>
-        <location line="-1276"/>
+        <location line="-1264"/>
         <source>Show extra editing lines</source>
         <translation>Visa editeringslinjer</translation>
     </message>
@@ -906,12 +722,12 @@ Vill du verkligen att de ska försvinna?</translation>
         <translation>Avsluta koppling</translation>
     </message>
     <message>
-        <location line="+188"/>
+        <location line="+182"/>
         <source>Save error:</source>
         <translation>Fel vid sparning:</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+4"/>
         <source>Saved</source>
         <translation>Sparad</translation>
     </message>
@@ -926,7 +742,7 @@ Vill du verkligen att de ska försvinna?</translation>
         <translation>(godkänd)</translation>
     </message>
     <message>
-        <location line="+25"/>
+        <location line="+23"/>
         <source>Warning - approve product</source>
         <translation type="unfinished"></translation>
     </message>
@@ -958,28 +774,12 @@ Vil du spara innan du avslutar?</translation>
         <translation>Spara &amp;inte</translation>
     </message>
     <message>
-        <source>Send analysis</source>
-        <translation type="vanished">Skicka analys</translation>
-    </message>
-    <message>
-        <source>Send last saved analysis to the database?</source>
-        <translation type="vanished">Vill du skicka sista sparade analysen till databasen?</translation>
-    </message>
-    <message>
-        <source>&amp;Send</source>
-        <translation type="vanished">&amp;Skicka</translation>
-    </message>
-    <message>
-        <source>&amp;Don&apos;t send</source>
-        <translation type="vanished">Skicka &amp;inte</translation>
-    </message>
-    <message>
-        <location line="-105"/>
+        <location line="-103"/>
         <source>saved</source>
         <translation>sparad</translation>
     </message>
     <message>
-        <location line="-860"/>
+        <location line="-850"/>
         <source>Exit</source>
         <translation>Avsluta</translation>
     </message>
@@ -1285,88 +1085,6 @@ Vil du spara innan du avslutar?</translation>
         <source>EditText</source>
         <translation>Editera text</translation>
     </message>
-    <message>
-        <source>Decreasing pressure</source>
-        <translation type="obsolete">Fallande lufttryck</translation>
-    </message>
-    <message>
-        <source>Increasing pressure</source>
-        <translation type="obsolete">Stigande lufttryck</translation>
-    </message>
-    <message>
-        <source>Drifting snow</source>
-        <translation type="vanished">Snödrev</translation>
-    </message>
-    <message>
-        <source>VMC-line</source>
-        <translation type="vanished">VMC-linje</translation>
-    </message>
-    <message>
-        <source>CAT-line</source>
-        <translation type="vanished">CAT-linje</translation>
-    </message>
-    <message>
-        <source>Line of thunderstorms red</source>
-        <translation type="vanished">Åsklinje röd</translation>
-    </message>
-    <message>
-        <source>Line of thunderstorms green</source>
-        <translation type="vanished">Åsklinje grön</translation>
-    </message>
-    <message>
-        <source>Line of thunderstorms blue</source>
-        <translation type="vanished">Åsklinje blå</translation>
-    </message>
-    <message>
-        <source>Graupel</source>
-        <translation type="vanished">Kornsnö</translation>
-    </message>
-    <message>
-        <source>Jet stream</source>
-        <translation type="vanished">Jet ström</translation>
-    </message>
-</context>
-<context>
-    <name>EditDrawingDialog</name>
-    <message>
-        <source>Edit Drawing Dialog</source>
-        <translation type="obsolete">Editera/Rita Dialog</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="obsolete">Dölj</translation>
-    </message>
-</context>
-<context>
-    <name>EditDrawingLayersPane</name>
-    <message>
-        <source>Refresh</source>
-        <translation type="obsolete">Uppdatera</translation>
-    </message>
-    <message>
-        <source>Select All</source>
-        <translation type="obsolete">Markera allt</translation>
-    </message>
-    <message>
-        <source>Deselect All</source>
-        <translation type="obsolete">Avmakera allt</translation>
-    </message>
-    <message>
-        <source>Merge</source>
-        <translation type="obsolete">Koppla</translation>
-    </message>
-    <message>
-        <source>Duplicate</source>
-        <translation type="obsolete">Duplicera</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="obsolete">Ta bort</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation type="obsolete">Spara</translation>
-    </message>
 </context>
 <context>
     <name>EditItemManager</name>
@@ -1441,18 +1159,6 @@ Vil du spara innan du avslutar?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Toggle reversed</source>
-        <translation type="obsolete">Toggla omvänt</translation>
-    </message>
-    <message>
-        <source>Edit P&amp;roperties...</source>
-        <translation type="obsolete">Editera &amp;egenskaper</translation>
-    </message>
-    <message>
-        <source>Show P&amp;roperties...</source>
-        <translation type="obsolete">Visa egenskaper</translation>
-    </message>
-    <message>
         <location line="-1424"/>
         <source>Toggle Reversed</source>
         <translation type="unfinished"></translation>
@@ -1466,10 +1172,6 @@ Vil du spara innan du avslutar?</translation>
         <location line="+1"/>
         <source>Ctrl+R</source>
         <translation>Ctrl+R</translation>
-    </message>
-    <message>
-        <source>Edit Style...</source>
-        <translation type="obsolete">Editera Stil</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -1492,10 +1194,6 @@ Vil du spara innan du avslutar?</translation>
         <translation>Text</translation>
     </message>
     <message>
-        <source>Composite</source>
-        <translation type="obsolete">Komposit</translation>
-    </message>
-    <message>
         <location line="+1432"/>
         <source>To</source>
         <translation>Till</translation>
@@ -1503,10 +1201,6 @@ Vil du spara innan du avslutar?</translation>
 </context>
 <context>
     <name>EditItem_Composite::Composite</name>
-    <message>
-        <source>Edit item</source>
-        <translation type="obsolete">Editera del</translation>
-    </message>
     <message>
         <location filename="../../../src/EditItems/editcomposite.cc" line="+51"/>
         <source>Edit composite</source>
@@ -1750,48 +1444,6 @@ Vil du spara innan du avslutar?</translation>
     </message>
 </context>
 <context>
-    <name>EditItemsStyle::SPE_decoration1_colour</name>
-    <message>
-        <source>off</source>
-        <translation type="obsolete">av</translation>
-    </message>
-</context>
-<context>
-    <name>EditItemsStyle::SPE_decoration2_colour</name>
-    <message>
-        <source>off</source>
-        <translation type="obsolete">av</translation>
-    </message>
-</context>
-<context>
-    <name>EditItemsStyle::SPE_fillcolour</name>
-    <message>
-        <source>off</source>
-        <translation type="obsolete">av</translation>
-    </message>
-</context>
-<context>
-    <name>EditItemsStyle::SPE_linecolour</name>
-    <message>
-        <source>off</source>
-        <translation type="obsolete">av</translation>
-    </message>
-</context>
-<context>
-    <name>EditItemsStyle::SPE_symbolcolour</name>
-    <message>
-        <source>off</source>
-        <translation type="obsolete">av</translation>
-    </message>
-</context>
-<context>
-    <name>EditItemsStyle::SPE_textcolour</name>
-    <message>
-        <source>off</source>
-        <translation type="obsolete">av</translation>
-    </message>
-</context>
-<context>
     <name>EditNewDialog</name>
     <message>
         <location filename="../../../src/qtEditNewDialog.cc" line="+71"/>
@@ -1940,13 +1592,6 @@ Vil du spara innan du avslutar?</translation>
         <location line="+2"/>
         <source>Cancel</source>
         <translation>Avbryt</translation>
-    </message>
-</context>
-<context>
-    <name>ExportCommandsModel</name>
-    <message>
-        <source>File(s)</source>
-        <translation type="vanished">Fil(er)</translation>
     </message>
 </context>
 <context>
@@ -2124,14 +1769,6 @@ Vil du spara innan du avslutar?</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Done</source>
-        <translation type="vanished">Klar</translation>
-    </message>
-    <message>
-        <source>Making animation</source>
-        <translation type="obsolete">Skapar animation</translation>
-    </message>
-    <message>
         <location line="+111"/>
         <source>Creating animation...</source>
         <translation type="unfinished">Skapa animation…</translation>
@@ -2140,10 +1777,6 @@ Vil du spara innan du avslutar?</translation>
         <location line="+0"/>
         <source>Hide</source>
         <translation type="unfinished">Dölj</translation>
-    </message>
-    <message>
-        <source>Animation completed.</source>
-        <translation type="obsolete">Animation klar.</translation>
     </message>
     <message>
         <location line="+19"/>
@@ -2173,14 +1806,6 @@ Vil du spara innan du avslutar?</translation>
         <source>Close</source>
         <translation type="unfinished">Stäng</translation>
     </message>
-    <message>
-        <source>Zoom out</source>
-        <translation type="obsolete">Zooma ut</translation>
-    </message>
-    <message>
-        <source>Ctrl+N</source>
-        <translation type="obsolete">Ctrl+N</translation>
-    </message>
 </context>
 <context>
     <name>FieldDialog</name>
@@ -2189,10 +1814,6 @@ Vil du spara innan du avslutar?</translation>
         <location line="+103"/>
         <source>Fields</source>
         <translation>Fält</translation>
-    </message>
-    <message>
-        <source>Model group</source>
-        <translation type="obsolete">Modellgrupp</translation>
     </message>
     <message>
         <location line="-35"/>
@@ -2279,10 +1900,6 @@ Vil du spara innan du avslutar?</translation>
         <translation>Minus</translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation type="vanished">Hjälp</translation>
-    </message>
-    <message>
         <location line="+49"/>
         <source>All time steps</source>
         <translation>Alla tidssteg</translation>
@@ -2296,18 +1913,6 @@ Vil du spara innan du avslutar?</translation>
         <location line="+0"/>
         <source>More&gt;&gt;</source>
         <translation>Mer&gt;&gt;</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="vanished">Dölj</translation>
-    </message>
-    <message>
-        <source>Apply+Hide</source>
-        <translation type="vanished">Utför+Dölj</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation type="vanished">Utför</translation>
     </message>
     <message>
         <location line="+134"/>
@@ -2596,62 +2201,6 @@ Vil du spara innan du avslutar?</translation>
         <translation>EDIT</translation>
     </message>
     <message>
-        <source>EPS Probability</source>
-        <translation type="obsolete">EPS Sannolikheter</translation>
-    </message>
-    <message>
-        <source>EPS Clusters</source>
-        <translation type="obsolete">EPS Kluster</translation>
-    </message>
-    <message>
-        <source>EPS Members</source>
-        <translation type="obsolete">EPS Medlemmar</translation>
-    </message>
-    <message>
-        <source>Analysis</source>
-        <translation type="obsolete">Analys</translation>
-    </message>
-    <message>
-        <source>Constant fields</source>
-        <translation type="obsolete">Parameterfält</translation>
-    </message>
-    <message>
-        <source>Pressure Levels</source>
-        <translation type="obsolete">Trycknivåer</translation>
-    </message>
-    <message>
-        <source>FlightLevels</source>
-        <translation type="obsolete">Flygnivåer</translation>
-    </message>
-    <message>
-        <source>Isentropic Levels</source>
-        <translation type="obsolete">Isentrop-nivåer</translation>
-    </message>
-    <message>
-        <source>Temperature Levels</source>
-        <translation type="obsolete">Temperatur-nivåer</translation>
-    </message>
-    <message>
-        <source>PV Levels</source>
-        <translation type="obsolete">PV-nivåer</translation>
-    </message>
-    <message>
-        <source>Ocean Depths</source>
-        <translation type="obsolete">Havsdjup</translation>
-    </message>
-    <message>
-        <source>Ocean Model Levels</source>
-        <translation type="obsolete">Havsmodell-nivåer</translation>
-    </message>
-    <message>
-        <source>Model Levels</source>
-        <translation type="obsolete">Modell-nivåer</translation>
-    </message>
-    <message>
-        <source>Surface etc.</source>
-        <translation type="obsolete">Yta m.m.</translation>
-    </message>
-    <message>
         <location line="+406"/>
         <source>Undef colour</source>
         <translation>Odefinerad färg</translation>
@@ -2687,39 +2236,9 @@ Vil du spara innan du avslutar?</translation>
         <translation>av</translation>
     </message>
     <message>
-        <source>Grid values, but only when a few grid points are visible</source>
-        <translation type="vanished">Gridvärden, men bara när gridpunkterna är synliga </translation>
-    </message>
-    <message>
         <location line="+525"/>
         <source>Frame</source>
         <translation>Ram</translation>
-    </message>
-</context>
-<context>
-    <name>LayerGroupsPane</name>
-    <message>
-        <source>Layer Groups</source>
-        <translation type="obsolete">Lager grupp</translation>
-    </message>
-    <message>
-        <source>Layer Collections</source>
-        <translation type="obsolete">Lager samling</translation>
-    </message>
-</context>
-<context>
-    <name>LayersPaneBase</name>
-    <message>
-        <source>Move Up</source>
-        <translation type="obsolete">Flytta upp</translation>
-    </message>
-    <message>
-        <source>Move Down</source>
-        <translation type="obsolete">Flytta ned</translation>
-    </message>
-    <message>
-        <source>Edit Attributes</source>
-        <translation type="obsolete">Editera attribut</translation>
     </message>
 </context>
 <context>
@@ -2768,17 +2287,6 @@ Type: %3</source>
         <location line="+10"/>
         <source>&amp;Color</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>MailDialog</name>
-    <message>
-        <source>E-Mail Picture</source>
-        <translation type="obsolete">Skicka bild som epost</translation>
-    </message>
-    <message>
-        <source>E-Mail Details</source>
-        <translation type="obsolete">Epostdetaljer</translation>
     </message>
 </context>
 <context>
@@ -2869,14 +2377,6 @@ Type: %3</source>
         <translation>Ta bort allt</translation>
     </message>
     <message>
-        <source>Contour lines</source>
-        <translation type="vanished">Konturlinjer</translation>
-    </message>
-    <message>
-        <source>Line thickness</source>
-        <translation type="vanished">Linjettjocklek</translation>
-    </message>
-    <message>
         <location line="-90"/>
         <location line="+172"/>
         <source>Colour</source>
@@ -2890,17 +2390,9 @@ Type: %3</source>
         <translation>Plottpositionon</translation>
     </message>
     <message>
-        <source>Filled land</source>
-        <translation type="vanished">Land ifyllt</translation>
-    </message>
-    <message>
         <location line="-126"/>
         <source>Density</source>
         <translation>Täthet</translation>
-    </message>
-    <message>
-        <source>Show frame</source>
-        <translation type="vanished">Visa ram</translation>
     </message>
     <message>
         <location line="+151"/>
@@ -2931,10 +2423,6 @@ Type: %3</source>
         <location line="-120"/>
         <source>Remove selected map from the list &quot;Selected maps&quot;</source>
         <translation>Ta bort vald karta från listan &quot;Valda kartor&quot;</translation>
-    </message>
-    <message>
-        <source>Frame</source>
-        <translation type="vanished">Ram</translation>
     </message>
     <message>
         <location line="-129"/>
@@ -2997,10 +2485,6 @@ Type: %3</source>
         <translation>Utför+Dölj</translation>
     </message>
     <message>
-        <source>Line type</source>
-        <translation type="vanished">Linjetyp</translation>
-    </message>
-    <message>
         <location filename="../../../src/qtMapDialog.cc" line="+1"/>
         <source>left</source>
         <translation>till vänster</translation>
@@ -3016,34 +2500,14 @@ Type: %3</source>
         <translation>båda</translation>
     </message>
     <message>
-        <source>Longitude lines</source>
-        <translation type="vanished">Longitudlinjer</translation>
-    </message>
-    <message>
         <location filename="../../../src/mapdialog.ui" line="-275"/>
         <source>Show longitude-lines on the map</source>
         <translation>Visa longitudlinjer på kartan</translation>
     </message>
     <message>
-        <source>Show value</source>
-        <translation type="vanished">Visa värde</translation>
-    </message>
-    <message>
-        <source>Show longitude-values</source>
-        <translation type="vanished">Visa longitudvärden</translation>
-    </message>
-    <message>
-        <source>Latitude lines</source>
-        <translation type="vanished">Latitudlinjer</translation>
-    </message>
-    <message>
         <location line="+37"/>
         <source>Show latitude-lines on the map</source>
         <translation>Visa latitudlinjer på kartan</translation>
-    </message>
-    <message>
-        <source>Show latitude-values</source>
-        <translation type="vanished">Visa latitudvärden</translation>
     </message>
     <message>
         <location line="+214"/>
@@ -3215,18 +2679,6 @@ Type: %3</source>
         <translation>Ta bort</translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation type="vanished">Hjälp</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="vanished">Dölj</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation type="vanished">Utför</translation>
-    </message>
-    <message>
         <location line="+4"/>
         <source>Comments</source>
         <translation>Kommentarer</translation>
@@ -3256,14 +2708,6 @@ Type: %3</source>
         <source>Alpha</source>
         <translation>Alfa</translation>
     </message>
-    <message>
-        <source>Apply+Hide</source>
-        <translation type="vanished">Utför+Dölj</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="vanished">Uppdatera</translation>
-    </message>
 </context>
 <context>
     <name>ObsDialog</name>
@@ -3271,26 +2715,6 @@ Type: %3</source>
         <location filename="../../../src/qtObsDialog.cc" line="+102"/>
         <source>Observations</source>
         <translation>Observationer</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="vanished">Hjälp</translation>
-    </message>
-    <message>
-        <source>Refresh</source>
-        <translation type="vanished">Uppdatera</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="vanished">Dölj</translation>
-    </message>
-    <message>
-        <source>Apply + Hide</source>
-        <translation type="vanished">Utför+Dölj</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation type="vanished">Utför</translation>
     </message>
     <message>
         <location line="+21"/>
@@ -3447,21 +2871,9 @@ Type: %3</source>
         <translation>Ingen</translation>
     </message>
     <message>
-        <source>Depth</source>
-        <translation type="vanished">Djup</translation>
-    </message>
-    <message>
-        <source>Pressure</source>
-        <translation type="vanished">Trycknivå</translation>
-    </message>
-    <message>
         <location line="+14"/>
         <source>As field</source>
         <translation>Som fält</translation>
-    </message>
-    <message>
-        <source>deviation</source>
-        <translation type="vanished">Avvikelse</translation>
     </message>
     <message>
         <location line="+15"/>
@@ -3502,10 +2914,6 @@ Type: %3</source>
         <location line="+2"/>
         <source>PPPP - MSLP-field</source>
         <translation>PPPP - MSLP-fält</translation>
-    </message>
-    <message>
-        <source>Aireps in all levels</source>
-        <translation type="vanished">Aireps i alla nivåer</translation>
     </message>
     <message>
         <location line="-34"/>
@@ -3615,21 +3023,9 @@ Type: %3</source>
         <translation>Färg</translation>
     </message>
     <message>
-        <source>All observations (mixing different times)</source>
-        <translation type="vanished">Alla observationer (terminer blandas)</translation>
-    </message>
-    <message>
-        <source>Affecting synoptic data: All observations in the time interval given, mixing observations with different times</source>
-        <translation type="vanished">Gäller synoptiska data: Alla observationer i tidsintervallet, observationer med olika terminer blandas</translation>
-    </message>
-    <message>
         <location line="+158"/>
         <source>ALL</source>
         <translation>ALLA</translation>
-    </message>
-    <message>
-        <source>Default</source>
-        <translation type="vanished">Standardvärde</translation>
     </message>
     <message>
         <location line="-278"/>
@@ -3836,25 +3232,6 @@ Type: %3</source>
     </message>
 </context>
 <context>
-    <name>PropertiesEditor</name>
-    <message>
-        <source>Item Properties</source>
-        <translation type="obsolete">Egenskaper</translation>
-    </message>
-    <message>
-        <source>Time</source>
-        <translation type="obsolete">Tid</translation>
-    </message>
-    <message>
-        <source>Text</source>
-        <translation type="obsolete">Text</translation>
-    </message>
-    <message>
-        <source>Line colour</source>
-        <translation type="obsolete">Linjefärg</translation>
-    </message>
-</context>
-<context>
     <name>QObject</name>
     <message>
         <location filename="../../../src/EditItems/drawingdialog.cc" line="-509"/>
@@ -3890,10 +3267,6 @@ Type: %3</source>
         <source>Save Visible Items</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Save File</source>
-        <translation type="obsolete">Spara fil</translation>
-    </message>
 </context>
 <context>
     <name>QtUtility</name>
@@ -3919,14 +3292,6 @@ Type: %3</source>
         <location line="+5"/>
         <source>&amp;Change name..</source>
         <translation>&amp;Ändra namn..</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="vanished">Ta bort</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation type="vanished">Kopiera</translation>
     </message>
     <message>
         <location line="+106"/>
@@ -4161,14 +3526,6 @@ Type: %3</source>
         <translation>Uppdatera kommando med gällande plott</translation>
     </message>
     <message>
-        <source>&amp;Reset..</source>
-        <translation type="vanished">&amp;Återställ..</translation>
-    </message>
-    <message>
-        <source>Reset command to original copy</source>
-        <translation type="vanished">Återställ kommando till original kopia</translation>
-    </message>
-    <message>
         <location line="+38"/>
         <source>Command field</source>
         <translation>Kommandofält</translation>
@@ -4251,14 +3608,6 @@ Type: %3</source>
         <translation>Ja, behåll menynamnet</translation>
     </message>
     <message>
-        <source>Replace command with original copy?</source>
-        <translation type="vanished">Ersätt kommando med original kopia?</translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation type="vanished">OK</translation>
-    </message>
-    <message>
         <location line="-446"/>
         <source>Apply+Hide</source>
         <translation>Utför+Dölj</translation>
@@ -4332,10 +3681,6 @@ Type: %3</source>
         <translation>Mosaik</translation>
     </message>
     <message>
-        <source>Refresh</source>
-        <translation type="vanished">Uppdatera</translation>
-    </message>
-    <message>
         <location line="+19"/>
         <source>&lt;&lt;Less</source>
         <translation>&lt;&lt;Mindre</translation>
@@ -4344,26 +3689,6 @@ Type: %3</source>
         <location line="+0"/>
         <source>More&gt;&gt;</source>
         <translation>Mer&gt;&gt;</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="vanished">Dölj</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation type="vanished">Utför</translation>
-    </message>
-    <message>
-        <source>Chosen picture</source>
-        <translation type="vanished">Valda bilder</translation>
-    </message>
-    <message>
-        <source>No longer available on disk</source>
-        <translation type="vanished">Inte längre tillgänglig på disk</translation>
-    </message>
-    <message>
-        <source>Satellite dialog - info</source>
-        <translation type="vanished">Satellit dialog - info</translation>
     </message>
     <message>
         <location line="-43"/>
@@ -4376,14 +3701,6 @@ Type: %3</source>
         <translation>Ta bort allt</translation>
     </message>
     <message>
-        <source>Apply+hide</source>
-        <translation type="vanished">Utför+Dölj</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="vanished">Hjälp</translation>
-    </message>
-    <message>
         <location line="+12"/>
         <source>Time diff</source>
         <translation>Tidsskillnad</translation>
@@ -4391,10 +3708,6 @@ Type: %3</source>
 </context>
 <context>
     <name>SatDialogAdvanced</name>
-    <message>
-        <source>Beskär</source>
-        <translation type="obsolete">Kutt</translation>
-    </message>
     <message>
         <location filename="../../../src/qtSatDialogAdvanced.cc" line="+57"/>
         <source>Cut</source>
@@ -4457,17 +3770,6 @@ Type: %3</source>
         <location line="+24"/>
         <source>Choose setup file</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>SpecialLineEdit</name>
-    <message>
-        <source>&amp;Edit</source>
-        <translation type="obsolete">&amp;Editera</translation>
-    </message>
-    <message>
-        <source>&amp;Show</source>
-        <translation type="obsolete">&amp;Visa</translation>
     </message>
 </context>
 <context>
@@ -4666,7 +3968,7 @@ Type: %3</source>
     <message>
         <location line="+1"/>
         <source>Ctrl+Shift+P</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+Shift+P</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -4682,14 +3984,6 @@ Type: %3</source>
         <location line="+40"/>
         <source>Select ensemble member</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Images (*.png *.xpm *.bmp *.eps);;All (*.*)</source>
-        <translation type="obsolete">Bilder (*.png *.xpm *.bmp *.eps);;Alla (*.*)</translation>
-    </message>
-    <message>
-        <source>Save plot as image</source>
-        <translation type="vanished">Spara plott som bild</translation>
     </message>
 </context>
 <context>
@@ -4718,34 +4012,6 @@ Type: %3</source>
         <location line="+1"/>
         <source>Show station names on the map</source>
         <translation>Visa stationsnamn på kartan</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="vanished">Hjälp</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="vanished">Dölj</translation>
-    </message>
-    <message>
-        <source>Apply+Hide</source>
-        <translation type="vanished">Utför+Dölj</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation type="vanished">Utför</translation>
-    </message>
-    <message>
-        <source>Reload</source>
-        <translation type="vanished">Uppdatera</translation>
-    </message>
-    <message>
-        <source>Name</source>
-        <translation type="obsolete">Namn</translation>
-    </message>
-    <message>
-        <source>Source</source>
-        <translation type="obsolete">Källa</translation>
     </message>
 </context>
 <context>
@@ -4834,21 +4100,6 @@ Type: %3</source>
         <location line="+1"/>
         <source> Horiz:</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>StyleEditor</name>
-    <message>
-        <source>Item Style</source>
-        <translation type="obsolete">Item stil</translation>
-    </message>
-    <message>
-        <source>item</source>
-        <translation type="obsolete">item</translation>
-    </message>
-    <message>
-        <source>items</source>
-        <translation type="obsolete">items</translation>
     </message>
 </context>
 <context>
@@ -5054,18 +4305,6 @@ Type: %3</source>
         <translation>Linjetyp</translation>
     </message>
     <message>
-        <source>Time marks</source>
-        <translation type="obsolete">Tidsmarkör</translation>
-    </message>
-    <message>
-        <source>Off</source>
-        <translation type="obsolete">Av</translation>
-    </message>
-    <message>
-        <source>min</source>
-        <translation type="obsolete">min</translation>
-    </message>
-    <message>
         <location line="+6"/>
         <source>No. of positions</source>
         <translation type="unfinished">Antall positioner</translation>
@@ -5142,104 +4381,11 @@ Type: %3</source>
     </message>
 </context>
 <context>
-    <name>UffdaDialog</name>
-    <message>
-        <source>Selected positions</source>
-        <translation type="vanished">Valda positioner</translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="vanished">Ta bort</translation>
-    </message>
-    <message>
-        <source>Delete All</source>
-        <translation type="vanished">Ta bort allt</translation>
-    </message>
-    <message>
-        <source>Save</source>
-        <translation type="vanished">Spara</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="vanished">Hjälp</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="vanished">Dölj</translation>
-    </message>
-    <message>
-        <source>Send</source>
-        <translation type="vanished">Skicka</translation>
-    </message>
-    <message>
-        <source>Data saved in</source>
-        <translation type="vanished">Data sparade i</translation>
-    </message>
-    <message>
-        <source>Data not saved</source>
-        <translation type="vanished">Data ej sparat</translation>
-    </message>
-    <message>
-        <source>Uffda - info</source>
-        <translation type="vanished">Uffda - information</translation>
-    </message>
-    <message>
-        <source>Data sent to</source>
-        <translation type="vanished">Data skickat till</translation>
-    </message>
-    <message>
-        <source>Check incoming mail for receipt (up to 2 minutes)!</source>
-        <translation type="vanished">Kontrollera innkommande mail for kvittering (tar upptil 2 minuter)!</translation>
-    </message>
-    <message>
-        <source>(Data also saved in local file</source>
-        <translation type="vanished">(Data också sparat på lokal fil</translation>
-    </message>
-    <message>
-        <source>Data not sent to</source>
-        <translation type="vanished">Data ej skickat till</translation>
-    </message>
-    <message>
-        <source>Incomplete information</source>
-        <translation type="vanished">Ofullständig information</translation>
-    </message>
-    <message>
-        <source>You have not sent Uffda data ! 
-Send before exiting?</source>
-        <translation type="obsolete">Du har inte skickat Uffda data!
-Vill du skicka innan du avslutar?</translation>
-    </message>
-    <message>
-        <source>&amp;Send</source>
-        <translation type="vanished">&amp;Skicka</translation>
-    </message>
-    <message>
-        <source>&amp;Don&apos;t send</source>
-        <translation type="vanished">&amp;Skicka ej</translation>
-    </message>
-    <message>
-        <source>&amp;Cancel</source>
-        <translation type="vanished">&amp;Avbryt</translation>
-    </message>
-    <message>
-        <source>Uffda</source>
-        <translation type="vanished">Uffda</translation>
-    </message>
-</context>
-<context>
     <name>VcrossAddPlotDialog</name>
     <message>
         <location filename="../../../src/vcross_qt/vcross_plot_add_dialog.ui" line="+14"/>
         <source>Vertical Cross Sections -- Add Plot</source>
         <translation>Vertikalsnitt -- Lägg till fält</translation>
-    </message>
-    <message>
-        <source>Choose a &amp;model:</source>
-        <translation type="obsolete">Välj &amp;modell:</translation>
-    </message>
-    <message>
-        <source>Choose a r&amp;eference time:</source>
-        <translation type="obsolete">Välj &amp;referenstid:</translation>
     </message>
     <message>
         <location line="+41"/>
@@ -5265,10 +4411,6 @@ Vill du skicka innan du avslutar?</translation>
         <location line="+7"/>
         <source>&amp;Add</source>
         <translation>&amp;Lägg till</translation>
-    </message>
-    <message>
-        <source>type to filter models</source>
-        <translation type="obsolete">skriv för att välja modell</translation>
     </message>
     <message>
         <location line="-73"/>
@@ -5845,7 +4987,7 @@ Vill du skicka innan du avslutar?</translation>
     <message>
         <location line="+3"/>
         <source>Ctrl+Shift+P</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+Shift+P</translation>
     </message>
     <message>
         <location line="+20"/>
@@ -6040,26 +5182,6 @@ Vill du skicka innan du avslutar?</translation>
         <location line="+3"/>
         <source>Clear</source>
         <translation>Ta bort</translation>
-    </message>
-    <message>
-        <source>Ctrl+N</source>
-        <translation type="obsolete">Ctrl+N</translation>
-    </message>
-    <message>
-        <source>Images (*.png *.xpm *.bmp);;All (*.*)</source>
-        <translation type="vanished">Bilder (*.png *.xpm *.bmp);;Alla (*.*)</translation>
-    </message>
-    <message>
-        <source>Save image failed</source>
-        <translation type="vanished">Fel vid sparande av bild.</translation>
-    </message>
-    <message>
-        <source>Saving the vertical cross section plot as &apos;%1&apos; failed. Sorry.</source>
-        <translation type="vanished">Sparande av vertikalsnittet som bild i &apos;%1&apos; gick fel. Beklagar.</translation>
-    </message>
-    <message>
-        <source>Save plot as image</source>
-        <translation type="vanished">Spara plott som bild</translation>
     </message>
 </context>
 <context>
@@ -6325,10 +5447,6 @@ Vill du skicka innan du avslutar?</translation>
         <translation>Inställningar</translation>
     </message>
     <message>
-        <source>Refresh</source>
-        <translation type="obsolete">Uppdatera</translation>
-    </message>
-    <message>
         <location line="+4"/>
         <source>Print</source>
         <translation>Skriv ut</translation>
@@ -6346,7 +5464,7 @@ Vill du skicka innan du avslutar?</translation>
     <message>
         <location line="+1"/>
         <source>Ctrl+Shift+P</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Ctrl+Shift+P</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -6362,14 +5480,6 @@ Vill du skicka innan du avslutar?</translation>
         <location line="+40"/>
         <source>Select ensemble member</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Images (*.png *.xpm *.bmp *.eps);;All (*.*)</source>
-        <translation type="obsolete">Bilder (*.png *.xpm *.bmp *.eps);;Alla (*.*)</translation>
-    </message>
-    <message>
-        <source>Save plot as image</source>
-        <translation type="vanished">Spara plott som bild</translation>
     </message>
 </context>
 <context>

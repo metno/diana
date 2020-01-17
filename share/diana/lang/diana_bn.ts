@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="bn" sourcelanguage="en">
+<TS version="2.1" language="bn_BD">
 <context>
     <name>AddtoDialog</name>
     <message>
@@ -21,12 +21,12 @@
     <message>
         <location line="+12"/>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Cancel</source>
-        <translation type="unfinished">Cancel</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -90,7 +90,7 @@
     <message>
         <location line="+9"/>
         <source>Hide</source>
-        <translation type="unfinished">Hide</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
@@ -100,18 +100,7 @@
     <message>
         <location line="+1"/>
         <source>Apply</source>
-        <translation type="unfinished">Apply</translation>
-    </message>
-</context>
-<context>
-    <name>ComplexPressureText</name>
-    <message>
-        <source>OK</source>
-        <translation type="obsolete">OK</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation type="obsolete">Cancel</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -124,48 +113,28 @@
     <message>
         <location line="+39"/>
         <source>Colour</source>
-        <translation type="unfinished">Colour</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+30"/>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Cancel</source>
-        <translation type="unfinished">Cancel</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>DataDialog</name>
     <message>
-        <location filename="../../../src/qtDataDialog.cc" line="+143"/>
-        <source>Help</source>
-        <translation type="unfinished">Help</translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>Refresh</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-21"/>
+        <location filename="../../../src/qtDataDialog.cc" line="+128"/>
         <source>Hide</source>
-        <translation type="unfinished">Hide</translation>
-    </message>
-    <message>
-        <location line="+49"/>
-        <source>Apply* + Hide</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Apply*</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-49"/>
         <location line="+51"/>
         <source>Apply + Hide</source>
         <translation type="unfinished"></translation>
@@ -174,7 +143,27 @@
         <location line="-50"/>
         <location line="+51"/>
         <source>Apply</source>
-        <translation type="unfinished">Apply</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-38"/>
+        <source>Help</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Refresh</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+28"/>
+        <source>Apply* + Hide</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Apply*</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -203,7 +192,17 @@
 <context>
     <name>DianaMainWindow</name>
     <message>
-        <location filename="../../../src/qtMainWindow.cc" line="+222"/>
+        <location filename="../../../src/qtMainWindow.cc" line="+219"/>
+        <source>&amp;Export image/movie...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Ctrl+Shift+P</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>&amp;Print...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -295,7 +294,7 @@
     <message>
         <location line="+7"/>
         <source>Maps</source>
-        <translation type="unfinished">Maps</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+6"/>
@@ -368,22 +367,12 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1727"/>
-        <source>An error occured while re-reading the setup file &apos;%1&apos;.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-1719"/>
+        <location line="+8"/>
         <source>Level up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-181"/>
-        <source>Ctrl+Shift+P</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+189"/>
+        <location line="+8"/>
         <source>Level down</source>
         <translation type="unfinished"></translation>
     </message>
@@ -403,12 +392,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+7"/>
-        <source>Automatic updates</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+45"/>
+        <location line="+43"/>
         <source>File</source>
         <translation type="unfinished"></translation>
     </message>
@@ -433,26 +417,37 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+59"/>
+        <location line="+33"/>
+        <source>Automatic updates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+32"/>
         <source>ARCHIVE</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+71"/>
         <source>Map and Area</source>
-        <translation type="unfinished">Map and Area</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1437"/>
-        <source>Error</source>
-        <translation>Error</translation>
+        <location line="+931"/>
+        <source>Automatic updates mode is available but off</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Problem with creating animation.</source>
-        <translation type="vanished">Problem with creating animation.</translation>
+        <location line="+4"/>
+        <source>Automatic updates mode is available and on</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-112"/>
+        <location line="+4"/>
+        <source>Automatic updates mode is available but there is a warning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+453"/>
         <source>Diana - a 2D presentation system for meteorological data, including fields, observations,
 satellite- and radarimages, vertical profiles and cross sections.
 Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas, symbols etc.
@@ -460,38 +455,44 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-1789"/>
-        <source>&amp;Export image/movie...</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1791"/>
+        <location line="+2"/>
         <source>To report a bug or enter an enhancement request, please use the bug tracking tool at http://diana.bugs.met.no (met.no users only). 
 </source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
+    <message numerus="yes">
+        <location line="+1036"/>
+        <source>Imported %n symbol(s).</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
         <location line="+2"/>
-        <source>version:</source>
-        <translation type="unfinished"></translation>
+        <source>Imported %n drawing(s).</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
-        <location line="+1"/>
-        <source>build: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>commit: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+2"/>
+        <location line="-1032"/>
         <source>about Diana</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+981"/>
+        <location line="+104"/>
+        <source>Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>An error occured while re-reading the setup file &apos;%1&apos;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+877"/>
         <source>imported files</source>
         <translation type="unfinished"></translation>
     </message>
@@ -499,22 +500,6 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <location line="+47"/>
         <source>Imported model data to the &quot;%1&quot; field group.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message numerus="yes">
-        <location line="+2"/>
-        <source>Imported %1 symbol(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <location line="+2"/>
-        <source>Imported %1 drawing(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
     </message>
 </context>
 <context>
@@ -595,7 +580,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     <message>
         <location line="+15"/>
         <source>Delete</source>
-        <translation type="unfinished">Delete</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
@@ -605,12 +590,12 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     <message>
         <location line="+10"/>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Cancel</source>
-        <translation type="unfinished">Cancel</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -951,12 +936,12 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     <message>
         <location line="+4"/>
         <source>Hide</source>
-        <translation type="unfinished">Hide</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Help</source>
-        <translation type="unfinished">Help</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+79"/>
@@ -1016,17 +1001,12 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+186"/>
-        <source>Problems saving product: </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+2"/>
+        <location line="+182"/>
         <source>Save error:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location line="+4"/>
         <source>Saved</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1046,7 +1026,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+25"/>
+        <location line="+23"/>
         <source>Warning - approve product</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1210,7 +1190,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     <message>
         <location line="+1400"/>
         <source>Convert</source>
-        <translation>Convert</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+29"/>
@@ -1298,7 +1278,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     <message>
         <location line="+5"/>
         <source>Apply</source>
-        <translation type="unfinished">Apply</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+9"/>
@@ -1349,7 +1329,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     <message>
         <location line="+14"/>
         <source>Hide</source>
-        <translation type="unfinished">Hide</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+3"/>
@@ -1391,16 +1371,16 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <location line="+90"/>
         <source>Edit %n product(s)</source>
         <translation type="unfinished">
-            <numerusform>Edit %n product</numerusform>
-            <numerusform>Edit %n products</numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <location line="+2"/>
         <source>Remove %n product(s)</source>
         <translation type="unfinished">
-            <numerusform>Remove %n product</numerusform>
-            <numerusform>Remove %n products</numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -1540,19 +1520,19 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     <message>
         <location line="+9"/>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Help</source>
-        <translation type="unfinished">Help</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
         <location line="+428"/>
         <location line="+26"/>
         <source>Cancel</source>
-        <translation type="unfinished">Cancel</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="-421"/>
@@ -1599,12 +1579,12 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     <message>
         <location line="+38"/>
         <source>OK</source>
-        <translation type="unfinished">OK</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Cancel</source>
-        <translation type="unfinished">Cancel</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1612,189 +1592,189 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     <message>
         <location filename="../../../src/export/export_image_dialog.ui" line="+6"/>
         <source>Export image/movie …</source>
-        <translation>Export image/movie …</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+21"/>
         <source>Save &amp;to:</source>
-        <translation>Save &amp;to:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Frame rate in frames per second</source>
-        <translation>Frame rate in frames per second</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+3"/>
         <source>fps</source>
-        <translation>fps</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+19"/>
         <source>&amp;WxH:</source>
-        <translation>&amp;WxH:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+14"/>
         <source>Image</source>
-        <translation>Image</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Image series</source>
-        <translation>Image series</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+21"/>
-        <source>&amp;Product:</source>
-        <translation>&amp;Product:</translation>
-    </message>
-    <message>
-        <location line="+10"/>
-        <source>Speed:</source>
-        <translation>Speed:</translation>
-    </message>
-    <message>
-        <location line="+25"/>
-        <source>Close</source>
-        <translation>Close</translation>
-    </message>
-    <message>
-        <location filename="../../../src/export/qtExportImageDialog.cc" line="+645"/>
-        <source>Export</source>
-        <translation>Export</translation>
-    </message>
-    <message>
-        <location filename="../../../src/export/export_image_dialog.ui" line="+85"/>
-        <source>Pre&amp;view</source>
-        <translation>Pre&amp;view</translation>
-    </message>
-    <message>
-        <location line="+9"/>
-        <source>Siz&amp;e:</source>
-        <translation>Siz&amp;e:</translation>
-    </message>
-    <message>
-        <location line="+22"/>
-        <source>Filename (pattern)</source>
-        <translation>Filename (pattern)</translation>
-    </message>
-    <message>
-        <location line="-167"/>
+        <location line="+5"/>
         <source>Animated Image</source>
-        <translation>Animated Image</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Movie</source>
-        <translation>Movie</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/export/qtExportImageDialog.cc" line="-563"/>
+        <location line="+11"/>
+        <source>&amp;Product:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>Speed:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+25"/>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+85"/>
+        <source>Pre&amp;view</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
+        <source>Siz&amp;e:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+22"/>
+        <source>Filename (pattern)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/export/qtExportImageDialog.cc" line="+82"/>
         <source>E.g. diana.png or diana.pdf</source>
-        <translation>E.g. diana.png or diana.pdf</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
         <source>E.g. diana_%1.png or diana_%1.pdf</source>
-        <translation>E.g. diana_%1.png or diana_%1.pdf</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
         <source>E.g. diana.gif</source>
-        <translation>E.g. diana.gif</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
         <source>E.g. diana.avi</source>
-        <translation>E.g. diana.avi</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+193"/>
         <source>File(s)</source>
-        <translation>File(s)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+90"/>
         <source>Select image filename</source>
-        <translation>Select image filename</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Select image filename pattern</source>
-        <translation>Select image filename pattern</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
         <location line="+11"/>
         <source>Images</source>
-        <translation>Images</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="-4"/>
         <source>PDF Files</source>
-        <translation>PDF Files</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Select animated image filename</source>
-        <translation>Select animated image filename</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Select movie filename</source>
-        <translation>Select movie filename</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Movies</source>
-        <translation>Movies</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+3"/>
         <source>All</source>
-        <translation>All</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+96"/>
         <source>Warning</source>
-        <translation>Warning</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Invalid filename has been changed, please check and press start again.</source>
-        <translation>Invalid filename has been changed, please check and press start again.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+5"/>
         <location line="+283"/>
         <source>Error</source>
-        <translation>Error</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="-283"/>
         <source>Could not create temporary directory.</source>
-        <translation>Could not create temporary directory.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+153"/>
         <source>Exporting...</source>
-        <translation>Exporting...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+111"/>
+        <location line="+2"/>
+        <source>Export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+109"/>
         <source>Creating animation...</source>
-        <translation>Creating animation...</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+0"/>
         <source>Hide</source>
-        <translation>Hide</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+19"/>
         <source>Problem with creating animation.</source>
-        <translation>Problem with creating animation.</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1817,7 +1797,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     <message>
         <location line="+20"/>
         <source>Close</source>
-        <translation type="unfinished">Close</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1897,12 +1877,12 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     <message>
         <location line="+4"/>
         <source>Delete</source>
-        <translation type="unfinished">Delete</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Delete all</source>
-        <translation type="unfinished">Delete all</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
@@ -1933,7 +1913,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     <message>
         <location line="-387"/>
         <source>off</source>
-        <translation type="unfinished">off</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+6"/>
@@ -1956,11 +1936,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     <message>
         <location line="-364"/>
         <source>Density</source>
-        <translation type="unfinished">Density</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="obsolete">Help</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+13"/>
@@ -1976,18 +1952,6 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
         <location line="+0"/>
         <source>More&gt;&gt;</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="obsolete">Hide</translation>
-    </message>
-    <message>
-        <source>Apply+Hide</source>
-        <translation type="obsolete">Apply+Hide</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation type="obsolete">Apply</translation>
     </message>
     <message>
         <location line="+134"/>
@@ -2177,7 +2141,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     <message>
         <location line="+1"/>
         <source>Lines</source>
-        <translation type="unfinished">Lines</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+21"/>
@@ -2267,7 +2231,7 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     <message>
         <location line="+111"/>
         <source>Values</source>
-        <translation type="unfinished">Values</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2275,21 +2239,19 @@ Diana has tools for on-screen fieldediting and drawing of objects (fronts, areas
     <message>
         <location filename="../../../src/qtStyleButtons.cc" line="+146"/>
         <source>Style for %1 lines</source>
-        <translation>Style for %1 lines</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Line style</source>
-        <translation>Line style</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+46"/>
         <source>Color: %1
 Width: %2
 Type: %3</source>
-        <translation>Color: %1
-Width: %2
-Type: %3</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2297,27 +2259,27 @@ Type: %3</translation>
     <message>
         <location filename="../../../src/linestyledialog.ui" line="+47"/>
         <source>OK</source>
-        <translation>OK</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Cancel</source>
-        <translation>Cancel</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+41"/>
         <source>&amp;Type</source>
-        <translation>&amp;Type</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+26"/>
         <source>&amp;Width</source>
-        <translation>&amp;Width</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+10"/>
         <source>&amp;Color</source>
-        <translation>&amp;Color</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2325,210 +2287,160 @@ Type: %3</translation>
     <message>
         <location filename="../../../src/mapdialog.ui" line="+14"/>
         <source>Map and Area</source>
-        <translation>Map and Area</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../src/qtMapDialog.cc" line="+82"/>
-        <source>frame</source>
-        <translation>frame</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>longitude</source>
-        <translation>longitude</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>latitude</source>
-        <translation>latitude</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>contour</source>
-        <translation>contour</translation>
-    </message>
-    <message>
-        <location line="+14"/>
-        <source>lowest</source>
-        <translation>lowest</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>auto</source>
-        <translation>auto</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>highest</source>
-        <translation>highest</translation>
-    </message>
-    <message>
-        <location line="+18"/>
-        <source>off</source>
-        <translation>off</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>left</source>
-        <translation>left</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>bottom</source>
-        <translation>bottom</translation>
-    </message>
-    <message>
-        <location line="+1"/>
-        <source>both</source>
-        <translation>both</translation>
-    </message>
-    <message>
-        <location filename="../../../src/mapdialog.ui" line="+6"/>
+        <location line="+6"/>
         <source>Area/Projection</source>
-        <translation>Area/Projection</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+13"/>
+        <source>Draw boundary of selected area</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>F&amp;rame</source>
-        <translation>F&amp;rame</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+34"/>
-        <source>L&amp;ongitude</source>
-        <translation>L&amp;ongitude</translation>
-    </message>
-    <message>
-        <location line="+37"/>
-        <source>L&amp;atitude</source>
-        <translation>L&amp;atitude</translation>
-    </message>
-    <message>
-        <location line="+53"/>
-        <source>Maps</source>
-        <translation>Maps</translation>
-    </message>
-    <message>
-        <location line="+45"/>
-        <source>Selected maps</source>
-        <translation>Selected maps</translation>
-    </message>
-    <message>
-        <location line="-14"/>
-        <source>Delete</source>
-        <translation>Delete</translation>
-    </message>
-    <message>
-        <location line="-3"/>
-        <source>Remove selected map from the list &quot;Selected maps&quot;</source>
-        <translation>Remove selected map from the list &quot;Selected maps&quot;</translation>
-    </message>
-    <message>
-        <location line="-14"/>
-        <source>Delete all</source>
-        <translation>Delete all</translation>
-    </message>
-    <message>
-        <location line="-3"/>
-        <source>Clear list of selected maps</source>
-        <translation>Clear list of selected maps</translation>
-    </message>
-    <message>
-        <location line="+45"/>
-        <source>Draw contour lines (mandatory for maps without filled land)</source>
-        <translation>Draw contour lines (mandatory for maps without filled land)</translation>
-    </message>
-    <message>
-        <location line="-132"/>
-        <location line="+172"/>
-        <source>Colour</source>
-        <translation>Colour</translation>
-    </message>
-    <message>
-        <location line="-210"/>
+        <location line="+10"/>
         <location line="+45"/>
         <location line="+155"/>
         <source>Plot position</source>
-        <translation>Plot position</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-10"/>
-        <source>Draw land with separate colour (only available for selected maps)</source>
-        <translation>Draw land with separate colour (only available for selected maps)</translation>
-    </message>
-    <message>
-        <location line="-169"/>
-        <source>Show longitude-lines on the map</source>
-        <translation>Show longitude-lines on the map</translation>
-    </message>
-    <message>
-        <location line="+53"/>
-        <source>Density</source>
-        <translation>Density</translation>
-    </message>
-    <message>
-        <location line="-16"/>
-        <source>Show latitude-lines on the map</source>
-        <translation>Show latitude-lines on the map</translation>
-    </message>
-    <message>
-        <location line="-71"/>
-        <source>Draw boundary of selected area</source>
-        <translation>Draw boundary of selected area</translation>
-    </message>
-    <message>
-        <location line="+26"/>
+        <location line="-187"/>
         <source>Grid</source>
-        <translation>Grid</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+68"/>
+        <location line="+8"/>
+        <source>Show longitude-lines on the map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>L&amp;ongitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <location line="+172"/>
+        <source>Colour</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-152"/>
+        <source>Show latitude-lines on the map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>L&amp;atitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+13"/>
+        <source>Density</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
         <source>Values</source>
-        <translation>Values</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+14"/>
         <source>If and where to show latitude-values</source>
-        <translation>If and where to show latitude-values</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+7"/>
         <source>If and where to show longitude-values</source>
-        <translation>If and where to show longitude-values</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+50"/>
+        <location line="+12"/>
+        <source>Maps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Clear list of selected maps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Delete all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>Remove selected map from the list &quot;Selected maps&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
         <source>Available</source>
-        <translation>Available</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+21"/>
+        <location line="+7"/>
+        <source>Selected maps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+11"/>
+        <source>Draw contour lines (mandatory for maps without filled land)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Con&amp;tour lines</source>
-        <translation>Con&amp;tour lines</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+17"/>
+        <source>Draw land with separate colour (only available for selected maps)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Filled &amp;land</source>
-        <translation>Filled &amp;land</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+32"/>
         <source>Background colour</source>
-        <translation>Background colour</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+6"/>
         <source>&amp;Colour</source>
-        <translation>&amp;Colour</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+38"/>
+        <location line="+31"/>
+        <source>Help</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
         <source>Save this layout as your favorite</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Save favorite</source>
-        <translation>Save favorite</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+7"/>
@@ -2538,27 +2450,77 @@ Type: %3</translation>
     <message>
         <location line="+3"/>
         <source>Use favorite</source>
-        <translation>Use favorite</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+21"/>
-        <source>Apply</source>
-        <translation>Apply</translation>
-    </message>
-    <message>
-        <location line="-7"/>
-        <source>Apply+Hide</source>
-        <translation>Apply+Hide</translation>
-    </message>
-    <message>
-        <location line="-7"/>
+        <location line="+7"/>
         <source>Hide</source>
-        <translation>Hide</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-27"/>
-        <source>Help</source>
-        <translation>Help</translation>
+        <location line="+7"/>
+        <source>Apply+Hide</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+7"/>
+        <source>Apply</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../src/qtMapDialog.cc" line="+82"/>
+        <source>frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>longitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>latitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>contour</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+14"/>
+        <source>lowest</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>auto</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>highest</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>bottom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>both</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2576,7 +2538,7 @@ Type: %3</translation>
     <message>
         <location line="+4"/>
         <source>Hide</source>
-        <translation type="unfinished">Hide</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
@@ -2687,7 +2649,7 @@ Type: %3</translation>
     <message>
         <location line="+1"/>
         <source>Time</source>
-        <translation type="unfinished">Time</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
@@ -2732,39 +2694,18 @@ Type: %3</translation>
     <message>
         <location line="+14"/>
         <source>Delete</source>
-        <translation type="unfinished">Delete</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="obsolete">Help</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Comments</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>Hide</source>
-        <translation type="obsolete">Hide</translation>
-    </message>
-    <message>
-        <source>Apply+Hide</source>
-        <translation type="obsolete">Apply+Hide</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation type="obsolete">Apply</translation>
-    </message>
 </context>
 <context>
     <name>ObsDialog</name>
     <message>
-        <location filename="../../../src/qtObsDialog.cc" line="+102"/>
-        <source>Observations</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-20"/>
+        <location filename="../../../src/qtObsDialog.cc" line="+82"/>
         <source>Pressure</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2784,7 +2725,12 @@ Type: %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+22"/>
+        <location line="+14"/>
+        <source>Observations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
         <source>select plot type</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2799,18 +2745,6 @@ Type: %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation type="obsolete">Help</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="obsolete">Hide</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation type="obsolete">Apply</translation>
-    </message>
-    <message>
         <location line="+321"/>
         <source>List of Criteria</source>
         <translation type="unfinished"></translation>
@@ -2823,12 +2757,12 @@ Type: %3</translation>
     <message>
         <location line="+3"/>
         <source>Delete</source>
-        <translation type="unfinished">Delete</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Delete all</source>
-        <translation type="unfinished">Delete all</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
@@ -2884,7 +2818,7 @@ Type: %3</translation>
     <message>
         <location line="+2"/>
         <source>Colour</source>
-        <translation type="unfinished">Colour</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
@@ -2922,7 +2856,7 @@ Type: %3</translation>
     <message>
         <location filename="../../../src/qtObsWidget.cc" line="+148"/>
         <source>All</source>
-        <translation type="unfinished">All</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
@@ -2930,7 +2864,12 @@ Type: %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+14"/>
+        <location line="+11"/>
+        <source>Vertical level</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>As field</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2975,12 +2914,7 @@ Type: %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-34"/>
-        <source>Vertical level</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+44"/>
+        <location line="+10"/>
         <source>Quality stations</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3017,7 +2951,7 @@ Type: %3</translation>
     <message>
         <location line="+21"/>
         <source>Density</source>
-        <translation type="unfinished">Density</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
@@ -3069,7 +3003,7 @@ Type: %3</translation>
     <message>
         <location line="+5"/>
         <source>Colour</source>
-        <translation type="unfinished">Colour</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+78"/>
@@ -3152,7 +3086,7 @@ Type: %3</translation>
     <message>
         <location line="+1"/>
         <source>Time</source>
-        <translation type="unfinished">Time</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
@@ -3343,7 +3277,17 @@ Type: %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+23"/>
+        <location line="+12"/>
+        <source>Ctrl+Up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Ctrl+Down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
         <source>&amp;New</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3358,31 +3302,12 @@ Type: %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation type="obsolete">Remove</translation>
-    </message>
-    <message>
-        <location line="+106"/>
-        <source>Paste</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="-73"/>
+        <location line="+33"/>
         <source>Command field</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-54"/>
-        <source>Ctrl+Up</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+6"/>
-        <source>Ctrl+Down</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+52"/>
+        <location line="+4"/>
         <source>&amp;Dynamic options..</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3427,7 +3352,22 @@ Type: %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+10"/>
+        <location line="+3"/>
+        <source>Paste</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Paste menu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Paste plot</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Ctrl+C</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3487,16 +3427,6 @@ Type: %3</translation>
         <source>Change plot name</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location line="-189"/>
-        <source>Paste menu</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+2"/>
-        <source>Paste plot</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>QuickEditOptions</name>
@@ -3528,7 +3458,7 @@ Type: %3</translation>
     <message>
         <location line="+5"/>
         <source>Remove</source>
-        <translation type="unfinished">Remove</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
@@ -3641,12 +3571,12 @@ Type: %3</translation>
     <message>
         <location line="+3"/>
         <source>Apply+Hide</source>
-        <translation type="unfinished">Apply+Hide</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
         <source>&amp;Apply</source>
-        <translation type="unfinished">&amp;Apply</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+346"/>
@@ -3678,7 +3608,7 @@ Type: %3</translation>
         <location line="+1"/>
         <location line="+18"/>
         <source>Cancel</source>
-        <translation type="unfinished">Cancel</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="-6"/>
@@ -3694,10 +3624,6 @@ Type: %3</translation>
         <location line="+1"/>
         <source>Yes, keep menu name</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>OK</source>
-        <translation type="obsolete">OK</translation>
     </message>
 </context>
 <context>
@@ -3715,7 +3641,7 @@ Type: %3</translation>
     <message>
         <location line="+1"/>
         <source>Time</source>
-        <translation type="unfinished">Time</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
@@ -3735,7 +3661,7 @@ Type: %3</translation>
     <message>
         <location line="+15"/>
         <source>Delete</source>
-        <translation type="unfinished">Delete</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+3"/>
@@ -3763,10 +3689,6 @@ Type: %3</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Help</source>
-        <translation type="obsolete">Help</translation>
-    </message>
-    <message>
         <location line="+13"/>
         <source>&lt;&lt;Less</source>
         <translation type="unfinished"></translation>
@@ -3775,14 +3697,6 @@ Type: %3</translation>
         <location line="+0"/>
         <source>More&gt;&gt;</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="obsolete">Hide</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation type="obsolete">Apply</translation>
     </message>
 </context>
 <context>
@@ -3871,17 +3785,17 @@ Type: %3</translation>
     <message>
         <location line="+4"/>
         <source>Help</source>
-        <translation type="unfinished">Help</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Delete</source>
-        <translation type="unfinished">Delete</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Delete all</source>
-        <translation type="unfinished">Delete all</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
@@ -3891,17 +3805,17 @@ Type: %3</translation>
     <message>
         <location line="+4"/>
         <source>Hide</source>
-        <translation type="unfinished">Hide</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Apply+Hide</source>
-        <translation type="unfinished">Apply+Hide</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Apply</source>
-        <translation type="unfinished">Apply</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3914,7 +3828,7 @@ Type: %3</translation>
     <message>
         <location line="+9"/>
         <source>Help</source>
-        <translation type="unfinished">Help</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
@@ -3924,17 +3838,17 @@ Type: %3</translation>
     <message>
         <location line="+4"/>
         <source>Hide</source>
-        <translation type="unfinished">Hide</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Apply+Hide</source>
-        <translation type="unfinished">Apply+Hide</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Apply</source>
-        <translation type="unfinished">Apply</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+45"/>
@@ -3944,7 +3858,7 @@ Type: %3</translation>
     <message>
         <location line="+1"/>
         <source>Colour</source>
-        <translation type="unfinished">Colour</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
@@ -4004,7 +3918,7 @@ Type: %3</translation>
     <message>
         <location line="+15"/>
         <source>Background colour</source>
-        <translation type="unfinished">Background colour</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4057,7 +3971,7 @@ Type: %3</translation>
     <message>
         <location line="+4"/>
         <source>Help</source>
-        <translation type="unfinished">Help</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+40"/>
@@ -4091,22 +4005,6 @@ Type: %3</translation>
         <location line="+1"/>
         <source>Show station names on the map</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="obsolete">Help</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="obsolete">Hide</translation>
-    </message>
-    <message>
-        <source>Apply+Hide</source>
-        <translation type="obsolete">Apply+Hide</translation>
-    </message>
-    <message>
-        <source>Apply</source>
-        <translation type="obsolete">Apply</translation>
     </message>
 </context>
 <context>
@@ -4235,7 +4133,7 @@ Type: %3</translation>
     <message>
         <location line="+3"/>
         <source>Hide</source>
-        <translation type="unfinished">Hide</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4328,7 +4226,7 @@ Type: %3</translation>
     <message>
         <location line="+4"/>
         <source>Hide</source>
-        <translation type="unfinished">Hide</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4387,7 +4285,7 @@ Type: %3</translation>
     <message>
         <location line="+9"/>
         <source>Colour</source>
-        <translation type="unfinished">Colour</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+5"/>
@@ -4432,12 +4330,12 @@ Type: %3</translation>
     <message>
         <location line="+8"/>
         <source>Delete</source>
-        <translation type="unfinished">Delete</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Delete all</source>
-        <translation type="unfinished">Delete all</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
@@ -4447,7 +4345,7 @@ Type: %3</translation>
     <message>
         <location line="+7"/>
         <source>Help</source>
-        <translation type="unfinished">Help</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
@@ -4462,7 +4360,7 @@ Type: %3</translation>
     <message>
         <location line="+4"/>
         <source>Hide</source>
-        <translation type="unfinished">Hide</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
@@ -4473,21 +4371,6 @@ Type: %3</translation>
         <location line="+171"/>
         <source>No field selected</source>
         <translation type="unfinished"></translation>
-    </message>
-</context>
-<context>
-    <name>UffdaDialog</name>
-    <message>
-        <source>Delete</source>
-        <translation type="obsolete">Delete</translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="obsolete">Help</translation>
-    </message>
-    <message>
-        <source>Hide</source>
-        <translation type="obsolete">Hide</translation>
     </message>
 </context>
 <context>
@@ -4568,7 +4451,7 @@ Type: %3</translation>
     <message>
         <location line="+3"/>
         <source>Remove</source>
-        <translation type="unfinished">Remove</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4640,12 +4523,12 @@ Type: %3</translation>
     <message>
         <location line="+10"/>
         <source>Apply+Hide</source>
-        <translation type="unfinished">Apply+Hide</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Help</source>
-        <translation type="unfinished">Help</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
@@ -4655,12 +4538,12 @@ Type: %3</translation>
     <message>
         <location line="+4"/>
         <source>Hide</source>
-        <translation type="unfinished">Hide</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Apply</source>
-        <translation type="unfinished">Apply</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+40"/>
@@ -4670,7 +4553,7 @@ Type: %3</translation>
     <message>
         <location line="+1"/>
         <source>Colour</source>
-        <translation type="unfinished">Colour</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+1"/>
@@ -4795,7 +4678,7 @@ Type: %3</translation>
     <message>
         <location line="+7"/>
         <source>Background colour</source>
-        <translation type="unfinished">Background colour</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+6"/>
@@ -4823,7 +4706,7 @@ Type: %3</translation>
     <message>
         <location line="+3"/>
         <source>Reset</source>
-        <translation type="unfinished">Reset</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+23"/>
@@ -4833,7 +4716,7 @@ Type: %3</translation>
     <message>
         <location line="+3"/>
         <source>&amp;Apply</source>
-        <translation type="unfinished">&amp;Apply</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../src/vcross_qt/qtVcrossStyleDialog.cc" line="+99"/>
@@ -4861,7 +4744,7 @@ Type: %3</translation>
     <message>
         <location line="+17"/>
         <source>&amp;Colour</source>
-        <translation type="unfinished">&amp;Colour</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+20"/>
@@ -4871,7 +4754,7 @@ Type: %3</translation>
     <message>
         <location line="+10"/>
         <source>Density</source>
-        <translation type="unfinished">Density</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+20"/>
@@ -5102,7 +4985,7 @@ Type: %3</translation>
     <message>
         <location line="+20"/>
         <source>Help</source>
-        <translation type="unfinished">Help</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+3"/>
@@ -5117,7 +5000,7 @@ Type: %3</translation>
     <message>
         <location line="+3"/>
         <source>Close</source>
-        <translation type="unfinished">Close</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+23"/>
@@ -5179,7 +5062,7 @@ Type: %3</translation>
     <message>
         <location line="+3"/>
         <source>Add</source>
-        <translation type="unfinished">Add</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+13"/>
@@ -5314,32 +5197,32 @@ Type: %3</translation>
     <message>
         <location line="+4"/>
         <source>Help</source>
-        <translation type="unfinished">Help</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Delete</source>
-        <translation type="unfinished">Delete</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Delete all</source>
-        <translation type="unfinished">Delete all</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Hide</source>
-        <translation type="unfinished">Hide</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Apply+Hide</source>
-        <translation type="unfinished">Apply+Hide</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Apply</source>
-        <translation type="unfinished">Apply</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5352,7 +5235,7 @@ Type: %3</translation>
     <message>
         <location line="+12"/>
         <source>Help</source>
-        <translation type="unfinished">Help</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
@@ -5362,17 +5245,17 @@ Type: %3</translation>
     <message>
         <location line="+4"/>
         <source>Hide</source>
-        <translation type="unfinished">Hide</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Apply+Hide</source>
-        <translation type="unfinished">Apply+Hide</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Apply</source>
-        <translation type="unfinished">Apply</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+288"/>
@@ -5450,7 +5333,7 @@ Type: %3</translation>
         <location line="+70"/>
         <location line="+57"/>
         <source>Colour</source>
-        <translation type="unfinished">Colour</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="-56"/>
@@ -5526,7 +5409,7 @@ Type: %3</translation>
     <message>
         <location line="+3"/>
         <source>Background colour</source>
-        <translation type="unfinished">Background colour</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+6"/>
@@ -5584,7 +5467,7 @@ Type: %3</translation>
     <message>
         <location line="+4"/>
         <source>Help</source>
-        <translation type="unfinished">Help</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+40"/>
@@ -5598,68 +5481,68 @@ Type: %3</translation>
         <location filename="../../../src/wmsclient/webmap_dialog.ui" line="+15"/>
         <location filename="../../../src/wmsclient/WebMapDialog.cc" line="+136"/>
         <source>Web Maps</source>
-        <translation>Web Maps</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+25"/>
         <location filename="../../../src/wmsclient/WebMapDialog.cc" line="+188"/>
         <source>Add</source>
-        <translation>Add</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+43"/>
         <source>Choose service:</source>
-        <translation>Choose service:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Type to filter service name</source>
-        <translation>Type to filter service name</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+40"/>
         <source>Type to filter layer name</source>
-        <translation>Type to filter layer name</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Waiting for webmap service …</source>
-        <translation>Waiting for webmap service …</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+26"/>
         <source>Start over (from service selection)</source>
-        <translation>Start over (from service selection)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Restart</source>
-        <translation>Restart</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+23"/>
         <source>Back to the previous step</source>
-        <translation>Back to the previous step</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Back</source>
-        <translation>Back</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+20"/>
         <source>Modify</source>
-        <translation>Modify</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+26"/>
         <source>Choose the layer to modify</source>
-        <translation>Choose the layer to modify</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Remove</source>
-        <translation>Remove</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+18"/>
@@ -5669,52 +5552,52 @@ Type: %3</translation>
     <message>
         <location line="+24"/>
         <source>Choose a style provided by the webmap service</source>
-        <translation>Choose a style provided by the webmap service</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+44"/>
         <source>Transform webmap to greyscale</source>
-        <translation>Transform webmap to greyscale</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Grey</source>
-        <translation>Grey</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Change transparency:</source>
-        <translation>Change transparency:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Scale layer transparency with this value</source>
-        <translation>Scale layer transparency with this value</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+22"/>
         <source>Add this to layer transparency after scaling</source>
-        <translation>Add this to layer transparency after scaling</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+29"/>
         <source>Drawing order:</source>
-        <translation>Drawing order:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Choose</source>
-        <translation>Choose</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+4"/>
         <source>Background</source>
-        <translation>Background</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+5"/>
         <source>Shade background</source>
-        <translation>Shade background</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+5"/>
@@ -5729,67 +5612,67 @@ Type: %3</translation>
     <message>
         <location line="+5"/>
         <source>Lines</source>
-        <translation>Lines</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+24"/>
         <source>Time</source>
-        <translation>Time</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+21"/>
         <source>Time tolerance:</source>
-        <translation>Time tolerance:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Time matching tolerance</source>
-        <translation>Time matching tolerance</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+3"/>
         <source>nearest</source>
-        <translation>nearest</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+22"/>
         <source>Check to fix time to a specific value</source>
-        <translation>Check to fix time to a specific value</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+3"/>
         <source>Fixed time:</source>
-        <translation>Fixed time:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+7"/>
         <source>Time offset relative to plot time</source>
-        <translation>Time offset relative to plot time</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Time offset:</source>
-        <translation>Time offset:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Fixed time value</source>
-        <translation>Fixed time value</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Other dimensions</source>
-        <translation>Other dimensions</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+52"/>
         <source>Reset</source>
-        <translation>Reset</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+23"/>
         <source>&amp;Apply</source>
-        <translation>&amp;Apply</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../src/wmsclient/WebMapDialog.cc" line="-57"/>
