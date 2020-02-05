@@ -1,3 +1,9 @@
+diana-3.52 (3.52.6-1) unstable; urgency=low
+
+  * bugfix PlotModule: call defineMapArea more often
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 05 Feb 2020 12:09:40 +0100
+
 diana-3.52 (3.52.5-1) unstable; urgency=low
 
   * Fix - plotelements from areaojects
