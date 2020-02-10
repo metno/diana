@@ -1,3 +1,9 @@
+diana-3.52 (3.52.7-1) unstable; urgency=low
+
+  * bugfix PlotModule: call defineMapArea even more often
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 10 Feb 2020 09:41:04 +0100
+
 diana-3.52 (3.52.6-1) unstable; urgency=low
 
   * bugfix PlotModule: call defineMapArea more often
