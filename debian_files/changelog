@@ -1,3 +1,9 @@
+diana-3.52 (3.52.8-1) unstable; urgency=low
+
+  * bugfix timegraph
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 18 Feb 2020 08:00:08 +0100
+
 diana-3.52 (3.52.7-1) unstable; urgency=low
 
   * bugfix PlotModule: call defineMapArea even more often
