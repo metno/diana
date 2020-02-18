@@ -568,6 +568,8 @@ void QtManager::handleChangedTimeList()
 
 void QtManager::handleChangedTime(int plotTimeIndex)
 {
+  if (isTimeGraph())
+    return;
   if (plotTimeIndex != mPlotTime || plotTimeIndex < 0 || mPlotTime < 0) {
     mPlotTime = plotTimeIndex;
     dataChange |= CHANGED_TIME;
