@@ -87,6 +87,7 @@ static QString labelForObsPlotType(ObsPlotType opt)
   case OPT_OTHER:
     return QApplication::translate("ObsDialog", "Other");
   }
+  return "Error"; // not reached
 }
 
 static void numberList(QComboBox* cBox, float number)
