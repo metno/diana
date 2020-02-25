@@ -390,7 +390,7 @@
     <message>
         <location line="-2621"/>
         <source>O&amp;ptions</source>
-        <translation>&amp;Valg</translation>
+        <translation>Val&amp;g</translation>
     </message>
     <message>
         <location line="-127"/>
