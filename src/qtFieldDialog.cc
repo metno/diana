@@ -1342,14 +1342,15 @@ void FieldDialog::setIdnum()
 
   int i = selectedFieldbox->currentRow();
   int n = 0, l = 0;
-  if (i >= 0 && !selectedFields[i].idnum.empty()) {
-    lastIdnum = selectedFields[i].idnum;
+  if (i >= 0 && !selectedFields[i].idnumOptions.empty()) {
     n = selectedFields[i].idnumOptions.size();
-    l = 0;
-    while (l < n && selectedFields[i].idnumOptions[l] != lastIdnum)
-      l++;
-    if (l == n)
-      l = 0; // should not happen!
+    if (!selectedFields[i].idnum.empty()) {
+      lastIdnum = selectedFields[i].idnum;
+      while (l < n && selectedFields[i].idnumOptions[l] != lastIdnum)
+        l++;
+      if (l == n)
+        l = 0;
+    }
   }
 
   idnumSlider->blockSignals(true);
@@ -3147,8 +3148,15 @@ bool FieldDialog::decodeCommand(FieldPlotCommand_cp cmd, const FieldPlotCommand:
     if (it == fgip.end())
       continue;
     const FieldPlotInfo& p = *it;
-    if ((sf.zaxis == p.vcoord() || (sf.zaxis.empty() && p.vlevels().size() == 1)) && (sf.idnum.empty() == p.elevels().empty())) {
+    if ((sf.zaxis == p.vcoord() || (sf.zaxis.empty() && p.vlevels().size() == 1))) {
       fi_found = &(*it);
+      // if there are elevels, but the elevel isn't specified, use first elevel
+      // if there are no elevels, but an elevel is specified, remove it.
+      if (sf.idnum.empty() && !p.elevels().empty()) {
+        sf.idnum = p.elevels()[0];
+      } else if (!sf.idnum.empty() && p.elevels().empty()) {
+        sf.idnum.clear();
+      }
       break;
     }
   }
