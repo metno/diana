@@ -281,7 +281,7 @@ bool readQuickMenu(quickMenu& qm, std::istream& in)
     } else if (line[0]=='['){
       // variable/options
       diutil::remove_start_end_mark(line, '[', ']');
-      vector<std::string> tokens = miutil::split(line, "=");
+      vector<std::string> tokens = miutil::split(line, 1, "=");
       if (tokens.size()>1){
         quickMenuOption op;
         op.key= tokens[0];
