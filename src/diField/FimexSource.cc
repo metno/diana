@@ -391,6 +391,9 @@ ReftimeSource::Update_t FimexReftimeSource::update()
             }
           }
         }
+      } else if (makeInventory() && mInventory->times.npoint() > 0) {
+        mReferenceTime = mInventory->times.at(0);
+        METLIBS_LOG_WARN("using first time " << util::to_miTime(mReferenceTime) << " as reference time for vcross file '" << mFileName << "'");
       }
     }
   }
