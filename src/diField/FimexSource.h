@@ -84,7 +84,6 @@ private:
   std::string mFileName, mFileType, mFileConfig;
   diutil::CharsetConverter_p mCsNameCharsetConverter;
   long mModificationTime;
-  Time mReftime;
   MetNoFimex::CDMReader_p mReader;
   Inventory_p mInventory;
   typedef std::map<std::string, std::string> zaxis_cs_m;
