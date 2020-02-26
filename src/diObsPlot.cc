@@ -2232,13 +2232,27 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   }
 
   //Wave
-  if (pFlag.count("pwahwa") && (f_p = dta.get_float("PwaPwa")) && (h_p = dta.get_float("HwaHwa"))) {
-    checkColourCriteria(gl, "PwaHwa", 0);
-    wave(gl, *f_p, *h_p, xytab(lpos + 20));
+
+  if (pFlag.count("pwahwa")) {
+    f_p = dta.get_float("PwaPwa");
+    h_p = dta.get_float("HwaHwa");
+    if (f_p || h_p) {
+      float pwa = f_p ? *f_p : undef;
+      float hwa = h_p ? *h_p : undef;
+      checkColourCriteria(gl, "PwaHwa", 0);
+      wave(gl, pwa, hwa, xytab(lpos + 20));
+    }
   }
-  if (pFlag.count("pw1hw1") && ((f_p = dta.get_float("Pw1Pw1")) && (h_p = dta.get_float("Hw1Hw1")))) {
-    checkColourCriteria(gl, "Pw1Hw1", 0);
-    wave(gl, *f_p, *h_p, xytab(lpos + 28));
+
+  if (pFlag.count("pw1hw1")) {
+    f_p = dta.get_float("Pw1Pw1");
+    h_p = dta.get_float("Hw1Hw1");
+    if (f_p || h_p) {
+      float pw1 = f_p ? *f_p : undef;
+      float hw1 = h_p ? *h_p : undef;
+      checkColourCriteria(gl, "Pw1Hw1", 0);
+      wave(gl, pw1, hw1, xytab(lpos + 20));
+    }
   }
 
 }
