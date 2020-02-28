@@ -350,10 +350,6 @@ bool SetupParser::parseFile(const std::string& filename, const std::string& sect
         return false;
       }
       const std::string nextfile = miutil::trimmed(str.substr(8));
-#if 1
-      if (!parseFile(nextfile, sectname, level + 1))
-        return false;
-#else
       // support glob pattern in %include
       std::vector<std::string> nextfiles = diutil::glob(nextfile);
       std::sort(nextfiles.begin(), nextfiles.end());
@@ -361,7 +357,6 @@ bool SetupParser::parseFile(const std::string& filename, const std::string& sect
         if (!parseFile(nf, sectname, level + 1))
           return false;
       }
-#endif
 
     } else if (miutil::to_upper(str) == "CLEAR") {
       /*
