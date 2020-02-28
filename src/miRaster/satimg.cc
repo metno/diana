@@ -116,8 +116,8 @@ int satimg::MITIFF_read_diana(const std::string& infile, unsigned char* image[],
   }
 
   // Read image data into matrix.
-  TIFFGetField(in.get(), 256, &ginfo.xsize);
-  TIFFGetField(in.get(), 257, &ginfo.ysize);
+  TIFFGetField(in.get(), TIFFTAG_IMAGEWIDTH, &ginfo.xsize);
+  TIFFGetField(in.get(), TIFFTAG_IMAGELENGTH, &ginfo.ysize);
   const int size = ginfo.xsize * ginfo.ysize;
 
   /*
@@ -207,7 +207,7 @@ int satimg::MITIFF_head_diana(const std::string& infile, dihead& ginfo)
   }
 
   char* description = 0;
-  if (!TIFFGetField(in.get(), 270, &description) || !description)
+  if (!TIFFGetField(in.get(), TIFFTAG_IMAGEDESCRIPTION, &description) || !description)
     return -1;
   std::string desc_str(description);
 
