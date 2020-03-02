@@ -2450,12 +2450,16 @@ void DianaMainWindow::save()
 
 void DianaMainWindow::filequit()
 {
-  if (em->cleanupForExit()) {
+  if (checkQuit()) {
     // quit sends aboutToQuit SIGNAL, which is connected to slot writeLogFile
     qApp->quit();
   }
 }
 
+bool DianaMainWindow::checkQuit()
+{
+  return em->cleanupForExit();
+}
 
 // static
 bool DianaMainWindow::allowedInstanceName(const QString& text)
@@ -2969,9 +2973,10 @@ void DianaMainWindow::inEdit(bool inedit)
   }
 }
 
-void DianaMainWindow::closeEvent(QCloseEvent*)
+void DianaMainWindow::closeEvent(QCloseEvent* event)
 {
-  filequit();
+  if (!checkQuit())
+    event->ignore();
 }
 
 bool DianaMainWindow::event(QEvent* event)

@@ -257,6 +257,8 @@ private:
   /// Adds a standard dialog (fields, ...)
   void addStandardDialog(DataDialog* dialog);
 
+  bool checkQuit();
+
   void applyPlotCommandsFromDialogs(bool addToHistory);
   void initCoserverClient();
   void createHelpDialog();
