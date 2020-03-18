@@ -457,7 +457,7 @@ bool FieldEdit::readEditfield(const std::string& filename)
   cmd->field.plot = plotName;
   cmd->field.vcoord = vcoord;
   cmd->field.vlevel = vlevel;
-  cmd->field.units = fieldUnit;
+  cmd->addOptions(miutil::KeyValue_v() << miutil::kv("units", fieldUnit));
   std::vector<FieldPlotCommand_cp> vpin(1, cmd);
 
   bool dummy = false;

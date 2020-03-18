@@ -2898,8 +2898,6 @@ void FieldDialog::getParamString(const SelectedField& sf, FieldPlotCommand::Fiel
 
   fs.hourOffset = sf.hourOffset;
   fs.hourDiff = sf.hourDiff;
-
-  fs.units = sf.unit;
 }
 
 std::string FieldDialog::getShortname()
@@ -3119,7 +3117,6 @@ bool FieldDialog::decodeCommand(FieldPlotCommand_cp cmd, const FieldPlotCommand:
   sf.level = fs.vlevel;
   sf.extraaxis = fs.ecoord;
   sf.idnum = fs.elevel;
-  sf.unit = fs.units;
 
   sf.hourOffset = fs.hourOffset;
   sf.hourDiff = fs.hourDiff;

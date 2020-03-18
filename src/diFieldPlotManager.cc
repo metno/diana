@@ -849,7 +849,6 @@ void FieldPlotManager::parseString(FieldPlotCommand_cp cmd, const FieldPlotComma
   fieldrequest.plevel = fs.vlevel;
   fieldrequest.eaxis = fs.ecoord;
   fieldrequest.elevel = fs.elevel;
-  fieldrequest.unit = fs.units;
   if (!cmd->time.empty())
     fieldrequest.ptime = miutil::miTime(cmd->time);
   fieldrequest.hourOffset = fs.hourOffset;
@@ -868,6 +867,8 @@ void FieldPlotManager::parseString(FieldPlotCommand_cp cmd, const FieldPlotComma
         fieldrequest.allTimeSteps = kv.toBool();
       } else if (key == "file.palette") {
         fieldrequest.palette = kv.value();
+      } else if (kv.key() == "units" || kv.key() == "unit") {
+        fieldrequest.unit = kv.value();
       }
     }
   }

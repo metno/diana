@@ -56,8 +56,6 @@ public:
     std::string ecoord;
     std::string elevel;
 
-    std::string units;
-
     int hourOffset;
     int hourDiff;
 

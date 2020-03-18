@@ -66,8 +66,6 @@ void extractFieldSpec(const miutil::KeyValue_v& kvs, FieldPlotCommand::FieldSpec
       fs.ecoord = kv.value();
     } else if (kv.key() == "elevel") {
       fs.elevel = kv.value();
-    } else if (kv.key() == "units" || kv.key() == "unit") {
-      fs.units = kv.value();
     } else if (kv.key() == "hour.offset") {
       if (CommandParser::isInt(kv.value()))
         fs.hourOffset = kv.toInt();
@@ -112,8 +110,6 @@ miutil::KeyValue_v FieldPlotCommand::FieldSpec::toKV() const
       miutil::add(ostr, "ecoord", vcoord);
     miutil::add(ostr, "elevel", elevel);
   }
-  if (!units.empty())
-    miutil::add(ostr, "units", units);
 
   if (hourOffset != 0)
     miutil::add(ostr, "hour.offset", hourOffset);
