@@ -279,8 +279,7 @@ FieldDialog::FieldDialog(QWidget* parent, FieldDialogData* data)
 
   QLabel* unitlabel = new QLabel(tr("Unit"), this);
   unitLineEdit = new QLineEdit(this);
-  connect( unitLineEdit, SIGNAL(editingFinished()),
-      SLOT( unitEditingFinished() ) );
+  connect(unitLineEdit, &QLineEdit::editingFinished, this, &FieldDialog::unitEditingFinished);
 
   // copyField
   copyField = NormalPushButton(tr("Copy"), this);
@@ -367,8 +366,8 @@ FieldDialog::FieldDialog(QWidget* parent, FieldDialogData* data)
   // allTimeStep
   allTimeStepButton = new ToggleButton(this, tr("All time steps"));
   allTimeStepButton->setCheckable(true);
-  allTimeStepButton->setChecked(false);connect( allTimeStepButton, SIGNAL(toggled(bool)),
-      SLOT(allTimeStepToggled(bool)));
+  allTimeStepButton->setChecked(false);
+  connect(allTimeStepButton, &QPushButton::toggled, this, &FieldDialog::allTimeStepToggled);
 
   // advanced
   advanced = new ToggleButton(this, tr("<<Less"), tr("More>>"));
