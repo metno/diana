@@ -66,6 +66,8 @@ void extractFieldSpec(const miutil::KeyValue_v& kvs, FieldPlotCommand::FieldSpec
       fs.ecoord = kv.value();
     } else if (kv.key() == "elevel") {
       fs.elevel = kv.value();
+    } else if (kv.key() == "alltimesteps") {
+      fs.allTimeSteps = kv.toBool();
     } else if (kv.key() == "hour.offset") {
       if (CommandParser::isInt(kv.value()))
         fs.hourOffset = kv.toInt();
@@ -82,6 +84,7 @@ void extractFieldSpec(const miutil::KeyValue_v& kvs, FieldPlotCommand::FieldSpec
 FieldPlotCommand::FieldSpec::FieldSpec()
     : refoffset(0)
     , refhour(-1)
+    , allTimeSteps(true)
     , hourOffset(0)
     , hourDiff(0)
 {
@@ -110,6 +113,8 @@ miutil::KeyValue_v FieldPlotCommand::FieldSpec::toKV() const
       miutil::add(ostr, "ecoord", vcoord);
     miutil::add(ostr, "elevel", elevel);
   }
+  if (!allTimeSteps)
+    miutil::add(ostr, "alltimesteps", allTimeSteps);
 
   if (hourOffset != 0)
     miutil::add(ostr, "hour.offset", hourOffset);
@@ -130,7 +135,6 @@ const std::string& FieldPlotCommand::FieldSpec::name() const
 
 FieldPlotCommand::FieldPlotCommand(bool edit)
     : isEdit(edit)
-    , allTimeSteps(false)
 {
 }
 
@@ -166,8 +170,6 @@ miutil::KeyValue_v FieldPlotCommand::toKV() const
     kv << miutil::KeyValue(")");
   }
   diutil::insert_all(kv, options_);
-  if (allTimeSteps)
-    kv << miutil::KeyValue("allTimeSteps", "on");
   if (!time.empty())
     kv << miutil::KeyValue("time", time);
   return kv;

@@ -853,6 +853,7 @@ void FieldPlotManager::parseString(FieldPlotCommand_cp cmd, const FieldPlotComma
     fieldrequest.ptime = miutil::miTime(cmd->time);
   fieldrequest.hourOffset = fs.hourOffset;
   fieldrequest.time_tolerance = fs.hourDiff * 60; // time_tolerance in minutes, hourDiff in hours
+  fieldrequest.allTimeSteps = fs.allTimeSteps;
 
   for (const miutil::KeyValue& kv : cmd->options()) {
     if (!kv.value().empty()) {
@@ -863,8 +864,6 @@ void FieldPlotManager::parseString(FieldPlotCommand_cp cmd, const FieldPlotComma
         fieldrequest.flightlevel=true;
       } else if (key == "min.offset") {
         fieldrequest.minOffset = kv.toInt();
-      } else if (key == "alltimesteps") {
-        fieldrequest.allTimeSteps = kv.toBool();
       } else if (key == "file.palette") {
         fieldrequest.palette = kv.value();
       } else if (kv.key() == "units" || kv.key() == "unit") {

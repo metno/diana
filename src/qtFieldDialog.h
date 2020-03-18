@@ -255,7 +255,7 @@ private:
   void setIdnum();
   void getFieldGroups(const std::string& model, const std::string& refTime, bool plotDefinitions, FieldPlotGroupInfo_v& vfg);
   miutil::KeyValue_v getFieldOptions(const std::string& fieldName, bool reset) const;
-  bool decodeCommand(FieldPlotCommand_cp cmd, const FieldPlotCommand::FieldSpec& fs, SelectedField& sf, bool& allTimeSteps);
+  bool decodeCommand(FieldPlotCommand_cp cmd, const FieldPlotCommand::FieldSpec& fs, SelectedField& sf);
 
   void toolTips();
 

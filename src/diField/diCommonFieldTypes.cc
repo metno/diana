@@ -69,6 +69,6 @@ FieldRequest::FieldRequest()
     , hourOffset(0)
     , minOffset(0)
     , time_tolerance(0)
-    , allTimeSteps(false)
+    , allTimeSteps(true)
 {
 }

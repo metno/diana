@@ -560,10 +560,10 @@ plottimes_t FieldManager::getFieldTime(const std::vector<FieldRequest>& fieldreq
   METLIBS_LOG_SCOPE();
 
   plottimes_t tNormal, tn;
-  bool allTimeSteps = false;
+  bool allTimeSteps = true;
 
   for (const FieldRequest& frq : fieldrequest) {
-    allTimeSteps |= frq.allTimeSteps;
+    allTimeSteps &= frq.allTimeSteps;
 
     METLIBS_LOG_DEBUG(LOGVAL(frq.modelName) << LOGVAL(frq.refTime) << LOGVAL(frq.paramName) << LOGVAL(frq.zaxis) << LOGVAL(frq.plevel));
 

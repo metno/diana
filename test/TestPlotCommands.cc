@@ -90,7 +90,7 @@ TEST(TestPlotCommands, FieldFromFactory)
 {
   const std::string model = "hei", plot = "ho";
   miutil::KeyValue_v options;
-  options << miutil::KeyValue("colour", "blue") << miutil::KeyValue("plottype", "contour") << miutil::KeyValue("alltimesteps", "1");
+  options << miutil::KeyValue("colour", "blue") << miutil::KeyValue("plottype", "contour");
   const std::string text = "FIELD model=" + model + " plot=" + plot + " " + miutil::mergeKeyValue(options);
 
   PlotCommand_cp pc = makeCommand(text);

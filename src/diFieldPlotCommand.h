@@ -56,6 +56,8 @@ public:
     std::string ecoord;
     std::string elevel;
 
+    bool allTimeSteps;
+
     int hourOffset;
     int hourDiff;
 
@@ -84,7 +86,6 @@ public:
   bool isEdit;
   FieldSpec field;
   FieldSpec minus;
-  bool allTimeSteps;
   std::string time;
 
 private:

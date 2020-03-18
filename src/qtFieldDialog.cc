@@ -366,7 +366,7 @@ FieldDialog::FieldDialog(QWidget* parent, FieldDialogData* data)
   // allTimeStep
   allTimeStepButton = new ToggleButton(this, tr("All time steps"));
   allTimeStepButton->setCheckable(true);
-  allTimeStepButton->setChecked(false);
+  allTimeStepButton->setChecked(true);
   connect(allTimeStepButton, &QPushButton::toggled, this, &FieldDialog::allTimeStepToggled);
 
   // advanced
@@ -2853,7 +2853,6 @@ PlotCommand_cpv FieldDialog::getOKString()
     sf.idnummove = true;
   }
 
-  bool allTimeSteps = allTimeStepButton->isChecked();
   const int n = selectedFields.size();
   vstr.reserve(n);
   for (int i = 0; i < n; i++) {
@@ -2869,7 +2868,6 @@ PlotCommand_cpv FieldDialog::getOKString()
       getParamString(selectedFields[i + 1], cmd->minus);
 
     cmd->addOptions(sf.fieldOpts);
-    cmd->allTimeSteps = allTimeSteps;
     cmd->time = selectedFields[i].time;
 
     vstr.push_back(cmd);
@@ -2898,6 +2896,7 @@ void FieldDialog::getParamString(const SelectedField& sf, FieldPlotCommand::Fiel
 
   fs.hourOffset = sf.hourOffset;
   fs.hourDiff = sf.hourDiff;
+  fs.allTimeSteps = allTimeStepButton->isChecked();
 }
 
 std::string FieldDialog::getShortname()
@@ -3051,12 +3050,13 @@ void FieldDialog::putOKString(const PlotCommand_cpv& vstr)
   METLIBS_LOG_SCOPE();
 
   deleteAllSelected();
+  allTimeStepButton->setChecked(true);
+
   if (vstr.empty()) {
     updateTime();
     return;
   }
 
-  bool allTimeSteps = false;
   for (PlotCommand_cp pc : vstr) {
     FieldPlotCommand_cp cmd = std::dynamic_pointer_cast<const FieldPlotCommand>(pc);
     if (!cmd)
@@ -3064,13 +3064,13 @@ void FieldDialog::putOKString(const PlotCommand_cpv& vstr)
 
     SelectedField sf;
     sf.external = true;
-    if (decodeCommand(cmd, cmd->field, sf, allTimeSteps))
+    if (decodeCommand(cmd, cmd->field, sf))
       addSelectedField(sf);
 
     if (cmd->hasMinusField()) {
       SelectedField sfsubtract;
       sfsubtract.external = true;
-      if (decodeCommand(cmd, cmd->minus, sfsubtract, allTimeSteps)) {
+      if (decodeCommand(cmd, cmd->minus, sfsubtract)) {
         addSelectedField(sfsubtract);
         minusField(true);
       }
@@ -3085,7 +3085,6 @@ void FieldDialog::putOKString(const PlotCommand_cpv& vstr)
     enableFieldOptions();
   }
 
-  allTimeStepButton->setChecked(allTimeSteps);
   updateTime();
 }
 
@@ -3100,7 +3099,7 @@ void FieldDialog::addSelectedField(const SelectedField& sf)
   selectedFieldbox->item(selectedFieldbox->count() - 1)->setSelected(true);
 }
 
-bool FieldDialog::decodeCommand(FieldPlotCommand_cp cmd, const FieldPlotCommand::FieldSpec& fs, SelectedField& sf, bool& allTimeSteps)
+bool FieldDialog::decodeCommand(FieldPlotCommand_cp cmd, const FieldPlotCommand::FieldSpec& fs, SelectedField& sf)
 {
   sf.inEdit = cmd->isEdit;
 
@@ -3123,13 +3122,12 @@ bool FieldDialog::decodeCommand(FieldPlotCommand_cp cmd, const FieldPlotCommand:
 
   sf.fieldOpts = cmd->options();
 
+  if (!fs.allTimeSteps)
+      allTimeStepButton->setChecked(false);
+
   // merge with options from setup/logfile for this fieldname
   mergeFieldOptions(sf.fieldOpts, getFieldOptions(fs.name(), true));
 
-  for (const miutil::KeyValue& kv : sf.fieldOpts) {
-    if (kv.key() == "alltimesteps")
-      allTimeSteps |= kv.toBool();
-  }
 
   METLIBS_LOG_DEBUG(LOGVAL(sf.modelName) << LOGVAL(sf.fieldName) << LOGVAL(sf.level) << LOGVAL(sf.idnum));
 
