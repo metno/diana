@@ -53,8 +53,6 @@
 #include <QStringList>
 #include <QString>
 
-#include <boost/locale/generator.hpp>
-
 #include <iostream>
 
 #define MILOGGER_CATEGORY "diana.main_gui"
@@ -186,9 +184,6 @@ int main(int argc, char **argv)
   // see http://doc.qt.io/qt-4.8/qcoreapplication.html#locale-settings
   setlocale(LC_NUMERIC, "C");
   setenv("LC_NUMERIC", "C", 1);
-
-  boost::locale::generator locale_gen;
-  std::locale::global(locale_gen(""));
 
   string logfilename = SYSCONFDIR "/" PACKAGE_NAME "/" PVERSION "/log4cpp.properties";
   QString lang;

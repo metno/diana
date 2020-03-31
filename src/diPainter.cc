@@ -31,9 +31,10 @@
 
 #include "diPainter.h"
 
+#include "diField/diRectangle.h"
 #include "diLocalSetupParser.h"
 #include "miSetupParser.h"
-#include "diField/diRectangle.h"
+#include "util/string_util.h"
 
 #include <mi_fieldcalc/math_util.h>
 
@@ -43,10 +44,6 @@
 #include <QPointF>
 #include <QPolygonF>
 
-#include <boost/algorithm/string/find.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/locale/collator.hpp>
-
 #include <cmath>
 
 #define MILOGGER_CATEGORY "diana.DiPainter"
@@ -54,7 +51,7 @@
 
 struct DiCanvasPrivate
 {
-  typedef std::map<std::string, std::string, boost::locale::comparator<char, boost::locale::collator_base::secondary>> aliases_t;
+  typedef std::map<std::string, std::string, diutil::op_iless> aliases_t;
   aliases_t aliases;
   bool printing;
 };
@@ -176,9 +173,9 @@ const std::string& DiCanvas::lookupFontAlias(const std::string& family)
     f = &family;
   if (!hasFont(*f)) {
     // try to fallback to some font alias that is likely defined
-    if (!boost::iequals(*f, diutil::METSYMBOLFONT) && !boost::iequals(*f, diutil::SCALEFONT)) {
+    if (!diutil::iequals(*f, diutil::METSYMBOLFONT) && !diutil::iequals(*f, diutil::SCALEFONT)) {
       static const std::string METSYMBOL = "metsymbol";
-      const bool sym = boost::icontains(*f, METSYMBOL);
+      const bool sym = diutil::icontains(*f, METSYMBOL);
       const std::string& fallback = sym ? diutil::METSYMBOLFONT : diutil::SCALEFONT;
       it = mP->aliases.find(fallback);
       if (it != mP->aliases.end())

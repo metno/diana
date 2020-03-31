@@ -65,7 +65,6 @@
 #include <puTools/miStringFunctions.h>
 
 #include <boost/algorithm/string/join.hpp>
-#include <boost/locale/generator.hpp>
 
 #include <QApplication>
 #include <QtCore>
@@ -1795,9 +1794,6 @@ int diana_init(int _argc, char** _argv)
   setlocale(LC_NUMERIC, "C");
   setlocale(LC_MEASUREMENT, "C");
   setlocale(LC_TIME, "C");
-
-  boost::locale::generator locale_gen;
-  std::locale::global(locale_gen(""));
 
   bool setupfilegiven = false;
   std::string logfilename;

@@ -63,6 +63,29 @@ void replace_chars(std::string& txt, const char* replace, const char with);
 inline std::string replaced_chars(const std::string& txt, const char* replace, const char with)
 { std::string t(txt); replace_chars(t, replace, with); return t; }
 
+int icompare(const std::string& lhs, const std::string& rhs);
+int icompare(char lhs, char rhs);
+
+template <class C>
+bool iequals(const C& lhs, const C& rhs)
+{
+  return icompare(lhs, rhs) == 0;
+}
+
+struct op_iless
+{
+  bool operator()(const std::string& lhs, const std::string& rhs) const { return icompare(lhs, rhs) < 0; }
+  bool operator()(char lhs, char rhs) const { return icompare(lhs, rhs) < 0; }
+};
+
+struct op_iequals
+{
+  bool operator()(const std::string& lhs, const std::string& rhs) const { return iequals(lhs, rhs); }
+  bool operator()(char lhs, char rhs) const { return iequals(lhs, rhs); }
+};
+
+bool icontains(const std::string& haystack, const std::string& needle);
+
 namespace detail {
 void append_chars_split_newline(std::vector<std::string>& lines, const char* buffer, size_t nbuffer);
 }

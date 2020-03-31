@@ -544,3 +544,40 @@ TEST(TestUtilities, TimeFromString)
   EXPECT_EQ(miTime(2018, 4, 1, 12, 0, 0), timeFromString("2018040112"));
   EXPECT_EQ(miTime(2018, 4, 1, 12, 34, 0), timeFromString("201804011234"));
 }
+
+TEST(TestUtilities, TestCaseInsensitiveCompare)
+{
+  using diutil::icompare;
+  EXPECT_EQ(icompare("FISH", "fish"), 0);
+  EXPECT_GT(icompare("FISHERMAN", "fish"), 0);
+  EXPECT_LT(icompare("fish", "FISHerman"), 0);
+  EXPECT_LT(icompare("dog", "fish"), 0);
+#if 0
+  const char rock[5] = "r\0ck", roll[5] = "r\0ll";
+  const std::string r0ck(rock, rock+4), r0ll(roll, roll + 4);
+  EXPECT_LT(icompare(r0ck, r0ll), 0);
+#endif
+
+  using diutil::iequals;
+  EXPECT_TRUE(iequals("fish", "fish"));
+  EXPECT_TRUE(iequals("FISH", "FISH"));
+  EXPECT_TRUE(iequals("FISH", "fish"));
+  EXPECT_TRUE(iequals("FIsH", "fiSh"));
+
+  using diutil::icontains;
+  EXPECT_TRUE(icontains("FiShErMaN", "fish"));
+  EXPECT_TRUE(icontains("FiShErMaN", "is"));
+  EXPECT_FALSE(icontains("FiShErMaN", "not"));
+  EXPECT_TRUE(icontains("FiShErMaN", "mAn"));
+
+  using diutil::op_iless;
+  typedef std::map<std::string, bool, op_iless> ci_map_t;
+  ci_map_t animal_is_fish;
+  animal_is_fish.insert(std::make_pair("herring", true));
+  animal_is_fish.insert(std::make_pair("elEphanT", false));
+
+  EXPECT_TRUE(animal_is_fish.find("herring") != animal_is_fish.end());
+  EXPECT_TRUE(animal_is_fish.find("HERRING") != animal_is_fish.end());
+  EXPECT_TRUE(animal_is_fish.find("ring") == animal_is_fish.end());
+  EXPECT_TRUE(animal_is_fish.find("HORSE") == animal_is_fish.end());
+}

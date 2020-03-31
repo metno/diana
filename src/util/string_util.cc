@@ -31,6 +31,9 @@
 
 #include "puTools/miStringFunctions.h"
 
+#include <algorithm>
+#include <cstring>
+
 namespace diutil {
 
 void remove_comment_and_trim(std::string& s, const std::string& commentmarker)
@@ -127,6 +130,22 @@ void replace_chars(std::string& txt, const char* replace_these, const char repla
     txt[pos] = replace_with;
     pos += 1;
   }
+}
+
+int icompare(const std::string& lhs, const std::string& rhs)
+{
+  // does not work with nul characters
+  return strcasecmp(lhs.c_str(), rhs.c_str());
+}
+
+int icompare(char lhs, char rhs)
+{
+  return strncasecmp(&lhs, &rhs, 1);
+}
+
+bool icontains(const std::string& haystack, const std::string& needle)
+{
+  return std::search(haystack.begin(), haystack.end(), needle.begin(), needle.end(), op_iequals()) != haystack.end();
 }
 
 } // namespace diutil
