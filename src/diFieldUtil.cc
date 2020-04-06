@@ -152,7 +152,6 @@ void makeFieldText(Field* fout, const std::string& plotName, bool flightlevel)
 {
   std::string fieldtext = fout->modelName + " " + plotName;
   if (!fout->leveltext.empty()) {
-    diutil::appendText(fieldtext, " ");
     if (flightlevel)
       diutil::appendText(fieldtext, FlightLevel::getFlightLevel(fout->leveltext));
     else
