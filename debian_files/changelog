@@ -1,3 +1,37 @@
+diana-3.52 (3.53.0~rc1-1) unstable; urgency=low
+
+  * drop use of boost::locale
+  * alltimesteps - fixed
+  * MainWindow: ignore the closeEvent if rejected by user
+  * bugfix fieldplot units from dialog
+  * ObsPlot - pwahwa, pw1hw1
+  * WebMapPlot: configurable legend position
+  * vcross fimex source: use first time as reference time fallback
+  * compilation on Ubuntu Focal/20.04
+  * support using the same plot command for both eps/det models
+  * quick menus - allow dynamic options containing "="
+  * ObsAscii - fixed tooltip
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 06 Apr 2020 12:09:45 +0200
+
+diana-3.52 (3.52.8-1) unstable; urgency=low
+
+  * bugfix timegraph
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 18 Feb 2020 08:00:08 +0100
+
+diana-3.52 (3.52.7-1) unstable; urgency=low
+
+  * bugfix PlotModule: call defineMapArea even more often
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 10 Feb 2020 09:41:04 +0100
+
+diana-3.52 (3.52.6-1) unstable; urgency=low
+
+  * bugfix PlotModule: call defineMapArea more often
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 05 Feb 2020 12:09:40 +0100
+
 diana-3.52 (3.52.5-1) unstable; urgency=low
 
   * Fix - plotelements from areaojects
