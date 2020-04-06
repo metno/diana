@@ -222,10 +222,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
               } else if (key == key_fieldgroup && vstr[j + 1] == "=") {
                 fieldgroup = diutil::quote_removed(vstr[j + 2]);
               } else if (key == key_vcoord && vstr[j + 1] == "=") {
-                vector<std::string> vcoordTokens = miutil::split(vstr[j+2], ",");
-                for( size_t ii=0; ii<vcoordTokens.size(); ++ii ) {
-                  vcoord.insert(vcoordTokens[ii]);
-                }
+                diutil::insert_all(vcoord, miutil::split(vstr[j + 2], ","));
               } else if (key == key_vc_type && vstr[j + 1] == "=") {
                 vctype = FieldFunctions::getVerticalType(vstr[j+2]);
               } else if (vstr[j + 1] == "=") {
@@ -908,10 +905,11 @@ vector<FieldRequest> FieldPlotManager::getParamNames(const std::string& plotName
   //else use fieldname= plotname
 
   vector<FieldRequest> vfieldrequest;
+  const FieldFunctions::Zaxis_info* zaxi = FieldFunctions::findZaxisInfo(fieldrequest.zaxis);
 
   for (PlotField_p pf : vPlotField) {
-    if ((pf->name == plotName) && ((pf->vcoord.empty() && pf->vctype == FieldFunctions::vctype_none) || pf->vcoord.count(fieldrequest.zaxis) ||
-                                   pf->vctype == FieldFunctions::Zaxis_info_map[fieldrequest.zaxis].vctype)) {
+    if ((pf->name == plotName) &&
+        ((pf->vcoord.empty() && pf->vctype == FieldFunctions::vctype_none) || pf->vcoord.count(fieldrequest.zaxis) || (zaxi && pf->vctype == zaxi->vctype))) {
       for (const auto& input : pf->input) {
         fieldrequest.paramName = input.name;
         fieldrequest.standard_name = input.is_standard_name;

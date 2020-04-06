@@ -393,8 +393,6 @@ public:
     bop_none, bop_read, bop_function, bop_result, bop_delete
   };
 
-  static std::map< std::string, Zaxis_info> Zaxis_info_map;
-
 private:
   struct FunctionHelper {
     Function func;
@@ -454,6 +452,7 @@ private:
 
   static std::vector<FieldCompute> vFieldCompute;
 
+  static std::map<std::string, Zaxis_info> Zaxis_info_map;
 };
 
 #endif // DIFIELD_FIELDFUNCTIONS_H
