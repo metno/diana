@@ -483,6 +483,7 @@ void ObsWidget::displayDiff(int number)
     timediff_minutes = "alltimes";
   } else {
     const int totalminutes = time_slider2lcd[number];
+
     const int max_minutes = time_slider2lcd.back();
     timediff_minutes = miutil::from_number(totalminutes);
     if (max_minutes <= 60) {
@@ -885,13 +886,17 @@ void ObsWidget::updateDialog(bool setChecked)
       slider_value = 99999;
     } else {
       const int timediff = miutil::to_int(timediff_minutes);
-      for (diffcombo_index = 0; diffcombo_index < diffComboBox->count(); ++diffcombo_index) {
-        const int userData = diffComboBox->itemData(diffcombo_index).toInt(); // userData = sliderStep (minutes) << 8 + maxSliderValue
-        const int c_step = userData >> 8;
-        const int c_max = userData & 0xFF;
-        slider_value = std::min(timediff / c_step, c_max - 1);
-        if (timediff < c_step * c_max)
-          break;
+      if (timediff >= 0) {
+        for (diffcombo_index = 0; diffcombo_index < diffComboBox->count(); ++diffcombo_index) {
+          const int userData = diffComboBox->itemData(diffcombo_index).toInt(); // userData = sliderStep (minutes) << 8 + maxSliderValue
+          const int c_step = userData >> 8;
+          const int c_max = userData & 0xFF;
+          slider_value = std::min(timediff / c_step, c_max - 1);
+          if (timediff < c_step * c_max)
+            break;
+        }
+      } else {
+        METLIBS_LOG_WARN("Timediff has an illegal value:" << timediff_minutes);
       }
     }
   }
@@ -907,7 +912,6 @@ void ObsWidget::updateDialog(bool setChecked)
     time_slider2lcd.push_back(i*sliderStep);
   diffSlider->setValue(slider_value);
   displayDiff(slider_value);
-
   //onlypos
   if ((it = dVariables.misc.find("onlypos")) != end && it->second == "true") {
     onlyposCheckBox ->setChecked(true);
