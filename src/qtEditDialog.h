@@ -168,8 +168,6 @@ Q_SIGNALS:
   void emitFieldEditUpdate(std::string);
   /// editing on or off
   void editMode(bool);
-  /// resize main window
-  void emitResize(int, int);
 
 private:
   Controller*    m_ctrl;

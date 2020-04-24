@@ -35,19 +35,6 @@
 #include <set>
 #include <vector>
 
-const std::string OBJECTS_ANALYSIS= "Analyse";
-const std::string OBJECTS_SIGMAPS=  "Sigkart";
-
-
-
-  /**
-     \brief saved product source
-  */
-enum dataSource {
-  data_local,
-  data_server
-};
-
   /**
      \brief saved "products" (product elements)
   */
@@ -101,7 +88,6 @@ struct EditProductField {
 struct EditProduct {
   // gui <--> controller
   std::string name;                    ///< productname
-  std::vector<std::string> drawtools;       ///< tools to use
   std::vector<EditProductId> pids;       ///< legal product-id's
   std::vector <savedProduct> objectprods;///< products to fetch objects from
   std::vector<EditProductField> fields;  ///< required fields
@@ -121,15 +107,12 @@ struct EditProduct {
   int complexSymbolSize;            ///< default complex symbol size
   int frontLineWidth;               ///< default front line width
   int areaLineWidth;                ///< default front line width
-  int winX;                         ///< main window width, adjustment to the map area
-  int winY;                         ///< main window height, adjustment to the map area
   bool  startEarly;                 ///< earliest start time set, or not
   bool  startLate;                  ///< latest   start time set, or not
   int   minutesStartEarly;          ///< earliest start time offset (+/-minutes)
   int   minutesStartLate;           ///< latest   start time offset (+/-minutes)
   std::string templateFilename;
   int autoremove;
-  std::string approvedCommand;
 };
 
 #endif

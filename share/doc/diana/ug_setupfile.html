@@ -149,18 +149,16 @@
 	<tr><td><a href="#EDIT">EDIT</a></td><td>define products for the editing tools</td></tr>
 	<tr><td><a href="#VERTICAL_PROFILE_FILES">VERTICAL_PROFILE_FILES</a></td>
 	  <td>list of sources for sounding data</td></tr>
+	<tr><td><a href="#VERTICAL_PROFILE_COMPUTATIONS">VERTICAL_PROFILE_COMPUTATIONS</a></td>
+	  <td>available computed parameters for sounding data</td></tr>
 	<tr><td><a href="#VERTICAL_CROSSECTION_FILES">VERTICAL_CROSSECTION_FILES</a></td>
 	  <td>list of sources for vertical cross sections</td></tr>
-	<tr><td><a href="#VERTICAL_CROSSECTION_PARAMETERS">VERTICAL_CROSSECTION_PARAMETERS</a></td>
-	  <td>available parameter definitions  for vertical cross sections</td></tr>
 	<tr><td><a href="#VERTICAL_CROSSECTION_COMPUTATIONS">VERTICAL_CROSSECTION_COMPUTATIONS</a></td>
 	  <td>available computed parameters for vertical cross sections</td></tr>
 	<tr><td><a href="#VERTICAL_CROSSECTION_PLOTS">VERTICAL_CROSSECTION_PLOTS</a></td>
 	  <td>available visualisations of vertical cross sections</td></tr>
 	<tr><td><a href="#SPECTRUM_FILES">SPECTRUM_FILES</a></td>
 	  <td>list of sources for wave spectra visualisation</td></tr>
-	<tr><td><a href="#UFFDA">UFFDA</a></td>
-	  <td>met.no specific: Menu specification for interactive collocation of AVHRR training data.</td></tr>
     </table>
     <p>
 
@@ -738,25 +736,23 @@ The different types available are:
     where the product-specification is like this:
     <table border="1" cellpadding="1" cellspacing="0" >
 	<tr><td>Key(s)</td><td>Value</td></tr>
-	<tr><td>drawtools=</td><td>comma separated list of drawing tools [Analyse,Sigkart]</td></tr>
-	<tr><td>save_dir=</td><td>where to save product locally [./work]</td></tr>
+	<tr><td>local_save_dir=</td><td>where to save product locally [~/.diana/work]</td></tr>
+	<tr><td>prod_save_dir=</td><td>where to save sendable products </td></tr>
 	<tr><td>input_dir=</td><td>where to fetch stored components</td></tr>
 	<tr><td>combine_input_dir=</td><td>where to fetch stored components when combining products</td></tr>
-	<tr><td>input_products=</td><td>other products to pick components from</td></tr>
-	<tr><td>field=</td><td>Field-Nametag, fieldname, met.no-field-specification</td></tr>
+	<tr><td>input_field_config=</td><td>XML file needed to read the input file</td></tr>
+	<tr><td>template_file=</td><td>NetCDF file used to make the output file</td></tr>
+	<tr><td>field=</td><td>filenamepart:"Nametag", plot:"name_of_plot", unit:"unit",
+vcoord:"vertical_coordinate", vlevel:"vertical_level", tool:"standard+classes+numbers"</td></tr>
 	<tr><td>objects=</td><td>Objects-Nametag</td></tr>
 	<tr><td>comments=</td><td>Comments-Nametag</td></tr>
 	<tr><td>local_idents=</td><td>identies to choose from when
 	editing locally [comma separated list]</td></tr>
-	<tr><td>database_idents=</td><td>identies to choose from when editing in product database [comma separated list]</td></tr>
+	<tr><td>prod_idents=</td><td>identies to choose from when editing sendable products [comma separated list]</td></tr>
 	<tr><td>combine_ident=</td><td>Final-ID, ID1, ID2, .. final combine-identity with list of identies to combine. You may have several of these.</td></tr>
 	<tr><td>combine_borders=</td><td>name of file containing borderlines used when combining</td></tr>
-	<tr><td>database=</td><td>"mysqlservername databasename portnumber"</td></tr>
-	<tr><td>name_in_database=</td><td>which productname to use in database</td></tr>
 	<tr><td>time_start_early=</td><td>show warning if production starts before specified time, limit given as hour:minute (-=before,+=after product) [+00:00]</td></tr>
 	<tr><td>time_start_late=</td><td>show warning if production starts after specified time, limit given as hour:minute (-=before,+=after product) [+03:00]</td></tr>
-	<tr><td>grid=</td><td>for field editing, specify field grid [producer,grid,nx,ny,gridtype,gridspec[6]]</td></tr>
-	<tr><td>grid.minimize</td><td>possibly minimize grid to remove undefined values along border</td></tr>
 	<tr><td>commandfile=</td><td>annotations to show when editing</td></tr>
 	<tr><td>standard_symbolsize=</td><td>normal size of met. objects in this product [30]</td></tr>
 	<tr><td>complex_symbolsize=</td><td>normal size of sigkart
@@ -765,6 +761,15 @@ The different types available are:
 	<tr><td>arealinewidth=</td><td>line width of areas in this product [4]</td></tr>
     </table>
 
+    <pre>
+    <br>Example:
+  product="Z"
+  local_save_dir= ${HOME}/.diana/work
+  template_file=z_template.nc
+  field=    filenamepart:geopotential_height_pl, plot:Z, vcoord:pressure, vlevel:700
+  local_idents= TEST
+end.product
+    </pre>
 
     <p>
 
@@ -776,17 +781,21 @@ The different types available are:
 
     <br>Example:
     <pre>
-# prognostic data
-m=HIRLAM.20KM.00   f=/opdata/hirlam20/vp20km00.dat
-m=HIRLAM.20KM.12   f=/opdata/hirlam20/vp20km12.dat
 # observations
-#bufr.temp=  /opdata/obs_dec/rdb/temp/temp[yyyymmddHH].rdb
-#bufr.pilot=  /opdata/obs_dec/rdb/pilo/pilo[yyyymmddHH].rdb
-metnoobs.temp=  /opdata/obs_dec/temp??.dat*
-metnoobs.amdar= /opdata/obs_dec/amte??.dat*
-metnoobs.pilot= /opdata/obs_dec/pilo??.dat*
+bufr.temp= $(OPDATA5)/obs_dec/rdb/temp/temp_[yyyymmddHH].bufr
+#models
+m=MEPS_det_vc     t=netcdf \
+  f=$(OPDATA4)/meps/meps_det_vc_2_5km_[yyyymmddTHH]Z.nc
+m=ICON          t=netcdf f=$(OPDATA4)/icon/icon_[yyyymmddTHH]Z.nc \
+  s=$(share_diana_dir)/products/vprof-ec.txt 
     </pre>
     <p>
+
+    <a name="VERTICAL_PROFILE_COMPUTATIONS"></a><h3>Section VERTICAL_PROFILE_COMPUTATIONS</h3>
+    <pre>
+tdk=tdk_from_tk_rh(air_temperature_pl,relative_humidity_pl)
+vp_air_temperature_celsius=convert_unit(air_temperature_pl,celsius)
+    </pre>
 
     <a name="VERTICAL_CROSSECTION_FILES"></a><h3>Section VERTICAL_CROSSECTION_FILES</h3>
     list of sources for vertical cross sections.
@@ -794,23 +803,10 @@ metnoobs.pilot= /opdata/obs_dec/pilo??.dat*
 
     <br>Example:
     <pre>
-m=HIRLAM.20KM.00  f=/opdata/hirlam20/vc20km00.dat
-m=HIRLAM.20KM.12  f=/opdata/hirlam20/vc20km12.dat
-    </pre>
-    <p>
-
-    <a name="VERTICAL_CROSSECTION_PARAMETERS"></a><h3>Section VERTICAL_CROSSECTION_PARAMETERS</h3>
-    available parameter definitions for vertical cross sections.
-    <p>
-
-    <br>Example:
-    <pre>
-# atmospheric model parameters
-u=2 v=3 tk=4 q=9 rh=10 omega=13 th=18 etadot=11 w=12 turbulence=94
-# ocean model parameters
-ucurr=302 vcurr=303 salt=307 seatemp=308
-# possibly computed in program vcdata (horizontal computations in fields)
-vorticity=-1 divergence=-2 ug=-3 vg=-4 pv=-5
+m=MEPS_det_vc     t=netcdf \
+  f=$(OPDATA4)/meps/meps_det_vc_2_5km_[yyyymmddTHH]Z.nc
+m=ICON          t=netcdf f=$(OPDATA4)/icon/icon_[yyyymmddTHH]Z.nc \
+  predefined_cs=$(share_diana_dir)/products/vcdata.hirlam8.kml
     </pre>
     <p>
 
@@ -823,11 +819,9 @@ vorticity=-1 divergence=-2 ug=-3 vg=-4 pv=-5
 
     <br>Example:
     <pre>
-tc=TC_FROM_TH(th)
-rh=RH_FROM_TH_Q(th,q)
-q=Q_FROM_TK_RH(tk,rh)
-ff_tangent=FF_TANGENTIAL(u,v)
-ff_normal=FF_NORMAL(u,v)
+rh            = rh_from_th_q(air_potential_temperature_ml,specific_humidity_ml)
+ff_normal     = normal(x_wind_ml, y_wind_ml)
+q             =identity(specific_humidity_ml)
     </pre>
     <p>
 
@@ -837,10 +831,9 @@ ff_normal=FF_NORMAL(u,v)
 
     <br>Example:
     <pre>
-name=TH        plot=CONTOUR(th) colour=blue line.interval=4.
-name=Temp(C)   plot=CONTOUR(tc) colour=red  line.interval=4.
-name=Vind_NSEW plot=WIND(ff_east_west,ff_north_south) colour=black
-name=VT+OMEGA  plot=VT+OMEGA(ff_tangent,omega)   colour=darkgreen vector.unit=1.
+name=Vind       plot=WIND(ff_tangential,ff_normal)         colour=blue
+name=VindNSEW   plot=WIND(x_wind,y_wind)                   colour=green
+name=Temp(C)    plot=CONTOUR(tc)  colour=red  line.interval=1.
     </pre>
     <p>
 
@@ -850,22 +843,11 @@ name=VT+OMEGA  plot=VT+OMEGA(ff_tangent,omega)   colour=darkgreen vector.unit=1.
 
     <br>Example:
     <pre>
-m=WAM.50KM.00  f=/opdata/wave/wamspec00.dat
-m=WAM.50KM.12  f=/opdata/wave/wamspec12.dat
+m=MyWave_wam4_SPC    f=$(OPDATA4)/MyWavewam_4km/MyWave_wam4_SPC_[yyyymmddTHHZ].nc t=netcdf
     </pre>
     <p>
 
 
-    <a name="UFFDA"></a><h3>Section UFFDA</h3>
-    met.no specific: Menu specification for interactive collocation of AVHRR training data.<br>
-    Contains lines of this type:
-
-    <table border="1" cellpadding="1" cellspacing="0" >
-	<tr><td>Key(s)</td><td>Value</td></tr>
-	<tr><td>mailto=</td><td>mailing address for sending UFFDA messages</td></tr>
-	<tr><td>class=X desc=Y</td><td>X="name of UFFDA class", Y="description of class"</td></tr>
-    </table>
-    <p>
 
 
 <table border="0" cellpadding="3" cellspacing="0" width="100%" >

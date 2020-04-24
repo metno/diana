@@ -763,11 +763,6 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
   // update field dialog when editing field
   connect(em, &EditDialog::emitFieldEditUpdate, fm, &FieldDialog::fieldEditUpdate);
 
-  // resize main window according to the active map area when using
-  // an editing tool
-  connect( em, SIGNAL(emitResize(int, int)),
-      this, SLOT(winResize(int, int)));
-
   // HELP
   connect( stm, SIGNAL(showsource(const std::string, const std::string)),
       help,SLOT(showsource(const std::string, const std::string)));
@@ -1030,11 +1025,6 @@ void DianaMainWindow::setEditDrawingMode(bool enabled)
     editDrawingToolBar->hide();
 
   EditItemManager::instance()->setEditing(enabled);
-}
-
-void DianaMainWindow::winResize(int width, int height)
-{
-  this->resize(width, height);
 }
 
 void DianaMainWindow::resetArea()

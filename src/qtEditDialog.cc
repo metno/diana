@@ -1306,9 +1306,6 @@ void EditDialog::EditNewOk(EditProduct& ep,
   prodtime= time;
   inEdit= true;
 
-  // Resize main window, depending on the map selected for sigkarta
-  if (currprod.winX>0 && currprod.winY>0)
-    emit emitResize(currprod.winX,currprod.winY);
   // update Product and Id label..
   updateLabels();
 

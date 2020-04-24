@@ -231,7 +231,6 @@ private Q_SLOTS:
 
   void zoomOut();
 
-  void winResize(int, int);
   void inEdit(bool);
   void sendPrintClicked(int);
   void toggleEditDrawingMode();

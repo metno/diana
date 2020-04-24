@@ -139,8 +139,6 @@ bool EditManager::parseSetup()
     ep.minutesStartEarly= 0;
     ep.minutesStartLate=  0;
     ep.combineBorders="./ANAborders.";  // default as old version
-    ep.winX=  0;
-    ep.winY=  0;
     ep.autoremove= -1;
 
     if (key=="product" && values.size()==1) {
@@ -157,9 +155,6 @@ bool EditManager::parseSetup()
       if (key=="end.product") {
         nv++;
         break;
-      } else if (key=="drawtools"){
-        for (size_t j=0; j<nval; j++)
-          ep.drawtools.push_back(values[j]);
       } else if (nval==0) {
         // keywords without any values
         if (key != "grid.minimize")
@@ -266,10 +261,6 @@ bool EditManager::parseSetup()
         ep.frontLineWidth = atoi(values[0].c_str());
       } else if (key=="arealinewidth" && nval==1){
         ep.areaLineWidth = atoi(values[0].c_str());
-      } else if (key=="window_x" && nval==1){
-        ep.winX = atoi(values[0].c_str());
-      } else if (key=="window_y" && nval==1){
-        ep.winY = atoi(values[0].c_str());
       } else if (key=="time_start_early" && nval==1){
         vector<std::string> vs= miutil::split(values[0], 0, ":", true);
         if (vs.size()==2) {
@@ -300,8 +291,6 @@ bool EditManager::parseSetup()
         ep.templateFilename = values[0];
       } else if (key=="autoremove" && nval==1 ){
         ep.autoremove = atoi(values[0].c_str());
-      } else if (key == "approved_command" && nval == 1) {
-        ep.approvedCommand = values[0];
       } else {
         ok= false;
       }
@@ -317,11 +306,6 @@ bool EditManager::parseSetup()
       // this sequence is also kept when timesorting
       ep.inputdirs.push_back(ep.local_savedirs[0]);
       ep.combinedirs.push_back(ep.local_savedirs[0]);
-      //HK !!! important ! default drawtools if not specified in setup
-      if (ep.drawtools.empty()) {
-        ep.drawtools.push_back(OBJECTS_ANALYSIS);
-        ep.drawtools.push_back(OBJECTS_SIGMAPS);
-      }
       //read commands(OKstrings) from commandfile
       if (not ep.commandFilename.empty())
         readCommandFile(ep);
@@ -1472,12 +1456,6 @@ void EditManager::writeEditProduct(QString& message, const bool wfield, const bo
           lastfinnished.open(QIODevice::WriteOnly);
           lastfinnished.write(text.c_str());
           lastfinnished.close();
-        }
-        if (!EdProd.approvedCommand.empty()) {
-          METLIBS_LOG_INFO("Approved product - using command: " << LOGVAL(EdProd.approvedCommand));
-          QByteArray output;
-          diutil::execute(QString::fromStdString(EdProd.approvedCommand), QStringList(QString::fromStdString(EdProd.name)), &output);
-          METLIBS_LOG_INFO("Command stdout: " << LOGVAL(output.data()));
         }
       }
     }
@@ -3085,20 +3063,14 @@ void EditManager::setMapmodeinfo(){
   vector<editModeInfo> dMode;
   int emidx=0;
   map <int,object_modes> objectModes;
-  for (const std::string& edt : EdProd.drawtools) {
-    if (edt == OBJECTS_ANALYSIS){
-      dMode.push_back(editModeInfo("Fronts", fronts));
-      objectModes[emidx++]=front_drawing;
-      dMode.push_back(editModeInfo("Symbols", symbols));
-      objectModes[emidx++]=symbol_drawing;
-      dMode.push_back(editModeInfo("Areas", areas));
-      objectModes[emidx++]=area_drawing;
-    }
-    if (edt == OBJECTS_SIGMAPS) {
-      dMode.push_back(editModeInfo("Symbols(SIGWX)", sigsymbols));
-      objectModes[emidx++]=symbol_drawing;
-    }
-  }
+  dMode.push_back(editModeInfo("Fronts", fronts));
+  objectModes[emidx++] = front_drawing;
+  dMode.push_back(editModeInfo("Symbols", symbols));
+  objectModes[emidx++] = symbol_drawing;
+  dMode.push_back(editModeInfo("Areas", areas));
+  objectModes[emidx++] = area_drawing;
+  dMode.push_back(editModeInfo("Symbols(SIGWX)", sigsymbols));
+  objectModes[emidx++] = symbol_drawing;
 
   // combine_mode types
   vector<editToolInfo> regionlines = {{"regioner", 0}};
