@@ -2977,6 +2977,8 @@ void DianaMainWindow::closeEvent(QCloseEvent* event)
 {
   if (!checkQuit())
     event->ignore();
+  else
+    qApp->quit();
 }
 
 bool DianaMainWindow::event(QEvent* event)
