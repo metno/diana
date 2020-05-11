@@ -247,7 +247,7 @@ FieldDialog::FieldDialog(QWidget* parent, FieldDialogData* data)
   levelInMotion = false;
 
   // sliderlabel
-  QLabel *levelsliderlabel = new QLabel(tr("Level"), this);
+  QLabel *levelsliderlabel = new QLabel(tr("Vertical axis"), this);
 
   // Idnum: slider & label for the value
   idnumLabel = new QLabel("EPS.Total", this);
@@ -275,7 +275,7 @@ FieldDialog::FieldDialog(QWidget* parent, FieldDialogData* data)
   idnumInMotion = false;
 
   // sliderlabel
-  QLabel *idnumsliderlabel = new QLabel(tr("Type"), this);
+  QLabel *idnumsliderlabel = new QLabel(tr("Extra axis"), this);
 
   QLabel* unitlabel = new QLabel(tr("Unit"), this);
   unitLineEdit = new QLineEdit(this);
