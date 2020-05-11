@@ -359,13 +359,13 @@
     </message>
     <message>
         <location line="+8"/>
-        <source>Level up</source>
-        <translation>Nivå opp</translation>
+        <source>Vertical level up</source>
+        <translation>Vertikalnivå opp</translation>
     </message>
     <message>
         <location line="+8"/>
-        <source>Level down</source>
-        <translation>Nivå ned</translation>
+        <source>Vertical level down</source>
+        <translation>Vertikalnivå ned</translation>
     </message>
     <message>
         <location line="+271"/>
@@ -434,13 +434,13 @@
     </message>
     <message>
         <location line="-1662"/>
-        <source>EPS cluster/member etc up</source>
-        <translation>EPS cluster/medlem e.l. opp</translation>
+        <source>Extra level up (EPS member, probability, …)</source>
+        <translation>Ekstranivå opp (EPS-medlem, sannsynlighet, …)</translation>
     </message>
     <message>
         <location line="+9"/>
-        <source>EPS cluster/member etc down</source>
-        <translation>EPS cluster/medlem e.l. ned</translation>
+        <source>Extra level down (EPS member, probability, …)</source>
+        <translation>Ekstranivå ned (EPS-medlem, sannsynlighet, …)</translation>
     </message>
     <message>
         <location line="+52"/>
@@ -2179,8 +2179,8 @@ Vil du lagre før du avslutter?</translation>
     </message>
     <message>
         <location line="-612"/>
-        <source>Level</source>
-        <translation>Nivå</translation>
+        <source>Vertical axis</source>
+        <translation>Vertikalakse</translation>
     </message>
     <message>
         <location line="+480"/>
@@ -2189,8 +2189,8 @@ Vil du lagre før du avslutter?</translation>
     </message>
     <message>
         <location line="-452"/>
-        <source>Type</source>
-        <translation>Type</translation>
+        <source>Extra axis</source>
+        <translation>Ekstraakse</translation>
     </message>
     <message>
         <location line="-160"/>

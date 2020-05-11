@@ -398,7 +398,7 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
 
   // other tools ======================
   // --------------------------------------------------------------------
-  toolLevelUpAction = new QAction(QIcon( QPixmap(levelUp_xpm )),tr("Level up"), this );
+  toolLevelUpAction = new QAction(QIcon( QPixmap(levelUp_xpm )),tr("Vertical level up"), this );
   toolLevelUpAction->setShortcutContext(Qt::ApplicationShortcut);
   toolLevelUpAction->setShortcut(Qt::CTRL+Qt::Key_PageUp);
   toolLevelUpAction->setCheckable(false);
@@ -406,7 +406,7 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
   toolLevelUpAction->setIconVisibleInMenu(true);
   connect( toolLevelUpAction, SIGNAL( triggered() ) ,  SLOT( levelUp() ) );
   // --------------------------------------------------------------------
-  toolLevelDownAction = new QAction(QIcon( QPixmap(levelDown_xpm )),tr("Level down"), this );
+  toolLevelDownAction = new QAction(QIcon( QPixmap(levelDown_xpm )),tr("Vertical level down"), this );
   toolLevelDownAction->setShortcutContext(Qt::ApplicationShortcut);
   toolLevelDownAction->setShortcut(Qt::CTRL+Qt::Key_PageDown);
   toolLevelDownAction->setCheckable(false);
@@ -415,7 +415,7 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
   connect( toolLevelDownAction, SIGNAL( triggered() ) ,  SLOT( levelDown() ) );
   // --------------------------------------------------------------------
   toolIdnumUpAction = new QAction(QIcon( QPixmap(idnumUp_xpm )),
-      tr("EPS cluster/member etc up"), this );
+      tr("Extra level up (EPS member, probability, …)"), this );
   toolIdnumUpAction->setShortcutContext(Qt::ApplicationShortcut);
   toolIdnumUpAction->setShortcut(Qt::SHIFT+Qt::Key_PageUp);
   toolIdnumUpAction->setCheckable(false);
@@ -424,7 +424,7 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
   connect( toolIdnumUpAction, SIGNAL( triggered() ) ,  SLOT( idnumUp() ) );
   // --------------------------------------------------------------------
   toolIdnumDownAction = new QAction(QIcon( QPixmap(idnumDown_xpm )),
-      tr("EPS cluster/member etc down"), this );
+      tr("Extra level down (EPS member, probability, …)"), this );
   toolIdnumDownAction->setShortcutContext(Qt::ApplicationShortcut);
   toolIdnumDownAction->setShortcut(Qt::SHIFT+Qt::Key_PageDown);
   toolIdnumDownAction->setEnabled ( false );
