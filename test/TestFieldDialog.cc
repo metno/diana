@@ -226,3 +226,24 @@ TEST(TestFieldDialog, PutGetOKStringSetup)
   expect << " colour=green " << setup_2;
   EXPECT_EQ(expect.str(), cmds_get[0]->toString());
 }
+
+TEST(TestFieldDialog, GetShortNameEmpty)
+{
+  initLinesAndColours();
+  TestFieldDialogData* data = new TestFieldDialogData;
+  std::unique_ptr<FieldDialog> dialog(new FieldDialog(0, data));
+
+  dialog->putOKString(PlotCommand_cpv());
+  EXPECT_EQ(dialog->getShortname(), "");
+}
+
+TEST(TestFieldDialog, GetShortName)
+{
+  initLinesAndColours();
+  TestFieldDialogData* data = new TestFieldDialogData;
+  std::unique_ptr<FieldDialog> dialog(new FieldDialog(0, data));
+
+  const PlotCommand_cpv cmds_put = makeCommands({"FIELD model=" + MODEL1 + " refhour=0 parameter=" + PARAM1 + " colour=green"});
+  dialog->putOKString(cmds_put);
+  EXPECT_EQ(dialog->getShortname(), "<font color=\"#000099\">" + MODEL1 + " " + PARAM1 + "</font>");
+}

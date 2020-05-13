@@ -2903,25 +2903,30 @@ std::string FieldDialog::getShortname()
   // AC: simple version for testing...the shortname could perhaps
   // be made in getOKString?
 
-  std::string name;
-  int n = selectedFields.size();
+  const int n = selectedFields.size();
+  if (n <= numEditFields)
+    return std::string();
+
   ostringstream ostr;
   std::string pmodelName;
   bool fielddiff = false, paramdiff = false, leveldiff = false;
 
+  ostr << "<font color=\"#000099\">";
   for (int i = numEditFields; i < n; i++) {
-    std::string modelName = selectedFields[i].modelName;
-    std::string fieldName = selectedFields[i].fieldName;
-    std::string level = selectedFields[i].level;
-    std::string idnum = selectedFields[i].idnum;
+    SelectedField& sf = selectedFields[i];
+    const std::string& modelName = sf.modelName;
+    const std::string& fieldName = sf.fieldName;
+    const std::string& level = sf.level;
+    const std::string& idnum = sf.idnum;
 
     //difference field
     if (i < n - 1 && selectedFields[i + 1].minus) {
+      SelectedField& sfm = selectedFields[i + 1];
 
-      std::string modelName2 = selectedFields[i + 1].modelName;
-      std::string fieldName2 = selectedFields[i + 1].fieldName;
-      std::string level_2 = selectedFields[i + 1].level;
-      std::string idnum_2 = selectedFields[i + 1].idnum;
+      const std::string& modelName2 = sfm.modelName;
+      const std::string& fieldName2 = sfm.fieldName;
+      const std::string& level_2 = sfm.level;
+      const std::string& idnum_2 = sfm.idnum;
 
       fielddiff = (modelName != modelName2);
       paramdiff = (fieldName != fieldName2);
@@ -2942,16 +2947,16 @@ std::string FieldDialog::getShortname()
       if (!fielddiff || (fielddiff && paramdiff) || (fielddiff && leveldiff))
         ostr << " " << fieldName;
 
-      if (!selectedFields[i].level.empty()) {
+      if (!sf.level.empty()) {
         if (!fielddiff && !paramdiff)
-          ostr << " ( " << selectedFields[i].level;
+          ostr << " ( " << sf.level;
         else if ((fielddiff || paramdiff) && leveldiff)
-          ostr << " " << selectedFields[i].level;
+          ostr << " " << sf.level;
       }
-      if (!selectedFields[i].idnum.empty() && leveldiff)
-        ostr << " " << selectedFields[i].idnum;
+      if (!sf.idnum.empty() && leveldiff)
+        ostr << " " << sf.idnum;
 
-    } else if (selectedFields[i].minus) {
+    } else if (sf.minus) {
       ostr << " - ";
 
       if (fielddiff) {
@@ -2964,12 +2969,12 @@ std::string FieldDialog::getShortname()
       else if (paramdiff || (fielddiff && leveldiff))
         ostr << " " << fieldName;
 
-      if (!selectedFields[i].level.empty()) {
+      if (!sf.level.empty()) {
         if (!leveldiff && paramdiff)
           ostr << " )";
-        ostr << " " << selectedFields[i].level;
-        if (!selectedFields[i].idnum.empty())
-          ostr << " " << selectedFields[i].idnum;
+        ostr << " " << sf.level;
+        if (!sf.idnum.empty())
+          ostr << " " << sf.idnum;
         if (leveldiff)
           ostr << " )";
       } else {
@@ -2990,17 +2995,14 @@ std::string FieldDialog::getShortname()
 
       ostr << " " << fieldName;
 
-      if (!selectedFields[i].level.empty())
-        ostr << " " << selectedFields[i].level;
-      if (!selectedFields[i].idnum.empty())
-        ostr << " " << selectedFields[i].idnum;
+      if (!sf.level.empty())
+        ostr << " " << sf.level;
+      if (!sf.idnum.empty())
+        ostr << " " << sf.idnum;
     }
   }
-
-  if (n > 0)
-    name = "<font color=\"#000099\">" + ostr.str() + "</font>";
-
-  return name;
+  ostr << "</font>";
+  return ostr.str();
 }
 
 bool FieldDialog::levelsExists(bool up, int type)
