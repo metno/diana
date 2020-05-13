@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -40,6 +40,8 @@
 class FieldDialogData
 {
 public:
+  typedef std::map<std::string, std::string> attributes_t;
+
   virtual ~FieldDialogData();
 
   /// return model/file groups and contents
@@ -49,7 +51,7 @@ public:
   virtual void getFieldPlotGroups(const std::string& modelName, const std::string& refTime, bool predefinedPlots, FieldPlotGroupInfo_v& vfgi) = 0;
 
   /// return GlobalAttributes for one model
-  virtual std::string getFieldGlobalAttribute(const std::string& modelName, const std::string& refTime, const std::string& attribute) = 0;
+  virtual attributes_t getFieldGlobalAttributes(const std::string& modelName, const std::string& refTime) = 0;
 
   /// return the reference time given by refOffset and refhour or the last reference time for the given model
   virtual std::string getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour) = 0;

@@ -2828,10 +2828,11 @@ void FieldDialog::getFieldGroups(const std::string& modelName, const std::string
   { diutil::OverrideCursor waitCursor;
     m_data->getFieldPlotGroups(modelName, refTime, predefinedPlots, vfg);
     QString tooltip;
+    const auto global_attributes = m_data->getFieldGlobalAttributes(modelName, refTime);
     for (const char* const* mga : modelGlobalAttributes) {
-      const std::string a = m_data->getFieldGlobalAttribute(modelName, refTime, mga[0]);
-      if (!a.empty()) {
-        tooltip += QString("<tr><td>%1</td><td>%2</td></tr>").arg(tr(mga[1]), QString::fromStdString(a));
+      const auto ita = global_attributes.find(mga[0]);
+      if (ita != global_attributes.end()) {
+        tooltip += QString("<tr><td>%1</td><td>%2</td></tr>").arg(tr(mga[1]), QString::fromStdString(ita->second));
       }
     }
     if (!tooltip.isEmpty())

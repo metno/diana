@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -41,7 +41,7 @@ public:
 
   FieldModelGroupInfo_v getFieldModelGroups() override;
   void getFieldPlotGroups(const std::string& modelName, const std::string& refTime, bool predefinedPlots, FieldPlotGroupInfo_v& vfgi) override;
-  std::string getFieldGlobalAttribute(const std::string& modelName, const std::string& refTime, const std::string& attribute) override;
+  attributes_t getFieldGlobalAttributes(const std::string& modelName, const std::string& refTime) override;
   std::string getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour) override;
   plottimes_t getFieldTime(std::vector<FieldRequest>& request) override;
   std::set<std::string> getFieldReferenceTimes(const std::string& model) override;

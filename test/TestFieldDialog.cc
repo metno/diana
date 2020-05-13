@@ -48,7 +48,7 @@ public:
   TestFieldDialogData();
 
   FieldModelGroupInfo_v getFieldModelGroups() override { return fieldModelGroups; }
-  std::string getFieldGlobalAttribute(const std::string& /*model*/, const std::string& /*refTime*/, const std::string& /*attribute*/) override { return ""; }
+  attributes_t getFieldGlobalAttributes(const std::string& /*model*/, const std::string& /*refTime*/) override { return attributes_t(); }
   std::set<std::string> getFieldReferenceTimes(const std::string& m) override { return fieldReferenceTimes[m]; }
   std::string getBestFieldReferenceTime(const std::string& m, int ro, int rh) override { return ::getBestReferenceTime(getFieldReferenceTimes(m), ro, rh); }
   void getSetupFieldOptions(std::map<std::string, miutil::KeyValue_v>& fieldoptions) override { fieldoptions = setupFieldOptions; }
