@@ -38,6 +38,8 @@
 #include "util/charsets.h"
 #include "util/string_util.h"
 
+#include <mi_fieldcalc/math_util.h>
+
 #include <puTools/miStringFunctions.h>
 
 #include <QString>
@@ -635,13 +637,15 @@ bool AnnotationPlot::plotElements(DiGLPainter* gl,
       ig.plotImage(gl, getStaticPlot()->plotArea(), e.eImage, x + wid / 2, y + hei / 2, true, scale, e.eAlpha);
     } else if (e.eType == table) {
       hei = e.classplot->height(gl);
-      if (poptions.v_align == align_top)
-        e.classplot->plotLegend(gl, x, y + annoHeight);
-      else if (poptions.v_align == align_center)
-        e.classplot->plotLegend(gl, x, y + (annoHeight + hei) / 2.);
-      else
-        e.classplot->plotLegend(gl, x, y + hei);
       wid = e.classplot->width(gl);
+      float dy;
+      if (poptions.v_align == align_top)
+        dy = annoHeight;
+      else if (poptions.v_align == align_center)
+        dy = (annoHeight + hei) / 2.0;
+      else
+        dy = hei;
+      e.classplot->plotLegend(gl, x, y + dy);
     } else if (e.eType == arrow) {
       wid = plotArrow(gl, x, y, e.arrowLength, e.arrowFeather);
     }
@@ -746,12 +750,10 @@ void AnnotationPlot::getAnnoSize(DiGLPainter* gl,
 
     if (horizontal) {
       width += w;
-      if (h > height)
-        height = h;
+      miutil::maximize(height, h);
     } else {
       height += h;
-      if (w > width)
-        width = w;
+      miutil::maximize(width, w);
     }
     e.width = w;
     e.height = h;
@@ -788,10 +790,8 @@ void AnnotationPlot::getXYBox(DiGLPainter* gl)
     a.wid = wid;
     a.hei = hei;
 
-    if (wid > maxwid)
-      maxwid = wid;
-    if (hei > maxhei)
-      maxhei = hei;
+    miutil::maximize(maxwid, wid);
+    miutil::maximize(maxhei, hei);
     totalhei += hei;
     if (a.spaceLine)
       totalhei -= (hei + spacing) / 2;
@@ -1047,20 +1047,19 @@ vector<std::string> AnnotationPlot::split(const std::string eString, const char 
    anything inside " " is ignored as delimiters
    f.ex. <"this is also > an entry">
    */
-  int stop, start, stop2, start2, len;
   vector<std::string> vec;
 
   if (eString.empty())
     return vec;
 
-  len = eString.length();
-  start = eString.find_first_of(s1, 0) + 1;
+  const int len = eString.length();
+  int start = eString.find_first_of(s1, 0) + 1;
   while (start >= 1 && start < len) {
-    start2 = eString.find_first_of('"', start);
-    stop = eString.find_first_of(s2, start);
+    int start2 = eString.find_first_of('"', start);
+    int stop = eString.find_first_of(s2, start);
     while (start2 > -1 && start2 < stop) {
       // search for second ", which should come before >
-      stop2 = eString.find_first_of('"', start2 + 1);
+      const int stop2 = eString.find_first_of('"', start2 + 1);
       if (stop2 > -1) {
         start2 = eString.find_first_of('"', stop2 + 1);
         stop = eString.find_first_of(s2, stop2 + 1);
