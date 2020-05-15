@@ -299,13 +299,12 @@ gridinventory::Grid GridCollection::getGrids() const
  */
 std::set<std::string> GridCollection::getReferenceTimes() const
 {
-  if (not refTimes.empty())
+  if (!refTimes.empty())
     return refTimes;
+
   std::set<std::string> reftimes;
-  const Inventory::reftimes_t& m_reftimes = inventory.reftimes;
-  for(Inventory::reftimes_t::const_iterator it_r = m_reftimes.begin(); it_r != m_reftimes.end(); ++it_r) {
-    reftimes.insert(it_r->first);
-  }
+  for (const auto& ir : inventory.reftimes)
+    reftimes.insert(ir.first);
   return reftimes;
 }
 
