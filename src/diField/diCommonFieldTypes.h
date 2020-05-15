@@ -69,6 +69,7 @@ struct FieldPlotInfo
   const std::string& vcoord() const { return vertical_axis.name; }
   const std::string& ecoord() const { return realization_axis.name; };
 };
+typedef std::shared_ptr<const FieldPlotInfo> FieldPlotInfo_cp;
 typedef std::vector<FieldPlotInfo> FieldPlotInfo_v;
 
 /**
