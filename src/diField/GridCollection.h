@@ -254,7 +254,7 @@ private:
   void addComputedParameters();
   bool getAllFields_timeInterval(Field_pv& vfield, FieldRequest fieldrequest, int fch, bool accumulate_flux);
   bool getAllFields(Field_pv& vfield, FieldRequest fieldrequest, const std::vector<float>& constants);
-  bool multiplyFieldByTimeStep(Field_p f, float sec_diff);
+  static bool multiplyFieldByTimeStep(Field_p f, float sec_diff);
 };
 
 #endif /* GRIDCOLLECTION_H_ */

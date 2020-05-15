@@ -1119,6 +1119,7 @@ bool GridCollection::getAllFields(Field_pv& vfield, FieldRequest fieldrequest, c
   return true;
 }
 
+// static
 bool GridCollection::multiplyFieldByTimeStep(Field_p f, float sec_diff)
 {
   const vector<float> constants(1, sec_diff);
