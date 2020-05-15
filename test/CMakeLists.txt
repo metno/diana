@@ -92,6 +92,7 @@ SET (dianaUnitTests_SOURCES
   TestCommandParser.cc
   TestDianaLevels.cc
   TestFieldUtil.cc
+  TestGridIO.cc
   TestImageIO.cc
   TestLogFileIO.cc
   TestObsReaderAscii.cc
