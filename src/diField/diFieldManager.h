@@ -73,7 +73,7 @@ public:
   bool updateFileSetup(const std::vector<std::string>& lines,
       std::vector<std::string>& errors, bool clearSources = false, bool top = false);
 
-  /// add new model to filesetup
+  /// add new model to filesetup -- only used from unit tests
   bool addModels(const std::vector<std::string>& configInfo);
 
   bool addGridCollection(const std::string& fileType,
