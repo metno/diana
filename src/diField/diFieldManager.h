@@ -67,8 +67,6 @@ public:
   /// read Field sections in setup
   bool parseSetup();
 
-  void setFieldNames(const std::vector<std::string>& vfieldname);
-
   /// parse <FIELD_FILES> from setup, or updates
   bool updateFileSetup(const std::vector<std::string>& lines,
       std::vector<std::string>& errors, bool clearSources = false, bool top = false);

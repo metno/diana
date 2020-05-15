@@ -120,9 +120,6 @@ private:
   /// update static fieldplotoptions
   bool updateFieldPlotOptions(const std::string& name, const miutil::KeyValue_v& optstr);
 
-  /// return lists of inputfields
-  std::vector<std::string> getFields();
-
   std::vector<FieldRequest> getParamNames(const std::string& plotName, FieldRequest fieldrequest);
 
   void parseString(FieldPlotCommand_cp cmd, const FieldPlotCommand::FieldSpec& fs, FieldRequest& fieldrequest, std::vector<std::string>& paramNames,

@@ -95,7 +95,6 @@ bool FieldPlotManager::parseSetup()
     return false;
   if (!parseFieldGroupSetup())
     return false;
-  fieldManager->setFieldNames(getFields());
   return true;
 }
 
@@ -373,17 +372,6 @@ vector<std::string> FieldPlotManager::splitComStr(const std::string& s, bool spl
   }
 
   return tmp;
-}
-
-vector<std::string> FieldPlotManager::getFields()
-{
-  set<std::string> paramSet;
-  for (const auto& pf : vPlotField) {
-    for (const auto& input : pf->input)
-      paramSet.insert(input.name);
-  }
-
-  return vector<std::string>(paramSet.begin(), paramSet.end());
 }
 
 plottimes_t FieldPlotManager::getFieldTime(const std::vector<FieldPlotCommand_cp>& pinfos, bool updateSources)

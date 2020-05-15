@@ -58,9 +58,6 @@ using namespace std;
 // static data (setup)
 vector<FieldFunctions::FieldCompute> FieldFunctions::vFieldCompute;
 
-vector<std::string> FieldFunctions::vFieldName;
-map<std::string,int> FieldFunctions::mFieldName;
-
 map< std::string, FieldFunctions::Zaxis_info > FieldFunctions::Zaxis_info_map;
 
 FieldFunctions::FieldFunctions()
@@ -524,13 +521,6 @@ bool FieldFunctions::parseComputeSetup(const vector<std::string>& lines, vector<
     }
   }
 
-  for (size_t n = 0; n < vFieldCompute.size(); n++) {
-    if (!mFieldName.count(vFieldCompute[n].name)) {
-      mFieldName[vFieldCompute[n].name] = vFieldName.size();
-      vFieldName.push_back(vFieldCompute[n].name);
-    }
-  }
-
   return true;
 }
 
@@ -609,14 +599,6 @@ bool FieldFunctions::splitFieldSpecs(const std::string& paramName,FieldSpec& fs)
   }
 
   return levelSpecified;
-}
-
-void FieldFunctions::setFieldNames(const vector<std::string>& vfieldname)
-{
-  vFieldName = vfieldname;
-  for(size_t i=0;i<vfieldname.size();i++) {
-    mFieldName[vfieldname[i]]=i;
-  }
 }
 
 // static

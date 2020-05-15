@@ -162,11 +162,6 @@ bool FieldManager::parseSetup(const std::vector<std::string>& lines,
   return true;
 }
 
-void FieldManager::setFieldNames(const std::vector<std::string>& vfieldname)
-{
-  FieldFunctions::setFieldNames(vfieldname);
-}
-
 bool FieldManager::updateFileSetup(const std::vector<std::string>& lines,
     std::vector<std::string>& errors, bool clearSources, bool top)
 {

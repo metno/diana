@@ -427,8 +427,6 @@ public:
 
   static bool splitFieldSpecs(const std::string& paramName, FieldSpec& fs);
 
-  static void setFieldNames(const std::vector<std::string>& vfieldname);
-
   /// return true if funcion includes several times steps
   static bool isTimeStepFunction(Function f);
 
@@ -442,9 +440,6 @@ private:
   static bool mapTimeStepFunction(Function& f);
 
 private:
-  static std::vector<std::string> vFieldName;
-  static std::map<std::string, int> mFieldName;
-
   static std::vector<FieldCompute> vFieldCompute;
 
   static std::map<std::string, Zaxis_info> Zaxis_info_map;
