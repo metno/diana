@@ -519,62 +519,55 @@ gridinventory::Grid FieldManager::getGrid(const std::string& modelName)
   return grid;
 }
 
-plottimes_t FieldManager::getFieldTime(const std::vector<FieldRequest>& fieldrequest, bool updateSource)
+plottimes_t FieldManager::getFieldTime(const FieldRequest& frq, bool updateSources)
 {
-  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_SCOPE(LOGVAL(frq.modelName) << LOGVAL(frq.refTime) << LOGVAL(frq.paramName) << LOGVAL(frq.zaxis) << LOGVAL(frq.plevel));
+  plottimes_t times;
 
-  plottimes_t tNormal, tn;
-  bool allTimeSteps = true;
+  if (GridCollectionPtr pgc = getGridCollection(frq.modelName, frq.refTime, updateSources)) {
+    // if fieldrequest.paramName is a standard_name, find variable_name (times will be empty if translation to variable name fails)
+    std::string paramName = frq.paramName;
+    if (!frq.standard_name || pgc->standardname2variablename(frq.refTime, frq.paramName, paramName))
+      times = pgc->getTimes(frq.refTime, paramName);
 
-  for (const FieldRequest& frq : fieldrequest) {
-    allTimeSteps &= frq.allTimeSteps;
-
-    METLIBS_LOG_DEBUG(LOGVAL(frq.modelName) << LOGVAL(frq.refTime) << LOGVAL(frq.paramName) << LOGVAL(frq.zaxis) << LOGVAL(frq.plevel));
-
-    GridCollectionPtr pgc = getGridCollection(frq.modelName, frq.refTime, updateSource);
-    if (pgc) {
-
-      std::string refTimeStr = frq.refTime;
-       if (refTimeStr.empty()) {
-         refTimeStr = getBestReferenceTime(frq.modelName, frq.refoffset, frq.refhour);
-         pgc = getGridCollection(frq.modelName, refTimeStr, false);
-       }
-
-      std::string paramName = frq.paramName;
-      // if fieldrequest.paramName is a standard_name, find variable_name
-      if (frq.standard_name) {
-        if (!pgc->standardname2variablename(refTimeStr, frq.paramName, paramName))
-          continue;
+    if (frq.hourOffset != 0 || frq.minOffset != 0) {
+      plottimes_t times_with_offset;
+      for (miTime t : times) {
+        t.addHour(-frq.hourOffset);
+        t.addMin(-frq.minOffset);
+        times_with_offset.insert(t);
       }
-      tNormal = pgc->getTimes(refTimeStr, paramName);
-    }
-    METLIBS_LOG_DEBUG(LOGVAL(tNormal.size()));
-
-    if (!tNormal.empty() ) {
-      if ((frq.hourOffset != 0 || frq.minOffset != 0)) {
-        plottimes_t twork;
-        for (miTime tt : tNormal) {
-          tt.addHour(-frq.hourOffset);
-          tt.addMin(-frq.minOffset);
-          twork.insert(tt);
-        }
-        tNormal = std::move(twork);
-      }
-      if (allTimeSteps) {
-        diutil::insert_all(tn, tNormal);
-      } else if (!tNormal.empty()) {
-        if (tn.empty()) {
-          tn = tNormal;
-        } else {
-          plottimes_t twork;
-          set_intersection(tn.begin(), tn.end(), tNormal.begin(), tNormal.end(), std::insert_iterator<plottimes_t>(twork, twork.begin()));
-          tn = std::move(twork);
-        }
-      }
+      times = std::move(times_with_offset);
     }
   }
 
-  return tn;
+  METLIBS_LOG_DEBUG(LOGVAL(times.size()));
+  return times;
+}
+
+plottimes_t FieldManager::getFieldTime(const std::vector<FieldRequest>& fieldrequests, bool updateSources)
+{
+  METLIBS_LOG_SCOPE();
+
+  plottimes_t all_times;
+  bool allTimeSteps = true;
+
+  for (const FieldRequest& frq : fieldrequests) {
+    allTimeSteps &= frq.allTimeSteps;
+
+    const plottimes_t frq_times = getFieldTime(frq, updateSources);
+    if (allTimeSteps) {
+      diutil::insert_all(all_times, frq_times);
+    } else if (all_times.empty()) {
+      all_times = frq_times;
+    } else if (!frq_times.empty()) {
+      plottimes_t twork;
+      set_intersection(all_times.begin(), all_times.end(), frq_times.begin(), frq_times.end(), std::insert_iterator<plottimes_t>(twork, twork.begin()));
+      all_times = std::move(twork);
+    }
+  }
+
+  return all_times;
 }
 
 std::set<std::string> FieldManager::getReferenceTimes(const std::string& modelName)

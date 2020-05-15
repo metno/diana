@@ -92,7 +92,8 @@ public:
   gridinventory::Grid getGrid(const std::string& modelName);
 
   /// return available times for the requested models and fields
-  plottimes_t getFieldTime(const std::vector<FieldRequest>& fieldrequest, bool updateSource = false);
+  plottimes_t getFieldTime(const std::vector<FieldRequest>& fieldrequests, bool updateSources);
+  plottimes_t getFieldTime(const FieldRequest& fieldrequest, bool updateSources);
 
   /// return the reference time, time of analysis if a forecast
   std::set<std::string> getReferenceTimes(const std::string& modelName);
