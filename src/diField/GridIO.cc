@@ -1,6 +1,33 @@
 /*
- * GridIO.cc
- *
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2010-2020 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+
+/*
  *  Created on: Mar 11, 2010
  *      Author: audunc
  */
@@ -9,14 +36,20 @@
 
 #include "diField/diFieldUtil.h"
 
-#include <boost/algorithm/string/split.hpp>
-#include <boost/bind.hpp>
-#include <boost/range/algorithm/find_if.hpp>
-
 #define MILOGGER_CATEGORY "diField.GridIO"
 #include "miLogger/miLogging.h"
 
 using namespace std;
+
+namespace {
+
+template <class C>
+typename C::const_iterator find_name(const C& c, const std::string& name)
+{
+  return std::find_if(c.begin(), c.end(), [&](const typename C::value_type& v) { return v.getName() == name; });
+}
+
+} // namespace
 
 GridIO::GridIO()
 {
@@ -50,11 +83,9 @@ std::set<std::string> GridIO::getReferenceTimes() const
 {
   using namespace gridinventory;
   std::set<std::string> reftimes;
-  for(gridinventory::Inventory::reftimes_t::const_iterator it_ri = inventory.reftimes.begin(); it_ri != inventory.reftimes.end(); ++it_ri) {
-    const gridinventory::ReftimeInventory& ri = it_ri->second;
-    if ((limit_min.empty() || limit_max.empty())
-        || (ri.referencetime >= limit_min && ri.referencetime <= limit_max))
-    {
+  for (const auto& ir : inventory.reftimes) {
+    const gridinventory::ReftimeInventory& ri = ir.second;
+    if ((limit_min.empty() || limit_max.empty()) || (ri.referencetime >= limit_min && ri.referencetime <= limit_max)) {
       reftimes.insert(ri.referencetime);
     }
   }
@@ -80,7 +111,7 @@ const gridinventory::ReftimeInventory& GridIO::findModelAndReftime(const std::st
 const gridinventory::Grid& GridIO::getGrid(const std::string & reftime, const std::string & grid)
 {
   const gridinventory::ReftimeInventory& rti = findModelAndReftime(reftime);
-  const std::set<gridinventory::Grid>::const_iterator gitr = boost::find_if(rti.grids, boost::bind(&gridinventory::Grid::getName, _1) == grid);
+  const auto gitr = find_name(rti.grids, grid);
   if (gitr != rti.grids.end()) {
     return *gitr;
   }
@@ -95,7 +126,7 @@ const gridinventory::Zaxis& GridIO::getZaxis(const std::string & reftime, const 
 {
   using namespace gridinventory;
   const ReftimeInventory& rti = findModelAndReftime(reftime);
-  const std::set<Zaxis>::const_iterator zaitr = boost::find_if(rti.zaxes, boost::bind(&Zaxis::getName, _1) == zaxis);
+  const auto zaitr = find_name(rti.zaxes, zaxis);
   if (zaitr != rti.zaxes.end())
     return *zaitr;
   static const gridinventory::Zaxis EMPTY_ZAXIS;
@@ -109,7 +140,7 @@ const gridinventory::Taxis& GridIO::getTaxis(const std::string & reftime, const 
 {
   using namespace gridinventory;
   const ReftimeInventory& rti = findModelAndReftime(reftime);
-  const std::set<Taxis>::const_iterator taitr = boost::find_if(rti.taxes, boost::bind(&Taxis::getName, _1) == taxis);
+  const auto taitr = find_name(rti.taxes, taxis);
   if (taitr != rti.taxes.end())
     return *taitr;
   static const gridinventory::Taxis EMPTY_TAXIS;
@@ -123,7 +154,7 @@ const gridinventory::ExtraAxis& GridIO::getExtraAxis(const std::string & reftime
 {
   using namespace gridinventory;
   const ReftimeInventory& rti = findModelAndReftime(reftime);
-  const std::set<ExtraAxis>::const_iterator xit = boost::find_if(rti.extraaxes, boost::bind(&ExtraAxis::getName, _1) == extraaxis);
+  const auto xit = find_name(rti.extraaxes, extraaxis);
   if (xit != rti.extraaxes.end())
     return *xit;
   static const gridinventory::ExtraAxis EMPTY_EXTRAAXIS;
