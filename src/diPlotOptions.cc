@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -930,51 +930,6 @@ vector<float> PlotOptions::autoExpandFloatVector(const std::string& str)
   }
 
   return values;
-}
-
-void addOption(miutil::KeyValue_v& ostr, const std::string& key, bool value)
-{
-  ostr.push_back(miutil::KeyValue(key, value ? TRUE : FALSE));
-}
-
-void addOption(miutil::KeyValue_v& ostr, const std::string& key, int value)
-{
-  ostr.push_back(miutil::KeyValue(key, miutil::from_number(value)));
-}
-
-void addOption(miutil::KeyValue_v& ostr, const std::string& key, float value)
-{
-  ostr.push_back(miutil::KeyValue(key, miutil::from_number(value)));
-}
-
-void addOption(miutil::KeyValue_v& ostr, const std::string& key, const std::string& value)
-{
-  ostr.push_back(miutil::KeyValue(key, value));
-}
-
-void addOption(miutil::KeyValue_v& ostr, const std::string& key, const char* value)
-{
-  ostr.push_back(miutil::KeyValue(key, value));
-}
-
-void addOption(miutil::KeyValue_v& ostr, const std::string& key, const std::vector<float>& values)
-{
-  std::ostringstream ov;
-  std::vector<float>::const_iterator it = values.begin();
-  ov << *it++;
-  for (; it != values.end(); ++it)
-    ov << ',' << *it;
-  addOption(ostr, key, ov.str());
-}
-
-void addOption(miutil::KeyValue_v& ostr, const std::string& key, const std::vector<std::string>& values)
-{
-  std::ostringstream ov;
-  std::vector<std::string>::const_iterator it = values.begin();
-  ov << *it++;
-  for (; it != values.end(); ++it)
-    ov << ',' << *it;
-  addOption(ostr, key, ov.str());
 }
 
 miutil::KeyValue_v PlotOptions::toKeyValueListForAnnotation() const
