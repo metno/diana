@@ -110,6 +110,7 @@ PlotModule::PlotModule()
 PlotModule::~PlotModule()
 {
   cleanup();
+  self = nullptr;
 }
 
 void PlotModule::setCanvas(DiCanvas* canvas)
