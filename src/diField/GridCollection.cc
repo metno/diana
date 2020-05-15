@@ -53,10 +53,7 @@
 #include <puTools/miString.h>
 #include <puTools/TimeFilter.h>
 
-#include <boost/algorithm/string.hpp>
-#include <boost/bind.hpp>
 #include <boost/range/adaptor/reversed.hpp>
-#include <boost/range/algorithm/find_if.hpp>
 
 #define MILOGGER_CATEGORY "diField.GridCollection"
 #include "miLogger/miLogging.h"

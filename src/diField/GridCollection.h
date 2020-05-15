@@ -76,12 +76,6 @@ public:
   bool makeInventory(const std::string& refTime);
 
   /**
-   * check if any sources has changed
-   * @return status
-   */
-  bool sourcesChanged();
-
-  /**
    * Check inventory
    * @return true if inventory is ok,  or if refTimes are ok when only refTimes are asked for
    */
@@ -90,23 +84,6 @@ public:
     return ((refTime.empty() && inventoryOK.size()) || (inventoryOK.count(refTime) && inventoryOK[refTime]));
   }
 
-  /**
-   * Get the combined inventory
-   * @return the collection inventory
-   */
-  const gridinventory::Inventory & getInventory() const
-  {
-    return inventory;
-  }
-
-  /**
-   * Get the inventory with the calculated parameters
-   * @return the  compute inventory
-   */
-  const gridinventory::ReftimeInventory & getComputedInventory() const
-  {
-    return computed_inventory;
-  }
 
   /**
    * Get the reference times for a specific model
@@ -114,68 +91,11 @@ public:
    */
   std::set<std::string> getReferenceTimes() const;
 
-  bool useTimeFromFilename() const
-  {
-    return timeFromFilename;
-  }
-
-  std::set<miutil::miTime>  getTimesFromFilename() const
-  {
-    return timesFromFilename;
-  }
-
   /**
    * Get the Grid for a specific model
    * @return gridinventory::Grid
    */
   gridinventory::Grid getGrids() const;
-
-  /**
-   *
-   * @return name of collection
-   */
-  std::string getName() const
-  {
-    return collectionname;
-  }
-
-  /**
-   * Check if data exists
-   * @param reference time
-   * @param parameter name
-   * @param grid specification
-   * @param vertical coordinate
-   * @param time axis
-   * @param extraaxis
-   * @param version
-   * @param level
-   * @param time
-   * @param elevel
-   * @param time_tolerance in minutes
-   * @param return GridParameter param if data found
-   * @param return actualtime, may differ from time if time_tolerance != 0
-   * @return true/false
-   */
-  const gridinventory::GridParameter* dataExists(const std::string& reftime, const std::string& paramname);
-
-  /**
-   * Get data slice
-   * @param reftime
-   * @param paramname
-   * @param grid
-   * @param zaxis
-   * @param taxis
-   * @param extraaxis
-   * @param version
-   * @param level
-   * @param time
-   * @param elevel
-   * @param time_tolerance in minutes
-   * @param return actualtime, may differ from time if time_tolerance != 0
-   * @return field pointer
-   */
-  Field_p getData(const std::string& reftime, const std::string& paramname, const std::string& zaxis, const std::string& taxis, const std::string& extraaxis,
-                  const std::string& level, const miutil::miTime& time, const std::string& elevel, const std::string& unit, const int& time_tolerance);
 
   vcross::Values_p getVariable(const std::string& reftime, const std::string& paramname);
 
@@ -183,12 +103,6 @@ public:
 
   bool putData(const std::string& reftime, const std::string& paramname, const std::string& level, const miutil::miTime& time, const std::string& run,
                const std::string& unit, const std::string& output_time, const Field_cp field);
-
-  /**
-   * Get a list of raw sources.
-   * @return vector of strings
-   */
-  const std::vector<std::string>& getRawSources() const { return rawsources; }
 
   /**
    * Updates the information held about the data sources.
@@ -235,6 +149,54 @@ private:
   typedef std::vector<GridIO*> gridsources_t;
   gridsources_t gridsources;
   std::map<miutil::miTime, GridIO*> gridsourcesTimeMap;
+
+  bool useTimeFromFilename() const { return timeFromFilename; }
+
+  std::set<miutil::miTime> getTimesFromFilename() const { return timesFromFilename; }
+
+  /**
+   * Check if data exists
+   * @param reference time
+   * @param parameter name
+   * @param grid specification
+   * @param vertical coordinate
+   * @param time axis
+   * @param extraaxis
+   * @param version
+   * @param level
+   * @param time
+   * @param elevel
+   * @param time_tolerance in minutes
+   * @param return GridParameter param if data found
+   * @param return actualtime, may differ from time if time_tolerance != 0
+   * @return true/false
+   */
+  const gridinventory::GridParameter* dataExists(const std::string& reftime, const std::string& paramname);
+
+  /**
+   * Get data slice
+   * @param reftime
+   * @param paramname
+   * @param grid
+   * @param zaxis
+   * @param taxis
+   * @param extraaxis
+   * @param version
+   * @param level
+   * @param time
+   * @param elevel
+   * @param time_tolerance in minutes
+   * @param return actualtime, may differ from time if time_tolerance != 0
+   * @return field pointer
+   */
+  Field_p getData(const std::string& reftime, const std::string& paramname, const std::string& zaxis, const std::string& taxis, const std::string& extraaxis,
+                  const std::string& level, const miutil::miTime& time, const std::string& elevel, const std::string& unit, const int& time_tolerance);
+
+  /**
+   * check if any sources has changed
+   * @return status
+   */
+  bool sourcesChanged();
 
   /// unpack the raw sources and make one or more GridIO instances
   bool makeGridIOinstances();
