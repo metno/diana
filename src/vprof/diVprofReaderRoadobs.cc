@@ -164,7 +164,7 @@ VprofValues_cpv VprofDataRoadobs::getValues(const VprofValuesRequest& req)
 
   METLIBS_LOG_SCOPE(req.name << "  " << req.time << "  " << getModelName());
   METLIBS_LOG_DEBUG(LOGVAL(getTimes().size()) << LOGVAL(mStations.size()));
-  METLIBS_LOG_DEBUG("Parameters: " << db_connectfile << "," << getStationsFileName() << "," << db_parameterfile << "," << time);
+  METLIBS_LOG_DEBUG("Parameters: " << db_connectfile << "," << getStationsFileName() << "," << db_parameterfile << "," << req.time);
 
 #ifdef ROADOBS
   try {
