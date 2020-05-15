@@ -42,6 +42,7 @@
 #include "util/misc_util.h"
 
 #include <mi_fieldcalc/MetConstants.h>
+#include <mi_fieldcalc/math_util.h>
 
 #include <puTools/miStringFunctions.h>
 
@@ -629,18 +630,16 @@ bool FieldManager::makeDifferenceFields(Field_pv& fv1, Field_pv& fv2)
 {
   unsigned int dim = fv1.size();
   if (fv2.size() != dim)
-    return false; // must have same dimentions
+    return false; // must have same dimensions
+
+  bool res = true;
 
   //change projection
   const GridArea& area1 = fv1[0]->area;
   const GridArea& area2 = fv2[0]->area;
-  const bool differentGrid = (area1 != area2);
-  bool res = true;
-  if (differentGrid) {
-    unsigned int j = 0;
-    while (res && j < dim) {
+  if (area1 != area2) {
+    for (unsigned int j = 0; res && j < dim; ++j) {
       res = fv2[j]->changeGrid(area1, false);
-      j++;
     }
     if (res && dim == 2) {
       float *x, *y;
@@ -651,18 +650,13 @@ bool FieldManager::makeDifferenceFields(Field_pv& fv1, Field_pv& fv2)
   }
 
   //Subtract fields
-  unsigned int j = 0;
-  while (res && j < dim) {
+  for (unsigned int j = 0; res && j < dim; ++j) {
     res = fv1[j]->subtract(*(fv2[j]));
-    j++;
   }
 
   if (res) {
-    if (fv1[0]->validFieldTime < fv2[0]->validFieldTime)
-      fv1[0]->validFieldTime = fv2[0]->validFieldTime;   // or maybe not ???
-
-    if (fv1[0]->analysisTime < fv2[0]->analysisTime)
-      fv1[0]->analysisTime = fv2[0]->analysisTime;       // or maybe not ???
+    miutil::maximize(fv1[0]->validFieldTime, fv2[0]->validFieldTime); // or maybe not ???
+    miutil::maximize(fv1[0]->analysisTime, fv2[0]->analysisTime);     // or maybe not ???
   }
 
   return res;
