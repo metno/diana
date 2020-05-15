@@ -172,27 +172,6 @@ public:
       const std::string& level, const miutil::miTime& time,
       const std::string& elevel, const std::string& unit);
 
-  /**
-   * Get data slice as Field
-   * @param reftime
-   * @param paramname
-   * @param grid
-   * @param z axis
-   * @param time axis
-   * @param extraaxis
-   * @param version
-   * @param level
-   * @param time
-   * @param elevel
-   * @return field
-   */
-  virtual Field * getData(const std::string& reftime, const std::string& paramname,
-      const std::string& grid, const std::string& zaxis,
-      const std::string& taxis, const std::string& extraaxis,
-      const std::string& level,
-      const miutil::miTime& time, const std::string& elevel,
-      const std::string& unit);
-
   // ===================== PURE VIRTUAL FUNCTIONS BELOW THIS LINE ============================
 
   /**
