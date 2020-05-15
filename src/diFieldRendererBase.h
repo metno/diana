@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2018 met.no
+  Copyright (C) 2018-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -32,6 +32,7 @@
 
 #include "diPlotArea.h"
 #include "diPlotOrder.h"
+#include "diField/diFieldFwd.h"
 
 #include <puTools/miTime.h>
 
@@ -39,7 +40,6 @@
 #include <set>
 #include <vector>
 
-class Field;
 class GridConverter;
 class DiGLPainter;
 class Colour;
@@ -50,7 +50,7 @@ class FieldRendererBase
 public:
   virtual ~FieldRendererBase();
 
-  virtual void setData(const std::vector<Field*>& vf, const miutil::miTime& time) = 0;
+  virtual void setData(const Field_pv& vf, const miutil::miTime& time) = 0;
   virtual void clearData() = 0;
 
   virtual void setGridConverter(GridConverter* gc) = 0;

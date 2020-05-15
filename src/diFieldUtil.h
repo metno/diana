@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,10 +31,11 @@
 #define difieldutil_h
 
 #include "util/diKeyValue.h"
+#include "diField/diFieldFwd.h"
 
+#include <memory>
 #include <set>
 
-class Field;
 struct FieldRequest;
 
 /*! Merge field options from command (e.g. quick menu) and setup/logfile.
@@ -47,7 +48,7 @@ bool splitDifferenceCommandString(const miutil::KeyValue_v& pin, miutil::KeyValu
 
 void cleanupFieldOptions(miutil::KeyValue_v& vpopt);
 
-void makeFieldText(Field* fout, const std::string& plotName, bool flightlevel);
+void makeFieldText(Field_p fout, const std::string& plotName, bool flightlevel);
 
 std::string getBestReferenceTime(const std::set<std::string>& refTimes, int refOffset, int refHour);
 

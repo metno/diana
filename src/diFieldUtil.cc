@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -148,7 +148,7 @@ void cleanupFieldOptions(miutil::KeyValue_v& vpopt)
   }
 }
 
-void makeFieldText(Field* fout, const std::string& plotName, bool flightlevel)
+void makeFieldText(Field_p fout, const std::string& plotName, bool flightlevel)
 {
   std::string fieldtext = fout->modelName + " " + plotName;
   if (!fout->leveltext.empty()) {

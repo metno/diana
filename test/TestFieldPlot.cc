@@ -61,10 +61,10 @@ TEST(FieldPlot, GetAnnotations)
   std::unique_ptr<FieldPlot> fp(new FieldPlot(nullptr));
   fp->prepare({}, {}, FieldPlotCommand::fromKV({{PlotOptions::key_plottype, fpt_fill_cell},{PlotOptions::key_table, "1"},{PlotOptions::key_palettecolours, palettename}}, false));
 
-  std::unique_ptr<Field> field(new Field);
+  Field_p field = std::make_shared<Field>();
   field->reserve(2, 2);
   field->fieldText = "myfieldname";
-  fp->setData({ field.get() }, miutil::miTime("2020-05-05 00:00:00"));
+  fp->setData({ field }, miutil::miTime("2020-05-05 00:00:00"));
   EXPECT_TRUE(fp->hasData());
 
   const std::string anno0end = ",colour=blue", anno0 = "table"+anno0end, anno1 = "arrow";

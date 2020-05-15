@@ -58,12 +58,7 @@ public:
 
 /**
  * Base class for all grid sources
- * Pure virtual.
- * The virtual functions you need to implement for a specific grid IO are:
- * - bool makeInventory()
- * - Field * getData(...)
  */
-
 class GridIO {
 protected:
   std::string source_name;
@@ -71,10 +66,6 @@ protected:
 
   std::string limit_min; ///< only include reference times greater than this
   std::string limit_max; ///< only include reference times less than this
-
-
-public:
-  typedef boost::shared_array<float> FloatArray;
 
 public:
   GridIO(const GridIO&) = delete;
@@ -167,10 +158,8 @@ public:
    * @param elevel
    * @return Field pointer
    */
-  Field * initializeField(const std::string& modelname,
-      const std::string& reftime, const gridinventory::GridParameter& param,
-      const std::string& level, const miutil::miTime& time,
-      const std::string& elevel, const std::string& unit);
+  Field_p initializeField(const std::string& modelname, const std::string& reftime, const gridinventory::GridParameter& param, const std::string& level,
+                          const miutil::miTime& time, const std::string& elevel, const std::string& unit);
 
   // ===================== PURE VIRTUAL FUNCTIONS BELOW THIS LINE ============================
 
@@ -213,18 +202,10 @@ public:
    * @param elevel
    * @return field
    */
-  virtual Field * getData(const std::string& reftime, const gridinventory::GridParameter& param,
-      const std::string& level, const miutil::miTime& time,
-      const std::string& elevel, const std::string& unit) = 0;
+  virtual Field_p getData(const std::string& reftime, const gridinventory::GridParameter& param, const std::string& level, const miutil::miTime& time,
+                          const std::string& elevel, const std::string& unit) = 0;
 
   virtual vcross::Values_p getVariable(const std::string& varName)=0;
-
-  /**
-   * Get data slice
-   * @param inventory
-   * @return field
-   */
-  //virtual Field * getData(const gridinventory::Inventory& inv) = 0;
 
 private:
   const gridinventory::ReftimeInventory& findModelAndReftime(const std::string& reftime) const;

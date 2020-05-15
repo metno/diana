@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -52,17 +52,17 @@ Field::Field()
   METLIBS_LOG_SCOPE();
 }
 
-Field::Field(const Field &rhs)
-  : data(0)
-{
-  METLIBS_LOG_SCOPE();
-  memberCopy(rhs);
-}
-
 Field::~Field()
 {
   METLIBS_LOG_SCOPE();
   cleanup();
+}
+
+Field::Field(const Field& rhs)
+    : data(0)
+{
+  METLIBS_LOG_SCOPE();
+  memberCopy(rhs);
 }
 
 Field& Field::operator=(const Field &rhs)
@@ -361,9 +361,7 @@ bool Field::smooth(int nsmooth)
   return smooth(nsmooth, work.get(), worku1.get(), worku2.get());
 }
 
-
-bool Field::smooth(int nsmooth, float *work,
-    float *worku1, float *worku2)
+bool Field::smooth(int nsmooth, float* work, float* worku1, float* worku2)
 {
   //  Low-bandpass filter, removing short wavelengths
   //  (not a 2nd or 4th order Shapiro filter)

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -38,7 +38,7 @@ class Colour;
 class RasterFillCell : public RasterGrid
 {
 public:
-  RasterFillCell(const PlotArea& pa, Field* f, PlotOptions& po);
+  RasterFillCell(const PlotArea& pa, Field_cp f, PlotOptions& po);
   void colorizePixel(QRgb& pixel, const diutil::PointI& i) override;
 
   const Colour* colourForValue(float value) const;

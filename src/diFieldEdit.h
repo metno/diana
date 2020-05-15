@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,12 +31,12 @@
 
 #include "diDrawingTypes.h"
 #include "diEditSpec.h"
+#include "diField/diFieldFwd.h"
 #include "diPlotOrder.h"
 
 #include <vector>
 
 class DiGLPainter;
-class Field;
 class FieldPlot;
 class FieldPlotManager;
 class StaticPlot;
@@ -88,8 +88,8 @@ private:
 
   FieldPlotManager* fieldPlotManager;
 
-  Field*     workfield;
-  Field*     editfield;
+  Field_p workfield;
+  Field_p editfield;
   FieldPlot* editfieldplot;
 
   bool showNumbers;
@@ -190,9 +190,7 @@ public:
 
   void setSpec( EditProduct& ep, int fnum);
 
-  void setData(const std::vector<Field*>& vf,
-               const std::string& fieldname,
-	       const miutil::miTime& tprod);
+  void setData(const Field_pv& vf, const std::string& fieldname, const miutil::miTime& tprod);
 
   bool notifyEditEvent(const EditEvent&);
 

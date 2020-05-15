@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2018 met.no
+ Copyright (C) 2006-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -44,7 +44,7 @@
 #define MILOGGER_CATEGORY "diana.RasterRGB"
 #include <miLogger/miLogging.h>
 
-RasterRGB::RasterRGB(const PlotArea& pa, const std::vector<Field*>& f, const PlotOptions& po)
+RasterRGB::RasterRGB(const PlotArea& pa, const Field_pv& f, const PlotOptions& po)
     : RasterGrid(pa, f.front())
     , fields(f)
     , poptions(po)

@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2018 met.no
+ Copyright (C) 2006-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -31,6 +31,7 @@
 
 #include "diField/GridInventoryTypes.h"
 #include "diField/diCommonFieldTypes.h"
+#include "diField/diFieldFwd.h"
 #include "diFieldPlotCommand.h"
 #include "diPlotOptions.h"
 #include "diTimeTypes.h"
@@ -39,7 +40,6 @@
 #include <string>
 #include <vector>
 
-class Field;
 class FieldPlot;
 class FieldManager;
 
@@ -59,7 +59,7 @@ public:
   /// read setup section for field plots
   bool parseSetup();
 
-  bool makeFields(FieldPlotCommand_cp cmd, const miutil::miTime& ptime, std::vector<Field*>& vfout);
+  bool makeFields(FieldPlotCommand_cp cmd, const miutil::miTime& ptime, Field_pv& vfout);
 
   bool updateFieldFileSetup(const std::vector<std::string>& lines, std::vector<std::string>& errors);
 
@@ -102,8 +102,7 @@ public:
   void parsePin(FieldPlotCommand_cp cmd, const FieldPlotCommand::FieldSpec& fs, std::vector<FieldRequest>& fieldrequest, std::string& plotName);
 
   /// Write field to file
-  bool writeField(const FieldRequest& fieldrequest, const Field* field);
-  void freeFields(const std::vector<Field*>& fields);
+  bool writeField(const FieldRequest& fieldrequest, Field_cp field);
 
 private:
   typedef std::shared_ptr<FieldPlotManagerPlotField> PlotField_p;
@@ -112,8 +111,8 @@ private:
   bool parseFieldPlotSetup();
   bool parseFieldGroupSetup();
 
-  bool makeFields(FieldPlotCommand_cp cmd, const FieldPlotCommand::FieldSpec& fs, const miutil::miTime& ptime, std::vector<Field*>& vfout);
-  bool makeDifferenceField(FieldPlotCommand_cp cmd, const miutil::miTime& ptime, std::vector<Field*>& fv);
+  bool makeFields(FieldPlotCommand_cp cmd, const FieldPlotCommand::FieldSpec& fs, const miutil::miTime& ptime, Field_pv& vfout);
+  bool makeDifferenceField(FieldPlotCommand_cp cmd, const miutil::miTime& ptime, Field_pv& fv);
 
   static std::vector<std::string> splitComStr(const std::string& s, bool splitall);
 

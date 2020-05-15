@@ -158,19 +158,17 @@ const gridinventory::ExtraAxis& GridIO::getExtraAxis(const std::string & reftime
 /**
  * make and initialize field
  */
-Field * GridIO::initializeField(const std::string& modelname,
-    const std::string& reftime, const gridinventory::GridParameter& param,
-    const std::string& level, const miutil::miTime& time,
-    const std::string& elevel, const::string& unit)
+Field_p GridIO::initializeField(const std::string& modelname, const std::string& reftime, const gridinventory::GridParameter& param, const std::string& level,
+                                const miutil::miTime& time, const std::string& elevel, const ::string& unit)
 {
   // find the grid
   const gridinventory::Grid& grid = getGrid(reftime, param.grid);
   if (grid.nx < 1 || grid.ny < 1) {
     METLIBS_LOG_DEBUG(LOGVAL(grid.nx) << LOGVAL(grid.ny));
-    return (Field*) (0);
+    return Field_p();
   }
 
-  Field * field = new Field();
+  Field_p field = std::make_shared<Field>();
   field->data = new float[grid.nx * grid.ny];
   field->area = diutil::makeGridArea(grid);
   field->level = atoi(level.c_str());
@@ -186,13 +184,8 @@ Field * GridIO::initializeField(const std::string& modelname,
   field->name = param.key.name;
   field->text = param.key.name;
   field->fulltext = param.key.name;
-  field->modelName = modelname;
   field->paramName = param.key.name;
-  field->fieldText = "";
-  field->leveltext = "";
-  field->idnumtext = "";
-  field->progtext = "";
-  field->timetext = "";
+  field->modelName = modelname;
 
   return field;
 }

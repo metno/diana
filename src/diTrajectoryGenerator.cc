@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2018 met.no
+  Copyright (C) 2015-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -40,23 +40,16 @@
 #include <miLogger/miLogging.h>
 
 namespace {
-const Field* duplicateFieldWidthData(const Field* f, const float* data)
+Field_cp duplicateFieldWidthData(Field_cp f, const float* data)
 {
   METLIBS_LOG_SCOPE();
-  Field* frx= new Field();
+  Field_p frx = std::make_shared<Field>();
   frx->area=   f->area;
   frx->data = new float[frx->area.gridSize()];
   for (int i=0; i<frx->area.gridSize(); ++i)
     frx->data[i] = data[i];
   frx->checkDefined();
   return frx;
-}
-
-// TODO move elsewhere, same code also in PlotModule
-void freeFields(FieldPlotManager* fpm, std::vector<Field*>& fv)
-{
-  fpm->freeFields(fv);
-  fv.clear();
 }
 } // namespace
 
@@ -91,9 +84,6 @@ TrajectoryGenerator::~TrajectoryGenerator()
   delete[] v2;
   delete[] rx;
   delete[] ry;
-
-  delete frx;
-  delete fry;
 }
 
 TrajectoryData_v TrajectoryGenerator::compute()
@@ -170,10 +160,9 @@ void TrajectoryGenerator::timeLoop(int i0, int di, const std::vector<miutil::miT
   if (!haveTrajectories())
     return;
 
-  std::vector<Field*> fv0, fv1;
+  Field_pv fv0, fv1;
   fpm->makeFields(fp->command(), times[i0], fv0);
   while (fv0.size() < 2 && i0 >= 0 && i0-di >= 0 && i0 < nTimes && i0-di < nTimes) {
-    freeFields(fpm, fv0);
     i0 += di;
   }
 
@@ -187,11 +176,9 @@ void TrajectoryGenerator::timeLoop(int i0, int di, const std::vector<miutil::miT
       const miutil::miTime& t0 = times[i0];
       computeSingleStep(t0, t1, fv0, fv1, trajectories);
       std::swap(fv0, fv1);
-      freeFields(fpm, fv1);
       i0 = i1;
     }
   }
-  freeFields(fpm, fv0);
 }
 
 void TrajectoryGenerator::reprojectStartPositions()
@@ -204,7 +191,7 @@ void TrajectoryGenerator::reprojectStartPositions()
     yt[i] = mStartPositions[i].latDeg();
   }
 
-  const Field* fu1 = fp->getFields().front();
+  Field_cp fu1 = fp->getFields().front();
   fu1->area.P().convertFromGeographic(npos, xt, yt);
   fu1->convertToGrid(npos, xt, yt);
 }
@@ -216,7 +203,7 @@ void TrajectoryGenerator::initAborted()
   mAborted.clear();
   mAborted.reserve(npos);
   float *su = new float[npos];
-  const Field* fu1 = fp->getFields().front();
+  Field_cp fu1 = fp->getFields().front();
   fu1->interpolate(npos, xt, yt, su, Field::I_BESSEL);
   for (int i=0; i<npos; i++) {
     mAborted.push_back(su[i] == fieldUndef);
@@ -235,7 +222,7 @@ TrajectoryGenerator::LonLat_v TrajectoryGenerator::reprojectStepPositions()
     lly[i] = yt[i];
   }
 
-  const Field* fu1 = fp->getFields().front();
+  Field_cp fu1 = fp->getFields().front();
   fu1->convertFromGrid(npos, llx, lly);
   fu1->area.P().convertToGeographic(npos, llx, lly);
 
@@ -253,7 +240,7 @@ TrajectoryGenerator::LonLat_v TrajectoryGenerator::reprojectStepPositions()
 void TrajectoryGenerator::calculateMapFields()
 {
   METLIBS_LOG_SCOPE();
-  const Field* fu1 = fp->getFields().front();
+  Field_cp fu1 = fp->getFields().front();
   const float *xmapr, *ymapr;
   if (!StaticPlot::gc.getMapFields(fu1->area, &xmapr, &ymapr, 0)) {
     METLIBS_LOG_ERROR("getMapFields ERROR, cannot compute trajectories!");
@@ -266,7 +253,7 @@ void TrajectoryGenerator::calculateMapFields()
 
 void TrajectoryGenerator::reprojectRoundTripLonLat()
 {
-  const Field* fu1 = fp->getFields().front();
+  Field_cp fu1 = fp->getFields().front();
   const int npos = mStartPositions.size();
   for (int i=0; i<npos; i++) {
     if (mAborted[i])
@@ -294,9 +281,8 @@ bool TrajectoryGenerator::haveTrajectories() const
   return haveTrajectories;
 }
 
-void TrajectoryGenerator::computeSingleStep(const miutil::miTime& t1, const miutil::miTime& t2,
-    const std::vector<Field*>& fields1, const std::vector<Field*>& fields2,
-    TrajectoryData_v& tracjectories)
+void TrajectoryGenerator::computeSingleStep(const miutil::miTime& t1, const miutil::miTime& t2, const Field_pv& fields1, const Field_pv& fields2,
+                                            TrajectoryData_v& tracjectories)
 {
   const int npos = mStartPositions.size();
 
@@ -310,8 +296,8 @@ void TrajectoryGenerator::computeSingleStep(const miutil::miTime& t1, const miut
     return;
   }
 
-  const Field *fu1 = fields1[0], *fv1 = fields1[1];
-  const Field *fu2 = fields2[0], *fv2 = fields2[1];
+  Field_cp fu1 = fields1[0], fv1 = fields1[1];
+  Field_cp fu2 = fields2[0], fv2 = fields2[1];
 
   if (!(fu1 && fv1 && fu2 && fv2)) {
     METLIBS_LOG_DEBUG("missing one of fu1 / fv1 / fu2 / fv2");

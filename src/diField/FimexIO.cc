@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2010-2017 met.no
+  Copyright (C) 2010-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -907,8 +907,8 @@ bool FimexIO::paramExists(const std::string& reftime, const gridinventory::GridP
   return (reftimeInv.parameters.find(param) != reftimeInv.parameters.end());
 }
 
-void FimexIO::setHybridParametersIfPresent(const std::string& reftime, const gridinventory::GridParameter& param,
-    const std::string& ap_name, const std::string& b_name, size_t zaxis_index, Field* field)
+void FimexIO::setHybridParametersIfPresent(const std::string& reftime, const gridinventory::GridParameter& param, const std::string& ap_name,
+                                           const std::string& b_name, size_t zaxis_index, Field_p field)
 {
   // check if the zaxis has the hybrid parameters ap and b
   gridinventory::GridParameter param_ap(gridinventory::GridParameterKey(ap_name, param.key.zaxis,"", ""));
@@ -956,9 +956,8 @@ MetNoFimex::CoordinateSystem_cp FimexIO::findCoordinateSystem(const gridinventor
 /**
  * Get data slice
  */
-Field* FimexIO::getData(const std::string& reftime, const gridinventory::GridParameter& param,
-    const std::string& level, const miutil::miTime& time,
-    const std::string& elevel, const std::string& unit)
+Field_p FimexIO::getData(const std::string& reftime, const gridinventory::GridParameter& param, const std::string& level, const miutil::miTime& time,
+                         const std::string& elevel, const std::string& unit)
 {
   METLIBS_LOG_TIME();
   std::string timestr;
@@ -972,10 +971,10 @@ Field* FimexIO::getData(const std::string& reftime, const gridinventory::GridPar
 
   //todo: if time, level, elevel etc not found, return NULL
 
-  std::unique_ptr<Field> field(initializeField(model_name, reftime, param, level, time, elevel, unit));
-  if (!field.get()) {
+  Field_p field = initializeField(model_name, reftime, param, level, time, elevel, unit);
+  if (!field) {
     METLIBS_LOG_DEBUG( " initializeField returned NULL");
-    return 0;
+    return nullptr;
   }
 
   try {
@@ -1012,7 +1011,7 @@ Field* FimexIO::getData(const std::string& reftime, const gridinventory::GridPar
         const VerticalTransformation_cp vtran = (*varSysIt)->getVerticalTransformation();
         if (vtran->getName() == HybridSigmaPressure1::NAME()) {
           if (std::shared_ptr<const HybridSigmaPressure1> hyb1 = std::dynamic_pointer_cast<const HybridSigmaPressure1>(vtran)) {
-            setHybridParametersIfPresent(reftime, param, hyb1->ap, hyb1->b, zaxis_index, field.get());
+            setHybridParametersIfPresent(reftime, param, hyb1->ap, hyb1->b, zaxis_index, field);
           }
         }
       }
@@ -1021,7 +1020,7 @@ Field* FimexIO::getData(const std::string& reftime, const gridinventory::GridPar
     //Some data sets have defined the wave direction in the "opposite" direction (ecwam)
     field->turnWaveDirection = turnWaveDirection;
 
-    return field.release();
+    return field;
   } catch (CDMException& cdmex) {
     METLIBS_LOG_WARN("Could not open or process " << source_name << ", CDMException is: " << cdmex.what());
   } catch (std::exception& ex) {
@@ -1067,10 +1066,8 @@ vcross::Values_p  FimexIO::getVariable(const std::string& varName)
   return  vcross::Values_p();
 }
 
-bool FimexIO::putData(const std::string& reftime, const gridinventory::GridParameter& param,
-    const std::string& level, const miutil::miTime& time,
-    const std::string& elevel, const std::string& unit, const Field* field,
-    const std::string& output_time)
+bool FimexIO::putData(const std::string& reftime, const gridinventory::GridParameter& param, const std::string& level, const miutil::miTime& time,
+                      const std::string& elevel, const std::string& unit, Field_cp field, const std::string& output_time)
 {
   if (not field)
     return false;

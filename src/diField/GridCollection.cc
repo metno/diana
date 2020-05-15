@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2019 met.no
+  Copyright (C) 2017-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -328,13 +328,9 @@ bool GridCollection::dataExists(const std::string& reftime, const std::string& p
 /**
  * Get data slice
  */
-Field * GridCollection::getData(const std::string& reftime, const std::string& paramname,
-    const std::string& zaxis,
-    const std::string& taxis, const std::string& extraaxis,
-    const std::string& level,
-    const miutil::miTime& time, const std::string& elevel,
-    const std::string& unit,
-    const int & time_tolerance)
+Field_p GridCollection::getData(const std::string& reftime, const std::string& paramname, const std::string& zaxis, const std::string& taxis,
+                                const std::string& extraaxis, const std::string& level, const miutil::miTime& time, const std::string& elevel,
+                                const std::string& unit, const int& time_tolerance)
 {
   METLIBS_LOG_SCOPE(reftime << " | " << paramname << " | " << zaxis
       << " | " << taxis << " | " << extraaxis << " | "
@@ -349,8 +345,8 @@ Field * GridCollection::getData(const std::string& reftime, const std::string& p
       gridinventory::GridParameter param;
       if (dataExists_reftime(ip->second->getReftimeInventory(reftime), paramname, param)) {
         // Ignore time from file, just use the first timestep
-        Field* f = ip->second->getData(reftime, param, level, miutil::miTime(), elevel, unit);
-        if (f!=0)
+        Field_p f = ip->second->getData(reftime, param, level, miutil::miTime(), elevel, unit);
+        if (f)
           f->validFieldTime = actualtime;
         return f;
       }
@@ -363,7 +359,7 @@ Field * GridCollection::getData(const std::string& reftime, const std::string& p
           && (param.key.taxis.empty() || getActualTime(reftime, paramname, time, time_tolerance, actualtime)))
       {
         // data exists ... calling getData
-        if (Field* f = io->getData(reftime, param, level, actualtime, elevel, unit))
+        if (Field_p f = io->getData(reftime, param, level, actualtime, elevel, unit))
           return f;
       }
 
@@ -487,11 +483,8 @@ std::set<miutil::miTime> GridCollection::getTimes(const std::string& reftime, co
 /**
  * Put data slice
  */
-bool GridCollection::putData(const std::string& reftime, const std::string& paramname,
-    const std::string& level,
-    const miutil::miTime& time, const std::string& elevel,
-    const std::string& unit, const std::string& output_time,
-    const Field* field)
+bool GridCollection::putData(const std::string& reftime, const std::string& paramname, const std::string& level, const miutil::miTime& time,
+                             const std::string& elevel, const std::string& unit, const std::string& output_time, const Field_cp field)
 {
   METLIBS_LOG_SCOPE(LOGVAL(reftime) << LOGVAL(paramname)
       << LOGVAL(level) << LOGVAL(time) <<  LOGVAL(elevel) << LOGVAL(output_time));
@@ -632,7 +625,7 @@ void GridCollection::getFieldPlotInfo(const std::string& refTime, std::map<std::
   }
 }
 
-Field* GridCollection::getField(const FieldRequest& fieldrequest)
+Field_p GridCollection::getField(const FieldRequest& fieldrequest)
 {
   METLIBS_LOG_TIME("SEARCHING FOR :" << fieldrequest.paramName << " : "
       << fieldrequest.zaxis << " : " << fieldrequest.plevel);
@@ -670,10 +663,8 @@ Field* GridCollection::getField(const FieldRequest& fieldrequest)
   //If not computed parameter, read field from GridCollection and return
   if (pitr->nativekey.find("function:") == std::string::npos) {
     METLIBS_LOG_INFO(LOGVAL(fieldrequest.ptime));
-    Field* field = getData(fieldrequest.refTime, param.key.name, param.key.zaxis, param.key.taxis,
-        param.key.extraaxis, fieldrequest.plevel,
-        fieldrequest.ptime, fieldrequest.elevel, fieldrequest.unit,
-        fieldrequest.time_tolerance);
+    Field_p field = getData(fieldrequest.refTime, param.key.name, param.key.zaxis, param.key.taxis, param.key.extraaxis, fieldrequest.plevel,
+                            fieldrequest.ptime, fieldrequest.elevel, fieldrequest.unit, fieldrequest.time_tolerance);
     return field;
   }
 
@@ -685,8 +676,8 @@ Field* GridCollection::getField(const FieldRequest& fieldrequest)
   const FieldFunctions::FieldCompute& fcm = FieldFunctions::fieldCompute(functionIndex);
   int nOutputParameters = fcm.results.size();
   int nInputParameters = fcm.input.size();
-  vector<Field*> vfield; // Input fields
-  vector<Field*> vfresults; //Output fields
+  Field_pv vfield;    // Input fields
+  Field_pv vfresults; // Output fields
   bool fieldOK = false;
 
   //Functions using fields with different forecast time
@@ -711,18 +702,16 @@ Field* GridCollection::getField(const FieldRequest& fieldrequest)
       if (!getAllFields_timeInterval(vfield, fieldrequest_new,
                                      fch, (fs.option == "accumulate_flux")))
       {
-        freeFields(vfield);
         return 0;
       }
     } else {
       if (!getAllFields(vfield, fieldrequest_new, fcm.constants)) {
-        freeFields(vfield);
         return 0;
       }
     }
 
     //make output field
-    Field* ff = new Field();
+    Field_p ff = std::make_shared<Field>();
     ff->shallowMemberCopy(*vfield[0]);
     ff->reserve(vfield[0]->area.nx, vfield[0]->area.ny);
     ff->validFieldTime = fieldrequest.ptime;
@@ -765,10 +754,9 @@ Field* GridCollection::getField(const FieldRequest& fieldrequest)
       }
 
       if (!fs.ecoord && !fs.vcoord) {
-        Field * f = getField(fieldrequest_new);
+        Field_p f = getField(fieldrequest_new);
         if (!f) {
           METLIBS_LOG_DEBUG("unable to read '" << inputParamName << "'");
-          freeFields(vfield);
           return 0;
         } else {
           vfield.push_back(f);
@@ -803,7 +791,6 @@ Field* GridCollection::getField(const FieldRequest& fieldrequest)
           values = zaxs.stringvalues;
         }
         if (values.empty()) {
-          freeFields(vfield);
           return 0;
         }
         for (size_t i = 0; i < values.size(); i++) {
@@ -813,9 +800,8 @@ Field* GridCollection::getField(const FieldRequest& fieldrequest)
           } else if (fs.vcoord) {
             fieldrequest_new.plevel = values[i];
           }
-          Field * f = getField(fieldrequest_new);
+          Field_p f = getField(fieldrequest_new);
           if (!f) {
-            freeFields(vfield);
             return 0;
           } else {
             vfield.push_back(f);
@@ -831,7 +817,7 @@ Field* GridCollection::getField(const FieldRequest& fieldrequest)
     }
 
     for (int j = 0; j < nOutputParameters; j++) {
-      Field* ff = new Field();
+      Field_p ff = std::make_shared<Field>();
       ff->shallowMemberCopy(*vfield[0]);
       ff->reserve(vfield[0]->area.nx, vfield[0]->area.ny);
       ff->unit = fieldrequest.unit;
@@ -846,14 +832,10 @@ Field* GridCollection::getField(const FieldRequest& fieldrequest)
     }
   }
 
-  //delete input fields
-  freeFields(vfield);
-
   //return output field
-  Field* fresult = 0;
+  Field_p fresult;
   if (fieldOK)
     std::swap(fresult, vfresults[0]);
-  freeFields(vfresults);
 
   return fresult;
 }
@@ -1079,9 +1061,7 @@ void GridCollection::addComputedParameters()
 
 }
 
-
-bool GridCollection::getAllFields_timeInterval(vector<Field*>& vfield,
-    FieldRequest fieldrequest, int fch, bool accumulate_flux)
+bool GridCollection::getAllFields_timeInterval(Field_pv& vfield, FieldRequest fieldrequest, int fch, bool accumulate_flux)
 {
   METLIBS_LOG_SCOPE(LOGVAL(fieldrequest.paramName));
 
@@ -1122,7 +1102,7 @@ bool GridCollection::getAllFields_timeInterval(vector<Field*>& vfield,
   miutil::miTime lastTime = startTime; // only used iff accumulate_flux
   for (const miutil::miTime& t : actualfieldTimes) {
     fieldrequest.ptime = t;
-    Field * f = getField(fieldrequest);
+    Field_p f = getField(fieldrequest);
     if (!f) {
       METLIBS_LOG_WARN("Field not found for: " << fieldrequest.ptime);
       return false;
@@ -1139,8 +1119,7 @@ bool GridCollection::getAllFields_timeInterval(vector<Field*>& vfield,
   return !vfield.empty();
 }
 
-bool GridCollection::getAllFields(std::vector<Field*>& vfield,
-    FieldRequest fieldrequest, const std::vector<float>& constants)
+bool GridCollection::getAllFields(Field_pv& vfield, FieldRequest fieldrequest, const std::vector<float>& constants)
 {
   const int nConstants = constants.size();
   if (nConstants == 0)
@@ -1149,7 +1128,7 @@ bool GridCollection::getAllFields(std::vector<Field*>& vfield,
   for (int i = nConstants - 1; i >= 0; i--) {
     fieldrequest.ptime = startTime;
     fieldrequest.ptime.addHour(constants[i]);
-    Field * f = getField(fieldrequest);
+    Field_p f = getField(fieldrequest);
     if (f) {
       vfield.push_back(f);
     } else {
@@ -1159,19 +1138,13 @@ bool GridCollection::getAllFields(std::vector<Field*>& vfield,
   return true;
 }
 
-bool GridCollection::multiplyFieldByTimeStep(Field* f, float sec_diff)
+bool GridCollection::multiplyFieldByTimeStep(Field_p f, float sec_diff)
 {
   const vector<float> constants(1, sec_diff);
-  const vector<Field*> vfield(1, f);
+  const Field_pv vfield(1, f);
   if (FieldFunctions::fieldComputer(FieldFunctions::f_multiply_f_c, constants, vfield, vfield, gc)) {
     return true;
   }
   METLIBS_LOG_WARN("problem in multiplyFieldByTimeStep");
   return false;
-}
-
-void GridCollection::freeFields(std::vector<Field*>& fields)
-{
-  METLIBS_LOG_SCOPE();
-  diutil::delete_all_and_clear(fields);
 }

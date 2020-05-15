@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2015-2019 met.no
+ Copyright (C) 2015-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -634,9 +634,7 @@ bool FieldFunctions::mapTimeStepFunction(Function& f)
   return true;
 }
 
-bool FieldFunctions::fieldComputer(Function function,
-    const std::vector<float>& constants, const std::vector<Field*>& vfinput,
-    const std::vector<Field*>& vfres, GridConverter& gc)
+bool FieldFunctions::fieldComputer(Function function, const std::vector<float>& constants, const Field_pv& vfinput, const Field_pv& vfres, GridConverter& gc)
 {
   using namespace miutil;
   using namespace miutil::fieldcalc;
@@ -673,7 +671,7 @@ bool FieldFunctions::fieldComputer(Function function,
 
   std::string unit;
 
-  for (Field* fi : vfinput) {
+  for (Field_cp fi : vfinput) {
     finp.push_back(fi->data);
     fdefin.push_back(fi->defined());
     if (fi->defined() == miutil::NONE_DEFINED)

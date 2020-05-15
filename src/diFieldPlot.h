@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -68,10 +68,10 @@ public:
   bool prepare(const PlotOptions& setupoptions, const miutil::KeyValue_v& setupopts, const FieldPlotCommand_cp& cmd);
 
   //  set list of field-pointers, update datatime
-  void setData(const std::vector<Field*>&, const miutil::miTime&);
+  void setData(const Field_pv&, const miutil::miTime&);
   const Area& getFieldArea() const;
   bool getRealFieldArea(Area&) const;
-  const std::vector<Field*>& getFields() const;
+  const Field_pv& getFields() const;
   FieldPlotCommand_cp command() const;
 
   //! time of model analysis
@@ -93,7 +93,7 @@ public:
 private:
   FieldPlotManager* fieldplotm_;
   FieldPlotCommand_cp cmd_;
-  std::vector<Field*> fields; // fields, stored elsewhere
+  Field_pv fields;               // fields, stored elsewhere
   miutil::miTime ftime;          // current field time
 
   void clearFields();

@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2018 met.no
+ Copyright (C) 2006-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -58,7 +58,7 @@
 #define MILOGGER_CATEGORY "diana.RasterFillCell"
 #include <miLogger/miLogging.h>
 
-RasterFillCell::RasterFillCell(const PlotArea& pa, Field* f, PlotOptions& po)
+RasterFillCell::RasterFillCell(const PlotArea& pa, Field_cp f, PlotOptions& po)
     : RasterGrid(pa, f)
     , poptions(po)
 {

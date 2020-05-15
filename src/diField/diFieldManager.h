@@ -1,7 +1,7 @@
 /* -*- c++ -*-
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2013-2018 met.no
+ Copyright (C) 2013-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -101,13 +101,11 @@ public:
       int refHour);
 
   /// read and compute one field
-  bool makeField(Field*& fout, FieldRequest fieldrequest);
-  bool writeField(const FieldRequest& fieldrequest, const Field* field);
-  bool freeField(Field* field);
-  bool freeFields(std::vector<Field*>& fields);
+  Field_p makeField(FieldRequest& fieldrequest);
+  bool writeField(const FieldRequest& fieldrequest, Field_cp field);
 
   /// read and compute a difference field (fv1 = fv1-fv2)
-  bool makeDifferenceFields(std::vector<Field*>& fv1, std::vector<Field*>& fv2);
+  bool makeDifferenceFields(Field_pv& fv1, Field_pv& fv2);
 
 protected:
   static GridConverter gc;   // gridconverter class

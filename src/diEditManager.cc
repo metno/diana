@@ -1142,7 +1142,7 @@ bool EditManager::startEdit(const EditProduct& ep,
       // edit field from existing field, find correct fieldplot
 
       const std::vector<FieldPlot*> vfp = plotm->fieldplots()->getFieldPlots();
-      vector<Field*> vf;
+      Field_pv vf;
       size_t i=0;
       for (; i<vfp.size(); i++){
         vf = vfp[i]->getFields();
@@ -1699,8 +1699,8 @@ vector<std::string> EditManager::getValidEditFields(const EditProduct& ep,
 
   const std::vector<FieldPlot*> vfp = plotm->fieldplots()->getFieldPlots();
   for (size_t i=0; i<vfp.size(); i++){
-    vector<Field*> vf = vfp[i]->getFields();
-    // for now, only accept scalar fields
+    Field_pv vf = vfp[i]->getFields();
+    // only accept scalar fields
     if (vf.size() == 1) {
       std::string s= miutil::to_lower(vf[0]->name);
       if (s.find(fname)!=string::npos) {
@@ -2851,7 +2851,7 @@ bool EditManager::interpolateEditField(ObsPositions* obsPositions)
   if (fedits.empty() || !obsPositions)
     return false;
 
-  const Field* ef = fedits[0]->editfield;
+  Field_cp ef = fedits[0]->editfield;
   if (!ef)
     return false;
 

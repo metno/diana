@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2018 met.no
+ Copyright (C) 2006-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -38,7 +38,7 @@
 #define MILOGGER_CATEGORY "diana.RasterUndef"
 #include <miLogger/miLogging.h>
 
-RasterUndef::RasterUndef(const PlotArea& pa, const std::vector<Field*>& f, const PlotOptions& po)
+RasterUndef::RasterUndef(const PlotArea& pa, const Field_pv& f, const PlotOptions& po)
     : RasterGrid(pa, f.front())
     , fields(f)
 {

@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2019 met.no
+ Copyright (C) 2006-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -67,8 +67,6 @@ void FieldPlot::clearFields()
 {
   METLIBS_LOG_SCOPE();
   renderer_->clearData();
-  if (fieldplotm_)
-    fieldplotm_->freeFields(fields);
   fields.clear();
 }
 
@@ -107,7 +105,7 @@ void FieldPlot::changeTime(const miutil::miTime& mapTime)
 {
   const bool update = (ftime.undef() || (ftime != mapTime && cmd_->time.empty()) || fields.empty());
   if (update && fieldplotm_ != 0) {
-    std::vector<Field*> fv;
+    Field_pv fv;
     fieldplotm_->makeFields(cmd_, mapTime, fv);
     setData(fv, mapTime);
   }
@@ -159,7 +157,7 @@ bool FieldPlot::prepare(const PlotOptions& setupoptions, const miutil::KeyValue_
   return true;
 }
 
-const std::vector<Field*>& FieldPlot::getFields() const
+const Field_pv& FieldPlot::getFields() const
 {
   return fields;
 }
@@ -188,7 +186,7 @@ miutil::miTime FieldPlot::getReferenceTime() const
   return fieldplotm_->getFieldReferenceTime(cmd_);
 }
 
-void FieldPlot::setData(const std::vector<Field*>& vf, const miutil::miTime& t)
+void FieldPlot::setData(const Field_pv& vf, const miutil::miTime& t)
 {
   METLIBS_LOG_SCOPE(LOGVAL(vf.size()) << LOGVAL(t.isoTime()));
 
@@ -200,7 +198,7 @@ void FieldPlot::setData(const std::vector<Field*>& vf, const miutil::miTime& t)
   if (fields.empty()) {
     setPlotName("");
   } else {
-    const Field* f0 = fields[0];
+    Field_cp f0 = fields[0];
     setPlotName(f0->fulltext);
     vcross::Values_p p0 = f0->palette;
     if (p0 && p0->npoint() > 2) {
@@ -556,7 +554,7 @@ void FieldPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     return;
 
   // possibly smooth all "single" fields
-  for (Field* f : fields) {
+  for (Field_p f : fields) {
     if (f && f->data) {
       if (f->numSmoothed < poptions.fieldSmooth) {
         int nsmooth = poptions.fieldSmooth - f->numSmoothed;
@@ -635,6 +633,6 @@ bool FieldPlot::hasData() const
   if (fields.empty())
     return false;
 
-  const Field* f0 = fields[0];
+  const Field_p f0 = fields[0];
   return (f0 && f0->data);
 }

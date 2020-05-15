@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2018 met.no
+ Copyright (C) 2006-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -503,7 +503,7 @@ std::map<std::string, std::string> FieldPlotManager::getFieldGlobalAttributes(co
   return fieldManager->getGlobalAttributes(modelName, refTime);
 }
 
-bool FieldPlotManager::makeFields(FieldPlotCommand_cp cmd, const miTime& const_ptime, vector<Field*>& vfout)
+bool FieldPlotManager::makeFields(FieldPlotCommand_cp cmd, const miTime& const_ptime, Field_pv& vfout)
 {
   METLIBS_LOG_SCOPE();
   if (cmd->hasMinusField())
@@ -512,7 +512,7 @@ bool FieldPlotManager::makeFields(FieldPlotCommand_cp cmd, const miTime& const_p
     return makeFields(cmd, cmd->field, const_ptime, vfout);
 }
 
-bool FieldPlotManager::makeFields(FieldPlotCommand_cp cmd, const FieldPlotCommand::FieldSpec& fs, const miTime& const_ptime, vector<Field*>& vfout)
+bool FieldPlotManager::makeFields(FieldPlotCommand_cp cmd, const FieldPlotCommand::FieldSpec& fs, const miTime& const_ptime, Field_pv& vfout)
 {
   METLIBS_LOG_SCOPE();
   vfout.clear();
@@ -530,8 +530,8 @@ bool FieldPlotManager::makeFields(FieldPlotCommand_cp cmd, const FieldPlotComman
     if (fr.minOffset != 0)
       fr.ptime.addMin(fr.minOffset);
 
-    Field* fout = 0;
-    if (!fieldManager->makeField(fout, fr))
+    Field_p fout = fieldManager->makeField(fr);
+    if (!fout)
       return false;
 
     makeFieldText(fout, plotName, fr.flightlevel);
@@ -541,39 +541,27 @@ bool FieldPlotManager::makeFields(FieldPlotCommand_cp cmd, const FieldPlotComman
   return true;
 }
 
-void FieldPlotManager::freeFields(const std::vector<Field*>& fv)
-{
-  for (size_t i = 0; i < fv.size(); i++)
-    fieldManager->freeField(fv[i]);
-}
-
-bool FieldPlotManager::makeDifferenceField(FieldPlotCommand_cp cmd, const miTime& const_ptime, vector<Field*>& fv)
+bool FieldPlotManager::makeDifferenceField(FieldPlotCommand_cp cmd, const miTime& const_ptime, Field_pv& fv)
 {
   fv.clear();
-  vector<Field*> fv1;
-  vector<Field*> fv2;
+  Field_pv fv1;
+  Field_pv fv2;
 
-  if (makeFields(cmd, cmd->field, const_ptime, fv1)) {
-    if (!makeFields(cmd, cmd->minus, const_ptime, fv2)) {
-      freeFields(fv1);
-      return false;
-    }
-  } else {
+  if (!(makeFields(cmd, cmd->field, const_ptime, fv1) && makeFields(cmd, cmd->minus, const_ptime, fv2)))
     return false;
-  }
 
   //make copy of fields, do not change the field cache
   for (unsigned int i = 0; i < fv1.size(); i++) {
-    Field* ff = new Field();
+    Field_p ff = std::make_shared<Field>();
     fv.push_back(ff);
     *fv[i] = *fv1[i];
   }
 
-  freeFields(fv1);
+  fv1.clear();
 
   //make Difference Field text
-  Field* f1 = fv[0];
-  Field* f2 = fv2[0];
+  Field_p f1 = fv[0];
+  Field_p f2 = fv2[0];
 
   const int mdiff = 6;
   std::string text1[mdiff], text2[mdiff];
@@ -881,7 +869,7 @@ void FieldPlotManager::parsePin(FieldPlotCommand_cp cmd, const FieldPlotCommand:
   }
 }
 
-bool FieldPlotManager::writeField(const FieldRequest& fieldrequest, const Field* field)
+bool FieldPlotManager::writeField(const FieldRequest& fieldrequest, Field_cp field)
 {
   return fieldManager->writeField(fieldrequest, field);
 }

@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2013-2018 met.no
+ Copyright (C) 2013-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -590,7 +590,7 @@ std::string FieldManager::getBestReferenceTime(const std::string& modelName,
   return ::getBestReferenceTime(getReferenceTimes(modelName), refOffset, refHour);
 }
 
-bool FieldManager::makeField(Field*& fout, FieldRequest frq)
+Field_p FieldManager::makeField(FieldRequest& frq)
 {
   METLIBS_LOG_TIME(LOGVAL(frq.modelName) << LOGVAL(frq.paramName) << LOGVAL(frq.zaxis) << LOGVAL(frq.refTime) << LOGVAL(frq.ptime) << LOGVAL(frq.plevel)
                                          << LOGVAL(frq.elevel) << LOGVAL(frq.unit));
@@ -603,15 +603,14 @@ bool FieldManager::makeField(Field*& fout, FieldRequest frq)
   GridCollectionPtr pgc = getGridCollection(frq.modelName, frq.refTime, false);
   if (!pgc) {
     METLIBS_LOG_WARN("could not find grid collection for model=" << frq.modelName << " reftime=" << frq.refTime);
-    return false;
+    return nullptr;
   }
 
-  fout = pgc->getField(frq);
-
-  if (fout == 0) {
+  Field_p fout = pgc->getField(frq);
+  if (!fout) {
     METLIBS_LOG_WARN("No field read: model: " << frq.modelName << ", parameter:" << frq.paramName << ", level:" << frq.plevel << ", time:" << frq.ptime
                                               << ", referenceTime:" << frq.refTime);
-    return false;
+    return nullptr;
   }
 
   fout->leveltext = frq.plevel;
@@ -623,29 +622,10 @@ bool FieldManager::makeField(Field*& fout, FieldRequest frq)
     fout->palette = pgc->getVariable(frq.refTime, frq.palette);
   }
 
-  return true;
+  return fout;
 }
 
-bool FieldManager::freeField(Field* field)
-{
-  delete field;
-  return true;
-}
-
-bool FieldManager::freeFields(std::vector<Field*>& fields)
-{
-  METLIBS_LOG_SCOPE();
-  bool all_ok = true;
-
-  for (std::vector<Field*>::iterator it = fields.begin(); it != fields.end(); ++it) {
-    all_ok &= freeField(*it); // FIXME what to do with those that cannot be deleted?
-  }
-  fields.clear();
-  return all_ok;
-}
-
-bool FieldManager::makeDifferenceFields(std::vector<Field*> & fv1,
-    std::vector<Field*> & fv2)
+bool FieldManager::makeDifferenceFields(Field_pv& fv1, Field_pv& fv2)
 {
   unsigned int dim = fv1.size();
   if (fv2.size() != dim)
@@ -683,17 +663,12 @@ bool FieldManager::makeDifferenceFields(std::vector<Field*> & fv1,
 
     if (fv1[0]->analysisTime < fv2[0]->analysisTime)
       fv1[0]->analysisTime = fv2[0]->analysisTime;       // or maybe not ???
-
-  } else {
-    freeFields(fv1);
   }
-
-  freeFields(fv2);
 
   return res;
 }
 
-bool FieldManager::writeField(const FieldRequest& fieldrequest, const Field* field)
+bool FieldManager::writeField(const FieldRequest& fieldrequest, Field_cp field)
 {
   METLIBS_LOG_SCOPE(LOGVAL(fieldrequest.modelName) << LOGVAL(fieldrequest.paramName)
       << LOGVAL(fieldrequest.zaxis) << LOGVAL(fieldrequest.refTime)

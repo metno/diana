@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2018 met.no
+ Copyright (C) 2006-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -80,11 +80,10 @@ void FieldRenderer::getVectorAnnotation(float& size, std::string& text)
 void FieldRenderer::clearData()
 {
   METLIBS_LOG_SCOPE();
-  diutil::delete_all_and_clear(tmpfields_);
   fields_.clear();
 }
 
-void FieldRenderer::setData(const std::vector<Field*>& fields, const miutil::miTime& t)
+void FieldRenderer::setData(const Field_pv& fields, const miutil::miTime& t)
 {
   METLIBS_LOG_SCOPE(LOGVAL(fields.size()) << LOGVAL(t.isoTime()));
 
@@ -229,14 +228,14 @@ std::vector<float*> FieldRenderer::doPrepareVectors(float* x, float* y, bool dir
   if (!direction && (!rotateVectors || fields_[0]->area.P() == mapP)) {
     u = fields_[0]->data;
     v = fields_[1]->data;
-    diutil::delete_all_and_clear(tmpfields_);
+    tmpfields_.clear();
   } else if (nf == 2 && tmpfields_[0]->numSmoothed == fields_[0]->numSmoothed && tmpfields_[0]->area.P() == mapP) {
     u = tmpfields_[0]->data;
     v = tmpfields_[1]->data;
   } else {
     if (nf == 0) {
-      tmpfields_.push_back(new Field());
-      tmpfields_.push_back(new Field());
+      tmpfields_.push_back(std::make_shared<Field>());
+      tmpfields_.push_back(std::make_shared<Field>());
     }
     *(tmpfields_[0]) = *(fields_[0]);
     *(tmpfields_[1]) = *(fields_[direction ? 0 : 1]);

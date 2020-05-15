@@ -56,6 +56,7 @@ SET (DIFIELD_SOURCES
   diField/diArea.cc
   diField/diCommonFieldTypes.cc
   diField/diField.cc
+  diField/diFieldFwd.h
   diField/diFieldFunctions.cc
   diField/diFieldManager.cc
   diField/diFieldUtil.cc

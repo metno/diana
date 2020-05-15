@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -106,8 +106,6 @@ FieldEdit& FieldEdit::operator=(const FieldEdit &rhs)
   if (this == &rhs) return *this;
 
   // first delete
-  if (editfield) delete editfield; // FIXME what if editfield == workfield?
-  if (workfield) delete workfield;
   if (editfieldplot) delete editfieldplot;
   if (odata) delete[] odata;
 
@@ -122,11 +120,11 @@ FieldEdit& FieldEdit::operator=(const FieldEdit &rhs)
   }
 
   // editfield
-  editfield= new Field;
+  editfield = std::make_shared<Field>();
   if ( rhs.editfield != 0 )
     *(editfield)= *(rhs.editfield);
   miTime tprod= editfield->validFieldTime;
-  vector<Field*> vf;
+  Field_pv vf;
   vf.push_back(editfield);
 
   // fieldPlot
@@ -216,12 +214,11 @@ void FieldEdit::cleanup()
 {
   METLIBS_LOG_SCOPE();
 
-  if (editfieldplot) delete editfieldplot;
+  delete editfieldplot;
   editfieldplot= 0;
 
-  if (workfield && workfield!=editfield) delete workfield;
-  workfield= 0;
-  editfield= 0; // FIXME editfield is not always deleted
+  workfield = nullptr;
+  editfield = nullptr; // FIXME editfield is not always deleted
 
   int n= undofields.size();
   for (int i=0; i<n; i++) {
@@ -309,7 +306,7 @@ bool FieldEdit::prepareEditFieldPlot(const std::string& fieldname,
   editfield->name=     fieldname;
   editfield->text=     text;
   editfield->fulltext= fulltext;
-  vector<Field*> vf(1, editfield);
+  Field_pv vf(1, editfield);
 
   if (editfieldplot)
     delete editfieldplot;
@@ -322,9 +319,7 @@ bool FieldEdit::prepareEditFieldPlot(const std::string& fieldname,
 
 void FieldEdit::makeWorkfield()
 {
-  if (workfield && workfield!=editfield)
-    delete workfield;
-  workfield= 0;
+  workfield = nullptr;
 
   if (!editfield->allDefined()) {
     int nx= editfield->area.nx;
@@ -338,7 +333,7 @@ void FieldEdit::makeWorkfield()
         nundef++;
     }
     if (nundef>0 && nundef<nx*ny) {
-      workfield= new Field;
+      workfield = std::make_shared<Field>();
       *(workfield)= *(editfield);
       float *f= workfield->data;
       avg/=float(nx*ny-nundef);
@@ -450,7 +445,6 @@ bool FieldEdit::readEditfield(const std::string& filename)
   const std::string reftime = fieldPlotManager->getBestFieldReferenceTime(modelName, 0, -1);
   FieldPlotGroupInfo_v fgi;
   fieldPlotManager->getFieldPlotGroups(modelName, reftime, true, fgi);
-  vector<Field*> vfout;
 
   FieldPlotCommand_p cmd = std::make_shared<FieldPlotCommand>(true);
   cmd->field.model = modelName;
@@ -466,26 +460,25 @@ bool FieldEdit::readEditfield(const std::string& filename)
   if (!times.empty()) {
     time = *times.begin();
   }
-  if (fieldPlotManager->makeFields(cmd, time, vfout) && vfout.size()) {
-    editfield = vfout[0];
+
+  Field_pv vfout;
+  if (fieldPlotManager->makeFields(cmd, time, vfout) && !vfout.empty()) {
+    editfield = vfout.front();
     return true;
   }
   return false;
 }
 
-void FieldEdit::setData(const vector<Field*>& vf,
-    const std::string& fieldname,
-    const miTime& tprod)
+void FieldEdit::setData(const Field_pv& vf, const std::string& fieldname, const miTime& tprod)
 {
   METLIBS_LOG_SCOPE();
   cleanup();
 
-  if (vf.size()==0) return;
-
-  editfield= new Field;
+  if (vf.empty())
+    return;
 
   // copy the Field object
-  *(editfield)= *(vf[0]);
+  editfield = std::make_shared<Field>(*vf.front());
 
   if ( specset ) {
     changeGrid();
@@ -535,7 +528,7 @@ bool FieldEdit::writeEditFieldFile(const std::string& filename)
   if  ( !editfield->validFieldTime.undef() ) {
     fieldrequest.output_time = editfield->validFieldTime.isoTime();
   }
-  return fieldPlotManager->writeField(fieldrequest,editfield);
+  return fieldPlotManager->writeField(fieldrequest, editfield);
 }
 
 
@@ -849,7 +842,6 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
 
       if (discontinuous && workfield!=editfield) {
         // could not prevent making workfield earlier (?)
-        delete workfield;
         workfield= editfield;
         minValue= maxValue= fieldUndef;
       }

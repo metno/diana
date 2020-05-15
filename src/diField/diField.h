@@ -2,7 +2,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013 met.no
+  Copyright (C) 2013-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -32,6 +32,7 @@
 
 #include "diArea.h"
 #include "VcrossData.h"
+#include "diField/diFieldFwd.h"
 
 #include <mi_fieldcalc/FieldDefined.h>
 

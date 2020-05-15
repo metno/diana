@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2019 met.no
+  Copyright (C) 2017-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -112,7 +112,7 @@ bool FieldPlotCluster::MapToGrid(const Projection& plotproj, float xmap, float y
 {
   FieldPlot* fp = first();
   if (fp && plotproj == fp->getFieldArea().P()) {
-    const std::vector<Field*>& ff = fp->getFields();
+    const Field_pv& ff = fp->getFields();
     if (!ff.empty()) {
       gridx = ff[0]->area.toGridX(xmap);
       gridy = ff[0]->area.toGridY(ymap);

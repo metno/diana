@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -37,11 +37,11 @@ class PlotOptions;
 class RasterRGB : public RasterGrid
 {
 public:
-  RasterRGB(const PlotArea& pa, const std::vector<Field*>& f, const PlotOptions& po);
+  RasterRGB(const PlotArea& pa, const Field_pv& f, const PlotOptions& po);
   void colorizePixel(QRgb& pixel, const diutil::PointI& i) override;
 
 private:
-  const std::vector<Field*>& fields;
+  const Field_pv& fields;
   const PlotOptions& poptions;
   float value_div[3], value_min[3];
 };

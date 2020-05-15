@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2018 met.no
+  Copyright (C) 2018-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -30,16 +30,17 @@
 #ifndef DITRAJECTORYGENRATOR_H
 #define DITRAJECTORYGENRATOR_H 1
 
-#include <util/diKeyValue.h>
+#include "util/diKeyValue.h"
+#include "diField/diFieldFwd.h"
+
 #include <puDatatypes/miCoordinates.h>
 #include <puTools/miTime.h>
+
 #include <string>
 #include <vector>
 
 class FieldPlotManager;
 class FieldPlot;
-class Field;
-
 
 struct TrajectoryPoint {
   miutil::miTime time;
@@ -108,9 +109,7 @@ private:
   void reprojectRoundTripLonLat();
 
   void calculateMapFields();
-  void computeSingleStep(const miutil::miTime& t1, const miutil::miTime& t2,
-      const std::vector<Field*>& fields1, const std::vector<Field*>& fields2,
-      TrajectoryData_v& tracjectories);
+  void computeSingleStep(const miutil::miTime& t1, const miutil::miTime& t2, const Field_pv& fields1, const Field_pv& fields2, TrajectoryData_v& tracjectories);
 
 private:
   FieldPlotManager* fpm;
@@ -125,7 +124,7 @@ private:
   TrajectoryData_v trajectories;
   std::vector<bool> mAborted;
   float *xt, *yt, *u1, *v1, *u2, *v2, *rx, *ry;
-  const Field *frx, *fry;
+  Field_cp frx, fry;
 };
 
 #endif // DITRAJECTORYGENRATOR_H

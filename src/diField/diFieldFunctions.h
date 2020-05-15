@@ -2,7 +2,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2019 met.no
+ Copyright (C) 2006-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -31,12 +31,14 @@
 #ifndef DIFIELD_FIELDFUNCTIONS_H
 #define DIFIELD_FIELDFUNCTIONS_H
 
+#include "diFieldFwd.h"
+
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
 class Area;
-class Field;
 class GridConverter;
 
 /// field computation/conversion functions
@@ -431,8 +433,7 @@ public:
   static bool isTimeStepFunction(Function f);
 
   /// call function and return results
-  static bool fieldComputer(Function function, const std::vector<float>& constants,
-      const std::vector<Field*>& vfinput, const std::vector<Field*>& vfres, class GridConverter& gc);
+  static bool fieldComputer(Function function, const std::vector<float>& constants, const Field_pv& vfinput, const Field_pv& vfres, class GridConverter& gc);
 
 private:
   static bool registerFunctions(functions_t& functions);

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -49,7 +49,7 @@ public:
   FieldRenderer();
   ~FieldRenderer();
 
-  void setData(const std::vector<Field*>& fields, const miutil::miTime& time) override;
+  void setData(const Field_pv& fields, const miutil::miTime& time) override;
   void clearData() override;
 
   void setGridConverter(GridConverter* gc) override;
@@ -113,9 +113,9 @@ private:
   const std::string& plottype() const { return poptions_.plottype; }
 
 private:
-  std::vector<Field*> fields_;    // fields, stored elsewhere
-  std::vector<Field*> tmpfields_; // tmp fields, stored here
-  miutil::miTime ftime_;          // current field time
+  Field_pv fields_;                // fields, stored elsewhere
+  Field_pv tmpfields_;             // tmp fields, stored here
+  miutil::miTime ftime_;           // current field time
 
   // plotting parameters
   bool is_raster_; //!< true iff raster plot

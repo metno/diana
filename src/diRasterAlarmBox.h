@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -39,7 +39,7 @@ class PlotOptions;
 class RasterAlarmBox : public RasterPlot
 {
 public:
-  RasterAlarmBox(const PlotArea& pa, Field* f, const PlotOptions& po);
+  RasterAlarmBox(const PlotArea& pa, Field_cp f, const PlotOptions& po);
   void rasterPixels(int, const diutil::PointD&, const diutil::PointD&, QRgb*) override { /* never called */}
   void pixelQuad(const diutil::PointI& s, const diutil::PointD& pxy00, const diutil::PointD& pxy10, const diutil::PointD& pxy01, const diutil::PointD& pxy11,
                  int w) override;
@@ -48,7 +48,7 @@ public:
 
 private:
   const PlotArea& pa_;
-  const Field* field;
+  const Field_cp field;
   const PlotOptions& poptions;
   float vmin, vmax;
   bool valid;
