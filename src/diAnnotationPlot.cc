@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2018 met.no
+ Copyright (C) 2006-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -1039,6 +1039,7 @@ void AnnotationPlot::editLastAnnoElement()
   }
 }
 
+// static
 vector<std::string> AnnotationPlot::split(const std::string eString, const char s1, const char s2)
 {
   /*finds entries delimited by s1 and s2

@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2018 met.no
+ Copyright (C) 2006-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -165,7 +165,7 @@ private:
       float annoHeight, bool horizontal = true);
   float plotArrow(DiGLPainter* gl, float x, float y, float l, bool feather = false);
   void plotBorders(DiGLPainter* gl);
-  std::vector<std::string> split(const std::string, const char, const char);
+  static std::vector<std::string> split(const std::string, const char, const char);
   std::string writeElement(const element& annoEl);
 
 public:
