@@ -156,9 +156,7 @@ public:
    * @param return actualtime, may differ from time if time_tolerance != 0
    * @return true/false
    */
- bool dataExists(const std::string& reftime, const std::string& paramname,
-      gridinventory::GridParameter & param);
-
+ const gridinventory::GridParameter* dataExists(const std::string& reftime, const std::string& paramname);
 
    /**
    * Get data slice
@@ -252,7 +250,7 @@ public:
   */
  bool getActualTime(const std::string& reftime, const std::string& paramname, const miutil::miTime& time, int time_tolerance, miutil::miTime& actualtime);
 
- bool dataExists_reftime(const gridinventory::ReftimeInventory& reftimInv, const std::string& paramname, gridinventory::GridParameter& gp);
+ const gridinventory::GridParameter* dataExists_reftime(const gridinventory::ReftimeInventory& reftimInv, const std::string& paramname);
  void addComputedParameters();
  bool getAllFields_timeInterval(Field_pv& vfield, FieldRequest fieldrequest, int fch, bool accumulate_flux);
  bool getAllFields(Field_pv& vfield, FieldRequest fieldrequest, const std::vector<float>& constants);

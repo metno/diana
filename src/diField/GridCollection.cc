@@ -311,18 +311,16 @@ std::set<std::string> GridCollection::getReferenceTimes() const
 /**
  * Check if data exists
  */
-bool GridCollection::dataExists(const std::string& reftime, const std::string& paramname,
-    gridinventory::GridParameter& param)
+const gridinventory::GridParameter* GridCollection::dataExists(const std::string& reftime, const std::string& paramname)
 {
   METLIBS_LOG_SCOPE("searching for: " <<LOGVAL(paramname));
   for (GridIO* io : gridsources) {
-    if (dataExists_reftime(io->getReftimeInventory(reftime), paramname, param)) {
-      return true;
+    if (const gridinventory::GridParameter* param = dataExists_reftime(io->getReftimeInventory(reftime), paramname)) {
+      return param;
     }
   }
   METLIBS_LOG_DEBUG("SEARCHING IN COMPUTED:");
-  return dataExists_reftime(computed_inventory, paramname, param);
-
+  return dataExists_reftime(computed_inventory, paramname);
 }
 
 /**
@@ -342,10 +340,9 @@ Field_p GridCollection::getData(const std::string& reftime, const std::string& p
     std::map<miutil::miTime,GridIO*>::const_iterator ip = gridsourcesTimeMap.find(actualtime);
     if ( ip != gridsourcesTimeMap.end()) {
       ip->second->makeInventory(reftime);
-      gridinventory::GridParameter param;
-      if (dataExists_reftime(ip->second->getReftimeInventory(reftime), paramname, param)) {
+      if (const gridinventory::GridParameter* param = dataExists_reftime(ip->second->getReftimeInventory(reftime), paramname)) {
         // Ignore time from file, just use the first timestep
-        Field_p f = ip->second->getData(reftime, param, level, miutil::miTime(), elevel, unit);
+        Field_p f = ip->second->getData(reftime, *param, level, miutil::miTime(), elevel, unit);
         if (f)
           f->validFieldTime = actualtime;
         return f;
@@ -355,14 +352,13 @@ Field_p GridCollection::getData(const std::string& reftime, const std::string& p
   } else {
     for (GridIO* io : gridsources) {
       gridinventory::GridParameter param;
-      if (dataExists_reftime(io->getReftimeInventory(reftime), paramname, param)
-          && (param.key.taxis.empty() || getActualTime(reftime, paramname, time, time_tolerance, actualtime)))
-      {
-        // data exists ... calling getData
-        if (Field_p f = io->getData(reftime, param, level, actualtime, elevel, unit))
-          return f;
+      if (const gridinventory::GridParameter* param = dataExists_reftime(io->getReftimeInventory(reftime), paramname)) {
+        if (param->key.taxis.empty() || getActualTime(reftime, paramname, time, time_tolerance, actualtime)) {
+          // data exists ... calling getData
+          if (Field_p f = io->getData(reftime, *param, level, actualtime, elevel, unit))
+            return f;
+        }
       }
-
     }
   }
   METLIBS_LOG_DEBUG("giving up .. returning 0");
@@ -374,9 +370,8 @@ Field_p GridCollection::getData(const std::string& reftime, const std::string& p
  */
 vcross::Values_p GridCollection::getVariable(const std::string& reftime, const std::string& paramname)
 {
-  gridinventory::GridParameter gp;
   for (GridIO* io : gridsources) {
-    if (dataExists_reftime(io->getReftimeInventory(reftime), paramname, gp)) {
+    if (const gridinventory::GridParameter* gp = dataExists_reftime(io->getReftimeInventory(reftime), paramname)) {
       return io->getVariable(paramname);
     }
   }
@@ -390,16 +385,14 @@ vcross::Values_p GridCollection::getVariable(const std::string& reftime, const s
 std::set<miutil::miTime> GridCollection::getTimes(const std::string& reftime, const std::string& paramname)
 {
   METLIBS_LOG_SCOPE(LOGVAL(reftime) << LOGVAL(paramname));
-
-  std::set<miutil::miTime> settime;
-
   if (useTimeFromFilename())
     return getTimesFromFilename();
 
-  gridinventory::GridParameter gp;
+  std::set<miutil::miTime> settime;
+
   for (GridIO* io : gridsources) {
-    if (dataExists_reftime(io->getReftimeInventory(reftime), paramname,gp)) {
-      const Taxis& tx = io->getTaxis(reftime,gp.key.taxis);
+    if (const gridinventory::GridParameter* gp = dataExists_reftime(io->getReftimeInventory(reftime), paramname)) {
+      const Taxis& tx = io->getTaxis(reftime, gp->key.taxis);
       for (double v : tx.values) {
         // double -> miTime
         time_t t = v;
@@ -413,10 +406,10 @@ std::set<miutil::miTime> GridCollection::getTimes(const std::string& reftime, co
   if (!settime.empty())
     return settime;
 
-  if (dataExists_reftime(computed_inventory, paramname,gp)) {
-    const size_t idx_colon = gp.nativekey.find(':');
+  if (const gridinventory::GridParameter* gp = dataExists_reftime(computed_inventory, paramname)) {
+    const size_t idx_colon = gp->nativekey.find(':');
     if (idx_colon != std::string::npos) {
-      const int functionIndex = miutil::to_int(gp.nativekey.substr(idx_colon + 1));
+      const int functionIndex = miutil::to_int(gp->nativekey.substr(idx_colon + 1));
       const FieldFunctions::FieldCompute& fcm = FieldFunctions::fieldCompute(functionIndex);
       bool firstInput = true;
       for (const std::string& pn : fcm.input) {
@@ -434,9 +427,7 @@ std::set<miutil::miTime> GridCollection::getTimes(const std::string& reftime, co
           firstInput = false;
         } else {
           std::set<miutil::miTime> intersection;
-          std::set_intersection(settime.begin(), settime.end(),
-                                settime2.begin(), settime2.end(),
-                                std::inserter(intersection, intersection.begin()));
+          std::set_intersection(settime.begin(), settime.end(), settime2.begin(), settime2.end(), std::inserter(intersection, intersection.begin()));
           std::swap(settime, intersection);
         }
       }
@@ -461,9 +452,7 @@ std::set<miutil::miTime> GridCollection::getTimes(const std::string& reftime, co
           for (; i < constants.size(); ++i) {
             miutil::miTime tmpTime = t;
             tmpTime.addHour(constants[i]);
-            if (!settime.count(tmpTime)
-                && (!is_accumulate_flux || (is_accumulate_flux && tmpTime != rt)))
-            {
+            if (!settime.count(tmpTime) && (!is_accumulate_flux || (is_accumulate_flux && tmpTime != rt))) {
               break;
             }
           }
@@ -491,17 +480,13 @@ bool GridCollection::putData(const std::string& reftime, const std::string& para
 
 #ifdef FIMEX
   for (GridIO* io : gridsources) {
-    gridinventory::GridParameter param;
-    FimexIO* fio = dynamic_cast<FimexIO*>(io);
-    if (not fio)
-      continue;
-    miutil::miTime actualtime;
-    if (dataExists_reftime(fio->getReftimeInventory(reftime), paramname, param))
-    {
-      // data exists ... calling getData
-      return fio->putData(reftime, param, level, actualtime, elevel, unit, field, output_time);
+    if (FimexIO* fio = dynamic_cast<FimexIO*>(io)) {
+      if (const gridinventory::GridParameter* param = dataExists_reftime(fio->getReftimeInventory(reftime), paramname)) {
+        // data exists ... calling getData
+        miutil::miTime actualtime;
+        return fio->putData(reftime, *param, level, actualtime, elevel, unit, field, output_time);
+      }
     }
-
   }
 #endif
   METLIBS_LOG_WARN("giving up .. returning 0");
@@ -645,16 +630,16 @@ Field_p GridCollection::getField(const FieldRequest& fieldrequest)
 
 
   //check if requested parameter exist, and init param
-  gridinventory::GridParameter param;
 
   // check if param is in inventory
 
-  if (!dataExists(fieldrequest.refTime, param_name, param)) {
+  const gridinventory::GridParameter* param = dataExists(fieldrequest.refTime, param_name);
+  if (!param) {
     METLIBS_LOG_INFO("parameter '" << param_name << "' not found by dataExists");
     return 0;
   }
 
-  set<gridinventory::GridParameter>::iterator pitr = ritr->second.parameters.find(param);
+  set<gridinventory::GridParameter>::iterator pitr = ritr->second.parameters.find(*param);
   if (pitr == ritr->second.parameters.end()) {
     METLIBS_LOG_INFO("parameter " << param_name
         << "  not found in inventory even if dataExists returned true");
@@ -664,7 +649,7 @@ Field_p GridCollection::getField(const FieldRequest& fieldrequest)
   //If not computed parameter, read field from GridCollection and return
   if (pitr->nativekey.find("function:") == std::string::npos) {
     METLIBS_LOG_INFO(LOGVAL(fieldrequest.ptime));
-    Field_p field = getData(fieldrequest.refTime, param.key.name, param.key.zaxis, param.key.taxis, param.key.extraaxis, fieldrequest.plevel,
+    Field_p field = getData(fieldrequest.refTime, param->key.name, param->key.zaxis, param->key.taxis, param->key.extraaxis, fieldrequest.plevel,
                             fieldrequest.ptime, fieldrequest.elevel, fieldrequest.unit, fieldrequest.time_tolerance);
     return field;
   }
@@ -766,15 +751,13 @@ Field_p GridCollection::getField(const FieldRequest& fieldrequest)
       } else {
 
         // vertical- and extra-axis functions.
-        gridinventory::GridParameter param_new;
-        if (!dataExists(fieldrequest.refTime, fieldrequest_new.paramName,
-                        param_new)) {
+        const gridinventory::GridParameter* param_new = dataExists(fieldrequest.refTime, fieldrequest_new.paramName);
+        if (!param_new) {
           METLIBS_LOG_INFO("parameter '" << fieldrequest_new.paramName
                                          << "' not found by dataExists");
           return 0;
         }
-        set<gridinventory::GridParameter>::iterator pitr_new =
-            ritr->second.parameters.find(param_new);
+        set<gridinventory::GridParameter>::iterator pitr_new = ritr->second.parameters.find(*param_new);
         if (pitr_new == ritr->second.parameters.end()) {
           METLIBS_LOG_INFO("parameter " << fieldrequest_new.paramName
                                         << "  not found in inventory");
@@ -855,20 +838,17 @@ bool GridCollection::getActualTime(const std::string& reftime, const std::string
   return (std::abs(miutil::miTime::minDiff(*itBest, time)) <= time_tolerance);
 }
 
-
-bool GridCollection::dataExists_reftime(const gridinventory::ReftimeInventory& reftimeInv,
-    const std::string& paramname, gridinventory::GridParameter& gp)
+const gridinventory::GridParameter* GridCollection::dataExists_reftime(const gridinventory::ReftimeInventory& reftimeInv, const std::string& paramname)
 {
   METLIBS_LOG_SCOPE(LOGVAL(paramname));
   for (const gridinventory::GridParameter& p : reftimeInv.parameters) {
     if (p.key.name == paramname) {
       METLIBS_LOG_DEBUG("found paramname :-)  "<<p.key.name );
-      gp = p;
-      return true;
+      return &p;
     }
   }
 
-  return false;
+  return nullptr;
 }
 
 
