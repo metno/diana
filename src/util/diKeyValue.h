@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2018 met.no
+  Copyright (C) 2018-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -40,7 +40,7 @@ class KeyValue {
 public:
   KeyValue();
   explicit KeyValue(const std::string& k);
-  explicit KeyValue(const std::string& k, const std::string& v, bool keptQuotes=false);
+  KeyValue(const std::string& k, const std::string& v, bool keptQuotes = false);
 
   const std::string& key() const
     { return mKey; }
