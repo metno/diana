@@ -3,7 +3,7 @@
 
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2013 met.no
+ Copyright (C) 2013-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -95,10 +95,6 @@ private:
   bool doGetGridPoints(const GridArea& area, const Projection& map_proj,
       bool gridboxes, float**x, float**y, int& ipb);
 
-  static void doFindGridLimits(const GridArea& area, const Rectangle& maprect,
-      bool gridboxes, const float* x, const float* y, size_t xy_offset,
-      int& ix1, int& ix2, int& iy1, int& iy2);
-
   /// get vector rotation elements from angle cache
   bool getVectorRotationElements(const Area& data_area, const Projection& map_proj,
       int nvec, const float *x, const float *y, float ** cosx, float ** sinx);
@@ -122,10 +118,8 @@ public:
       const Rectangle& maprect, bool gridboxes,
       float** x, float** y, int& ix1, int& ix2, int& iy1, int& iy2);
 
-  static void findGridLimits(const GridArea& area, const Rectangle& maprect,
-      bool gridboxes, const float* x, const float* y,
-      int& ix1, int& ix2, int& iy1, int& iy2)
-    { doFindGridLimits(area, maprect, gridboxes, x, y, 1, ix1, ix2, iy1, iy2); }
+  static void findGridLimits(const GridArea& area, const Rectangle& maprect, bool gridboxes, const float* x, const float* y, int& ix1, int& ix2, int& iy1,
+                             int& iy2);
 
   /// convert u,v vector coordinates for points x,y - obsolete syntax, to be removed
   bool getVectors(const Area&, const Projection&, int,

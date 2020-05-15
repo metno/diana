@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2019 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -220,9 +220,8 @@ bool GridConverter::getGridPoints(const GridArea& area, const Area& map_area,
 }
 
 // static
-void GridConverter::doFindGridLimits(const GridArea& area, const Rectangle& maprect,
-    bool gridboxes, const float* x, const float* y, size_t xy_offset,
-    int& ix1, int& ix2, int& iy1, int& iy2)
+void GridConverter::findGridLimits(const GridArea& area, const Rectangle& maprect, bool gridboxes, const float* x, const float* y, int& ix1, int& ix2, int& iy1,
+                                   int& iy2)
 {
   IFDEBUG(METLIBS_LOG_SCOPE(LOGVAL(area) << LOGVAL(maprect) << LOGVAL(gridboxes)));
   const int gdxy = gridboxes ? 1 : 0;
@@ -236,7 +235,7 @@ void GridConverter::doFindGridLimits(const GridArea& area, const Rectangle& mapr
   const int dix = std::max(nx - 1, 1), diy = std::max(ny - 1, 1);
   for (int iy = 0; iy < ny; iy += diy) {
     for (int ix = 0; ix < nx; ix += dix) {
-      const int idx = xy_offset*(iy * nx + ix);
+      const int idx = iy * nx + ix;
       if (maprect.isinside(x[idx], y[idx]))
         numinside++;
     }
@@ -256,7 +255,7 @@ void GridConverter::doFindGridLimits(const GridArea& area, const Rectangle& mapr
   iy2 = -1;
 
   for (int iy = 0; iy < ny; iy++) {
-    int idx = xy_offset*iy*nx;
+    int idx = iy * nx;
     bool was_inside = maprect.isinside(x[idx], y[idx]);
     int left = was_inside ? 0 : -1;
     int right = -1;
@@ -266,7 +265,7 @@ void GridConverter::doFindGridLimits(const GridArea& area, const Rectangle& mapr
             << LOGVAL(left) << LOGVAL(right) << LOGVAL(iy1) << LOGVAL(iy2)));
 
     for (int ix = 1; ix < nx; ix++) {
-      idx += xy_offset;
+      idx += 1;
       const bool inside = maprect.isinside(x[idx], y[idx]);
       if (inside) {
         miutil::minimaximize(iy1, iy2, iy);
