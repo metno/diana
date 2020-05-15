@@ -13,7 +13,7 @@
 #include <map>
 #include <sstream>
 
-#define MILOGGER_CATEGORY "diField.FieldFunctions"
+#define MILOGGER_CATEGORY "diField.FlightLevel"
 #include "miLogger/miLogging.h"
 
 namespace {
