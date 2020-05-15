@@ -27,7 +27,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <diFieldManager.h>
+#include <diField/diFieldManager.h>
 
 #include <gtest/gtest.h>
 
@@ -56,9 +56,7 @@ TEST(FieldManager, TestRW)
     std::unique_ptr<FieldManager> fmanager(new FieldManager());
     {
         const std::string model_w = "fmtest_write";
-        std::vector<std::string> modelConfigInfo;
-        modelConfigInfo.push_back("model=" + model_w + " t=fimex sourcetype=netcdf file=" + fileName + " writeable=true");
-        ASSERT_TRUE(fmanager->addModels(modelConfigInfo));
+        ASSERT_TRUE(fmanager->addModels({"filegroup=x", "model=" + model_w + " t=fimex sourcetype=netcdf file=" + fileName + " writeable=true"}));
 
         fieldrequest.modelName = model_w;
         Field_p fieldW = fmanager->makeField(fieldrequest);
@@ -69,13 +67,51 @@ TEST(FieldManager, TestRW)
     }
     {
         const std::string model_r = "fmtest_read";
-        std::vector<std::string> modelConfigInfo;
-        modelConfigInfo.push_back("model=" + model_r + " t=fimex sourcetype=netcdf file=" + fileName);
-        ASSERT_TRUE(fmanager->addModels(modelConfigInfo));
+        ASSERT_TRUE(fmanager->addModels({"filegroup=x", "model=" + model_r + " t=fimex sourcetype=netcdf file=" + fileName}));
 
         fieldrequest.modelName = model_r;
         Field_p fieldR = fmanager->makeField(fieldrequest);
         ASSERT_TRUE(fieldR != 0);
         ASSERT_EQ(NEWDATA, fieldR->data[0]);
     }
+}
+
+TEST(FieldManager, GetFieldTime)
+{
+  const std::string filename(TEST_SRCDIR "/test_fimexio_rw.nc");
+  const std::string model = "fmtest";
+  std::unique_ptr<FieldManager> fmanager(new FieldManager());
+  ASSERT_TRUE(fmanager->addModels({ "model=" + model + " t=fimex sourcetype=netcdf file=" + filename }));
+
+  FieldRequest frq0;
+  frq0.modelName = model;
+  frq0.paramName = "lwe_precipitation_rate";
+  frq0.refTime = "2013-02-27T00:00:00";
+  frq0.allTimeSteps = true;
+
+  const miutil::miTime time0(frq0.refTime);
+
+  {
+    const auto times = fmanager->getFieldTime({frq0}, true);
+    ASSERT_EQ(67, times.size());
+    EXPECT_EQ(time0, *times.begin());
+  }
+  {
+    FieldRequest frq = frq0;
+    frq.hourOffset = 18;
+    miutil::miTime time = time0;
+    time.addHour(-frq.hourOffset);
+
+    const auto times = fmanager->getFieldTime({frq}, true);
+    ASSERT_FALSE(times.empty());
+    EXPECT_EQ(time, *times.begin());
+  }
+  {
+    FieldRequest frq1 = frq0;
+    frq1.paramName = "sea_surface_temperature";
+
+    const auto times = fmanager->getFieldTime({frq0, frq1}, true);
+    ASSERT_FALSE(times.empty());
+    EXPECT_EQ(time0, *times.begin());
+  }
 }
