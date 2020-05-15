@@ -135,8 +135,7 @@ private:
   typedef std::map<std::string, std::string> gridio_sections_t;
   gridio_sections_t gridio_sections;
 
-  GridCollectionPtr getGridCollection(const std::string& modelName,
-      const std::string& refTime = "", bool rescan = false);
+  GridCollectionPtr getGridCollection(const std::string& modelName, const std::string& refTime, bool updateSources);
 };
 
 #endif
