@@ -1,6 +1,6 @@
 #  Diana - A Free Meteorological Visualisation Tool
 #
-#  Copyright (C) 2017-2018 met.no
+#  Copyright (C) 2017-2020 met.no
 #
 #  Contact information:
 #  Norwegian Meteorological Institute
@@ -25,6 +25,26 @@
 #  along with Diana; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+IF (NOT TEST_EXTRADATA_DIR)
+  SET (TEST_EXTRADATA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/test-extradata)
+ENDIF ()
+MESSAGE (STATUS "Tests will try to find extra data in '${TEST_EXTRADATA_DIR}'")
+
+SET (CURRENT_TEST_EXTRADATA_VERSION 20200514T0800)
+SET(TEST_EXTRADATA_PAGE "https://wiki.met.no/diana/")
+SET(TEST_EXTRADATA_MESSAGE "in '${TEST_EXTRADATA_DIR}', please consider downloading version ${CURRENT_TEST_EXTRADATA_VERSION} from ${TEST_EXTRADATA_PAGE}")
+
+IF (EXISTS "${TEST_EXTRADATA_DIR}/VERSION")
+  FILE (STRINGS "${TEST_EXTRADATA_DIR}/VERSION" TEST_EXTRADATA_VERSION)
+  IF ("${TEST_EXTRADATA_VERSION}" STRLESS "${CURRENT_TEST_EXTRADATA_VERSION}")
+    MESSAGE (WARNING "Unxpected test data version '${TEST_EXTRADATA_VERSION}' ${TEST_EXTRADATA_MESSAGE}")
+  ENDIF ()
+ELSE ()
+  MESSAGE (WARNING "No extra test data seem to be present ${TEST_EXTRADATA_MESSAGE}")
+ENDIF ()
+
+########################################################################
+
 INCLUDE_DIRECTORIES(
   ${PC_INCLUDE_DIRS}
   ${PCUI_INCLUDE_DIRS}
@@ -36,11 +56,22 @@ INCLUDE_DIRECTORIES(
 ADD_DEFINITIONS(
   -DTEST_SRCDIR=\"${CMAKE_CURRENT_SOURCE_DIR}\"
   -DTEST_BUILDDIR=\"${CMAKE_CURRENT_BINARY_DIR}\"
+  -DTEST_EXTRADATA_DIR=\"${TEST_EXTRADATA_DIR}\"
+)
+
+ADD_LIBRARY(testinghelpers STATIC
+  testinghelpers.cc
+  testinghelpers.h
+)
+
+TARGET_LINK_LIBRARIES(testinghelpers
+  PUBLIC
+  ${GTEST_LIBRARY}
+  ${GTEST_MAIN_LIBRARY}
 )
 
 LINK_LIBRARIES(
-  ${GTEST_LIBRARY}
-  ${GTEST_MAIN_LIBRARY}
+  testinghelpers
 )
 
 LINK_DIRECTORIES(${PC_LIBRARY_DIRS} ${PCUI_LIBRARY_DIRS} ${Boost_LIBRARY_DIRS})
