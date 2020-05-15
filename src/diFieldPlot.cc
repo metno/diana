@@ -246,7 +246,8 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
   if (poptions.table == 0 || (poptions.palettecolours.empty() && poptions.patterns.empty()))
     return;
 
-  for (std::string& anno : annos) {
+  std::vector<std::string> annos_new;
+  for (const std::string& anno : annos) {
     if (miutil::contains(anno, "table")) {
       std::string unit = " " + poptions.legendunits;
 
@@ -479,9 +480,10 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
       str += "\"";
       str += endString;
 
-      annos.push_back(str);
+      annos_new.push_back(str);
     }
   }
+  diutil::insert_all(annos, annos_new);
 }
 
 void FieldPlot::getDataAnnotations(std::vector<std::string>& annos) const
@@ -491,6 +493,7 @@ void FieldPlot::getDataAnnotations(std::vector<std::string>& annos) const
   if (!hasData())
     return;
 
+  std::vector<std::string> new_annos;
   for (std::string& anno : annos) {
 
     std::string lg;
@@ -531,15 +534,18 @@ void FieldPlot::getDataAnnotations(std::vector<std::string>& annos) const
         startString = anno;
       }
 
-      float vas;
+      float vas = 0;
       std::string vat;
       renderer_->getVectorAnnotation(vas, vat);
-      std::string str = "arrow=" + miutil::from_number(vas) + ",tcolour=" + poptions.linecolour.Name() + endString;
-      annos.push_back(str);
-      str = "text=\" " + vat + "\"" + ",tcolour=" + poptions.linecolour.Name() + endString;
-      annos.push_back(str);
+      if (vas > 0) {
+        std::string str = "arrow=" + miutil::from_number(vas) + ",tcolour=" + poptions.linecolour.Name() + endString;
+        new_annos.push_back(str);
+        str = "text=\" " + vat + "\"" + ",tcolour=" + poptions.linecolour.Name() + endString;
+        new_annos.push_back(str);
+      }
     }
   }
+  diutil::insert_all(annos, new_annos);
 
   getTableAnnotations(annos);
 }
