@@ -156,9 +156,9 @@ public:
    * @param return actualtime, may differ from time if time_tolerance != 0
    * @return true/false
    */
- const gridinventory::GridParameter* dataExists(const std::string& reftime, const std::string& paramname);
+  const gridinventory::GridParameter* dataExists(const std::string& reftime, const std::string& paramname);
 
-   /**
+  /**
    * Get data slice
    * @param reftime
    * @param paramname
@@ -174,87 +174,87 @@ public:
    * @param return actualtime, may differ from time if time_tolerance != 0
    * @return field pointer
    */
- Field_p getData(const std::string& reftime, const std::string& paramname, const std::string& zaxis, const std::string& taxis, const std::string& extraaxis,
-                 const std::string& level, const miutil::miTime& time, const std::string& elevel, const std::string& unit, const int& time_tolerance);
+  Field_p getData(const std::string& reftime, const std::string& paramname, const std::string& zaxis, const std::string& taxis, const std::string& extraaxis,
+                  const std::string& level, const miutil::miTime& time, const std::string& elevel, const std::string& unit, const int& time_tolerance);
 
- vcross::Values_p getVariable(const std::string& reftime, const std::string& paramname);
+  vcross::Values_p getVariable(const std::string& reftime, const std::string& paramname);
 
- std::set<miutil::miTime> getTimes(const std::string& reftime, const std::string& paramname);
+  std::set<miutil::miTime> getTimes(const std::string& reftime, const std::string& paramname);
 
- bool putData(const std::string& reftime, const std::string& paramname, const std::string& level, const miutil::miTime& time, const std::string& run,
-              const std::string& unit, const std::string& output_time, const Field_cp field);
+  bool putData(const std::string& reftime, const std::string& paramname, const std::string& level, const miutil::miTime& time, const std::string& run,
+               const std::string& unit, const std::string& output_time, const Field_cp field);
 
- /**
-  * Get a list of raw sources.
-  * @return vector of strings
-  */
- const std::vector<std::string>& getRawSources() const { return rawsources; }
+  /**
+   * Get a list of raw sources.
+   * @return vector of strings
+   */
+  const std::vector<std::string>& getRawSources() const { return rawsources; }
 
- /**
-  * Updates the information held about the data sources.
-  */
- bool updateSources();
+  /**
+   * Updates the information held about the data sources.
+   */
+  bool updateSources();
 
- bool standardname2variablename(const std::string& reftime, const std::string& standard_name, std::string& variable_name);
+  bool standardname2variablename(const std::string& reftime, const std::string& standard_name, std::string& variable_name);
 
- std::map<std::string, std::string> getGlobalAttributes(const std::string& refTime);
+  std::map<std::string, std::string> getGlobalAttributes(const std::string& refTime);
 
- std::map<std::string, FieldPlotInfo> getFieldPlotInfo(const std::string& refTime);
+  std::map<std::string, FieldPlotInfo> getFieldPlotInfo(const std::string& refTime);
 
- Field_p getField(const FieldRequest& fieldrequest);
+  Field_p getField(const FieldRequest& fieldrequest);
 
- private:
- static GridConverter gc;
+private:
+  static GridConverter gc;
 
- std::set<miutil::miTime> timesFromFilename;
- /// name of collection
- std::string collectionname;
- /// source type
- std::string sourcetype;
- /// options to GridIO
- std::vector<std::string> formats;
- std::vector<std::string> configs;
- std::vector<std::string> options;
- /// unpacked sources
- std::vector<std::string> rawsources;
- std::vector<std::string> sources_with_wildcards;
- std::set<std::string> sources;
- /// use time from filename
- bool timeFromFilename;
- /// the setup class
- GridIOsetup* gridsetup;
- /// inventory made, and ok
- std::map<std::string, bool> inventoryOK;
- /// No complete inventory, only reftimes from filename
- std::set<std::string> refTimes;
- /// the combined inventory
- gridinventory::Inventory inventory;
- /// the combined inventory with computed parameters
- gridinventory::ReftimeInventory computed_inventory;
- /// the actual data-containers - list of GridIO objects
- typedef std::vector<GridIO*> gridsources_t;
- gridsources_t gridsources;
- std::map<miutil::miTime, GridIO*> gridsourcesTimeMap;
+  std::set<miutil::miTime> timesFromFilename;
+  /// name of collection
+  std::string collectionname;
+  /// source type
+  std::string sourcetype;
+  /// options to GridIO
+  std::vector<std::string> formats;
+  std::vector<std::string> configs;
+  std::vector<std::string> options;
+  /// unpacked sources
+  std::vector<std::string> rawsources;
+  std::vector<std::string> sources_with_wildcards;
+  std::set<std::string> sources;
+  /// use time from filename
+  bool timeFromFilename;
+  /// the setup class
+  GridIOsetup* gridsetup;
+  /// inventory made, and ok
+  std::map<std::string, bool> inventoryOK;
+  /// No complete inventory, only reftimes from filename
+  std::set<std::string> refTimes;
+  /// the combined inventory
+  gridinventory::Inventory inventory;
+  /// the combined inventory with computed parameters
+  gridinventory::ReftimeInventory computed_inventory;
+  /// the actual data-containers - list of GridIO objects
+  typedef std::vector<GridIO*> gridsources_t;
+  gridsources_t gridsources;
+  std::map<miutil::miTime, GridIO*> gridsourcesTimeMap;
 
- /// unpack the raw sources and make one or more GridIO instances
- bool makeGridIOinstances();
- /// clear the gridsources vector
- void clearGridSources();
+  /// unpack the raw sources and make one or more GridIO instances
+  bool makeGridIOinstances();
+  /// clear the gridsources vector
+  void clearGridSources();
 
- //! find nearest time within time tolerance
- /*!
-  * \param time time to search for
-  * \param time_tolerance tolerance in minutes
-  * \param actualtime found time, changed only if returning true
-  * \return true if time was found within time_tolerance
-  */
- bool getActualTime(const std::string& reftime, const std::string& paramname, const miutil::miTime& time, int time_tolerance, miutil::miTime& actualtime);
+  //! find nearest time within time tolerance
+  /*!
+   * \param time time to search for
+   * \param time_tolerance tolerance in minutes
+   * \param actualtime found time, changed only if returning true
+   * \return true if time was found within time_tolerance
+   */
+  bool getActualTime(const std::string& reftime, const std::string& paramname, const miutil::miTime& time, int time_tolerance, miutil::miTime& actualtime);
 
- const gridinventory::GridParameter* dataExists_reftime(const gridinventory::ReftimeInventory& reftimInv, const std::string& paramname);
- void addComputedParameters();
- bool getAllFields_timeInterval(Field_pv& vfield, FieldRequest fieldrequest, int fch, bool accumulate_flux);
- bool getAllFields(Field_pv& vfield, FieldRequest fieldrequest, const std::vector<float>& constants);
- bool multiplyFieldByTimeStep(Field_p f, float sec_diff);
+  const gridinventory::GridParameter* dataExists_reftime(const gridinventory::ReftimeInventory& reftimInv, const std::string& paramname);
+  void addComputedParameters();
+  bool getAllFields_timeInterval(Field_pv& vfield, FieldRequest fieldrequest, int fch, bool accumulate_flux);
+  bool getAllFields(Field_pv& vfield, FieldRequest fieldrequest, const std::vector<float>& constants);
+  bool multiplyFieldByTimeStep(Field_p f, float sec_diff);
 };
 
 #endif /* GRIDCOLLECTION_H_ */
