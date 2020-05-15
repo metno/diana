@@ -543,20 +543,16 @@ bool FieldPlotManager::makeFields(FieldPlotCommand_cp cmd, const FieldPlotComman
 
 bool FieldPlotManager::makeDifferenceField(FieldPlotCommand_cp cmd, const miTime& const_ptime, Field_pv& fv)
 {
-  fv.clear();
   Field_pv fv1;
   Field_pv fv2;
-
   if (!(makeFields(cmd, cmd->field, const_ptime, fv1) && makeFields(cmd, cmd->minus, const_ptime, fv2)))
     return false;
 
-  //make copy of fields, do not change the field cache
-  for (unsigned int i = 0; i < fv1.size(); i++) {
-    Field_p ff = std::make_shared<Field>();
-    fv.push_back(ff);
-    *fv[i] = *fv1[i];
-  }
-
+  // make copy of fields
+  fv.clear();
+  fv.reserve(fv1.size());
+  for (Field_cp f1 : fv1)
+    fv.push_back(std::make_shared<Field>(*f1));
   fv1.clear();
 
   //make Difference Field text
