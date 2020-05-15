@@ -28,6 +28,7 @@
 */
 
 #include <diField/diFieldManager.h>
+#include <diField/diFieldFunctions.h>
 
 #include <gtest/gtest.h>
 
@@ -113,5 +114,43 @@ TEST(FieldManager, GetFieldTime)
     const auto times = fmanager->getFieldTime({frq0, frq1}, true);
     ASSERT_FALSE(times.empty());
     EXPECT_EQ(time0, *times.begin());
+  }
+}
+
+// this is more a test for GridCollection::getTimesFromCompute
+TEST(FieldManager, GetFieldTimeComputed)
+{
+  const std::string tdk = "tdk", tk = "air_temperature";
+  std::vector<std::string> errors;
+  ASSERT_TRUE(FieldFunctions::parseComputeSetup({tdk+"=tdk.tk_rh("+tk+",relative_humidity)"}, errors) && errors.empty());
+
+  const std::string filename(TEST_SRCDIR "/test_fimexio_rw.nc");
+  const std::string model = "fmtest";
+  std::unique_ptr<FieldManager> fmanager(new FieldManager());
+  ASSERT_TRUE(fmanager->addModels({"filegroup=x", "model=" + model + " t=fimex sourcetype=netcdf file=" + filename }));
+
+  FieldRequest frq0;
+  frq0.modelName = model;
+  frq0.refTime = "2013-02-27T00:00:00";
+  const miutil::miTime time0(frq0.refTime);
+
+  {
+    FieldRequest frq_tdk = frq0;
+    frq_tdk.paramName = tdk;
+    FieldRequest frq_tk = frq0;
+    frq_tk.paramName = tk; // not computed
+
+    const auto times_tdk = fmanager->getFieldTime({frq_tdk}, true);
+    ASSERT_EQ(67, times_tdk.size());
+    EXPECT_EQ(time0, *times_tdk.begin());
+
+    const auto times_tk = fmanager->getFieldTime({frq_tk}, true);
+    ASSERT_EQ(times_tdk, times_tk);
+    EXPECT_EQ(time0, *times_tk.begin());
+  }
+  {
+    FieldRequest frq_dpt = frq0;
+    frq_dpt.paramName = "dew_point_temperature"; // not defined
+    ASSERT_TRUE(fmanager->getFieldTime({frq_dpt}, true).empty());
   }
 }
