@@ -388,11 +388,6 @@ public:
     FieldSpec() : vcoord(false), ecoord(false), use_standard_name(false) {}
   };
 
-  // Build operation types to read and compute fields
-  enum BuildOper {
-    bop_none, bop_read, bop_function, bop_result, bop_delete
-  };
-
 private:
   struct FunctionHelper {
     Function func;
