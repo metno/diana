@@ -73,16 +73,6 @@ Field& Field::operator=(const Field &rhs)
   return *this;
 }
 
-bool Field::operator==(const Field &rhs) const
-{
-  return area == rhs.area;
-}
-
-bool Field::operator!=(const Field &rhs) const
-{
-  return !(*this == rhs);
-}
-
 void Field::shallowMemberCopy(const Field& rhs)
 {
   METLIBS_LOG_SCOPE();

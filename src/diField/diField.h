@@ -108,12 +108,14 @@ public:
   Field(const Field &rhs);
   Field& operator=(const Field &rhs);
 
+private:
   // Equality operator (only checking gridarea)
   bool operator==(const Field &rhs) const;
 
   // Inequality operator (only checking gridarea)
   bool operator!=(const Field &rhs) const;
 
+public:
   /// Delete the data
   void cleanup();
 
