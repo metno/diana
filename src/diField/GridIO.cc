@@ -51,19 +51,13 @@ typename C::const_iterator find_name(const C& c, const std::string& name)
 
 } // namespace
 
-GridIO::GridIO()
-{
-  // TODO Auto-generated constructor stub
-}
-
-GridIO::GridIO(const std::string source)
-  : source_name(source)
+GridIO::GridIO(const std::string& source)
+    : source_name(source)
 {
 }
 
 GridIO::~GridIO()
 {
-  // TODO Auto-generated destructor stub
 }
 
 const gridinventory::ReftimeInventory & GridIO::getReftimeInventory(const std::string reftime) const

@@ -5,7 +5,7 @@
  *      Author: audunc
  */
 /*
- Copyright (C) 2006 met.no
+ Copyright (C) 2006-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -77,8 +77,10 @@ public:
   typedef boost::shared_array<float> FloatArray;
 
 public:
-  GridIO();
-  GridIO(const std::string source);
+  GridIO(const GridIO&) = delete;
+  GridIO& operator=(const GridIO&) = delete;
+
+  GridIO(const std::string& source);
   virtual ~GridIO();
 
   /**
