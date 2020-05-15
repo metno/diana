@@ -823,22 +823,3 @@ void Field::convertFromGrid(int npos, float* xpos, float* ypos) const
     ypos[i] = area.fromGridY(ypos[i]);
   }
 }
-
-ostream& operator<<(ostream& output, const Field& f)
-{
-  return output
-      << "Name="      << f.name << " "
-      << "modelName=" << f.modelName << " "
-      << "paramName=" << f.paramName << endl
-
-      << "level="     << f.level << " "
-      << "idnum="     << f.idnum << endl
-
-      << "forcasthour="    << f.forecastHour << " "
-      << "validfieldtime=" << f.validFieldTime << " "
-      << "analysisTime="   << f.analysisTime << endl
-
-      << "datapointer=" << (long)f.data << " "
-      << "area.nx,area.ny=" << f.area.nx << "," << f.area.ny << " "
-      << "gridResolutionX,gridResolutionY=" << f.area.resolutionX << "," << f.area.resolutionY;
-}

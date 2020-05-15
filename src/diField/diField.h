@@ -37,8 +37,6 @@
 
 #include <puTools/miTime.h>
 
-#include <iosfwd>
-
 /**
 
   \brief Field data and information
@@ -170,9 +168,6 @@ public:
 
   /// Return x,y in grid-coord
   void convertToGrid(int npos, float* xpos, float* ypos) const;
-
-  // ostream operator
-  friend std::ostream& operator<<(std::ostream& output, const Field& f);
 };
 
 #endif
