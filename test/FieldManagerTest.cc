@@ -34,12 +34,7 @@
 #include <fstream>
 #include <string>
 
-#define MILOGGER_CATEGORY "diField.test.FieldManagerTest"
-#include "miLogger/miLogging.h"
-
-//#define DEBUG_MESSAGES
-
-TEST(FieldManagerTest, TestRW)
+TEST(FieldManager, TestRW)
 {
     const std::string fileName(TEST_BUILDDIR "/testrun_fimexio_rw.nc");
     {
@@ -84,10 +79,3 @@ TEST(FieldManagerTest, TestRW)
         ASSERT_EQ(NEWDATA, fieldR->data[0]);
     }
 }
-
-namespace /* anonymous */ {
-template<typename V, typename C>
-C& operator<<(C& container, const V& value)
-{ container.push_back(value); return container; }
-} // anonymous namespace
-
