@@ -350,22 +350,15 @@ bool Field::smooth(int nsmooth)
   if (nsmooth<1)
     return true;
 
-  float *work = new float[area.gridSize()];
-  float *worku1 = 0;
-  float *worku2 = 0;
+  std::unique_ptr<float[]> work(new float[area.gridSize()]);
+  std::unique_ptr<float[]> worku1, worku2;
 
   if (!allDefined()) {
-    worku1= new float[area.gridSize()];
-    worku2= new float[area.gridSize()];
+    worku1 = std::unique_ptr<float[]>(new float[area.gridSize()]);
+    worku2 = std::unique_ptr<float[]>(new float[area.gridSize()]);
   }
 
-  bool res= smooth(nsmooth, work, worku1, worku2);
-
-  delete[] work;
-  delete[] worku1;
-  delete[] worku2;
-
-  return res;
+  return smooth(nsmooth, work.get(), worku1.get(), worku2.get());
 }
 
 
