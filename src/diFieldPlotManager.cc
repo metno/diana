@@ -694,7 +694,7 @@ bool FieldPlotManager::makeDifferenceField(FieldPlotCommand_cp cmd, const miTime
   METLIBS_LOG_DEBUG("F1-F2: timetext:       "<<f1->timetext);
   METLIBS_LOG_DEBUG("-----------------------------------------------------");
 
-  return fieldManager->makeDifferenceFields(fv, fv2);
+  return FieldManager::makeDifferenceFields(fv, fv2);
 }
 
 void FieldPlotManager::getFieldPlotGroups(const std::string& modelName, const std::string& refTime, bool predefinedPlots, FieldPlotGroupInfo_v& vfgi)

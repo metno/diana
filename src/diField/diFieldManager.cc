@@ -626,6 +626,7 @@ Field_p FieldManager::makeField(FieldRequest& frq)
   return fout;
 }
 
+// static
 bool FieldManager::makeDifferenceFields(Field_pv& fv1, Field_pv& fv2)
 {
   unsigned int dim = fv1.size();

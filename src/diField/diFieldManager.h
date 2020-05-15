@@ -105,7 +105,7 @@ public:
   bool writeField(const FieldRequest& fieldrequest, Field_cp field);
 
   /// read and compute a difference field (fv1 = fv1-fv2)
-  bool makeDifferenceFields(Field_pv& fv1, Field_pv& fv2);
+  static bool makeDifferenceFields(Field_pv& fv1, Field_pv& fv2);
 
 protected:
   static GridConverter gc;   // gridconverter class
