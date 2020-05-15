@@ -73,15 +73,20 @@ bool MovieMaker::isImageSeries() const
   return mOutputFormat == format_series;
 }
 
+static QString formatFrameFile(QString pattern, int frameNumber)
+{
+  return pattern.arg(frameNumber, framePatternWidth, 10, QLatin1Char('0'));
+}
+
 QString MovieMaker::frameFile(int frameNumber) const
 {
-  return framePattern.arg(frameNumber, framePatternWidth, 10, QLatin1Char('0'));
+  return formatFrameFile(framePattern, frameNumber);
 }
 
 QString MovieMaker::framePath(int frameNumber) const
 {
   if (isImageSeries())
-    return mOutputFile.arg(frameNumber);
+    return formatFrameFile(mOutputFile, frameNumber);
   else
     return mOutputDir.filePath(frameFile(frameNumber));
 }
