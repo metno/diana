@@ -368,17 +368,11 @@ bool FieldManager::addModels(const std::vector<std::string>& configInfo)
   std::vector<std::string> lines;
 
   for (const std::string& ci : configInfo) {
-
-    std::string datasource;
     std::string sourcetype;
-    std::string dataset;
-    std::string referencetime;
     std::string model;
     std::string guiOption;
     std::string config;
-    std::string gridioType = "fimex";
     std::vector<std::string> options;
-
     std::string file;
 
     const std::vector<std::string> tokens = miutil::split_protected(ci, '"', '"');
@@ -397,30 +391,19 @@ bool FieldManager::addModels(const std::vector<std::string>& configInfo)
       std::string key = miutil::to_lower(stokens[0]);
       miutil::remove(key, '"');
       miutil::remove(stokens[1], '"');
-      if (key == "datasource") {
-        datasource = stokens[1];
-        //        file = stokens[1];
-      } else if (key == "sourcetype") {
+      if (key == "sourcetype") {
         sourcetype = stokens[1];
-      } else if (key == "dataset" ) {
-        dataset = stokens[1];
-      } else if (key == "referencetime" ) {
-        referencetime = stokens[1];
-        miutil::remove(referencetime, ':');
-      } else if (key == "model" ) {
+      } else if (key == "model") {
         model = stokens[1];
-      } else if (key == "o" ) {
+      } else if (key == "o") {
         guiOption = stokens[1];
-      } else if (key == "gridioType" ) {
-        gridioType = miutil::to_lower(stokens[1]);
-      } else if (key == "config" || key == "c" ) {
+      } else if (key == "config" || key == "c") {
         config = stokens[1];
-      } else if (key == "file" ) {
+      } else if (key == "file") {
         file = stokens[1];
       } else {
         options.push_back(tok);
       }
-
     }
 
     if (config.empty() && defaultConfig.count(sourcetype)>0 ) {
@@ -429,13 +412,6 @@ bool FieldManager::addModels(const std::vector<std::string>& configInfo)
 
     if (file.empty() && defaultFile.count(sourcetype)>0 ) {
       file = defaultFile[sourcetype];
-    }
-
-    //make setup string
-    if (sourcetype == "wdb" ) {
-      ostringstream source;
-      source <<"\"file="<<file<<";dataprovider="<<dataset<<";host="<<datasource<<";referencetime="<<referencetime<<"\"";
-      file = source.str();
     }
 
     ostringstream ost;

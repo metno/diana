@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -108,7 +108,7 @@ struct EditProduct {
   std::vector<std::string> local_savedirs;                 ///< directories for saved product
   std::vector<std::string> prod_savedirs;                 ///< directories for saved product
   std::vector<std::string> inputdirs;       ///< savedir is always the first ???
-  std::string inputFieldFormat;        ///< inputFieldFormat netcdf,felt,wdb etc
+  std::string inputFieldFormat;             ///< inputFieldFormat netcdf,felt etc
   std::string inputFieldConfig;        ///< fimex xml-config
   std::vector<std::string> combinedirs;     ///< directory for combined product
   std::string combineBorders;          ///< "ANAborders."  (ANAborders.DNMI etc.)
