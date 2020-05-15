@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2019 met.no
+  Copyright (C) 2017-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -74,16 +74,12 @@ void DianaImageSource::paintGL(DiPaintGLPainter* gl)
     const QTransform annotationTransform_ = gl->transform;
 
     QRectF cutout;
-    int i = 0, number = -1;
     for (const Rectangle& ar : annotationRectangles_) {
-      if (i == number || number == -1) {
-        QRectF r = annotationTransform_.mapRect(QRectF(ar.x1, ar.y1, ar.width(), ar.height()));
-        if (cutout.isNull())
-          cutout = r;
-        else if (!r.isNull())
-          cutout = cutout.united(r);
-      }
-      i += 1;
+      QRectF r = annotationTransform_.mapRect(QRectF(ar.x1, ar.y1, ar.width(), ar.height()));
+      if (cutout.isNull())
+        cutout = r;
+      else if (!r.isNull())
+        cutout = cutout.united(r);
     }
     if (!cutout.isNull()) {
       annotationsCutout_ = QRectF(-cutout.x(), -cutout.y(), cutout.width(), cutout.height());
