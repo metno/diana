@@ -31,6 +31,9 @@
 
 #include "MovieMaker.h"
 #include "util/subprocess.h"
+
+#include "puTools/miStringFunctions.h"
+
 #include <QImage>
 
 #include <cmath>
@@ -159,7 +162,9 @@ bool MovieMaker::createVideo()
   else
     encoder = "mpeg2video";
 
-  const QString converter = "avconv";
+  const std::string converter_from_env = miutil::from_c_str(getenv("DIANA_VIDEO_CONVERTER"));
+  const QString converter = (!converter_from_env.empty()) ? QString::fromStdString(converter_from_env) : QString("ffmpeg");
+
   QStringList args;
   args << "-y" // overwrite output file
        << "-framerate" << QString("%1/%2").arg(framerate_n).arg(framerate_d)
