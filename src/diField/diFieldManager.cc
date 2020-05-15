@@ -445,14 +445,13 @@ std::map<std::string,std::string> FieldManager::getGlobalAttributes(const std::s
     return std::map<std::string,std::string>();
 }
 
-void FieldManager::getFieldPlotInfo(const std::string& modelName, const std::string& refTime, std::map<std::string, FieldPlotInfo>& fieldInfo)
+std::map<std::string, FieldPlotInfo> FieldManager::getFieldPlotInfo(const std::string& modelName, const std::string& refTime)
 {
   METLIBS_LOG_SCOPE(LOGVAL(modelName)<<LOGVAL(refTime));
-
-  fieldInfo.clear();
-
   if (GridCollectionPtr pgc = getGridCollection(modelName, refTime, false))
-    pgc->getFieldPlotInfo(refTime, fieldInfo);
+    return pgc->getFieldPlotInfo(refTime);
+  else
+    return std::map<std::string, FieldPlotInfo>();
 }
 
 FieldManager::GridCollectionPtr FieldManager::getGridCollection(const std::string& modelName, const std::string& refTime, bool updateSources)

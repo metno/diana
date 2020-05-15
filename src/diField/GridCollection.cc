@@ -573,20 +573,19 @@ std::map<std::string,std::string> GridCollection::getGlobalAttributes(const std:
   return ritr->second.globalAttributes;
 }
 
-void GridCollection::getFieldPlotInfo(const std::string& refTime, std::map<std::string, FieldPlotInfo>& fieldInfo)
+std::map<std::string, FieldPlotInfo> GridCollection::getFieldPlotInfo(const std::string& refTime)
 {
   METLIBS_LOG_SCOPE(LOGVAL(refTime));
 
-  fieldInfo.clear();
+  std::map<std::string, FieldPlotInfo> fieldInfo;
 
-  std::map<std::string, gridinventory::ReftimeInventory>::const_iterator ritr =
-      inventory.reftimes.find(refTime);
+  auto ritr = inventory.reftimes.find(refTime);
   if (ritr == inventory.reftimes.end()) {
     if (refTime.empty() && !inventory.reftimes.empty()) {
       ritr = inventory.reftimes.begin();
     } else {
-      METLIBS_LOG_INFO( " refTime not found: " << refTime);
-      return;
+      METLIBS_LOG_INFO("refTime '" << refTime << "' not found, list of plots will be empty");
+      return fieldInfo;
     }
   }
 
@@ -605,7 +604,7 @@ void GridCollection::getFieldPlotInfo(const std::string& refTime, std::map<std::
     }
 
     set<gridinventory::ExtraAxis>::iterator eitr = ritr->second.extraaxes.find(ExtraAxis(gp.extraaxis_id));
-    if (eitr!=ritr->second.extraaxes.end()) {
+    if (eitr != ritr->second.extraaxes.end()) {
       vi.realization_axis.name = eitr->name;
       vi.realization_axis.values = eitr->getStringValues();
     }
@@ -621,8 +620,10 @@ void GridCollection::getFieldPlotInfo(const std::string& refTime, std::map<std::
       vi.groupName = vi.vcoord() + "_" + vi.ecoord();
     }
 
-    fieldInfo[vi.fieldName]=vi;
+    fieldInfo[vi.fieldName] = vi;
   }
+
+  return fieldInfo;
 }
 
 Field_p GridCollection::getField(const FieldRequest& fieldrequest)

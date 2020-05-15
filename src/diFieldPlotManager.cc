@@ -446,10 +446,9 @@ vector<std::string> FieldPlotManager::getFieldLevels(FieldPlotCommand_cp cmd)
   if (!vfieldrequest.size())
     return levels;
 
-  std::map<std::string, FieldPlotInfo> fieldPlotInfo;
-  fieldManager->getFieldPlotInfo(vfieldrequest[0].modelName, vfieldrequest[0].refTime, fieldPlotInfo);
-  std::map<std::string, FieldPlotInfo>::const_iterator ip = fieldPlotInfo.find(vfieldrequest[0].paramName);
-
+  FieldRequest& frq = vfieldrequest.front();
+  const std::map<std::string, FieldPlotInfo> fieldPlotInfo = fieldManager->getFieldPlotInfo(frq.modelName, frq.refTime);
+  const auto ip = fieldPlotInfo.find(frq.paramName);
   if (ip != fieldPlotInfo.end()) {
     levels = ip->second.vlevels();
   }
@@ -701,8 +700,7 @@ void FieldPlotManager::getFieldPlotGroups(const std::string& modelName, const st
 {
   vfgi.clear();
 
-  map<std::string, FieldPlotInfo> fieldInfo;
-  fieldManager->getFieldPlotInfo(modelName, refTime, fieldInfo);
+  const std::map<std::string, FieldPlotInfo> fieldInfo = fieldManager->getFieldPlotInfo(modelName, refTime);
   map<std::string, FieldPlotGroupInfo> mfgi;
 
   if (!predefinedPlots) {

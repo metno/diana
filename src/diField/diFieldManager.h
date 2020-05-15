@@ -86,7 +86,7 @@ public:
   std::map<std::string,std::string> getGlobalAttributes(const std::string& modelName, const std::string& refTime);
 
   /// return all variables/levels for one model/file (to FieldDialog)
-  void getFieldPlotInfo(const std::string& modelName, const std::string& refTime, std::map<std::string, FieldPlotInfo>& fieldInfo);
+  std::map<std::string, FieldPlotInfo> getFieldPlotInfo(const std::string& modelName, const std::string& refTime);
 
   /// return grid from requested model, if the model contains more grids, the first one is returned
   gridinventory::Grid getGrid(const std::string& modelName);
