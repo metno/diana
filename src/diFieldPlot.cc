@@ -125,10 +125,18 @@ void FieldPlot::getAnnotation(std::string& s, Colour& c) const
 
 bool FieldPlot::prepare(const std::string& fname, const FieldPlotCommand_cp& cmd)
 {
+  METLIBS_LOG_SCOPE(LOGVAL(fname));
+  PlotOptions setupoptions;
+  miutil::KeyValue_v setupopts;
+  fieldplotm_->getFieldPlotOptions(fname, setupoptions, setupopts);
+  return prepare(setupoptions, setupopts, cmd);
+}
+
+bool FieldPlot::prepare(const PlotOptions& setupoptions, const miutil::KeyValue_v& setupopts, const FieldPlotCommand_cp& cmd)
+{
   METLIBS_LOG_SCOPE(LOGVAL(cmd->toString()));
-  // merge current plotOptions (from pin) with plotOptions from setup
-  miutil::KeyValue_v opts;
-  fieldplotm_->getFieldPlotOptions(fname, poptions, opts);
+  poptions = setupoptions;
+  miutil::KeyValue_v opts = setupopts;
   METLIBS_LOG_DEBUG(LOGVAL(poptions.toKeyValueList()) << LOGVAL(opts) << LOGVAL(cmd->options()));
   diutil::insert_all(opts, cmd->options());
   setPlotInfo(opts);

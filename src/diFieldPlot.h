@@ -65,6 +65,8 @@ public:
   //* Also fetches some default options from FieldPlotManager. */
   bool prepare(const std::string& fname, const FieldPlotCommand_cp&);
 
+  bool prepare(const PlotOptions& setupoptions, const miutil::KeyValue_v& setupopts, const FieldPlotCommand_cp& cmd);
+
   //  set list of field-pointers, update datatime
   void setData(const std::vector<Field*>&, const miutil::miTime&);
   const Area& getFieldArea() const;

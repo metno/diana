@@ -91,6 +91,7 @@ SET (dianaUnitTests_SOURCES
   ${dianaUnitTests_QTSOURCES}
   TestCommandParser.cc
   TestDianaLevels.cc
+  TestFieldPlot.cc
   TestFieldUtil.cc
   TestGridIO.cc
   TestImageIO.cc

@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2019 met.no
+ Copyright (C) 2006-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -29,7 +29,7 @@
 #ifndef diPlotModule_h
 #define diPlotModule_h
 
-#include "diArea.h"
+#include "diField/diArea.h"
 #include "diPlot.h"
 #include "diPlotCommand.h"
 #include "diPlotElement.h"
