@@ -32,6 +32,7 @@
 #define DIFIELD_FIELDFUNCTIONS_H
 
 #include "diFieldFwd.h"
+#include "diFieldVerticalAxes.h"
 
 #include <map>
 #include <memory>
@@ -343,17 +344,6 @@ public:
     f_snow_cm_from_snow_water_tk_td //!< f_snow_cm_from_snow_water_tk_td
   };
 
-  /// Vertical coordinate types
-  enum VerticalType {
-    vctype_none, ///< surface and other single level fields
-    vctype_pressure, ///< pressure levels
-    vctype_hybrid, ///< model levels, eta(Hirlam,ECMWF,...) and norlam_sigma
-    vctype_atmospheric, ///< other model levels (needing pressure in each level)
-    vctype_isentropic, ///< isentropic (constant pot.temp.) levels
-    vctype_oceandepth, ///< ocean model depth levels
-    vctype_other ///< other multilevel fields (without dedicated compute functions)
-  };
-
   /// One field computation from setup
   struct FieldCompute {
     std::string name; ///< result field (possibly only one ot the results)
@@ -362,18 +352,7 @@ public:
     Function function; ///< function identifier
     std::vector<std::string> input; ///< input field(s)
     std::vector<float> constants; ///< input constants ("const:.." in functions)
-    VerticalType vctype; ///
-  };
-
-  struct Zaxis_info {
-    std::string name;
-    VerticalType vctype;
-    std::string levelprefix;
-    std::string levelsuffix;
-    bool index;
-
-    Zaxis_info()
-      : vctype(vctype_none), index(false) {}
+    FieldVerticalAxes::VerticalType vctype; ///
   };
 
   struct FieldSpec {
@@ -396,10 +375,10 @@ private:
     int numfields;
     int numconsts;
     unsigned int numresult;
-    FieldFunctions::VerticalType vertcoord;
+    FieldVerticalAxes::VerticalType vertcoord;
     FunctionHelper() :
       func(FieldFunctions::f_undefined), numfields(0), numconsts(0),
-      numresult(1), vertcoord(FieldFunctions::vctype_none)
+      numresult(1), vertcoord(FieldVerticalAxes::vctype_none)
       { }
   };
 
@@ -415,16 +394,9 @@ public:
     { return vFieldCompute.at(idx); }
 
   static std::string FIELD_COMPUTE_SECTION();
-  static std::string FIELD_VERTICAL_COORDINATES_SECTION();
-
-  static const Zaxis_info* findZaxisInfo(const std::string& name);
-
-  static VerticalType getVerticalType(const std::string& vctype);
 
   /// read setup section for field computations
   static bool parseComputeSetup(const std::vector<std::string>& lines,
-      std::vector<std::string>& errors);
-  static bool parseVerticalSetup(const std::vector<std::string>& lines,
       std::vector<std::string>& errors);
 
   static bool splitFieldSpecs(const std::string& paramName, FieldSpec& fs);
@@ -442,8 +414,6 @@ private:
 
 private:
   static std::vector<FieldCompute> vFieldCompute;
-
-  static std::map<std::string, Zaxis_info> Zaxis_info_map;
 };
 
 #endif // DIFIELD_FIELDFUNCTIONS_H

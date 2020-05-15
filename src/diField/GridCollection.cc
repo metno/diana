@@ -598,7 +598,7 @@ std::map<std::string, FieldPlotInfo> GridCollection::getFieldPlotInfo(const std:
     if (zitr != ritr->second.zaxes.end()) {
       vi.vertical_axis.values = zitr->getStringValues();
       vi.vertical_axis.name = zitr->verticalType;
-      if (zitr->vc_type == FieldFunctions::vctype_oceandepth) {
+      if (zitr->vc_type == FieldVerticalAxes::vctype_oceandepth) {
         vi.vertical_axis.default_value_index = 0;
       }
     }
@@ -940,7 +940,7 @@ void GridCollection::addComputedParameters()
     //find input parameters and check
 
     bool inputOk = true;
-    std::string computeZaxis;// = VerticalName[FieldFunctions::vctype_none]; //default, change if input parameter has different zaxis
+    std::string computeZaxis;// = VerticalName[FieldVerticalAxes::vctype_none]; //default, change if input parameter has different zaxis
     int computeZaxisValues = -1;
     std::string computeEaxis;
     // loop trough input params with same zaxis

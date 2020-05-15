@@ -63,7 +63,7 @@ struct FieldPlotManagerPlotField
   std::vector<PlotFieldInput> input; ///< the input fields, read or computed
   std::string inputstr;              // same as above, used as tooltip
   std::set<std::string> vcoord;
-  FieldFunctions::VerticalType vctype;
+  FieldVerticalAxes::VerticalType vctype;
 };
 
 FieldPlotManager::FieldPlotManager()
@@ -175,7 +175,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
         vector<std::string> input;
         std::string inputstr;
         set<std::string> vcoord;
-        FieldFunctions::VerticalType vctype = FieldFunctions::vctype_none;
+        FieldVerticalAxes::VerticalType vctype = FieldVerticalAxes::vctype_none;
 
         for (int i = firstLine; i < lastLine; i++) {
           str = lines[i];
@@ -223,7 +223,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
               } else if (key == key_vcoord && vstr[j + 1] == "=") {
                 diutil::insert_all(vcoord, miutil::split(vstr[j + 2], ","));
               } else if (key == key_vc_type && vstr[j + 1] == "=") {
-                vctype = FieldFunctions::getVerticalType(vstr[j+2]);
+                vctype = FieldVerticalAxes::getVerticalType(vstr[j+2]);
               } else if (vstr[j + 1] == "=") {
                 // this should be a plot option
                 const miutil::KeyValue_v option1(1, miutil::KeyValue(vstr[j], vstr[j + 2]));
@@ -875,11 +875,11 @@ vector<FieldRequest> FieldPlotManager::getParamNames(const std::string& plotName
   //else use fieldname= plotname
 
   vector<FieldRequest> vfieldrequest;
-  const FieldFunctions::Zaxis_info* zaxi = FieldFunctions::findZaxisInfo(fieldrequest.zaxis);
+  const FieldVerticalAxes::Zaxis_info* zaxi = FieldVerticalAxes::findZaxisInfo(fieldrequest.zaxis);
 
   for (PlotField_p pf : vPlotField) {
     if ((pf->name == plotName) &&
-        ((pf->vcoord.empty() && pf->vctype == FieldFunctions::vctype_none) || pf->vcoord.count(fieldrequest.zaxis) || (zaxi && pf->vctype == zaxi->vctype))) {
+        ((pf->vcoord.empty() && pf->vctype == FieldVerticalAxes::vctype_none) || pf->vcoord.count(fieldrequest.zaxis) || (zaxi && pf->vctype == zaxi->vctype))) {
       for (const auto& input : pf->input) {
         fieldrequest.paramName = input.name;
         fieldrequest.standard_name = input.is_standard_name;

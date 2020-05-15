@@ -109,7 +109,7 @@ std::vector<std::string> FieldManager::subsections()
 
   subs.push_back(FieldFunctions::FIELD_COMPUTE_SECTION());
 
-  subs.push_back(FieldFunctions::FIELD_VERTICAL_COORDINATES_SECTION());
+  subs.push_back(FieldVerticalAxes::FIELD_VERTICAL_COORDINATES_SECTION());
 
   return subs;
 }
@@ -157,8 +157,8 @@ bool FieldManager::parseSetup(const std::vector<std::string>& lines,
   if (token == FieldFunctions::FIELD_COMPUTE_SECTION())
     return FieldFunctions::parseComputeSetup(lines, errors);
 
-  if (token == FieldFunctions::FIELD_VERTICAL_COORDINATES_SECTION())
-    return FieldFunctions::parseVerticalSetup(lines, errors);
+  if (token == FieldVerticalAxes::FIELD_VERTICAL_COORDINATES_SECTION())
+    return FieldVerticalAxes::parseVerticalSetup(lines, errors);
 
   return true;
 }

@@ -41,12 +41,12 @@ void Zaxis::setStringValues()
   stringvalues.clear();
 
   //use zaxis-info from setup
-  vc_type = FieldFunctions::vctype_other;
+  vc_type = FieldVerticalAxes::vctype_other;
   std::string levelprefix;
   std::string levelsuffix;
   std::string name = verticalType;
   bool index = false;
-  if (const FieldFunctions::Zaxis_info* zi = FieldFunctions::findZaxisInfo(name)) {
+  if (const FieldVerticalAxes::Zaxis_info* zi = FieldVerticalAxes::findZaxisInfo(name)) {
     vc_type = zi->vctype;
     levelprefix = zi->levelprefix;
     levelsuffix = zi->levelsuffix;

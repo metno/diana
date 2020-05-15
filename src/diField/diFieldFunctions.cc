@@ -58,8 +58,6 @@ using namespace std;
 // static data (setup)
 vector<FieldFunctions::FieldCompute> FieldFunctions::vFieldCompute;
 
-map< std::string, FieldFunctions::Zaxis_info > FieldFunctions::Zaxis_info_map;
-
 FieldFunctions::FieldFunctions()
 {
 }
@@ -68,44 +66,6 @@ FieldFunctions::FieldFunctions()
 std::string FieldFunctions::FIELD_COMPUTE_SECTION()
 {
   return "FIELD_COMPUTE";
-}
-
-// static
-std::string FieldFunctions::FIELD_VERTICAL_COORDINATES_SECTION()
-{
-  return "FIELD_VERTICAL_COORDINATES";
-}
-
-// static
-const FieldFunctions::Zaxis_info* FieldFunctions::findZaxisInfo(const std::string& name)
-{
-  const std::map< std::string, Zaxis_info>::const_iterator it = Zaxis_info_map.find(name);
-  if (it != Zaxis_info_map.end())
-    return &(it->second);
-  else
-    return 0;
-}
-
-// static
-FieldFunctions::VerticalType FieldFunctions::getVerticalType(const std::string& vctype)
-{
-  if ( vctype == "none" )
-    return FieldFunctions::vctype_none;
-  if ( vctype == "pressure")
-    return FieldFunctions::vctype_pressure;
-  if ( vctype == "hybrid")
-    return FieldFunctions::vctype_hybrid;
-  if ( vctype == "atmospheric")
-    return FieldFunctions::vctype_atmospheric;
-  if ( vctype == "isentropic")
-    return FieldFunctions::vctype_isentropic;
-  if ( vctype == "oceandepth")
-    return FieldFunctions::vctype_oceandepth;
-  if ( vctype == "other")
-    return FieldFunctions::vctype_other;
-
-  return FieldFunctions::vctype_none;
-
 }
 
 // static member
@@ -126,17 +86,17 @@ bool FieldFunctions::registerFunction(functions_t& functions, Function f, const 
   const vector<std::string> vstr = miutil::split(str, 0, ",");
 
   // set the vertical component type
-  fh.vertcoord = vctype_none;
+  fh.vertcoord = FieldVerticalAxes::vctype_none;
   if (miutil::contains(functionName, ".plevel_"))
-    fh.vertcoord = vctype_pressure;
+    fh.vertcoord = FieldVerticalAxes::vctype_pressure;
   else if (miutil::contains(functionName, ".hlevel_"))
-    fh.vertcoord = vctype_hybrid;
+    fh.vertcoord = FieldVerticalAxes::vctype_hybrid;
   else if (miutil::contains(functionName, ".alevel_"))
-    fh.vertcoord = vctype_atmospheric;
+    fh.vertcoord = FieldVerticalAxes::vctype_atmospheric;
   else if (miutil::contains(functionName, ".ilevel_"))
-    fh.vertcoord = vctype_isentropic;
+    fh.vertcoord = FieldVerticalAxes::vctype_isentropic;
   else if (miutil::contains(functionName, ".ozlevel_"))
-    fh.vertcoord = vctype_oceandepth;
+    fh.vertcoord = FieldVerticalAxes::vctype_oceandepth;
 
   fh.numfields = 0;
   fh.numconsts = 0;
@@ -435,7 +395,7 @@ bool FieldFunctions::parseComputeSetup(const vector<std::string>& lines, vector<
           FieldCompute fcomp;
           fcomp.name = vspec[0];
           fcomp.functionName = miutil::to_upper(functionName);
-          VerticalType vctype = vctype_none;
+          FieldVerticalAxes::VerticalType vctype = FieldVerticalAxes::vctype_none;
 
           // First check if function is a simple calculation
           if ((pc = compute.find(functionName)) != pcend) {
@@ -519,42 +479,6 @@ bool FieldFunctions::parseComputeSetup(const vector<std::string>& lines, vector<
         // show a warning, but do not fail
       }
     }
-  }
-
-  return true;
-}
-
-bool FieldFunctions::parseVerticalSetup(const std::vector<std::string>& lines,
-    std::vector<std::string>& errors)
-{
-  const std::string key_name = "name";
-  const std::string key_vc_type = "vc_type";
-  const std::string key_levelprefix = "levelprefix";
-  const std::string key_levelsuffix = "levelsuffix";
-  const std::string key_index = "index";
-
-  int nlines = lines.size();
-
-  for (int l = 0; l < nlines; l++) {
-    Zaxis_info zaxis_info;
-    vector<std::string> tokens= miutil::split_protected(lines[l], '"','"');
-    for (size_t  i = 0; i < tokens.size(); i++) {
-      vector<std::string> stokens= miutil::split_protected(tokens[i], '"','"',"=",true);
-      if (stokens.size() == 2 )  {
-        if( stokens[0] == key_name ) {
-          zaxis_info.name = stokens[1];
-        } else  if( stokens[0] == key_vc_type ) {
-          zaxis_info.vctype= getVerticalType(stokens[1]);
-        } else  if( stokens[0] == key_levelprefix ) {
-          zaxis_info.levelprefix = stokens[1];
-        } else  if( stokens[0] == key_levelsuffix ) {
-          zaxis_info.levelsuffix = stokens[1];
-        } else  if( stokens[0] == key_index ) {
-          zaxis_info.index = (stokens[1]=="true");
-        }
-      }
-    }
-    Zaxis_info_map[zaxis_info.name] = zaxis_info;
   }
 
   return true;
