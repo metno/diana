@@ -258,23 +258,3 @@ Inventory Inventory::merge(const Inventory& i) const
 
   return result;
 }
-
-/**
- * Get timestamp of this inventory
- * returns the latest timestamp in all models and reference times
- * optionally return timestamp for a specific model/reftime
- */
-miutil::miTime Inventory::getTimeStamp(const std::string & reftime) const
-{
-  miutil::miTime time;//(1000,1,1,0,0,0);
-  std::map<std::string, ReftimeInventory>::const_iterator ritr = reftimes.begin();
-  for (; ritr != reftimes.end(); ritr++) {
-    if (!reftime.empty() && ritr->second.referencetime != reftime){
-      continue;
-    }
-    if (!ritr->second.timestamp.undef() && (time.undef() || ritr->second.timestamp > time)){
-      time = ritr->second.timestamp;
-    }
-  }
-  return time;
-}

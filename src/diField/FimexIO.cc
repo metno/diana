@@ -579,8 +579,6 @@ bool FimexIO::makeInventory(const std::string& reftime)
     reftime_from_file = fallbackGetReferenceTime();
   }
 
-  const miutil::miTime now = miTime::nowTime();
-
   set<gridinventory::GridParameter> parameters;
   set<gridinventory::Grid> grids;
   set<gridinventory::Zaxis> zaxes;
@@ -822,7 +820,6 @@ bool FimexIO::makeInventory(const std::string& reftime)
       ri.zaxes = zaxes;
       diutil::insert_all(ri.taxes, taxes);
       ri.extraaxes = extraaxes;
-      ri.timestamp = now;
       ri.globalAttributes = globalAttributes;
     }
 
