@@ -150,7 +150,6 @@ Inventory Inventory::merge(const Inventory& i) const
       const ReftimeInventory& r2 = r2itr->second;
 
       // Check attributes
-      std::set<GridParameter> parameters = r2.parameters, newparameters;
 
       bool axisOk = true; //false if grid or axes not ok
 
@@ -236,7 +235,7 @@ Inventory Inventory::merge(const Inventory& i) const
 
       // add new parameters
       if ( axisOk ) {
-        for (const GridParameter& p : parameters) {
+        for (const GridParameter& p : r2.parameters) {
           if (reftime.parameters.find(p) == reftime.parameters.end()) {
             reftime.parameters.insert(p);
           }
