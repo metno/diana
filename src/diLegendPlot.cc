@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,13 +33,17 @@
 
 #include "diana_config.h"
 
-#include "diLegendPlot.h"
-#include "diImageGallery.h"
 #include "diGLPainter.h"
+#include "diImageGallery.h"
+#include "diLegendPlot.h"
+#include "util/string_util.h"
+
+#include "mi_fieldcalc/math_util.h"
 
 #include <puTools/miStringFunctions.h>
 
 #include <cmath>
+
 #include "polyStipMasks.h"
 
 #define MILOGGER_CATEGORY "diana.LegendPlot"
@@ -70,14 +74,13 @@ LegendPlot::LegendPlot(const std::string& str)
     if(n>0){
       if (poptions.tableHeader)
         titlestring = tokens[0];
-      for(int i=1;i<n;i+=3){
-        if(i+3>n) break;
+      for (int i = 1; i + 2 < n; i += 3) {
         ColourCode cc;
         cc.colour = Colour(tokens[i]);
         cc.pattern = tokens[i+1];
         cc.colourstr = tokens[i+2];
-        //if string start with '|', do not plot colour/pattern box
-        if(cc.colourstr.find('|')==1){
+        // if string starts with '|', do not plot colour/pattern box
+        if (diutil::startswith(cc.colourstr, "|")) {
           cc.plotBox = false;
           miutil::remove(cc.colourstr, '|');
         } else {
@@ -91,34 +94,36 @@ LegendPlot::LegendPlot(const std::string& str)
 
 LegendPlot::~LegendPlot()
 {
-  METLIBS_LOG_SCOPE();
 }
 
-bool LegendPlot::plotLegend(DiGLPainter* gl, float x, float y)
+void LegendPlot::calculateSizes(DiGLPainter* gl, float& xborder, float& yborder, float& tablewidth, float& titlewidth, float& maxheight,
+                                std::vector<std::string>& vtitlestring)
 {
-  METLIBS_LOG_SCOPE();
-  // fill the table with colours and textstrings from palette information
+  gl->setFont(poptions.fontname, poptions.fontface, poptions.fontsize);
+  getStringSize(gl, "c", xborder, yborder);
+  xborder /= 2;
+  yborder /= 2;
 
-  int ncolours = colourcodes.size();
-  if(!ncolours) return false;
+  tablewidth = titlewidth = maxheight = 0;
+  vtitlestring.clear();
 
-  float width,height,maxwidth=0,maxheight=0,titlewidth=0;
+  if (colourcodes.empty())
+    return;
 
   //colour code strings
-  for (int i=0; i<ncolours; i++){
-    colourcodes[i].colourstr += suffix;
-    getStringSize(gl, colourcodes[i].colourstr, width, height);
-    if (width>maxwidth) maxwidth= width;
-    if (height>maxheight) maxheight= height;
+  for (const auto& c : colourcodes) {
+    float width, height;
+    getStringSize(gl, c.colourstr + suffix, width, height);
+    miutil::maximize(tablewidth, width);
+    miutil::maximize(maxheight, height);
   }
 
   //title
-  int ntitle = 0;
-  vector<std::string> vtitlestring;
-  if((not titlestring.empty())){
-    getStringSize(gl, titlestring, titlewidth, height);
-    if(titlewidth>maxwidth){
-      vector<std::string> vs = miutil::split(titlestring, " ");
+  if (!titlestring.empty()) {
+    float width, height;
+    getStringSize(gl, titlestring, width, height);
+    if (width > tablewidth) {
+      const vector<std::string> vs = miutil::split(titlestring, " ");
       if (vs.size()>=5) {
         // handle field difference...
         std::string smove;
@@ -140,32 +145,35 @@ bool LegendPlot::plotLegend(DiGLPainter* gl, float x, float y)
           }
         }
       } else {
-        vtitlestring= vs;
+        vtitlestring = vs;
       }
     } else {
       vtitlestring.push_back(titlestring);
     }
-    ntitle = vtitlestring.size();
-    titlewidth = 0;
-    for (int i=0; i<ntitle; i++){
-      getStringSize(gl, vtitlestring[i], width, height);
-      if (width>titlewidth) titlewidth = width;
-      if (height>maxheight)   maxheight= height;
+    for (const auto& t : vtitlestring) {
+      getStringSize(gl, t, width, height);
+      miutil::maximize(titlewidth, width);
+      miutil::maximize(maxheight, height);
     }
+    titlewidth += 2 * xborder;
   }
 
-  // position table
+  tablewidth += 7 * xborder;
+  miutil::maximize(titlewidth, tablewidth);
+}
 
-  float xborder;
-  float yborder;
-  getStringSize(gl, "c",xborder,yborder);
-  xborder /=2;
-  yborder /=2;
-  titlewidth  = titlewidth + 2*xborder;
-  float titleheight = maxheight*ntitle;
-  float tablewidth  = maxwidth + 7*xborder;
-  float tableheight = maxheight*ncolours + 2*yborder;
-  if(titlewidth < tablewidth ) titlewidth = tablewidth;
+bool LegendPlot::plotLegend(DiGLPainter* gl, float x, float y)
+{
+  METLIBS_LOG_SCOPE();
+  // fill the table with colours and textstrings from palette information
+
+  float xborder, yborder, tablewidth, titlewidth, maxheight;
+  vector<std::string> vtitlestring;
+  calculateSizes(gl, xborder, yborder, tablewidth, titlewidth, maxheight, vtitlestring);
+
+  // position table
+  const float titleheight = maxheight * vtitlestring.size();
+  const float tableheight = maxheight * colourcodes.size() + 2 * yborder;
 
   float x1title = x;
   float x2title = x + titlewidth;
@@ -175,26 +183,24 @@ bool LegendPlot::plotLegend(DiGLPainter* gl, float x, float y)
   float x1table = 0.0, x2table = 0.0;
   if(poptions.h_align==align_right){
     x1table = x2title-tablewidth;
-    x2table = x2title;
   } else if(poptions.h_align==align_left){
     x1table = x1title;
-    x2table = x1title+tablewidth;
   } else if(poptions.h_align==align_center){
     x1table = (x2title+x1title)/2.- tablewidth/2.;
-    x2table = (x2title+x1title)/2.+ tablewidth/2.;
   }
+  x2table = x1table + tablewidth;
   float y1table = y1title-tableheight;
 
   //draw title background
-  if(ntitle>0){
+  if (!vtitlestring.empty()) {
     gl->setColour(poptions.fillcolour, false);
     gl->drawRect(true, x1title, y2title, x2title, y1title);
 
     //draw title
     gl->setColour(poptions.textcolour);
     float titley1 = y2title-yborder-maxheight/2;
-    for (int i=0;i<ntitle;i++) {
-      gl->drawText(vtitlestring[i],(x1title+xborder),titley1);
+    for (const auto& t : vtitlestring) {
+      gl->drawText(t, (x1title + xborder), titley1);
       titley1 -= maxheight;
     }
   }
@@ -212,8 +218,8 @@ bool LegendPlot::plotLegend(DiGLPainter* gl, float x, float y)
   float y1box = y2box - maxheight;
   ImageGallery ig;
   gl->Enable(DiGLPainter::gl_POLYGON_STIPPLE);
-  for (int i = 0; i < ncolours; i++) {
-    if (colourcodes[i].plotBox) {
+  for (const auto& c : colourcodes) {
+    if (c.plotBox) {
       // draw colour/pattern box
       // draw background of colour/pattern boxes
       gl->setColour(poptions.fillcolour, false);
@@ -227,8 +233,8 @@ bool LegendPlot::plotLegend(DiGLPainter* gl, float x, float y)
 #else
       gl->drawRect(true, x1box, y1box, x2box, y2box);
 #endif
-      if ((not colourcodes[i].pattern.empty())) {
-        DiGLPainter::GLubyte* p = ig.getPattern(colourcodes[i].pattern);
+      if (!c.pattern.empty()) {
+        DiGLPainter::GLubyte* p = ig.getPattern(c.pattern);
         if (p == 0)
           gl->PolygonStipple(solid);
         else
@@ -236,15 +242,16 @@ bool LegendPlot::plotLegend(DiGLPainter* gl, float x, float y)
       } else {
         gl->PolygonStipple(solid);
       }
-      gl->setColour(colourcodes[i].colour);
+      gl->setColour(c.colour);
       gl->drawRect(true, x1box, y1box, x2box, y2box);
 
       // draw border of colour/pattern box
       gl->drawRect(false, x1box, y1box, x2box, y2box);
     }
+
     // draw textstring
     gl->setColour(poptions.textcolour);
-    gl->drawText(colourcodes[i].colourstr, (x2box + xborder), (y1box + 0.8 * yborder));
+    gl->drawText(c.colourstr + suffix, (x2box + xborder), (y1box + 0.8 * yborder));
     y2box -= maxheight;
     y1box -= maxheight;
   }
@@ -256,85 +263,21 @@ bool LegendPlot::plotLegend(DiGLPainter* gl, float x, float y)
 
 float LegendPlot::height(DiGLPainter* gl)
 {
-  int ncolours = colourcodes.size();
-  if(!ncolours) return 0.0;
+  float xborder, yborder, table_width, title_width, row_height;
+  vector<std::string> vtitlestring;
+  calculateSizes(gl, xborder, yborder, table_width, title_width, row_height, vtitlestring);
 
-  gl->setFont(poptions.fontname,poptions.fontface,poptions.fontsize);
-  float width,height,maxwidth=0,maxheight=0,titlewidth=0;
-
-  //colour code strings
-  for (int i=0; i<ncolours; i++){
-    std::string cstring;
-    cstring = colourcodes[i].colourstr;
-    getStringSize(gl, cstring, width, height);
-    if (height>maxheight) maxheight= height;
-    if (width>maxwidth) maxwidth= width;
-  }
-
-  //title
-  int ntitle=0;
-  if((not titlestring.empty())){
-    getStringSize(gl, titlestring, titlewidth, height);
-    vector<std::string> vtitlestring;
-    if(titlewidth>maxwidth){
-      vtitlestring = miutil::split(titlestring, " ");
-    } else {
-      vtitlestring.push_back(titlestring);
-    }
-    ntitle = vtitlestring.size();
-    for (int i=0; i<ntitle; i++){
-      getStringSize(gl, vtitlestring[i], width, height);
-      if (height>maxheight)   maxheight= height;
-    }
-  }
-
-  float xborder;
-  float yborder;
-  getStringSize(gl, "c",xborder,yborder);
-  yborder /=4;
-  float titleheight = maxheight*ntitle;
-  float tableheight = maxheight*ncolours + 2*yborder;
+  const float titleheight = row_height * vtitlestring.size();
+  const float tableheight = row_height * colourcodes.size() + yborder;
 
   return (tableheight + titleheight);
 }
 
 float LegendPlot::width(DiGLPainter* gl)
 {
-  int ncolours = colourcodes.size();
-  if(!ncolours) return 0.0;
-
-  gl->setFont(poptions.fontname,poptions.fontface,poptions.fontsize);
-  float width,height,maxwidth=0,titlewidth=0;
-
-  //colour code strings
-  for (int i=0; i<ncolours; i++){
-    std::string cstring;
-    cstring = colourcodes[i].colourstr;
-    getStringSize(gl, cstring, width, height);
-    if (width>maxwidth) maxwidth= width;
-  }
-
-  //title
-  getStringSize(gl, titlestring, titlewidth, height);
+  float xborder, yborder, tablewidth, titlewidth, maxheight;
   vector<std::string> vtitlestring;
-  if(titlewidth>maxwidth){
-    vtitlestring = miutil::split(titlestring, " ");
-  } else {
-    vtitlestring.push_back(titlestring);
-  }
-  int ntitle = vtitlestring.size();
-  titlewidth = 0;
-  for (int i=0; i<ntitle; i++){
-    getStringSize(gl, vtitlestring[i], width, height);
-    if (width>titlewidth) titlewidth = width;
-  }
+  calculateSizes(gl, xborder, yborder, tablewidth, titlewidth, maxheight, vtitlestring);
 
-  float xborder;
-  float yborder;
-  getStringSize(gl, "c",xborder,yborder);
-  xborder /=2;
-  titlewidth  = titlewidth + 2*xborder;
-  float tablewidth  = maxwidth + 6*xborder;
-  if(titlewidth < tablewidth ) titlewidth = tablewidth;
   return titlewidth;
 }

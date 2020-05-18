@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -9,7 +9,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -57,28 +57,23 @@ private:
   std::string titlestring;
   std::vector<ColourCode> colourcodes;
 
-  // x,y coordinates of the titlebar... if we click inside this area,
-  //change value of showplot;
   std::string suffix;
   PlotOptions poptions;
 
   LegendPlot(const LegendPlot& rhs) = delete;
   LegendPlot& operator=(const LegendPlot& rhs) = delete;
 
+  void calculateSizes(DiGLPainter* gl, float& xborder, float& yborder, float& tablewidth, float& titlewidth, float& maxheight,
+                      std::vector<std::string>& vtitlestring);
+
 public:
   /// Constructor which reads string to get title and make vector of ColourCode
   LegendPlot(const std::string& str);
+
   ~LegendPlot();
 
   /// plots the legend plot with top left corner at x,y
   bool plotLegend(DiGLPainter* gl, float x=0.0, float y=0.0);
-
-  /// if x,y inside title bar, then the table should be hidden or shown
-  void showSatTable(int x,int y);
-  /// check if x,y inside title bar
-  bool inSatTable(int x,int y);
-  /// moves plot from x1,y1 to x2,y2
-  void moveSatTable(int x1,int y1,int x2,int y2);
 
   void setPlotOptions(const PlotOptions& po)
     { poptions = po; }
@@ -90,11 +85,9 @@ public:
   ///sets suffix, usually unit (hPa, mm)
   void setSuffix(const std::string& suffix_){suffix = suffix_;}
 
-  /// sets alignment
-  void setAlignment(Alignment a){poptions.h_align=a;}
-
   /// calculates and returns total table height
   float height(DiGLPainter* gl);
+
   /// calculates and returns total table width
   float width(DiGLPainter* gl);
 };
