@@ -32,6 +32,8 @@
 #ifndef GRIDINVENTORYTYPES_H_
 #define GRIDINVENTORYTYPES_H_
 
+#include "diFieldVerticalAxes.h"
+
 #include "puTools/miTime.h"
 
 #include <map>
@@ -151,25 +153,21 @@ public:
  */
 class Zaxis: public InventoryBase {
 public:
-  enum type {
-    vc_none, vc_pressure, vc_sigma, vc_unknown
-  };
-public:
-  int vc_type; ///< coordinate type
+  FieldVerticalAxes::VerticalType vc_type; ///< coordinate type
   bool positive; //direction of axsis
   std::string verticalType;
 
   Zaxis() :
-    vc_type(vc_unknown), positive(true)
+    vc_type(FieldVerticalAxes::vctype_other), positive(true)
   {
   }
   explicit Zaxis(const std::string& id_) :
-    InventoryBase(id_), vc_type(vc_unknown), positive(true)
+    InventoryBase(id_), vc_type(FieldVerticalAxes::vctype_other), positive(true)
   {
   }
   Zaxis(const std::string& id_, const std::string& na, const bool p,
       const std::vector<double>& le, const std::string& verticaltype="") :
-    InventoryBase(id_, na, le), vc_type(vc_unknown), positive(p), verticalType(verticaltype)
+    InventoryBase(id_, na, le), vc_type(FieldVerticalAxes::vctype_other), positive(p), verticalType(verticaltype)
   {
     setStringValues();
   }
