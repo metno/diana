@@ -34,7 +34,6 @@
 
 #include "puTools/miTime.h"
 
-#include <iosfwd>
 #include <map>
 #include <set>
 #include <string>
@@ -255,7 +254,6 @@ public:
   std::string standard_name;
   std::string long_name;
   std::string nativekey;
-  std::string calibration;
   std::string zaxis_id;
   std::string taxis_id;
   std::string extraaxis_id;
@@ -338,27 +336,6 @@ public:
    * @return resulting inventory
    */
   Inventory merge(const Inventory& i) const;
-
-  /**
-   * Inventory dump
-   * @return text-version
-   */
-  std::string toString() const;
-
-  /**
-   * Get timestamp of this inventory
-   * @param modelname, name of model or "" if all
-   * @param reftime, reference time or "" if all
-   * @return
-   */
-  miutil::miTime getTimeStamp(const std::string & reftime = "") const;
-
-  friend std::ostream& operator<<(std::ostream& out,
-      const gridinventory::Inventory& rhs)
-  {
-    out << rhs.toString();
-    return out;
-  }
 };
 
 } // namespace gridinventory
