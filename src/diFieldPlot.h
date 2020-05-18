@@ -53,6 +53,8 @@ public:
   ~FieldPlot();
 
   void changeTime(const miutil::miTime& mapTime) override;
+  void changeProjection(const Area& mapArea, const Rectangle& plotSize, const diutil::PointI& physSize) override;
+
   bool hasData() const override;
   void plot(DiGLPainter* gl, PlotOrder zorder) override;
   void getAnnotation(std::string&, Colour&) const override;

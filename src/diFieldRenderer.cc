@@ -53,28 +53,39 @@
 #define MILOGGER_CATEGORY "diana.FieldRenderer"
 #include <miLogger/miLogging.h>
 
+namespace {
 const int MaxWindsAuto = 40;
 const int MaxArrowsAuto = 55;
+} // namespace
 
 FieldRenderer::FieldRenderer()
     : is_raster_(false)
     , is_shade_(false)
-    , vectorAnnotationSize(0)
 {
-  METLIBS_LOG_SCOPE();
 }
 
 FieldRenderer::~FieldRenderer() {}
 
 bool FieldRenderer::hasVectorAnnotation()
 {
-  return vectorAnnotationSize > 0 && !vectorAnnotationText.empty();
+  return plottype() == fpt_vector; // FIXME also needs data, successful getGridPoints, ...
 }
 
 void FieldRenderer::getVectorAnnotation(float& size, std::string& text)
 {
-  size = vectorAnnotationSize;
-  text = vectorAnnotationText;
+  if (hasVectorAnnotation() && !fields_.empty()) {
+    int ix1, ix2, iy1, iy2;
+    float *x, *y;
+    if (getGridPoints(x, y, ix1, ix2, iy1, iy2)) {
+      int step = poptions_.density;
+      setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, step, size);
+      text = miutil::from_number(poptions_.vectorunit) + poptions_.vectorunitname;
+      return;
+    }
+  }
+
+  size = 0;
+  text.clear();
 }
 
 void FieldRenderer::clearData()
@@ -1247,13 +1258,7 @@ bool FieldRenderer::plotVector(DiGLPainter* gl)
   const float* colourfield = (fields_.size() == 3 && fields_[2] && fields_[2]->data) ? fields_[2]->data : 0;
 
   float arrowlength = 0;
-  const bool ok = plotArrows(gl, &FieldRenderer::prepareVectors, colourfield, arrowlength);
-
-  // for annotations .... should probably be resized if very small or large...
-  vectorAnnotationSize = arrowlength;
-  vectorAnnotationText = miutil::from_number(poptions_.vectorunit) + poptions_.vectorunitname;
-
-  return ok;
+  return plotArrows(gl, &FieldRenderer::prepareVectors, colourfield, arrowlength);
 }
 
 /* plot true north direction field as arrows (wave,...) */

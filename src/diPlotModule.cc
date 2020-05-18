@@ -129,6 +129,8 @@ void PlotModule::setCanvas(DiCanvas* canvas)
     m->setCanvas(canvas);
 
   updateCanvasSize();
+
+  setAnnotations(); // physical size change
 }
 
 void PlotModule::processInput(const PlotCommand_cpv& vpi)
@@ -285,7 +287,7 @@ void PlotModule::enablePlotElement(const PlotElement& pe)
 
   // get annotations from all plots
   if (change)
-    setAnnotations();
+    setAnnotations(); // plot enabled/disabled
 }
 
 void PlotModule::setAnnotations()
@@ -361,7 +363,7 @@ void PlotModule::changeTime(const miutil::miTime& mapTime)
   }
 
   defineMapArea();
-  setAnnotations();
+  setAnnotations(); // time / data change
 }
 
 bool PlotModule::hasData()
@@ -638,6 +640,8 @@ void PlotModule::notifyChangeProjection()
 
   for (Manager* m : boost::adaptors::values(managers))
     m->changeProjection(ma, ps, wh);
+
+  setAnnotations(); // projection change
 }
 
 void PlotModule::setMapArea(const Area& area)
@@ -888,7 +892,7 @@ void PlotModule::updateObs()
   obsplots_->update(true, staticPlot_->getTime());
 
   // get annotations from all plots
-  setAnnotations();
+  setAnnotations(); // obs data changed (data count included in annotation)
 }
 
 AreaObjectsCluster* PlotModule::areaobjects()

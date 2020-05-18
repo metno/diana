@@ -111,6 +111,14 @@ void FieldPlot::changeTime(const miutil::miTime& mapTime)
   }
 }
 
+void FieldPlot::changeProjection(const Area& mapArea, const Rectangle& /*plotSize*/, const diutil::PointI& physSize)
+{
+  PlotArea pa;
+  pa.setMapArea(mapArea);
+  pa.setPhysSize(physSize.x(), physSize.y());
+  renderer_->setMap(pa);
+}
+
 void FieldPlot::getAnnotation(std::string& s, Colour& c) const
 {
   if (poptions.options_1)
@@ -146,6 +154,8 @@ bool FieldPlot::prepare(const PlotOptions& setupoptions, const miutil::KeyValue_
   ooptions = cmd->options();
   METLIBS_LOG_DEBUG(LOGVAL(cmd_opts->toString()) << LOGVAL(ooptions));
   cmd_ = cmd_opts;
+
+  renderer_->setPlotOptions(poptions); // required for arrow annotations
 
   if (poptions.maxDiagonalInMeters > -1) {
     const double diagonal = getStaticPlot()->getRequestedarea().getDiagonalInMeters();
@@ -578,7 +588,6 @@ void FieldPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 
   renderer_->setPlotOptions(poptions);
   renderer_->setBackgroundColour(getStaticPlot()->getBackgroundColour());
-  renderer_->setMap(getStaticPlot()->plotArea());
   renderer_->plot(gl, zorder);
 }
 

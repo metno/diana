@@ -121,10 +121,6 @@ private:
   bool is_raster_; //!< true iff raster plot
   bool is_shade_;  //!< shaded (true) or line drawing (false)
 
-  // from plotting routines to annotations
-  float vectorAnnotationSize;
-  std::string vectorAnnotationText;
-
   GridConverter* gc_;
   Colour backgroundcolour_;
   PlotArea pa_;
