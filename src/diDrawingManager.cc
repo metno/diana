@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013-2019 met.no
+  Copyright (C) 2013-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -497,7 +497,7 @@ bool DrawingManager::hasData()
   return (times.find(mapTime_) != times.end());
 }
 
-void DrawingManager::changeProjection(const Area& /*mapArea*/, const Rectangle& plotSize)
+void DrawingManager::changeProjection(const Area& /*mapArea*/, const Rectangle& plotSize, const diutil::PointI& /*physSize*/)
 {
   // Record the new plot rectangle and area.
   // Update the edit rectangle so that objects are positioned consistently.

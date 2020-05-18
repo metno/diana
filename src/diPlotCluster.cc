@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2019 met.no
+  Copyright (C) 2017-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -148,12 +148,13 @@ bool PlotCluster::enablePlotElement(const PlotElement& pe)
   return false;
 }
 
-void PlotCluster::changeProjection(const Area& mapArea, const Rectangle& plotSize)
+void PlotCluster::changeProjection(const Area& mapArea, const Rectangle& plotSize, const diutil::PointI& physSize)
 {
   mapArea_ = mapArea;
   plotSize_ = plotSize;
+  physSize_ = physSize;
   for (Plot* p : plots_)
-    p->changeProjection(mapArea, plotSize);
+    p->changeProjection(mapArea, plotSize, physSize);
 }
 
 void PlotCluster::changeTime(const miutil::miTime& mapTime)
@@ -177,6 +178,6 @@ void PlotCluster::processInputPE(const PlotCommand_cpv&) {}
 void PlotCluster::add(Plot* plot)
 {
   plot->setCanvas(canvas_);
-  plot->changeProjection(mapArea_, plotSize_);
+  plot->changeProjection(mapArea_, plotSize_, physSize_);
   plots_.push_back(plot);
 }

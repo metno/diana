@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013-2019 met.no
+  Copyright (C) 2013-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -59,7 +59,7 @@ public:
   virtual bool parseSetup() = 0;
 
   virtual plottimes_t getTimes() const = 0;
-  virtual void changeProjection(const Area& mapArea, const Rectangle& plotSize) = 0;
+  virtual void changeProjection(const Area& mapArea, const Rectangle& plotSize, const diutil::PointI& physSize) = 0;
   virtual void changeTime(const miutil::miTime& time) = 0;
   virtual bool hasData() = 0;
 

@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2018 met.no
+ Copyright (C) 2006-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -233,7 +233,7 @@ FilledMap* MapPlot::fetchFilledMap(const std::string& filename)
   return &(filledmapObjects.insert(std::make_pair(filename, FilledMap(filename))).first->second);
 }
 
-void MapPlot::changeProjection(const Area& /*mapArea*/, const Rectangle& /*plotSize*/)
+void MapPlot::changeProjection(const Area& /*mapArea*/, const Rectangle& /*plotSize*/, const diutil::PointI& /*physSize*/)
 {
   mapchanged = true;
 }

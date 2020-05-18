@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2019 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -79,7 +79,7 @@ void TrajectoryPlot::setTrajectoryData(const TrajectoryData_v& t)
   switchProjection();
 }
 
-void TrajectoryPlot::changeProjection(const Area& /*mapArea*/, const Rectangle& /*plotSize*/)
+void TrajectoryPlot::changeProjection(const Area& /*mapArea*/, const Rectangle& /*plotSize*/, const diutil::PointI& /*physSize*/)
 {
   switchProjection();
 }

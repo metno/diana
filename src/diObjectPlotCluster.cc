@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2019 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -45,9 +45,9 @@ ObjectPlotCluster::ObjectPlotCluster(ObjectManager* objm)
 
 ObjectPlotCluster::~ObjectPlotCluster() {}
 
-void ObjectPlotCluster::changeProjection(const Area& mapArea, const Rectangle& plotSize)
+void ObjectPlotCluster::changeProjection(const Area& mapArea, const Rectangle& plotSize, const diutil::PointI& physSize)
 {
-  PlotCluster::changeProjection(mapArea, plotSize);
+  PlotCluster::changeProjection(mapArea, plotSize, physSize);
   objm->changeProjection(mapArea, plotSize);
 }
 

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2019 met.no
+  Copyright (C) 2015-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -55,7 +55,7 @@ public:
 
   void plot(DiGLPainter* gl, PlotOrder porder) override;
 
-  void changeProjection(const Area& mapArea, const Rectangle& plotSize) override;
+  void changeProjection(const Area& mapArea, const Rectangle& plotSize, const diutil::PointI& physSize) override;
 
   /*! select time; if invalid or not found, use default time; ignored
    *  if no time dimension */

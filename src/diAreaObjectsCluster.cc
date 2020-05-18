@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2019 met.no
+  Copyright (C) 2017-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -91,9 +91,9 @@ bool AreaObjectsCluster::enablePlotElement(const PlotElement& pe)
   return false;
 }
 
-void AreaObjectsCluster::changeProjection(const Area& mapArea, const Rectangle& plotSize)
+void AreaObjectsCluster::changeProjection(const Area& mapArea, const Rectangle& plotSize, const diutil::PointI& physSize)
 {
-  PlotCluster::changeProjection(mapArea, plotSize);
+  PlotCluster::changeProjection(mapArea, plotSize, physSize);
   for (AreaObjects& ao : vareaobjects)
     ao.changeProjection(mapArea, plotSize);
 }

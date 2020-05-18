@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2019 met.no
+  Copyright (C) 2015-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -82,7 +82,7 @@ public:
 
   plottimes_t getTimes() const Q_DECL_OVERRIDE;
 
-  void changeProjection(const Area& mapArea, const Rectangle& plotSize) Q_DECL_OVERRIDE;
+  void changeProjection(const Area& mapArea, const Rectangle& plotSize, const diutil::PointI& physSize) Q_DECL_OVERRIDE;
 
   void changeTime(const miutil::miTime&) Q_DECL_OVERRIDE;
 

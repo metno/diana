@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -46,7 +46,7 @@ public:
   ~LocationPlot() override;
 
   void plot(DiGLPainter* gl, PlotOrder zorder) override;
-  void changeProjection(const Area& mapArea, const Rectangle& plotSize) override;
+  void changeProjection(const Area& mapArea, const Rectangle& plotSize, const diutil::PointI& physSize) override;
   std::string getEnabledStateKey() const override;
   void getAnnotation(std::string& str, Colour& col) const override;
 

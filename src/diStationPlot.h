@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2019 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -161,7 +161,7 @@ public:
       const  std::vector<std::string>& data);
   ~StationPlot();
 
-  void changeProjection(const Area& mapArea, const Rectangle& plotSize) override;
+  void changeProjection(const Area& mapArea, const Rectangle& plotSize, const diutil::PointI& physSize) override;
   /// plot stations
   void plot(DiGLPainter* gl, PlotOrder zorder) override;
   std::string getEnabledStateKey() const override;

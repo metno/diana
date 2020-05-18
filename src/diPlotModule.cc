@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2019 met.no
+ Copyright (C) 2006-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -626,17 +626,18 @@ void PlotModule::notifyChangeProjection()
 
   const Area& ma = staticPlot_->getMapArea();
   const Rectangle& ps = staticPlot_->getPlotSize();
+  const diutil::PointI& wh = staticPlot_->getPhysSize();
 
   for (PlotCluster* pc : clusters())
-    pc->changeProjection(ma, ps);
+    pc->changeProjection(ma, ps, wh);
 
   for (MeasurementsPlot* mp : vMeasurementsPlot)
-    mp->changeProjection(ma, ps);
+    mp->changeProjection(ma, ps, wh);
 
   // editm
 
   for (Manager* m : boost::adaptors::values(managers))
-    m->changeProjection(ma, ps);
+    m->changeProjection(ma, ps, wh);
 }
 
 void PlotModule::setMapArea(const Area& area)
@@ -894,7 +895,7 @@ AreaObjectsCluster* PlotModule::areaobjects()
 {
   if (!areaobjects_.get()) {
     areaobjects_.reset(new AreaObjectsCluster());
-    areaobjects_->changeProjection(staticPlot_->getMapArea(), staticPlot_->getPlotSize());
+    areaobjects_->changeProjection(staticPlot_->getMapArea(), staticPlot_->getPlotSize(), staticPlot_->getPhysSize());
     areaobjects_->changeTime(staticPlot_->getTime());
   }
   return areaobjects_.get();

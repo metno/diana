@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -135,7 +135,7 @@ bool LocationPlot::setData(const LocationData& locationdata)
   return true;
 }
 
-void LocationPlot::changeProjection(const Area& mapArea, const Rectangle& plotSize)
+void LocationPlot::changeProjection(const Area& mapArea, const Rectangle& plotSize, const diutil::PointI& /*physSize*/)
 {
   METLIBS_LOG_SCOPE();
 

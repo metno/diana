@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2019 met.no
+ Copyright (C) 2006-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -358,7 +358,7 @@ public:
   static ObsPlotType extractPlottype(const std::string& dialogname);
 
   void setPlotInfo(const miutil::KeyValue_v& pin) override;
-  void changeProjection(const Area& mapArea, const Rectangle& plotSize) override;
+  void changeProjection(const Area& mapArea, const Rectangle& plotSize, const diutil::PointI& physSize) override;
 
   bool operator==(const ObsPlot &rhs) const;
 

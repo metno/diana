@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2019 met.no
+  Copyright (C) 2019-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -41,7 +41,7 @@ public:
   ~ObjectPlotCluster();
 
   void processInput(const PlotCommand_cpv& cmds) override;
-  void changeProjection(const Area& mapArea, const Rectangle& plotSize) override;
+  void changeProjection(const Area& mapArea, const Rectangle& plotSize, const diutil::PointI& physSize) override;
   void changeTime(const miutil::miTime& mapTime) override;
   plottimes_t getTimes() override;
   void addAnnotations(std::vector<AnnotationPlot::Annotation>& annotations) override;

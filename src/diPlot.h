@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2019 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -30,6 +30,7 @@
 #define diPlot_h
 
 #include "diPlotOrder.h"
+#include "diPoint.h"
 
 #include <puTools/miTime.h>
 
@@ -57,7 +58,7 @@ public:
 
   virtual void plot(DiGLPainter* gl, PlotOrder zorder) = 0;
 
-  virtual void changeProjection(const Area& mapArea, const Rectangle& plotSize);
+  virtual void changeProjection(const Area& mapArea, const Rectangle& plotSize, const diutil::PointI& physSize);
   virtual void changeTime(const miutil::miTime& newTime);
   virtual bool hasData() const;
   virtual void getAnnotation(std::string& str, Colour& col) const;

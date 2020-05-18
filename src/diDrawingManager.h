@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013-2019 met.no
+  Copyright (C) 2013-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -67,7 +67,7 @@ public:
   // parse DRAWING section of setup file (defines Drawing products)
   virtual bool parseSetup() override;
 
-  virtual void changeProjection(const Area& mapArea, const Rectangle& plotSize) override;
+  virtual void changeProjection(const Area& mapArea, const Rectangle& plotSize, const diutil::PointI& physSize) override;
   virtual QString loadDrawing(const QString &name, const QString &fileName);
   void changeTime(const miutil::miTime& time) override;
   bool hasData() override;
