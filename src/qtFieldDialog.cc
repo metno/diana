@@ -2879,8 +2879,6 @@ PlotCommand_cpv FieldDialog::getOKString()
 
 void FieldDialog::getParamString(const SelectedField& sf, FieldPlotCommand::FieldSpec& fs)
 {
-  miutil::KeyValue_v ostr;
-
   fs.model = (sf.inEdit) ? editName : sf.modelName;
   fs.reftime = sf.refTime;
   if (sf.predefinedPlot)
