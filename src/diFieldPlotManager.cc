@@ -796,6 +796,7 @@ gridinventory::Grid FieldPlotManager::getFieldGrid(const std::string& model)
   return fieldManager->getGrid(model);
 }
 
+// static
 void FieldPlotManager::parseString(FieldPlotCommand_cp cmd, const FieldPlotCommand::FieldSpec& fs, FieldRequest& fieldrequest,
                                    std::vector<std::string>& paramNames, std::string& plotName)
 {

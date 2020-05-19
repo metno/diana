@@ -121,8 +121,8 @@ private:
 
   std::vector<FieldRequest> getParamNames(const std::string& plotName, FieldRequest fieldrequest);
 
-  void parseString(FieldPlotCommand_cp cmd, const FieldPlotCommand::FieldSpec& fs, FieldRequest& fieldrequest, std::vector<std::string>& paramNames,
-                   std::string& plotName);
+  static void parseString(FieldPlotCommand_cp cmd, const FieldPlotCommand::FieldSpec& fs, FieldRequest& fieldrequest, std::vector<std::string>& paramNames,
+                          std::string& plotName);
 
   std::map<std::string, std::string> groupNames;
 
