@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,7 +29,6 @@
 
 #include "diana_config.h"
 
-#include "qtUtility.h"
 #include "diSpectrumManager.h"
 #include "vcross_qt/qtVcrossSetup.h"
 #include "qtSpectrumSetupDialog.h"
@@ -65,23 +64,23 @@ SpectrumSetupDialog::SpectrumSetupDialog( QWidget* parent, SpectrumManager* vm )
   //******** standard buttons **************************************
 
   // push button to show help
-      QPushButton * setuphelp = NormalPushButton( tr("Help"), this );
+  QPushButton* setuphelp = new QPushButton(tr("Help"), this);
   connect(  setuphelp, SIGNAL(clicked()), SLOT( helpClicked()));
 
   // push button to set to default
-  QPushButton * standard = NormalPushButton( tr("Default"), this );
+  QPushButton* standard = new QPushButton(tr("Default"), this);
   connect(  standard, SIGNAL(clicked()), SLOT( standardClicked()));
 
   // push button to hide dialog
-  QPushButton * setuphide = NormalPushButton( tr("Hide"), this );
+  QPushButton* setuphide = new QPushButton(tr("Hide"), this);
   connect( setuphide, SIGNAL(clicked()), SIGNAL(SetupHide()));
 
   // push button to apply the selected setup and then hide dialog
-  QPushButton * setupapplyhide = NormalPushButton( tr("Apply+Hide"), this );
+  QPushButton* setupapplyhide = new QPushButton(tr("Apply+Hide"), this);
   connect( setupapplyhide, SIGNAL(clicked()), SLOT(applyhideClicked()));
 
   // push button to apply the selected setup
-  QPushButton * setupapply = NormalPushButton( tr("Apply"), this );
+  QPushButton* setupapply = new QPushButton(tr("Apply"), this);
   connect(setupapply, SIGNAL(clicked()), SLOT( applyClicked()) );
 
   // *********** place all the widgets in layouts ****************

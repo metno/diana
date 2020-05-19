@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -142,20 +142,20 @@ TrajectoryDialog::TrajectoryDialog( QWidget* parent, Controller* llctrl )
   fieldName->setAlignment(Qt::AlignCenter);
 
   //push button to show help
-  QPushButton * Help = NormalPushButton( tr("Help"), this);
+  QPushButton* Help = new QPushButton(tr("Help"), this);
   connect(  Help, SIGNAL(clicked()), SLOT( helpClicked()));
 
   //push button to print pos
-  QPushButton * print = NormalPushButton( tr("Print"), this);
+  QPushButton* print = new QPushButton(tr("Print"), this);
   print->setToolTip(tr("Print calc. positions to file: trajectory.txt") );
   connect(  print, SIGNAL(clicked()), SLOT( printClicked()));
 
   //push button to hide dialog
-  QPushButton * Hide = NormalPushButton(tr("Hide"), this);
+  QPushButton* Hide = new QPushButton(tr("Hide"), this);
   connect( Hide, SIGNAL(clicked()), SIGNAL(TrajHide()));
 
   //push button to quit, deletes all trajectoryPlot objects
-  QPushButton * quit = NormalPushButton( tr("Quit"), this);
+  QPushButton* quit = new QPushButton(tr("Quit"), this);
   connect(quit, SIGNAL(clicked()), SLOT( quitClicked()) );
 
   QFrame *line1 = new QFrame( this );

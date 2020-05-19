@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -166,7 +166,7 @@ ObjectDialog::ObjectDialog(QWidget* parent, Controller* llctrl)
   //************************* standard Buttons *****************************
 
    //push buttons to delete all selections
-  QPushButton* deleteButton = NormalPushButton( tr("Delete"), this );
+  QPushButton* deleteButton = new QPushButton(tr("Delete"), this);
   connect(deleteButton, &QPushButton::clicked, this, &ObjectDialog::DeleteClicked);
 
   //toggle button for comments

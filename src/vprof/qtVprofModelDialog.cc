@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -74,25 +74,25 @@ VprofModelDialog::VprofModelDialog(QWidget* parent, VprofManager* vm)
   selectedModelsWidget = new QListWidget(this);
 
   // push button to show help
-  QPushButton* modelhelp = NormalPushButton(tr("Help"), this);
+  QPushButton* modelhelp = new QPushButton(tr("Help"), this);
   connect(modelhelp, &QPushButton::clicked, this, &VprofModelDialog::helpClicked);
 
   // push button to delete
-  QPushButton* deleteButton = NormalPushButton(tr("Delete"), this);
+  QPushButton* deleteButton = new QPushButton(tr("Delete"), this);
   connect(deleteButton, &QPushButton::clicked, this, &VprofModelDialog::deleteClicked);
-  QPushButton* deleteAllButton = NormalPushButton(tr("Delete all"), this);
+  QPushButton* deleteAllButton = new QPushButton(tr("Delete all"), this);
   connect(deleteAllButton, &QPushButton::clicked, this, &VprofModelDialog::deleteAllClicked);
 
   // push button to hide dialog
-  QPushButton* modelhide = NormalPushButton(tr("Hide"), this);
+  QPushButton* modelhide = new QPushButton(tr("Hide"), this);
   connect(modelhide, &QPushButton::clicked, this, &VprofModelDialog::ModelHide);
 
   // push button to apply the selected command and then hide dialog
-  QPushButton* modelapplyhide = NormalPushButton(tr("Apply+Hide"), this);
+  QPushButton* modelapplyhide = new QPushButton(tr("Apply+Hide"), this);
   connect(modelapplyhide, &QPushButton::clicked, this, &VprofModelDialog::applyhideClicked);
 
   // push button to apply the selected command
-  QPushButton* modelapply = NormalPushButton(tr("Apply"), this);
+  QPushButton* modelapply = new QPushButton(tr("Apply"), this);
   connect(modelapply, &QPushButton::clicked, this, &VprofModelDialog::applyClicked);
 
   // ************ place all the widgets in layouts ****************

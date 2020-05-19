@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -40,8 +40,6 @@
 #include <QToolTip>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
-
-#include <iostream>
 
 #include "qtUtility.h"
 #include "qtEditDefineField.h"
@@ -145,11 +143,11 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent, EditManager* editm
   }
 
   //push buttons to delete all selections
-  Delete = NormalPushButton( tr("Delete"), this );
+  Delete = new QPushButton(tr("Delete"), this);
   connect( Delete, SIGNAL(clicked()), SLOT(DeleteClicked()));
 
   //push button to refresh filelists
-  refresh =NormalPushButton( tr("Refresh"), this );
+  refresh = new QPushButton(tr("Refresh"), this);
   connect( refresh, SIGNAL( clicked() ), SLOT( Refresh() ));
 
   //place  "delete" and "refresh" buttons in hor.layout
@@ -159,8 +157,8 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent, EditManager* editm
 
   QHBoxLayout* hlayout = new QHBoxLayout();
 
-  ok= NormalPushButton( tr("OK"), this);
-  QPushButton* cancel= NormalPushButton( tr("Cancel"), this);
+  ok = new QPushButton(tr("OK"), this);
+  QPushButton* cancel = new QPushButton(tr("Cancel"), this);
   hlayout->addWidget( ok );
   hlayout->addWidget( cancel );
   connect( ok, SIGNAL(clicked()),  SLOT(accept()) );

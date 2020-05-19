@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -145,8 +145,8 @@ void ObsWidget::setDialogInfo(const ObsDialogInfo::PlotType& dialogInfo)
   connect(parameterButtons, &ButtonLayout::rightClickedOn, this, &ObsWidget::rightClickedSlot);
 
   //AND-Buttons
-  QPushButton* allButton = NormalPushButton(tr("All"), this);
-  QPushButton* noneButton = NormalPushButton(tr("None"), this);
+  QPushButton* allButton = new QPushButton(tr("All"), this);
+  QPushButton* noneButton = new QPushButton(tr("None"), this);
   QHBoxLayout* andLayout = new QHBoxLayout();
   andLayout->addWidget(allButton);
   andLayout->addWidget(noneButton);

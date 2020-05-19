@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -158,10 +158,10 @@ SatDialog::SatDialog(SatDialogData* sdd, QWidget* parent)
   downPictureButton->setEnabled( false );
   connect(downPictureButton, &QPushButton::clicked, this, &SatDialog::downPicture);
 
-  Delete = NormalPushButton( tr("Delete"), this );
+  Delete = new QPushButton(tr("Delete"), this);
   connect(Delete, &QPushButton::clicked, this, &SatDialog::DeleteClicked);
 
-  DeleteAll = NormalPushButton( tr("Delete All"), this );
+  DeleteAll = new QPushButton(tr("Delete All"), this);
   connect(DeleteAll, &QPushButton::clicked, this, &SatDialog::DeleteAllClicked);
 
   multiPicture = new ToggleButton(this, tr("Add picture"));

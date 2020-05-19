@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -101,7 +101,7 @@ SatDialogAdvanced::SatDialogAdvanced(QWidget* parent, const SliderValues& sv_cut
   connect(colourcut, &ToggleButton::toggled, this, &SatDialogAdvanced::colourcutClicked);
   colourcut->setChecked(false);
 
-  standard=NormalPushButton( tr("Standard"), this);
+  standard = new QPushButton(tr("Standard"), this);
   connect(standard, &QPushButton::clicked, this, &SatDialogAdvanced::setStandard);
   connect(standard, &QPushButton::clicked, this, &SatDialogAdvanced::SatChanged);
 

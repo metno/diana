@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -38,7 +38,6 @@
 #include <QGridLayout>
 #include <QVBoxLayout>
 
-#include "qtUtility.h"
 #include "vcross_v2/VcrossOptions.h"
 #define DISABLE_UNUSED_OPTIONS 1
 
@@ -63,23 +62,23 @@ VcrossSetupDialog::VcrossSetupDialog( QWidget* parent, vcross::QtManager_p vm )
   //Press enter -> apply and hide. Must declare setupapplyhide first.
 
   // push button to apply the selected setup and then hide dialog
-  QPushButton * setupapplyhide = NormalPushButton( tr("Apply+Hide"), this );
+  QPushButton* setupapplyhide = new QPushButton(tr("Apply+Hide"), this);
   connect( setupapplyhide, SIGNAL(clicked()), SLOT(applyhideClicked()));
 
   // push button to show help
-  QPushButton * setuphelp = NormalPushButton( tr("Help"), this );
+  QPushButton* setuphelp = new QPushButton(tr("Help"), this);
   connect(setuphelp, SIGNAL(clicked()), SLOT( helpClicked()));
 
   // push button to set to default
-  QPushButton * standard = NormalPushButton( tr("Default"), this );
+  QPushButton* standard = new QPushButton(tr("Default"), this);
   connect(  standard, SIGNAL(clicked()), SLOT( standardClicked()));
 
   // push button to hide dialog
-  QPushButton * setuphide = NormalPushButton( tr("Hide"), this );
+  QPushButton* setuphide = new QPushButton(tr("Hide"), this);
   connect(setuphide, SIGNAL(clicked()), SLOT(reject()));
 
   // push button to apply the selected setup
-  QPushButton * setupapply = NormalPushButton( tr("Apply"), this );
+  QPushButton* setupapply = new QPushButton(tr("Apply"), this);
   connect(setupapply, SIGNAL(clicked()), SLOT( applyClicked()) );
 
   // *********** place all the widgets in layouts ****************

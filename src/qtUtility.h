@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -67,10 +67,6 @@ QPixmap createPixmapForStyle(const miutil::KeyValue_v &options);
 QLabel* TitleLabel(const QString& name, QWidget* parent);
 
 // PushButtons
-
-QPushButton* SmallPushButton( const QString& name, QWidget* parent);
-
-QPushButton* NormalPushButton( const QString& name, QWidget* parent);
 
 QPushButton* PixmapButton( const QPixmap& pixmap, QWidget* parent,
 			 int deltaWidth=0, int deltaHeight=0);
@@ -140,8 +136,6 @@ QSlider* Slider( int minValue, int maxValue, int pageStep, int value,
 
 QSlider* Slider( int minValue, int maxValue, int pageStep, int value,
 		 Qt::Orientation orient, QWidget* parent );
-
-void listWidget(QListWidget* box, const std::vector<std::string>& vstr, int defItem=-1);
 
 QPixmap linePixmap(int linewidth);
 QPixmap linePixmap(const Linetype& pattern, int linewidth);

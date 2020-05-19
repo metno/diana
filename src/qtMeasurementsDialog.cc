@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,7 +29,6 @@
 
 #include "qtMeasurementsDialog.h"
 
-#include "qtUtility.h"
 #include "util/qstring_util.h"
 
 #include <QPushButton>
@@ -65,11 +64,11 @@ MeasurementsDialog::MeasurementsDialog( QWidget* parent, Controller* llctrl)
   connect( deleteButton, SIGNAL(clicked()),SLOT(deleteClicked()));
 
   //push button to hide dialog
-  QPushButton * Hide = NormalPushButton(tr("Hide"), this);
+  QPushButton* Hide = new QPushButton(tr("Hide"), this);
   connect( Hide, SIGNAL(clicked()), SIGNAL(MeasurementsHide()));
 
   //push button to quit, deletes all trajectoryPlot objects
-  QPushButton * quit = NormalPushButton( tr("Quit"), this);
+  QPushButton* quit = new QPushButton(tr("Quit"), this);
   connect(quit, SIGNAL(clicked()), SLOT( quitClicked()) );
 
   QFrame *line1 = new QFrame( this );

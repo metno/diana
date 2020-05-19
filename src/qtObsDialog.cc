@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -450,8 +450,8 @@ void ObsDialog::makeExtension()
   QLabel* criteriaLabel = TitleLabel(tr("Criteria"),extension);
   criteriaListbox = new QListWidget(extension);
 
-  QPushButton* delButton = NormalPushButton(tr("Delete"),extension);
-  QPushButton* delallButton = NormalPushButton(tr("Delete all"),extension);
+  QPushButton* delButton = new QPushButton(tr("Delete"), extension);
+  QPushButton* delallButton = new QPushButton(tr("Delete all"), extension);
   delButton->setToolTip(tr("Delete selected criteria") );
   delallButton->setToolTip( tr("Delete all criteria") );
 
@@ -515,7 +515,7 @@ void ObsDialog::makeExtension()
   colourlayout->addWidget( precLabel,   4,0 );
   colourlayout->addWidget( stepComboBox, 4,1 );
 
-  QPushButton* saveButton = NormalPushButton(tr("Save"),extension);
+  QPushButton* saveButton = new QPushButton(tr("Save"), extension);
   QLabel* editLabel = TitleLabel(tr("Save criteria list"),extension);
   lineedit = new QLineEdit(extension);
   lineedit->setToolTip(tr("Name of list to save") );

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -180,12 +180,12 @@ EditNewDialog::EditNewDialog(QWidget* parent, Controller* llctrl)
 
   // lower buttons
   QHBoxLayout* hlayout = new QHBoxLayout();
-  ok= NormalPushButton( tr("OK"), this);
+  ok = new QPushButton(tr("OK"), this);
   ok->setDefault( true );
 
-  help = NormalPushButton(tr("Help"), this );
+  help = new QPushButton(tr("Help"), this);
 
-  QPushButton* cancel= NormalPushButton( tr("Cancel"), this);
+  QPushButton* cancel = new QPushButton(tr("Cancel"), this);
 
   hlayout->addWidget( help );
   hlayout->addWidget( cancel );

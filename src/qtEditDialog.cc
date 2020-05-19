@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -185,16 +185,15 @@ EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
   openValuePixmap= QPixmap(edit_open_value_xpm);
   lockValuePixmap= QPixmap(edit_lock_value_xpm);
 
-
-  saveButton = NormalPushButton(tr("Save (local)"), this);
+  saveButton = new QPushButton(tr("Save (local)"), this);
   saveButton->setToolTip(tr("Save product to local disk"));
   connect( saveButton, SIGNAL(clicked()), SLOT(saveClicked())  );
   saveButton->setEnabled(false);
-  sendButton = NormalPushButton(tr("Save (common work disk)"), this);
+  sendButton = new QPushButton(tr("Save (common work disk)"), this);
   sendButton->setToolTip(tr("Save product to common work disk, available to other users as input in edit mode"));
   connect( sendButton, SIGNAL(clicked()), SLOT(sendClicked())  );
   sendButton->setEnabled(false);
-  approveButton = NormalPushButton(tr("Approve"), this);
+  approveButton = new QPushButton(tr("Approve"), this);
   approveButton->setToolTip(tr("Approve product (makes the product available for other users and trigger production)"));
   connect( approveButton, SIGNAL(clicked()), SLOT(approveClicked( ))  );
   approveButton->setEnabled(false);
@@ -231,14 +230,14 @@ EditDialog::EditDialog( QWidget* parent, Controller* llctrl )
   h2layout->addWidget(pausebutton);
   h2layout->addWidget(commentbutton);
 
-  editexit = NormalPushButton(tr("Exit"), this );
+  editexit = new QPushButton(tr("Exit"), this);
   connect(  editexit, SIGNAL(clicked()), SLOT( exitClicked() ));
 
   // qt4 fix: QButton -> QPushButton
-  QPushButton* edithide = NormalPushButton(tr("Hide"), this );
+  QPushButton* edithide = new QPushButton(tr("Hide"), this);
   connect( edithide, SIGNAL(clicked()), SIGNAL(EditHide()));
 
-  edithelp = NormalPushButton(tr("Help"), this );
+  edithelp = new QPushButton(tr("Help"), this);
   connect(  edithelp, SIGNAL(clicked()), SLOT( helpClicked() ));
 
 
@@ -389,8 +388,8 @@ void  EditDialog::FieldTab()
   connect( exlineCheckBox, SIGNAL( toggled(bool) ),
       SLOT( exlineCheckBoxToggled(bool) ) );
 
-  undoFieldButton = NormalPushButton( tr("Undo"), this);
-  redoFieldButton = NormalPushButton( tr("Redo"), this);
+  undoFieldButton = new QPushButton(tr("Undo"), this);
+  redoFieldButton = new QPushButton(tr("Redo"), this);
 
   undoFieldButton->setEnabled( false );
   redoFieldButton->setEnabled( false );
@@ -595,9 +594,8 @@ void  EditDialog::FrontTab()
   connect( m_Fronteditmethods, SIGNAL(itemDoubleClicked(QListWidgetItem *) ),
       SLOT( FrontEditDoubleClicked() ) );
 
-
-  undoFrontButton = NormalPushButton( tr("Undo"), this);
-  redoFrontButton = NormalPushButton( tr("Redo"), this);
+  undoFrontButton = new QPushButton(tr("Undo"), this);
+  redoFrontButton = new QPushButton(tr("Redo"), this);
 
   connect( undoFrontButton, SIGNAL(clicked()), SLOT(undofront()));
   connect( redoFrontButton, SIGNAL(clicked()), SLOT(redofront()));

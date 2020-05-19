@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013-2018 met.no
+  Copyright (C) 2013-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -43,8 +43,6 @@
 #include "EditItems/kml.h"
 #include "EditItems/timefilesextractor.h"
 #include "EditItems/toolbar.h"
-
-#include "qtUtility.h"
 
 #include <drawing.xpm> // ### for now
 
@@ -131,7 +129,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   connect(allTimesCheckBox, SIGNAL(toggled(bool)), editm_, SLOT(setAllItemsVisible(bool)));
   connect(allTimesCheckBox, SIGNAL(toggled(bool)), drawm_, SIGNAL(updated()));
 
-  QPushButton *applyButton = NormalPushButton(tr("Apply"), this);
+  QPushButton* applyButton = new QPushButton(tr("Apply"), this);
   connect(applyButton, SIGNAL(clicked()), SIGNAL(applyData()));
   connect(applyButton, SIGNAL(clicked()), SLOT(updateQuickSaveButton()));
 
@@ -177,7 +175,7 @@ DrawingDialog::DrawingDialog(QWidget *parent, Controller *ctrl)
   QFrame *editBottomSeparator = new QFrame();
   editBottomSeparator->setFrameShape(QFrame::HLine);
 
-  QPushButton *hideButton = NormalPushButton(tr("Hide"), this);
+  QPushButton* hideButton = new QPushButton(tr("Hide"), this);
   connect(hideButton, SIGNAL(clicked()), SLOT(close()));
 
   filterButton_ = new QPushButton(tr("Show filters >>>"));

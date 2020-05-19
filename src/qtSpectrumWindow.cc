@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -98,25 +98,25 @@ SpectrumWindow::SpectrumWindow()
   connect( setupButton, SIGNAL( toggled(bool)), SLOT( setupClicked( bool) ));
 
   //button for update
-  QPushButton * updateButton = NormalPushButton(tr("Refresh"),this);
+  QPushButton* updateButton = new QPushButton(tr("Refresh"), this);
   connect( updateButton, SIGNAL(clicked()), SLOT(updateClicked()) );
 
   //button to print - starts print dialog
-  QPushButton* printButton = NormalPushButton(tr("Print"),this);
+  QPushButton* printButton = new QPushButton(tr("Print"), this);
   printButton->setShortcut(tr("Ctrl+P"));
   connect( printButton, SIGNAL(clicked()), SLOT( printClicked() ));
 
   //button to save - starts save dialog
-  QPushButton* saveButton = NormalPushButton(tr("Save"),this);
+  QPushButton* saveButton = new QPushButton(tr("Save"), this);
   saveButton->setShortcut(tr("Ctrl+Shift+P"));
   connect( saveButton, SIGNAL(clicked()), SLOT( saveClicked() ));
 
   //button for quit
-  QPushButton * quitButton = NormalPushButton(tr("Quit"),this);
+  QPushButton* quitButton = new QPushButton(tr("Quit"), this);
   connect( quitButton, SIGNAL(clicked()), SLOT(quitClicked()) );
 
   //button for help - pushbutton
-  QPushButton * helpButton = NormalPushButton(tr("Help"),this);
+  QPushButton* helpButton = new QPushButton(tr("Help"), this);
   connect( helpButton, SIGNAL(clicked()), SLOT(helpClicked()) );
 
   const QSizePolicy sp_fix_ex(QSizePolicy::Fixed,   QSizePolicy::MinimumExpanding);

@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -70,29 +70,29 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
   selectedModelsWidget = new QListWidget(this);
 
   //push button to show help
-  QPushButton * modelhelp = NormalPushButton(tr("Help"), this);
+  QPushButton* modelhelp = new QPushButton(tr("Help"), this);
   connect(modelhelp, SIGNAL(clicked()), SLOT(helpClicked()));
 
   //push button to delete
-  QPushButton * deleteButton = NormalPushButton(tr("Delete"), this);
+  QPushButton* deleteButton = new QPushButton(tr("Delete"), this);
   connect(deleteButton, SIGNAL(clicked()), SLOT(deleteClicked()));
-  QPushButton * deleteAllButton = NormalPushButton(tr("Delete all"), this);
+  QPushButton* deleteAllButton = new QPushButton(tr("Delete all"), this);
   connect(deleteAllButton, SIGNAL(clicked()), SLOT(deleteAllClicked()));
 
   //push button to refresh
-  QPushButton * refresh = NormalPushButton(tr("Refresh"), this);
+  QPushButton* refresh = new QPushButton(tr("Refresh"), this);
   connect(refresh, SIGNAL(clicked()), SLOT(refreshClicked()));
 
   //push button to hide dialog
-  QPushButton * modelhide = NormalPushButton(tr("Hide"), this);
+  QPushButton* modelhide = new QPushButton(tr("Hide"), this);
   connect(modelhide, SIGNAL(clicked()), SIGNAL(ModelHide()));
 
   //push button to apply the selected command and then hide dialog
-  QPushButton * modelapplyhide = NormalPushButton(tr("Apply+Hide"), this);
+  QPushButton* modelapplyhide = new QPushButton(tr("Apply+Hide"), this);
   connect(modelapplyhide, SIGNAL(clicked()), SLOT(applyhideClicked()));
 
   //push button to apply the selected command
-  QPushButton * modelapply = NormalPushButton(tr("Apply"), this);
+  QPushButton* modelapply = new QPushButton(tr("Apply"), this);
   connect(modelapply, SIGNAL(clicked()), SLOT(applyClicked()));
 
   // ************ place all the widgets in layouts ****************

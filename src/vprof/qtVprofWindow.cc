@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -101,21 +101,21 @@ VprofWindow::VprofWindow()
   connect(setupButton, &ToggleButton::toggled, this, &VprofWindow::setupClicked);
 
   // button to print - starts print dialog
-  QPushButton* printButton = NormalPushButton(tr("Print"), this);
+  QPushButton* printButton = new QPushButton(tr("Print"), this);
   printButton->setShortcut(tr("Ctrl+P"));
   connect(printButton, &QPushButton::clicked, this, &VprofWindow::printClicked);
 
   // button to save - starts save dialog
-  QPushButton* saveButton = NormalPushButton(tr("Save"), this);
+  QPushButton* saveButton = new QPushButton(tr("Save"), this);
   saveButton->setShortcut(tr("Ctrl+Shift+P"));
   connect(saveButton, &QPushButton::clicked, this, &VprofWindow::saveClicked);
 
   // button for quit
-  QPushButton* quitButton = NormalPushButton(tr("Quit"), this);
+  QPushButton* quitButton = new QPushButton(tr("Quit"), this);
   connect(quitButton, &QPushButton::clicked, this, &VprofWindow::quitClicked);
 
   // button for help - pushbutton
-  QPushButton* helpButton = NormalPushButton(tr("Help"), this);
+  QPushButton* helpButton = new QPushButton(tr("Help"), this);
   connect(helpButton, &QPushButton::clicked, this, &VprofWindow::helpClicked);
 
   const QSizePolicy sp_fix_ex(QSizePolicy::Fixed, QSizePolicy::MinimumExpanding);

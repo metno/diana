@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -32,7 +32,6 @@
 #include "qtAnnotationDialog.h"
 #include "diLabelPlotCommand.h"
 #include "miSetupParser.h"
-#include "qtUtility.h"
 #include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
@@ -62,7 +61,7 @@ AnnotationDialog::AnnotationDialog( QWidget* parent, Controller* llctrl )
   annoBox->addItems(annoNames);
   connect( annoBox, SIGNAL(activated(int)), SLOT(annoBoxActivated(int)));
 
-  defaultButton = NormalPushButton( tr("Default"), this);
+  defaultButton = new QPushButton(tr("Default"), this);
   connect( defaultButton, SIGNAL(clicked()), SLOT( defaultButtonClicked() ));
 
   textedit = new QTextEdit(this);
@@ -71,9 +70,9 @@ AnnotationDialog::AnnotationDialog( QWidget* parent, Controller* llctrl )
   textedit->setReadOnly(false);
   textedit->setMinimumHeight(150);
 
-  annotationhide = NormalPushButton( tr("Hide"), this);
-  annotationapplyhide = NormalPushButton( tr("Apply + Hide"), this );
-  annotationapply = NormalPushButton( tr("Apply"), this);
+  annotationhide = new QPushButton(tr("Hide"), this);
+  annotationapplyhide = new QPushButton(tr("Apply + Hide"), this);
+  annotationapply = new QPushButton(tr("Apply"), this);
   annotationapply->setDefault( true );
 
   connect( annotationhide, SIGNAL(clicked()), SIGNAL( AnnotationHide() ));

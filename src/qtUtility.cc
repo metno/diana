@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -138,7 +138,6 @@ QPixmap createPixmapForStyle(const miutil::KeyValue_v& options)
   return pixmap;
 }
 
-/*********************************************/
 QLabel* TitleLabel(const QString& name, QWidget* parent)
 {
   QLabel* label= new QLabel(name, parent);
@@ -150,29 +149,6 @@ QLabel* TitleLabel(const QString& name, QWidget* parent)
   return label;
 }
 
-
-/*********************************************/
-QPushButton* SmallPushButton(const QString& name, QWidget* parent)
-{
-  QPushButton* b = new QPushButton( name, parent);
-
-  QString qstr=name;
-  int height = int(b->fontMetrics().height()*1.4);
-  int width  = int(b->fontMetrics().width(qstr)+ height*0.5);
-  b->setMaximumSize( width, height );
-
-  return b;
-}
-
-
-/*********************************************/
-QPushButton* NormalPushButton(const QString& name, QWidget* parent)
-{
-  return new QPushButton(name, parent);
-}
-
-
-/*********************************************/
 QPushButton* PixmapButton(const QPixmap& pixmap, QWidget* parent, int deltaWidth, int deltaHeight)
 {
   QPushButton* b = new QPushButton( parent );
@@ -198,8 +174,6 @@ void installCombo(QComboBox* box, const std::vector<std::string>& vstr, bool Ena
   box->setCurrentIndex(defItem);
 }
 
-
-/*********************************************/
 QComboBox* ComboBox( QWidget* parent, const std::vector<std::string>& vstr, bool Enabled, int defItem)
 {
   QComboBox* box = new QComboBox( parent );
@@ -207,8 +181,6 @@ QComboBox* ComboBox( QWidget* parent, const std::vector<std::string>& vstr, bool
   return box;
 }
 
-
-/*********************************************/
 void installCombo(QComboBox* box, QColor* pixcolor, int nr_colors, bool Enabled, int defItem)
 {
   for(int t=0; t<nr_colors; t++) {
@@ -228,7 +200,6 @@ QComboBox* ComboBox(QWidget* parent, QColor* pixcolor, int nr_colors, bool Enabl
   return box;
 }
 
-/*********************************************/
 QComboBox* ColourBox( QWidget* parent, bool Enabled, int defItem, const std::string& firstItem, bool name)
 {
   vector<Colour::ColourInfo> cInfo = Colour::getColourInfo();
@@ -284,7 +255,6 @@ void SetCurrentItemColourBox(QComboBox* box, const std::string& value)
   box->setCurrentIndex(i);
 
 }
-/*********************************************/
 
 QPixmap pixmapForColourShading(const std::vector<Colour>& colour)
 {
@@ -366,7 +336,6 @@ void ExpandPaletteBox( QComboBox* box, const ColourShading& palette )
   pmap=0;
 }
 
-/*********************************************/
 QComboBox* PatternBox(QWidget* parent, const vector<Pattern::PatternInfo>& patternInfo,
     bool Enabled, int defItem, const std::string& firstItem, bool name)
 {
@@ -407,7 +376,6 @@ static ushort lineStipplePattern(const QString &pattern)
   return p;
 }
 
-/*********************************************/
 void installLinetypes(QComboBox* box)
 {
   const std::vector<std::string>& slinetypenames = Linetype::getLinetypeNames();
@@ -426,7 +394,6 @@ QComboBox* LinetypeBox( QWidget* parent, bool Enabled, int defItem)
   return box;
 }
 
-/*********************************************/
 void installLinewidths(QComboBox* box, int nr_linewidths)
 {
   for (int i=0; i < nr_linewidths; i++) {
@@ -443,7 +410,6 @@ QComboBox* LinewidthBox(QWidget* parent, bool Enabled, int nr_linewidths, int de
   return box;
 }
 
-/*********************************************/
 void ExpandLinewidthBox(QComboBox* box, int new_nr_linewidths)
 {
   const int current_nr_linewidths = box->count();
@@ -454,7 +420,6 @@ void ExpandLinewidthBox(QComboBox* box, int new_nr_linewidths)
   }
 }
 
-/*********************************************/
 QComboBox* PixmapBox(QWidget* parent, std::vector<std::string>& markerName)
 {
   /* Image support in Qt
@@ -526,7 +491,6 @@ XPM X11 Pixmap Read/write
   return box;
 }
 
-/*********************************************/
 QLCDNumber* LCDNumber( uint numDigits, QWidget * parent)
 {
   QLCDNumber* lcdnum = new QLCDNumber( numDigits, parent );
@@ -536,8 +500,6 @@ QLCDNumber* LCDNumber( uint numDigits, QWidget * parent)
   return lcdnum;
 }
 
-
-/*********************************************/
 QSlider* Slider( int minValue, int maxValue, int pageStep, int value,
     Qt::Orientation orient, QWidget* parent, int width )
 {
@@ -551,7 +513,6 @@ QSlider* Slider( int minValue, int maxValue, int pageStep, int value,
   return slider;
 }
 
-/*********************************************/
 QSlider* Slider(int minValue, int maxValue, int pageStep, int value,
     Qt::Orientation orient, QWidget* parent)
 {
@@ -565,21 +526,6 @@ QSlider* Slider(int minValue, int maxValue, int pageStep, int value,
   return slider;
 }
 
-
-/*********************************************/
-void listWidget(QListWidget* listwidget, const std::vector<std::string>& vstr, int defItem)
-{
-  if( listwidget->count() )
-    listwidget->clear();
-
-  for( unsigned int i=0; i<vstr.size(); i++ ){
-    listwidget->addItem( QString::fromStdString(vstr[i]) );
-  }
-
-  if( defItem> -1 ) listwidget->setCurrentRow( defItem );
-}
-
-/*********************************************/
 QPixmap linePixmap(int linewidth)
 {
   return linePixmap(Linetype("solid"), linewidth, Colour("black"));

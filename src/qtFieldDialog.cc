@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -282,19 +282,19 @@ FieldDialog::FieldDialog(QWidget* parent, FieldDialogData* data)
   connect(unitLineEdit, &QLineEdit::editingFinished, this, &FieldDialog::unitEditingFinished);
 
   // copyField
-  copyField = NormalPushButton(tr("Copy"), this);
+  copyField = new QPushButton(tr("Copy"), this);
   connect(copyField, SIGNAL(clicked()), SLOT(copySelectedField()));
 
   // deleteSelected
-  deleteButton = NormalPushButton(tr("Delete"), this);
+  deleteButton = new QPushButton(tr("Delete"), this);
   connect(deleteButton, SIGNAL(clicked()), SLOT(deleteSelected()));
 
   // deleteAll
-  deleteAll = NormalPushButton(tr("Delete all"), this);
+  deleteAll = new QPushButton(tr("Delete all"), this);
   connect(deleteAll, SIGNAL(clicked()), SLOT(deleteAllSelected()));
 
   // changeModelButton
-  changeModelButton = NormalPushButton(tr("Model"), this);
+  changeModelButton = new QPushButton(tr("Model"), this);
   connect(changeModelButton, SIGNAL(clicked()), SLOT(changeModel()));
 
   int width = changeModelButton->sizeHint().width()/3;
@@ -311,7 +311,7 @@ FieldDialog::FieldDialog(QWidget* parent, FieldDialogData* data)
   connect(downFieldButton, SIGNAL(clicked()), SLOT(downField()));
 
   // resetOptions
-  resetOptionsButton = NormalPushButton(tr("Default"), this);
+  resetOptionsButton = new QPushButton(tr("Default"), this);
   connect(resetOptionsButton, SIGNAL(clicked()), SLOT(resetOptions()));
 
   // minus
