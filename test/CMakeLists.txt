@@ -39,8 +39,10 @@ IF (EXISTS "${TEST_EXTRADATA_DIR}/VERSION")
   IF ("${TEST_EXTRADATA_VERSION}" STRLESS "${CURRENT_TEST_EXTRADATA_VERSION}")
     MESSAGE (WARNING "Unxpected test data version '${TEST_EXTRADATA_VERSION}' ${TEST_EXTRADATA_MESSAGE}")
   ENDIF ()
+ELSEIF ("${TEST_EXTRADATA_REQUIRED}")
+  MESSAGE (FATAL_ERROR "Extra test data are required (by build option) but seem to be missing ${TEST_EXTRADATA_MESSAGE}.")
 ELSE ()
-  MESSAGE (WARNING "No extra test data seem to be present ${TEST_EXTRADATA_MESSAGE}")
+  MESSAGE (WARNING "Extra test data seem to be missing ${TEST_EXTRADATA_MESSAGE}.")
 ENDIF ()
 
 ########################################################################
