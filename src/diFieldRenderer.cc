@@ -1821,15 +1821,21 @@ bool FieldRenderer::plotFrameOnly(DiGLPainter* gl)
 
 QPolygonF FieldRenderer::makeFramePolygon(int nx, int ny, const float* x, const float* y) const
 {
+  int lx = nx, ly = ny;
+  // FIXME adjusting the frame boundaries should be done from the function calling plotFrame(Stencil)
+  if (plottype() == fpt_contour || plottype() == fpt_contour2) {
+    lx -= 1;
+    ly -= 1;
+  }
   diutil::PolylineBuilder frame;
-  frame.reserve(1 + 2 * (nx + ny));
-  for (int ix = 0; ix < nx; ix++)
+  frame.reserve(1 + 2 * (lx + ly));
+  for (int ix = 0; ix < lx; ix++)
     frame.addValid(x, y, diutil::index(nx, ix, 0));
-  for (int iy = 1; iy < ny; iy++)
-    frame.addValid(x, y, diutil::index(nx, nx - 1, iy));
-  for (int ix = nx - 2; ix >= 0; ix--)
-    frame.addValid(x, y, diutil::index(nx, ix, ny - 1));
-  for (int iy = ny - 2; iy > 0; iy--)
+  for (int iy = 1; iy < ly; iy++)
+    frame.addValid(x, y, diutil::index(nx, lx - 1, iy));
+  for (int ix = lx - 2; ix >= 0; ix--)
+    frame.addValid(x, y, diutil::index(nx, ix, ly - 1));
+  for (int iy = ly - 2; iy > 0; iy--)
     frame.addValid(x, y, diutil::index(nx, 0, iy));
   frame.addValid(x, y, 0);
   return frame.polyline();
