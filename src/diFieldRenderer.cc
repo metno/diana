@@ -1739,11 +1739,6 @@ bool FieldRenderer::plotContour2(DiGLPainter* gl, PlotOrder zorder)
   return true;
 }
 
-bool FieldRenderer::centerOnGridpoint() const
-{
-  return plottype() == fpt_alpha_shade || plottype() == fpt_rgb || plottype() == fpt_alarm_box || plottype() == fpt_fill_cell;
-}
-
 bool FieldRenderer::plotRaster(DiGLPainter* gl)
 {
   METLIBS_LOG_TIME();
@@ -1752,17 +1747,11 @@ bool FieldRenderer::plotRaster(DiGLPainter* gl)
     return false;
 
   float *x = 0, *y = 0;
-  int nx = fields_[0]->area.nx, ny = fields_[0]->area.ny;
+  int nx = fields_[0]->area.nx+1, ny = fields_[0]->area.ny+1;
   if (poptions_.frame || poptions_.update_stencil) {
-    const bool boxes = centerOnGridpoint();
     int ix1, ix2, iy1, iy2;
-    if (!getGridPoints(x, y, ix1, ix2, iy1, iy2, 1, boxes) || !x || !y)
+    if (!getGridPoints(x, y, ix1, ix2, iy1, iy2, 1, true) || !x || !y)
       x = y = 0;
-    if (boxes) {
-      // extend frame
-      nx += 1;
-      ny += 1;
-    }
   }
   if (x && y && poptions_.frame) {
     gl->setLineStyle(poptions_.bordercolour, poptions_.linewidth, false);
@@ -2217,15 +2206,13 @@ void FieldRenderer::plotUndefined(DiGLPainter* gl)
     return;
   }
 
-  const bool center_on_gridpoint = centerOnGridpoint() || plottype() == fpt_contour1; // old contour does some tricks with undefined values
-
   const int nx_fld = fields_[0]->area.nx, ny_fld = fields_[0]->area.ny;
-  const int nx_pts = nx_fld + (center_on_gridpoint ? 1 : 0);
+  const int nx_pts = nx_fld + 1;
 
   // convert gridpoints to correct projection
   int ix1, ix2, iy1, iy2;
   float *x, *y;
-  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2, 1, center_on_gridpoint))
+  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2, 1, true))
     return;
   if (ix1 >= nx_fld || ix2 < 0 || iy1 >= ny_fld || iy2 < 0)
     return;

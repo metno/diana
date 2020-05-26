@@ -109,7 +109,6 @@ private:
   bool getGridPoints(float*& x, float*& y, int& ix1, int& ix2, int& iy1, int& iy2, int factor = 1, bool boxes = false) const;
   bool getPoints(int n, float* x, float* y) const;
 
-  bool centerOnGridpoint() const;
   const std::string& plottype() const { return poptions_.plottype; }
 
 private:
