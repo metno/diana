@@ -1822,7 +1822,7 @@ bool FieldRenderer::plotFrameOnly(DiGLPainter* gl)
 QPolygonF FieldRenderer::makeFramePolygon(int nx, int ny, const float* x, const float* y) const
 {
   diutil::PolylineBuilder frame;
-  frame.reserve(2 * (nx + ny));
+  frame.reserve(1 + 2 * (nx + ny));
   for (int ix = 0; ix < nx; ix++)
     frame.addValid(x, y, diutil::index(nx, ix, 0));
   for (int iy = 1; iy < ny; iy++)
@@ -1831,6 +1831,7 @@ QPolygonF FieldRenderer::makeFramePolygon(int nx, int ny, const float* x, const 
     frame.addValid(x, y, diutil::index(nx, ix, ny - 1));
   for (int iy = ny - 2; iy > 0; iy--)
     frame.addValid(x, y, diutil::index(nx, 0, iy));
+  frame.addValid(x, y, 0);
   return frame.polyline();
 }
 
