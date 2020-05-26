@@ -1821,36 +1821,17 @@ bool FieldRenderer::plotFrameOnly(DiGLPainter* gl)
 
 QPolygonF FieldRenderer::makeFramePolygon(int nx, int ny, const float* x, const float* y) const
 {
-  QPolygonF frame;
-  for (int ix = 0; ix < nx; ix++) {
-    const int iy = 0;
-    const int i = iy * nx + ix;
-    if (x[i] != HUGE_VAL && y[i] != HUGE_VAL) {
-      frame << QPointF(x[i], y[i]);
-    }
-  }
-  for (int iy = 1; iy < ny; iy++) {
-    const int ix = nx - 1;
-    const int i = iy * nx + ix;
-    if (x[i] != HUGE_VAL && y[i] != HUGE_VAL) {
-      frame << QPointF(x[i], y[i]);
-    }
-  }
-  for (int ix = nx - 2; ix >= 0; ix--) {
-    const int iy = ny - 1;
-    const int i = iy * nx + ix;
-    if (x[i] != HUGE_VAL && y[i] != HUGE_VAL) {
-      frame << QPointF(x[i], y[i]);
-    }
-  }
-  for (int iy = ny - 2; iy > 0; iy--) {
-    const int ix = 0;
-    const int i = iy * nx + ix;
-    if (x[i] != HUGE_VAL && y[i] != HUGE_VAL) {
-      frame << QPointF(x[i], y[i]);
-    }
-  }
-  return frame;
+  diutil::PolylineBuilder frame;
+  frame.reserve(2 * (nx + ny));
+  for (int ix = 0; ix < nx; ix++)
+    frame.addValid(x, y, diutil::index(nx, ix, 0));
+  for (int iy = 1; iy < ny; iy++)
+    frame.addValid(x, y, diutil::index(nx, nx - 1, iy));
+  for (int ix = nx - 2; ix >= 0; ix--)
+    frame.addValid(x, y, diutil::index(nx, ix, ny - 1));
+  for (int iy = ny - 2; iy > 0; iy--)
+    frame.addValid(x, y, diutil::index(nx, 0, iy));
+  return frame.polyline();
 }
 
 // plot frame for complete field area

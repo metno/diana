@@ -1,3 +1,31 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2014-2020 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #ifndef diGlUtilities_h
 #define diGlUtilities_h 1
@@ -45,29 +73,39 @@ inline bool is_undefined(const XY& xy)
 inline bool is_undefined(const QPointF& xy)
 { return is_undefined(xy.x()) || is_undefined(xy.y()); }
 
-class PolylinePainter {
+class PolylineBuilder
+{
 public:
-  PolylinePainter(DiPainter* p)
-    : mPainter(p) { }
+  PolylineBuilder() {}
   void reserve(size_t s)
     { mPolyline.reserve(s); }
 
-  PolylinePainter& add(float vx, float vy)
-    { mPolyline << QPointF(vx, vy); return *this; }
+  void add(float vx, float vy) { mPolyline << QPointF(vx, vy); }
 
-  PolylinePainter& add(const float* x, const float* y, size_t idx)
-    { return add(x[idx], y[idx]); }
+  void add(const float* x, const float* y, size_t idx) { add(x[idx], y[idx]); }
 
-  PolylinePainter& addValid(float vx, float vy);
+  void addValid(float vx, float vy);
 
-  PolylinePainter& addValid(const float* x, const float* y, size_t idx)
-    { return addValid(x[idx], y[idx]); }
+  void addValid(const float* x, const float* y, size_t idx) { addValid(x[idx], y[idx]); }
+
+  void clear();
+
+  const QPolygonF& polyline() const { return mPolyline; }
+
+private:
+  QPolygonF mPolyline;
+};
+
+class PolylinePainter : public PolylineBuilder
+{
+public:
+  PolylinePainter(DiPainter* p = nullptr)
+      : mPainter(p) { }
 
   void draw();
 
 private:
   DiPainter* mPainter;
-  QPolygonF mPolyline;
 };
 
 void xyclip(int npos, const float *x, const float *y, const float xylim[4],

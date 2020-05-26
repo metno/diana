@@ -1,4 +1,31 @@
-#include <math.h>
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2014-2020 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #include "diGlUtilities.h"
 
@@ -39,17 +66,21 @@ bool is_undefined(float v)
   return v == HUGE_VAL || std::isnan(v) || std::abs(v) >= LIMIT || std::isinf(v);
 }
 
-PolylinePainter& PolylinePainter::addValid(float vx, float vy)
+void PolylineBuilder::addValid(float vx, float vy)
 {
   if (!is_undefined(vx) && !is_undefined(vy))
     add(vx, vy);
-  return *this;
+}
+
+void PolylineBuilder::clear()
+{
+  mPolyline.clear();
 }
 
 void PolylinePainter::draw()
 {
-  mPainter->drawPolyline(mPolyline);
-  mPolyline.clear();
+  mPainter->drawPolyline(polyline());
+  clear();
 }
 
 void xyclip(int npos, const float *x, const float *y, const float xylim[4],
