@@ -461,6 +461,9 @@ plottimes_t FieldPlotManager::getFieldTime(std::vector<FieldRequest>& request, b
   METLIBS_LOG_SCOPE();
 
   for (FieldRequest& frq : request) {
+    if (frq.refTime.empty())
+      frq.refTime = ::getBestReferenceTime(fieldManager->getReferenceTimes(frq.modelName), frq.refoffset, frq.refhour);
+
     if (frq.predefinedPlot) {
       std::vector<FieldRequest> fr = getParamNames(frq.paramName, frq);
       if (!fr.empty()) {
