@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2019 met.no
+ Copyright (C) 2019-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -107,7 +107,10 @@ bool SatPlotCluster::getSatArea(Area& a) const
 {
   if (plots_.empty())
     return false;
-  a = static_cast<SatPlotBase*>(plots_.front())->getSatArea();
+  const Area& sata = static_cast<SatPlotBase*>(plots_.front())->getSatArea();
+  if (!sata.P().isDefined())
+    return false;
+  a = sata;
   return true;
 }
 
