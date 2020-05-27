@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2019 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -95,7 +95,7 @@ Area StaticPlot::findBestMatch(const Area& newa) const
     return newa;
 
   const Area& area = pa_.getMapArea();
-  if (getMapProjection() == newa.P())
+  if (!newa.P().isDefined() || getMapProjection() == newa.P())
     return area;
 
   const int npos = 4;
