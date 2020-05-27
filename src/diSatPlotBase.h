@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2019 met.no
+  Copyright (C) 2019-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -51,7 +51,7 @@ public:
   SatPlotCommand_cp command() const { return command_; }
   void setCommand(SatPlotCommand_cp cmd);
 
-  virtual GridArea& getSatArea() = 0;
+  virtual const GridArea& getSatArea() = 0;
   virtual void getCalibChannels(std::vector<std::string>& channels) const = 0;
 
   /// get pixel value

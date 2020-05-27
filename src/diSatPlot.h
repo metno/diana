@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -54,7 +54,7 @@ public:
 
   Sat* getData() { return satdata.get(); }
 
-  GridArea& getSatArea() override;
+  const GridArea& getSatArea() override;
   void getCalibChannels(std::vector<std::string>& channels) const override;
   void values(float x, float y, std::vector<SatValues>& satval) const override;
 
