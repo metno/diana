@@ -583,15 +583,10 @@ std::string FieldManager::getBestReferenceTime(const std::string& modelName,
   return ::getBestReferenceTime(getReferenceTimes(modelName), refOffset, refHour);
 }
 
-Field_p FieldManager::makeField(FieldRequest& frq)
+Field_p FieldManager::makeField(const FieldRequest& frq)
 {
   METLIBS_LOG_TIME(LOGVAL(frq.modelName) << LOGVAL(frq.paramName) << LOGVAL(frq.zaxis) << LOGVAL(frq.refTime) << LOGVAL(frq.ptime) << LOGVAL(frq.plevel)
                                          << LOGVAL(frq.elevel) << LOGVAL(frq.unit));
-
-  //Find best reference time
-  if (frq.refTime.empty()) {
-    frq.refTime = getBestReferenceTime(frq.modelName, frq.refoffset, frq.refhour);
-  }
 
   GridCollectionPtr pgc = getGridCollection(frq.modelName, frq.refTime, false);
   if (!pgc) {

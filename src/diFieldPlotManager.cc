@@ -524,6 +524,9 @@ bool FieldPlotManager::makeFields(FieldPlotCommand_cp cmd, const FieldPlotComman
   parsePin(cmd, fs, vfieldrequest, plotName);
 
   for (FieldRequest& fr : vfieldrequest) {
+    if (fr.refTime.empty())
+      fr.refTime = ::getBestReferenceTime(fieldManager->getReferenceTimes(fr.modelName), fr.refoffset, fr.refhour);
+
     if (fr.ptime.undef())
       fr.ptime = const_ptime;
 

@@ -102,7 +102,7 @@ public:
       int refHour);
 
   /// read and compute one field
-  Field_p makeField(FieldRequest& fieldrequest);
+  Field_p makeField(const FieldRequest& fieldrequest);
   bool writeField(const FieldRequest& fieldrequest, Field_cp field);
 
   /// read and compute a difference field (fv1 = fv1-fv2)
