@@ -922,10 +922,10 @@ void GridCollection::addComputedParameters()
     std::string computeEaxis;
     // loop trough input params with same zaxis
     std::string fchour;
+    FieldFunctions::FieldSpec fs;
     for (const std::string& inputParameterName : boost::adaptors::reverse(fc.input)) {
       //levelSpecified true if param:level=value
       METLIBS_LOG_DEBUG(LOGVAL(inputParameterName));
-      FieldFunctions::FieldSpec fs;
       bool levelSpecified = FieldFunctions::splitFieldSpecs(inputParameterName, fs);
       fchour = fs.fcHour;
       pitr = rinventory.parameters.begin();
@@ -1012,6 +1012,12 @@ void GridCollection::addComputedParameters()
       gridinventory::GridParameter newparameter = *pitr;
       newparameter.key.name = computeParameterName;
       newparameter.standard_name = computeParameterName;
+      if (fc.func) {
+        if (!fc.func->units.front().empty())
+          newparameter.unit = fc.func->units.front();
+        else if (!fs.unit.empty())
+          newparameter.unit = fs.unit;
+      }
       newparameter.key.zaxis = computeZaxis;
       if (computeZaxis.empty()) {
         newparameter.zaxis_id.clear();

@@ -344,17 +344,6 @@ public:
     f_snow_cm_from_snow_water_tk_td //!< f_snow_cm_from_snow_water_tk_td
   };
 
-  /// One field computation from setup
-  struct FieldCompute {
-    std::string name; ///< result field (possibly only one ot the results)
-    std::vector<std::string> results; ///< all result fields
-    std::string functionName; ///< function name, for debugging only
-    Function function; ///< function identifier
-    std::vector<std::string> input; ///< input field(s)
-    std::vector<float> constants; ///< input constants ("const:.." in functions)
-    FieldVerticalAxes::VerticalType vctype; ///
-  };
-
   struct FieldSpec {
     std::string paramName;
     bool vcoord;
@@ -369,12 +358,11 @@ public:
     FieldSpec() : vcoord(false), ecoord(false), use_standard_name(false) {}
   };
 
-public:
   struct Arg
   {
     std::string name;
     std::string units;
-    Arg(std::string&& n, std::string&& u = std::string())
+    Arg(const std::string& n, const std::string& u = std::string())
         : name(n)
         , units(u)
     {
@@ -386,26 +374,64 @@ public:
     FieldFunctions::Function func;
     FieldVerticalAxes::VerticalType vertcoord;
     std::string name;
+    std::vector<std::string> units;
 
     std::vector<Arg> args_field;
     std::vector<Arg> args_const;
     VarArgs varargs;
-    size_t numresult;
 
     FunctionHelper(FieldFunctions::Function f, FieldVerticalAxes::VerticalType vc, std::string&& n, std::vector<Arg>&& af, std::vector<Arg>&& ac,
                    VarArgs va = varargs_none, size_t nr = 1)
         : func(f)
         , vertcoord(vc)
         , name(n)
+        , units(nr, std::string())
         , args_field(af)
         , args_const(ac)
         , varargs(va)
-        , numresult(nr)
+    {
+    }
+
+    FunctionHelper(FieldFunctions::Function f, FieldVerticalAxes::VerticalType vc, std::string&& n, std::vector<std::string>&& units, std::vector<Arg>&& af,
+                   std::vector<Arg>&& ac, VarArgs va = varargs_none)
+        : func(f)
+        , vertcoord(vc)
+        , name(n)
+        , units(units)
+        , args_field(af)
+        , args_const(ac)
+        , varargs(va)
+    {
+    }
+
+    FunctionHelper(FieldFunctions::Function f, FieldVerticalAxes::VerticalType vc, std::string&& n, const std::string& units, std::vector<Arg>&& af,
+                   std::vector<Arg>&& ac, VarArgs va = varargs_none)
+        : func(f)
+        , vertcoord(vc)
+        , name(n)
+        , units(1, units)
+        , args_field(af)
+        , args_const(ac)
+        , varargs(va)
     {
     }
 
     int numfields() const { return (varargs == varargs_field) ? -1 : args_field.size(); }
     int numconsts() const { return ((varargs == varargs_const) ? -1 : 1) * args_const.size(); }
+    int numresult() const { return units.size(); }
+  };
+
+  /// One field computation from setup
+  struct FieldCompute
+  {
+    std::string name;                 ///< result field (possibly only one ot the results)
+    std::vector<std::string> results; ///< all result fields
+    std::string functionName;         ///< function name, for debugging only
+    Function function;                ///< function identifier
+    const FunctionHelper* func;       ///< function (might be null for simple functions)
+    std::vector<std::string> input;   ///< input field(s)
+    std::vector<float> constants;     ///< input constants ("const:.." in functions)
+    FieldVerticalAxes::VerticalType vctype; ///
   };
 
 public:

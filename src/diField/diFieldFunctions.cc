@@ -71,198 +71,223 @@ std::string FieldFunctions::FIELD_COMPUTE_SECTION()
   return "FIELD_COMPUTE";
 }
 
+static const std::string u_K("K"), u_C("celsius"), u_hPa("hPa"), u_kg_kg("kg/kg"), u_pc("%"), u_m_s("m/s");
+static const FieldFunctions::Arg a_th("th", u_K), a_tk("tk", u_K), a_tc("tc", u_C), a_q("q", u_kg_kg), a_rh("rh", u_pc), a_tdk("tdk", u_K), a_tdc("tdc", u_C);
+
 static const FieldFunctions::FunctionHelper functions[] {
-{ FieldFunctions::f_sum_f, FieldVerticalAxes::vctype_none, "sum", { {"field"} },{}, FieldFunctions::varargs_field},
-  // pressure level (PLEVEL) functions
-{ FieldFunctions::f_tc_plevel_th, FieldVerticalAxes::vctype_pressure, "tc.plevel_th", { {"th"} },{}},
-{ FieldFunctions::f_tk_plevel_th, FieldVerticalAxes::vctype_pressure, "tk.plevel_th", { {"th"} },{}},
-{ FieldFunctions::f_th_plevel_tk, FieldVerticalAxes::vctype_pressure, "th.plevel_tk", { {"tk"} },{}},
-{ FieldFunctions::f_thesat_plevel_tk, FieldVerticalAxes::vctype_pressure, "thesat.plevel_tk", { {"tk"} },{}},
-{ FieldFunctions::f_thesat_plevel_th, FieldVerticalAxes::vctype_pressure, "thesat.plevel_th", { {"th"} },{}},
-{ FieldFunctions::f_the_plevel_tk_rh, FieldVerticalAxes::vctype_pressure, "the.plevel_tk_rh", { {"tk"},{"rh"} },{}},
-{ FieldFunctions::f_the_plevel_th_rh, FieldVerticalAxes::vctype_pressure, "the.plevel_th_rh", { {"th"},{"rh"} },{}},
-{ FieldFunctions::f_rh_plevel_tk_q, FieldVerticalAxes::vctype_pressure, "rh.plevel_tk_q", { {"tk"},{"q"} },{}},
-{ FieldFunctions::f_rh_plevel_th_q, FieldVerticalAxes::vctype_pressure, "rh.plevel_th_q", { {"th"},{"q"} },{}},
-{ FieldFunctions::f_q_plevel_tk_rh, FieldVerticalAxes::vctype_pressure, "q.plevel_tk_rh", { {"tk"},{"rh"} },{}},
-{ FieldFunctions::f_q_plevel_th_rh, FieldVerticalAxes::vctype_pressure, "q.plevel_th_rh", { {"th"},{"rh"} },{}},
-{ FieldFunctions::f_tdc_plevel_tk_rh, FieldVerticalAxes::vctype_pressure, "tdc.plevel_tk_rh", { {"tk"},{"rh"} },{}},
-{ FieldFunctions::f_tdc_plevel_th_rh, FieldVerticalAxes::vctype_pressure, "tdc.plevel_th_rh", { {"th"},{"rh"} },{}},
-{ FieldFunctions::f_tdc_plevel_tk_q, FieldVerticalAxes::vctype_pressure, "tdc.plevel_tk_q", { {"tk"},{"q"} },{}},
-{ FieldFunctions::f_tdc_plevel_th_q, FieldVerticalAxes::vctype_pressure, "tdc.plevel_th_q", { {"th"},{"q"} },{}},
-{ FieldFunctions::f_tdk_plevel_tk_rh, FieldVerticalAxes::vctype_pressure, "tdk.plevel_tk_rh", { {"tk"},{"rh"} },{}},
-{ FieldFunctions::f_tdk_plevel_th_rh, FieldVerticalAxes::vctype_pressure, "tdk.plevel_th_rh", { {"th"},{"rh"} },{}},
-{ FieldFunctions::f_tdk_plevel_tk_q, FieldVerticalAxes::vctype_pressure, "tdk.plevel_tk_q", { {"tk"},{"q"} },{}},
-{ FieldFunctions::f_tdk_plevel_th_q, FieldVerticalAxes::vctype_pressure, "tdk.plevel_th_q", { {"th"},{"q"} },{}},
-{ FieldFunctions::f_tcmean_plevel_z1_z2, FieldVerticalAxes::vctype_pressure, "tcmean.plevel_z1_z2", { {"z1"},{"z2"} },{}},
-{ FieldFunctions::f_tkmean_plevel_z1_z2, FieldVerticalAxes::vctype_pressure, "tkmean.plevel_z1_z2", { {"z1"},{"z2"} },{}},
-{ FieldFunctions::f_thmean_plevel_z1_z2, FieldVerticalAxes::vctype_pressure, "thmean.plevel_z1_z2", { {"z1"},{"z2"} },{}},
-{ FieldFunctions::f_ducting_plevel_tk_q, FieldVerticalAxes::vctype_pressure, "ducting.plevel_tk_q", { {"tk"},{"q"} },{}},
-{ FieldFunctions::f_ducting_plevel_th_q, FieldVerticalAxes::vctype_pressure, "ducting.plevel_th_q", { {"th"},{"q"} },{}},
-{ FieldFunctions::f_ducting_plevel_tk_rh, FieldVerticalAxes::vctype_pressure, "ducting.plevel_tk_rh", { {"tk"},{"rh"} },{}},
-{ FieldFunctions::f_ducting_plevel_th_rh, FieldVerticalAxes::vctype_pressure, "ducting.plevel_th_rh", { {"th"},{"rh"} },{}},
-{ FieldFunctions::f_kindex_plevel_tk_rh, FieldVerticalAxes::vctype_pressure, "kindex.plevel_tk_rh", { {"tk500"},{"tk700"},{"rh700"},{"tk850"},{"rh850"} },{}},
-{ FieldFunctions::f_kindex_plevel_th_rh, FieldVerticalAxes::vctype_pressure, "kindex.plevel_th_rh", { {"th500"},{"th700"},{"rh700"},{"th850"},{"rh850"} },{}},
-{ FieldFunctions::f_ductingindex_plevel_tk_rh, FieldVerticalAxes::vctype_pressure, "ductingindex.plevel_tk_rh", { {"tk850"},{"rh850"} },{}},
-{ FieldFunctions::f_ductingindex_plevel_th_rh, FieldVerticalAxes::vctype_pressure, "ductingindex.plevel_th_rh", { {"th850"},{"rh850"} },{}},
-{ FieldFunctions::f_showalterindex_plevel_tk_rh, FieldVerticalAxes::vctype_pressure, "showalterindex.plevel_tk_rh", { {"tk500"},{"tk850"},{"rh850"} },{}},
-{ FieldFunctions::f_showalterindex_plevel_th_rh, FieldVerticalAxes::vctype_pressure, "showalterindex.plevel_th_rh", { {"th500"},{"th850"},{"rh850"} },{}},
-{ FieldFunctions::f_boydenindex_plevel_tk_z, FieldVerticalAxes::vctype_pressure, "boydenindex.plevel_tk_z", { {"tk700"},{"z700"},{"z1000"} },{}},
-{ FieldFunctions::f_boydenindex_plevel_th_z, FieldVerticalAxes::vctype_pressure, "boydenindex.plevel_th_z", { {"th700"},{"z700"},{"z1000"} },{}},
-{ FieldFunctions::f_sweatindex_plevel, FieldVerticalAxes::vctype_none, "sweatindex.plevel", { {"t850"},{"t500"},{"td850"},{"td500"},{"u850"},{"v850"},{"u500"},{"v500"} },{}},
+    {FieldFunctions::f_sum_f, FieldVerticalAxes::vctype_none, "sum", {{"field"}}, {}, FieldFunctions::varargs_field},
 
-  // hybrid model level (HLEVEL) functions
-{ FieldFunctions::f_tc_hlevel_th_psurf, FieldVerticalAxes::vctype_hybrid, "tc.hlevel_th_psurf", { {"th"},{"psurf"} },{}},
-{ FieldFunctions::f_tk_hlevel_th_psurf, FieldVerticalAxes::vctype_hybrid, "tk.hlevel_th_psurf", { {"th"},{"psurf"} },{}},
-{ FieldFunctions::f_th_hlevel_tk_psurf, FieldVerticalAxes::vctype_hybrid, "th.hlevel_tk_psurf", { {"tk"},{"psurf"} },{}},
-{ FieldFunctions::f_thesat_hlevel_tk_psurf, FieldVerticalAxes::vctype_hybrid, "thesat.hlevel_tk_psurf", { {"tk"},{"psurf"} },{}},
-{ FieldFunctions::f_thesat_hlevel_th_psurf, FieldVerticalAxes::vctype_hybrid, "thesat.hlevel_th_psurf", { {"th"},{"psurf"} },{}},
-{ FieldFunctions::f_the_hlevel_tk_q_psurf, FieldVerticalAxes::vctype_hybrid, "the.hlevel_tk_q_psurf", { {"tk"},{"q"},{"psurf"} },{}},
-{ FieldFunctions::f_the_hlevel_th_q_psurf, FieldVerticalAxes::vctype_hybrid, "the.hlevel_th_q_psurf", { {"th"},{"q"},{"psurf"} },{}},
-{ FieldFunctions::f_rh_hlevel_tk_q_psurf, FieldVerticalAxes::vctype_hybrid, "rh.hlevel_tk_q_psurf", { {"tk"},{"q"},{"psurf"} },{}},
-{ FieldFunctions::f_rh_hlevel_th_q_psurf, FieldVerticalAxes::vctype_hybrid, "rh.hlevel_th_q_psurf", { {"th"},{"q"},{"psurf"} },{}},
-{ FieldFunctions::f_q_hlevel_tk_rh_psurf, FieldVerticalAxes::vctype_hybrid, "q.hlevel_tk_rh_psurf", { {"tk"},{"rh"},{"psurf"} },{}},
-{ FieldFunctions::f_q_hlevel_th_rh_psurf, FieldVerticalAxes::vctype_hybrid, "q.hlevel_th_rh_psurf", { {"th"},{"rh"},{"psurf"} },{}},
-{ FieldFunctions::f_tdc_hlevel_tk_q_psurf, FieldVerticalAxes::vctype_hybrid, "tdc.hlevel_tk_q_psurf", { {"tk"},{"q"},{"psurf"} },{}},
-{ FieldFunctions::f_tdc_hlevel_th_q_psurf, FieldVerticalAxes::vctype_hybrid, "tdc.hlevel_th_q_psurf", { {"th"},{"q"},{"psurf"} },{}},
-{ FieldFunctions::f_tdc_hlevel_tk_rh_psurf, FieldVerticalAxes::vctype_hybrid, "tdc.hlevel_tk_rh_psurf", { {"tk"},{"rh"},{"psurf"} },{}},
-{ FieldFunctions::f_tdc_hlevel_th_rh_psurf, FieldVerticalAxes::vctype_hybrid, "tdc.hlevel_th_rh_psurf", { {"th"},{"rh"},{"psurf"} },{}},
-{ FieldFunctions::f_tdk_hlevel_tk_q_psurf, FieldVerticalAxes::vctype_hybrid, "tdk.hlevel_tk_q_psurf", { {"tk"},{"q"},{"psurf"} },{}},
-{ FieldFunctions::f_tdk_hlevel_th_q_psurf, FieldVerticalAxes::vctype_hybrid, "tdk.hlevel_th_q_psurf", { {"th"},{"q"},{"psurf"} },{}},
-{ FieldFunctions::f_tdk_hlevel_tk_rh_psurf, FieldVerticalAxes::vctype_hybrid, "tdk.hlevel_tk_rh_psurf", { {"tk"},{"rh"},{"psurf"} },{}},
-{ FieldFunctions::f_tdk_hlevel_th_rh_psurf, FieldVerticalAxes::vctype_hybrid, "tdk.hlevel_th_rh_psurf", { {"th"},{"rh"},{"psurf"} },{}},
-{ FieldFunctions::f_ducting_hlevel_tk_q_psurf, FieldVerticalAxes::vctype_hybrid, "ducting.hlevel_tk_q_psurf", { {"tk"},{"q"},{"psurf"} },{}},
-{ FieldFunctions::f_ducting_hlevel_th_q_psurf, FieldVerticalAxes::vctype_hybrid, "ducting.hlevel_th_q_psurf", { {"th"},{"q"},{"psurf"} },{}},
-{ FieldFunctions::f_ducting_hlevel_tk_rh_psurf, FieldVerticalAxes::vctype_hybrid, "ducting.hlevel_tk_rh_psurf", { {"tk"},{"rh"},{"psurf"} },{}},
-{ FieldFunctions::f_ducting_hlevel_th_rh_psurf, FieldVerticalAxes::vctype_hybrid, "ducting.hlevel_th_rh_psurf", { {"th"},{"rh"},{"psurf"} },{}},
-{ FieldFunctions::f_pressure_hlevel_xx_psurf, FieldVerticalAxes::vctype_hybrid, "pressure.hlevel_xx_psurf", { {"xx"},{"psurf"} },{}}, // just get eta.a and eta.b from field xx
+    // pressure level (PLEVEL) functions
 
-  // misc atmospheric model level (ALEVEL) functions
-{ FieldFunctions::f_tc_alevel_th_p, FieldVerticalAxes::vctype_atmospheric, "tc.alevel_th_p", { {"th"},{"p"} },{}},
-{ FieldFunctions::f_tk_alevel_th_p, FieldVerticalAxes::vctype_atmospheric, "tk.alevel_th_p", { {"th"},{"p"} },{}},
-{ FieldFunctions::f_th_alevel_tk_p, FieldVerticalAxes::vctype_atmospheric, "th.alevel_tk_p", { {"tk"},{"p"} },{}},
-{ FieldFunctions::f_thesat_alevel_tk_p, FieldVerticalAxes::vctype_atmospheric, "thesat.alevel_tk_p", { {"tk"},{"p"} },{}},
-{ FieldFunctions::f_thesat_alevel_th_p, FieldVerticalAxes::vctype_atmospheric, "thesat.alevel_th_p", { {"th"},{"p"} },{}},
-{ FieldFunctions::f_the_alevel_tk_q_p, FieldVerticalAxes::vctype_atmospheric, "the.alevel_tk_q_p", { {"tk"},{"q"},{"p"} },{}},
-{ FieldFunctions::f_the_alevel_th_q_p, FieldVerticalAxes::vctype_atmospheric, "the.alevel_th_q_p", { {"th"},{"q"},{"p"} },{}},
-{ FieldFunctions::f_rh_alevel_tk_q_p, FieldVerticalAxes::vctype_atmospheric, "rh.alevel_tk_q_p", { {"tk"},{"q"},{"p"} },{}},
-{ FieldFunctions::f_rh_alevel_th_q_p, FieldVerticalAxes::vctype_atmospheric, "rh.alevel_th_q_p", { {"th"},{"q"},{"p"} },{}},
-{ FieldFunctions::f_q_alevel_tk_rh_p, FieldVerticalAxes::vctype_atmospheric, "q.alevel_tk_rh_p", { {"tk"},{"rh"},{"p"} },{}},
-{ FieldFunctions::f_q_alevel_th_rh_p, FieldVerticalAxes::vctype_atmospheric, "q.alevel_th_rh_p", { {"th"},{"rh"},{"p"} },{}},
-{ FieldFunctions::f_tdc_alevel_tk_q_p, FieldVerticalAxes::vctype_atmospheric, "tdc.alevel_tk_q_p", { {"tk"},{"q"},{"p"} },{}},
-{ FieldFunctions::f_tdc_alevel_th_q_p, FieldVerticalAxes::vctype_atmospheric, "tdc.alevel_th_q_p", { {"th"},{"q"},{"p"} },{}},
-{ FieldFunctions::f_tdc_alevel_tk_rh_p, FieldVerticalAxes::vctype_atmospheric, "tdc.alevel_tk_rh_p", { {"tk"},{"rh"},{"p"} },{}},
-{ FieldFunctions::f_tdc_alevel_th_rh_p, FieldVerticalAxes::vctype_atmospheric, "tdc.alevel_th_rh_p", { {"th"},{"rh"},{"p"} },{}},
-{ FieldFunctions::f_tdk_alevel_tk_q_p, FieldVerticalAxes::vctype_atmospheric, "tdk.alevel_tk_q_p", { {"tk"},{"q"},{"p"} },{}},
-{ FieldFunctions::f_tdk_alevel_th_q_p, FieldVerticalAxes::vctype_atmospheric, "tdk.alevel_th_q_p", { {"th"},{"q"},{"p"} },{}},
-{ FieldFunctions::f_tdk_alevel_tk_rh_p, FieldVerticalAxes::vctype_atmospheric, "tdk.alevel_tk_rh_p", { {"tk"},{"rh"},{"p"} },{}},
-{ FieldFunctions::f_tdk_alevel_th_rh_p, FieldVerticalAxes::vctype_atmospheric, "tdk.alevel_th_rh_p", { {"th"},{"rh"},{"p"} },{}},
-{ FieldFunctions::f_ducting_alevel_tk_q_p, FieldVerticalAxes::vctype_atmospheric, "ducting.alevel_tk_q_p", { {"tk"},{"q"},{"p"} },{}},
-{ FieldFunctions::f_ducting_alevel_th_q_p, FieldVerticalAxes::vctype_atmospheric, "ducting.alevel_th_q_p", { {"th"},{"q"},{"p"} },{}},
-{ FieldFunctions::f_ducting_alevel_tk_rh_p, FieldVerticalAxes::vctype_atmospheric, "ducting.alevel_tk_rh_p", { {"tk"},{"rh"},{"p"} },{}},
-{ FieldFunctions::f_ducting_alevel_th_rh_p, FieldVerticalAxes::vctype_atmospheric, "ducting.alevel_th_rh_p", { {"th"},{"rh"},{"p"} },{}},
+    // FieldCalculations pleveltemp
+    {FieldFunctions::f_tc_plevel_th, FieldVerticalAxes::vctype_pressure, "tc.plevel_th", u_C, {a_th}, {}},
+    {FieldFunctions::f_tk_plevel_th, FieldVerticalAxes::vctype_pressure, "tk.plevel_th", u_K, {a_th}, {}},
+    {FieldFunctions::f_th_plevel_tk, FieldVerticalAxes::vctype_pressure, "th.plevel_tk", u_K, {a_tk}, {}},
+    {FieldFunctions::f_thesat_plevel_tk, FieldVerticalAxes::vctype_pressure, "thesat.plevel_tk", u_K, {a_tk}, {}},
+    {FieldFunctions::f_thesat_plevel_th, FieldVerticalAxes::vctype_pressure, "thesat.plevel_th", u_K, {a_th}, {}},
 
-  // ocean depth level (OZLEVEL) functions
-{ FieldFunctions::f_sea_soundspeed_ozlevel_tc_salt, FieldVerticalAxes::vctype_oceandepth, "sea.soundspeed.ozlevel_tc_salt", { {"seatemp.c"},{"salt"} },{}},
-{ FieldFunctions::f_sea_soundspeed_ozlevel_tk_salt, FieldVerticalAxes::vctype_oceandepth, "sea.soundspeed.ozlevel_tk_salt", { {"seatemp.k"},{"salt"} },{}},
+    // FieldCalculations plevelthe
+    {FieldFunctions::f_the_plevel_tk_rh, FieldVerticalAxes::vctype_pressure, "the.plevel_tk_rh", u_K, {a_tk, a_rh}, {}},
+    {FieldFunctions::f_the_plevel_th_rh, FieldVerticalAxes::vctype_pressure, "the.plevel_th_rh", u_K, {a_th, a_rh}, {}},
 
-  // level independent functions
-{ FieldFunctions::f_temp_k2c, FieldVerticalAxes::vctype_none, "temp_k2c", { {"tk"} },{}},
-{ FieldFunctions::f_temp_c2k, FieldVerticalAxes::vctype_none, "temp_c2k", { {"tc"} },{}},
-{ FieldFunctions::f_temp_k2c_possibly, FieldVerticalAxes::vctype_none, "temp_k2c_possibly", { {"tk"} },{}},
-{ FieldFunctions::f_temp_c2k_possibly, FieldVerticalAxes::vctype_none, "temp_c2k_possibly", { {"tc"} },{}},
-{ FieldFunctions::f_tdk_tk_rh, FieldVerticalAxes::vctype_none, "tdk.tk_rh", { {"tk"},{"rh"} },{}},
-{ FieldFunctions::f_tdc_tk_rh, FieldVerticalAxes::vctype_none, "tdc.tk_rh", { {"tk"},{"rh"} },{}},
-{ FieldFunctions::f_abshum_tk_rh, FieldVerticalAxes::vctype_none, "abshum.tk_rh", { {"tk"},{"rh"} },{}},
-{ FieldFunctions::f_tdc_tc_rh, FieldVerticalAxes::vctype_none, "tdc.tc_rh", { {"tc"},{"rh"} },{}},
-{ FieldFunctions::f_rh_tk_td, FieldVerticalAxes::vctype_none, "rh.tk_tdk", { {"tk"},{"tdk"} },{}},
-{ FieldFunctions::f_rh_tc_td, FieldVerticalAxes::vctype_none, "rh.tc_tdc", { {"tc"},{"tdc"} },{}},
-{ FieldFunctions::f_vector_abs, FieldVerticalAxes::vctype_none, "vector.abs", { {"u"},{"v"} },{}},
-{ FieldFunctions::f_d_dx, FieldVerticalAxes::vctype_none, "d/dx", { {"f"} },{}},
-{ FieldFunctions::f_d_dy, FieldVerticalAxes::vctype_none, "d/dy", { {"f"} },{}},
-{ FieldFunctions::f_abs_del, FieldVerticalAxes::vctype_none, "abs.del", { {"f"} },{}},
-{ FieldFunctions::f_del_square, FieldVerticalAxes::vctype_none, "del.square", { {"f"} },{}},
-{ FieldFunctions::f_minvalue_fields, FieldVerticalAxes::vctype_none, "minvalue.fields", { {"f1"},{"f2"} },{}},
-{ FieldFunctions::f_maxvalue_fields, FieldVerticalAxes::vctype_none, "maxvalue.fields", { {"f1"},{"f2"} },{}},
-{ FieldFunctions::f_minvalue_field_const, FieldVerticalAxes::vctype_none, "minvalue.field.const", { {"f"}},{{"value"} }},
-{ FieldFunctions::f_maxvalue_field_const, FieldVerticalAxes::vctype_none, "maxvalue.field.const", { {"f"}},{{"value"} }},
-{ FieldFunctions::f_abs, FieldVerticalAxes::vctype_none, "abs", { {"f"} },{}},
-{ FieldFunctions::f_log10, FieldVerticalAxes::vctype_none, "log10", { {"f"} },{}},
-{ FieldFunctions::f_pow10, FieldVerticalAxes::vctype_none, "pow10", { {"f"} },{}},
-{ FieldFunctions::f_log, FieldVerticalAxes::vctype_none, "log", { {"f"} },{}},
-{ FieldFunctions::f_exp, FieldVerticalAxes::vctype_none, "exp", { {"f"} },{}},
-{ FieldFunctions::f_power, FieldVerticalAxes::vctype_none, "power", { {"f"}},{{"exponent"} }},
-{ FieldFunctions::f_shapiro2_filter, FieldVerticalAxes::vctype_none, "shapiro2.filter", { {"f"} },{}},
-{ FieldFunctions::f_smooth, FieldVerticalAxes::vctype_none, "smooth", { {"f"}},{{"numsmooth"} }},
-{ FieldFunctions::f_windcooling_tk_u_v, FieldVerticalAxes::vctype_none, "windcooling_tk_u_v", { {"tk2m"},{"u10m"},{"v10m"} },{}},
-{ FieldFunctions::f_windcooling_tc_u_v, FieldVerticalAxes::vctype_none, "windcooling_tc_u_v", { {"tc2m"},{"u10m"},{"v10m"} },{}},
-{ FieldFunctions::f_undercooled_rain, FieldVerticalAxes::vctype_none, "undercooled.rain", { {"precip"},{"snow"},{"tk"}},{{"precipMin"},{"snowRateMax"},{"tcMax"} }},
-{ FieldFunctions::f_pressure2flightlevel, FieldVerticalAxes::vctype_none, "pressure2flightlevel", { {"p"} },{}},
-{ FieldFunctions::f_vessel_icing_overland, FieldVerticalAxes::vctype_none, "vessel.icing.overland", { {"airtemp"},{"seatemp"},{"u10m"},{"v10m"},{"salinity0m"},{"aice"} },{}},
-{ FieldFunctions::f_vessel_icing_mertins, FieldVerticalAxes::vctype_none, "vessel.icing.mertins", { {"airtemp"},{"seatemp"},{"u10m"},{"v10m"},{"salinity0m"},{"aice"} },{}},
-{ FieldFunctions::f_vessel_icing_modstall, FieldVerticalAxes::vctype_none, "vessel.icing.modstall", { {"salinity0m"},{"significant_wave_height"},{"u10m"},{"v10m"},{"tc2m"},{"relative_humidity_2m"},{"temperature0m"},{"air_pressure_at_sea_level"},{"significant_wave_period"},{"aice"},{"depth"}},{{"vs"},{"alpha"},{"zmin"},{"zmax"} }},
-{ FieldFunctions::f_vessel_icing_mincog, FieldVerticalAxes::vctype_none, "vessel.icing.mincog", { {"salinity0m"},{"significant_wave_height"},{"u10m"},{"v10m"},{"tc2m"},{"relative_humidity_2m"},{"sst"},{"air_pressure_at_sea_level"},{"significant_wave_period"},{"aice"},{"depth"}},{{"vs"},{"alpha"},{"zmin"},{"zmax"},{"alt"} }},
-{ FieldFunctions::f_replace_undefined, FieldVerticalAxes::vctype_none, "replace.undefined", { {"f"}},{{"value"} }},
-{ FieldFunctions::f_replace_defined, FieldVerticalAxes::vctype_none, "replace.defined", { {"f"}},{{"value"} }},
-{ FieldFunctions::f_replace_all, FieldVerticalAxes::vctype_none, "replace.all", { {"f"}},{{"value"} }},
-{ FieldFunctions::f_values2classes, FieldVerticalAxes::vctype_none, "values2classes", { {"f"}},{{"limits_low_to_high"} }, FieldFunctions::varargs_const},
-{ FieldFunctions::f_field_diff_forecast_hour, FieldVerticalAxes::vctype_none, "field.diff.forecast.hour", { {"field"}},{{"relHourFirst"},{"relHourLast"} }},
-{ FieldFunctions::f_accum_diff_forecast_hour, FieldVerticalAxes::vctype_none, "accum.diff.forecast.hour", { {"accumfield"}},{{"relHourFirst"},{"relHourLast"} }},
-{ FieldFunctions::f_sum_of_forecast_hours, FieldVerticalAxes::vctype_none, "sum_of_forecast_hours", { {"field"}},{{"forecastHours"} }, FieldFunctions::varargs_const},
-{ FieldFunctions::f_sum_of_fields, FieldVerticalAxes::vctype_none, "sum_of_fields", { {"field"} },{}},
-{ FieldFunctions::f_max_of_fields, FieldVerticalAxes::vctype_none, "max_of_fields", { {"field"} },{}},
-{ FieldFunctions::f_min_of_fields, FieldVerticalAxes::vctype_none, "min_of_fields", { {"field"} },{}},
-{ FieldFunctions::f_no_of_fields_above, FieldVerticalAxes::vctype_none, "no_of_fields_above", { {"field"}},{{"limit"} }},
-{ FieldFunctions::f_no_of_fields_below, FieldVerticalAxes::vctype_none, "no_of_fields_below", { {"field"}},{{"limit"} }},
-{ FieldFunctions::f_index_of_fields_max, FieldVerticalAxes::vctype_none, "index_of_fields_max", { {"field"} },{}},
-{ FieldFunctions::f_index_of_fields_min, FieldVerticalAxes::vctype_none, "index_of_fields_min", { {"field"} },{}},
-{ FieldFunctions::f_sum, FieldVerticalAxes::vctype_none, "sum", { {"field"} },{}, FieldFunctions::varargs_field},
-{ FieldFunctions::f_mean_value, FieldVerticalAxes::vctype_none, "mean_value", { {"field"} },{}, FieldFunctions::varargs_field},
-{ FieldFunctions::f_stddev, FieldVerticalAxes::vctype_none, "stddev", { {"field"} },{}},
-{ FieldFunctions::f_probability_above, FieldVerticalAxes::vctype_none, "probability_above", { {"field"}},{{"limit"} }},
-{ FieldFunctions::f_probability_below, FieldVerticalAxes::vctype_none, "probability_below", { {"field"}},{{"limit"} }},
-{ FieldFunctions::f_probability_between, FieldVerticalAxes::vctype_none, "probability_between", { {"field"}},{{"limit"},{"limit"} }},
-{ FieldFunctions::f_number_above, FieldVerticalAxes::vctype_none, "number_above", { {"field"}},{{"limit"} }},
-{ FieldFunctions::f_number_below, FieldVerticalAxes::vctype_none, "number_below", { {"field"}},{{"limit"} }},
-{ FieldFunctions::f_number_between, FieldVerticalAxes::vctype_none, "number_between", { {"field"}},{{"limit"},{"limit"} }},
-{ FieldFunctions::f_equivalent_to, FieldVerticalAxes::vctype_none, "equivalent_to", { {"field"} },{}},
-{ FieldFunctions::f_min_value, FieldVerticalAxes::vctype_none, "min_value", { {"field"} },{}, FieldFunctions::varargs_field},
-{ FieldFunctions::f_max_value, FieldVerticalAxes::vctype_none, "max_value", { {"field"} },{}, FieldFunctions::varargs_field},
-{ FieldFunctions::f_min_index, FieldVerticalAxes::vctype_none, "min_index", { {"field"} },{}, FieldFunctions::varargs_field},
-{ FieldFunctions::f_max_index, FieldVerticalAxes::vctype_none, "max_index", { {"field"} },{}, FieldFunctions::varargs_field},
-{ FieldFunctions::f_percentile, FieldVerticalAxes::vctype_none, "percentile", { {"field"}},{{"value"} }, FieldFunctions::varargs_const},
-{ FieldFunctions::f_neighbour_percentile, FieldVerticalAxes::vctype_none, "neighbour_percentile", { {"field"}},{{"value"} }, FieldFunctions::varargs_const},
-{ FieldFunctions::f_neighbour_mean, FieldVerticalAxes::vctype_none, "neighbour_mean", { {"field"}},{{"value"} }, FieldFunctions::varargs_const},
-{ FieldFunctions::f_neighbour_probability_above, FieldVerticalAxes::vctype_none, "neighbour_probability_above", { {"field"}},{{"value"} }, FieldFunctions::varargs_const},
-{ FieldFunctions::f_neighbour_probability_above2, FieldVerticalAxes::vctype_none, "neighbour_probability_above2", { {"field"}},{{"value"} }, FieldFunctions::varargs_const},
-{ FieldFunctions::f_neighbour_probability_below, FieldVerticalAxes::vctype_none, "neighbour_probability_below", { {"field"}},{{"value"} }, FieldFunctions::varargs_const},
-{ FieldFunctions::f_neighbour_probability_below2, FieldVerticalAxes::vctype_none, "neighbour_probability_below2", { {"field"}},{{"value"} }, FieldFunctions::varargs_const},
-{ FieldFunctions::f_neighbour_max, FieldVerticalAxes::vctype_none, "neighbour_max", { {"field"}},{{"value"} }, FieldFunctions::varargs_const},
-{ FieldFunctions::f_neighbour_min, FieldVerticalAxes::vctype_none, "neighbour_min", { {"field"}},{{"value"} }, FieldFunctions::varargs_const},
-{ FieldFunctions::f_snow_cm_from_snow_water_tk_td, FieldVerticalAxes::vctype_none, "snow.cm.from.snow.water", { {"snow"},{"tk"},{"td"} },{}},
+    // FieldCalculations plevelhum
+    {FieldFunctions::f_rh_plevel_tk_q, FieldVerticalAxes::vctype_pressure, "rh.plevel_tk_q", u_pc, {a_tk, a_q}, {}},
+    {FieldFunctions::f_rh_plevel_th_q, FieldVerticalAxes::vctype_pressure, "rh.plevel_th_q", u_pc, {a_th, a_q}, {}},
+    {FieldFunctions::f_q_plevel_tk_rh, FieldVerticalAxes::vctype_pressure, "q.plevel_tk_rh", u_kg_kg, {a_tk, a_rh}, {}},
+    {FieldFunctions::f_q_plevel_th_rh, FieldVerticalAxes::vctype_pressure, "q.plevel_th_rh", u_kg_kg, {a_th, a_rh}, {}},
+    {FieldFunctions::f_tdc_plevel_tk_rh, FieldVerticalAxes::vctype_pressure, "tdc.plevel_tk_rh", u_C, {a_tk, a_rh}, {}},
+    {FieldFunctions::f_tdc_plevel_th_rh, FieldVerticalAxes::vctype_pressure, "tdc.plevel_th_rh", u_C, {a_th, a_rh}, {}},
+    {FieldFunctions::f_tdc_plevel_tk_q, FieldVerticalAxes::vctype_pressure, "tdc.plevel_tk_q", u_C, {a_tk, a_q}, {}},
+    {FieldFunctions::f_tdc_plevel_th_q, FieldVerticalAxes::vctype_pressure, "tdc.plevel_th_q", u_C, {a_th, a_q}, {}},
+    {FieldFunctions::f_tdk_plevel_tk_rh, FieldVerticalAxes::vctype_pressure, "tdk.plevel_tk_rh", u_K, {a_tk, a_rh}, {}},
+    {FieldFunctions::f_tdk_plevel_th_rh, FieldVerticalAxes::vctype_pressure, "tdk.plevel_th_rh", u_K, {a_th, a_rh}, {}},
+    {FieldFunctions::f_tdk_plevel_tk_q, FieldVerticalAxes::vctype_pressure, "tdk.plevel_tk_q", u_K, {a_tk, a_q}, {}},
+    {FieldFunctions::f_tdk_plevel_th_q, FieldVerticalAxes::vctype_pressure, "tdk.plevel_th_q", u_K, {a_th, a_q}, {}},
 
-  // geographic functions
+    // FieldCalculations pleveldz2tmean
+    {FieldFunctions::f_tcmean_plevel_z1_z2, FieldVerticalAxes::vctype_pressure, "tcmean.plevel_z1_z2", u_C, {{"z1"}, {"z2"}}, {}},
+    {FieldFunctions::f_tkmean_plevel_z1_z2, FieldVerticalAxes::vctype_pressure, "tkmean.plevel_z1_z2", u_K, {{"z1"}, {"z2"}}, {}},
+    {FieldFunctions::f_thmean_plevel_z1_z2, FieldVerticalAxes::vctype_pressure, "thmean.plevel_z1_z2", u_K, {{"z1"}, {"z2"}}, {}},
 
-  // initialize function texts
-{ FieldFunctions::f_qvector_plevel_z_tk_xcomp, FieldVerticalAxes::vctype_pressure, "qvector.plevel_z_tk_xcomp", { {"z"},{"tk"} },{}},
-{ FieldFunctions::f_qvector_plevel_z_th_xcomp, FieldVerticalAxes::vctype_pressure, "qvector.plevel_z_th_xcomp", { {"z"},{"th"} },{}},
-{ FieldFunctions::f_qvector_plevel_z_tk_ycomp, FieldVerticalAxes::vctype_pressure, "qvector.plevel_z_tk_ycomp", { {"z"},{"tk"} },{}},
-{ FieldFunctions::f_qvector_plevel_z_th_ycomp, FieldVerticalAxes::vctype_pressure, "qvector.plevel_z_th_ycomp", { {"z"},{"th"} },{}},
-{ FieldFunctions::f_geostrophic_wind_plevel_z_xcomp, FieldVerticalAxes::vctype_pressure, "geostrophic.wind.plevel_z_xcomp", { {"z"} },{}},
-{ FieldFunctions::f_geostrophic_wind_plevel_z_ycomp, FieldVerticalAxes::vctype_pressure, "geostrophic.wind.plevel_z_ycomp", { {"z"} },{}},
-{ FieldFunctions::f_geostrophic_vorticity_plevel_z, FieldVerticalAxes::vctype_pressure, "geostrophic.vorticity.plevel_z", { {"z"} },{}},
+    // FieldCalculations plevelducting
+    {FieldFunctions::f_ducting_plevel_tk_q, FieldVerticalAxes::vctype_pressure, "ducting.plevel_tk_q", {a_tk, a_q}, {}},
+    {FieldFunctions::f_ducting_plevel_th_q, FieldVerticalAxes::vctype_pressure, "ducting.plevel_th_q", {a_th, a_q}, {}},
+    {FieldFunctions::f_ducting_plevel_tk_rh, FieldVerticalAxes::vctype_pressure, "ducting.plevel_tk_rh", {a_tk, a_rh}, {}},
+    {FieldFunctions::f_ducting_plevel_th_rh, FieldVerticalAxes::vctype_pressure, "ducting.plevel_th_rh", {a_th, a_rh}, {}},
 
-  // isentropic level (ILEVEL) function NB! functions with two output fields do not work (TODO)
-{ FieldFunctions::f_geostrophic_wind_ilevel_mpot, FieldVerticalAxes::vctype_isentropic, "geostrophic_wind.ilevel_mpot", { {"mpot"} },{}, FieldFunctions::varargs_none, 2},
+    // FieldFunctions kIndex
+    {FieldFunctions::f_kindex_plevel_tk_rh, FieldVerticalAxes::vctype_pressure, "kindex.plevel_tk_rh", "1", {{"tk500", u_K}, {"tk700", u_K}, {"rh700", u_pc}, {"tk850", u_K}, {"rh850", u_pc}}, {}},
+    {FieldFunctions::f_kindex_plevel_th_rh, FieldVerticalAxes::vctype_pressure, "kindex.plevel_th_rh", "1", {{"th500", u_K}, {"th700", u_K}, {"rh700", u_K}, {"th850", u_K}, {"rh850", u_K}}, {}},
 
-  // level independent functions
-{ FieldFunctions::f_rel_vorticity, FieldVerticalAxes::vctype_none, "rel.vorticity", { {"u"},{"v"} },{}},
-{ FieldFunctions::f_abs_vorticity, FieldVerticalAxes::vctype_none, "abs.vorticity", { {"u"},{"v"} },{}},
-{ FieldFunctions::f_divergence, FieldVerticalAxes::vctype_none, "divergence", { {"u"},{"v"} },{}},
-{ FieldFunctions::f_advection, FieldVerticalAxes::vctype_none, "advection", { {"f"},{"u"},{"v"}},{{"hours"} }},
-{ FieldFunctions::f_thermal_front_parameter_tx, FieldVerticalAxes::vctype_none, "thermal.front.parameter_tx", { {"tx"} },{}},
-{ FieldFunctions::f_momentum_x_coordinate, FieldVerticalAxes::vctype_none, "momentum.x.coordinate", { {"v"}},{{"coriolisMin"} }},
-{ FieldFunctions::f_momentum_y_coordinate, FieldVerticalAxes::vctype_none, "momentum.y.coordinate", { {"u"}},{{"coriolisMin"} }},
-{ FieldFunctions::f_jacobian, FieldVerticalAxes::vctype_none, "jacobian", { {"fx"},{"fy"} },{}}
+    // FieldFunctions ductingIndex
+    {FieldFunctions::f_ductingindex_plevel_tk_rh, FieldVerticalAxes::vctype_pressure, "ductingindex.plevel_tk_rh", "1", {{"tk850", u_K}, {"rh850", u_pc}}, {}},
+    {FieldFunctions::f_ductingindex_plevel_th_rh, FieldVerticalAxes::vctype_pressure, "ductingindex.plevel_th_rh", "1", {{"th850", u_K}, {"rh850", u_pc}}, {}},
+
+    // FieldFunctions showalterIndex
+    {FieldFunctions::f_showalterindex_plevel_tk_rh, FieldVerticalAxes::vctype_pressure, "showalterindex.plevel_tk_rh", {{"tk500", u_K}, {"tk850", u_K}, {"rh850", u_pc}}, {}},
+    {FieldFunctions::f_showalterindex_plevel_th_rh, FieldVerticalAxes::vctype_pressure, "showalterindex.plevel_th_rh", {{"th500", u_K}, {"th850", u_K}, {"rh850", u_pc}}, {}},
+
+    // FieldFunctions boydenIndex
+    {FieldFunctions::f_boydenindex_plevel_tk_z, FieldVerticalAxes::vctype_pressure, "boydenindex.plevel_tk_z", "1", {{"tk700", u_K}, {"z700"}, {"z1000"}}, {}},
+    {FieldFunctions::f_boydenindex_plevel_th_z, FieldVerticalAxes::vctype_pressure, "boydenindex.plevel_th_z", "1", {{"th700", u_K}, {"z700"}, {"z1000"}}, {}},
+
+    // FieldFunctions sweatIndex
+    {FieldFunctions::f_sweatindex_plevel, FieldVerticalAxes::vctype_none, "sweatindex.plevel", {{"t850", u_C}, {"t500", u_C}, {"td850", u_C}, {"td500", u_C}, {"u850", u_m_s}, {"v850", u_m_s}, {"u500", u_m_s}, {"v500", u_m_s}}, {}},
+
+
+    // hybrid model level (HLEVEL) functions
+    {FieldFunctions::f_tc_hlevel_th_psurf, FieldVerticalAxes::vctype_hybrid, "tc.hlevel_th_psurf", {a_th, {"psurf"}}, {}},
+    {FieldFunctions::f_tk_hlevel_th_psurf, FieldVerticalAxes::vctype_hybrid, "tk.hlevel_th_psurf", {a_th, {"psurf"}}, {}},
+    {FieldFunctions::f_th_hlevel_tk_psurf, FieldVerticalAxes::vctype_hybrid, "th.hlevel_tk_psurf", {a_tk, {"psurf"}}, {}},
+    {FieldFunctions::f_thesat_hlevel_tk_psurf, FieldVerticalAxes::vctype_hybrid, "thesat.hlevel_tk_psurf", {a_tk, {"psurf"}}, {}},
+    {FieldFunctions::f_thesat_hlevel_th_psurf, FieldVerticalAxes::vctype_hybrid, "thesat.hlevel_th_psurf", {a_th, {"psurf"}}, {}},
+    {FieldFunctions::f_the_hlevel_tk_q_psurf, FieldVerticalAxes::vctype_hybrid, "the.hlevel_tk_q_psurf", {a_tk, a_q, {"psurf"}}, {}},
+    {FieldFunctions::f_the_hlevel_th_q_psurf, FieldVerticalAxes::vctype_hybrid, "the.hlevel_th_q_psurf", {a_th, a_q, {"psurf"}}, {}},
+    {FieldFunctions::f_rh_hlevel_tk_q_psurf, FieldVerticalAxes::vctype_hybrid, "rh.hlevel_tk_q_psurf", {a_tk, a_q, {"psurf"}}, {}},
+    {FieldFunctions::f_rh_hlevel_th_q_psurf, FieldVerticalAxes::vctype_hybrid, "rh.hlevel_th_q_psurf", {a_th, a_q, {"psurf"}}, {}},
+    {FieldFunctions::f_q_hlevel_tk_rh_psurf, FieldVerticalAxes::vctype_hybrid, "q.hlevel_tk_rh_psurf", {a_tk, a_rh, {"psurf"}}, {}},
+    {FieldFunctions::f_q_hlevel_th_rh_psurf, FieldVerticalAxes::vctype_hybrid, "q.hlevel_th_rh_psurf", {a_th, a_rh, {"psurf"}}, {}},
+    {FieldFunctions::f_tdc_hlevel_tk_q_psurf, FieldVerticalAxes::vctype_hybrid, "tdc.hlevel_tk_q_psurf", {a_tk, a_q, {"psurf"}}, {}},
+    {FieldFunctions::f_tdc_hlevel_th_q_psurf, FieldVerticalAxes::vctype_hybrid, "tdc.hlevel_th_q_psurf", {a_th, a_q, {"psurf"}}, {}},
+    {FieldFunctions::f_tdc_hlevel_tk_rh_psurf, FieldVerticalAxes::vctype_hybrid, "tdc.hlevel_tk_rh_psurf", {a_tk, a_rh, {"psurf"}}, {}},
+    {FieldFunctions::f_tdc_hlevel_th_rh_psurf, FieldVerticalAxes::vctype_hybrid, "tdc.hlevel_th_rh_psurf", {a_th, a_rh, {"psurf"}}, {}},
+    {FieldFunctions::f_tdk_hlevel_tk_q_psurf, FieldVerticalAxes::vctype_hybrid, "tdk.hlevel_tk_q_psurf", {a_tk, a_q, {"psurf"}}, {}},
+    {FieldFunctions::f_tdk_hlevel_th_q_psurf, FieldVerticalAxes::vctype_hybrid, "tdk.hlevel_th_q_psurf", {a_th, a_q, {"psurf"}}, {}},
+    {FieldFunctions::f_tdk_hlevel_tk_rh_psurf, FieldVerticalAxes::vctype_hybrid, "tdk.hlevel_tk_rh_psurf", {a_tk, a_rh, {"psurf"}}, {}},
+    {FieldFunctions::f_tdk_hlevel_th_rh_psurf, FieldVerticalAxes::vctype_hybrid, "tdk.hlevel_th_rh_psurf", {a_th, a_rh, {"psurf"}}, {}},
+    {FieldFunctions::f_ducting_hlevel_tk_q_psurf, FieldVerticalAxes::vctype_hybrid, "ducting.hlevel_tk_q_psurf", {a_tk, a_q, {"psurf"}}, {}},
+    {FieldFunctions::f_ducting_hlevel_th_q_psurf, FieldVerticalAxes::vctype_hybrid, "ducting.hlevel_th_q_psurf", {a_th, a_q, {"psurf"}}, {}},
+    {FieldFunctions::f_ducting_hlevel_tk_rh_psurf, FieldVerticalAxes::vctype_hybrid, "ducting.hlevel_tk_rh_psurf", {a_tk, a_rh, {"psurf"}}, {}},
+    {FieldFunctions::f_ducting_hlevel_th_rh_psurf, FieldVerticalAxes::vctype_hybrid, "ducting.hlevel_th_rh_psurf", {a_th, a_rh, {"psurf"}}, {}},
+    {FieldFunctions::f_pressure_hlevel_xx_psurf, FieldVerticalAxes::vctype_hybrid, "pressure.hlevel_xx_psurf", {{"xx"}, {"psurf"}}, {}}, // just get eta.a and eta.b from field xx
+
+    // misc atmospheric model level (ALEVEL) functions
+    {FieldFunctions::f_tc_alevel_th_p, FieldVerticalAxes::vctype_atmospheric, "tc.alevel_th_p", {a_th, {"p"}}, {}},
+    {FieldFunctions::f_tk_alevel_th_p, FieldVerticalAxes::vctype_atmospheric, "tk.alevel_th_p", {a_th, {"p"}}, {}},
+    {FieldFunctions::f_th_alevel_tk_p, FieldVerticalAxes::vctype_atmospheric, "th.alevel_tk_p", {a_tk, {"p"}}, {}},
+    {FieldFunctions::f_thesat_alevel_tk_p, FieldVerticalAxes::vctype_atmospheric, "thesat.alevel_tk_p", {a_tk, {"p"}}, {}},
+    {FieldFunctions::f_thesat_alevel_th_p, FieldVerticalAxes::vctype_atmospheric, "thesat.alevel_th_p", {a_th, {"p"}}, {}},
+    {FieldFunctions::f_the_alevel_tk_q_p, FieldVerticalAxes::vctype_atmospheric, "the.alevel_tk_q_p", {a_tk, a_q, {"p"}}, {}},
+    {FieldFunctions::f_the_alevel_th_q_p, FieldVerticalAxes::vctype_atmospheric, "the.alevel_th_q_p", {a_th, a_q, {"p"}}, {}},
+    {FieldFunctions::f_rh_alevel_tk_q_p, FieldVerticalAxes::vctype_atmospheric, "rh.alevel_tk_q_p", {a_tk, a_q, {"p"}}, {}},
+    {FieldFunctions::f_rh_alevel_th_q_p, FieldVerticalAxes::vctype_atmospheric, "rh.alevel_th_q_p", {a_th, a_q, {"p"}}, {}},
+    {FieldFunctions::f_q_alevel_tk_rh_p, FieldVerticalAxes::vctype_atmospheric, "q.alevel_tk_rh_p", {a_tk, a_rh, {"p"}}, {}},
+    {FieldFunctions::f_q_alevel_th_rh_p, FieldVerticalAxes::vctype_atmospheric, "q.alevel_th_rh_p", {a_th, a_rh, {"p"}}, {}},
+    {FieldFunctions::f_tdc_alevel_tk_q_p, FieldVerticalAxes::vctype_atmospheric, "tdc.alevel_tk_q_p", {a_tk, a_q, {"p"}}, {}},
+    {FieldFunctions::f_tdc_alevel_th_q_p, FieldVerticalAxes::vctype_atmospheric, "tdc.alevel_th_q_p", {a_th, a_q, {"p"}}, {}},
+    {FieldFunctions::f_tdc_alevel_tk_rh_p, FieldVerticalAxes::vctype_atmospheric, "tdc.alevel_tk_rh_p", {a_tk, a_rh, {"p"}}, {}},
+    {FieldFunctions::f_tdc_alevel_th_rh_p, FieldVerticalAxes::vctype_atmospheric, "tdc.alevel_th_rh_p", {a_th, a_rh, {"p"}}, {}},
+    {FieldFunctions::f_tdk_alevel_tk_q_p, FieldVerticalAxes::vctype_atmospheric, "tdk.alevel_tk_q_p", {a_tk, a_q, {"p"}}, {}},
+    {FieldFunctions::f_tdk_alevel_th_q_p, FieldVerticalAxes::vctype_atmospheric, "tdk.alevel_th_q_p", {a_th, a_q, {"p"}}, {}},
+    {FieldFunctions::f_tdk_alevel_tk_rh_p, FieldVerticalAxes::vctype_atmospheric, "tdk.alevel_tk_rh_p", {a_tk, a_rh, {"p"}}, {}},
+    {FieldFunctions::f_tdk_alevel_th_rh_p, FieldVerticalAxes::vctype_atmospheric, "tdk.alevel_th_rh_p", {a_th, a_rh, {"p"}}, {}},
+    {FieldFunctions::f_ducting_alevel_tk_q_p, FieldVerticalAxes::vctype_atmospheric, "ducting.alevel_tk_q_p", {a_tk, a_q, {"p"}}, {}},
+    {FieldFunctions::f_ducting_alevel_th_q_p, FieldVerticalAxes::vctype_atmospheric, "ducting.alevel_th_q_p", {a_th, a_q, {"p"}}, {}},
+    {FieldFunctions::f_ducting_alevel_tk_rh_p, FieldVerticalAxes::vctype_atmospheric, "ducting.alevel_tk_rh_p", {a_tk, a_rh, {"p"}}, {}},
+    {FieldFunctions::f_ducting_alevel_th_rh_p, FieldVerticalAxes::vctype_atmospheric, "ducting.alevel_th_rh_p", {a_th, a_rh, {"p"}}, {}},
+
+    // ocean depth level (OZLEVEL) functions
+    {FieldFunctions::f_sea_soundspeed_ozlevel_tc_salt, FieldVerticalAxes::vctype_oceandepth, "sea.soundspeed.ozlevel_tc_salt", {{"seatemp.c", u_C}, {"salt"}}, {}},
+    {FieldFunctions::f_sea_soundspeed_ozlevel_tk_salt, FieldVerticalAxes::vctype_oceandepth, "sea.soundspeed.ozlevel_tk_salt", {{"seatemp.k", u_K}, {"salt"}}, {}},
+
+    // level independent functions
+    {FieldFunctions::f_temp_k2c, FieldVerticalAxes::vctype_none, "temp_k2c", u_C, {a_tk}, {}},
+    {FieldFunctions::f_temp_c2k, FieldVerticalAxes::vctype_none, "temp_c2k", u_K, {a_tc}, {}},
+    {FieldFunctions::f_temp_k2c_possibly, FieldVerticalAxes::vctype_none, "temp_k2c_possibly", {a_tk}, {}},
+    {FieldFunctions::f_temp_c2k_possibly, FieldVerticalAxes::vctype_none, "temp_c2k_possibly", {a_tc}, {}},
+    {FieldFunctions::f_tdk_tk_rh, FieldVerticalAxes::vctype_none, "tdk.tk_rh", u_K, {a_tk, a_rh}, {}},
+    {FieldFunctions::f_tdc_tk_rh, FieldVerticalAxes::vctype_none, "tdc.tk_rh", u_C, {a_tk, a_rh}, {}},
+    {FieldFunctions::f_abshum_tk_rh, FieldVerticalAxes::vctype_none, "abshum.tk_rh", {a_tk, a_rh}, {}},
+    {FieldFunctions::f_tdc_tc_rh, FieldVerticalAxes::vctype_none, "tdc.tc_rh", {a_tc, a_rh}, {}},
+    {FieldFunctions::f_rh_tk_td, FieldVerticalAxes::vctype_none, "rh.tk_tdk", {a_tk, a_tdk}, {}},
+    {FieldFunctions::f_rh_tc_td, FieldVerticalAxes::vctype_none, "rh.tc_tdc", {a_tc, a_tdc}, {}},
+    {FieldFunctions::f_vector_abs, FieldVerticalAxes::vctype_none, "vector.abs", {{"u"}, {"v"}}, {}},
+    {FieldFunctions::f_d_dx, FieldVerticalAxes::vctype_none, "d/dx", {{"f"}}, {}},
+    {FieldFunctions::f_d_dy, FieldVerticalAxes::vctype_none, "d/dy", {{"f"}}, {}},
+    {FieldFunctions::f_abs_del, FieldVerticalAxes::vctype_none, "abs.del", {{"f"}}, {}},
+    {FieldFunctions::f_del_square, FieldVerticalAxes::vctype_none, "del.square", {{"f"}}, {}},
+    {FieldFunctions::f_minvalue_fields, FieldVerticalAxes::vctype_none, "minvalue.fields", {{"f1"}, {"f2"}}, {}},
+    {FieldFunctions::f_maxvalue_fields, FieldVerticalAxes::vctype_none, "maxvalue.fields", {{"f1"}, {"f2"}}, {}},
+    {FieldFunctions::f_minvalue_field_const, FieldVerticalAxes::vctype_none, "minvalue.field.const", {{"f"}}, {{"value"}}},
+    {FieldFunctions::f_maxvalue_field_const, FieldVerticalAxes::vctype_none, "maxvalue.field.const", {{"f"}}, {{"value"}}},
+    {FieldFunctions::f_abs, FieldVerticalAxes::vctype_none, "abs", {{"f"}}, {}},
+    {FieldFunctions::f_log10, FieldVerticalAxes::vctype_none, "log10", {{"f"}}, {}},
+    {FieldFunctions::f_pow10, FieldVerticalAxes::vctype_none, "pow10", {{"f"}}, {}},
+    {FieldFunctions::f_log, FieldVerticalAxes::vctype_none, "log", {{"f"}}, {}},
+    {FieldFunctions::f_exp, FieldVerticalAxes::vctype_none, "exp", {{"f"}}, {}},
+    {FieldFunctions::f_power, FieldVerticalAxes::vctype_none, "power", {{"f"}}, {{"exponent"}}},
+    {FieldFunctions::f_shapiro2_filter, FieldVerticalAxes::vctype_none, "shapiro2.filter", {{"f"}}, {}},
+    {FieldFunctions::f_smooth, FieldVerticalAxes::vctype_none, "smooth", {{"f"}}, {{"numsmooth"}}},
+    {FieldFunctions::f_windcooling_tk_u_v, FieldVerticalAxes::vctype_none, "windcooling_tk_u_v", u_K, {{"tk2m",u_K}, {"u10m", u_m_s}, {"v10m", u_m_s}}, {}},
+    {FieldFunctions::f_windcooling_tc_u_v, FieldVerticalAxes::vctype_none, "windcooling_tc_u_v", u_K, {{"tc2m",u_C}, {"u10m", u_m_s}, {"v10m", u_m_s}}, {}},
+    {FieldFunctions::f_undercooled_rain, FieldVerticalAxes::vctype_none, "undercooled.rain", "1", {{"precip"}, {"snow"}, a_tk}, {{"precipMin"}, {"snowRateMax"}, {"tcMax"}}},
+    {FieldFunctions::f_pressure2flightlevel, FieldVerticalAxes::vctype_none, "pressure2flightlevel", {{"p"}}, {}},
+    {FieldFunctions::f_vessel_icing_overland, FieldVerticalAxes::vctype_none, "vessel.icing.overland", {{"airtemp", u_C}, {"seatemp", u_C}, {"u10m", u_m_s}, {"v10m", u_m_s}, {"salinity0m"}, {"aice"}}, {}},
+    {FieldFunctions::f_vessel_icing_mertins, FieldVerticalAxes::vctype_none, "vessel.icing.mertins", {{"airtemp"}, {"seatemp"}, {"u10m"}, {"v10m"}, {"salinity0m"}, {"aice"}}, {}},
+    {FieldFunctions::f_vessel_icing_modstall, FieldVerticalAxes::vctype_none, "vessel.icing.modstall", {{"salinity0m"}, {"significant_wave_height"},{"u10m", u_m_s},{"v10m", u_m_s},{"tc2m", u_C},{"relative_humidity_2m"},{"temperature0m", u_C},{"air_pressure_at_sea_level","hPa"},{"significant_wave_period"},{"aice"},{"depth"}},{{"vs"}, {"alpha"}, {"zmin"}, {"zmax"}}},
+    {FieldFunctions::f_vessel_icing_mincog, FieldVerticalAxes::vctype_none, "vessel.icing.mincog", {{"salinity0m"},{"significant_wave_height"},{"u10m", u_m_s},{"v10m", u_m_s},{"tc2m", u_C},{"relative_humidity_2m", "1"},{"sst", u_C},{"air_pressure_at_sea_level","hPa"},{"significant_wave_period"},{"aice"},{"depth"}},{{"vs"}, {"alpha"}, {"zmin"}, {"zmax"}, {"alt"}}},
+    {FieldFunctions::f_replace_undefined, FieldVerticalAxes::vctype_none, "replace.undefined", {{"f"}}, {{"value"}}},
+    {FieldFunctions::f_replace_defined, FieldVerticalAxes::vctype_none, "replace.defined", {{"f"}}, {{"value"}}},
+    {FieldFunctions::f_replace_all, FieldVerticalAxes::vctype_none, "replace.all", {{"f"}}, {{"value"}}},
+    {FieldFunctions::f_values2classes, FieldVerticalAxes::vctype_none, "values2classes", {{"f"}}, {{"limits_low_to_high"}}, FieldFunctions::varargs_const},
+    {FieldFunctions::f_field_diff_forecast_hour, FieldVerticalAxes::vctype_none, "field.diff.forecast.hour", {{"field"}}, {{"relHourFirst"}, {"relHourLast"}}},
+    {FieldFunctions::f_accum_diff_forecast_hour, FieldVerticalAxes::vctype_none, "accum.diff.forecast.hour", {{"accumfield"}}, {{"relHourFirst"}, {"relHourLast"}}},
+    {FieldFunctions::f_sum_of_forecast_hours, FieldVerticalAxes::vctype_none, "sum_of_forecast_hours", {{"field"}},{{"forecastHours"}}, FieldFunctions::varargs_const},
+    {FieldFunctions::f_sum_of_fields, FieldVerticalAxes::vctype_none, "sum_of_fields", {{"field"}}, {}},
+    {FieldFunctions::f_max_of_fields, FieldVerticalAxes::vctype_none, "max_of_fields", {{"field"}}, {}},
+    {FieldFunctions::f_min_of_fields, FieldVerticalAxes::vctype_none, "min_of_fields", {{"field"}}, {}},
+    {FieldFunctions::f_no_of_fields_above, FieldVerticalAxes::vctype_none, "no_of_fields_above", {{"field"}}, {{"limit"}}},
+    {FieldFunctions::f_no_of_fields_below, FieldVerticalAxes::vctype_none, "no_of_fields_below", {{"field"}}, {{"limit"}}},
+    {FieldFunctions::f_index_of_fields_max, FieldVerticalAxes::vctype_none, "index_of_fields_max", {{"field"}}, {}},
+    {FieldFunctions::f_index_of_fields_min, FieldVerticalAxes::vctype_none, "index_of_fields_min", {{"field"}}, {}},
+    {FieldFunctions::f_sum, FieldVerticalAxes::vctype_none, "sum", {{"field"}}, {}, FieldFunctions::varargs_field},
+    {FieldFunctions::f_mean_value, FieldVerticalAxes::vctype_none, "mean_value", {{"field"}}, {}, FieldFunctions::varargs_field},
+    {FieldFunctions::f_stddev, FieldVerticalAxes::vctype_none, "stddev", {{"field"}}, {}},
+    {FieldFunctions::f_probability_above, FieldVerticalAxes::vctype_none, "probability_above", {{"field"}}, {{"limit"}}},
+    {FieldFunctions::f_probability_below, FieldVerticalAxes::vctype_none, "probability_below", {{"field"}}, {{"limit"}}},
+    {FieldFunctions::f_probability_between, FieldVerticalAxes::vctype_none, "probability_between", {{"field"}}, {{"limit"}, {"limit"}}},
+    {FieldFunctions::f_number_above, FieldVerticalAxes::vctype_none, "number_above", {{"field"}}, {{"limit"}}},
+    {FieldFunctions::f_number_below, FieldVerticalAxes::vctype_none, "number_below", {{"field"}}, {{"limit"}}},
+    {FieldFunctions::f_number_between, FieldVerticalAxes::vctype_none, "number_between", {{"field"}}, {{"limit"}, {"limit"}}},
+    {FieldFunctions::f_equivalent_to, FieldVerticalAxes::vctype_none, "equivalent_to", {{"field"}}, {}},
+    {FieldFunctions::f_min_value, FieldVerticalAxes::vctype_none, "min_value", {{"field"}}, {}, FieldFunctions::varargs_field},
+    {FieldFunctions::f_max_value, FieldVerticalAxes::vctype_none, "max_value", {{"field"}}, {}, FieldFunctions::varargs_field},
+    {FieldFunctions::f_min_index, FieldVerticalAxes::vctype_none, "min_index", {{"field"}}, {}, FieldFunctions::varargs_field},
+    {FieldFunctions::f_max_index, FieldVerticalAxes::vctype_none, "max_index", {{"field"}}, {}, FieldFunctions::varargs_field},
+    {FieldFunctions::f_percentile, FieldVerticalAxes::vctype_none, "percentile", {{"field"}}, {{"value"}}, FieldFunctions::varargs_const},
+    {FieldFunctions::f_neighbour_percentile, FieldVerticalAxes::vctype_none, "neighbour_percentile", {{"field"}}, {{"value"}}, FieldFunctions::varargs_const},
+    {FieldFunctions::f_neighbour_mean, FieldVerticalAxes::vctype_none, "neighbour_mean", {{"field"}}, {{"value"}}, FieldFunctions::varargs_const},
+    {FieldFunctions::f_neighbour_probability_above, FieldVerticalAxes::vctype_none, "neighbour_probability_above", {{"field"}}, {{"value"}}, FieldFunctions::varargs_const},
+    {FieldFunctions::f_neighbour_probability_above2, FieldVerticalAxes::vctype_none, "neighbour_probability_above2", {{"field"}}, {{"value"}}, FieldFunctions::varargs_const},
+    {FieldFunctions::f_neighbour_probability_below, FieldVerticalAxes::vctype_none, "neighbour_probability_below", {{"field"}}, {{"value"}}, FieldFunctions::varargs_const},
+    {FieldFunctions::f_neighbour_probability_below2, FieldVerticalAxes::vctype_none, "neighbour_probability_below2", {{"field"}}, {{"value"}}, FieldFunctions::varargs_const},
+    {FieldFunctions::f_neighbour_max, FieldVerticalAxes::vctype_none, "neighbour_max", {{"field"}}, {{"value"}}, FieldFunctions::varargs_const},
+    {FieldFunctions::f_neighbour_min, FieldVerticalAxes::vctype_none, "neighbour_min", {{"field"}}, {{"value"}}, FieldFunctions::varargs_const},
+    {FieldFunctions::f_snow_cm_from_snow_water_tk_td, FieldVerticalAxes::vctype_none, "snow.cm.from.snow.water", {{"snow"}, a_tk, {"td"}}, {}},
+
+    // geographic functions
+
+    // initialize function texts
+    {FieldFunctions::f_qvector_plevel_z_tk_xcomp, FieldVerticalAxes::vctype_pressure, "qvector.plevel_z_tk_xcomp", {{"z"}, a_tk}, {}},
+    {FieldFunctions::f_qvector_plevel_z_th_xcomp, FieldVerticalAxes::vctype_pressure, "qvector.plevel_z_th_xcomp", {{"z"}, a_th}, {}},
+    {FieldFunctions::f_qvector_plevel_z_tk_ycomp, FieldVerticalAxes::vctype_pressure, "qvector.plevel_z_tk_ycomp", {{"z"}, a_tk}, {}},
+    {FieldFunctions::f_qvector_plevel_z_th_ycomp, FieldVerticalAxes::vctype_pressure, "qvector.plevel_z_th_ycomp", {{"z"}, a_th}, {}},
+    {FieldFunctions::f_geostrophic_wind_plevel_z_xcomp, FieldVerticalAxes::vctype_pressure, "geostrophic.wind.plevel_z_xcomp", {{"z"}}, {}},
+    {FieldFunctions::f_geostrophic_wind_plevel_z_ycomp, FieldVerticalAxes::vctype_pressure, "geostrophic.wind.plevel_z_ycomp", {{"z"}}, {}},
+    {FieldFunctions::f_geostrophic_vorticity_plevel_z, FieldVerticalAxes::vctype_pressure, "geostrophic.vorticity.plevel_z", {{"z"}}, {}},
+
+    // isentropic level (ILEVEL) function NB! functions with two output fields do not work (TODO)
+    {FieldFunctions::f_geostrophic_wind_ilevel_mpot, FieldVerticalAxes::vctype_isentropic, "geostrophic_wind.ilevel_mpot", {{"mpot"}}, {}, FieldFunctions::varargs_none, 2},
+
+    // level independent functions
+    {FieldFunctions::f_rel_vorticity, FieldVerticalAxes::vctype_none, "rel.vorticity", {{"u"}, {"v"}}, {}},
+    {FieldFunctions::f_abs_vorticity, FieldVerticalAxes::vctype_none, "abs.vorticity", {{"u"}, {"v"}}, {}},
+    {FieldFunctions::f_divergence, FieldVerticalAxes::vctype_none, "divergence", {{"u"}, {"v"}}, {}},
+    {FieldFunctions::f_advection, FieldVerticalAxes::vctype_none, "advection", {{"f"}, {"u"}, {"v"}}, {{"hours"}}},
+    {FieldFunctions::f_thermal_front_parameter_tx, FieldVerticalAxes::vctype_none, "thermal.front.parameter_tx", {{"tx"}}, {}},
+    {FieldFunctions::f_momentum_x_coordinate, FieldVerticalAxes::vctype_none, "momentum.x.coordinate", {{"v"}}, {{"coriolisMin"}}},
+    {FieldFunctions::f_momentum_y_coordinate, FieldVerticalAxes::vctype_none, "momentum.y.coordinate", {{"u"}}, {{"coriolisMin"}}},
+    {FieldFunctions::f_jacobian, FieldVerticalAxes::vctype_none, "jacobian", {{"fx"}, {"fy"}}, {}}
 };
 
 // static member
@@ -300,6 +325,7 @@ bool FieldFunctions::parseComputeSetup(const vector<std::string>& lines, vector<
           fcomp.name = vspec[0];
           fcomp.functionName = miutil::to_upper(functionName);
           FieldVerticalAxes::VerticalType vctype = FieldVerticalAxes::vctype_none;
+          fcomp.func = nullptr;
 
           // First check if function is a simple calculation
           if ((pc = compute.find(functionName)) != pcend) {
@@ -331,6 +357,7 @@ bool FieldFunctions::parseComputeSetup(const vector<std::string>& lines, vector<
                                         [functionName_lc](const FunctionHelper& fh) { return functionName_lc == fh.name; })) != boost::end(functions)) {
             const FunctionHelper& fh = *pf;
             fcomp.function = fh.func;
+            fcomp.func = &fh;
             // check function arguments
             vector<std::string> vpart = miutil::split(str, 0, ",", false);
             int npart = vpart.size();
@@ -339,7 +366,7 @@ bool FieldFunctions::parseComputeSetup(const vector<std::string>& lines, vector<
             if (numf < 0 ) {
               numf = npart;
             }
-            unsigned int numr = fh.numresult;
+            unsigned int numr = fh.numresult();
             vctype = fh.vertcoord;
             // if any fields or constants as input...
             if ((numc >= 0 && npart == numf + numc)
