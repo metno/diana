@@ -67,7 +67,12 @@ struct FieldPlotManagerPlotField
 };
 
 FieldPlotManager::FieldPlotManager()
-    : fieldManager(new FieldManager)
+    : FieldPlotManager(std::make_shared<FieldManager>())
+{
+}
+
+FieldPlotManager::FieldPlotManager(FieldManager_p fm)
+    : fieldManager(fm)
 {
 }
 

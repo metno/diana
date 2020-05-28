@@ -42,6 +42,7 @@
 
 class FieldPlot;
 class FieldManager;
+typedef std::shared_ptr<FieldManager> FieldManager_p;
 
 struct FieldPlotManagerPlotField;
 
@@ -52,6 +53,7 @@ class FieldPlotManager {
 
 public:
   FieldPlotManager();
+  FieldPlotManager(FieldManager_p fm);
   ~FieldPlotManager();
 
   FieldPlot* createPlot(const PlotCommand_cp& cmd);
@@ -129,7 +131,7 @@ private:
   std::map<std::string, PlotOptions> fieldPlotOptions;
   std::map<std::string, miutil::KeyValue_v> fieldDataOptions;
 
-  std::unique_ptr<FieldManager> fieldManager;
+  FieldManager_p fieldManager;
 };
 
 #endif
