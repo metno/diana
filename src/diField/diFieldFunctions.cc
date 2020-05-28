@@ -75,8 +75,6 @@ static const std::string u_K("K"), u_C("celsius"), u_hPa("hPa"), u_kg_kg("kg/kg"
 static const FieldFunctions::Arg a_th("th", u_K), a_tk("tk", u_K), a_tc("tc", u_C), a_q("q", u_kg_kg), a_rh("rh", u_pc), a_tdk("tdk", u_K), a_tdc("tdc", u_C);
 
 static const FieldFunctions::FunctionHelper functions[] {
-    {FieldFunctions::f_sum_f, FieldVerticalAxes::vctype_none, "sum", {{"field"}}, {}, FieldFunctions::varargs_field},
-
     // pressure level (PLEVEL) functions
 
     // FieldCalculations pleveltemp
@@ -470,9 +468,9 @@ bool FieldFunctions::mapTimeStepFunction(Function& f)
   if (f == f_field_diff_forecast_hour || f == f_accum_diff_forecast_hour)
     f = f_subtract_f_f;
   else if (f == f_sum_of_forecast_hours)
-    f = f_sum_f;
+    f = f_sum;
   else if (f == f_sum_of_fields)
-    f = f_sum_f;
+    f = f_sum;
   else if (f == f_max_of_fields)
     f = f_max_value;
   else if (f == f_min_of_fields)
@@ -1200,11 +1198,6 @@ bool FieldFunctions::fieldComputer(Function function, const std::vector<float>& 
       break;
     res = fieldOPERfield(compute, nx, ny, finp[0], finp[1], fout[0],
         fDefined, undef);
-    break;
-
-  case f_sum_f:
-    // field + field + field +
-    res = sumFields(nx, ny, finp, fout[0], fDefined, undef);
     break;
 
   case f_add_f_c:

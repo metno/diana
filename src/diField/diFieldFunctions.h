@@ -156,7 +156,6 @@ public:
     f_subtract_c_f, //!< constant - field
     f_multiply_c_f, //!< constant * field
     f_divide_c_f,   //!< constant / field
-    f_sum_f,        //!<field+field+field ...
 
     // pressure level (PLEVEL) functions
     f_tc_plevel_th,                    //!< f_tc_plevel_th
