@@ -369,20 +369,44 @@ public:
     FieldSpec() : vcoord(false), ecoord(false), use_standard_name(false) {}
   };
 
-private:
-  struct FunctionHelper {
-    Function func;
-    int numfields;
-    int numconsts;
-    unsigned int numresult;
-    FieldVerticalAxes::VerticalType vertcoord;
-    FunctionHelper() :
-      func(FieldFunctions::f_undefined), numfields(0), numconsts(0),
-      numresult(1), vertcoord(FieldVerticalAxes::vctype_none)
-      { }
+public:
+  struct Arg
+  {
+    std::string name;
+    std::string units;
+    Arg(std::string&& n, std::string&& u = std::string())
+        : name(n)
+        , units(u)
+    {
+    }
   };
+  enum VarArgs { varargs_none, varargs_field, varargs_const };
 
-  typedef std::map<std::string, FunctionHelper> functions_t;
+  struct FunctionHelper {
+    FieldFunctions::Function func;
+    FieldVerticalAxes::VerticalType vertcoord;
+    std::string name;
+
+    std::vector<Arg> args_field;
+    std::vector<Arg> args_const;
+    VarArgs varargs;
+    size_t numresult;
+
+    FunctionHelper(FieldFunctions::Function f, FieldVerticalAxes::VerticalType vc, std::string&& n, std::vector<Arg>&& af, std::vector<Arg>&& ac,
+                   VarArgs va = varargs_none, size_t nr = 1)
+        : func(f)
+        , vertcoord(vc)
+        , name(n)
+        , args_field(af)
+        , args_const(ac)
+        , varargs(va)
+        , numresult(nr)
+    {
+    }
+
+    int numfields() const { return (varargs == varargs_field) ? -1 : args_field.size(); }
+    int numconsts() const { return ((varargs == varargs_const) ? -1 : 1) * args_const.size(); }
+  };
 
 public:
   FieldFunctions();
@@ -408,8 +432,6 @@ public:
   static bool fieldComputer(Function function, const std::vector<float>& constants, const Field_pv& vfinput, const Field_pv& vfres, class GridConverter& gc);
 
 private:
-  static bool registerFunctions(functions_t& functions);
-  static bool registerFunction(functions_t& functions, Function f, const std::string& funcText);
   static bool mapTimeStepFunction(Function& f);
 
 private:
