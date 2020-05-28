@@ -80,15 +80,6 @@ const char SECONDS_SINCE_1970[] = "seconds since 1970-01-01 00:00:00";
 const char REPROJECTION[] = "reprojection";
 const char EXTRACT[] = "extract";
 
-DataPtr getScaledDataSlice(CDMReader_p reader, const CoordinateSystemSliceBuilder& sb,
-    const std::string& varName, const std::string& unit)
-{
-  if (unit.empty())
-    return reader->getScaledDataSlice(varName, sb);
-  else
-    return reader->getScaledDataSliceInUnit(varName, unit, sb);
-}
-
 //! copy the axis' name if the axis is not null
 void copyAxisName(CoordinateAxis_cp axis, std::string& nameVar)
 {
@@ -954,7 +945,7 @@ MetNoFimex::CoordinateSystem_cp FimexIO::findCoordinateSystem(const gridinventor
  * Get data slice
  */
 Field_p FimexIO::getData(const std::string& reftime, const gridinventory::GridParameter& param, const std::string& level, const miutil::miTime& time,
-                         const std::string& elevel, const std::string& unit)
+                         const std::string& elevel)
 {
   METLIBS_LOG_TIME();
   std::string timestr;
@@ -964,11 +955,11 @@ Field_p FimexIO::getData(const std::string& reftime, const gridinventory::GridPa
      timestr = time.isoTime();
   }
   METLIBS_LOG_INFO(" Param: "<<param.key.name<<"  time:"<<timestr<<" Source:"<<source_name<<"  : "<<config_filename);
-  METLIBS_LOG_DEBUG(" reftime: "<<reftime<<"  level:"<<level<<" elevel:"<<elevel<<"  unit: "<<unit);
+  METLIBS_LOG_DEBUG(LOGVAL(reftime) << LOGVAL(level) << LOGVAL(elevel));
 
   //todo: if time, level, elevel etc not found, return NULL
 
-  Field_p field = initializeField(model_name, reftime, param, level, time, elevel, unit);
+  Field_p field = initializeField(model_name, reftime, param, level, time, elevel);
   if (!field) {
     METLIBS_LOG_DEBUG( " initializeField returned NULL");
     return nullptr;
@@ -984,9 +975,8 @@ Field_p FimexIO::getData(const std::string& reftime, const gridinventory::GridPa
 
     // fetch the data
     const std::string& varName = extractVariableName(param);
-    const DataPtr data = getScaledDataSlice(feltReader, sb, varName, unit);
-    if (unit.empty())
-      field->unit = feltReader->getCDM().getUnits(varName);
+    const DataPtr data = feltReader->getScaledDataSlice(varName, sb);
+    field->unit = feltReader->getCDM().getUnits(varName);
 
     const size_t dataSize = data->size(), fieldSize = field->area.gridSize();
     if (dataSize != fieldSize) {

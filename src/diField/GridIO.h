@@ -159,7 +159,7 @@ public:
    * @return Field pointer
    */
   Field_p initializeField(const std::string& modelname, const std::string& reftime, const gridinventory::GridParameter& param, const std::string& level,
-                          const miutil::miTime& time, const std::string& elevel, const std::string& unit);
+                          const miutil::miTime& time, const std::string& elevel);
 
   // ===================== PURE VIRTUAL FUNCTIONS BELOW THIS LINE ============================
 
@@ -203,7 +203,7 @@ public:
    * @return field
    */
   virtual Field_p getData(const std::string& reftime, const gridinventory::GridParameter& param, const std::string& level, const miutil::miTime& time,
-                          const std::string& elevel, const std::string& unit) = 0;
+                          const std::string& elevel) = 0;
 
   virtual vcross::Values_p getVariable(const std::string& varName)=0;
 

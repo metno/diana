@@ -190,7 +190,7 @@ private:
    * @return field pointer
    */
   Field_p getData(const std::string& reftime, const std::string& paramname, const std::string& zaxis, const std::string& taxis, const std::string& extraaxis,
-                  const std::string& level, const miutil::miTime& time, const std::string& elevel, const std::string& unit, const int& time_tolerance);
+                  const std::string& level, const miutil::miTime& time, const std::string& elevel, const int& time_tolerance);
 
   /**
    * check if any sources has changed

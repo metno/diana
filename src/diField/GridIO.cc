@@ -159,7 +159,7 @@ const gridinventory::ExtraAxis& GridIO::getExtraAxis(const std::string & reftime
  * make and initialize field
  */
 Field_p GridIO::initializeField(const std::string& modelname, const std::string& reftime, const gridinventory::GridParameter& param, const std::string& level,
-                                const miutil::miTime& time, const std::string& elevel, const ::string& unit)
+                                const miutil::miTime& time, const std::string& elevel)
 {
   // find the grid
   const gridinventory::Grid& grid = getGrid(reftime, param.grid);
@@ -174,7 +174,6 @@ Field_p GridIO::initializeField(const std::string& modelname, const std::string&
   field->level = atoi(level.c_str());
   field->idnum = atoi(elevel.c_str());
   field->forecastHour = -32767;
-  field->unit = unit;
 
   if ( !reftime.empty() ) {
     field->analysisTime = miutil::miTime(reftime);

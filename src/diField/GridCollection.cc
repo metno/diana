@@ -430,7 +430,7 @@ const gridinventory::GridParameter* GridCollection::dataExists(const std::string
  */
 Field_p GridCollection::getData(const std::string& reftime, const std::string& paramname, const std::string& zaxis, const std::string& taxis,
                                 const std::string& extraaxis, const std::string& level, const miutil::miTime& time, const std::string& elevel,
-                                const std::string& unit, const int& time_tolerance)
+                                const int& time_tolerance)
 {
   METLIBS_LOG_SCOPE(reftime << " | " << paramname << " | " << zaxis
       << " | " << taxis << " | " << extraaxis << " | "
@@ -444,7 +444,7 @@ Field_p GridCollection::getData(const std::string& reftime, const std::string& p
       ip->second->makeInventory(reftime);
       if (const gridinventory::GridParameter* param = dataExists_reftime(ip->second->getReftimeInventory(reftime), paramname)) {
         // Ignore time from file, just use the first timestep
-        Field_p f = ip->second->getData(reftime, *param, level, miutil::miTime(), elevel, unit);
+        Field_p f = ip->second->getData(reftime, *param, level, miutil::miTime(), elevel);
         if (f)
           f->validFieldTime = actualtime;
         return f;
@@ -457,7 +457,7 @@ Field_p GridCollection::getData(const std::string& reftime, const std::string& p
       if (const gridinventory::GridParameter* param = dataExists_reftime(io->getReftimeInventory(reftime), paramname)) {
         if (param->key.taxis.empty() || getActualTime(reftime, paramname, time, time_tolerance, actualtime)) {
           // data exists ... calling getData
-          if (Field_p f = io->getData(reftime, *param, level, actualtime, elevel, unit))
+          if (Field_p f = io->getData(reftime, *param, level, actualtime, elevel))
             return f;
         }
       }
@@ -745,8 +745,8 @@ Field_p GridCollection::getField(const FieldRequest& fieldrequest)
     // not a computed parameter, read field from GridIO and return
     METLIBS_LOG_INFO(LOGVAL(fieldrequest.ptime));
     Field_p field = getData(fieldrequest.refTime, param->key.name, param->key.zaxis, param->key.taxis, param->key.extraaxis, fieldrequest.plevel,
-                            fieldrequest.ptime, fieldrequest.elevel, fieldrequest.unit, fieldrequest.time_tolerance);
-    return field;
+                            fieldrequest.ptime, fieldrequest.elevel, fieldrequest.time_tolerance);
+    return convertUnit(field, fieldrequest.unit);
   }
 
   // parameter must be computed from input parameters using some function
