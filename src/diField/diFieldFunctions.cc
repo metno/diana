@@ -365,6 +365,8 @@ bool FieldFunctions::parseComputeSetup(const vector<std::string>& lines, vector<
 {
   METLIBS_LOG_SCOPE();
 
+  vFieldCompute.clear();
+
   functions_t functions;
   if (!registerFunctions(functions))
     return false;
