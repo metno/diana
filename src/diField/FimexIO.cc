@@ -985,6 +985,8 @@ Field_p FimexIO::getData(const std::string& reftime, const gridinventory::GridPa
     // fetch the data
     const std::string& varName = extractVariableName(param);
     const DataPtr data = getScaledDataSlice(feltReader, sb, varName, unit);
+    if (unit.empty())
+      field->unit = feltReader->getCDM().getUnits(varName);
 
     const size_t dataSize = data->size(), fieldSize = field->area.gridSize();
     if (dataSize != fieldSize) {

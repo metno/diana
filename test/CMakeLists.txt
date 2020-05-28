@@ -143,6 +143,7 @@ SET (diFieldTest_SOURCES
 
   DataReshapeTest.cc
   FieldManagerTest.cc
+  FieldPlotManagerTest.cc
   FimexSourceTest.cc
   FlightLevelTest.cc
   RectangleTest.cc

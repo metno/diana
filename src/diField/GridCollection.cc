@@ -41,10 +41,13 @@
 #ifdef FIMEX
 #include "FimexIO.h"
 #endif
+#include "../diFieldUtil.h"
 #include "../diUtilities.h"
+#include "VcrossUtil.h"
 #include "diFieldFunctions.h"
 #include "util/misc_util.h"
 #include "util/nearest_element.h"
+#include "util/string_util.h"
 
 #include <mi_fieldcalc/math_util.h>
 
@@ -60,6 +63,108 @@
 
 using namespace std;
 using namespace gridinventory;
+
+namespace {
+
+static const std::string FUNCTION = "function:";
+
+void updateFieldRequestFromFieldSpec(const FieldFunctions::FieldCompute& fcm, int arg, FieldRequest& frq, FieldFunctions::FieldSpec& fs)
+{
+  const bool levelSpecified = FieldFunctions::splitFieldSpecs(fcm.input[arg], fs);
+  frq.paramName = fs.paramName;
+  frq.standard_name = fs.use_standard_name;     // functions use standard_name
+  if (fs.paramName == "surface_air_pressure") { // TODO: psurf - used in hybrid functions, should be defined in setup
+    frq.zaxis.clear();
+    frq.plevel.clear();
+  }
+
+  if (levelSpecified) {
+    frq.plevel = fs.levelName;
+  }
+  if (!fs.elevel.empty()) {
+    frq.elevel = fs.elevel;
+  }
+
+  if (!fs.unit.empty()) {
+    frq.unit = fs.unit;
+  }
+  if (fcm.func) {
+    const auto& argsf = fcm.func->args_field;
+    const bool is_varargs_f = (fcm.func->varargs & FieldFunctions::varargs_field);
+    const int iarg = is_varargs_f ? argsf.size() - 1 : arg;
+    if (iarg < (int)argsf.size() && !argsf[iarg].units.empty()) {
+      frq.unit = argsf[iarg].units;
+      if (!fs.unit.empty() && !vcross::util::unitsIdentical(fs.unit, frq.unit))
+        METLIBS_LOG_WARN("ignoring unit '" << fs.unit << "' from compute setup as function requires unit '" << frq.unit << "'");
+    }
+  }
+}
+
+bool addInputField(Field_pv& vfield, Field_p f, const FieldFunctions::FieldCompute& fcm)
+{
+  if (!f)
+    return false;
+
+  if (fcm.function == FieldFunctions::f_multiply_f_f || fcm.function == FieldFunctions::f_divide_f_f) {
+    // udunits result from temperature multiplication/division is always K, which is reasonable because K has no offset
+    for (const auto& no_offset_unit : {"K"}) {
+      if (vcross::util::unitsConvertible(f->unit, no_offset_unit)) {
+        f = convertUnit(f, no_offset_unit);
+        break;
+      }
+    }
+  } else if (!vfield.empty() && fcm.func && (fcm.func->varargs & FieldFunctions::varargs_field)) {
+    f = convertUnit(f, vfield.front()->unit);
+  }
+
+  if (!f)
+    return false;
+
+  vfield.push_back(f);
+  return true;
+}
+
+std::vector<Field_p> createOutputFields(const FieldFunctions::FieldCompute& fcm, const Field_pv& vfield, const FieldRequest& fieldrequest)
+{
+  if (vfield.empty() || std::find(vfield.begin(), vfield.end(), nullptr) != vfield.end())
+    return std::vector<Field_p>();
+
+  std::vector<Field_p> vfresults;
+  vfresults.reserve(fcm.results.size());
+  for (size_t j = 0; j < fcm.results.size(); j++) {
+    Field_p ff = std::make_shared<Field>();
+    ff->shallowMemberCopy(*vfield[0]);
+    ff->reserve(vfield[0]->area.nx, vfield[0]->area.ny);
+    if (fcm.func) {
+      const bool is_varargs_f = (fcm.func && (fcm.func->varargs & FieldFunctions::varargs_field));
+      const std::string& unit = (is_varargs_f) ? vfield[0]->unit : fcm.func->units[j];
+      if (!unit.empty() && !fieldrequest.unit.empty() && !vcross::util::unitsConvertible(unit, fieldrequest.unit))
+        return std::vector<Field_p>();
+      ff->unit = unit;
+    } else {
+      const bool is_multiply = (fcm.function == FieldFunctions::f_multiply_f_f);
+      const bool is_divide = (fcm.function == FieldFunctions::f_divide_f_f);
+      static const std::set<FieldFunctions::Function> same_as_first = {
+          FieldFunctions::f_add_f_f, FieldFunctions::f_add_f_c, FieldFunctions::f_add_c_f,
+          FieldFunctions::f_subtract_f_f, FieldFunctions::f_subtract_f_c, FieldFunctions::f_subtract_c_f,
+          FieldFunctions::f_multiply_f_c, FieldFunctions::f_multiply_c_f,
+          FieldFunctions::f_divide_f_c, FieldFunctions::f_divide_c_f,
+      };
+      if (is_multiply || is_divide) {
+        // warning: udunits multiply/divide result of temperatures is in K (probably applies to other units with offset)
+        ff->unit = vcross::util::unitsMultiplyDivide(vfield[0]->unit, vfield[1]->unit, is_multiply);
+      } else if (same_as_first.find(fcm.function) != same_as_first.end()) {
+        ff->unit = vfield[0]->unit;
+      } else {
+        ff->unit = fieldrequest.unit;
+      }
+    }
+    vfresults.push_back(ff);
+  }
+  return vfresults;
+}
+
+} // namespace
 
 // static class members
 GridConverter GridCollection::gc;    // Projection-converter
@@ -610,13 +715,11 @@ std::map<std::string, FieldPlotInfo> GridCollection::getFieldPlotInfo(const std:
 
 Field_p GridCollection::getField(const FieldRequest& fieldrequest)
 {
-  METLIBS_LOG_TIME("SEARCHING FOR :" << fieldrequest.paramName << " : "
-      << fieldrequest.zaxis << " : " << fieldrequest.plevel);
+  METLIBS_LOG_TIME("SEARCHING FOR :" << fieldrequest.paramName << " : " << fieldrequest.zaxis << " : " << fieldrequest.plevel);
 
   const map<std::string, ReftimeInventory>::const_iterator ritr = inventory.reftimes.find(fieldrequest.refTime);
   if (ritr == inventory.reftimes.end())
     return 0;
-
 
   std::string param_name = fieldrequest.paramName;
   // if fieldrequest.paramName is a standard_name, find key.name
@@ -625,11 +728,7 @@ Field_p GridCollection::getField(const FieldRequest& fieldrequest)
       return 0;
   }
 
-
-  //check if requested parameter exist, and init param
-
   // check if param is in inventory
-
   const gridinventory::GridParameter* param = dataExists(fieldrequest.refTime, param_name);
   if (!param) {
     METLIBS_LOG_INFO("parameter '" << param_name << "' not found by dataExists");
@@ -638,111 +737,57 @@ Field_p GridCollection::getField(const FieldRequest& fieldrequest)
 
   set<gridinventory::GridParameter>::iterator pitr = ritr->second.parameters.find(*param);
   if (pitr == ritr->second.parameters.end()) {
-    METLIBS_LOG_INFO("parameter " << param_name
-        << "  not found in inventory even if dataExists returned true");
+    METLIBS_LOG_INFO("parameter " << param_name << "  not found in inventory even if dataExists returned true");
     return 0;
   }
 
-  //If not computed parameter, read field from GridCollection and return
-  if (pitr->nativekey.find("function:") == std::string::npos) {
+  if (!diutil::startswith(pitr->nativekey, FUNCTION)) {
+    // not a computed parameter, read field from GridIO and return
     METLIBS_LOG_INFO(LOGVAL(fieldrequest.ptime));
     Field_p field = getData(fieldrequest.refTime, param->key.name, param->key.zaxis, param->key.taxis, param->key.extraaxis, fieldrequest.plevel,
                             fieldrequest.ptime, fieldrequest.elevel, fieldrequest.unit, fieldrequest.time_tolerance);
     return field;
   }
 
-  //parameter must be computed from input parameters using some function
+  // parameter must be computed from input parameters using some function
 
-  //Find function, number of input parameters and constants
-  std::string index = pitr->nativekey.substr(pitr->nativekey.find(':') + 1);
-  int functionIndex = atoi(index.c_str());
+  // find function
+  const int functionIndex = atoi(pitr->nativekey.substr(FUNCTION.size()).c_str());
   const FieldFunctions::FieldCompute& fcm = FieldFunctions::fieldCompute(functionIndex);
-  int nOutputParameters = fcm.results.size();
-  int nInputParameters = fcm.input.size();
+
   Field_pv vfield;    // Input fields
-  Field_pv vfresults; // Output fields
-  bool fieldOK = false;
+  vfield.reserve(fcm.input.size());
 
-  //Functions using fields with different forecast time
+  // special treatment for functions using fields with different forecast time
   if (FieldFunctions::isTimeStepFunction(fcm.function)) {
-
     FieldRequest fieldrequest_new = fieldrequest;
-    //levelSpecified true if param:level=value
     FieldFunctions::FieldSpec fs;
-    bool levelSpecified = FieldFunctions::splitFieldSpecs(fcm.input[0], fs);
-    fieldrequest_new.paramName = fs.paramName;
-    fieldrequest_new.standard_name = fs.use_standard_name; //functions use standard_name
-    fieldrequest_new.unit = fs.unit;
-    if (levelSpecified) {
-      fieldrequest_new.plevel = fs.levelName;
-    }
-    if (!fs.elevel.empty()) {
-      fieldrequest_new.elevel = fs.elevel;
-    }
+    updateFieldRequestFromFieldSpec(fcm, 0, fieldrequest_new, fs);
 
     if (!fs.fcHour.empty()) {
       int fch = miutil::to_int(fs.fcHour);
-      if (!getAllFields_timeInterval(vfield, fieldrequest_new,
-                                     fch, (fs.option == "accumulate_flux")))
-      {
-        return 0;
-      }
+      if (!getAllFields_timeInterval(vfield, fieldrequest_new, fch, (fs.option == "accumulate_flux")))
+        return nullptr;
     } else {
-      if (!getAllFields(vfield, fieldrequest_new, fcm.constants)) {
-        return 0;
-      }
+      if (!getAllFields(vfield, fieldrequest_new, fcm.constants))
+        return nullptr;
     }
-
-    //make output field
-    Field_p ff = std::make_shared<Field>();
-    ff->shallowMemberCopy(*vfield[0]);
-    ff->reserve(vfield[0]->area.nx, vfield[0]->area.ny);
-    ff->validFieldTime = fieldrequest.ptime;
-    ff->unit = fieldrequest.unit;
-    vfresults.push_back(ff);
-
-    if (!FieldFunctions::fieldComputer(fcm.function, fcm.constants, vfield, vfresults, gc)) {
-      METLIBS_LOG_WARN("fieldComputer returned false");
-      fieldOK = false;
-    } else {
-      fieldOK = true;
-    }
-
   } else {
 
     // loop trough input params with same zaxis
-    for (int j = 0; j < nInputParameters; j++) {
-
+    for (size_t j = 0; j < fcm.input.size(); j++) {
       FieldRequest fieldrequest_new = fieldrequest;
-      const std::string& inputParamName = fcm.input[j];
-
-      //levelSpecified true if param:level=value
       FieldFunctions::FieldSpec fs;
-      bool levelSpecified = FieldFunctions::splitFieldSpecs(inputParamName, fs);
-      fieldrequest_new.paramName = fs.paramName;
-      fieldrequest_new.standard_name = fs.use_standard_name; //functions use standard_name
-      if (fs.paramName == "surface_air_pressure") { //TODO: psurf - used in hybrid functions, should be defined in setup
-        fieldrequest_new.zaxis.clear();
-        fieldrequest_new.plevel.clear();
-      }
-
-      if (levelSpecified) {
-        fieldrequest_new.plevel = fs.levelName;
-      }
-      if (!fs.unit.empty()) {
-        fieldrequest_new.unit = fs.unit;
-      }
-      if (!fs.elevel.empty()) {
-        fieldrequest_new.elevel = fs.elevel;
+      updateFieldRequestFromFieldSpec(fcm, j, fieldrequest_new, fs);
+      if (j == 1 && (fcm.function == FieldFunctions::f_add_f_f || fcm.function == FieldFunctions::f_subtract_f_f)) {
+        // convert second arg to first arg's unit; result is first arg's unit
+        fieldrequest_new.unit = vfield[0]->unit;
       }
 
       if (!fs.ecoord && !fs.vcoord) {
-        Field_p f = getField(fieldrequest_new);
-        if (!f) {
-          METLIBS_LOG_DEBUG("unable to read '" << inputParamName << "'");
-          return 0;
-        } else {
-          vfield.push_back(f);
+        if (!addInputField(vfield, getField(fieldrequest_new), fcm)) {
+          METLIBS_LOG_DEBUG("unable to read '" << fcm.input[j] << "'");
+          return nullptr;
         }
 
       } else {
@@ -750,75 +795,48 @@ Field_p GridCollection::getField(const FieldRequest& fieldrequest)
         // vertical- and extra-axis functions.
         const gridinventory::GridParameter* param_new = dataExists(fieldrequest.refTime, fieldrequest_new.paramName);
         if (!param_new) {
-          METLIBS_LOG_INFO("parameter '" << fieldrequest_new.paramName
-                                         << "' not found by dataExists");
+          METLIBS_LOG_INFO("parameter '" << fieldrequest_new.paramName << "' not found by dataExists");
           return 0;
         }
         set<gridinventory::GridParameter>::iterator pitr_new = ritr->second.parameters.find(*param_new);
         if (pitr_new == ritr->second.parameters.end()) {
-          METLIBS_LOG_INFO("parameter " << fieldrequest_new.paramName
-                                        << "  not found in inventory");
+          METLIBS_LOG_INFO("parameter " << fieldrequest_new.paramName << "  not found in inventory");
           return 0;
         }
 
-        vector<std::string> values;
+        const std::vector<std::string>* values = nullptr;
         if (fs.ecoord) {
-          gridinventory::ExtraAxis eaxs =
-              ritr->second.getExtraAxis(pitr_new->key.extraaxis);
-          values = eaxs.stringvalues;
+          const gridinventory::ExtraAxis& eaxs = ritr->second.getExtraAxis(pitr_new->key.extraaxis);
+          values = &eaxs.stringvalues;
         } else if (fs.vcoord) {
-          gridinventory::Zaxis zaxs =
-              ritr->second.getZaxis(pitr_new->key.zaxis);
-          values = zaxs.stringvalues;
+          const gridinventory::Zaxis& zaxs = ritr->second.getZaxis(pitr_new->key.zaxis);
+          values = &zaxs.stringvalues;
         }
-        if (values.empty()) {
-          return 0;
-        }
-        for (size_t i = 0; i < values.size(); i++) {
+        if (!values || values->empty())
+          return nullptr;
+        for (const auto& v : *values) {
           if (fs.ecoord) {
-            fieldrequest_new.elevel = values[i];
-
+            fieldrequest_new.elevel = v;
           } else if (fs.vcoord) {
-            fieldrequest_new.plevel = values[i];
+            fieldrequest_new.plevel = v;
           }
-          Field_p f = getField(fieldrequest_new);
-          if (!f) {
-            return 0;
-          } else {
-            vfield.push_back(f);
-          }
+          if (!addInputField(vfield, getField(fieldrequest_new), fcm))
+            return nullptr;
         }
-
       }
-
-    } //end loop inputParameters
-
-    if (vfield.empty()) {
-      return 0;
-    }
-
-    for (int j = 0; j < nOutputParameters; j++) {
-      Field_p ff = std::make_shared<Field>();
-      ff->shallowMemberCopy(*vfield[0]);
-      ff->reserve(vfield[0]->area.nx, vfield[0]->area.ny);
-      ff->unit = fieldrequest.unit;
-      vfresults.push_back(ff);
-    }
-
-    if (!FieldFunctions::fieldComputer(fcm.function, fcm.constants, vfield, vfresults, gc)) {
-      METLIBS_LOG_WARN("fieldComputer returned false");
-      fieldOK = false;
-    } else {
-      fieldOK = true;
-    }
+    } // end loop inputParameters
   }
 
-  //return output field
-  Field_p fresult;
-  if (fieldOK)
-    std::swap(fresult, vfresults[0]);
+  if (vfield.empty())
+    return nullptr;
 
-  return fresult;
+  const Field_pv vfresults = createOutputFields(fcm, vfield, fieldrequest);
+  if (!FieldFunctions::fieldComputer(fcm.function, fcm.constants, vfield, vfresults, gc)) {
+    METLIBS_LOG_WARN("fieldComputer returned false for '" << (fcm.func ? fcm.func->name : "?") << "'");
+    return nullptr;
+  }
+
+  return convertUnit(vfresults[0], fieldrequest.unit);
 }
 
 bool GridCollection::getActualTime(const std::string& reftime, const std::string& paramname, const miutil::miTime& time, int time_tolerance,
@@ -1028,7 +1046,7 @@ void GridCollection::addComputedParameters()
         newparameter.extraaxis_id.clear();
       }
       ostringstream ost;
-      ost <<"function:"<<i<<endl;
+      ost << FUNCTION << i << endl;
       newparameter.nativekey = ost.str();
       rinventory.parameters.insert(newparameter);
       computed_inventory.parameters.insert(newparameter);

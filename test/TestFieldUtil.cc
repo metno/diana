@@ -27,7 +27,9 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include <diField/diField.h>
 #include <diFieldUtil.h>
+
 #include <gtest/gtest.h>
 
 using miutil::kv;
@@ -98,4 +100,32 @@ TEST(FieldUtil, mergeFieldOptions4)
   for (size_t i = 0; i < expectedopts.size(); ++i) {
     EXPECT_EQ(expectedopts[i], cmdopts[i]) << "i=" << i;
   }
+}
+
+TEST(FieldUtil, ConvertUnitKC)
+{
+  Field_p input = std::make_shared<Field>();
+  input->reserve(4, 4);
+  input->fill(10);
+  input->unit = "degC";
+  ASSERT_EQ(miutil::ALL_DEFINED, input->defined());
+
+  Field_p output = convertUnit(input, "K");
+  ASSERT_TRUE(output);
+  EXPECT_EQ(miutil::ALL_DEFINED, output->defined());
+  EXPECT_EQ("K", output->unit);
+  EXPECT_NEAR(input->data[0] + 273.15, output->data[0], 0.125);
+}
+
+TEST(FieldUtil, ConvertUnitSpecial)
+{
+  EXPECT_FALSE(convertUnit(nullptr, "cm"));
+
+  Field_p input = std::make_shared<Field>();
+  input->reserve(4, 4);
+  input->fill(10);
+  input->unit = "";
+
+  Field_p output = convertUnit(input, "K");
+  EXPECT_EQ(input.get(), output.get());
 }

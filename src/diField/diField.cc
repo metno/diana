@@ -29,6 +29,7 @@
 
 #include "diana_config.h"
 
+#include "VcrossUtil.h"
 #include "diField.h"
 #include "diGridConverter.h"
 
@@ -181,6 +182,11 @@ bool Field::subtract(const Field &rhs)
   if (rhs.defined_ == miutil::NONE_DEFINED) {
     fill(miutil::UNDEF);
     return true;
+  }
+
+  if ((unit.empty() != rhs.unit.empty()) || !vcross::util::unitsIdentical(unit, rhs.unit)) {
+    METLIBS_LOG_WARN("subtracting field with unit '" << rhs.unit << "' from field with unit '" << unit << "'");
+    unit.clear();
   }
 
   const bool ad = (allDefined() && rhs.allDefined());

@@ -54,4 +54,6 @@ std::string getBestReferenceTime(const std::set<std::string>& refTimes, int refO
 
 void flightlevel2pressure(FieldRequest& frq);
 
+Field_p convertUnit(Field_p input, const std::string& output_unit);
+
 #endif // difieldutil_h

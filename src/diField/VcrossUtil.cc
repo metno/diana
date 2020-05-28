@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2018 met.no
+  Copyright (C) 2015-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -196,6 +196,22 @@ std::string unitsRoot(const std::string& u, int root)
 MetNoFimex::UnitsConverter_p unitConverter(const std::string& ua, const std::string& ub)
 {
   return MetNoFimex::Units().getConverter(ua, ub);
+}
+
+// ------------------------------------------------------------------------
+
+bool unitConversion(const std::string& unitIn, const std::string& unitOut, size_t volume, float undefval, const float* vIn, float* vOut)
+{
+  MetNoFimex::UnitsConverter_p uconv = util::unitConverter(unitIn, unitOut);
+  if (!uconv)
+    return false;
+
+  for (size_t i = 0; i < volume; ++i) {
+    const float pX = vIn[i];
+    const float v = (pX != undefval) ? uconv->convert(pX) : undefval;
+    vOut[i] = v;
+  }
+  return true;
 }
 
 // ------------------------------------------------------------------------
