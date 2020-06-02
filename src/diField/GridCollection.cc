@@ -481,16 +481,10 @@ vcross::Values_p GridCollection::getVariable(const std::string& reftime, const s
   return vcross::Values_p();
 }
 
-/**
- * Get times
- */
-std::set<miutil::miTime> GridCollection::getTimes(const std::string& reftime, const std::string& paramname)
+std::set<miutil::miTime> GridCollection::getTimesFromIO(const std::string& reftime, const std::string& paramname)
 {
   METLIBS_LOG_SCOPE(LOGVAL(reftime) << LOGVAL(paramname));
-  if (useTimeFromFilename())
-    return getTimesFromFilename();
-
-  std::set<miutil::miTime> settime;
+  std::set<miutil::miTime> times;
 
   for (GridIO* io : gridsources) {
     if (const gridinventory::GridParameter* gp = dataExists_reftime(io->getReftimeInventory(reftime), paramname)) {
@@ -500,75 +494,90 @@ std::set<miutil::miTime> GridCollection::getTimes(const std::string& reftime, co
         time_t t = v;
         miutil::miTime tt(t);
         if (!tt.undef())
-          settime.insert(tt);
+          times.insert(tt);
       }
     }
   }
 
-  if (!settime.empty())
-    return settime;
+  return times;
+}
 
-  if (const gridinventory::GridParameter* gp = dataExists_reftime(computed_inventory, paramname)) {
-    const size_t idx_colon = gp->nativekey.find(':');
-    if (idx_colon != std::string::npos) {
-      const int functionIndex = miutil::to_int(gp->nativekey.substr(idx_colon + 1));
-      const FieldFunctions::FieldCompute& fcm = FieldFunctions::fieldCompute(functionIndex);
-      bool firstInput = true;
-      for (const std::string& pn : fcm.input) {
-        FieldFunctions::FieldSpec fs;
-        FieldFunctions::splitFieldSpecs(pn, fs);
-        if (fs.use_standard_name)
-          if (!standardname2variablename(reftime, fs.paramName, fs.paramName))
-            return std::set<miutil::miTime>();
-        const std::set<miutil::miTime> settime2 = getTimes(reftime, fs.paramName);
-        //Don't use parameters with no time axis
-        if (settime2.size()==0)
-          continue;
-        if (firstInput) {
-          settime = settime2;
-          firstInput = false;
-        } else {
-          std::set<miutil::miTime> intersection;
-          std::set_intersection(settime.begin(), settime.end(), settime2.begin(), settime2.end(), std::inserter(intersection, intersection.begin()));
-          std::swap(settime, intersection);
-        }
-      }
+std::set<miutil::miTime> GridCollection::getTimesFromCompute(const std::string& reftime, const std::string& paramname)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(reftime) << LOGVAL(paramname));
 
-      // check if all time steps are available
-      bool timeStepFunc = FieldFunctions::isTimeStepFunction(fcm.function);
-      if (timeStepFunc && !fcm.input.empty()) {
-        std::vector<float> constants;
-        const std::string& inputParamName = fcm.input[0];
-        FieldFunctions::FieldSpec fs;
-        FieldFunctions::splitFieldSpecs(inputParamName,fs);
-        if (!fs.fcHour.empty()) {
-          constants.push_back(miutil::to_int(fs.fcHour));
-        } else {
-          constants = fcm.constants;
-        }
-        set<miutil::miTime> settime2;
-        const bool is_accumulate_flux = (fs.option == "accumulate_flux");
-        const miutil::miTime rt(reftime);
-        for (const miutil::miTime& t : settime) {
-          size_t i = 0;
-          for (; i < constants.size(); ++i) {
-            miutil::miTime tmpTime = t;
-            tmpTime.addHour(constants[i]);
-            if (!settime.count(tmpTime) && (!is_accumulate_flux || (is_accumulate_flux && tmpTime != rt))) {
-              break;
-            }
-          }
-          if (i == constants.size()) {
-            //all time steps ok
-            settime2.insert(t);
-          }
-        }
-        return settime2;
-      }
+  const gridinventory::GridParameter* gp = dataExists_reftime(computed_inventory, paramname);
+  if (!gp)
+    return std::set<miutil::miTime>();
+
+  const size_t idx_colon = gp->nativekey.find(':');
+  if (idx_colon == std::string::npos)
+    return std::set<miutil::miTime>();
+
+  std::set<miutil::miTime> times;
+
+  const int functionIndex = miutil::to_int(gp->nativekey.substr(idx_colon + 1));
+  const FieldFunctions::FieldCompute& fcm = FieldFunctions::fieldCompute(functionIndex);
+  for (const std::string& pn : fcm.input) {
+    FieldFunctions::FieldSpec fs;
+    FieldFunctions::splitFieldSpecs(pn, fs);
+
+    if (fs.use_standard_name && !standardname2variablename(reftime, fs.paramName, fs.paramName))
+      return std::set<miutil::miTime>();
+    const std::set<miutil::miTime> param_times = getTimes(reftime, fs.paramName); // recursive
+    if (times.empty()) {
+      times = param_times;
+    } else if (!param_times.empty()) {
+      std::set<miutil::miTime> intersection;
+      std::set_intersection(times.begin(), times.end(), param_times.begin(), param_times.end(), std::inserter(intersection, intersection.begin()));
+      times = std::move(intersection);
     }
   }
 
-  return settime;
+  // check if all time steps are available
+  if (!FieldFunctions::isTimeStepFunction(fcm.function) || fcm.input.empty())
+    return times;
+
+  const std::string& inputParamName = fcm.input[0];
+  FieldFunctions::FieldSpec fs;
+  FieldFunctions::splitFieldSpecs(inputParamName, fs);
+  std::vector<float> constants;
+  if (!fs.fcHour.empty()) {
+    constants.push_back(miutil::to_int(fs.fcHour));
+  } else {
+    constants = fcm.constants;
+  }
+
+  set<miutil::miTime> times_stepfunc;
+  const bool is_accumulate_flux = (fs.option == "accumulate_flux");
+  const miutil::miTime rt(reftime);
+  for (const miutil::miTime& t : times) {
+    size_t i = 0;
+    for (; i < constants.size(); ++i) {
+      miutil::miTime tmpTime = t;
+      tmpTime.addHour(constants[i]);
+      if (!times.count(tmpTime) && (!is_accumulate_flux || (is_accumulate_flux && tmpTime != rt))) {
+        break;
+      }
+    }
+    if (i == constants.size()) {
+      // all time steps ok
+      times_stepfunc.insert(t);
+    }
+  }
+  return times_stepfunc;
+}
+
+std::set<miutil::miTime> GridCollection::getTimes(const std::string& reftime, const std::string& paramname)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(reftime) << LOGVAL(paramname));
+  if (useTimeFromFilename())
+    return getTimesFromFilename();
+
+  std::set<miutil::miTime> times = getTimesFromIO(reftime, paramname);
+  if (times.empty())
+    times = getTimesFromCompute(reftime, paramname);
+  return times;
 }
 
 /**

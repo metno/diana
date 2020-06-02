@@ -203,6 +203,9 @@ private:
   /// clear the gridsources vector
   void clearGridSources();
 
+  std::set<miutil::miTime> getTimesFromIO(const std::string& reftime, const std::string& paramname);
+  std::set<miutil::miTime> getTimesFromCompute(const std::string& reftime, const std::string& paramname);
+
   //! find nearest time within time tolerance
   /*!
    * \param time time to search for
