@@ -164,6 +164,18 @@ std::vector<Field_p> createOutputFields(const FieldFunctions::FieldCompute& fcm,
   return vfresults;
 }
 
+/** Extract function index from nativekey.
+  \return function index if computed, or -1 if not computed
+*/
+const FieldFunctions::FieldCompute* extractFunction(const std::string& nativekey)
+{
+  if (!diutil::startswith(nativekey, FUNCTION))
+    return nullptr;
+
+  const int functionIndex = atoi(nativekey.substr(FUNCTION.size()).c_str());
+  return &FieldFunctions::fieldCompute(functionIndex);
+}
+
 } // namespace
 
 // static class members
@@ -510,15 +522,12 @@ std::set<miutil::miTime> GridCollection::getTimesFromCompute(const std::string& 
   if (!gp)
     return std::set<miutil::miTime>();
 
-  const size_t idx_colon = gp->nativekey.find(':');
-  if (idx_colon == std::string::npos)
+  const FieldFunctions::FieldCompute* fcm = extractFunction(gp->nativekey);
+  if (!fcm) // not computed
     return std::set<miutil::miTime>();
 
   std::set<miutil::miTime> times;
-
-  const int functionIndex = miutil::to_int(gp->nativekey.substr(idx_colon + 1));
-  const FieldFunctions::FieldCompute& fcm = FieldFunctions::fieldCompute(functionIndex);
-  for (const std::string& pn : fcm.input) {
+  for (const std::string& pn : fcm->input) {
     FieldFunctions::FieldSpec fs;
     FieldFunctions::splitFieldSpecs(pn, fs);
 
@@ -535,17 +544,17 @@ std::set<miutil::miTime> GridCollection::getTimesFromCompute(const std::string& 
   }
 
   // check if all time steps are available
-  if (!FieldFunctions::isTimeStepFunction(fcm.function) || fcm.input.empty())
+  if (!FieldFunctions::isTimeStepFunction(fcm->function) || fcm->input.empty())
     return times;
 
-  const std::string& inputParamName = fcm.input[0];
+  const std::string& inputParamName = fcm->input[0];
   FieldFunctions::FieldSpec fs;
   FieldFunctions::splitFieldSpecs(inputParamName, fs);
   std::vector<float> constants;
   if (!fs.fcHour.empty()) {
     constants.push_back(miutil::to_int(fs.fcHour));
   } else {
-    constants = fcm.constants;
+    constants = fcm->constants;
   }
 
   set<miutil::miTime> times_stepfunc;
@@ -750,7 +759,8 @@ Field_p GridCollection::getField(const FieldRequest& fieldrequest)
     return 0;
   }
 
-  if (!diutil::startswith(pitr->nativekey, FUNCTION)) {
+  const FieldFunctions::FieldCompute* fcm = extractFunction(pitr->nativekey);
+  if (!fcm) {
     // not a computed parameter, read field from GridIO and return
     METLIBS_LOG_INFO(LOGVAL(fieldrequest.ptime));
     Field_p field = getData(fieldrequest.refTime, param->key.name, param->key.zaxis, param->key.taxis, param->key.extraaxis, fieldrequest.plevel,
@@ -760,42 +770,38 @@ Field_p GridCollection::getField(const FieldRequest& fieldrequest)
 
   // parameter must be computed from input parameters using some function
 
-  // find function
-  const int functionIndex = atoi(pitr->nativekey.substr(FUNCTION.size()).c_str());
-  const FieldFunctions::FieldCompute& fcm = FieldFunctions::fieldCompute(functionIndex);
-
   Field_pv vfield;    // Input fields
-  vfield.reserve(fcm.input.size());
+  vfield.reserve(fcm->input.size());
 
   // special treatment for functions using fields with different forecast time
-  if (FieldFunctions::isTimeStepFunction(fcm.function)) {
+  if (FieldFunctions::isTimeStepFunction(fcm->function)) {
     FieldRequest fieldrequest_new = fieldrequest;
     FieldFunctions::FieldSpec fs;
-    updateFieldRequestFromFieldSpec(fcm, 0, fieldrequest_new, fs);
+    updateFieldRequestFromFieldSpec(*fcm, 0, fieldrequest_new, fs);
 
     if (!fs.fcHour.empty()) {
       int fch = miutil::to_int(fs.fcHour);
       if (!getAllFields_timeInterval(vfield, fieldrequest_new, fch, (fs.option == "accumulate_flux")))
         return nullptr;
     } else {
-      if (!getAllFields(vfield, fieldrequest_new, fcm.constants))
+      if (!getAllFields(vfield, fieldrequest_new, fcm->constants))
         return nullptr;
     }
   } else {
 
     // loop trough input params with same zaxis
-    for (size_t j = 0; j < fcm.input.size(); j++) {
+    for (size_t j = 0; j < fcm->input.size(); j++) {
       FieldRequest fieldrequest_new = fieldrequest;
       FieldFunctions::FieldSpec fs;
-      updateFieldRequestFromFieldSpec(fcm, j, fieldrequest_new, fs);
-      if (j == 1 && (fcm.function == FieldFunctions::f_add_f_f || fcm.function == FieldFunctions::f_subtract_f_f)) {
+      updateFieldRequestFromFieldSpec(*fcm, j, fieldrequest_new, fs);
+      if (j == 1 && (fcm->function == FieldFunctions::f_add_f_f || fcm->function == FieldFunctions::f_subtract_f_f)) {
         // convert second arg to first arg's unit; result is first arg's unit
         fieldrequest_new.unit = vfield[0]->unit;
       }
 
       if (!fs.ecoord && !fs.vcoord) {
-        if (!addInputField(vfield, getField(fieldrequest_new), fcm)) {
-          METLIBS_LOG_DEBUG("unable to read '" << fcm.input[j] << "'");
+        if (!addInputField(vfield, getField(fieldrequest_new), *fcm)) {
+          METLIBS_LOG_DEBUG("unable to read '" << fcm->input[j] << "'");
           return nullptr;
         }
 
@@ -829,7 +835,7 @@ Field_p GridCollection::getField(const FieldRequest& fieldrequest)
           } else if (fs.vcoord) {
             fieldrequest_new.plevel = v;
           }
-          if (!addInputField(vfield, getField(fieldrequest_new), fcm))
+          if (!addInputField(vfield, getField(fieldrequest_new), *fcm))
             return nullptr;
         }
       }
@@ -839,9 +845,9 @@ Field_p GridCollection::getField(const FieldRequest& fieldrequest)
   if (vfield.empty())
     return nullptr;
 
-  const Field_pv vfresults = createOutputFields(fcm, vfield, fieldrequest);
-  if (!FieldFunctions::fieldComputer(fcm.function, fcm.constants, vfield, vfresults, gc)) {
-    METLIBS_LOG_WARN("fieldComputer returned false for '" << (fcm.func ? fcm.func->name : "?") << "'");
+  const Field_pv vfresults = createOutputFields(*fcm, vfield, fieldrequest);
+  if (!FieldFunctions::fieldComputer(fcm->function, fcm->constants, vfield, vfresults, gc)) {
+    METLIBS_LOG_WARN("fieldComputer returned false for '" << (fcm->func ? fcm->func->name : "?") << "'");
     return nullptr;
   }
 
