@@ -1,6 +1,6 @@
 #  Diana - A Free Meteorological Visualisation Tool
 #
-#  Copyright (C) 2017-2019 met.no
+#  Copyright (C) 2017-2020 met.no
 #
 #  Contact information:
 #  Norwegian Meteorological Institute
@@ -366,7 +366,9 @@ SET(LIBDIANAUI_QTSOURCES
   qtEditNewDialog.cc
   qtEditText.cc
   qtFieldDialog.cc
+  qtFieldDialogAdd.cc
   qtFieldDialogData.cc
+  qtFieldDialogStyle.cc
   qtGeoPosLineEdit.cc
   qtMainUiEventHandler.cc
   qtMainWindow.cc

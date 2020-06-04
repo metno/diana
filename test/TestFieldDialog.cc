@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2018 met.no
+  Copyright (C) 2018-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,6 +27,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include "diFieldDialogData.h"
 #include "diFieldUtil.h"
 #include "diLinetype.h"
 #include "diPlotCommandFactory.h"
