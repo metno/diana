@@ -58,6 +58,14 @@ const int MaxWindsAuto = 40;
 const int MaxArrowsAuto = 55;
 } // namespace
 
+struct FieldRenderer::GridPoints
+{
+  int ix1, ix2, iy1, iy2;
+  Points_cp points;
+  const float* x() const { return points->x; }
+  const float* y() const { return points->y; }
+};
+
 FieldRenderer::FieldRenderer()
     : is_raster_(false)
     , is_shade_(false)
@@ -74,11 +82,10 @@ bool FieldRenderer::hasVectorAnnotation()
 void FieldRenderer::getVectorAnnotation(float& size, std::string& text)
 {
   if (hasVectorAnnotation() && !fields_.empty()) {
-    int ix1, ix2, iy1, iy2;
-    float *x, *y;
-    if (getGridPoints(x, y, ix1, ix2, iy1, iy2)) {
+    GridPoints gp;
+    if (getGridPoints(gp)) {
       int step = poptions_.density;
-      setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, step, size);
+      setAutoStep(gp.x(), gp.y(), gp.ix1, gp.ix2, gp.iy1, gp.iy2, MaxArrowsAuto, step, size);
       text = miutil::from_number(poptions_.vectorunit) + poptions_.vectorunitname;
       return;
     }
@@ -255,8 +262,7 @@ std::vector<float*> FieldRenderer::doPrepareVectors(const float* x, const float*
     int npos = fields_[0]->area.gridSize();
     bool ok = false;
     if (direction) {
-      for (int i = 0; i < npos; i++)
-        v[i] = 1.0f;
+      std::fill(v, v + npos, 1.0f);
       bool turn = fields_[0]->turnWaveDirection;
       ok = gc_->getDirectionVectors(pa_.getMapArea(), turn, npos, x, y, u, v);
     } else {
@@ -432,14 +438,11 @@ int FieldRenderer::xAutoStep(const float* x, const float* y, int& ixx1, int ix2,
   return xstep;
 }
 
-bool FieldRenderer::getGridPoints(float*& x, float*& y, int& ix1, int& ix2, int& iy1, int& iy2, int factor, bool boxes) const
+bool FieldRenderer::getGridPoints(GridPoints& gp, int factor, bool boxes) const
 {
   const GridArea f0area = fields_[0]->area.scaled(factor);
-  if (!gc_->getGridPoints(f0area, pa_.getMapArea(), pa_.getMapSize(), boxes, &x, &y, ix1, ix2, iy1, iy2))
-    return false;
-  if (ix1 > ix2 || iy1 > iy2)
-    return false;
-  return true;
+  gp.points = gc_->getGridPoints(f0area, pa_.getMapArea(), pa_.getMapSize(), boxes, gp.ix1, gp.ix2, gp.iy1, gp.iy2);
+  return (gp.points && gp.ix1 <= gp.ix2 && gp.iy1 <= gp.iy2);
 }
 
 bool FieldRenderer::getPoints(int n, float* x, float* y) const
@@ -457,10 +460,10 @@ bool FieldRenderer::plotWind(DiGLPainter* gl)
     return false;
 
   // convert gridpoints to correct projection
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
-  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
+  GridPoints gp;
+  if (!getGridPoints(gp))
     return false;
+  const float *x = gp.x(), *y = gp.y();
 
   // convert windvectors to correct projection
   const std::vector<float*> uv = prepareVectors(x, y);
@@ -471,7 +474,7 @@ bool FieldRenderer::plotWind(DiGLPainter* gl)
 
   int step = poptions_.density;
   float sdist;
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, step, sdist);
+  setAutoStep(x, y, gp.ix1, gp.ix2, gp.iy1, gp.iy2, MaxWindsAuto, step, sdist);
 
   const int nx = fields_[0]->area.nx;
   const int ny = fields_[0]->area.ny;
@@ -491,18 +494,18 @@ bool FieldRenderer::plotWind(DiGLPainter* gl)
   const float unitlength = poptions_.vectorunit / 10;
   const float flagl = sdist * 0.85 / unitlength;
 
-  ix1 -= step;
-  if (ix1 < 0)
-    ix1 = 0;
-  iy1 -= step;
-  if (iy1 < 0)
-    iy1 = 0;
-  ix2 += (step + 1);
-  if (ix2 > nx)
-    ix2 = nx;
-  iy2 += (step + 1);
-  if (iy2 > ny)
-    iy2 = ny;
+  gp.ix1 -= step;
+  if (gp.ix1 < 0)
+    gp.ix1 = 0;
+  gp.iy1 -= step;
+  if (gp.iy1 < 0)
+    gp.iy1 = 0;
+  gp.ix2 += (step + 1);
+  if (gp.ix2 > nx)
+    gp.ix2 = nx;
+  gp.iy2 += (step + 1);
+  if (gp.iy2 > ny)
+    gp.iy2 = ny;
 
   const Rectangle msex = diutil::extendedRectangle(pa_.getMapSize(), flagl);
 
@@ -510,9 +513,9 @@ bool FieldRenderer::plotWind(DiGLPainter* gl)
 
   gl->setLineStyle(poptions_.linecolour, poptions_.linewidth, false);
 
-  for (int iy = iy1; iy < iy2; iy += step) {
-    const int xstep = xAutoStep(x, y, ix1, ix2, iy, sdist);
-    for (int ix = ix1; ix < ix2; ix += xstep) {
+  for (int iy = gp.iy1; iy < gp.iy2; iy += step) {
+    const int xstep = xAutoStep(x, y, gp.ix1, gp.ix2, iy, sdist);
+    for (int ix = gp.ix1; ix < gp.ix2; ix += xstep) {
       const int i = iy * nx + ix;
 
       if (u[i] == fieldUndef || v[i] == fieldUndef || !msex.isinside(x[i], y[i]))
@@ -569,15 +572,15 @@ bool FieldRenderer::plotValue(DiGLPainter* gl)
   }
 
   // convert gridpoints to correct projection
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
-  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
+  GridPoints gp;
+  if (!getGridPoints(gp))
     return false;
+  const float *x = gp.x(), *y = gp.y();
 
   const float* field = fields_[0]->data;
   int step = poptions_.density;
   float sdist;
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, step, sdist);
+  setAutoStep(x, y, gp.ix1, gp.ix2, gp.iy1, gp.iy2, MaxWindsAuto, step, sdist);
 
   const int nx = fields_[0]->area.nx;
   const int ny = fields_[0]->area.ny;
@@ -597,18 +600,18 @@ bool FieldRenderer::plotValue(DiGLPainter* gl)
 
   float flagl = sdist * 0.85;
 
-  ix1 -= step;
-  if (ix1 < 0)
-    ix1 = 0;
-  iy1 -= step;
-  if (iy1 < 0)
-    iy1 = 0;
-  ix2 += (step + 1);
-  if (ix2 > nx)
-    ix2 = nx;
-  iy2 += (step + 1);
-  if (iy2 > ny)
-    iy2 = ny;
+  gp.ix1 -= step;
+  if (gp.ix1 < 0)
+    gp.ix1 = 0;
+  gp.iy1 -= step;
+  if (gp.iy1 < 0)
+    gp.iy1 = 0;
+  gp.ix2 += (step + 1);
+  if (gp.ix2 > nx)
+    gp.ix2 = nx;
+  gp.iy2 += (step + 1);
+  if (gp.iy2 > ny)
+    gp.iy2 = ny;
 
   gl->setColour(poptions_.linecolour, false);
 
@@ -621,9 +624,9 @@ bool FieldRenderer::plotValue(DiGLPainter* gl)
   chy *= 0.75;
 
   ImageGallery ig;
-  for (int iy = iy1; iy < iy2; iy += step) {
-    const int xstep = xAutoStep(x, y, ix1, ix2, iy, sdist);
-    for (int ix = ix1; ix < ix2; ix += xstep) {
+  for (int iy = gp.iy1; iy < gp.iy2; iy += step) {
+    const int xstep = xAutoStep(x, y, gp.ix1, gp.ix2, iy, sdist);
+    for (int ix = gp.ix1; ix < gp.ix2; ix += xstep) {
       const int i = iy * nx + ix;
       const float gx = x[i], gy = y[i], value = field[i];
       if (value != fieldUndef && msex.isinside(gx, gy) && value >= poptions_.minvalue && value <= poptions_.maxvalue) {
@@ -676,10 +679,10 @@ bool FieldRenderer::plotWindAndValue(DiGLPainter* gl, bool flightlevelChart)
   float* t = fields_[2]->data;
 
   // convert gridpoints to correct projection
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
-  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
+  GridPoints gp;
+  if (!getGridPoints(gp))
     return false;
+  const float *x = gp.x(), *y = gp.y();
 
   // convert windvectors to correct projection
   std::vector<float*> uv = prepareVectors(x, y);
@@ -690,7 +693,7 @@ bool FieldRenderer::plotWindAndValue(DiGLPainter* gl, bool flightlevelChart)
 
   int step = poptions_.density;
   float sdist;
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxWindsAuto, step, sdist);
+  setAutoStep(x, y, gp.ix1, gp.ix2, gp.iy1, gp.iy2, MaxWindsAuto, step, sdist);
   int xstep;
 
   int i, ix, iy;
@@ -711,18 +714,18 @@ bool FieldRenderer::plotWindAndValue(DiGLPainter* gl, bool flightlevelChart)
 
   std::vector<float> vx, vy; // keep vertices for 50-knot flags
 
-  ix1 -= step;
-  if (ix1 < 0)
-    ix1 = 0;
-  iy1 -= step;
-  if (iy1 < 0)
-    iy1 = 0;
-  ix2 += (step + 1);
-  if (ix2 > nx)
-    ix2 = nx;
-  iy2 += (step + 1);
-  if (iy2 > ny)
-    iy2 = ny;
+  gp.ix1 -= step;
+  if (gp.ix1 < 0)
+    gp.ix1 = 0;
+  gp.iy1 -= step;
+  if (gp.iy1 < 0)
+    gp.iy1 = 0;
+  gp.ix2 += (step + 1);
+  if (gp.ix2 > nx)
+    gp.ix2 = nx;
+  gp.iy2 += (step + 1);
+  if (gp.iy2 > ny)
+    gp.iy2 = ny;
 
   const Rectangle& ms = pa_.getMapSize();
   const Rectangle msex = diutil::extendedRectangle(ms, flagl);
@@ -773,17 +776,17 @@ bool FieldRenderer::plotWindAndValue(DiGLPainter* gl, bool flightlevelChart)
   // poptions_.density!=auto and proj=geographic
   bool adjustToLatLon = poptions_.density > 0 && fields_[0]->area.P().isGeographic() && step > 0;
   if (adjustToLatLon)
-    iy1 = (iy1 / step) * step;
-  for (iy = iy1; iy < iy2; iy += step) {
-    xstep = xAutoStep(x, y, ix1, ix2, iy, sdist);
+    gp.iy1 = (gp.iy1 / step) * step;
+  for (iy = gp.iy1; iy < gp.iy2; iy += step) {
+    xstep = xAutoStep(x, y, gp.ix1, gp.ix2, iy, sdist);
     if (adjustToLatLon) {
       xstep = (xstep / step) * step;
       if (xstep == 0)
         xstep = step;
-      ix1 = (ix1 / xstep) * xstep;
+      gp.ix1 = (gp.ix1 / xstep) * xstep;
     }
     vxstep.push_back(xstep);
-    for (ix = ix1; ix < ix2; ix += xstep) {
+    for (ix = gp.ix1; ix < gp.ix2; ix += xstep) {
       i = iy * nx + ix;
       gx = x[i];
       gy = y[i];
@@ -957,9 +960,9 @@ bool FieldRenderer::plotWindAndValue(DiGLPainter* gl, bool flightlevelChart)
   float x1, x2, y1, y2, w, h;
   int ivx = 0;
 
-  for (iy = iy1; iy < iy2; iy += step) {
+  for (iy = gp.iy1; iy < gp.iy2; iy += step) {
     xstep = vxstep[ivx++];
-    for (ix = ix1; ix < ix2; ix += xstep) {
+    for (ix = gp.ix1; ix < gp.ix2; ix += xstep) {
       i = iy * nx + ix;
       gx = x[i];
       gy = y[i];
@@ -1092,14 +1095,14 @@ bool FieldRenderer::plotValues(DiGLPainter* gl)
   const size_t nfields = fields_.size();
 
   // convert gridpoints to correct projection
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
-  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
+  GridPoints gp;
+  if (!getGridPoints(gp))
     return false;
+  const float *x = gp.x(), *y = gp.y();
 
   int step = poptions_.density;
   float sdist;
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, 22, step, sdist);
+  setAutoStep(x, y, gp.ix1, gp.ix2, gp.iy1, gp.iy2, 22, step, sdist);
   int xstep;
 
   const int nx = fields_[0]->area.nx;
@@ -1109,18 +1112,18 @@ bool FieldRenderer::plotValues(DiGLPainter* gl)
     plotFrame(gl, nx, ny, x, y);
   }
 
-  ix1 -= step;
-  if (ix1 < 0)
-    ix1 = 0;
-  iy1 -= step;
-  if (iy1 < 0)
-    iy1 = 0;
-  ix2 += (step + 1);
-  if (ix2 > nx)
-    ix2 = nx;
-  iy2 += (step + 1);
-  if (iy2 > ny)
-    iy2 = ny;
+  gp.ix1 -= step;
+  if (gp.ix1 < 0)
+    gp.ix1 = 0;
+  gp.iy1 -= step;
+  if (gp.iy1 < 0)
+    gp.iy1 = 0;
+  gp.ix2 += (step + 1);
+  if (gp.ix2 > nx)
+    gp.ix2 = nx;
+  gp.iy2 += (step + 1);
+  if (gp.iy2 > ny)
+    gp.iy2 = ny;
 
   float fontsize = 8. * poptions_.labelSize;
 
@@ -1180,23 +1183,23 @@ bool FieldRenderer::plotValues(DiGLPainter* gl)
   std::vector<int> vxstep;
   bool adjustToLatLon = poptions_.density && fields_[0]->area.P().isGeographic() && step > 0;
   if (adjustToLatLon)
-    iy1 = (iy1 / step) * step;
-  for (int iy = iy1; iy < iy2; iy += step) {
-    xstep = xAutoStep(x, y, ix1, ix2, iy, sdist);
+    gp.iy1 = (gp.iy1 / step) * step;
+  for (int iy = gp.iy1; iy < gp.iy2; iy += step) {
+    xstep = xAutoStep(x, y, gp.ix1, gp.ix2, iy, sdist);
     if (adjustToLatLon) {
       xstep = (xstep / step) * step;
       if (xstep == 0)
         xstep = step;
-      ix1 = (ix1 / xstep) * xstep;
+      gp.ix1 = (gp.ix1 / xstep) * xstep;
     }
     vxstep.push_back(xstep);
   }
 
   float x1, x2, y1, y2, w, h;
   int ivx = 0;
-  for (int iy = iy1; iy < iy2; iy += step) {
+  for (int iy = gp.iy1; iy < gp.iy2; iy += step) {
     xstep = vxstep[ivx++];
-    for (int ix = ix1; ix < ix2; ix += xstep) {
+    for (int ix = gp.ix1; ix < gp.ix2; ix += xstep) {
       int i = iy * nx + ix;
       float gx = x[i];
       float gy = y[i];
@@ -1280,10 +1283,10 @@ bool FieldRenderer::plotArrows(DiGLPainter* gl, prepare_vectors_t pre_vec, const
   METLIBS_LOG_SCOPE(LOGVAL(fields_.size()));
 
   // convert gridpoints to correct projection
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
-  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
+  GridPoints gp;
+  if (!getGridPoints(gp))
     return false;
+  const float *x = gp.x(), *y = gp.y();
 
   // convert vectors to correct projection
   std::vector<float*> uv = (this->*pre_vec)(x, y);
@@ -1294,7 +1297,7 @@ bool FieldRenderer::plotArrows(DiGLPainter* gl, prepare_vectors_t pre_vec, const
 
   int step = poptions_.density;
   float sdist;
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, MaxArrowsAuto, step, sdist);
+  setAutoStep(x, y, gp.ix1, gp.ix2, gp.iy1, gp.iy2, MaxArrowsAuto, step, sdist);
   int xstep;
 
   const int nx = fields_[0]->area.nx;
@@ -1316,26 +1319,26 @@ bool FieldRenderer::plotArrows(DiGLPainter* gl, prepare_vectors_t pre_vec, const
   const float unitlength = poptions_.vectorunit;
   const float scale = arrowlength / unitlength;
 
-  ix1 -= step;
-  if (ix1 < 0)
-    ix1 = 0;
-  iy1 -= step;
-  if (iy1 < 0)
-    iy1 = 0;
-  ix2 += (step + 1);
-  if (ix2 > nx)
-    ix2 = nx;
-  iy2 += (step + 1);
-  if (iy2 > ny)
-    iy2 = ny;
+  gp.ix1 -= step;
+  if (gp.ix1 < 0)
+    gp.ix1 = 0;
+  gp.iy1 -= step;
+  if (gp.iy1 < 0)
+    gp.iy1 = 0;
+  gp.ix2 += (step + 1);
+  if (gp.ix2 > nx)
+    gp.ix2 = nx;
+  gp.iy2 += (step + 1);
+  if (gp.iy2 > ny)
+    gp.iy2 = ny;
 
   const Rectangle msex = diutil::extendedRectangle(pa_.getMapSize(), arrowlength * 1.5);
 
   gl->setLineStyle(poptions_.linecolour, poptions_.linewidth, false);
 
-  for (int iy = iy1; iy < iy2; iy += step) {
-    xstep = xAutoStep(x, y, ix1, ix2, iy, sdist);
-    for (int ix = ix1; ix < ix2; ix += xstep) {
+  for (int iy = gp.iy1; iy < gp.iy2; iy += step) {
+    xstep = xAutoStep(x, y, gp.ix1, gp.ix2, iy, sdist);
+    for (int ix = gp.ix1; ix < gp.ix2; ix += xstep) {
       const int i = iy * nx + ix;
 
       const float gx = x[i], gy = y[i];
@@ -1386,21 +1389,20 @@ bool FieldRenderer::plotContour(DiGLPainter* gl)
   int ibmap, lbmap, kbmap[mmm], nxbmap, nybmap;
   float rbmap[4];
 
-  int ix1, ix2, iy1, iy2;
   bool res = true;
-  float *x = 0, *y = 0;
 
   // Resampling disabled
   int factor = 1; // resamplingFactor(nx, ny);
-
   if (factor < 2)
     factor = 1;
 
   // convert gridpoints to correct projection
-  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2, factor)) {
+  GridPoints gp;
+  if (!getGridPoints(gp, factor)) {
     METLIBS_LOG_ERROR("getGridPoints returned false");
     return false;
   }
+  const float *x = gp.x(), *y = gp.y();
 
   const int rnx = fields_[0]->area.nx / factor, rny = fields_[0]->area.ny / factor;
 
@@ -1421,18 +1423,18 @@ bool FieldRenderer::plotContour(DiGLPainter* gl)
   } else
     data = fields_[0]->data;
 
-  if (ix1 >= ix2 || iy1 >= iy2)
+  if (gp.ix1 >= gp.ix2 || gp.iy1 >= gp.iy2)
     return false;
-  if (ix1 >= rnx || ix2 < 0 || iy1 >= rny || iy2 < 0)
+  if (gp.ix1 >= rnx || gp.ix2 < 0 || gp.iy1 >= rny || gp.iy2 < 0)
     return false;
 
   if (poptions_.frame)
     plotFrame(gl, rnx, rny, x, y);
 
-  ipart[0] = ix1;
-  ipart[1] = ix2;
-  ipart[2] = iy1;
-  ipart[3] = iy2;
+  ipart[0] = gp.ix1;
+  ipart[1] = gp.ix2;
+  ipart[2] = gp.iy1;
+  ipart[3] = gp.iy2;
 
   xylim[0] = pa_.getMapSize().x1;
   xylim[1] = pa_.getMapSize().x2;
@@ -1698,18 +1700,18 @@ bool FieldRenderer::plotContour2(DiGLPainter* gl, PlotOrder zorder)
   }
 
   // convert gridpoints to correct projection
-  int ix1, ix2, iy1, iy2;
-  float *x = 0, *y = 0;
-  if (!getGridPoints(x, y, ix1, ix2, iy1, iy2)) {
+  GridPoints gp;
+  if (!getGridPoints(gp)) {
     METLIBS_LOG_INFO("getGridPoints problem");
     return false;
   }
+  const float *x = gp.x(), *y = gp.y();
 
-  if (ix1 >= ix2 || iy1 >= iy2)
+  if (gp.ix1 >= gp.ix2 || gp.iy1 >= gp.iy2)
     return false;
   const int nx = fields_[0]->area.nx;
   const int ny = fields_[0]->area.ny;
-  if (ix1 >= nx || ix2 < 0 || iy1 >= ny || iy2 < 0)
+  if (gp.ix1 >= nx || gp.ix2 < 0 || gp.iy1 >= ny || gp.iy2 < 0)
     return false;
 
   if (poptions_.frame)
@@ -1719,13 +1721,11 @@ bool FieldRenderer::plotContour2(DiGLPainter* gl, PlotOrder zorder)
     gl->setFont(poptions_.fontname, poptions_.fontface, 10 * poptions_.labelSize);
 
   {
-    METLIBS_LOG_TIME("contour2");
-    if (not poly_contour(nx, ny, ix1, iy1, ix2, iy2, fields_[0]->data, x, y, gl, poptions_, fieldUndef, paintMode))
+    if (not poly_contour(nx, ny, gp.ix1, gp.iy1, gp.ix2, gp.iy2, fields_[0]->data, x, y, gl, poptions_, fieldUndef, paintMode))
       METLIBS_LOG_ERROR("contour2 error");
   }
   if (poptions_.options_2) {
-    METLIBS_LOG_TIME("contour2 options_2");
-    if (not poly_contour(nx, ny, ix1, iy1, ix2, iy2, fields_[0]->data, x, y, gl, poptions_, fieldUndef, paintMode, true))
+    if (not poly_contour(nx, ny, gp.ix1, gp.iy1, gp.ix2, gp.iy2, fields_[0]->data, x, y, gl, poptions_, fieldUndef, paintMode, true))
       METLIBS_LOG_ERROR("contour2 options_2 error");
   }
   if (poptions_.extremeType != "None" && poptions_.extremeType != "Ingen" && !poptions_.extremeType.empty())
@@ -1746,12 +1746,14 @@ bool FieldRenderer::plotRaster(DiGLPainter* gl)
   if (not checkFields(1))
     return false;
 
-  float *x = 0, *y = 0;
+  const float *x = 0, *y = 0;
+  GridPoints gp; // put here to keep in scope while in use
   int nx = fields_[0]->area.nx+1, ny = fields_[0]->area.ny+1;
   if (poptions_.frame || poptions_.update_stencil) {
-    int ix1, ix2, iy1, iy2;
-    if (!getGridPoints(x, y, ix1, ix2, iy1, iy2, 1, true) || !x || !y)
-      x = y = 0;
+    if (getGridPoints(gp, 1, true)) {
+      x = gp.x();
+      y = gp.y();
+    }
   }
   if (x && y && poptions_.frame) {
     gl->setLineStyle(poptions_.bordercolour, poptions_.linewidth, false);
@@ -1793,10 +1795,10 @@ bool FieldRenderer::plotFrameOnly(DiGLPainter* gl)
   int ny = fields_[0]->area.ny;
 
   // convert gridpoints to correct projection
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
-  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
+  GridPoints gp;
+  if (!getGridPoints(gp))
     return false;
+  const float *x = gp.x(), *y = gp.y();
 
   if (poptions_.frame) {
     plotFrame(gl, nx, ny, x, y);
@@ -1894,27 +1896,27 @@ bool FieldRenderer::markExtreme(DiGLPainter* gl)
   int ny = fields_[0]->area.ny;
 
   // convert gridpoints to correct projection
-  float *x, *y;
-  int ix1, ix2, iy1, iy2;
-  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
+  GridPoints gp;
+  if (!getGridPoints(gp))
     return false;
+  const float *x = gp.x(), *y = gp.y();
 
-  if (ix1 < 1)
-    ix1 = 1;
-  if (ix2 > nx - 2)
-    ix2 = nx - 2;
-  if (iy1 < 1)
-    iy1 = 1;
-  if (iy2 > ny - 2)
-    iy2 = ny - 2;
+  if (gp.ix1 < 1)
+    gp.ix1 = 1;
+  if (gp.ix2 > nx - 2)
+    gp.ix2 = nx - 2;
+  if (gp.iy1 < 1)
+    gp.iy1 = 1;
+  if (gp.iy2 > ny - 2)
+    gp.iy2 = ny - 2;
 
   // find avg. dist. between grid points
-  int ixstp = std::max((ix2 - ix1) / 5, 1);
-  int iystp = std::max((iy2 - iy1) / 5, 1);
+  int ixstp = std::max((gp.ix2 - gp.ix1) / 5, 1);
+  int iystp = std::max((gp.iy2 - gp.iy1) / 5, 1);
   float avgdist = 0;
   int navg = 0;
-  for (int iy = iy1; iy < iy2; iy += iystp) {
-    for (int ix = ix1; ix < ix2; ix += ixstp) {
+  for (int iy = gp.iy1; iy < gp.iy2; iy += iystp) {
+    for (int ix = gp.ix1; ix < gp.ix2; ix += ixstp) {
       int i = iy * nx + ix;
       float dx = x[i + 1] - x[i];
       float dy = y[i + 1] - y[i];
@@ -1930,8 +1932,8 @@ bool FieldRenderer::markExtreme(DiGLPainter* gl)
   else
     avgdist = 1.;
 
-  ix2++;
-  iy2++;
+  gp.ix2++;
+  gp.iy2++;
 
   QString pmarks[2];
   bool extremeString = false;
@@ -2011,8 +2013,8 @@ bool FieldRenderer::markExtreme(DiGLPainter* gl)
 
   const Rectangle ems = diutil::extendedRectangle(pa_.getMapSize(), -size * 0.5);
 
-  for (int iy = iy1; iy < iy2; iy++) {
-    for (int ix = ix1; ix < ix2; ix++) {
+  for (int iy = gp.iy1; iy < gp.iy2; iy++) {
+    for (int ix = gp.ix1; ix < gp.ix2; ix++) {
       const int p = iy * nx + ix;
       const float fpos = fields_[0]->data[p];
       if (fpos == fieldUndef)
@@ -2141,16 +2143,16 @@ bool FieldRenderer::plotGridLines(DiGLPainter* gl)
     return false;
 
   // convert gridpoints to correct projection
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
-  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
+  GridPoints gp;
+  if (!getGridPoints(gp))
     return false;
+  const float *x = x, *y = y;
 
-  ix2++;
-  iy2++;
+  gp.ix2++;
+  gp.iy2++;
 
   const int step = poptions_.gridLines;
-  if (step <= 0 || (poptions_.gridLinesMax > 0 && ((ix2 - ix1) / step > poptions_.gridLinesMax || (iy2 - iy1) / step > poptions_.gridLinesMax))) {
+  if (step <= 0 || (poptions_.gridLinesMax > 0 && ((gp.ix2 - gp.ix1) / step > poptions_.gridLinesMax || (gp.iy2 - gp.iy1) / step > poptions_.gridLinesMax))) {
     return false;
   }
 
@@ -2158,20 +2160,20 @@ bool FieldRenderer::plotGridLines(DiGLPainter* gl)
   bc.setF(Colour::alpha, 0.5);
   gl->setLineStyle(bc, 1);
 
-  ix1 = int(ix1 / step) * step;
-  iy1 = int(iy1 / step) * step;
+  gp.ix1 = int(gp.ix1 / step) * step;
+  gp.iy1 = int(gp.iy1 / step) * step;
 
   const int nx = fields_[0]->area.nx;
 
   diutil::PolylinePainter pp(gl);
-  for (int ix = ix1; ix < ix2; ix += step) {
-    for (int iy = iy1; iy < iy2; iy++)
+  for (int ix = gp.ix1; ix < gp.ix2; ix += step) {
+    for (int iy = gp.iy1; iy < gp.iy2; iy++)
       pp.add(x, y, diutil::index(nx, ix, iy));
     pp.draw();
   }
 
-  for (int iy = iy1; iy < iy2; iy += step) {
-    for (int ix = ix1; ix < ix2; ix++)
+  for (int iy = gp.iy1; iy < gp.iy2; iy += step) {
+    for (int ix = gp.ix1; ix < gp.ix2; ix++)
       pp.add(x, y, diutil::index(nx, ix, iy));
     pp.draw();
   }
@@ -2210,12 +2212,12 @@ void FieldRenderer::plotUndefined(DiGLPainter* gl)
   const int nx_pts = nx_fld + 1;
 
   // convert gridpoints to correct projection
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
-  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2, 1, true))
+  GridPoints gp;
+  if (!getGridPoints(gp, 1, true))
     return;
-  if (ix1 >= nx_fld || ix2 < 0 || iy1 >= ny_fld || iy2 < 0)
+  if (gp.ix1 >= nx_fld || gp.ix2 < 0 || gp.iy1 >= ny_fld || gp.iy2 < 0)
     return;
+  const float *x = gp.x(), *y = gp.y();
 
   const diutil::is_undef undef_f0(fields_[0]->data, nx_fld);
 
@@ -2227,18 +2229,18 @@ void FieldRenderer::plotUndefined(DiGLPainter* gl)
     gl->ShadeModel(DiGLPainter::gl_FLAT);
     gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
 
-    for (int iy = iy1; iy <= iy2; iy++) {
-      int ix = ix1;
-      while (ix <= ix2) {
+    for (int iy = gp.iy1; iy <= gp.iy2; iy++) {
+      int ix = gp.ix1;
+      while (ix <= gp.ix2) {
         // find start of undef
-        while (ix <= ix2 && !undef_f0(ix, iy))
+        while (ix <= gp.ix2 && !undef_f0(ix, iy))
           ix += 1;
-        if (ix > ix2)
+        if (ix > gp.ix2)
           break;
 
         int ixx = ix;
         // find end of undef
-        while (ix <= ix2 && undef_f0(ix, iy))
+        while (ix <= gp.ix2 && undef_f0(ix, iy))
           ix += 1;
 
         // fill
@@ -2259,12 +2261,12 @@ void FieldRenderer::plotUndefined(DiGLPainter* gl)
     diutil::PolylinePainter pp(gl);
 
     // horizontal lines
-    for (int iy = iy1; iy <= iy2; iy++) {
-      int ix = ix1;
-      while (ix <= ix2) {
-        while (ix <= ix2 && (!undef_f0(ix, iy) && (iy == iy1 || !undef_f0(ix, iy - 1))))
+    for (int iy = gp.iy1; iy <= gp.iy2; iy++) {
+      int ix = gp.ix1;
+      while (ix <= gp.ix2) {
+        while (ix <= gp.ix2 && (!undef_f0(ix, iy) && (iy == gp.iy1 || !undef_f0(ix, iy - 1))))
           ix += 1;
-        if (ix >= ix2)
+        if (ix >= gp.ix2)
           break;
 
         int idx = diutil::index(nx_pts, ix, iy);
@@ -2273,18 +2275,18 @@ void FieldRenderer::plotUndefined(DiGLPainter* gl)
           ix += 1;
           idx += 1;
           pp.add(x, y, idx);
-        } while (ix < ix2 && !(!undef_f0(ix, iy) && (iy == iy1 || !undef_f0(ix, iy - 1))));
+        } while (ix < gp.ix2 && !(!undef_f0(ix, iy) && (iy == gp.iy1 || !undef_f0(ix, iy - 1))));
         pp.draw();
       }
     }
 
     // vertical lines
-    for (int ix = ix1; ix <= ix2; ix++) {
-      int iy = iy1;
-      while (iy <= iy2) {
-        while (iy <= iy2 && (!undef_f0(ix, iy) && (ix == ix1 || !undef_f0(ix - 1, iy))))
+    for (int ix = gp.ix1; ix <= gp.ix2; ix++) {
+      int iy = gp.iy1;
+      while (iy <= gp.iy2) {
+        while (iy <= gp.iy2 && (!undef_f0(ix, iy) && (ix == gp.ix1 || !undef_f0(ix - 1, iy))))
           iy += 1;
-        if (iy >= iy2)
+        if (iy >= gp.iy2)
           break;
 
         int idx = diutil::index(nx_pts, ix, iy);
@@ -2293,7 +2295,7 @@ void FieldRenderer::plotUndefined(DiGLPainter* gl)
           iy += 1;
           idx += nx_pts;
           pp.add(x, y, idx);
-        } while (iy < iy2 && !(!undef_f0(ix, iy) && (ix == ix1 || !undef_f0(ix - 1, iy))));
+        } while (iy < gp.iy2 && !(!undef_f0(ix, iy) && (ix == gp.ix1 || !undef_f0(ix - 1, iy))));
         pp.draw();
       }
     }
@@ -2318,19 +2320,19 @@ bool FieldRenderer::plotNumbers(DiGLPainter* gl)
   int i, ix, iy;
 
   // convert gridpoints to correct projection
-  int ix1, ix2, iy1, iy2;
-  float *x, *y;
-  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2))
+  GridPoints gp;
+  if (!getGridPoints(gp))
     return false;
+  const float *x = gp.x(), *y = gp.y();
 
   int autostep = poptions_.density;
   float dist;
-  setAutoStep(x, y, ix1, ix2, iy1, iy2, 25, autostep, dist);
+  setAutoStep(x, y, gp.ix1, gp.ix2, gp.iy1, gp.iy2, 25, autostep, dist);
   if (autostep > 1)
     return false;
 
-  ix2++;
-  iy2++;
+  gp.ix2++;
+  gp.iy2++;
 
   float fontsize = 16.;
   gl->setFont(diutil::BITMAPFONT, diutil::F_BOLD, fontsize);
@@ -2352,8 +2354,8 @@ bool FieldRenderer::plotNumbers(DiGLPainter* gl)
 
   gl->setLineStyle(poptions_.linecolour, 1, false);
 
-  for (iy = iy1; iy < iy2; iy++) {
-    for (ix = ix1; ix < ix2; ix++) {
+  for (iy = gp.iy1; iy < gp.iy2; iy++) {
+    for (ix = gp.ix1; ix < gp.ix2; ix++) {
       i = iy * fields_[0]->area.nx + ix;
       gx = x[i];
       gy = y[i];
@@ -2375,22 +2377,24 @@ bool FieldRenderer::plotNumbers(DiGLPainter* gl)
   // draw lines/boxes at borders between gridpoints..............................
 
   // convert gridpoints to correct projection
-  if (not getGridPoints(x, y, ix1, ix2, iy1, iy2, 1, true))
+  if (!getGridPoints(gp, 1, true))
     return false;
+  x = gp.x();
+  y = gp.y();
 
   const int nx = fields_[0]->area.nx + 1;
 
-  ix2++;
-  iy2++;
+  gp.ix2++;
+  gp.iy2++;
 
   diutil::PolylinePainter pp(gl);
-  for (int ix = ix1; ix < ix2; ix++) {
-    for (int iy = iy1; iy < iy2; iy++)
+  for (int ix = gp.ix1; ix < gp.ix2; ix++) {
+    for (int iy = gp.iy1; iy < gp.iy2; iy++)
       pp.add(x, y, diutil::index(nx, ix, iy));
     pp.draw();
   }
-  for (int iy = iy1; iy < iy2; iy++) {
-    for (int ix = ix1; ix < ix2; ix++)
+  for (int iy = gp.iy1; iy < gp.iy2; iy++) {
+    for (int ix = gp.ix1; ix < gp.ix2; ix++)
       pp.add(x, y, diutil::index(nx, ix, iy));
     pp.draw();
   }

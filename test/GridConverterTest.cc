@@ -1,3 +1,31 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2015-2020 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #include <diGridConverter.h>
 #include <diPoint.h>
@@ -11,19 +39,18 @@ TEST(GridConverterTest, GetMapFields)
   const GridArea area(Area(Projection("+proj=utm +zone=33 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"),
           Rectangle(0, 0, 10000, 110000)), nx, ny, 1000, 1000);
   GridConverter gc;
+  MapFields_cp mf;
 #if 1
-  const float* xmapr = 0, *ymapr = 0, *coriolis = 0;
   const float SCALE = 1;
-  EXPECT_TRUE(gc.getMapFields(area, &xmapr, &ymapr, &coriolis));
+  EXPECT_TRUE(mf = gc.getMapFields(area));
 #else
-  float* xmapr = 0, *ymapr = 0, *coriolis = 0;
   const float SCALE = 0.5;
   float dxg = 0, dyg = 0;
-  EXPECT_TRUE(gc.getMapFields(area, 3, 1, &xmapr, &ymapr, &coriolis, dxg, dyg));
+  EXPECT_TRUE(mf = gc.getMapFields(area, 3, 1, dxg, dyg));
 #endif
-  ASSERT_TRUE(xmapr);
-  ASSERT_TRUE(ymapr);
-  ASSERT_TRUE(coriolis);
+  ASSERT_TRUE(mf->xmapr);
+  ASSERT_TRUE(mf->ymapr);
+  ASSERT_TRUE(mf->coriolis);
 
   const float expect_x[nx*ny] = {
     0.0010038398,
@@ -53,9 +80,9 @@ TEST(GridConverterTest, GetMapFields)
     4.5915623e-08, 4.5916192e-08, 4.5916757e-08
   };
   for (int i=0; i<nx*ny; ++i) {
-    EXPECT_FLOAT_EQ(expect_x[i]*SCALE, xmapr[i]) << " i=" << i << " x";
-    EXPECT_FLOAT_EQ(expect_y[i]*SCALE, ymapr[i]) << " i=" << i << " y";
-    EXPECT_FLOAT_EQ(expect_c[i],    coriolis[i]) << " i=" << i << " c";
+    EXPECT_FLOAT_EQ(expect_x[i] * SCALE, mf->xmapr[i]) << " i=" << i << " x";
+    EXPECT_FLOAT_EQ(expect_y[i] * SCALE, mf->ymapr[i]) << " i=" << i << " y";
+    EXPECT_FLOAT_EQ(expect_c[i], mf->coriolis[i]) << " i=" << i << " c";
   }
 }
 
@@ -82,11 +109,11 @@ TEST(GridConverterTest, FindGridLimits)
   const GridArea fieldGridArea(Area(Projection("+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=90 +R=6.371e+06 +no_defs +x_0=3.13723 +y_0=1.5708"),
           Rectangle(0,0,6.27913,3.14166)), 1440, 721, 0.00436354, 0.00436342);
 
-  float *positionsX, *positionsY;
   const Area dummyMapArea(Projection("+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=90 +R=6.371e+06 +no_defs +x_0=3.13723 +y_0=1.5708"),
       Rectangle(1.01817,1.81882,5.25533,2.42006));
   GridConverter gc;
-  gc.getGridPoints(fieldGridArea, dummyMapArea, true, &positionsX, &positionsY);
+  Points_p p = gc.getGridPoints(fieldGridArea, dummyMapArea, true);
+  const float *positionsX = p->x, *positionsY = p->y;
 
   const diutil::Rect ex_rects[] = {
     diutil::Rect(0,152,422,609),
@@ -119,12 +146,12 @@ TEST(GridConverterTest, FindGridLimitsGeos)
               " +units=km +towgs84=0,0,0 +x_0=5641264.640000 +y_0=5641264.640000"),
           Rectangle(0,0,11282.5,11282.5)), 2816, 2816, 4.00658, 4.00658);
 
-  float *positionsX, *positionsY;
   const Area dummyMapArea(Projection("+proj=robin +lat_0=0.0 +lon_0=90 +x_0=0 +y_0=0 +ellps=WGS84 +towgs84=0,0,0 +no_defs"),
       Rectangle(-5.88293e+06,6.56044e+06,-4.25857e+06,7.25093e+06));
 
   GridConverter gc;
-  gc.getGridPoints(fieldGridArea, dummyMapArea, true, &positionsX, &positionsY);
+  Points_cp p = gc.getGridPoints(fieldGridArea, dummyMapArea, true);
+  const float *positionsX = p->x, *positionsY = p->y;
 
   const diutil::Rect ex_rects[] = {
     diutil::Rect(2815,2815,1,1) // invalid

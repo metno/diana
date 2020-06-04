@@ -38,6 +38,8 @@
 
 #include <puTools/miTime.h>
 
+class GridConverter;
+
 /**
 
   \brief Field data and information
@@ -162,7 +164,7 @@ public:
       float *fpos, InterpolationType itype) const;
 
   /// interpolate to another grid
-  bool changeGrid(const GridArea& anew, bool fine_interpolation);
+  bool changeGrid(GridConverter& gc, const GridArea& anew, bool fine_interpolation);
 
   /// Return x,y in proj-coord
   void convertFromGrid(int npos, float* xpos, float* ypos) const;

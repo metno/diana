@@ -241,14 +241,14 @@ void TrajectoryGenerator::calculateMapFields()
 {
   METLIBS_LOG_SCOPE();
   Field_cp fu1 = fp->getFields().front();
-  const float *xmapr, *ymapr;
-  if (!StaticPlot::gc.getMapFields(fu1->area, &xmapr, &ymapr, 0)) {
+  MapFields_cp mf = StaticPlot::gc.getMapFields(fu1->area);
+  if (!mf) {
     METLIBS_LOG_ERROR("getMapFields ERROR, cannot compute trajectories!");
     return;
   }
 
-  frx = duplicateFieldWidthData(fu1, xmapr);
-  fry = duplicateFieldWidthData(fu1, ymapr);
+  frx = duplicateFieldWidthData(fu1, mf->xmapr);
+  fry = duplicateFieldWidthData(fu1, mf->ymapr);
 }
 
 void TrajectoryGenerator::reprojectRoundTripLonLat()

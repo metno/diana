@@ -429,7 +429,8 @@ void FieldEdit::makeWorkfield()
 void FieldEdit::changeGrid()
 {
   METLIBS_LOG_DEBUG(LOGVAL(areaspec));
-  if (!editfield->changeGrid(areaspec, true)) {
+  GridConverter gc;
+  if (!editfield->changeGrid(gc, areaspec, true)) {
     METLIBS_LOG_WARN("specification/interpolation failure");
   }
 }

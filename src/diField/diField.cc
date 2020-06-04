@@ -757,8 +757,7 @@ bool Field::interpolate(int npos, const float *xpos, const float *ypos,
   return true;
 }
 
-
-bool Field::changeGrid(const GridArea& anew, bool fine_interpolation)
+bool Field::changeGrid(GridConverter& gc, const GridArea& anew, bool fine_interpolation)
 {
   /*
    * PURPOSE:    change the grid by interplation in original field
@@ -774,30 +773,26 @@ bool Field::changeGrid(const GridArea& anew, bool fine_interpolation)
   if (area == anew)
     return true;
 
-  InterpolationType interpoltype = fine_interpolation ? I_BESSEL : I_BILINEAR;
-
-  int nxnew= int(anew.R().width() /anew.resolutionX+0.5)+1;
-  int nynew= int(anew.R().height()/anew.resolutionY+0.5)+1;
-
-  if (nxnew<2 || nynew<2)
+  if (anew.nx < 2 || anew.ny < 2)
     return false;
 
-  float *newdata= new float[nxnew*nynew];
+  const size_t npos = anew.gridSize();
 
-  float *x, *y;
-  GridConverter gc;
-  gc.getGridPoints(anew, area, false, &x, &y);
+  Points_cp p = gc.getGridPoints(anew, area, false);
+  std::unique_ptr<float[]> x(new float[npos]), y(new float[npos]);
+  std::copy(p->x, p->x + npos, x.get());
+  std::copy(p->y, p->y + npos, y.get());
+  convertToGrid(npos, x.get(), y.get());
 
-  convertToGrid(anew.gridSize(), x, y);
-
-  if (!interpolate(anew.gridSize(), x, y, newdata, interpoltype)) {
-    delete[] newdata;
+  const InterpolationType interpoltype = fine_interpolation ? I_BESSEL : I_BILINEAR;
+  std::unique_ptr<float[]> newdata(new float[npos]);
+  if (!interpolate(npos, x.get(), y.get(), newdata.get(), interpoltype)) {
     METLIBS_LOG_ERROR("Interpolation failure");
     return false;
   }
 
   delete[] data;
-  data = newdata;
+  data = newdata.release();
   area = anew;
 
   checkDefined();

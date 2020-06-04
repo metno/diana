@@ -62,59 +62,48 @@ MapFields::~MapFields()
   delete[] coriolis;
 }
 
-Points& Points::operator=(const Points& rhs)
-{
-  if (this != &rhs) {
-    area = rhs.area;
-    map_proj = rhs.map_proj;
-
-    npos = rhs.npos;
-    delete[] x;
-    delete[] y;
-    if (npos) {
-      x = new float[npos];
-      y = new float[npos];
-      memcpy(x, rhs.x, sizeof(float)*npos);
-      memcpy(y, rhs.y, sizeof(float)*npos);
-    }
-  }
-  return *this;
-}
-
-
-GridConverter::GridConverter() :
-  pointbuffer(0), anglebuffer(0), mapfieldsbuffer(0)
+Points::Points()
+    : npos(0)
+    , gridboxes(false)
+    , x(0)
+    , y(0)
+    , ixmin(0)
+    , ixmax(0)
+    , iymin(0)
+    , iymax(0)
 {
 }
+
+Points::~Points()
+{
+  delete[] x;
+  delete[] y;
+}
+
+GridConverter::GridConverter() {}
 
 GridConverter::~GridConverter()
 {
-  delete pointbuffer;
-  delete anglebuffer;
-  delete mapfieldsbuffer;
 }
 
 void GridConverter::setBufferSize(const int s)
 {
-  delete pointbuffer;
-  pointbuffer = new ring<Points> (s);
+  pointbuffer.reset(new ring<Points_p>(s));
 }
 
 void GridConverter::setAngleBufferSize(const int s)
 {
-  delete anglebuffer;
-  anglebuffer = new ring<Points> (s);
+  anglebuffer.reset(new ring<Points_p>(s));
 }
 
 void GridConverter::setBufferSizeMapFields(const int s)
 {
-  delete mapfieldsbuffer;
-  mapfieldsbuffer = new ring<MapFields> (s);
+  mapfieldsbuffer.reset(new ring<MapFields_p>(s));
 }
 
-bool GridConverter::doGetGridPoints(const GridArea& area, const Projection& map_proj,
-    bool gridboxes, float**x, float**y, int& ipb)
+Points_p GridConverter::doGetGridPoints(const GridArea& area, const Projection& map_proj, bool gridboxes)
 {
+  std::lock_guard<std::mutex> lock(point_mutex);
   if (!pointbuffer)
     setBufferSize(defringsize);
 
@@ -127,31 +116,16 @@ bool GridConverter::doGetGridPoints(const GridArea& area, const Projection& map_
 
   const int n = pointbuffer->size();
   for (int i=0; i < n; ++i) {
-    const Points& pi = (*pointbuffer)[i];
-    if (pi.area == area && pi.map_proj == map_proj
-        && pi.npos == npos && pi.gridboxes == gridboxes)
-    {
-      ipb = i;
-      *x = pi.x;
-      *y = pi.y;
-      return true;
+    Points_p pi = (*pointbuffer)[i];
+    if (pi->area == area && pi->map_proj == map_proj && pi->npos == npos && pi->gridboxes == gridboxes) {
+      return pi;
     }
   }
 
   // not found in cache
 
-  ipb = 0;
-  pointbuffer->push(Points());
-  Points& p0 = (*pointbuffer)[0];
-
-  p0.area = area;
-  p0.map_proj = map_proj;
-  p0.gridboxes = gridboxes;
-  p0.npos = npos;
-  p0.x = new float[npos];
-  p0.y = new float[npos];
-  p0.maprect = Rectangle();
-  p0.ixmin = p0.ixmax = p0.iymin = p0.iymax = 0;
+  std::unique_ptr<float[]> x(new float[npos]);
+  std::unique_ptr<float[]> y(new float[npos]);
 
   const float gdxy = gridboxes ? 0.5 : 0; // offset by half cell iff using gridboxes
 
@@ -159,64 +133,68 @@ bool GridConverter::doGetGridPoints(const GridArea& area, const Projection& map_
   for (int iy = 0; iy < ny; iy++) {
     for (int ix = 0; ix < (nx-1); ix++) {
       int i = ix + iy*nx;
-      p0.x[i] = area.fromGridX(ix - gdxy);
-      p0.y[i] = area.fromGridY(iy - gdxy);
+      x[i] = area.fromGridX(ix - gdxy);
+      y[i] = area.fromGridY(iy - gdxy);
     }
     int i = iy*nx + nx - 1;
     // FIXME x[i]=nx-1 converts to x[i]=0 when transforming between geo-projections
-    p0.x[i] = area.fromGridX(nx - gdxy - 1.1);
-    p0.y[i] = area.fromGridY(iy - gdxy);
+    x[i] = area.fromGridX(nx - gdxy - 1.1);
+    y[i] = area.fromGridY(iy - gdxy);
   }
 
   const Projection& pa = area.P();
-  if (!map_proj.convertPoints(pa, npos, p0.x, p0.y)) {
-    pointbuffer->pop();
-    return false;
-  }
+  if (!map_proj.convertPoints(pa, npos, x.get(), y.get()))
+    return nullptr;
 
-  *x = p0.x;
-  *y = p0.y;
-  return true;
+  Points_p p0 = std::make_shared<Points>();
+  p0->area = area;
+  p0->map_proj = map_proj;
+  p0->gridboxes = gridboxes;
+  p0->npos = npos;
+  p0->x = x.release();
+  p0->y = y.release();
+  p0->maprect = Rectangle();
+  p0->ixmin = p0->ixmax = p0->iymin = p0->iymax = 0;
+  pointbuffer->push(p0);
+  return p0;
 }
 
-bool GridConverter::getGridPoints(const GridArea& area, const Area& map_area,
-    bool gridboxes, float**x, float**y)
+Points_cp GridConverter::getGridPoints(const GridArea& area, const Area& map_area, bool gridboxes)
 {
-  int ipb;
-  return doGetGridPoints(area, map_area.P(), gridboxes, x, y, ipb);
+  return doGetGridPoints(area, map_area.P(), gridboxes);
 }
 
-bool GridConverter::getGridPoints(const GridArea& area, const Area& map_area,
-    const Rectangle& maprect, bool gridboxes, float**x, float**y,
-    int& ix1, int& ix2, int& iy1, int& iy2)
+Points_cp GridConverter::getGridPoints(const GridArea& area, const Area& map_area, const Rectangle& maprect, bool gridboxes, int& ix1, int& ix2, int& iy1,
+                                       int& iy2)
 {
-  int ipb;
-  if (!doGetGridPoints(area, map_area.P(), gridboxes, x, y, ipb))
-    return false;
+  Points_p pi = doGetGridPoints(area, map_area.P(), gridboxes);
+  if (!pi)
+    return nullptr;
 
   const bool skiplimits = (maprect.width() == 0 || maprect.height() == 0);
 
-  Points& pi = (*pointbuffer)[ipb];
   if (skiplimits) {
     ix1 = 0;
     ix2 = 0;
     iy1 = 0;
     iy2 = 0;
-  } else if (pi.maprect == maprect) {
-    ix1 = pi.ixmin;
-    ix2 = pi.ixmax;
-    iy1 = pi.iymin;
-    iy2 = pi.iymax;
+  } else if (pi->maprect == maprect) {
+    ix1 = pi->ixmin;
+    ix2 = pi->ixmax;
+    iy1 = pi->iymin;
+    iy2 = pi->iymax;
   } else {
-    findGridLimits(area, maprect, gridboxes, pi.x, pi.y, ix1, ix2, iy1, iy2);
-    pi.maprect = maprect;
-    pi.ixmin = ix1;
-    pi.ixmax = ix2;
-    pi.iymin = iy1;
-    pi.iymax = iy2;
+    findGridLimits(area, maprect, gridboxes, pi->x, pi->y, ix1, ix2, iy1, iy2);
+    std::lock_guard<std::mutex> lock(point_mutex);
+    // FIXME still bad if receivers use more than x and y
+    pi->maprect = maprect;
+    pi->ixmin = ix1;
+    pi->ixmax = ix2;
+    pi->iymin = iy1;
+    pi->iymax = iy2;
   }
 
-  return true;
+  return pi;
 }
 
 // static
@@ -316,50 +294,47 @@ void GridConverter::findGridLimits(const GridArea& area, const Rectangle& maprec
 }
 
 // get arrays of vector rotation elements
-bool GridConverter::getVectorRotationElements(const Area& data_area,
-    const Projection& map_proj, int nvec, const float *x, const float *y,
-    float ** cosx, float ** sinx)
+Points_p GridConverter::getVectorRotationElements(const Area& data_area, const Projection& map_proj, int nvec, const float* x, const float* y)
 {
+  std::lock_guard<std::mutex> lock(angle_mutex);
   if (!anglebuffer)
     setAngleBufferSize(defringsize_angles);
 
   // search buffer for existing point-set
   const int n = anglebuffer->size();
   for (int i=0; i < n; ++i) {
-    const Points& pi = (*anglebuffer)[i];
-    if ((Area)pi.area == data_area && pi.map_proj == map_proj && pi.npos == nvec) {
-      *cosx = pi.x;
-      *sinx = pi.y;
-      return true;
+    Points_p pi = (*anglebuffer)[i];
+    if ((Area)pi->area == data_area && pi->map_proj == map_proj && pi->npos == nvec) {
+      return pi;
     }
   }
 
   // need to calculate new rotation elements
-  anglebuffer->push(Points()); // push a new points structure on the ring
-  Points& p0 = (*anglebuffer)[0];
-  p0.area = GridArea(data_area);
-  p0.map_proj = map_proj;
-  p0.npos = nvec;
-  p0.x = new float[nvec];
-  p0.y = new float[nvec];
+  std::unique_ptr<float[]> cosx(new float[nvec]);
+  std::unique_ptr<float[]> sinx(new float[nvec]);
+  if (!map_proj.calculateVectorRotationElements(data_area.P(), nvec, x, y, cosx.get(), sinx.get()))
+    return nullptr;
 
-  if (!map_proj.calculateVectorRotationElements(data_area.P(), nvec, x, y, p0.x, p0.y)) {
-    anglebuffer->pop();
-    return false;
-  }
-  *cosx = p0.x;
-  *sinx = p0.y;
-  return true;
+  Points_p p0 = std::make_shared<Points>();
+  p0->area = GridArea(data_area);
+  p0->map_proj = map_proj;
+  p0->npos = nvec;
+  p0->x = cosx.release();
+  p0->y = sinx.release();
+  anglebuffer->push(p0);
+  return p0;
 }
 
 // convert u,v vector coordinates for points x,y
 bool GridConverter::getVectors(const Area& data_area, const Projection& map_proj,
     int nvec, const float *x, const float *y, float* u, float* v)
 {
-  float * cosx = 0;
-  float * sinx = 0;
-  if (!getVectorRotationElements(data_area, map_proj, nvec, x, y, &cosx, &sinx))
+  Points_cp p = getVectorRotationElements(data_area, map_proj, nvec, x, y);
+  if (!p)
     return false;
+
+  const float* cosx = p->x;
+  const float* sinx = p->y;
 
   MIUTIL_OPENMP_PARALLEL(nvec, for)
   for (int i = 0; i < nvec; ++i) {
@@ -403,9 +378,9 @@ bool GridConverter::getDirectionVectors(const Area& map_area, const bool turn,
   return getVectors(geo_area, map_area.P(), nvec, x, y, u, v);
 }
 
-bool GridConverter::getMapFields(const GridArea& area,
-    const float** xmapr, const float**ymapr, const float** coriolis)
+MapFields_cp GridConverter::getMapFields(const GridArea& area)
 {
+  std::lock_guard<std::mutex> lock(mapfields_mutex);
   if (!mapfieldsbuffer)
     setBufferSizeMapFields(defringsize_mapfields);
 
@@ -415,45 +390,25 @@ bool GridConverter::getMapFields(const GridArea& area,
 
   const int npos = area.gridSize();
 
-  int ipbm = -1;
-  int i = 0;
-  while (i < n && (*mapfieldsbuffer)[i].area != area)
-    i++;
-  if (i < n)
-    ipbm = i;
-
-  MapFields* mf;
-  if (ipbm < 0) {
-    mapfieldsbuffer->push(MapFields()); // push a new MapFields structure on the ring
-    mf = &(*mapfieldsbuffer)[0];
-    mf->area = area;
-    mf->xmapr = 0;
-    mf->ymapr = 0;
-    mf->coriolis = 0;
-    ipbm = 0;
-  } else {
-    mf = &(*mapfieldsbuffer)[ipbm];
+  for (int i = 0; i < n; ++i) {
+    MapFields_p mf = (*mapfieldsbuffer)[i];
+    if (mf->area == area)
+      return mf;
   }
 
-  if (!mf->xmapr) {
-    mf->xmapr = new float[npos];
-    mf->ymapr = new float[npos];
-    mf->coriolis = new float[npos];
-    if (!area.P().getMapRatios(area.nx, area.ny, area.R().x1, area.R().y1, area.resolutionX, area.resolutionY,
-            mf->xmapr, mf->ymapr, mf->coriolis))
-    {
-      METLIBS_LOG_ERROR("getMapRatios problem");
-      return false;
-    }
+  std::unique_ptr<float> xmapr(new float[npos]);
+  std::unique_ptr<float> ymapr(new float[npos]);
+  std::unique_ptr<float> coriolis(new float[npos]);
+  if (!area.P().getMapRatios(area.nx, area.ny, area.R().x1, area.R().y1, area.resolutionX, area.resolutionY, xmapr.get(), ymapr.get(), coriolis.get())) {
+    METLIBS_LOG_ERROR("getMapRatios problem");
+    return nullptr;
   }
 
-  if (xmapr && ymapr) {
-    *xmapr = mf->xmapr;
-    *ymapr = mf->ymapr;
-  }
-
-  if (coriolis)
-    *coriolis = mf->coriolis;
-
-  return true;
+  MapFields_p mf = std::make_shared<MapFields>();
+  mf->area = area;
+  mf->xmapr = xmapr.release();
+  mf->ymapr = ymapr.release();
+  mf->coriolis = coriolis.release();
+  mapfieldsbuffer->push(mf);
+  return mf;
 }

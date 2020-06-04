@@ -552,7 +552,6 @@ bool FieldFunctions::fieldComputer(Function function, const std::vector<float>& 
   const float undef = miutil::UNDEF;
 
   int nsmooth;
-  const float *xmapr = 0, *ymapr = 0, *fcoriolis = 0;
   float plevel, plevel1, plevel2, plevel3, alevel, blevel, odepth;
   float hours, precipMin, snowRateMax, tcMax, fcoriolisMin;
 
@@ -1350,36 +1349,36 @@ bool FieldFunctions::fieldComputer(Function function, const std::vector<float>& 
     if (ninp != 2 || nout != 1)
       break;
     plevel = vfinput[0]->level;
-    if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, &fcoriolis))
-      res = plevelqvector(nx, ny, finp[0], finp[1], xmapr, ymapr, fcoriolis, plevel, compute, fout[0], fDefined, undef);
+    if (MapFields_cp mf = gc.getMapFields(vfinput[0]->area))
+      res = plevelqvector(nx, ny, finp[0], finp[1], mf->xmapr, mf->ymapr, mf->coriolis, plevel, compute, fout[0], fDefined, undef);
     break;
 
   case f_geostrophic_wind_plevel_z_xcomp:
     if (ninp != 1 || nout != 1)
       break;
-    if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, &fcoriolis))
-      res = plevelgwind_xcomp(nx, ny, finp[0], xmapr, ymapr, fcoriolis, fout[0], fDefined, undef);
+    if (MapFields_cp mf = gc.getMapFields(vfinput[0]->area))
+      res = plevelgwind_xcomp(nx, ny, finp[0], mf->xmapr, mf->ymapr, mf->coriolis, fout[0], fDefined, undef);
     break;
 
   case f_geostrophic_wind_plevel_z_ycomp:
     if (ninp != 1 || nout != 1)
       break;
-    if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, &fcoriolis))
-      res = plevelgwind_ycomp(nx, ny, finp[0], xmapr, ymapr, fcoriolis, fout[0], fDefined, undef);
+    if (MapFields_cp mf = gc.getMapFields(vfinput[0]->area))
+      res = plevelgwind_ycomp(nx, ny, finp[0], mf->xmapr, mf->ymapr, mf->coriolis, fout[0], fDefined, undef);
     break;
 
   case f_geostrophic_vorticity_plevel_z:
     if (ninp != 1 || nout != 1)
       break;
-    if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, &fcoriolis))
-      res = plevelgvort(nx, ny, finp[0], xmapr, ymapr, fcoriolis, fout[0], fDefined, undef);
+    if (MapFields_cp mf = gc.getMapFields(vfinput[0]->area))
+      res = plevelgvort(nx, ny, finp[0], mf->xmapr, mf->ymapr, mf->coriolis, fout[0], fDefined, undef);
     break;
 
   case f_geostrophic_wind_ilevel_mpot:
     if (ninp != 1 || nout != 2)
       break;
-    if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, &fcoriolis))
-      res = ilevelgwind(nx, ny, finp[0], xmapr, ymapr, fcoriolis, fout[0], fout[1], fDefined, undef);
+    if (MapFields_cp mf = gc.getMapFields(vfinput[0]->area))
+      res = ilevelgwind(nx, ny, finp[0], mf->xmapr, mf->ymapr, mf->coriolis, fout[0], fout[1], fDefined, undef);
     break;
 
     //---------------------------------------------------
@@ -1400,67 +1399,67 @@ bool FieldFunctions::fieldComputer(Function function, const std::vector<float>& 
       compute = 4;
     if (ninp != 1 || nout != 1)
       break;
-    if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, 0))
-      res = gradient(nx, ny, finp[0], xmapr, ymapr, compute, fout[0], fDefined, undef);
+    if (MapFields_cp mf = gc.getMapFields(vfinput[0]->area))
+      res = gradient(nx, ny, finp[0], mf->xmapr, mf->ymapr, compute, fout[0], fDefined, undef);
     break;
 
   case f_rel_vorticity:
     if (ninp != 2 || nout != 1)
       break;
-    if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, 0))
-      res = relvort(nx, ny, finp[0], finp[1], xmapr, ymapr, fout[0], fDefined, undef);
+    if (MapFields_cp mf = gc.getMapFields(vfinput[0]->area))
+      res = relvort(nx, ny, finp[0], finp[1], mf->xmapr, mf->ymapr, fout[0], fDefined, undef);
     break;
 
   case f_abs_vorticity:
     if (ninp != 2 || nout != 1)
       break;
-    if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, &fcoriolis))
-      res = absvort(nx, ny, finp[0], finp[1], xmapr, ymapr, fcoriolis, fout[0], fDefined, undef);
+    if (MapFields_cp mf = gc.getMapFields(vfinput[0]->area))
+      res = absvort(nx, ny, finp[0], finp[1], mf->xmapr, mf->ymapr, mf->coriolis, fout[0], fDefined, undef);
     break;
 
   case f_divergence:
     if (ninp != 2 || nout != 1)
       break;
-    if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, 0))
-      res = divergence(nx, ny, finp[0], finp[1], xmapr, ymapr, fout[0], fDefined, undef);
+    if (MapFields_cp mf = gc.getMapFields(vfinput[0]->area))
+      res = divergence(nx, ny, finp[0], finp[1], mf->xmapr, mf->ymapr, fout[0], fDefined, undef);
     break;
 
   case f_advection:
     if (ninp != 3 || nout != 1 || nconst != 1)
       break;
     hours = constants[0];
-    if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, 0))
-      res = advection(nx, ny, finp[0], finp[1], finp[2], xmapr, ymapr, hours, fout[0], fDefined, undef);
+    if (MapFields_cp mf = gc.getMapFields(vfinput[0]->area))
+      res = advection(nx, ny, finp[0], finp[1], finp[2], mf->xmapr, mf->ymapr, hours, fout[0], fDefined, undef);
     break;
 
   case f_thermal_front_parameter_tx:
     if (ninp != 1 || nout != 1)
       break;
-    if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, 0))
-      res = thermalFrontParameter(nx, ny, finp[0], xmapr, ymapr, fout[0], fDefined, undef);
+    if (MapFields_cp mf = gc.getMapFields(vfinput[0]->area))
+      res = thermalFrontParameter(nx, ny, finp[0], mf->xmapr, mf->ymapr, fout[0], fDefined, undef);
     break;
 
   case f_momentum_x_coordinate:
     if (ninp != 1 || nout != 1 || nconst != 1)
       break;
     fcoriolisMin = constants[0];
-    if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, &fcoriolis))
-      res = momentumXcoordinate(nx, ny, finp[0], xmapr, fcoriolis, fcoriolisMin, fout[0], fDefined, undef);
+    if (MapFields_cp mf = gc.getMapFields(vfinput[0]->area))
+      res = momentumXcoordinate(nx, ny, finp[0], mf->xmapr, mf->coriolis, fcoriolisMin, fout[0], fDefined, undef);
     break;
 
   case f_momentum_y_coordinate:
     if (ninp != 1 || nout != 1 || nconst != 1)
       break;
     fcoriolisMin = constants[0];
-    if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, &fcoriolis))
-      res = momentumYcoordinate(nx, ny, finp[0], ymapr, fcoriolis, fcoriolisMin, fout[0], fDefined, undef);
+    if (MapFields_cp mf = gc.getMapFields(vfinput[0]->area))
+      res = momentumYcoordinate(nx, ny, finp[0], mf->ymapr, mf->coriolis, fcoriolisMin, fout[0], fDefined, undef);
     break;
 
   case f_jacobian:
     if (ninp != 2 || nout != 1)
       break;
-    if (gc.getMapFields(vfinput[0]->area, &xmapr, &ymapr, 0))
-      res = jacobian(nx, ny, finp[0], finp[1], xmapr, ymapr, fout[0], fDefined, undef);
+    if (MapFields_cp mf = gc.getMapFields(vfinput[0]->area))
+      res = jacobian(nx, ny, finp[0], finp[1], mf->xmapr, mf->ymapr, fout[0], fDefined, undef);
     break;
 
     // ==================== end geographic functions

@@ -35,6 +35,8 @@
 
 #include "puTools/miRing.h"
 
+#include <mutex>
+
 /**
  \brief Array of points for grid conversion
  */
@@ -44,33 +46,40 @@ struct Points {
   Rectangle maprect; ///< current map rect.
   int npos; ///< number of points/vectors
   bool gridboxes; ///< gridpoints(false) gridbox corners(true)
-  float *x; ///< position x
-  float *y; ///< position y
+  const float* x; ///< position x
+  const float* y; ///< position y
   int ixmin, ixmax, iymin, iymax; ///< index range to cover current map rect.
-  Points() :
-    npos(0), gridboxes(false), x(0), y(0), ixmin(0), ixmax(0), iymin(0), iymax(0)
-  {
-  }
-  ~Points()
-  {
-    delete[] x;
-    delete[] y;
-  }
-  Points& operator=(const Points& rhs);
+
+  Points();
+  ~Points();
+
+  Points& operator=(const Points&) = delete;
+  Points(const Points&) = delete;
+  Points(Points&&) = delete;
 };
+
+typedef std::shared_ptr<Points> Points_p;
+typedef std::shared_ptr<Points> Points_cp;
 
 /**
  \brief Data on fields for grid conversion
  */
 struct MapFields {
   GridArea area; ///< input (field) projection
-  float *xmapr; ///< map ratio x-direction
-  float *ymapr; ///< map ratio y-direction
-  float *coriolis; ///< coriolis parameter
+  const float* xmapr;    ///< map ratio x-direction
+  const float* ymapr;    ///< map ratio y-direction
+  const float* coriolis; ///< coriolis parameter
 
   MapFields();
   ~MapFields();
+
+  MapFields& operator=(const MapFields&) = delete;
+  MapFields(const MapFields&) = delete;
+  MapFields(MapFields&&) = delete;
 };
+
+typedef std::shared_ptr<MapFields> MapFields_p;
+typedef std::shared_ptr<MapFields> MapFields_cp;
 
 /**
  \brief Projection conversion of gridpositions
@@ -92,12 +101,10 @@ private:
     defringsize_mapfields = 4
   };
 
-  bool doGetGridPoints(const GridArea& area, const Projection& map_proj,
-      bool gridboxes, float**x, float**y, int& ipb);
+  Points_p doGetGridPoints(const GridArea& area, const Projection& map_proj, bool gridboxes);
 
   /// get vector rotation elements from angle cache
-  bool getVectorRotationElements(const Area& data_area, const Projection& map_proj,
-      int nvec, const float *x, const float *y, float ** cosx, float ** sinx);
+  Points_p getVectorRotationElements(const Area& data_area, const Projection& map_proj, int nvec, const float* x, const float* y);
 
   /// set size of cache for lists of x/y values
   void setBufferSize(const int);
@@ -110,13 +117,10 @@ public:
   GridConverter();
   ~GridConverter();
 
-  bool getGridPoints(const GridArea& area, const Area& map_area,
-      bool gridboxes, float**x, float**y);
+  Points_cp getGridPoints(const GridArea& area, const Area& map_area, bool gridboxes);
 
   /// assume regular grid...keep calculations in ringbuffer
-  bool getGridPoints(const GridArea& area, const Area& map_area,
-      const Rectangle& maprect, bool gridboxes,
-      float** x, float** y, int& ix1, int& ix2, int& iy1, int& iy2);
+  Points_cp getGridPoints(const GridArea& area, const Area& map_area, const Rectangle& maprect, bool gridboxes, int& ix1, int& ix2, int& iy1, int& iy2);
 
   static void findGridLimits(const GridArea& area, const Rectangle& maprect, bool gridboxes, const float* x, const float* y, int& ix1, int& ix2, int& iy1,
                              int& iy2);
@@ -130,13 +134,16 @@ public:
       const float*, const float*, float*, float*);
 
   /// map ratio and/or coriolis parameter fields
-  bool getMapFields(const GridArea& gridarea,
-      const float** xmapr, const float** ymapr, const float** coriolis);
+  MapFields_cp getMapFields(const GridArea& gridarea);
 
 private:
-  ring<Points> *pointbuffer;
-  ring<Points> *anglebuffer;
-  ring<MapFields> *mapfieldsbuffer;
+  std::unique_ptr<ring<Points_p>> pointbuffer;
+  std::unique_ptr<ring<Points_p>> anglebuffer;
+  std::unique_ptr<ring<MapFields_p>> mapfieldsbuffer;
+
+  std::mutex point_mutex;
+  std::mutex angle_mutex;
+  std::mutex mapfields_mutex;
 };
 
 #endif

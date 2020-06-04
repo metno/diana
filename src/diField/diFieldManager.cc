@@ -627,13 +627,12 @@ bool FieldManager::makeDifferenceFields(Field_pv& fv1, Field_pv& fv2)
   const GridArea& area2 = fv2[0]->area;
   if (area1 != area2) {
     for (unsigned int j = 0; res && j < dim; ++j) {
-      res = fv2[j]->changeGrid(area1, false);
+      res = fv2[j]->changeGrid(gc, area1, false);
     }
     if (res && dim == 2) {
-      float *x, *y;
-      gc.getGridPoints(area1, area2, false, &x, &y);
+      Points_p p = gc.getGridPoints(area1, area2, false);
       int npos = fv2[0]->area.gridSize();
-      res = gc.getVectors(area2, area1.P(), npos, x, y, fv2[0]->data, fv2[1]->data);
+      res = gc.getVectors(area2, area1.P(), npos, p->x, p->y, fv2[0]->data, fv2[1]->data);
     }
   }
 

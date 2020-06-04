@@ -65,6 +65,7 @@ public:
   void getVectorAnnotation(float& size, std::string& text) override;
 
 private:
+  struct GridPoints;
 
   typedef std::vector<float*> (FieldRenderer::*prepare_vectors_t)(const float* x, const float* y);
 
@@ -107,7 +108,7 @@ private:
    */
   bool checkFields(size_t count) const;
 
-  bool getGridPoints(float*& x, float*& y, int& ix1, int& ix2, int& iy1, int& iy2, int factor = 1, bool boxes = false) const;
+  bool getGridPoints(GridPoints& gp, int factor = 1, bool boxes = false) const;
   bool getPoints(int n, float* x, float* y) const;
 
   const std::string& plottype() const { return poptions_.plottype; }
