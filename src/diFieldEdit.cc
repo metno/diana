@@ -3457,6 +3457,7 @@ void FieldEdit::drawInfluence(DiGLPainter* gl)
 void FieldEdit::plot(DiGLPainter* gl, PlotOrder porder, bool showinfluence)
 {
   METLIBS_LOG_SCOPE(LOGVAL(active));
+  editfieldplot->changeProjection(getStaticPlot()->getMapArea(), getStaticPlot()->getPlotSize(), getStaticPlot()->getPhysSize());
   editfieldplot->plot(gl, PO_SHADE_BACKGROUND);
 
   editfieldplot->plot(gl, porder);
