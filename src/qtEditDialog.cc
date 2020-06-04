@@ -1294,10 +1294,6 @@ void EditDialog::EditNewOk(EditProduct& ep,
   if (fieldIndex==0) fieldIndex= -1;
   fgroupClicked( 0 );
 
-  // update field dialog
-  METLIBS_LOG_DEBUG("emit emitFieldEditUpdate(empty)");
-  emit emitFieldEditUpdate("");
-
   QString message;
   if (!m_editm->startEdit(ep,ci,time, message)) {
     QMessageBox::warning( this, tr("Error starting edit"),message);

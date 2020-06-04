@@ -164,7 +164,6 @@ private:
 
   const fieldoptions_m setupFieldOptions;
   fieldoptions_m fieldOptions;
-  fieldoptions_m editFieldOptions;
 
   std::vector<std::string> plottypes;
 

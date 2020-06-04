@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2019 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -1696,14 +1696,13 @@ vector<std::string> EditManager::getValidEditFields(const EditProduct& ep,
   // return names of existing fields valid for editing
   vector<std::string> vstr;
   std::string fname= miutil::to_lower(ep.fields[element].name);
-
   const std::vector<FieldPlot*> vfp = plotm->fieldplots()->getFieldPlots();
   for (size_t i=0; i<vfp.size(); i++){
     Field_pv vf = vfp[i]->getFields();
     // only accept scalar fields
     if (vf.size() == 1) {
       std::string s= miutil::to_lower(vf[0]->name);
-      if (s.find(fname)!=string::npos) {
+      if (s == fname) {
         vstr.push_back(vf[0]->fieldText);
       }
     }

@@ -68,8 +68,6 @@ using namespace std;
 
 namespace { // anonymous
 
-const size_t npos = size_t(-1);
-
 const std::string REMOVE = "remove";
 const std::string UNITS = "units";
 const std::string UNIT = "unit";
@@ -100,7 +98,7 @@ FieldDialog::FieldDialog(QWidget* parent, FieldDialogData* data)
   m_action->setIconVisibleInMenu(true);
   helpFileName = "ug_fielddialogue.html";
 
-  numEditFields = 0;
+  hasEditFields = false;
 
   editName = tr("EDIT").toStdString();
 
@@ -567,6 +565,8 @@ void FieldDialog::enableFieldOptions()
     return;
   }
 
+  const int numEditFields = hasEditFields ? 1 : 0;
+
   SelectedField& sf = selectedFields[index];
   changeModelButton->setEnabled(!sf.inEdit);
   deleteButton->setEnabled(!sf.inEdit);
@@ -649,11 +649,9 @@ void FieldDialog::getParamString(const SelectedField& sf, FieldPlotCommand::Fiel
 
 std::string FieldDialog::getShortname()
 {
-  // AC: simple version for testing...the shortname could perhaps
-  // be made in getOKString?
-
   const int n = selectedFields.size();
-  if (n <= numEditFields)
+  const int field_start = (hasEditFields ? 1 : 0);
+  if (n <= field_start)
     return std::string();
 
   ostringstream ostr;
@@ -661,7 +659,7 @@ std::string FieldDialog::getShortname()
   bool fielddiff = false, paramdiff = false, leveldiff = false;
 
   ostr << "<font color=\"#000099\">";
-  for (int i = numEditFields; i < n; i++) {
+  for (int i = field_start; i < n; i++) {
     SelectedField& sf = selectedFields[i];
     const std::string& modelName = sf.modelName;
     const std::string& fieldName = sf.fieldName;
@@ -683,7 +681,7 @@ std::string FieldDialog::getShortname()
 
       if (modelName != pmodelName || modelName2 != pmodelName) {
 
-        if (i > numEditFields)
+        if (i > 0)
           ostr << "  ";
         if (fielddiff)
           ostr << "( ";
@@ -734,7 +732,7 @@ std::string FieldDialog::getShortname()
 
     } else { // Ordinary field
 
-      if (i > numEditFields)
+      if (i > 0)
         ostr << "  ";
 
       if (modelName != pmodelName) {
@@ -946,6 +944,7 @@ void FieldDialog::deleteAllSelected()
 {
   METLIBS_LOG_SCOPE();
 
+  const int numEditFields = hasEditFields ? 1 : 0;
   for (int i = selectedFields.size() - 1; i >= numEditFields; --i) {
     const SelectedField& sf = selectedFields[i];
     fieldAdd->removingSelectedField(sf.modelName, sf.refTime, sf.predefinedPlot, sf.fieldName);
@@ -1077,6 +1076,7 @@ void FieldDialog::moveField(int delta)
 
 void FieldDialog::minusField(bool on)
 {
+  const int numEditFields = hasEditFields ? 1 : 0;
   const int i = selectedFieldbox->currentRow();
   if (i <= numEditFields || i >= selectedFieldbox->count() || selectedFields[i - 1].minus)
     return;
@@ -1129,132 +1129,64 @@ void FieldDialog::fieldEditUpdate(const string& str)
 {
   METLIBS_LOG_SCOPE(LOGVAL(str));
 
-  int i, j, m, n = selectedFields.size();
-
-  if (str.empty()) {
+  if (hasEditFields) {
     METLIBS_LOG_DEBUG("STOP");
-
-    // remove fixed edit field(s)
-    vector<int> keep;
-    m = selectedField2edit_exists.size();
-    bool change = false;
-    for (i = 0; i < n; i++) {
-      if (!selectedFields[i].inEdit) {
-        keep.push_back(i);
-      } else if (i < m && selectedField2edit_exists[i]) {
-        selectedFields[i] = selectedField2edit[i];
-        selectedFieldbox->item(i)->setText(fieldBoxText(selectedFields[i]));
-        keep.push_back(i);
-        change = true;
-      }
+    selectedFields[0].inEdit = false;
+    if (selectedFields[0].modelName.empty()) {
+      selectedFieldbox->setCurrentRow(0);
+      deleteSelected();
+    } else {
+      std::string text = selectedFields[0].modelName + " " + selectedFields[0].fieldName;
+      selectedFieldbox->item(0)->setText(QString::fromStdString(text));
     }
-    m = keep.size();
-    if (m < n) {
-      for (i = 0; i < m; i++) {
-        j = keep[i];
-        selectedFields[i] = selectedFields[j];
-        QString qstr = selectedFieldbox->item(j)->text();
-        selectedFieldbox->item(i)->setText(qstr);
-      }
-      selectedFields.resize(m);
-      if (m == 0) {
-        selectedFieldbox->clear();
-      } else {
-        for (i = m; i < n; i++)
-          selectedFieldbox->takeItem(i);
-      }
-    }
-
-    numEditFields = 0;
-    selectedField2edit.clear();
-    selectedField2edit_exists.clear();
-    if (change) {
-      updateTime();
-
-      METLIBS_LOG_DEBUG("FieldDialog::fieldEditUpdate emit FieldApply");
-
-      Q_EMIT applyData();
-    }
+    hasEditFields = false;
 
   } else {
 
     // add edit field (and remove the original field)
-    int indrm = -1;
     SelectedField sf;
-
     vector<std::string> vstr = miutil::split(str, " ");
 
     if (vstr.size() == 1) {
       // str=fieldName if the field is not already read
+      sf.inEdit = true;
       sf.fieldName = vstr[0];
+      sf.fieldOpts = fieldStyle->getFieldOptions(sf.fieldName, false);
+      selectedFields.push_back(sf);
+      std::string text = editName + " " + sf.fieldName;
+      selectedFieldbox->addItem(QString::fromStdString(text));
+      selectedFieldbox->setCurrentRow(selectedFieldbox->count() - 1);
+
     } else if (vstr.size() > 1)    {
       // str="modelname fieldName level" if field from dialog is selected
       sf.modelName = vstr[0];
       sf.fieldName = vstr[1];
-      for (i = 0; i < n; i++) {
-        if (!selectedFields[i].inEdit) {
-          if (selectedFields[i].modelName == sf.modelName
-              && selectedFields[i].fieldName == sf.fieldName)
-            break;
-        }
-      }
+
+      size_t n = selectedFields.size();
+      size_t i = 0;
+      while (i < n && !(selectedFields[i].modelName == sf.modelName && selectedFields[i].fieldName == sf.fieldName))
+        ++i;
+
       if (i < n) {
-        sf = selectedFields[i];
-        indrm = i;
+        selectedFields[i].inEdit = true;
+        std::string text = editName + " " + sf.fieldName;
+        selectedFieldbox->item(i)->setText(QString::fromStdString(text));
+        selectedFieldbox->setCurrentRow(i);
+      } else {
+        return;
       }
     }
 
-#if 0
-    map<std::string, miutil::KeyValue_v>::const_iterator pfo;
-    if ((pfo = editFieldOptions.find(sf.fieldName)) != editFieldOptions.end()) {
-      sf.fieldOpts = pfo->second;
-    } else if ((pfo = fieldOptions.find(sf.fieldName)) != fieldOptions.end()) {
-      sf.fieldOpts = pfo->second;
-    } else if ((pfo = setupFieldOptions.find(sf.fieldName)) != setupFieldOptions.end()) {
-      sf.fieldOpts = pfo->second;
-    }
-    METLIBS_LOG_DEBUG(LOGVAL(sf.fieldOpts));
-#endif
-
-    sf.inEdit = true;
-    sf.external = false;
-    sf.hourOffset = 0;
-    sf.hourDiff = 0;
-    sf.minus = false;
-    if (indrm >= 0) {
-      selectedField2edit.push_back(selectedFields[indrm]);
-      selectedField2edit_exists.push_back(true);
-      n = selectedFields.size();
-      for (i = indrm; i < n - 1; i++)
-        selectedFields[i] = selectedFields[i + 1];
-      selectedFields.pop_back();
-      selectedFieldbox->takeItem(indrm);
-    } else {
-      SelectedField sfdummy;
-      selectedField2edit.push_back(sfdummy);
-      selectedField2edit_exists.push_back(false);
+    while (selectedFieldbox->currentRow() > 0) {
+      upField();
     }
 
-    const size_t idx_field_smooth = miutil::find(sf.fieldOpts, "field.smooth");
-    if (idx_field_smooth != npos)
-      sf.fieldOpts[idx_field_smooth] = miutil::KeyValue("field.smooth", "0");
-
-    n = selectedFields.size();
-    SelectedField sfdummy;
-    selectedFields.push_back(sfdummy);
-    for (i = n; i > numEditFields; i--)
-      selectedFields[i] = selectedFields[i - 1];
-    selectedFields[numEditFields] = sf;
-
-    std::string text = editName + " " + sf.fieldName;
-    selectedFieldbox->insertItem(numEditFields, QString::fromStdString(text));
-    selectedFieldbox->setCurrentRow(numEditFields);
-    numEditFields++;
-
-    updateTime();
+    hasEditFields = true;
   }
 
+  updateTime();
   enableFieldOptions();
+  Q_EMIT applyData();
 }
 
 void FieldDialog::allTimeStepToggled(bool)

@@ -227,9 +227,7 @@ private:
   QPushButton*  changeModelButton;
 
   std::vector<SelectedField> selectedFields;
-  int numEditFields;
-  std::vector<SelectedField> selectedField2edit;
-  std::vector<bool> selectedField2edit_exists;
+  bool hasEditFields;
 
   QPushButton* resetOptionsButton;
 

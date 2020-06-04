@@ -637,7 +637,6 @@ void FieldDialogStyle::toolTips()
 void FieldDialogStyle::enableFieldOptions(SelectedField* sf)
 {
   METLIBS_LOG_SCOPE();
-
   selectedField = sf;
   if (!selectedField) {
     enableWidgets("none");
@@ -653,6 +652,7 @@ void FieldDialogStyle::enableFieldOptions(SelectedField* sf)
     return;
 
   currentFieldOpts = selectedField->fieldOpts;
+
   currentFieldOptsInEdit = selectedField->inEdit;
 
   // hourOffset
@@ -1875,19 +1875,6 @@ vector<std::string> FieldDialogStyle::writeLog()
       vstr.push_back(pfopt->first + " " + miutil::mergeKeyValue(pfopt->second));
   }
 
-  // write edit field options
-  if (!editFieldOptions.empty()) {
-    vstr.push_back("--- EDIT ---");
-    pfend = editFieldOptions.end();
-    for (pfopt = editFieldOptions.begin(); pfopt != pfend; pfopt++) {
-      miutil::KeyValue_v sopts = getFieldOptions(pfopt->first, true);
-      // only logging options if different from setup
-      if (sopts != pfopt->second) {
-        vstr.push_back(pfopt->first + " " + miutil::mergeKeyValue(pfopt->second));
-      }
-    }
-  }
-
   vstr.push_back("================");
 
   return vstr;
@@ -1898,16 +1885,11 @@ void FieldDialogStyle::readLog(const std::vector<std::string>& vstr, const std::
 
   // field options:
   // do not destroy any new options in the program
-  bool editOptions = false;
   for (const std::string& ls : vstr) {
     if (ls.empty())
       continue;
     if (ls.substr(0, 4) == "====")
       break;
-    if (ls == "--- EDIT ---") {
-      editOptions = true;
-      continue;
-    }
     const size_t first_space = ls.find_first_of(' ');
     if (first_space > 0 && first_space != std::string::npos) {
       const std::string fieldname = ls.substr(0, first_space);
@@ -1946,11 +1928,7 @@ void FieldDialogStyle::readLog(const std::vector<std::string>& vstr, const std::
       }
       if (changed) {
         cleanupFieldOptions(setup_opts);
-        if (editOptions) {
-          editFieldOptions[fieldname] = setup_opts;
-        } else {
-          fieldOptions[fieldname] = setup_opts;
-        }
+        fieldOptions[fieldname] = setup_opts;
       }
     }
   }
