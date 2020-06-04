@@ -320,6 +320,8 @@ void SatDialogAdvanced::greyOptions()
 
 void SatDialogAdvanced::setColours(const std::vector<Colour>& colours)
 {
+  blockAllSignals(true);
+
   colourList->clear();
   palette = !colours.empty();
   if (palette) {
@@ -331,6 +333,8 @@ void SatDialogAdvanced::setColours(const std::vector<Colour>& colours)
   } else {
     colourcut->setChecked(false);
   }
+
+  blockAllSignals(false);
 }
 
 void SatDialogAdvanced::setFromCommand(SatPlotCommand_cp cmd)
