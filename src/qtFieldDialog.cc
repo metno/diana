@@ -2883,39 +2883,20 @@ std::string FieldDialog::getShortname()
 
 bool FieldDialog::levelsExists(bool up, int type)
 {
+  // return true if there exists a plot with levels available for up/down of type 0=vertical or 1=extra/eps
 
-  //returns true if there exist plots with levels available: up/down of type (0=vertical/ 1=extra/eps)
+  const int n = selectedFields.size();
 
-  int n = selectedFields.size();
+  if (type == 0) // for vertical levels, "up" is reversed
+    up = !up;
 
-  if ( type == 0 ) {
-
-    int i = 0;
-    while ( i < n && selectedFields[i].levelOptions.size() <2 ) i++;
-    if( i == n ) {
-      return false;
-    } else {
-      int m = selectedFields[i].levelOptions.size();
-      if ( up ) {
-        return ( selectedFields[i].level != selectedFields[i].levelOptions[0]);
-      } else {
-        return ( selectedFields[i].level != selectedFields[i].levelOptions[m-1]);
-      }
-    }
-
-  } else {
-
-    int i = 0;
-    while ( i < n && selectedFields[i].idnumOptions.size() <2 ) i++;
-    if( i == n ) {
-      return false;
-    } else {
-      int m = selectedFields[i].idnumOptions.size();
-      if ( up ) {
-        return ( selectedFields[i].idnum != selectedFields[i].idnumOptions[m-1]);
-      } else {
-        return ( selectedFields[i].idnum != selectedFields[i].idnumOptions[0]);
-      }
+  for (int i = 0; i < n; ++i) {
+    const SelectedField& sf = selectedFields[i];
+    const auto& levels = (type == 0) ? sf.levelOptions : sf.idnumOptions;
+    if (levels.size() >= 2) {
+      const auto& level = (type == 0) ? sf.level : sf.idnum;
+      const auto& last = up ? levels.back() : levels.front();
+      return level != last;
     }
   }
 
