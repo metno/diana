@@ -3466,70 +3466,41 @@ void FieldDialog::changeModel()
 
 void FieldDialog::upField()
 {
-  if (selectedFieldbox->count() == 0)
-    return;
-  int n = selectedFields.size();
-  if (n == 0)
-    return;
-
-  int index = selectedFieldbox->currentRow();
-  if (index < 1 || index >= n)
-    return;
-
-  SelectedField sf = selectedFields[index];
-  selectedFields[index] = selectedFields[index - 1];
-  selectedFields[index - 1] = sf;
-
-  QString qstr1 = selectedFieldbox->item(index - 1)->text();
-  QString qstr2 = selectedFieldbox->item(index)->text();
-  selectedFieldbox->item(index - 1)->setText(qstr2);
-  selectedFieldbox->item(index)->setText(qstr1);
-
-  //some fields can't be minus
-  for (int i = 0; i < n; i++) {
-    selectedFieldbox->setCurrentRow(i);
-    if (selectedFields[i].minus && (i == 0 || selectedFields[i - 1].minus))
-      minusButton->setChecked(false);
-  }
-
-  index--;
-  selectedFieldbox->setCurrentRow(index);
-  upFieldButton->setEnabled((index > numEditFields));
-  downFieldButton->setEnabled((index < (n-1)));
+  moveField(-1);
 }
 
 void FieldDialog::downField()
 {
+  moveField(+1);
+}
+
+void FieldDialog::moveField(int delta)
+{
   if (selectedFieldbox->count() == 0)
     return;
-  int n = selectedFields.size();
+  const int n = selectedFields.size();
   if (n == 0)
     return;
 
-  int index = selectedFieldbox->currentRow();
-  if (index < 0 || index >= n - 1)
+  const int index = selectedFieldbox->currentRow();
+  const int other = index + delta;
+  if (index < 0 || other < 0 || index > n || other > n)
     return;
 
-  SelectedField sf = selectedFields[index];
-  selectedFields[index] = selectedFields[index + 1];
-  selectedFields[index + 1] = sf;
+  std::swap(selectedFields[index], selectedFields[other]);
 
-  QString qstr1 = selectedFieldbox->item(index)->text();
-  QString qstr2 = selectedFieldbox->item(index + 1)->text();
-  selectedFieldbox->item(index)->setText(qstr2);
-  selectedFieldbox->item(index + 1)->setText(qstr1);
+  const QString qindex = selectedFieldbox->item(index)->text();
+  const QString qother = selectedFieldbox->item(other)->text();
+  selectedFieldbox->item(index)->setText(qother);
+  selectedFieldbox->item(other)->setText(qindex);
+  selectedFieldbox->setCurrentRow(other);
 
-  //some fields can't be minus
-  for (int i = 0; i < n; i++) {
-    selectedFieldbox->setCurrentRow(i);
-    if (selectedFields[i].minus && (i == 0 || selectedFields[i - 1].minus))
-      minusButton->setChecked(false);
+  upFieldButton->setEnabled(other > numEditFields);
+  downFieldButton->setEnabled(other < n - 1);
+  if (other <= numEditFields || selectedFields[other-1].minus) {
+    minusButton->setEnabled(false);
+    minusButton->setChecked(false);
   }
-
-  index++;
-  selectedFieldbox->setCurrentRow(index);
-  upFieldButton->setEnabled((index > numEditFields));
-  downFieldButton->setEnabled((index < (n-1)));
 }
 
 void FieldDialog::resetOptions()

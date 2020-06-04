@@ -251,6 +251,9 @@ private:
   void enableType2Options(bool);
   void updateFieldOptions(const std::string& key, const std::string& value);
   void updateTime();
+
+  void moveField(int delta);
+
   void setLevel();
   void setIdnum();
   void getFieldGroups(const std::string& model, const std::string& refTime, bool plotDefinitions, FieldPlotGroupInfo_v& vfg);
