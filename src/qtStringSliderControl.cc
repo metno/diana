@@ -29,6 +29,8 @@
 
 #include "qtStringSliderControl.h"
 
+#include "qtUtility.h"
+
 #include <QLabel>
 #include <QSlider>
 
@@ -69,7 +71,7 @@ void StringSliderControl::setValues(const std::vector<std::string>& values, cons
 void StringSliderControl::setValues(const std::vector<std::string>& values)
 {
   values_ = values;
-  slider_->blockSignals(true);
+  diutil::BlockSignals block(slider_);
   if (!values_.empty()) {
     size_t index = (std::find(values_.begin(), values_.end(), current_) - values_.begin());
     if (index >= values.size()) {
@@ -86,8 +88,6 @@ void StringSliderControl::setValues(const std::vector<std::string>& values)
     slider_->setValue(1);
   }
   updateLabelText();
-
-  slider_->blockSignals(false);
 }
 
 void StringSliderControl::setValue(const std::string& value)
@@ -95,9 +95,10 @@ void StringSliderControl::setValue(const std::string& value)
   const auto it = std::find(values_.begin(), values_.end(), value);
   if (it != values_.end()) {
     int index = it - values_.begin();
-    slider_->blockSignals(true);
-    slider_->setValue(index);
-    slider_->blockSignals(false);
+    {
+      diutil::BlockSignals block(slider_);
+      slider_->setValue(index);
+    }
     onSliderChanged(index);
   }
 }

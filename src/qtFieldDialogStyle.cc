@@ -1264,12 +1264,10 @@ void FieldDialogStyle::setDefaultFieldOptions()
 
   // hour.offset and hour.diff are not plotOptions and signals must be blocked
   // in order not to change the selectedField values of hour.offset and hour.diff
-  hourOffsetSpinBox->blockSignals(true);
+  diutil::BlockSignals blockedO(hourOffsetSpinBox);
   hourOffsetSpinBox->setValue(0);
-  hourOffsetSpinBox->blockSignals(false);
-  hourDiffSpinBox->blockSignals(true);
+  diutil::BlockSignals blockedD(hourDiffSpinBox);
   hourDiffSpinBox->setValue(0);
-  hourDiffSpinBox->blockSignals(false);
 }
 
 void FieldDialogStyle::enableWidgets(const std::string& plottype)

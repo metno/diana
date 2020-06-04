@@ -93,7 +93,7 @@ private Q_SLOTS:
   void colourcutOn();
 
 private:
-  void blockSignals(bool b);
+  void blockAllSignals(bool b);
 
 private:
   const SliderValues& m_cut;

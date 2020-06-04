@@ -188,7 +188,7 @@ void SatDialogAdvanced::alphaDisplay(int number)
 
 void SatDialogAdvanced::setStandard()
 {
-  blockSignals(true);
+  blockAllSignals(true);
   //set standard dialog options for palette or rgb files
   if (palette){
     cut->setChecked(false);
@@ -211,13 +211,13 @@ void SatDialogAdvanced::setStandard()
 
   colourcut->setChecked(false);
   colourList->clearSelection();
-  blockSignals(false);
+  blockAllSignals(false);
 }
 
 void SatDialogAdvanced::setOff()
 {
   //turn off all options
-  blockSignals(true);
+  blockAllSignals(true);
   palette = false;
   cutCheckBox->setChecked(false);
   scut->setValue(m_cut.minValue);
@@ -232,7 +232,7 @@ void SatDialogAdvanced::setOff()
   legendButton->setChecked(false);
   colourcut->setChecked(false);
   colourList->clear();
-  blockSignals(false);
+  blockAllSignals(false);
 }
 
 void SatDialogAdvanced::colourcutOn()
@@ -336,7 +336,7 @@ void SatDialogAdvanced::setColours(const std::vector<Colour>& colours)
 void SatDialogAdvanced::setFromCommand(SatPlotCommand_cp cmd)
 {
   setStandard();
-  blockSignals(true);
+  blockAllSignals(true);
 
   m_cutnr = cmd->cut;
   if (m_cutnr < 0) {
@@ -392,10 +392,10 @@ void SatDialogAdvanced::setFromCommand(SatPlotCommand_cp cmd)
     }
   }
 
-  blockSignals(false);
+  blockAllSignals(false);
 }
 
-void SatDialogAdvanced::blockSignals(bool b)
+void SatDialogAdvanced::blockAllSignals(bool b)
 {
   cutCheckBox->blockSignals(b);
   cut->blockSignals(b);

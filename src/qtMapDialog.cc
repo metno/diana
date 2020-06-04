@@ -327,13 +327,12 @@ void MapDialog::mapboxChanged()
     activeidx = 0;
   }
 
-  // update listbox of selected maps - stop any signals
-  ui->selectedMapbox->blockSignals(true);
-  ui->selectedMapbox->clear();
-  for (int sel : selectedmaps) {
-    ui->selectedMapbox->addItem(QString::fromStdString(m_MapDI.maps[sel].name));
+  { // update listbox of selected maps - stop any signals
+    diutil::BlockSignals blocked(ui->selectedMapbox);
+    ui->selectedMapbox->clear();
+    for (int sel : selectedmaps)
+      ui->selectedMapbox->addItem(QString::fromStdString(m_MapDI.maps[sel].name));
   }
-  ui->selectedMapbox->blockSignals(false);
 
   if (selectedmaps.empty()) {
     ui->selectedMapbox->setEnabled(false);

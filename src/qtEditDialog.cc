@@ -552,7 +552,7 @@ void EditDialog::FieldEditMethods(QListWidgetItem*)
     EditEvent ee(classValues[n], 0);
     ee.order = normal_event;
 
-    m_Fieldeditmethods->blockSignals(true);
+    diutil::BlockSignals blocked(m_Fieldeditmethods);
     if (classValuesLocked[n]) {
       m_Fieldeditmethods->item(index)->setIcon(QIcon(openValuePixmap));
       classValuesLocked[n]= false;
@@ -562,7 +562,7 @@ void EditDialog::FieldEditMethods(QListWidgetItem*)
       classValuesLocked[n]= true;
       ee.type= edit_lock_value;
     }
-    m_Fieldeditmethods->blockSignals(false);
+    blocked.unblock();
 
     m_editm->notifyEditEvent(ee);
   }
@@ -1354,7 +1354,7 @@ void EditDialog::EditNewOk(EditProduct& ep,
 
   } else if (fieldEditToolGroup==1) {
 
-    m_Fieldeditmethods->blockSignals(true);
+    diutil::BlockSignals block(m_Fieldeditmethods);
 
     m_Fieldeditmethods->clear();
 
@@ -1383,12 +1383,6 @@ void EditDialog::EditNewOk(EditProduct& ep,
       = new QListWidgetItem(QIcon(openValuePixmap),QString(classNames[i].c_str()));
       m_Fieldeditmethods->addItem(item);
     }
-
-    m_Fieldeditmethods->blockSignals(false);
-    //     currFieldEditToolIndex=0;
-    //     m_Fieldeditmethods->setCurrentRow(currFieldEditToolIndex);
-
-    //    m_FieldA//OBSeditmethods->triggerUpdate(true);
   }
 
   //########################################################################
@@ -1585,7 +1579,7 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
 
   } else if (fieldEditToolGroup==1) {
 
-    m_Fieldeditmethods->blockSignals(true);
+    diutil::BlockSignals blocked(m_Fieldeditmethods);
 
     m_Fieldeditmethods->clear();
 
@@ -1614,14 +1608,7 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
       = new QListWidgetItem(QIcon(openValuePixmap),QString(classNames[i].c_str()));
       m_Fieldeditmethods->addItem(item);
     }
-
-    m_Fieldeditmethods->blockSignals(false);
-    //     currFieldEditToolIndex=0;
-    //     m_Fieldeditmethods->setCurrentRow(currFieldEditToolIndex);
-
-    //OBS    m_Fieldeditmethods->triggerUpdate(true);
   }
-
 
   //Fill object edit combobox
   ComboBoxData(m_Frontcm,1);

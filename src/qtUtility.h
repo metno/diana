@@ -166,6 +166,19 @@ QString appendedText(const QString& text, const QString& append, const QString& 
  */
 void addShortcutToTooltip(QAction* action);
 
+class BlockSignals
+{
+public:
+  BlockSignals(QObject* object)
+      : object_(object) { if (object_) object->blockSignals(true); }
+  ~BlockSignals() { unblock(); }
+
+  void unblock() { if (object_) { object_->blockSignals(false); object_ = nullptr; }}
+
+private:
+  QObject* object_;
+};
+
 } // namespace diutil
 
 #endif
