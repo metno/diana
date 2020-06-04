@@ -224,7 +224,7 @@ bool FieldRenderer::plotMe(DiGLPainter* gl, PlotOrder zorder)
   return ok;
 }
 
-std::vector<float*> FieldRenderer::doPrepareVectors(float* x, float* y, bool direction)
+std::vector<float*> FieldRenderer::doPrepareVectors(const float* x, const float* y, bool direction)
 {
   METLIBS_LOG_SCOPE();
 
@@ -272,17 +272,17 @@ std::vector<float*> FieldRenderer::doPrepareVectors(float* x, float* y, bool dir
   return uv;
 }
 
-std::vector<float*> FieldRenderer::prepareVectors(float* x, float* y)
+std::vector<float*> FieldRenderer::prepareVectors(const float* x, const float* y)
 {
   return doPrepareVectors(x, y, false);
 }
 
-std::vector<float*> FieldRenderer::prepareDirectionVectors(float* x, float* y)
+std::vector<float*> FieldRenderer::prepareDirectionVectors(const float* x, const float* y)
 {
   return doPrepareVectors(x, y, true);
 }
 
-void FieldRenderer::setAutoStep(float* x, float* y, int& ixx1, int ix2, int& iyy1, int iy2, int maxElementsX, int& step, float& dist)
+void FieldRenderer::setAutoStep(const float* x, const float* y, int& ixx1, int ix2, int& iyy1, int iy2, int maxElementsX, int& step, float& dist)
 {
   int i, ix, iy;
   const int nx = fields_[0]->area.nx;
@@ -376,7 +376,7 @@ void FieldRenderer::setAutoStep(float* x, float* y, int& ixx1, int ix2, int& iyy
   iyy1 = int(iyy1 / step) * step;
 }
 
-int FieldRenderer::xAutoStep(float* x, float* y, int& ixx1, int ix2, int iy, float sdist)
+int FieldRenderer::xAutoStep(const float* x, const float* y, int& ixx1, int ix2, int iy, float sdist)
 {
   const int nx = fields_[0]->area.nx;
   if (nx < 3)

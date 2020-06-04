@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -60,7 +60,7 @@ using namespace std; using namespace miutil;
 
 const int maxLines=1000000;
 
-bool contour(int nx, int ny, float z[], float xz[], float yz[],
+bool contour(int nx, int ny, float z[], const float xz[], const float yz[],
     const int ipart[], int icxy, float cxy[], float xylim[],
     int idraw, float zrange[], float zstep, float zoff,
     int nlines, float rlines[],
@@ -3503,7 +3503,7 @@ void posConvert(int npos, float *x, float *y, float *cxy)
 }
 
 
-void posConvert(int npos, float *x, float *y, int nx, int ny, float *xz, float *yz)
+void posConvert(int npos, float *x, float *y, int nx, int ny, const float *xz, const float *yz)
 {
   int i,j,ij;
   float dx,dy,a,b,c,d;
@@ -4006,7 +4006,7 @@ vector<float> findCrossing(float ycross, int n, float *x, float *y)
 
 void fillContours(DiGLPainter* gl, vector<ContourLine*>& contourlines,
     int nx, int ny, float z[],
-    int iconv, float *cxy, float *xz, float *yz, int idraw,
+    int iconv, float *cxy, const float *xz, const float *yz, int idraw,
     const PlotOptions& poptions, bool drawBorders,
     const Area& fieldArea,
     float zrange[], float zstep, float zoff,
@@ -4188,7 +4188,7 @@ void fillContours(DiGLPainter* gl, vector<ContourLine*>& contourlines,
 void writeShapefile(vector<ContourLine*>& contourlines,
 		  int nx, int ny,
 		  int iconv, float *cxy,
-		  float *xz, float *yz,
+                  const float *xz, const float *yz,
 		  int idraw,
 		  const PlotOptions& poptions,
 		  bool drawBorders,

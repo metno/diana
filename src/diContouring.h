@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -82,24 +82,24 @@ class DiGLPainter;
   };
 
 /// the field contouring routine
-bool contour(int nx, int ny, float z[], float xz[], float yz[],
-	     const int ipart[], int icxy, float cxy[], float xylim[],
-	     int idraw, float zrange[], float zstep, float zoff,
-	     int nlines, float rlines[],
-	     int ncol, int icol[], int ntyp, int ityp[],
-	     int nwid, int iwid[], int nlim, float rlim[],
-	     int idraw2, float zrange2[], float zstep2, float zoff2,
-	     int nlines2, float rlines2[],
-	     int ncol2, int icol2[], int ntyp2, int ityp2[],
-	     int nwid2, int iwid2[], int nlim2, float rlim2[],
-	     int ismooth, const int labfmt[], float chxlab, float chylab,
-	     int ibcol,
-	     int ibmap, int lbmap, int kbmap[],
-	     int nxbmap, int nybmap, float rbmap[],
+bool contour(int nx, int ny, float z[], const float xz[], const float yz[],
+             const int ipart[], int icxy, float cxy[], float xylim[],
+             int idraw, float zrange[], float zstep, float zoff,
+             int nlines, float rlines[],
+             int ncol, int icol[], int ntyp, int ityp[],
+             int nwid, int iwid[], int nlim, float rlim[],
+             int idraw2, float zrange2[], float zstep2, float zoff2,
+             int nlines2, float rlines2[],
+             int ncol2, int icol2[], int ntyp2, int ityp2[],
+             int nwid2, int iwid2[], int nlim2, float rlim2[],
+             int ismooth, const int labfmt[], float chxlab, float chylab,
+             int ibcol,
+             int ibmap, int lbmap, int kbmap[],
+             int nxbmap, int nybmap, float rbmap[],
              DiGLPainter* gl, const PlotOptions& poptions,
-	     const Area& fieldArea, const float& fieldUndef,
-	     const std::string& modelName = "", const std::string& paramName = "",
-	     const int& fhour = 0);
+             const Area& fieldArea, const float& fieldUndef,
+             const std::string& modelName = "", const std::string& paramName = "",
+             const int& fhour = 0);
 
 // functions called from contour
 
@@ -122,7 +122,7 @@ int smoothline(int npos, float x[], float y[], int nfirst, int nlast,
 void posConvert(int npos, float *x, float *y, float *cxy);
 /// converts field positions to map
 void posConvert(int npos, float *x, float *y,
-		int nx, int ny, float *xz, float *yz);
+                int nx, int ny, const float* xz, const float* yz);
 /// joins contour parts (also along undefined areas) to closed contours
 void joinContours(std::vector<ContourLine*>& contourlines, int idraw,
 		  bool drawBorders, int iconv);
@@ -131,12 +131,12 @@ std::vector<float> findCrossing(float ycross, int n, float *x, float *y);
 
 /// uses OpenGL tesselation (triangulation) to shade between isolines
 void fillContours(DiGLPainter* gl, std::vector<ContourLine*>& contourlines,
-		  int nx, int ny, float z[],
-		  int iconv, float *cxy, float *xz, float *yz, int idraw,
-		  const PlotOptions& poptions, bool drawBorders,
+                  int nx, int ny, float z[],
+                  int iconv, float *cxy, const float* xz, const float* yz, int idraw,
+                  const PlotOptions& poptions, bool drawBorders,
                   const Area& fieldArea,
-		  float zrange[], float zstep, float zoff,
-		  const float& fieldUndef);
+                  float zrange[], float zstep, float zoff,
+                  const float& fieldUndef);
 
 /// replaces undefined values with relatively sensible values
 void replaceUndefinedValues(int nx, int ny, float *f, bool fillAll,
@@ -146,20 +146,20 @@ void replaceUndefinedValues(int nx, int ny, float *f, bool fillAll,
 void drawLine(DiPainter* gl, int start, int stop, float* x, float* y);
 /// write shapefile
 void writeShapefile(std::vector<ContourLine*>& contourlines,
-		    int nx, int ny,
-		    int iconv, float *cxy,
-		    float *xz, float *yz,
-		    int idraw,
-		    const PlotOptions& poptions,
-		    bool drawBorders,
-		    const Area& fieldArea,
-		    float zrange[],
-		    float zstep,
-		    float zoff,
-		    const float& fieldUndef,
-		    const std::string& modelName,
-		    const std::string& paramName,
-		    const int& fhour);
+                    int nx, int ny,
+                    int iconv, float *cxy,
+                    const float* xz, const float* yz,
+                    int idraw,
+                    const PlotOptions& poptions,
+                    bool drawBorders,
+                    const Area& fieldArea,
+                    float zrange[],
+                    float zstep,
+                    float zoff,
+                    const float& fieldUndef,
+                    const std::string& modelName,
+                    const std::string& paramName,
+                    const int& fhour);
 
 /// get CL index
 void getCLindex(std::vector<ContourLine*>& contourlines, std::vector< std::vector<int> >& clind,

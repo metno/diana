@@ -65,14 +65,15 @@ public:
   void getVectorAnnotation(float& size, std::string& text) override;
 
 private:
-  typedef std::vector<float*> (FieldRenderer::*prepare_vectors_t)(float* x, float* y);
 
-  std::vector<float*> prepareVectors(float* x, float* y);
-  std::vector<float*> prepareDirectionVectors(float* x, float* y);
-  std::vector<float*> doPrepareVectors(float* x, float* y, bool direction);
+  typedef std::vector<float*> (FieldRenderer::*prepare_vectors_t)(const float* x, const float* y);
 
-  void setAutoStep(float* x, float* y, int& ix1, int ix2, int& iy1, int iy2, int maxElementsX, int& step, float& dist);
-  int xAutoStep(float* x, float* y, int& ix1, int ix2, int iy, float sdist);
+  std::vector<float*> prepareVectors(const float* x, const float* y);
+  std::vector<float*> prepareDirectionVectors(const float* x, const float* y);
+  std::vector<float*> doPrepareVectors(const float* x, const float* y, bool direction);
+
+  void setAutoStep(const float* x, const float* y, int& ix1, int ix2, int& iy1, int iy2, int maxElementsX, int& step, float& dist);
+  int xAutoStep(const float* x, const float* y, int& ix1, int ix2, int iy, float sdist);
 
   // plotting methods
   bool plotMe(DiGLPainter* gl, PlotOrder zorder);
