@@ -341,6 +341,7 @@ SET (LIBDIANAUI_SOURCES
   qtImageGallery.cc
   qtPrintManager.cc
   qtUtility.cc
+  qtStringSliderControl.cc
 )
 
 SET(LIBDIANAUI_QTSOURCES

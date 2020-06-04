@@ -63,6 +63,7 @@ class QTreeView;
 class QVBoxLayout;
 
 class ToggleButton;
+class StringSliderControl;
 
 /**
   \brief Dialogue for field plotting
@@ -190,13 +191,8 @@ private Q_SLOTS:
   void vectorunitCboxActivated(int index);
   void extremeTypeActivated(int index);
 
-  void levelChanged(int number);
-  void updateLevel();
-  void levelPressed();
-
-  void idnumChanged(int number);
-  void updateIdnum();
-  void idnumPressed();
+  void levelChanged(const std::string& value);
+  void idnumChanged(const std::string& value);
 
   void allTimeStepToggled(bool on);
 
@@ -275,14 +271,14 @@ private:
   std::unique_ptr<FieldDialogData> m_data;
   bool useArchive;
 
-  bool levelInMotion;
-  bool idnumInMotion;
-
   std::string lastFieldGroupName;
 
   miutil::KeyValue_v vpcopt;
 
   std::string editName;  // replacing the modelName during editing
+
+  StringSliderControl* levelSliderControl;
+  StringSliderControl* idnumSliderControl;
 
   // map<fieldName,fieldOptions>
   typedef std::map<std::string, miutil::KeyValue_v> fieldoptions_m;
@@ -320,11 +316,6 @@ private:
 
   FieldModelGroupInfo_v m_modelgroup;
 
-  std::string lastLevel;
-  std::string lastIdnum;
-  std::vector<std::string> currentLevels;
-  std::vector<std::string> currentIdnums;
-
   QTreeView* modelbox;
   QSortFilterProxyModel* modelFilter;
   QStandardItemModel* modelItems;
@@ -334,11 +325,6 @@ private:
   QCheckBox* predefinedPlotsCheckBox;
   QListWidget*  fieldbox;
   QListWidget*  selectedFieldbox;
-
-  QSlider* levelSlider;
-  QLabel*  levelLabel;
-  QSlider* idnumSlider;
-  QLabel*  idnumLabel;
 
   QPushButton*  upFieldButton;
   ToggleButton* minusButton;

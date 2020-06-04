@@ -34,6 +34,7 @@
 #include "diPlotOptions.h"
 
 #include "qtToggleButton.h"
+#include "qtStringSliderControl.h"
 #include "qtTreeFilterProxyModel.h"
 #include "qtUtility.h"
 #include "util/misc_util.h"
@@ -219,61 +220,38 @@ FieldDialog::FieldDialog(QWidget* parent, FieldDialogData* data)
   connect(selectedFieldbox, &QListWidget::itemClicked, this, &FieldDialog::selectedFieldboxClicked);
 
   // Level: slider & label for the value
-  levelLabel = new QLabel("1000hPa", this);
+  QLabel *levelsliderlabel = new QLabel(tr("Vertical axis"), this);
+  QLabel* levelLabel = new QLabel("1000hPa", this);
   levelLabel->setMinimumSize(levelLabel->sizeHint().width() + 10,
                              levelLabel->sizeHint().height() + 10);
   levelLabel->setMaximumSize(levelLabel->sizeHint().width() + 10,
       levelLabel->sizeHint().height() + 10);
-  levelLabel->setText(" ");
 
   levelLabel->setFrameStyle(QFrame::Box | QFrame::Plain);
   levelLabel->setLineWidth(2);
   levelLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
-  levelSlider = new QSlider(Qt::Vertical, this);
-  levelSlider->setInvertedAppearance(true);
-  levelSlider->setMinimum(0);
-  levelSlider->setMaximum(1);
-  levelSlider->setPageStep(1);
-  levelSlider->setValue(0);
+  QSlider* levelSlider = new QSlider(Qt::Vertical, this);
 
-  connect( levelSlider, SIGNAL( valueChanged( int )),
-      SLOT( levelChanged( int)));
-  connect(levelSlider, SIGNAL(sliderPressed()), SLOT(levelPressed()));
-  connect(levelSlider, SIGNAL(sliderReleased()), SLOT(updateLevel()));
-
-  levelInMotion = false;
-
-  // sliderlabel
-  QLabel *levelsliderlabel = new QLabel(tr("Vertical axis"), this);
+  levelSliderControl = new StringSliderControl(true, levelSlider, levelLabel, this);
+  connect(levelSliderControl, &StringSliderControl::valueChanged, this, &FieldDialog::levelChanged);
 
   // Idnum: slider & label for the value
-  idnumLabel = new QLabel("EPS.Total", this);
+  QLabel *idnumsliderlabel = new QLabel(tr("Extra axis"), this);
+  QLabel* idnumLabel = new QLabel("EPS.Total", this);
   idnumLabel->setMinimumSize(idnumLabel->sizeHint().width() + 10,
                              idnumLabel->sizeHint().height() + 10);
   idnumLabel->setMaximumSize(idnumLabel->sizeHint().width() + 10,
       idnumLabel->sizeHint().height() + 10);
-  idnumLabel->setText(" ");
 
   idnumLabel->setFrameStyle(QFrame::Box | QFrame::Plain);
   idnumLabel->setLineWidth(2);
   idnumLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
-  idnumSlider = new QSlider(Qt::Vertical, this);
-  idnumSlider->setMinimum(0);
-  idnumSlider->setMaximum(1);
-  idnumSlider->setPageStep(1);
-  idnumSlider->setValue(0);
+  QSlider* idnumSlider = new QSlider(Qt::Vertical, this);
 
-  connect( idnumSlider, SIGNAL( valueChanged( int )),
-      SLOT( idnumChanged( int)));
-  connect(idnumSlider, SIGNAL(sliderPressed()), SLOT(idnumPressed()));
-  connect(idnumSlider, SIGNAL(sliderReleased()), SLOT(updateIdnum()));
-
-  idnumInMotion = false;
-
-  // sliderlabel
-  QLabel *idnumsliderlabel = new QLabel(tr("Extra axis"), this);
+  idnumSliderControl = new StringSliderControl(false, idnumSlider, idnumLabel, this);
+  connect(idnumSliderControl, &StringSliderControl::valueChanged, this, &FieldDialog::idnumChanged);
 
   QLabel* unitlabel = new QLabel(tr("Unit"), this);
   unitLineEdit = new QLineEdit(this);
@@ -1187,55 +1165,44 @@ void FieldDialog::setLevel()
 {
   METLIBS_LOG_SCOPE();
 
-  int i = selectedFieldbox->currentRow();
-  int n = 0, l = 0;
-  if (i >= 0 && !selectedFields[i].level.empty()) {
-    lastLevel = selectedFields[i].level;
-    n = selectedFields[i].levelOptions.size();
-    l = 0;
-    while (l < n && selectedFields[i].levelOptions[l] != lastLevel)
-      l++;
-    if (l == n)
-      l = 0; // should not happen!
+  const int i = selectedFieldbox->currentRow();
+  if (i >= 0 && i < (int)selectedFields.size()) {
+    SelectedField& sf = selectedFields[i];
+    levelSliderControl->setValues(sf.levelOptions, sf.level);
   }
-
-  levelSlider->blockSignals(true);
-
-  if (n > 0) {
-    currentLevels = selectedFields[i].levelOptions;
-    levelSlider->setRange(0, n - 1);
-    levelSlider->setValue(l);
-    levelSlider->setEnabled(true);
-    levelLabel->setText(QString::fromStdString(lastLevel));
-  } else {
-    currentLevels.clear();
-    // keep slider in a fixed position when disabled
-    levelSlider->setEnabled(false);
-    levelSlider->setValue(1);
-    levelSlider->setRange(0, 1);
-    levelLabel->clear();
-  }
-
-  levelSlider->blockSignals(false);
 }
 
-void FieldDialog::levelPressed()
+void FieldDialog::levelChanged(const std::string& value)
 {
-  levelInMotion = true;
+  METLIBS_LOG_SCOPE(LOGVAL(value));
+
+  const int i = selectedFieldbox->currentRow();
+  if (i >= 0 && i < (int)selectedFields.size()) {
+    selectedFields[i].level = value;
+    updateTime();
+  }
 }
 
-void FieldDialog::levelChanged(int index)
+void FieldDialog::setIdnum()
 {
-  METLIBS_LOG_SCOPE("index="<<index);
+  METLIBS_LOG_SCOPE();
 
-  int n = currentLevels.size();
-  if (index >= 0 && index < n) {
-    lastLevel = currentLevels[index];
-    levelLabel->setText(QString::fromStdString(lastLevel));
+  const int i = selectedFieldbox->currentRow();
+  if (i >= 0 && i < (int)selectedFields.size()) {
+    SelectedField& sf = selectedFields[i];
+    idnumSliderControl->setValues(sf.idnumOptions, sf.idnum);
   }
+}
 
-  if (!levelInMotion)
-    updateLevel();
+void FieldDialog::idnumChanged(const std::string& value)
+{
+  METLIBS_LOG_SCOPE();
+
+  const int i = selectedFieldbox->currentRow();
+  if (i >= 0 && i < (int)selectedFields.size()) {
+    selectedFields[i].idnum = value;
+    updateTime();
+  }
 }
 
 void FieldDialog::changeLevel(int increment, int type)
@@ -1271,138 +1238,49 @@ void FieldDialog::changeLevel(int increment, int type)
     }
   }
 
+  if (i == n) {
+    // no plot with levels / idnumoptions found
+    return;
+  }
 
-  //plot with levels exists, find next level
-  if( i != n ) {
-    std::string level_incremented;
-    int m = vlevels.size();
-    int current = 0;
-    while (current < m && vlevels[current] != level) current++;
-    int new_index = current + increment;
-    if (new_index < m && new_index > -1) {
-      level_incremented = vlevels[new_index];
+  // plot with levels exists, find next level
+  std::string level_incremented;
+  int m = vlevels.size();
+  int current = 0;
+  while (current < m && vlevels[current] != level)
+    current++;
+  int new_index = current + increment;
+  if (new_index < m && new_index > -1) {
+    level_incremented = vlevels[new_index];
 
-      //loop through all plots to see if it is possible to plot:
+    // loop through all plots to see if it is possible to plot:
 
-      if ( type == 0 ) { //vertical levels
-        for (int j = 0; j < n; j++) {
-          if (selectedFields[j].levelmove && selectedFields[j].level == level) {
-            selectedFields[j].level = level_incremented;
-            //update dialog
-            if(j==selectedFieldbox->currentRow()){
-              levelSlider->blockSignals(true);
-              levelSlider->setValue(new_index);
-              levelSlider->blockSignals(false);
-              levelChanged(new_index);
-            }
-          } else {
-            selectedFields[j].levelmove = false;
-          }
+    if (type == 0) { // vertical levels
+      for (int j = 0; j < n; j++) {
+        SelectedField& sf = selectedFields[j];
+        if (sf.levelmove && sf.level == level) {
+          sf.level = level_incremented;
+          // update dialog
+          if (j == selectedFieldbox->currentRow())
+            levelSliderControl->setValue(sf.level);
+        } else {
+          sf.levelmove = false;
         }
-      } else { // extra levels
-        for (int j = 0; j < n; j++) {
-          if (selectedFields[j].idnummove && selectedFields[j].idnum == level) {
-            selectedFields[j].idnum = level_incremented;
-            //update dialog
-            if(j==selectedFieldbox->currentRow()){
-              idnumSlider->blockSignals(true);
-              idnumSlider->setValue(new_index);
-              idnumSlider->blockSignals(false);
-              idnumChanged(new_index);
-            }
-          } else {
-            selectedFields[j].idnummove = false;
-          }
+      }
+    } else { // extra levels
+      for (int j = 0; j < n; j++) {
+        SelectedField& sf = selectedFields[j];
+        if (sf.idnummove && sf.idnum == level) {
+          sf.idnum = level_incremented;
+          // update dialog
+          if (j == selectedFieldbox->currentRow())
+            idnumSliderControl->setValue(sf.idnum);
+        } else {
+          sf.idnummove = false;
         }
       }
     }
   }
-}
-
-void FieldDialog::updateLevel()
-{
-  METLIBS_LOG_SCOPE();
-
-  int i = selectedFieldbox->currentRow();
-
-  if (i >= 0 && i < int(selectedFields.size())) {
-    selectedFields[i].level = lastLevel;
-    updateTime();
-  }
-
-  levelInMotion = false;
-}
-
-void FieldDialog::setIdnum()
-{
-  METLIBS_LOG_SCOPE();
-
-  int i = selectedFieldbox->currentRow();
-  int n = 0, l = 0;
-  if (i >= 0 && !selectedFields[i].idnumOptions.empty()) {
-    n = selectedFields[i].idnumOptions.size();
-    if (!selectedFields[i].idnum.empty()) {
-      lastIdnum = selectedFields[i].idnum;
-      while (l < n && selectedFields[i].idnumOptions[l] != lastIdnum)
-        l++;
-      if (l == n)
-        l = 0;
-    }
-  }
-
-  idnumSlider->blockSignals(true);
-
-  if (n > 0) {
-    currentIdnums = selectedFields[i].idnumOptions;
-    idnumSlider->setRange(0, n - 1);
-    idnumSlider->setValue(l);
-    idnumSlider->setEnabled(true);
-    idnumLabel->setText(QString::fromStdString(lastIdnum));
-  } else {
-    currentIdnums.clear();
-    // keep slider in a fixed position when disabled
-    idnumSlider->setEnabled(false);
-    idnumSlider->setValue(1);
-    idnumSlider->setRange(0, 1);
-    idnumLabel->clear();
-  }
-
-  idnumSlider->blockSignals(false);
-}
-
-void FieldDialog::idnumPressed()
-{
-  idnumInMotion = true;
-}
-
-void FieldDialog::idnumChanged(int index)
-{
-  METLIBS_LOG_SCOPE();
-
-  int n = currentIdnums.size();
-  if (index >= 0 && index < n) {
-    lastIdnum = currentIdnums[index];
-    idnumLabel->setText(QString::fromStdString(lastIdnum));
-  }
-
-  if (!idnumInMotion)
-    updateIdnum();
-}
-
-
-void FieldDialog::updateIdnum()
-{
-  METLIBS_LOG_SCOPE();
-
-  if (selectedFieldbox->currentRow() >= 0) {
-    unsigned int i = selectedFieldbox->currentRow();
-    if (i < selectedFields.size()) {
-      selectedFields[i].idnum = lastIdnum;
-      updateTime();
-    }
-  }
-
-  idnumInMotion = false;
 }
 
 void FieldDialog::fieldboxChanged(QListWidgetItem* item)
@@ -1435,10 +1313,10 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
 
     int n = sf.levelOptions.size();
     int i = 0;
-    while (i < n && sf.levelOptions[i] != lastLevel)
+    while (i < n && sf.levelOptions[i] != levelSliderControl->value())
       i++;
     if (i < n) {
-      sf.level = lastLevel;
+      sf.level = levelSliderControl->value();
     } else {
       if (!fi.default_vlevel().empty()) {
         sf.level = fi.default_vlevel();
@@ -1448,10 +1326,10 @@ void FieldDialog::fieldboxChanged(QListWidgetItem* item)
     }
     n = fi.elevels().size();
     i = 0;
-    while (i < n && fi.elevels()[i] != lastIdnum)
+    while (i < n && fi.elevels()[i] != idnumSliderControl->value())
       i++;
     if (i < n) {
-      sf.idnum = lastIdnum;
+      sf.idnum = idnumSliderControl->value();
     } else {
       if (!fi.default_elevel().empty()) {
         sf.idnum = fi.default_elevel();
