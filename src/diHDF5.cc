@@ -27,8 +27,6 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "diana_config.h"
-
 #include "diHDF5.h"
 #include "miRaster/satimgh5.h"
 
@@ -36,6 +34,8 @@
 
 #define MILOGGER_CATEGORY "diana.HDF5"
 #include <miLogger/miLogging.h>
+
+// #define DEBUGPRINT
 
 using namespace::miutil;
 
@@ -45,17 +45,15 @@ HDF5::HDF5()
 
 bool HDF5::readHDF5Palette(SatFileInfo& file, std::vector<Colour>& col)
 {
-  satimg::dihead ginfo;
+#ifdef DEBUGPRINT
+  METLIBS_LOG_SCOPE(LOGVAL(file.metadata) << LOGVAL(file.name));
+#endif
 
+  satimg::dihead ginfo;
   ginfo.metadata = file.metadata;
   ginfo.paletteinfo = file.paletteinfo;
   ginfo.channelinfo = file.channelinfo;
   ginfo.hdf5type = file.hdf5type;
-
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("HDF5::readHDF5Palette ginfo.metadata " << ginfo.metadata);
-  METLIBS_LOG_DEBUG("HDF5::readHDF5Palette filename " << file.name);
-#endif
 
   // if not colour palette image
   if (file.name.empty())
@@ -84,7 +82,9 @@ bool HDF5::readHDF5Palette(SatFileInfo& file, std::vector<Colour>& col)
 
 bool HDF5::readHDF5Header(SatFileInfo& file)
 {
+#ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE(LOGVAL(file.name) << LOGVAL(file.hdf5type) << LOGVAL(file.time));
+#endif
 
   satimg::dihead ginfo;
 
@@ -120,7 +120,7 @@ bool HDF5::readHDF5(const std::string& filename, Sat& sd, int index)
   // satellite pictures in the structure ginfo
 
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("HDF5::readHDF5 (index:" << index);
+  METLIBS_LOG_SCOPE(LOGVAL(index));
 #endif
 
   satimg::dihead ginfo;
@@ -140,21 +140,11 @@ bool HDF5::readHDF5(const std::string& filename, Sat& sd, int index)
   }
 
 #ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("HDF5::readHDF5 -> ginfo.name: " << ginfo.name);
-  METLIBS_LOG_DEBUG("HDF5::readHDF5 -> ginfo.noofcl: " << ginfo.noofcl);
-  METLIBS_LOG_DEBUG("HDF5::readHDF5 -> ginfo.satellite: " << ginfo.satellite);
-  METLIBS_LOG_DEBUG("HDF5::readHDF5 -> ginfo.time: " << ginfo.time);
-  METLIBS_LOG_DEBUG("HDF5::readHDF5 -> ginfo.xsize: " << ginfo.xsize);
-  METLIBS_LOG_DEBUG("HDF5::readHDF5 -> ginfo.ysize: " << ginfo.ysize);
-  METLIBS_LOG_DEBUG("HDF5::readHDF5 -> ginfo.trueLat: " << ginfo.trueLat);
-  METLIBS_LOG_DEBUG("HDF5::readHDF5 -> ginfo.gridRot: " << ginfo.gridRot);
-  METLIBS_LOG_DEBUG("HDF5::readHDF5 -> ginfo.Ax: " << ginfo.Ax);
-  METLIBS_LOG_DEBUG("HDF5::readHDF5 -> ginfo.Ay: " << ginfo.Ay);
-  METLIBS_LOG_DEBUG("HDF5::readHDF5 -> ginfo.Bx: " << ginfo.Bx);
-  METLIBS_LOG_DEBUG("HDF5::readHDF5 -> ginfo.By: " << ginfo.By);
-  METLIBS_LOG_DEBUG("HDF5::readHDF5 -> ginfo.cal_vis: " << ginfo.cal_vis);
-  METLIBS_LOG_DEBUG("HDF5::readHDF5 -> ginfo.cal_ir: " << ginfo.cal_ir);
-  METLIBS_LOG_DEBUG("HDF5::readHDF5 -> rres: " << rres);
+  METLIBS_LOG_DEBUG(LOGVAL(ginfo.name) << LOGVAL(ginfo.noofcl) << LOGVAL(ginfo.satellite) << LOGVAL(ginfo.time)
+                    << LOGVAL(ginfo.xsize) << LOGVAL(ginfo.ysize)
+                    << LOGVAL(ginfo.Ax) << LOGVAL(ginfo.Ay)
+                    << LOGVAL(ginfo.Bx) << LOGVAL(ginfo.By)
+                    << LOGVAL(ginfo.cal_vis) << LOGVAL(ginfo.cal_ir) << LOGVAL(rres));
 #endif
 
   if (rres == 2) {
@@ -165,9 +155,9 @@ bool HDF5::readHDF5(const std::string& filename, Sat& sd, int index)
     sd.paletteInfo.clname = ginfo.clname;
 
 #ifdef DEBUGPRINT
-    METLIBS_LOG_DEBUG("HDF5::readHDF5 sd.paletteInfo.name: " << sd.paletteInfo.name);
+    METLIBS_LOG_DEBUG(LOGVAL(sd.paletteInfo.name));
     for (size_t d = 0; d < sd.paletteInfo.clname.size(); d++)
-      METLIBS_LOG_DEBUG("HDF5::readHDF5 sd.paletteInfo.clname: " << sd.paletteInfo.clname[d]);
+      METLIBS_LOG_DEBUG("sd.paletteInfo.clname[" << d << "]='" << sd.paletteInfo.clname[d] << "'");
 #endif
 
     for (int j=0; j<3; j++)
