@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2013 met.no
+ Copyright (C) 2006-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -29,10 +29,12 @@
 #ifndef _diFilledMap_h
 #define _diFilledMap_h
 
+#include "diField/diProjection.h"
 #include "diGLPainter.h"
 
-#include <diField/diGridConverter.h>
 #include <vector>
+
+class Area;
 
 /**
    \brief Maps with filled land
@@ -44,7 +46,6 @@ class FilledMap {
 private:
   std::string filename; // name of map file
   long timestamp; // file's change-time
-  GridConverter gc;
 
   struct tile_group {
     int numtiles; // number of tiles in group
