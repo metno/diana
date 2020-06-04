@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2019 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -761,8 +761,7 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
   connect( measurementsm, SIGNAL(finished(int)),  SLOT(measurementsMenu(int)));
 
   // update field dialog when editing field
-  connect( em, SIGNAL(emitFieldEditUpdate(std::string)),
-      fm, SLOT(fieldEditUpdate(std::string)));
+  connect(em, &EditDialog::emitFieldEditUpdate, fm, &FieldDialog::fieldEditUpdate);
 
   // resize main window according to the active map area when using
   // an editing tool

@@ -216,14 +216,12 @@ FieldDialog::FieldDialog(QWidget* parent, FieldDialogData* data)
   QLabel *selectedFieldlabel = TitleLabel(tr("Selected fields"), this);
   selectedFieldbox = new QListWidget(this);
   selectedFieldbox->setSelectionMode(QAbstractItemView::SingleSelection);
-
-  connect( selectedFieldbox, SIGNAL( itemClicked( QListWidgetItem * ) ),
-      SLOT( selectedFieldboxClicked( QListWidgetItem * ) ) );
+  connect(selectedFieldbox, &QListWidget::itemClicked, this, &FieldDialog::selectedFieldboxClicked);
 
   // Level: slider & label for the value
   levelLabel = new QLabel("1000hPa", this);
   levelLabel->setMinimumSize(levelLabel->sizeHint().width() + 10,
-      levelLabel->sizeHint().height() + 10);
+                             levelLabel->sizeHint().height() + 10);
   levelLabel->setMaximumSize(levelLabel->sizeHint().width() + 10,
       levelLabel->sizeHint().height() + 10);
   levelLabel->setText(" ");
@@ -252,7 +250,7 @@ FieldDialog::FieldDialog(QWidget* parent, FieldDialogData* data)
   // Idnum: slider & label for the value
   idnumLabel = new QLabel("EPS.Total", this);
   idnumLabel->setMinimumSize(idnumLabel->sizeHint().width() + 10,
-      idnumLabel->sizeHint().height() + 10);
+                             idnumLabel->sizeHint().height() + 10);
   idnumLabel->setMaximumSize(idnumLabel->sizeHint().width() + 10,
       idnumLabel->sizeHint().height() + 10);
   idnumLabel->setText(" ");
@@ -283,19 +281,19 @@ FieldDialog::FieldDialog(QWidget* parent, FieldDialogData* data)
 
   // copyField
   copyField = new QPushButton(tr("Copy"), this);
-  connect(copyField, SIGNAL(clicked()), SLOT(copySelectedField()));
+  connect(copyField, &QPushButton::clicked, this, &FieldDialog::copySelectedField);
 
   // deleteSelected
   deleteButton = new QPushButton(tr("Delete"), this);
-  connect(deleteButton, SIGNAL(clicked()), SLOT(deleteSelected()));
+  connect(deleteButton, &QPushButton::clicked, this, &FieldDialog::deleteSelected);
 
   // deleteAll
   deleteAll = new QPushButton(tr("Delete all"), this);
-  connect(deleteAll, SIGNAL(clicked()), SLOT(deleteAllSelected()));
+  connect(deleteAll, &QPushButton::clicked, this, &FieldDialog::deleteAllSelected);
 
   // changeModelButton
   changeModelButton = new QPushButton(tr("Model"), this);
-  connect(changeModelButton, SIGNAL(clicked()), SLOT(changeModel()));
+  connect(changeModelButton, &QPushButton::clicked, this, &FieldDialog::changeModel);
 
   int width = changeModelButton->sizeHint().width()/3;
   int height = changeModelButton->sizeHint().height();;
@@ -303,12 +301,12 @@ FieldDialog::FieldDialog(QWidget* parent, FieldDialogData* data)
   // upField
   upFieldButton = new QPushButton(QPixmap(up12x12_xpm), "", this);
   upFieldButton->setMaximumSize(width,height);
-  connect(upFieldButton, SIGNAL(clicked()), SLOT(upField()));
+  connect(upFieldButton, &QPushButton::clicked, this, &FieldDialog::upField);
 
   // downField
   downFieldButton = new QPushButton(QPixmap(down12x12_xpm), "", this);
   downFieldButton->setMaximumSize(width,height);
-  connect(downFieldButton, SIGNAL(clicked()), SLOT(downField()));
+  connect(downFieldButton, &QPushButton::clicked, this, &FieldDialog::downField);
 
   // resetOptions
   resetOptionsButton = new QPushButton(tr("Default"), this);
@@ -316,7 +314,7 @@ FieldDialog::FieldDialog(QWidget* parent, FieldDialogData* data)
 
   // minus
   minusButton = new ToggleButton(this, tr("Minus"));
-  connect( minusButton, SIGNAL(toggled(bool)), SLOT(minusField(bool)));
+  connect(minusButton, &ToggleButton::toggled, this, &FieldDialog::minusField);
 
   // plottype
   QLabel* plottypelabel = new QLabel(tr("Plot type"), this);
@@ -546,9 +544,7 @@ std::string FieldDialog::name() const
   return FIELD_DATATYPE;
 }
 
-void FieldDialog::updateTimes()
-{
-}
+void FieldDialog::updateTimes() {}
 
 void FieldDialog::CreateAdvanced()
 {
@@ -1025,7 +1021,7 @@ void FieldDialog::updateModelBoxes()
 {
   METLIBS_LOG_SCOPE();
 
-  //keep old plots
+  // keep old plots
   const PlotCommand_cpv vstr = getOKString();
 
   modelItems->clear();
@@ -1048,10 +1044,10 @@ void FieldDialog::updateModelBoxes()
     }
   }
 
-  if (selectedFields.size() > 0)
+  if (!selectedFields.empty())
     deleteAllSelected();
 
-  //replace old plots
+  // replace old plots
   putOKString(vstr);
 }
 
@@ -1244,30 +1240,32 @@ void FieldDialog::levelChanged(int index)
 
 void FieldDialog::changeLevel(int increment, int type)
 {
-  METLIBS_LOG_SCOPE("increment="<<increment);
+  METLIBS_LOG_SCOPE(LOGVAL(increment));
 
   // called from MainWindow levelUp/levelDown
 
   std::string level;
   vector<std::string> vlevels;
-  int n = selectedFields.size();
+  const int n = selectedFields.size();
 
-  //For some reason (?) vertical levels and extra levels are sorted i opposite directions
-  if ( type == 0 ) {
+  // For some reason (?) vertical levels and extra levels are sorted i opposite directions
+  if (type == 0) {
     increment *= -1;
   }
 
-  //find first plot with levels, use use this plot to select next level
+  // find first plot with levels, use use this plot to select next level
   int i = 0;
-  if ( type==0 ) { //vertical levels
-    while ( i < n && selectedFields[i].levelOptions.size() < 2 ) i++;
-    if( i != n ) {
+  if (type == 0) { // vertical levels
+    while (i < n && selectedFields[i].levelOptions.size() < 2)
+      i++;
+    if (i != n) {
       vlevels = selectedFields[i].levelOptions;
       level = selectedFields[i].level;
     }
   } else { // extra levels
-    while ( i < n && selectedFields[i].idnumOptions.size() < 2 ) i++;
-    if( i != n ) {
+    while (i < n && selectedFields[i].idnumOptions.size() < 2)
+      i++;
+    if (i != n) {
       vlevels = selectedFields[i].idnumOptions;
       level = selectedFields[i].idnum;
     }
