@@ -109,6 +109,7 @@ FieldEdit& FieldEdit::operator=(const FieldEdit &rhs)
   workfield = nullptr;
   if (editfieldplot) delete editfieldplot;
   if (odata) delete[] odata;
+  odata = nullptr;
 
   // odata
   if ( rhs.nx!=0 && rhs.ny!=0 && rhs.odata!=0 ){
