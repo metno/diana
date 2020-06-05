@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2018 met.no
+  Copyright (C) 2018-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -42,6 +42,39 @@ const std::string& FieldPlotAxis::default_value() const
     static const std::string EMPTY;
     return EMPTY;
   }
+}
+
+static const std::vector<std::string> EMPTY_VALUES;
+static const std::string EMPTY_STRING;
+
+const std::vector<std::string>& FieldPlotInfo::vlevels() const
+{
+  return vertical_axis ? vertical_axis->values : EMPTY_VALUES;
+}
+
+const std::vector<std::string>& FieldPlotInfo::elevels() const
+{
+  return realization_axis ? realization_axis->values : EMPTY_VALUES;
+}
+
+const std::string& FieldPlotInfo::default_vlevel() const
+{
+  return vertical_axis ? vertical_axis->default_value() : EMPTY_STRING;
+}
+
+const std::string& FieldPlotInfo::default_elevel() const
+{
+  return realization_axis ? realization_axis->default_value() : EMPTY_STRING;
+}
+
+const std::string& FieldPlotInfo::vcoord() const
+{
+  return vertical_axis ? vertical_axis->name : EMPTY_STRING;
+}
+
+const std::string& FieldPlotInfo::ecoord() const
+{
+  return realization_axis ? realization_axis->name : EMPTY_STRING;
 }
 
 FieldPlotGroupInfo::FieldPlotGroupInfo()

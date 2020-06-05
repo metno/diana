@@ -2,7 +2,7 @@
 
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013-2018 met.no
+  Copyright (C) 2013-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -50,6 +50,9 @@ struct FieldPlotAxis
   const std::string& default_value() const;
 };
 
+typedef std::shared_ptr<FieldPlotAxis> FieldPlotAxis_p;
+typedef std::shared_ptr<const FieldPlotAxis> FieldPlotAxis_cp;
+
 /**
    \brief data for one plot/variable
 */
@@ -59,15 +62,15 @@ struct FieldPlotInfo
   std::string variableName;
   std::string groupName;
   std::string standard_name;
-  FieldPlotAxis vertical_axis;
-  FieldPlotAxis realization_axis; //(EPS clusters, EPS single runs etc.)
+  FieldPlotAxis_cp vertical_axis;
+  FieldPlotAxis_cp realization_axis; //(EPS clusters, EPS single runs etc.)
 
-  const std::vector<std::string>& vlevels() const { return vertical_axis.values; }
-  const std::vector<std::string>& elevels() const { return realization_axis.values; }
-  const std::string& default_vlevel() const { return vertical_axis.default_value(); }
-  const std::string& default_elevel() const { return realization_axis.default_value(); }
-  const std::string& vcoord() const { return vertical_axis.name; }
-  const std::string& ecoord() const { return realization_axis.name; };
+  const std::vector<std::string>& vlevels() const;
+  const std::vector<std::string>& elevels() const;
+  const std::string& default_vlevel() const;
+  const std::string& default_elevel() const;
+  const std::string& vcoord() const;
+  const std::string& ecoord() const;
 };
 typedef std::shared_ptr<const FieldPlotInfo> FieldPlotInfo_cp;
 typedef std::vector<FieldPlotInfo> FieldPlotInfo_v;

@@ -678,6 +678,64 @@ std::map<std::string,std::string> GridCollection::getGlobalAttributes(const std:
   return ritr->second.globalAttributes;
 }
 
+namespace {
+
+template <class Axis>
+FieldPlotAxis_cp createFieldPlotAxisFromGridInventory(const Axis& axis)
+{
+  FieldPlotAxis_p ax = std::make_shared<FieldPlotAxis>();
+  ax->name = axis.getName();
+  ax->values = axis.getStringValues();
+  return ax;
+}
+
+FieldPlotAxis_cp createFieldPlotAxisFromGridInventory(const Zaxis& zaxis)
+{
+  FieldPlotAxis_p vax = std::make_shared<FieldPlotAxis>();
+  vax->name = zaxis.verticalType;
+  vax->values = zaxis.getStringValues();
+  if (zaxis.vc_type == FieldVerticalAxes::vctype_oceandepth) {
+    vax->default_value_index = 0;
+  }
+  return vax;
+}
+
+template <class Axis>
+struct AxisCache
+{
+  std::map<std::string, FieldPlotAxis_cp> axes_by_id;
+  const set<Axis>& inventory_axes;
+
+  AxisCache(const set<Axis>& ia)
+      : inventory_axes(ia)
+  {
+  }
+  FieldPlotAxis_cp find(const std::string& id);
+};
+
+template <class Axis>
+FieldPlotAxis_cp AxisCache<Axis>::find(const std::string& id)
+{
+  METLIBS_LOG_SCOPE();
+  if (id.empty())
+    return nullptr;
+
+  const auto it_ax = axes_by_id.find(id);
+  if (it_ax != axes_by_id.end())
+    return it_ax->second;
+
+  FieldPlotAxis_cp ax;
+
+  typename set<Axis>::iterator it = inventory_axes.find(Axis(id));
+  if (it != inventory_axes.end())
+    ax = createFieldPlotAxisFromGridInventory(*it);
+
+  axes_by_id.insert(std::make_pair(id, ax)); // also add if not found, to avoid lookups
+  return ax;
+}
+
+} // namespace
+
 std::map<std::string, FieldPlotInfo> GridCollection::getFieldPlotInfo(const std::string& refTime)
 {
   METLIBS_LOG_SCOPE(LOGVAL(refTime));
@@ -694,25 +752,16 @@ std::map<std::string, FieldPlotInfo> GridCollection::getFieldPlotInfo(const std:
     }
   }
 
+  AxisCache<gridinventory::Zaxis> plot_axes_vertical(ritr->second.zaxes);
+  AxisCache<gridinventory::ExtraAxis> plot_axes_realization(ritr->second.extraaxes);
+
   for (const gridinventory::GridParameter& gp : ritr->second.parameters) {
     FieldPlotInfo vi;
     vi.fieldName = gp.key.name;
     vi.standard_name = gp.standard_name;
 
-    set<gridinventory::Zaxis>::iterator zitr = ritr->second.zaxes.find(Zaxis(gp.zaxis_id));
-    if (zitr != ritr->second.zaxes.end()) {
-      vi.vertical_axis.values = zitr->getStringValues();
-      vi.vertical_axis.name = zitr->verticalType;
-      if (zitr->vc_type == FieldVerticalAxes::vctype_oceandepth) {
-        vi.vertical_axis.default_value_index = 0;
-      }
-    }
-
-    set<gridinventory::ExtraAxis>::iterator eitr = ritr->second.extraaxes.find(ExtraAxis(gp.extraaxis_id));
-    if (eitr != ritr->second.extraaxes.end()) {
-      vi.realization_axis.name = eitr->name;
-      vi.realization_axis.values = eitr->getStringValues();
-    }
+    vi.vertical_axis = plot_axes_vertical.find(gp.zaxis_id);
+    vi.realization_axis = plot_axes_realization.find(gp.extraaxis_id);
 
     // groupname based on coordinates
     if (vi.ecoord().empty() && vi.vcoord().empty()) {

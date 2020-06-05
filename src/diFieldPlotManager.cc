@@ -754,12 +754,10 @@ void FieldPlotManager::getFieldPlotGroups(const std::string& modelName, const st
           if (plotInfo.vlevels() != ip->second.vlevels()) {
             // if the input parameters have different vlevels, but no. of levels are 0 or 1, ignore vlevels
             if (plotInfo.vlevels().size() < 2 && ip->second.vlevels().size() < 2) {
-              plotInfo.vertical_axis.values.clear();
-              plotInfo.vertical_axis.default_value_index = -1;
-              plotInfo.vertical_axis.name.clear();
-              } else {
-                break;
-              }
+              plotInfo.vertical_axis = nullptr;
+            } else {
+              break;
+            }
           }
         }
         ninput++;
@@ -771,9 +769,12 @@ void FieldPlotManager::getFieldPlotGroups(const std::string& modelName, const st
         if (plotInfo.vcoord() == "pressure") {
           FieldPlotInfo plotInfo_fl = plotInfo;
           miutil::replace(plotInfo_fl.groupName,"pressure","flightlevel");
-          plotInfo_fl.vertical_axis.name = "flightlevel";
-          for (size_t i = 0; i < plotInfo.vlevels().size(); ++i)
-            plotInfo_fl.vertical_axis.values[i] = FlightLevel::getFlightLevel(plotInfo.vertical_axis.values[i]);
+          FieldPlotAxis_p flax = std::make_shared<FieldPlotAxis>();
+          flax->name = "flightlevel";
+          flax->values.reserve(plotInfo.vlevels().size());
+          for (const std::string& pv : plotInfo.vlevels())
+            flax->values.push_back(FlightLevel::getFlightLevel(pv));
+          plotInfo_fl.vertical_axis = flax;
           const std::map<std::string, std::string>::const_iterator itFL = groupNames.find(plotInfo_fl.groupName);
           if (itFL != groupNames.end())
             plotInfo_fl.groupName = itFL->second;
