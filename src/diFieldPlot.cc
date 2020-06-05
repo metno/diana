@@ -259,8 +259,6 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
   std::vector<std::string> annos_new;
   for (const std::string& anno : annos) {
     if (miutil::contains(anno, "table")) {
-      std::string unit = " " + poptions.legendunits;
-
       std::string endString;
       std::string startString;
       const size_t nn = anno.find_first_of(",");
@@ -339,6 +337,8 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
         }
         vtable.push_back(table);
       }
+
+      const std::string unit = poptions.legendunits.empty() ? std::string() : (" " + poptions.legendunits);
 
       if (poptions.discontinuous == 1 && classSpec.size()
           && poptions.lineinterval > 0.99 && poptions.lineinterval < 1.01) {
