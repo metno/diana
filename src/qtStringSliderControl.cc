@@ -64,7 +64,7 @@ void StringSliderControl::setValues(const std::vector<std::string>& values, cons
   if (values.empty())
     current_.clear();
   else if (current_.empty())
-    current_ = (reverse_ ? values_.back() : values.front());
+    current_ = (reverse_ ? values.back() : values.front());
   setValues(values);
 }
 
