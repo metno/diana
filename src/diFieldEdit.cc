@@ -107,8 +107,8 @@ FieldEdit& FieldEdit::operator=(const FieldEdit &rhs)
 
   // first delete
   workfield = nullptr;
-  if (editfieldplot) delete editfieldplot;
-  if (odata) delete[] odata;
+  delete editfieldplot;
+  delete[] odata;
   odata = nullptr;
 
   // odata
@@ -117,21 +117,18 @@ FieldEdit& FieldEdit::operator=(const FieldEdit &rhs)
     ny = rhs.ny;
     fsize = nx*ny;
     odata = new float[fsize];
-    for ( int i=0; i<fsize; i++ )
-      odata[i] = rhs.odata[i];
+    std::copy(rhs.odata, rhs.odata + fsize, odata);
   }
 
   // editfield
-  editfield = std::make_shared<Field>();
-  if ( rhs.editfield != 0 )
-    *(editfield)= *(rhs.editfield);
-  miTime tprod= editfield->validFieldTime;
-  Field_pv vf;
-  vf.push_back(editfield);
+  if (rhs.editfield)
+    editfield = std::make_shared<Field>(*rhs.editfield);
+  else
+    editfield = std::make_shared<Field>();
 
   // fieldPlot
   editfieldplot = new FieldPlot(fieldPlotManager);
-  editfieldplot->setData(vf, tprod);
+  editfieldplot->setData({ editfield }, editfield->validFieldTime);
 
   // all the other members...
   showNumbers=rhs.showNumbers;
@@ -222,17 +219,16 @@ void FieldEdit::cleanup()
   workfield = nullptr;
   editfield = nullptr;
 
-  int n= undofields.size();
-  for (int i=0; i<n; i++) {
-    delete[] undofields[i].data[0];
-    delete[] undofields[i].data[1];
+  for (const auto& uf : undofields) {
+    delete[] uf.data[0];
+    delete[] uf.data[1];
   }
   undofields.clear();
   numundo= 0;
   unsavedChanges=false;
 
   // annet (odata,xline,yline,isoline,.....) ????????????????
-  if (odata) delete[] odata;
+  delete[] odata;
   odata= 0;
 
   lockedValue.clear();
@@ -308,12 +304,10 @@ bool FieldEdit::prepareEditFieldPlot(const std::string& fieldname,
   editfield->name=     fieldname;
   editfield->text=     text;
   editfield->fulltext= fulltext;
-  Field_pv vf(1, editfield);
 
-  if (editfieldplot)
-    delete editfieldplot;
+  delete editfieldplot;
   editfieldplot = new FieldPlot(fieldPlotManager);
-  editfieldplot->setData(vf, tprod);
+  editfieldplot->setData({editfield}, tprod);
 
   return true;
 }
@@ -324,8 +318,8 @@ void FieldEdit::makeWorkfield()
   workfield = nullptr;
 
   if (!editfield->allDefined()) {
-    int nx= editfield->area.nx;
-    int ny= editfield->area.ny;
+    const int nx= editfield->area.nx;
+    const int ny= editfield->area.ny;
     int nundef= 0;
     float avg= 0.0;
     for (int i=0; i<nx*ny; i++) {
@@ -335,11 +329,10 @@ void FieldEdit::makeWorkfield()
         nundef++;
     }
     if (nundef>0 && nundef<nx*ny) {
-      workfield = std::make_shared<Field>();
-      *(workfield)= *(editfield);
+      workfield = std::make_shared<Field>(*editfield);
       float *f= workfield->data;
       avg/=float(nx*ny-nundef);
-      int *indx= new int[nundef];
+      std::unique_ptr<int[]> indx(new int[nundef]);
       int n1a,n1b,n2a,n2b,n3a,n3b,n4a,n4b,n5a,n5b;
       int i,j,ij,n;
       n=0;
@@ -406,19 +399,13 @@ void FieldEdit::makeWorkfield()
       }
 
       if (minValue!=fieldUndef) {
-        for (n=n1a; n<n5b; n++) {
-          ij=indx[n];
-          if (f[ij]<minValue) f[ij]= minValue;
-        }
+        for (n=n1a; n<n5b; n++)
+          miutil::minimize(f[indx[n]], minValue);
       }
       if (maxValue!=fieldUndef) {
-        for (n=n1a; n<n5b; n++) {
-          ij=indx[n];
-          if (f[ij]>maxValue) f[ij]= maxValue;
-        }
+        for (n=n1a; n<n5b; n++)
+          miutil::maximize(f[indx[n]], maxValue);
       }
-
-      delete[] indx;
 
       workfield->forceDefined(miutil::ALL_DEFINED);
     }
