@@ -106,6 +106,7 @@ FieldEdit& FieldEdit::operator=(const FieldEdit &rhs)
   if (this == &rhs) return *this;
 
   // first delete
+  workfield = nullptr;
   if (editfieldplot) delete editfieldplot;
   if (odata) delete[] odata;
 
@@ -218,7 +219,7 @@ void FieldEdit::cleanup()
   editfieldplot= 0;
 
   workfield = nullptr;
-  editfield = nullptr; // FIXME editfield is not always deleted
+  editfield = nullptr;
 
   int n= undofields.size();
   for (int i=0; i<n; i++) {
