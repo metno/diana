@@ -44,6 +44,8 @@
 
 #include <puTools/miStringFunctions.h>
 
+#include <boost/range/adaptor/reversed.hpp>
+
 #include <sstream>
 
 #define MILOGGER_CATEGORY "diana.FieldPlot"
@@ -261,8 +263,8 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
 
       std::string endString;
       std::string startString;
-      if (miutil::contains(anno, ",")) {
-        size_t nn = anno.find_first_of(",");
+      const size_t nn = anno.find_first_of(",");
+      if (nn != std::string::npos) {
         endString = anno.substr(nn);
         startString = anno.substr(0, nn);
       } else {
@@ -271,20 +273,12 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
 
       //if asking for spesific field
       if (miutil::contains(anno, "table=")) {
-        std::string name = startString.substr(
-            startString.find_first_of("=") + 1);
+        std::string name = startString.substr(startString.find_first_of("=") + 1);
         if (name[0] == '"')
           miutil::remove(name, '"');
         miutil::trim(name);
         if (!miutil::contains(fields[0]->fieldText, name))
           continue;
-      }
-
-      std::string str = "table=\"";
-      if (poptions.legendtitle.empty()) {
-        str += fields[0]->fieldText;
-      } else {
-        str += poptions.legendtitle;
       }
 
       //find min/max if repeating colours
@@ -295,12 +289,8 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
       } else {
         int ndata = fields[0]->area.gridSize();
         for (int i = 0; i < ndata; ++i) {
-          if (fields[0]->data[i] != fieldUndef) {
-            if (cmin > fields[0]->data[i])
-              cmin = fields[0]->data[i];
-            if (cmax < fields[0]->data[i])
-              cmax = fields[0]->data[i];
-          }
+          if (fields[0]->data[i] != fieldUndef)
+            miutil::minimaximize(cmin, cmax, fields[0]->data[i]);
         }
       }
 
@@ -312,20 +302,19 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
       size_t npatterns = poptions.patterns.size();
       size_t nlines = poptions.linevalues.size();
       size_t nloglines = poptions.loglinevalues.size();
-      size_t ncodes = (ncolours > npatterns ? ncolours : npatterns);
+      size_t ncodes = std::max(ncolours, npatterns);
 
       if (cmin > poptions.base)
         ncold = 0;
 
-      std::vector<std::string> classSpec;
-      classSpec = miutil::split(poptions.classSpecifications, ",");
+      const std::vector<std::string> classSpec = miutil::split(poptions.classSpecifications, ",");
 
       // if class specification is given, do not plot more entries than class specifications
       if (classSpec.size() && ncodes > classSpec.size()) {
         ncodes = classSpec.size();
       }
 
-      if (nlines > 0 && nlines - 1 < ncodes)
+      if (nlines > 0 && nlines <= ncodes)
         ncodes = nlines;
 
       for (int i = ncold - 1; i >= 0; i--) {
@@ -354,7 +343,7 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
       if (poptions.discontinuous == 1 && classSpec.size()
           && poptions.lineinterval > 0.99 && poptions.lineinterval < 1.01) {
         for (size_t i = 0; i < ncodes; i++) {
-          std::vector<std::string> tstr = miutil::split(classSpec[i], ":");
+          const std::vector<std::string> tstr = miutil::split(classSpec[i], ":");
           if (tstr.size() > 1) {
             vtable[i].text = tstr[1];
           } else {
@@ -476,19 +465,19 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
         }
       }
 
-      int n = vtable.size();
-      for (int i = n - 1; i > -1; i--) {
-        str += ";";
-        str += vtable[i].colour;
-        str += ";";
-        str += vtable[i].pattern;
-        str += ";";
-        str += vtable[i].text;
+      std::ostringstream out;
+      out << "table=\"";
+      if (poptions.legendtitle.empty()) {
+        out << fields[0]->fieldText;
+      } else {
+        out << poptions.legendtitle;
       }
-      str += "\"";
-      str += endString;
+      for (const auto& t : boost::adaptors::reverse(vtable))
+        out << ";" << t.colour << ";" << t.pattern << ";" << t.text;
+      out << "\"";
+      out << endString;
 
-      annos_new.push_back(str);
+      annos_new.push_back(out.str());
     }
   }
   diutil::insert_all(annos, annos_new);
@@ -503,7 +492,6 @@ void FieldPlot::getDataAnnotations(std::vector<std::string>& annos) const
 
   std::vector<std::string> new_annos;
   for (std::string& anno : annos) {
-
     std::string lg;
     size_t k = anno.find("$lg=");
     if (k != std::string::npos) {
