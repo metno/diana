@@ -821,9 +821,7 @@ void FieldDialog::addSelectedField(const SelectedField& sf)
 {
   selectedFields.push_back(sf);
 
-  std::string text = sf.modelName + " " + sf.fieldName + " " + sf.refTime;
-  selectedFieldbox->addItem(QString::fromStdString(text));
-
+  selectedFieldbox->addItem(fieldBoxText(sf));
   selectedFieldbox->setCurrentRow(selectedFieldbox->count() - 1);
   selectedFieldbox->item(selectedFieldbox->count() - 1)->setSelected(true);
 
