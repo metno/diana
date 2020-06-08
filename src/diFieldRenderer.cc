@@ -2146,7 +2146,7 @@ bool FieldRenderer::plotGridLines(DiGLPainter* gl)
   GridPoints gp;
   if (!getGridPoints(gp))
     return false;
-  const float *x = x, *y = y;
+  const float *x = gp.x(), *y = gp.y();
 
   gp.ix2++;
   gp.iy2++;
