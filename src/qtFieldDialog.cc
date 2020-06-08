@@ -973,6 +973,8 @@ void FieldDialog::copySelectedField()
   SelectedField sf = selectedFields[index]; // make a copy
   sf.hourOffset = 0;
   addSelectedField(sf);
+
+  enableFieldOptions();
 }
 
 void FieldDialog::changeModel()
