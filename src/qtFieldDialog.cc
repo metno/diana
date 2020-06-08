@@ -822,8 +822,9 @@ void FieldDialog::addSelectedField(const SelectedField& sf)
   selectedFields.push_back(sf);
 
   selectedFieldbox->addItem(fieldBoxText(sf));
-  selectedFieldbox->setCurrentRow(selectedFieldbox->count() - 1);
-  selectedFieldbox->item(selectedFieldbox->count() - 1)->setSelected(true);
+  const int last = selectedFieldbox->count() - 1;
+  selectedFieldbox->setCurrentRow(last);
+  selectedFieldbox->item(last)->setSelected(true);
 
   fieldAdd->addedSelectedField(sf.modelName, sf.refTime, sf.predefinedPlot, sf.fieldName);
 }
