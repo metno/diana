@@ -1129,6 +1129,9 @@ void FieldDialog::fieldEditUpdate(const string& str)
 {
   METLIBS_LOG_SCOPE(LOGVAL(str));
 
+  if (str.empty() && !hasEditFields)
+    return;
+
   if (hasEditFields) {
     METLIBS_LOG_DEBUG("STOP");
     selectedFields[0].inEdit = false;
