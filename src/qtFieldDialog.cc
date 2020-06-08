@@ -967,10 +967,11 @@ void FieldDialog::copySelectedField()
 {
   METLIBS_LOG_SCOPE();
 
-  if (selectedFieldbox->count() == 0 || selectedFields.empty())
+  const int index = selectedFieldbox->currentRow();
+  if (index < 0 || index >= (int)selectedFields.size())
     return;
 
-  SelectedField sf = selectedFields[selectedFieldbox->currentRow()];
+  SelectedField sf = selectedFields[index]; // make a copy
   sf.hourOffset = 0;
   addSelectedField(sf);
 }
