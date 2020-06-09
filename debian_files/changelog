@@ -1,3 +1,23 @@
+diana-3.53 (3.54.0~rc1-1) unstable; urgency=low
+
+  * bugfix - SatDialog - hide colours
+  * split FieldDialog class
+  * GridCollection/FimexIO: improved units handling
+  * bugfix undefined masking
+  * LegendPlot: drop unused methods, same size for plot&height&width
+  * bugfix FIELD arrow annotations
+  * FieldPlotManager::makeDifferenceField code simplification
+  * GridCollection::getReferenceTimes code simplification
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 09 Jun 2020 12:23:20 +0200
+
+diana-3.53 (3.53.1-1) unstable; urgency=low
+
+  * MovieMaker: use ffmpeg to create videos from frame images
+  * MovieMaker: same format for image series and video frame filenames
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Fri, 15 May 2020 08:00:08 +0200
+
 diana-3.52 (3.53.0-1) unstable; urgency=low
 
   * Probability axis - changed label/tooltip on sliders/arrows
