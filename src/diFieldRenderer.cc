@@ -98,6 +98,7 @@ void FieldRenderer::getVectorAnnotation(float& size, std::string& text)
 void FieldRenderer::clearData()
 {
   METLIBS_LOG_SCOPE();
+  tmpfields_.clear();
   fields_.clear();
 }
 
