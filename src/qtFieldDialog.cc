@@ -989,8 +989,8 @@ void FieldDialog::changeModel()
   if (index < 0 || index >= n)
     return;
 
-  const std::string& oldModel = selectedFields[index].modelName;
-  const std::string& oldRefTime = selectedFields[index].refTime;
+  const std::string oldModel = selectedFields[index].modelName;
+  const std::string oldRefTime = selectedFields[index].refTime;
   std::string newModel, newRefTime;
   bool predefined;
   if (!fieldAdd->currentModelReftime(newModel, newRefTime, predefined))
