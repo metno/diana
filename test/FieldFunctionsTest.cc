@@ -71,11 +71,12 @@ TEST(FieldFunctionsTest, MapRatios)
   GridConverter gc;
   MapFields_cp mf;
 #if 1
-  EXPECT_TRUE(mf = gc.getMapFields(area));
+  mf = gc.getMapFields(area);
 #else
   float dxg = 0, dyg = 0;
-  EXPECT_TRUE(mf = gc.getMapFields(area, 3, 1, dxg, dyg));
+  mf = gc.getMapFields(area, 3, 1, dxg, dyg);
 #endif
+  ASSERT_TRUE(mf != nullptr);
   ASSERT_TRUE(mf->xmapr);
   ASSERT_TRUE(mf->ymapr);
   ASSERT_TRUE(mf->coriolis);

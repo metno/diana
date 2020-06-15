@@ -111,7 +111,7 @@ TEST(FieldUtil, ConvertUnitKC)
   ASSERT_EQ(miutil::ALL_DEFINED, input->defined());
 
   Field_p output = convertUnit(input, "K");
-  ASSERT_TRUE(output);
+  ASSERT_TRUE(output != nullptr);
   EXPECT_EQ(miutil::ALL_DEFINED, output->defined());
   EXPECT_EQ("K", output->unit);
   EXPECT_NEAR(input->data[0] + 273.15, output->data[0], 0.125);
@@ -127,5 +127,6 @@ TEST(FieldUtil, ConvertUnitSpecial)
   input->unit = "";
 
   Field_p output = convertUnit(input, "K");
+  ASSERT_TRUE(output != nullptr);
   EXPECT_EQ(input.get(), output.get());
 }
