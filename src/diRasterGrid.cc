@@ -60,7 +60,7 @@ RasterGrid::RasterGrid(const PlotArea& pa, Field_cp f)
 
 inline diutil::PointI rnd(const diutil::PointD& p)
 {
-  const double OX = -0.5, OY = 0.5;
+  const double OX = 0.5, OY = 0.5;
   return diutil::PointI(int(p.x() + OX), int(p.y() + OY));
 }
 
