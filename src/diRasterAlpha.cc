@@ -63,7 +63,7 @@ void RasterAlpha::colorizePixel(QRgb& pixel, const diutil::PointI& i)
 {
   const int nx = field->area.nx;
   const unsigned char red = poptions.linecolour.R(), green = poptions.linecolour.G(), blue = poptions.linecolour.B();
-  const float value = field->data[i.x() + i.y() * nx];
+  const float value = field->data[diutil::index(nx, i.x(), i.y())];
   if (value != fieldUndef) {
     unsigned char alpha = (unsigned char)((value - cmin) * cdiv);
     pixel = qRgba(red, green, blue, alpha);

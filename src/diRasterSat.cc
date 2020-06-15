@@ -29,6 +29,8 @@
 
 #include "diRasterSat.h"
 
+#include "diGlUtilities.h"
+
 //#define REMEMBER 1
 
 RasterSat::RasterSat(const PlotArea& pa, const GridArea& ga, const unsigned char* rgba)
@@ -61,7 +63,7 @@ void RasterSat::rasterPixels(int n, const diutil::PointD& xy0, const diutil::Poi
       pixels[i] = pixels[li];
     } else {
 #endif
-      const unsigned char* p = &rgba_[(ix + iy * nx) * 4];
+      const unsigned char* p = &rgba_[diutil::index(nx, ix, iy) * 4];
       pixels[i] = qRgba(p[0], p[1], p[2], p[3]);
 #ifdef REMEMBER
       li = i;

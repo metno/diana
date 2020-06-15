@@ -69,7 +69,7 @@ RasterFillCell::RasterFillCell(const PlotArea& pa, Field_cp f, PlotOptions& po)
 void RasterFillCell::colorizePixel(QRgb& pixel, const diutil::PointI& i)
 {
   const int nx = field->area.nx;
-  const float value = field->data[i.x() + i.y() * nx];
+  const float value = field->data[diutil::index(nx, i.x(), i.y())];
   const Colour* c = 0;
   if (value != fieldUndef)
     c = colourForValue(value);

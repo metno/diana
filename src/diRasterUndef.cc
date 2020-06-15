@@ -33,6 +33,7 @@
 
 #include "diColour.h"
 #include "diGLPainter.h"
+#include "diGlUtilities.h"
 #include "diPlotOptions.h"
 
 #define MILOGGER_CATEGORY "diana.RasterUndef"
@@ -50,7 +51,7 @@ void RasterUndef::colorizePixel(QRgb& pixel, const diutil::PointI& i)
 {
   const int nx = fields[0]->area.nx;
   for (size_t k = 0; k < fields.size(); k++) {
-    const float v = fields[k]->data[i.x() + i.y() * nx];
+    const float v = fields[k]->data[diutil::index(nx, i.x(), i.y())];
     if (v == fieldUndef) {
       pixel = pixelUndef;
       return;

@@ -74,7 +74,7 @@ void RasterRGB::colorizePixel(QRgb& pixel, const diutil::PointI& i)
   const int nx = fields[0]->area.nx;
   unsigned char ch[3];
   for (int k = 0; k < 3; k++) {
-    const float v0 = fields[k]->data[i.x() + i.y() * nx];
+    const float v0 = fields[k]->data[diutil::index(nx, i.x(), i.y())];
     if (v0 != fieldUndef) {
       const long val = std::lround((v0 - value_min[k]) * value_div[k]);
       const int col = miutil::constrain_value(val, 0L, 255L);
