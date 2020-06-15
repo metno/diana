@@ -402,7 +402,7 @@ void DianaLines::paint_polygons()
         int cidx;
         if (nclasses) {
           cidx = 0;
-          while (cidx < nclasses && mClassValues[cidx] != li)
+          while (cidx < nclasses && mClassValues[cidx] != li - 1)
             cidx++;
           if (cidx == nclasses)
             continue;
