@@ -1,3 +1,12 @@
+diana-3.53 (3.54.0~rc3-1) unstable; urgency=low
+
+  * adapt unit tests for old googletest from Ubuntu xenial
+  * bugfix contour2 class-plot
+  * raster grid: change x offset
+  * Buffix - FieldDialog - changeModel
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 16 Jun 2020 09:36:52 +0200
+
 diana-3.53 (3.54.0~rc2-1) unstable; urgency=low
 
   * Bugfix - clear tmpfields (vector components) when reading new data
