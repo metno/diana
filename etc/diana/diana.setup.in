@@ -1645,9 +1645,9 @@ end.product
 product="Sigkart"
   # save_dir is input/output
   local_save_dir= ${HOME}/.diana/work
-  prod_save_dir=$(/OPDATA)/diana/Sigkart/
+  prod_save_dir=$(OPDATA)/diana/Sigkart/
   # other input directories
-  input_dir=$(/OPDATA)/diana/Sigkart/work
+  input_dir=$(OPDATA)/diana/Sigkart/work
 
   objects=  "SIGdraw"
   comments= "SIGcomm"
