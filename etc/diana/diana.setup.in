@@ -42,6 +42,7 @@ bin_dir         = ${exec_prefix}/@CMAKE_INSTALL_BINDIR@
 share_diana_dir = $(share_dir)/diana/@PVERSION@
 OPDATA    = $(share_diana_dir)/demodata
 MAPDIR    = $(share_dir)/diana/maps
+THREDDS_MET_NO_DODSC = https://thredds.met.no/thredds/dodsC
 
 <BASIC>
 fontpath=$(share_diana_dir)/fonts
@@ -1427,28 +1428,25 @@ name=Surface group=height
 #-------------------------------------------------------------------------------
 
 filegroup=MEPS
-m=meps_det_pp_2_5km_latest               t=netcdf f=http://thredds.met.no/thredds/dodsC/meps25files/meps_det_pp_2_5km_latest.nc
-m=meps_det_extracted_2_5km_latest        t=netcdf f=http://thredds.met.no/thredds/dodsC/meps25files/meps_det_extracted_2_5km_latest.nc
-m=meps_allmembers_full_2_5km_latest      t=netcdf f=http://thredds.met.no/thredds/dodsC/meps25files/meps_allmembers_full_2_5km_latest.nc
-m=meps_allmembers_extracted_2_5km_latest t=netcdf f=http://thredds.met.no/thredds/dodsC/meps25files/meps_allmembers_extracted_2_5km_latest.nc
-m=arome_arctic_pp_2_5km_latest.nc        t=netcdf f=http://thredds.met.no/thredds/dodsC/aromearcticlatest/arome_arctic_pp_2_5km_latest.nc
-m=arome_arctic_extracted_2_5km_latest    t=netcdf f=http://thredds.met.no/thredds/dodsC/aromearcticlatest/arome_arctic_extracted_2_5km_latest.nc
+m=meps_lagged_6_h_latest_2_5km_latest    t=netcdf f=$(THREDDS_MET_NO_DODSC)/mepslatest/meps_lagged_6_h_latest_2_5km_latest.nc
+m=arome_arctic_pp_2_5km_latest.nc        t=netcdf f=$(THREDDS_MET_NO_DODSC)/aromearcticlatest/arome_arctic_pp_2_5km_latest.nc
+m=arome_arctic_extracted_2_5km_latest    t=netcdf f=$(THREDDS_MET_NO_DODSC)/aromearcticlatest/arome_arctic_extracted_2_5km_latest.nc
 
 filegroup=ROMS
-m=norkyst800m_24h_aggregate              t=netcdf f=http://thredds.met.no/thredds/dodsC/sea/norkyst800m/24h/aggregate_be
-m=norkyst800m_1h_aggregate               t=netcdf f=http://thredds.met.no/thredds/dodsC/sea/norkyst800m/1h/aggregate_be
-m=nordic4km_24h_aggregate                t=netcdf f=http://thredds.met.no/thredds/dodsC/sea/nordic4km/24h/aggregate_be
-m=nordic4km_1h_aggregate                 t=netcdf f=http://thredds.met.no/thredds/dodsC/sea/nordic4km/zdepths1h/aggregate_be
-m=arctic20km_24h_aggregate               t=netcdf f=http://thredds.met.no/thredds/dodsC/sea/arctic20km/24h/aggregate_be
-m=arctic20km_1h_aggregate                t=netcdf f=http://thredds.met.no/thredds/dodsC/sea/arctic20km/1h/aggregate_be
+m=norkyst800m_24h_aggregate              t=netcdf f=$(THREDDS_MET_NO_DODSC)/sea/norkyst800m/24h/aggregate_be
+m=norkyst800m_1h_aggregate               t=netcdf f=$(THREDDS_MET_NO_DODSC)/sea/norkyst800m/1h/aggregate_be
+m=nordic4km_24h_aggregate                t=netcdf f=$(THREDDS_MET_NO_DODSC)/sea/nordic4km/24h/aggregate_be
+m=nordic4km_1h_aggregate                 t=netcdf f=$(THREDDS_MET_NO_DODSC)/sea/nordic4km/zdepths1h/aggregate_be
+m=arctic20km_24h_aggregate               t=netcdf f=$(THREDDS_MET_NO_DODSC)/sea/arctic20km/24h/aggregate_be
+m=arctic20km_1h_aggregate                t=netcdf f=$(THREDDS_MET_NO_DODSC)/sea/arctic20km/1h/aggregate_be
 
 filegroup=WAVE
-m=mywavewam4_aggregate                   t=netcdf f=http://thredds.met.no/thredds/dodsC/sea/mywavewam4/mywavewam4_be
-m=mywavewam800_finnmark_aggregate        t=netcdf f=http://thredds.met.no/thredds/dodsC/fou-hi/mywavewam800f_be
-m=mywavewam800_nordnorge_aggregate       t=netcdf f=http://thredds.met.no/thredds/dodsC/fou-hi/mywavewam800n_be
-m=mywavewam800_midtnorge_aggregate       t=netcdf f=http://thredds.met.no/thredds/dodsC/fou-hi/mywavewam800m_be
-m=mywavewam800_vestlandet_aggregate      t=netcdf f=http://thredds.met.no/thredds/dodsC/fou-hi/mywavewam800v_be
-m=mywavewam800_skagerak_aggregate        t=netcdf f=http://thredds.met.no/thredds/dodsC/fou-hi/mywavewam800s_be
+m=mywavewam4_aggregate                   t=netcdf f=$(THREDDS_MET_NO_DODSC)/sea/mywavewam4/mywavewam4_be
+m=mywavewam800_finnmark_aggregate        t=netcdf f=$(THREDDS_MET_NO_DODSC)/fou-hi/mywavewam800f_be
+m=mywavewam800_nordnorge_aggregate       t=netcdf f=$(THREDDS_MET_NO_DODSC)/fou-hi/mywavewam800n_be
+m=mywavewam800_midtnorge_aggregate       t=netcdf f=$(THREDDS_MET_NO_DODSC)/fou-hi/mywavewam800m_be
+m=mywavewam800_vestlandet_aggregate      t=netcdf f=$(THREDDS_MET_NO_DODSC)/fou-hi/mywavewam800v_be
+m=mywavewam800_skagerak_aggregate        t=netcdf f=$(THREDDS_MET_NO_DODSC)/fou-hi/mywavewam800s_be
 
 </FIELD_FILES>
 
@@ -1683,8 +1681,8 @@ end.product
 
 <VERTICAL_PROFILE_FILES>
 bufr.temp=  $(OPDATA)/bufr/temp_[yyyymmddHH].bufr
-m=thredds_meps_det_vc_2_5km_latest     t=netcdf f=http://thredds.met.no/thredds/dodsC/meps25files/meps_det_vc_2_5km_latest.nc
-m=thredds_arome_arctic_vc_2_5km_latest t=netcdf f=http://thredds.met.no/thredds/dodsC/aromearcticlatest/arome_arctic_vc_2_5km_latest.nc
+m=thredds_meps_det_vc_latest           t=netcdf f=$(THREDDS_MET_NO_DODSC)/mepslatest/meps_det_vc_latest.nc
+m=thredds_arome_arctic_vc_2_5km_latest t=netcdf f=$(THREDDS_MET_NO_DODSC)/aromearcticlatest/arome_arctic_vc_2_5km_latest.nc
 
 </VERTICAL_PROFILE_FILES>
 
@@ -1715,8 +1713,8 @@ vp_omega_pas=multiply(upward_air_velocity_ml,const:-0.01)
 
 
 <VERTICAL_CROSSECTION_FILES>
-m=thredds_meps_det_vc_2_5km_latest     t=netcdf f=http://thredds.met.no/thredds/dodsC/meps25files/meps_det_vc_2_5km_latest.nc
-m=thredds_arome_arctic_vc_2_5km_latest t=netcdf f=http://thredds.met.no/thredds/dodsC/aromearcticlatest/arome_arctic_vc_2_5km_latest.nc
+m=thredds_meps_det_vc_latest           t=netcdf f=$(THREDDS_MET_NO_DODSC)/mepslatest/meps_det_vc_latest.nc
+m=thredds_arome_arctic_vc_2_5km_latest t=netcdf f=$(THREDDS_MET_NO_DODSC)/aromearcticlatest/arome_arctic_vc_2_5km_latest.nc
 </VERTICAL_CROSSECTION_FILES>
 
 <VERTICAL_CROSSECTION_COMPUTATIONS>
