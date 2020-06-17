@@ -85,7 +85,7 @@ struct is_near {
 
 bool isHttpUrl(const std::string& pattern)
 {
-  return diutil::startswith(pattern, "http://");
+  return diutil::startswith(pattern, "http://") || diutil::startswith(pattern, "https://");
 }
 
 int findTimeIndex(vcross::Inventory_p inv, const vcross::Time& time)
