@@ -63,7 +63,7 @@ static void getStringSize(DiGLPainter* gl, const std::string& str, float& width,
 LegendPlot::LegendPlot(const std::string& str)
 {
   METLIBS_LOG_SCOPE();
-METLIBS_LOG_WARN(str);
+
   std::string sstr(str);
   miutil::replace(sstr, '"',' ');
   miutil::trim(sstr);
