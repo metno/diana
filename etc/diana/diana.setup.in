@@ -1008,7 +1008,6 @@ field=cloud_area_fraction
 end.field
 
 field=fog
-      fieldgroup=Surface
       colour=red line.values=40,60,80,100 units=0.01
       plot=ALPHA_SHADE(fog_area_fraction)
 end.field
