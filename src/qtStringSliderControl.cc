@@ -49,6 +49,7 @@ StringSliderControl::StringSliderControl(bool reverse, QSlider* slider, QLabel* 
 {
   label_->clear();
   slider_->setInvertedAppearance(reverse_);
+  slider_->setPageStep(1);
   setValues(values_); // empty
 
   connect(slider_, static_cast<void (QSlider::*)(int)>(&QSlider::valueChanged), this, &StringSliderControl::onSliderChanged);
