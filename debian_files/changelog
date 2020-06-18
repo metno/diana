@@ -1,3 +1,11 @@
+diana-3.53 (3.54.0~rc4-1) unstable; urgency=low
+
+  * bugfix StringSliderControl: set pagestep to 1
+  * example diana.setup: update MEPS and thredds url
+  * vcross/vprof: support https urls
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Thu, 18 Jun 2020 12:27:29 +0200
+
 diana-3.53 (3.54.0~rc3-1) unstable; urgency=low
 
   * adapt unit tests for old googletest from Ubuntu xenial
