@@ -143,7 +143,7 @@ void FieldDialogAdd::setupUi()
 void FieldDialogAdd::archiveMode(bool on)
 {
   useArchive = on;
-  // updateModelBoxes(); // TODO this is called from FieldDialog
+  updateModelBoxes();
 }
 
 void FieldDialogAdd::updateModelBoxes()
