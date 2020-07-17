@@ -1,3 +1,31 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2014-2020 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #include "VcrossComputer.h"
 #include "diField/VcrossUtil.h"
@@ -569,10 +597,7 @@ void collectRequiredVertical(InventoryBase_cps& required, InventoryBase_cp item,
   FieldData_cp field = std::static_pointer_cast<const FieldData>(item);
 
   if (ZAxisData_cp zaxis = field->zaxis()) {
-    const std::string& zUnit = zAxisUnit(zType);
-    if (!zUnit.empty() && util::unitsConvertible(zaxis->unit(), zUnit)) {
-      required.insert(zaxis);
-    } else if (InventoryBase_cp zfield = zaxis->getField(zType)) {
+    if (InventoryBase_cp zfield = zaxis->getField(zType)) {
       required.insert(zfield);
     }
   }

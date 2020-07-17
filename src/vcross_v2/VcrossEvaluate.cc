@@ -1,7 +1,36 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2014-2020 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #include "VcrossEvaluate.h"
 #include "VcrossComputer.h"
-#include <diField/VcrossUtil.h>
+#include "diField/VcrossUtil.h"
+
 #include <puTools/miStringFunctions.h>
 
 #define MILOGGER_CATEGORY "vcross.Evaluate"
@@ -182,10 +211,7 @@ void vc_evaluate_surface(Collector_p collector, model_values_m& model_values, co
 
 Values_cp vc_evaluate_z(ZAxisData_cp zaxis, Z_AXIS_TYPE z_type, name2value_t& n2v)
 {
-  const std::string& zUnit = zAxisUnit(z_type);
-  if (!zUnit.empty() && util::unitsConvertible(zaxis->unit(), zUnit)) {
-    return util::unitConversion(vc_evaluate_field(zaxis, n2v), zaxis->unit(), zUnit);
-  } else if (InventoryBase_cp zfield = zaxis->getField(z_type)) {
+  if (InventoryBase_cp zfield = zaxis->getField(z_type)) {
     return vc_evaluate_field(zfield, n2v);
   }
   return Values_cp();
@@ -207,7 +233,7 @@ EvaluatedPlot_cpv vc_evaluate_plots(Collector_p collector, model_values_m& model
       continue;
     name2value_t& n2v = it->second;
 
-    EvaluatedPlot_p ep(new EvaluatedPlot(sp));
+    EvaluatedPlot_p ep = std::make_shared<EvaluatedPlot>(sp);
     FieldData_cp arg0 = sp->resolved->arguments.at(0);
     if (ZAxisData_cp zaxis = arg0->zaxis()) {
       // FIXME these values do not match zaxis' units
