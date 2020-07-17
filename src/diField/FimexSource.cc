@@ -1,3 +1,31 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2014-2020 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #include "FimexSource.h"
 
@@ -124,6 +152,8 @@ int verticalTypeFromId(const std::string& id)
   const std::string verticalTypeText = id.substr(doubleslash+2);
   if (verticalTypeText == "altitude")
     return MIFI_VINT_ALTITUDE;
+  else if (verticalTypeText == "height")
+    return MIFI_VINT_HEIGHT;
   if (verticalTypeText == "depth")
     return MIFI_VINT_DEPTH;
   else if (verticalTypeText == "pressure")
@@ -837,11 +867,11 @@ bool FimexReftimeSource::makeInventory()
             znew->setNlevel(cdm.getDimension(zName).getLength());
             if (VerticalTransformation_cp vt = cs->getVerticalTransformation()) {
               METLIBS_LOG_DEBUG("z axis '" << zName << "' has vertical transformation '" <<  vt->getName() << "'");
-              const int n_z_types = 3;
-              const int mifi_z_types[n_z_types] = {MIFI_VINT_PRESSURE, MIFI_VINT_ALTITUDE, MIFI_VINT_DEPTH};
-              const Z_AXIS_TYPE vcross_z_types[n_z_types] = {Z_TYPE_PRESSURE, Z_TYPE_ALTITUDE, Z_TYPE_DEPTH};
-              const std::string vcross_z_ids[n_z_types] = {"pressure", "altitude", "depth"};
-              const std::string vcross_z_units[n_z_types] = {"hPa", "m", "m"};
+              const int n_z_types = 4;
+              const int mifi_z_types[n_z_types] = {MIFI_VINT_PRESSURE, MIFI_VINT_ALTITUDE, MIFI_VINT_HEIGHT, MIFI_VINT_DEPTH};
+              const Z_AXIS_TYPE vcross_z_types[n_z_types] = {Z_TYPE_PRESSURE, Z_TYPE_ALTITUDE, Z_TYPE_HEIGHT, Z_TYPE_DEPTH};
+              const std::string vcross_z_ids[n_z_types] = {"pressure", "altitude", "height", "depth"};
+              const std::string vcross_z_units[n_z_types] = {"hPa", "m", "m", "m"};
               for (int i = 0; i < n_z_types; ++i) {
                 try {
                   if (ToVLevelConverter_p pc = vt->getConverter(mReader, mifi_z_types[i], 0, cs)) {

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013-2018 met.no
+  Copyright (C) 2013-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -219,6 +219,8 @@ bool Axis::setQuantity(const std::string& q)
     mQuantity = DISTANCE;
   else if (q == "Altitude")
     mQuantity = ALTITUDE;
+  else if (q == "Height")
+    mQuantity = HEIGHT;
   else if (q == "Depth")
     mQuantity = DEPTH;
   else if (q == "Pressure")
@@ -234,7 +236,7 @@ bool Axis::setQuantity(const std::string& q)
 
 void Axis::setDefaultLabel()
 {
-  if (mQuantity == ALTITUDE || mQuantity == DEPTH)
+  if (mQuantity == ALTITUDE || mQuantity == HEIGHT || mQuantity == DEPTH)
     mLabel = "m";
   else if (mQuantity == PRESSURE)
     mLabel = "hPa";

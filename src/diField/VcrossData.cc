@@ -46,7 +46,7 @@ namespace vcross {
 
 const InventoryBase::Unit_t& zAxisUnit(Z_AXIS_TYPE zType)
 {
-  static const std::string units[] = {"", "hPa", "m", "m", ""};
+  static const std::string units[] = {"", "hPa", "m", "m", "m", ""};
   return units[zType];
 }
 

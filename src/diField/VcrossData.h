@@ -54,7 +54,7 @@ enum Z_DIRECTION {
 
 // ================================================================================
 
-enum Z_AXIS_TYPE { Z_TYPE_UNKNOWN, Z_TYPE_PRESSURE, Z_TYPE_ALTITUDE, Z_TYPE_DEPTH, Z_TYPE_LEVEL };
+enum Z_AXIS_TYPE { Z_TYPE_UNKNOWN, Z_TYPE_PRESSURE, Z_TYPE_ALTITUDE, Z_TYPE_HEIGHT, Z_TYPE_DEPTH, Z_TYPE_LEVEL };
 
 // ================================================================================
 
