@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2018 met.no
+ Copyright (C) 2018-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -114,7 +114,7 @@ void generateVerticalTicks(vcross::detail::AxisCPtr zAxis, const std::string& zL
       METLIBS_LOG_WARN("unknown z label '" << zLabel << "'");
       return;
     }
-  } else if (zAxis->quantity() == vcross::detail::Axis::ALTITUDE) {
+  } else if (zAxis->quantity() == vcross::detail::Axis::ALTITUDE || zAxis->quantity() == vcross::detail::Axis::HEIGHT) {
     if (zLabel == "m") {
       const float zsteps[] = {100., 500., 1000., 2500., 5000., 10000, 15000, 20000, 25000, 30000, 35000, 40000};
       tickValues = ticks_table(zsteps, boost::size(zsteps));

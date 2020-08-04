@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2018 met.no
+ Copyright (C) 2006-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -268,7 +268,7 @@ QString QtPlot::axisPosition(int x, int y)
         text += unit;
         unit = QString();
       }
-    } else if (mAxisY->quantity() == vcross::detail::Axis::ALTITUDE) {
+    } else if (mAxisY->quantity() == vcross::detail::Axis::ALTITUDE || mAxisY->quantity() == vcross::detail::Axis::HEIGHT) {
       if (unit == "Ft")
         tta = meter_to_foot;
     }
@@ -1444,7 +1444,7 @@ std::string QtPlot::formatExtremeAnnotationValue(float value, float y)
     const double FL = miutil::constants::FL_from_geo_altitude(a_m);
     text += "FL" + miutil::from_number(FL);
   } else {
-    if (mAxisY->quantity() == vcross::detail::Axis::ALTITUDE && mAxisY->label() == "Ft")
+    if ((mAxisY->quantity() == vcross::detail::Axis::ALTITUDE || mAxisY->quantity() == vcross::detail::Axis::HEIGHT) && mAxisY->label() == "Ft")
       y *= miutil::constants::ft_per_m;
     text += miutil::from_number(y) + mAxisY->label();
   }

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -164,6 +164,8 @@ vcross::Z_AXIS_TYPE VcrossOptions::getVerticalType() const
     return vcross::Z_TYPE_PRESSURE;
   else if (verticalCoordinate == "Depth")
     return vcross::Z_TYPE_DEPTH;
+  else if (verticalCoordinate == "Height")
+    return vcross::Z_TYPE_HEIGHT;
   else
     return vcross::Z_TYPE_ALTITUDE;
 }

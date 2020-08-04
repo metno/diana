@@ -206,6 +206,8 @@ void VcrossSetupDialog::initOptions()
   vchoice.push_back("Amble/hPa");
   vchoice.push_back("Altitude/m");
   vchoice.push_back("Altitude/Ft");
+  vchoice.push_back("Height/m");
+  vchoice.push_back("Height/Ft");
   vchoice.push_back("Depth/m");
   mSetupVERTICALTYPE->defineTextChoice(vchoice,0);
 
