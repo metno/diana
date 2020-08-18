@@ -843,10 +843,6 @@ Field_p GridCollection::getField(const FieldRequest& fieldrequest)
       FieldRequest fieldrequest_new = fieldrequest;
       FieldFunctions::FieldSpec fs;
       updateFieldRequestFromFieldSpec(*fcm, j, fieldrequest_new, fs);
-      if (j == 1 && (fcm->function == FieldFunctions::f_add_f_f || fcm->function == FieldFunctions::f_subtract_f_f)) {
-        // convert second arg to first arg's unit; result is first arg's unit
-        fieldrequest_new.unit = vfield[0]->unit;
-      }
 
       if (!fs.ecoord && !fs.vcoord) {
         if (!addInputField(vfield, getField(fieldrequest_new), *fcm)) {

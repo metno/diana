@@ -241,7 +241,7 @@ TEST(FieldManager, FieldComputeUnitsSimpleFunctions)
       "tdk=tdk.plevel_tk_q(air_temperature_pl,specific_humidity_pl)",
   };
   for (int i = 0; i < 4; ++i) {
-    field_compute_setup.push_back("f_" + funcs[i] + "=" + funcs[i] + "(tc,tdk)");
+    field_compute_setup.push_back("f_" + funcs[i] + "=" + funcs[i] + "(tc,tdk:unit=celsius)");
   }
   std::vector<std::string> field_compute_errors;
   FieldFunctions::parseComputeSetup(field_compute_setup, field_compute_errors);
