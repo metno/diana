@@ -1,3 +1,9 @@
+diana-3.54 (3.54.2-1) unstable; urgency=low
+
+  * add/subtract functions - removed units restriction
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 18 Aug 2020 09:48:54 +0200
+
 diana-3.54 (3.54.1-1) unstable; urgency=low
 
   * bugfix field dialog archive mode switch
