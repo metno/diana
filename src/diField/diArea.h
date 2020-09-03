@@ -2,7 +2,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013-2019 met.no
+  Copyright (C) 2013-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -70,8 +70,6 @@ public:
   void setR(const Rectangle& r) {rect= r; }
   const std::string& Name() const { return name; }
   void setName(const std::string& n) { name= n; }
-  ///set default values of projection and rectangle
-  void setDefault();
   ///set area from string (name=name proj4string="+proj..." rectangle=x1:y1:x2:y2)
   bool setAreaFromString(const std::string& areaString);
   /// get string (name=name proj4string="+proj..." rectangle=x1:y1:x2:y2)

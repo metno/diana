@@ -486,11 +486,6 @@ bool Projection::convertFromGeographic(int npos, float* x, float* y) const
   return convertPoints(geographic(), npos, x, y);
 }
 
-void Projection::setDefault()
-{
-  setProj4Definition("+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=25 +x_0=0.811578 +y_0=0.637045 +ellps=WGS84 +towgs84=0,0,0 +no_defs");
-}
-
 bool Projection::calculateLatLonBoundingBox(const Rectangle & maprect,
     float & lonmin, float & lonmax, float & latmin, float & latmax) const
 {

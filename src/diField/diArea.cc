@@ -91,12 +91,6 @@ void Area::memberCopy(const Area& rhs)
   name= rhs.name;
 }
 
-void Area::setDefault()
-{
-  proj.setDefault();
-  rect = Rectangle(0, 0, 1.63188, 1.31772);
-}
-
 bool Area::setAreaFromString(const std::string& areaString)
 {
   if (areaString.empty())

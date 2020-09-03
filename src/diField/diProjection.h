@@ -77,8 +77,6 @@ public:
    */
   bool isGeographic() const;
 
-  void setDefault();
-
   /// Convert Points to this projection
   bool convertPoints(const Projection& srcProj, size_t npos, float* x, float* y) const;
 
