@@ -2,7 +2,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013 met.no
+  Copyright (C) 2013-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -62,16 +62,15 @@ public:
   friend std::ostream& operator<<(std::ostream& output, const Projection& p);
 
   /// set proj4 definitions
-  bool set_proj_definition(const std::string& proj4str);
+  bool setProj4Definition(const std::string& proj4str);
 
-  const std::string& getProjDefinition() const
-    { return projDefinition; }
+  const std::string& getProj4Definition() const { return proj4Definition; }
 
-  std::string getProjDefinitionExpanded() const;
+  std::string getProj4DefinitionExpanded() const;
 
   /// return true if projection is defined
   bool isDefined() const
-    { return projObject != 0; }
+    { return proj4PJ != 0; }
 
   /**
    * Return true if geographic projection
@@ -160,12 +159,12 @@ private:
   static bool areDefined(const Projection& srcProj, const Projection& tgtProj);
 
 private:
-  std::string projDefinition;
+  std::string proj4Definition;
 
 #if !defined(PROJECTS_H)
   typedef void PJ;
 #endif
-  std::shared_ptr<PJ> projObject;
+  std::shared_ptr<PJ> proj4PJ;
 
   static std::shared_ptr<Projection> sGeographic;
 };

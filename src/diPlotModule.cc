@@ -224,7 +224,7 @@ void PlotModule::prepareArea(const PlotCommand_cpv& inp)
         }
 
       } else if (kv.key() == key_proj) {
-        if (proj.set_proj_definition(kv.value())) {
+        if (proj.setProj4Definition(kv.value())) {
           requestedarea.setP(proj);
         } else {
           METLIBS_LOG_WARN("Unknown proj definition '" << kv.value());

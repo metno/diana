@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2015 met.no
+ Copyright (C) 2006-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -59,28 +59,28 @@ Projection::Projection()
 
 Projection::Projection(const std::string& projStr)
 {
-  set_proj_definition(projStr);
+  setProj4Definition(projStr);
 }
 
-bool Projection::set_proj_definition(const std::string& projStr)
+bool Projection::setProj4Definition(const std::string& proj4str)
 {
-  projDefinition = projStr;
+  proj4Definition = proj4str;
 
-  miutil::replace(projDefinition, "\"", "");
-  projObject = std::shared_ptr<PJ>(pj_init_plus(projDefinition.c_str()), pj_free);
-  if (!projObject)
-    METLIBS_LOG_WARN("proj4 init error for '" << projDefinition << "': " << pj_strerrno(pj_errno));
+  miutil::replace(proj4Definition, "\"", "");
+  proj4PJ = std::shared_ptr<PJ>(pj_init_plus(proj4Definition.c_str()), pj_free);
+  if (!proj4PJ)
+    METLIBS_LOG_WARN("proj4 init error for '" << proj4Definition << "': " << pj_strerrno(pj_errno));
 
-  return (projObject != 0);
+  return (proj4PJ != 0);
 }
 
-std::string Projection::getProjDefinitionExpanded() const
+std::string Projection::getProj4DefinitionExpanded() const
 {
   static const std::string EMPTY;
-  if (!projObject)
+  if (!proj4PJ)
     return EMPTY;
   // get expanded definition, ie values from "+init=..." are included
-  return pj_get_def(projObject.get(), 0);
+  return pj_get_def(proj4PJ.get(), 0);
 }
 
 Projection::~Projection()
@@ -89,7 +89,7 @@ Projection::~Projection()
 
 bool Projection::operator==(const Projection &rhs) const
 {
-  return (projDefinition == rhs.projDefinition);
+  return (proj4Definition == rhs.proj4Definition);
 }
 
 bool Projection::operator!=(const Projection &rhs) const
@@ -99,7 +99,7 @@ bool Projection::operator!=(const Projection &rhs) const
 
 std::ostream& operator<<(std::ostream& output, const Projection& p)
 {
-  output << " proj4string=\"" << p.projDefinition<<"\"";
+  output << " proj4string=\"" << p.proj4Definition<<"\"";
   return output;
 }
 
@@ -203,7 +203,7 @@ bool Projection::transformAndCheck(const Projection& src, size_t npos, size_t of
 {
   // actual transformation -- here we spend most of the time when large matrixes.
   double* z = 0;
-  const int ret = pj_transform(src.projObject.get(), projObject.get(), npos, offset, x, y, z);
+  const int ret = pj_transform(src.proj4PJ.get(), proj4PJ.get(), npos, offset, x, y, z);
   if (ret != 0 && ret !=-20) {
     //ret=-20 :"tolerance condition error"
     //ret=-14 : "latitude or longitude exceeded limits"
@@ -407,8 +407,8 @@ bool Projection::isLegal(float lon, float lat) const
 
 bool Projection::isAlmostEqual(const Projection& p) const
 {
-  std::vector<std::string> thisProjectionParts = miutil::split(projDefinition, 0, " ");
-  std::vector<std::string> pProjectionParts = miutil::split(p.getProjDefinition(), 0, " ");
+  std::vector<std::string> thisProjectionParts = miutil::split(proj4Definition, 0, " ");
+  std::vector<std::string> pProjectionParts = miutil::split(p.getProj4Definition(), 0, " ");
 
   std::map<std::string, std::string> partMap;
 
@@ -445,7 +445,7 @@ float Projection::getMapLinesJumpLimit() const
 {
   float jumplimit = 100000000;
   // some projections do not benefit from using jumplimits
-  if (miutil::contains(projDefinition, "+proj=stere"))
+  if (miutil::contains(proj4Definition, "+proj=stere"))
     return jumplimit;
 
   // find position of two geographic positions
@@ -488,7 +488,7 @@ bool Projection::convertFromGeographic(int npos, float* x, float* y) const
 
 void Projection::setDefault()
 {
-  set_proj_definition("+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=25 +x_0=0.811578 +y_0=0.637045 +ellps=WGS84 +towgs84=0,0,0 +no_defs");
+  setProj4Definition("+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=25 +x_0=0.811578 +y_0=0.637045 +ellps=WGS84 +towgs84=0,0,0 +no_defs");
 }
 
 bool Projection::calculateLatLonBoundingBox(const Rectangle & maprect,
@@ -538,7 +538,7 @@ bool Projection::adjustedLatLonBoundingBox(const Rectangle & maprect,
     float & lonmin, float & lonmax, float & latmin, float & latmax) const
 {
   // when UTM: keep inside a strict lat/lon-rectangle
-  if (miutil::contains(projDefinition, "+proj=utm")) {
+  if (miutil::contains(proj4Definition, "+proj=utm")) {
     if (!calculateLatLonBoundingBox(maprect, lonmin, lonmax, latmin, latmax)) {
       return false;
     }
@@ -615,10 +615,10 @@ bool Projection::getMapRatios(int nx, int ny, float x0, float y0, float gridReso
 
 bool Projection::isGeographic() const
 {
-  return (miutil::contains(projDefinition, "+proj=eqc")
-      || miutil::contains(projDefinition, "+proj=longlat")
-      || miutil::contains(projDefinition, "+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=90")
-      || pj_is_latlong(projObject.get()));
+  return (miutil::contains(proj4Definition, "+proj=eqc")
+      || miutil::contains(proj4Definition, "+proj=longlat")
+      || miutil::contains(proj4Definition, "+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=90")
+      || pj_is_latlong(proj4PJ.get()));
 }
 
 // static
@@ -633,6 +633,6 @@ bool Projection::getLatLonIncrement(float lat, float /*lon*/, float& dlat, float
 const Projection& Projection::geographic()
 {
   if (!sGeographic)
-    sGeographic = std::shared_ptr<Projection>(new Projection("+proj=longlat  +ellps=WGS84 +towgs84=0,0,0 +no_defs"));
+    sGeographic = std::make_shared<Projection>("+proj=longlat  +ellps=WGS84 +towgs84=0,0,0 +no_defs");
   return *sGeographic;
 }

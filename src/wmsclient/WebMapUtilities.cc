@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015 MET Norway
+  Copyright (C) 2015-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -100,7 +100,7 @@ double metersPerUnit(const Projection& proj)
 #endif
   }
 
-  const std::string proj4 = proj.getProjDefinitionExpanded();
+  const std::string proj4 = proj.getProj4DefinitionExpanded();
   METLIBS_LOG_DEBUG(LOGVAL(proj4));
   const std::string to_meter = textAfter(proj4, "+to_meter=");
   METLIBS_LOG_DEBUG(LOGVAL(to_meter));

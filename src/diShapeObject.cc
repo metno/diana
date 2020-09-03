@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2018 met.no
+ Copyright (C) 2006-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -122,7 +122,7 @@ bool setProjectionViaGdalSRSInfo(Projection& p, QString wkt)
   if (proj4.isEmpty())
     return false;
   METLIBS_LOG_DEBUG("gdalsrsinfo wkt='" << wkt.toStdString() << "', proj4='" << proj4.toStdString() << "'");
-  return p.set_proj_definition(proj4.toStdString());
+  return p.setProj4Definition(proj4.toStdString());
 }
 
 bool guessProjectionFromWKT(Projection& p, const QString& wkt)
@@ -135,8 +135,7 @@ bool guessProjectionFromWKT(Projection& p, const QString& wkt)
     const QString proj4 = "+proj=utm +zone=" + r_utm.cap(1)
         + " +ellps=WGS84 +datum=WGS84 +units=m";
     METLIBS_LOG_INFO("guessing utm from wkt='" << wkt.toStdString() << "', proj4='" << proj4.toStdString() << "'");
-    p.set_proj_definition(proj4.toStdString());
-    return true;
+    return p.setProj4Definition(proj4.toStdString());
   }
 
   if (wkt.contains("PROJECTION[\"Lambert_Conformal_Conic\"]")) {
@@ -170,8 +169,7 @@ bool guessProjectionFromWKT(Projection& p, const QString& wkt)
       return false;
     }
     METLIBS_LOG_DEBUG("guessing lcc from wkt='" << wkt.toStdString() << "', proj4='" << proj4.toStdString() << "'");
-    p.set_proj_definition(proj4.toStdString());
-    return true;
+    return p.setProj4Definition(proj4.toStdString());
   }
 
   if (wkt.startsWith("GEOGCS[\"GCS_WGS_1984\"")) {
