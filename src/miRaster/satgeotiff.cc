@@ -219,6 +219,17 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char* image[]
                                    0)) {
       METLIBS_LOG_ERROR("TIFFReadRGBAImageOriented (ORIENTATION_BOTLEFT) failed: size " <<  ginfo.xsize << "," << ginfo.ysize);
     }
+    // GDAL_NODATA, see https://www.awaresystems.be/imaging/tiff/tifftags/gdal_nodata.html
+    if (samplesperpixel == 1 && TIFFGetField(in.get(), 42113, &count, &data) && count > 0) {
+      const char* ascii = (const char*)data;
+      const unsigned int nodata = atoi(ascii);
+      const uint32_t rgba_nodata = 0xFF << 24 | nodata << 16 | nodata << 8 | nodata;
+      for (int i=0; i<size; ++i) {
+        uint32_t* rgba = (uint32_t*)(&image[0][i*4]);
+        if (*rgba == rgba_nodata)
+          *rgba = 0;
+      }
+    }
     mImageCache->putInCache(file, (uint8_t*)image[0], size*4);
   }
   return(pal);
