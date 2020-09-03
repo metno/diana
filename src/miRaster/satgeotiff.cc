@@ -166,6 +166,7 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char* image[]
   uint32  count;
   void    *data;
   // TIFFTAG_GDAL_METADATA 42112 defined in some projets
+  // see https://www.awaresystems.be/imaging/tiff/tifftags/geo_metadata.html
   if (samplesperpixel == 1 && TIFFGetField(in.get(), 42112, &count, &data)) {
     //    printf("Tag %d: %s, count %d0 \n", 42112, (char *)data, count);
     char* t = strstr((char *)data, "scale");
