@@ -207,16 +207,7 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char* image[]
   ImageCache* mImageCache = ImageCache::getInstance();
 
   if (!mImageCache->getFromCache(file, (uint8_t*)image[0])) {
-    // Dos not work correctly
-    /* uint16 orientation;
-         if(!TIFFGetField(in.get(),TIFFTAG_ORIENTATION, &orientation))
-         {
-                 orientation = ORIENTATION_BOTLEFT;
-         }*/
-
-    if (!TIFFReadRGBAImageOriented(in.get(), ginfo.xsize, ginfo.ysize, (uint32*)image[0], ORIENTATION_BOTLEFT,
-                                   // ORIENTATION_TOPLEFT,
-                                   0)) {
+    if (!TIFFReadRGBAImageOriented(in.get(), ginfo.xsize, ginfo.ysize, (uint32*)image[0])) {
       METLIBS_LOG_ERROR("TIFFReadRGBAImageOriented (ORIENTATION_BOTLEFT) failed: size " <<  ginfo.xsize << "," << ginfo.ysize);
     }
     // GDAL_NODATA, see https://www.awaresystems.be/imaging/tiff/tifftags/gdal_nodata.html
