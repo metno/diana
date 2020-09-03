@@ -30,11 +30,17 @@
 #ifndef DIANA_TESTINGHELPERS_H
 #define DIANA_TESTINGHELPERS_H 1
 
+#include <miLogger/miLoggingMemory.h>
+
 #include <gtest/gtest.h>
 
 #include <string>
 
 namespace ditest {
+
+void setupMemoryLog();
+void clearMemoryLog();
+const milogger::memory::MemorySystem::messages_v& getMemoryLogMessages();
 
 const std::string& testSrcDir();
 

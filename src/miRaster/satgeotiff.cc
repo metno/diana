@@ -2,7 +2,7 @@
 /*
   libmiRaster - met.no tiff interface
 
-  Copyright (C) 2006-2019 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -224,19 +224,11 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char* image[]
     }
 
   }
-  if (METLIBS_LOG_DEBUG_ENABLED()) {
-    METLIBS_LOG_DEBUG("ginfo.proj_string = " << ginfo.proj_string);
-    METLIBS_LOG_DEBUG("size = " <<size);
-    METLIBS_LOG_DEBUG("xsize = " <<ginfo.xsize);
-    METLIBS_LOG_DEBUG("ysize = " <<ginfo.ysize);
-    METLIBS_LOG_DEBUG("zsize = " <<ginfo.zsize);
-    METLIBS_LOG_DEBUG("tileWidth = " <<tileWidth);
-    METLIBS_LOG_DEBUG("tileLength = " <<tileLength);
-    METLIBS_LOG_DEBUG("tilesAcross = " <<tilesAcross);
-    METLIBS_LOG_DEBUG("tilesDown = " <<tilesDown);
-    METLIBS_LOG_DEBUG("samplesperpixel = " <<samplesperpixel);
-    METLIBS_LOG_DEBUG("ginfo.time() = " <<ginfo.time);
-  }
+  METLIBS_LOG_DEBUG(LOGVAL(ginfo.projection.getProj4Definition()) << LOGVAL(size)
+                    << LOGVAL(ginfo.xsize) << LOGVAL(ginfo.ysize) << LOGVAL(ginfo.zsize)
+                    << LOGVAL(tileWidth) << LOGVAL(tileLength)
+                    << LOGVAL(tilesAcross) << LOGVAL(tilesDown)
+                    << LOGVAL(samplesperpixel) << LOGVAL(ginfo.time));
   /*
    * Memory allocated for image data in this function (*image) is freed
    * in function main process.
@@ -571,14 +563,14 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
     return -1;
   }
 
-  ginfo.proj_string = proj4.str();
+  ginfo.projection.setProj4Definition(proj4.str());
 
   ginfo.Bx = x_0 * unit_scale_factor;
   ginfo.By = y_0 * unit_scale_factor;
   ginfo.Ax = x_scale * unit_scale_factor;
   ginfo.Ay = y_scale * unit_scale_factor;
 
-  METLIBS_LOG_DEBUG(LOGVAL(ginfo.Ax) << LOGVAL(ginfo.Ay) << LOGVAL(ginfo.Bx) << LOGVAL(ginfo.By) << LOGVAL(ginfo.proj_string));
+  METLIBS_LOG_DEBUG(LOGVAL(ginfo.Ax) << LOGVAL(ginfo.Ay) << LOGVAL(ginfo.Bx) << LOGVAL(ginfo.By) << LOGVAL(ginfo.projection.getProj4Definition()));
 
   if (pmi == PHOTOMETRIC_PALETTE)
     return 2;

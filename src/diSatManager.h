@@ -55,7 +55,7 @@ public:
     std::vector<miutil::TimeFilter> filter;
     std::string formattype; //holds mitiff or hdf5
     std::string metadata;
-    std::string proj4string;
+    Projection projection;
     std::string channelinfo;
     std::string paletteinfo;
     int hdf5type;

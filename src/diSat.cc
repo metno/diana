@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2019 met.no
+ Copyright (C) 2006-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -355,9 +355,8 @@ void Sat::setPlotName()
 
 void Sat::setArea()
 {
-  METLIBS_LOG_SCOPE(LOGVAL(Ax) << LOGVAL(Ay) << LOGVAL(Bx) << LOGVAL(By) << LOGVAL(proj_string));
-  Projection p(proj_string);
-  area.setP(p);
+  METLIBS_LOG_SCOPE(LOGVAL(Ax) << LOGVAL(Ay) << LOGVAL(Bx) << LOGVAL(By) << LOGVAL(projection.getProj4Definition()));
+  area.setP(projection);
   float x0 = Bx, y0 = By;
   float x1 = x0 + area.nx * Ax, y1 = y0 + area.ny * Ay;
   if (Ay < 0) {

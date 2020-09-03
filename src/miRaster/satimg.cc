@@ -1,7 +1,7 @@
 /*
   libmiRaster - met.no tiff interface
 
-  Copyright (C) 2006-2019 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -247,7 +247,7 @@ int satimg::MITIFF_head_diana(const std::string& infile, dihead& ginfo)
   // and adjusted to fit nwp-data and maps.
   // These adjustments require no conversion between +R=6371000 and ellps=WGS84,
   // and therefore no +datum or +towgs84 are given.
-  if (ginfo.proj_string.empty()) {
+  if (!ginfo.projection.isDefined()) {
     std::ostringstream proj4;
     proj4 << "+proj=stere";
     proj4 << " +lon_0=" << gridRot;
@@ -255,14 +255,16 @@ int satimg::MITIFF_head_diana(const std::string& infile, dihead& ginfo)
     proj4 << " +lat_0=90";
     proj4 << " +R=6371000";
     proj4 << " +units=km";
-    ginfo.proj_string = proj4.str();
+    ginfo.projection.setProj4Definition(proj4.str());
     ginfo.By -= ginfo.Ay * ginfo.ysize;
   } else {
     double x_0, y_0;
-    if (proj4_value(ginfo.proj_string, "+x_0=", x_0, true))
+    std::string proj4 = ginfo.projection.getProj4Definition();
+    if (proj4_value(proj4, "+x_0=", x_0, true))
       ginfo.Bx = x_0 / -1000;
-    if (proj4_value(ginfo.proj_string, "+y_0=", y_0, true))
+    if (proj4_value(proj4, "+y_0=", y_0, true))
       ginfo.By = y_0 / -1000;
+    ginfo.projection.setProj4Definition(proj4);
   }
 
   return (pmi == 3) ? 2 : 0;
@@ -301,7 +303,7 @@ int fillhead_diana(const std::string& str, const std::string& tag, satimg::dihea
 
   else if (tag == "Xsize:") ginfo.xsize = atoi(str.c_str());
   else if (tag == "Ysize:") ginfo.ysize = atoi(str.c_str());
-  else if (tag == "Proj string:") ginfo.proj_string = str;
+  else if (tag == "Proj string:") ginfo.projection.setProj4Definition(str);
   else if (tag == "TrueLat:") {
     trueLat = (float)atof(str.c_str()); // no miutil::to_float as the text is like "60 N"
     if (miutil::contains(str, "S"))
@@ -376,8 +378,7 @@ int satimg::day_night(const dihead& sinfo)
       county += sinfo.ysize;
     }
   }
-  Projection proj(sinfo.proj_string);
-  proj.convertToGeographic(4, upos.corner_x, upos.corner_y);
+  sinfo.projection.convertToGeographic(4, upos.corner_x, upos.corner_y);
 
   struct dto d;
   d.ho = sinfo.time.hour();

@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2018 met.no
+ Copyright (C) 2006-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -108,7 +108,7 @@ bool SatManager::reusePlot(SatPlotBase* osp, SatPlotCommand_cp cmd, bool first)
       || sdp->mosaic         != satdata->mosaic
       || sdp->paletteinfo    != satdata->paletteinfo
       || sdp->plotChannels   != satdata->plotChannels
-      || sdp->proj_string    != satdata->proj_string
+      || sdp->projection     != satdata->projection
       || sdp->image_name()   != satdata->image_name())
   {
     return false;
@@ -188,7 +188,7 @@ void SatManager::setData(Sat* satdata, const miutil::miTime& satptime)
   satdata->time = fInfo.time;
   satdata->formatType = fInfo.formattype;
   satdata->metadata = fInfo.metadata;
-  satdata->proj_string = fInfo.proj4string;
+  satdata->projection = fInfo.projection;
   satdata->channelInfo = fInfo.channelinfo;
   satdata->paletteinfo = fInfo.paletteinfo;
   satdata->hdf5type = fInfo.hdf5type;
@@ -596,7 +596,7 @@ void SatManager::addMosaicfiles(Sat* satdata, const std::vector<SatFileInfo>& mo
     if (sd.area.nx!=satdata->area.nx || sd.area.ny!=satdata->area.ny
         || sd.Ax!=satdata->Ax || sd.Ay!=satdata->Ay
         || sd.Bx!=satdata->Bx || sd.By!=satdata->By
-        || sd.proj_string != satdata->proj_string)
+        || sd.projection != satdata->projection)
     {
       METLIBS_LOG_WARN("File " << mfi.name << " not added to mosaic, area not ok");
       continue;
@@ -754,7 +754,7 @@ void SatManager::listFiles(subProdInfo &subp)
       ft.name = *it;
       ft.formattype= subp.formattype;
       ft.metadata = subp.metadata;
-      ft.proj4string = subp.proj4string;
+      ft.projection = subp.projection;
       ft.channelinfo = subp.channelinfo;
       ft.paletteinfo = subp.paletteinfo;
       ft.hdf5type = subp.hdf5type;
@@ -1014,7 +1014,7 @@ bool SatManager::parseSetup()
       sp.archive = (key == "archivefile");
       sp.formattype = formattype;
       sp.metadata = metadata;
-      sp.proj4string = proj4string;
+      sp.projection = Projection(proj4string);
       sp.channelinfo = channelinfo;
       sp.paletteinfo = paletteinfo;
       sp.hdf5type = hdf5type;

@@ -59,7 +59,9 @@ Projection::Projection()
 
 Projection::Projection(const std::string& projStr)
 {
-  setProj4Definition(projStr);
+  if (!projStr.empty()) {
+    setProj4Definition(projStr);
+  }
 }
 
 bool Projection::setProj4Definition(const std::string& proj4str)

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -30,6 +30,7 @@
 #ifndef DIANA_DISATTYPES_H
 #define DIANA_DISATTYPES_H
 
+#include "diField/diProjection.h"
 
 #include <puTools/miTime.h>
 
@@ -47,7 +48,7 @@ struct SatFileInfo
   std::string name;
   std::string formattype; // mitiff or hdf5
   std::string metadata;
-  std::string proj4string;
+  Projection projection;
   std::string channelinfo;
   std::string paletteinfo;
   int hdf5type;
