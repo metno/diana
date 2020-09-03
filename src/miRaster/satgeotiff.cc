@@ -222,7 +222,6 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char* image[]
         s += TIFFReadEncodedStrip(in.get(), i, image[1] + s, -1);
       }
     }
-
   }
   METLIBS_LOG_DEBUG(LOGVAL(ginfo.projection.getProj4Definition()) << LOGVAL(size)
                     << LOGVAL(ginfo.xsize) << LOGVAL(ginfo.ysize) << LOGVAL(ginfo.zsize)
@@ -241,12 +240,6 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char* image[]
   // RGBA buffer
   image[0] = (unsigned char *) malloc((size)*4);
   memset(image[0], 0, size*4);
-
-  int compression = 0;
-  if (!TIFFGetField(in.get(), TIFFTAG_COMPRESSION, &compression)) {
-    METLIBS_LOG_DEBUG("no TIFFGetField (TIFFTAG_COMPRESSION)");
-    compression = COMPRESSION_NONE;
-  }
 
   std::string file = infile.substr(infile.rfind("/") + 1);
   ImageCache* mImageCache = ImageCache::getInstance();
