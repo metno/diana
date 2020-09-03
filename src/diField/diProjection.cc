@@ -31,12 +31,15 @@
 
 #include "diProjection.h"
 #include "util/geo_util.h"
+#include "util/subprocess.h"
 
 #include <mi_fieldcalc/math_util.h>
 #include <mi_fieldcalc/openmp_tools.h>
 
 #include <puDatatypes/miCoordinates.h> // for earth radius
 #include <puTools/miString.h>
+
+#include <QRegExp>
 
 #include <cfloat>
 #include <cmath>
@@ -50,6 +53,117 @@
 
 using namespace miutil;
 
+namespace {
+bool extractParameterFromWKT(const QString& wkt, const QString& key, double& value)
+{
+  QRegExp r_parameter("PARAMETER\\[\"" + key + "\", *([0-9.Ee+-]+)\\]");
+  bool ok = false;
+  if (r_parameter.indexIn(wkt) >= 0)
+    value = r_parameter.cap(1).toDouble(&ok);
+  return ok;
+}
+
+bool extractProj4ParameterFromWKT(QString& proj4, const QString& wkt, const QString& wktkey, const QString& proj4key, double dflt)
+{
+  double value;
+  if (!extractParameterFromWKT(wkt, wktkey, value))
+    return false;
+
+  if (value != dflt)
+    proj4 += QString(" +%1=%2").arg(proj4key).arg(value, 0, 'f');
+  return true;
+}
+
+bool extractProj4ParameterFromWKT(QString& proj4, const QString& wkt, const QString& wktkey, const QString& proj4key)
+{
+  return extractProj4ParameterFromWKT(proj4, wkt, wktkey, proj4key, std::nan(""));
+}
+
+bool setProjectionViaGdalSRSInfo(Projection& p, QString wkt)
+{
+  const QString PROJECTION_LCC     = "PROJECTION[\"Lambert_Conformal_Conic\"]";
+  const QString PROJECTION_LCC_2SP = "PROJECTION[\"Lambert_Conformal_Conic_2SP\"]";
+  if (wkt.contains(PROJECTION_LCC) && wkt.contains("PARAMETER[\"standard_parallel_1\",") && wkt.contains("PARAMETER[\"standard_parallel_2\",")) {
+    wkt.replace(PROJECTION_LCC, PROJECTION_LCC_2SP);
+    METLIBS_LOG_INFO("trying to fix wkt for gdalsrsinfo, new wkt='" << wkt.toStdString() << "'");
+  }
+
+  QByteArray gdalStdOut;
+  if (diutil::execute("gdalsrsinfo",
+                      QStringList() << "-o"
+                                    << "proj4" << wkt,
+                      &gdalStdOut) != 0)
+    return false;
+
+  QString proj4(gdalStdOut);
+
+  // gdalsrsinfo puts its proj4 output in quotes and adds some whitespace
+  proj4 = proj4.trimmed();
+  if (proj4.startsWith("'"))
+    proj4 = proj4.mid(1);
+  if (proj4.endsWith("'"))
+    proj4 = proj4.mid(0, proj4.length() - 1);
+  proj4 = proj4.trimmed();
+
+  if (proj4.isEmpty())
+    return false;
+  METLIBS_LOG_DEBUG("gdalsrsinfo wkt='" << wkt.toStdString() << "', proj4='" << proj4.toStdString() << "'");
+  return p.setProj4Definition(proj4.toStdString());
+}
+
+bool guessProjectionFromWKT(Projection& p, const QString& wkt)
+{
+  QString proj4;
+
+  const QRegExp r_utm("\"WGS_1984_UTM_Zone_(\\d+).\"");
+  if (r_utm.indexIn(wkt, 0) != -1) {
+    proj4 = "+proj=utm +zone=" + r_utm.cap(1) + " +ellps=WGS84 +datum=WGS84 +units=m";
+
+  } else if (wkt.contains("PROJECTION[\"Lambert_Conformal_Conic\"]")) {
+    proj4 = QString("+proj=lcc");
+    if (!extractProj4ParameterFromWKT(proj4, wkt, "standard_parallel_1", "lat_1"))
+      return false;
+    extractProj4ParameterFromWKT(proj4, wkt, "standard_parallel_2", "lat_2");
+    extractProj4ParameterFromWKT(proj4, wkt, "central_meridian", "lon_0", 0);
+    extractProj4ParameterFromWKT(proj4, wkt, "latitude_of_origin", "lat_0", 0);
+    extractProj4ParameterFromWKT(proj4, wkt, "false_easting", "x_0", 0);
+    extractProj4ParameterFromWKT(proj4, wkt, "false_northing", "y_0", 0);
+    if (wkt.contains("GEOGCS[\"GCS_WGS_1984\"")) {
+      proj4 += " +ellps=WGS84";
+    } else {
+      return false;
+    }
+    if (wkt.contains("UNIT[\"Meter\",1]")) {
+      proj4 += " +units=m";
+    } else {
+      return false;
+    }
+
+  } else if (wkt.contains("PROJECTION[\"Geostationary_Satellite\"]")) {
+    proj4 = QString("+proj=geos");
+    if (!extractProj4ParameterFromWKT(proj4, wkt, "satellite_height", "h"))
+      return false;
+    extractProj4ParameterFromWKT(proj4, wkt, "central_meridian", "lon_0", 0);
+    extractProj4ParameterFromWKT(proj4, wkt, "false_easting", "x_0", 0);
+    extractProj4ParameterFromWKT(proj4, wkt, "false_northing", "y_0", 0);
+  }
+
+  if (!proj4.isEmpty()) {
+    METLIBS_LOG_INFO("guessing that wkt='" << wkt.toStdString() << "' translates to proj4='" << proj4.toStdString() << "'");
+    return p.setProj4Definition(proj4.toStdString());
+  }
+
+  if (wkt.startsWith("GEOGCS[\"GCS_WGS_1984\"")) {
+    METLIBS_LOG_INFO("wild guessing geographic from wkt '" << wkt.toStdString() << "'");
+    p = Projection::geographic();
+    return true;
+  }
+
+  return false;
+}
+
+} // namespace
+
 // static
 std::shared_ptr<Projection> Projection::sGeographic;
 
@@ -59,7 +173,9 @@ Projection::Projection()
 
 Projection::Projection(const std::string& projStr)
 {
-  if (!projStr.empty()) {
+  if (miutil::contains(projStr, "PROJCS[") || miutil::contains(projStr, "GEOGCS[")) {
+    setFromWKT(projStr);
+  } else if (!projStr.empty()) {
     setProj4Definition(projStr);
   }
 }
@@ -74,6 +190,16 @@ bool Projection::setProj4Definition(const std::string& proj4str)
     METLIBS_LOG_WARN("proj4 init error for '" << proj4Definition << "': " << pj_strerrno(pj_errno));
 
   return (proj4PJ != 0);
+}
+
+bool Projection::setFromWKT(const std::string& wkt)
+{
+  const QString qwkt = QString::fromStdString(wkt);
+  if (setProjectionViaGdalSRSInfo(*this, qwkt))
+    return true;
+  if (guessProjectionFromWKT(*this, qwkt))
+    return true;
+  return false;
 }
 
 std::string Projection::getProj4DefinitionExpanded() const

@@ -52,6 +52,11 @@
 class Projection {
 public:
   Projection();
+  /*! Construct instance from a string.
+   *
+   * If the string contains 'PROJCS[' of 'GEGCS[', is it assumed to be WKT.
+   * Else is is assumed to be a proj4 init string.
+   */
   explicit Projection(const std::string& projStr);
 
   ~Projection();
@@ -63,6 +68,11 @@ public:
 
   /// set proj4 definitions
   bool setProj4Definition(const std::string& proj4str);
+
+  /*! Set projection from WKT.
+   * This uses `gdalsrsinfo` if available, so it is rather slow.
+   */
+  bool setFromWKT(const std::string& wkt);
 
   const std::string& getProj4Definition() const { return proj4Definition; }
 

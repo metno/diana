@@ -74,3 +74,14 @@ TEST(Projection, BadProj4)
   EXPECT_EQ(milogger::WARN, msgs[0].severity);
   EXPECT_EQ("diField.Projection", msgs[0].tag);
 }
+
+TEST(Projection, GeosFromWKT)
+{
+  Projection p;
+  p.setFromWKT("PROJCS[\"Geostationary_Satellite\",GEOGCS[\"GCS_WGS_1984\",DATUM[\"D_unknown\",SPHEROID[\"WGS84\",6378137,298.257223563]],"
+               "PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]],PROJECTION[\"Geostationary_Satellite\"],"
+               "PARAMETER[\"central_meridian\",0],PARAMETER[\"satellite_height\",35785831],"
+               "PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"Meter\",1]]");
+  // fails unless gdalsrsinfo is available
+  EXPECT_EQ(p.getProj4Definition(), "+proj=geos +lon_0=0 +h=35785831 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs");
+}

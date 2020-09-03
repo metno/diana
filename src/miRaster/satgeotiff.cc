@@ -407,47 +407,20 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
     return -1;
   }
 
-  std::ostringstream proj4;
   if (modeltype == 32767) {
-    // User defined, assumed GEOS SATELLITE PROJ
+    // User defined WKT, use gdalsrsrinfo to convert to proj4
     int cit_size;
     int cit_length = GTIFKeyInfo(gtifin.get(), PCSCitationGeoKey, &cit_size, NULL);
-    std::string PCSCitation;
-    if (cit_length > 0) {
-      std::unique_ptr<char[]> citation(new char[cit_length]);
-      GTIFKeyGet(gtifin.get(), PCSCitationGeoKey, citation.get(), 0, cit_length);
-      PCSCitation = std::string(citation.get());
-    }
-
-    cit_length = GTIFKeyInfo(gtifin.get(), GTCitationGeoKey, &cit_size, NULL);
-    std::string GTCitation;
-    if (cit_length > 0) {
-      std::unique_ptr<char[]> citation(new char[cit_length]);
-      GTIFKeyGet(gtifin.get(), GTCitationGeoKey, citation.get(), 0, cit_length);
-      GTCitation = std::string(citation.get());
-    }
-    if (!miutil::contains(GTCitation, "Geostationary_Satellite")) {
-      METLIBS_LOG_ERROR("This don't seem to be a Geostationary Satellite projection");
+    if (cit_length <= 0) {
+      METLIBS_LOG_ERROR("Missing PCSCitationGeoKey");
       return -1;
     }
+    std::unique_ptr<char[]> citation(new char[cit_length]);
+    GTIFKeyGet(gtifin.get(), PCSCitationGeoKey, citation.get(), 0, cit_length);
+    std::string PCSCitation(citation.get());
 
-    size_t pos, pos2;
-
-    std::string& projDesc = PCSCitation;
-    miutil::replace(projDesc, "ESRI PE String = ", "");
-    pos = projDesc.find("PROJECTION", 0);
-    const std::string projstr = projDesc.substr(pos, projDesc.size() - pos - 1);
-
-    pos = projstr.find(',', projstr.find("central_meridian", 0));
-    pos2 = projstr.find(']', pos);
-    double ProjCenterLong = miutil::to_double(projstr.substr(pos + 1, pos2 - pos - 1));
-
-    pos = projstr.find(',', projstr.find("satellite_height", 0));
-    pos2 = projstr.find(']', pos);
-    const std::string ProjSatelliteHeight = projstr.substr(pos + 1, pos2 - pos - 1);
-
-    proj4 << "+proj=geos +lon_0=" << ProjCenterLong;
-    proj4 << " +units=km +h=" << ProjSatelliteHeight;
+    miutil::replace(PCSCitation, "ESRI PE String = ", "");
+    ginfo.projection.setFromWKT(PCSCitation);
 
   } else if (modeltype == ModelTypeGeographic) {
     /* Geographic latitude-longitude System */
@@ -484,7 +457,7 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
       GTCitation = std::string(citation.get());
     }
 
-    proj4 << "+proj=lonlat +ellps=WGS84 +towgs84=0,0,0 +no_defs";
+    ginfo.projection = Projection("+proj=lonlat +ellps=WGS84 +towgs84=0,0,0 +no_defs");
     unit_scale_factor = M_PI / 180; // convert from degree to radian
 
     if (METLIBS_LOG_DEBUG_ENABLED()) {
@@ -503,6 +476,7 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
     GTIFKeyGet(gtifin.get(), ProjFalseEastingGeoKey, &ProjFalseEasting, 0, 1);
     GTIFKeyGet(gtifin.get(), ProjFalseNorthingGeoKey, &ProjFalseNorthing, 0, 1);
 
+    std::ostringstream proj4;
     if (ProjCoordTrans == CT_PolarStereographic) {
       // see http://geotiff.maptools.org/proj_list/polar_stereographic.html
       double ProjNatOriginLat, ProjScaleAtNatOrigin = 1, ProjStraightVertPoleLong;
@@ -558,12 +532,11 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
       return -1;
     }
     proj4 << " +x_0=" << ProjFalseEasting << " +y_0=" << ProjFalseNorthing;
+    ginfo.projection = Projection(proj4.str());
   } else {
     METLIBS_LOG_ERROR("Grid type not supported, GTModelType = " << modeltype);
     return -1;
   }
-
-  ginfo.projection.setProj4Definition(proj4.str());
 
   ginfo.Bx = x_0 * unit_scale_factor;
   ginfo.By = y_0 * unit_scale_factor;
