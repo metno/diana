@@ -470,68 +470,84 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
     }
 
   } else if (modeltype == ModelTypeProjected) {
-    unsigned short ProjCoordTrans;
-    double ProjFalseEasting, ProjFalseNorthing;
-    GTIFKeyGet(gtifin.get(), ProjCoordTransGeoKey, &ProjCoordTrans, 0, 1);
-    GTIFKeyGet(gtifin.get(), ProjFalseEastingGeoKey, &ProjFalseEasting, 0, 1);
-    GTIFKeyGet(gtifin.get(), ProjFalseNorthingGeoKey, &ProjFalseNorthing, 0, 1);
-
-    std::ostringstream proj4;
-    if (ProjCoordTrans == CT_PolarStereographic) {
-      // see http://geotiff.maptools.org/proj_list/polar_stereographic.html
-      double ProjNatOriginLat, ProjScaleAtNatOrigin = 1, ProjStraightVertPoleLong;
-      GTIFKeyGet(gtifin.get(), ProjNatOriginLatGeoKey, &ProjNatOriginLat, 0, 1);
-      GTIFKeyGet(gtifin.get(), ProjScaleAtNatOriginGeoKey, &ProjScaleAtNatOrigin, 0, 1);
-      GTIFKeyGet(gtifin.get(), ProjStraightVertPoleLongGeoKey, &ProjStraightVertPoleLong, 0, 1);
-      // clang-format off
-      proj4 << "+proj=stere"
-            << " +lat_ts=" << ProjNatOriginLat
-            << " +lat_0=" << (ProjNatOriginLat < 0 ? "-" : "") << "90"
-            << " +lon_0=" << ProjStraightVertPoleLong
-            << " +ellps=WGS84"
-            << " +units=m"
-            << " +k_0=" << ProjScaleAtNatOrigin;
-      // clang-format on
-    } else if (ProjCoordTrans == CT_Mercator) {
-      // see http://geotiff.maptools.org/proj_list/mercator_1sp.html
-      double ProjNatOriginLong, ProjNatOriginLat, ProjScaleAtNatOrigin;
-      GTIFKeyGet(gtifin.get(), ProjNatOriginLongGeoKey, &ProjNatOriginLong, 0, 1);
-      GTIFKeyGet(gtifin.get(), ProjNatOriginLatGeoKey, &ProjNatOriginLat, 0, 1);
-      GTIFKeyGet(gtifin.get(), ProjScaleAtNatOriginGeoKey, &ProjScaleAtNatOrigin, 0, 1);
-      // clang-format off
-      proj4 << "+proj=merc"
-            << " +lon_0=" << ProjNatOriginLong
-            << " +lat_0=" << ProjNatOriginLat
-            << " +k_0=" << ProjScaleAtNatOrigin;
-      // clang-format on
-    } else if (ProjCoordTrans == CT_Equirectangular) {
-      // see http://geotiff.maptools.org/proj_list/equirectangular.html
-      double ProjCenterLong, ProjCenterLat, ProjStdParallel1;
-      GTIFKeyGet(gtifin.get(), ProjCenterLongGeoKey, &ProjCenterLong, 0, 1);
-      GTIFKeyGet(gtifin.get(), ProjCenterLatGeoKey, &ProjCenterLat, 0, 1);
-      GTIFKeyGet(gtifin.get(), ProjStdParallel1GeoKey, &ProjStdParallel1, 0, 1);
-      // clang-format off
-      proj4 << "+proj=eqc"
-            << " +lat_ts=" << ProjCenterLat
-            << " +lon_0=" << ProjCenterLong;
-      // clang-format on
-    } else if (ProjCoordTrans == CT_LambertConfConic_2SP) {
-      // see http://geotiff.maptools.org/proj_list/lambert_conic_conformal_2sp.html
-      double ProjStdParallel1 = 63, ProjStdParallel2 = 63, ProjFalseOriginLat = 63, ProjFalseOriginLong = 15;
-      GTIFKeyGet(gtifin.get(), ProjStdParallel1GeoKey, &ProjStdParallel1, 0, 1);
-      GTIFKeyGet(gtifin.get(), ProjStdParallel2GeoKey, &ProjStdParallel2, 0, 1);
-      GTIFKeyGet(gtifin.get(), ProjFalseOriginLatGeoKey, &ProjFalseOriginLat, 0, 1);
-      GTIFKeyGet(gtifin.get(), ProjFalseOriginLongGeoKey, &ProjFalseOriginLong, 0, 1);
-      proj4 << "+proj=lcc"
-            << " +lat_1=" << ProjStdParallel1     // latitude of first standard parallel
-            << " +lat_2=" << ProjStdParallel2     // latitude of second standard parallel
-            << " +lat_0=" << ProjFalseOriginLat   // latitude of false origin
-            << " +lon_0=" << ProjFalseOriginLong; // longitude of false origin
-    } else {
-      METLIBS_LOG_ERROR("Projection " << ProjCoordTrans << " not yet supported");
+    unsigned short ProjectedCSType = 0;
+    if (!GTIFKeyGet(gtifin.get(), ProjectedCSTypeGeoKey, &ProjectedCSType, 0, 1)) {
+      METLIBS_LOG_ERROR("geotiff key ProjectedCSTypeGeoKey could not be read");
       return -1;
     }
-    proj4 << " +x_0=" << ProjFalseEasting << " +y_0=" << ProjFalseNorthing;
+    std::ostringstream proj4;
+    if (ProjectedCSType >= 1024 && ProjectedCSType <= 32766) {
+      // EPSG code; note: this range is for geotiff 1.1, in geotiff 1.0 the range was 20000 to 32766
+      proj4 << "+init=epsg:" << ProjectedCSType;
+    } else /*if (ProjectedCSType == 32767)*/ {
+      unsigned short ProjCoordTrans = 0;
+      if (!GTIFKeyGet(gtifin.get(), ProjectionGeoKey, &ProjCoordTrans, 0, 1)) {
+        METLIBS_LOG_ERROR("geotiff key ProjectionGeoKey could not be read");
+        return -1;
+      }
+      if (ProjCoordTrans == CT_PolarStereographic) {
+        // see http://geotiff.maptools.org/proj_list/polar_stereographic.html
+        double ProjNatOriginLat, ProjScaleAtNatOrigin = 1, ProjStraightVertPoleLong;
+        GTIFKeyGet(gtifin.get(), ProjNatOriginLatGeoKey, &ProjNatOriginLat, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjScaleAtNatOriginGeoKey, &ProjScaleAtNatOrigin, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjStraightVertPoleLongGeoKey, &ProjStraightVertPoleLong, 0, 1);
+        // clang-format off
+        proj4 << "+proj=stere"
+              << " +lat_ts=" << ProjNatOriginLat
+              << " +lat_0=" << (ProjNatOriginLat < 0 ? "-" : "") << "90"
+              << " +lon_0=" << ProjStraightVertPoleLong
+              << " +ellps=WGS84"
+              << " +units=m"
+              << " +k_0=" << ProjScaleAtNatOrigin;
+        // clang-format on
+      } else if (ProjCoordTrans == CT_Mercator) {
+        // see http://geotiff.maptools.org/proj_list/mercator_1sp.html
+        double ProjNatOriginLong, ProjNatOriginLat, ProjScaleAtNatOrigin;
+        GTIFKeyGet(gtifin.get(), ProjNatOriginLongGeoKey, &ProjNatOriginLong, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjNatOriginLatGeoKey, &ProjNatOriginLat, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjScaleAtNatOriginGeoKey, &ProjScaleAtNatOrigin, 0, 1);
+        // clang-format off
+        proj4 << "+proj=merc"
+              << " +lon_0=" << ProjNatOriginLong
+              << " +lat_0=" << ProjNatOriginLat
+              << " +k_0=" << ProjScaleAtNatOrigin;
+        // clang-format on
+      } else if (ProjCoordTrans == CT_Equirectangular) {
+        // see http://geotiff.maptools.org/proj_list/equirectangular.html
+        double ProjCenterLong, ProjCenterLat, ProjStdParallel1;
+        GTIFKeyGet(gtifin.get(), ProjCenterLongGeoKey, &ProjCenterLong, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjCenterLatGeoKey, &ProjCenterLat, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjStdParallel1GeoKey, &ProjStdParallel1, 0, 1);
+        // clang-format off
+        proj4 << "+proj=eqc"
+              << " +lat_ts=" << ProjCenterLat
+              << " +lon_0=" << ProjCenterLong;
+        // clang-format on
+      } else if (ProjCoordTrans == CT_LambertConfConic_2SP) {
+        // see http://geotiff.maptools.org/proj_list/lambert_conic_conformal_2sp.html
+        double ProjStdParallel1 = 63, ProjStdParallel2 = 63, ProjFalseOriginLat = 63, ProjFalseOriginLong = 15;
+        GTIFKeyGet(gtifin.get(), ProjStdParallel1GeoKey, &ProjStdParallel1, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjStdParallel2GeoKey, &ProjStdParallel2, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjFalseOriginLatGeoKey, &ProjFalseOriginLat, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjFalseOriginLongGeoKey, &ProjFalseOriginLong, 0, 1);
+        proj4 << "+proj=lcc"
+              << " +lat_1=" << ProjStdParallel1     // latitude of first standard parallel
+              << " +lat_2=" << ProjStdParallel2     // latitude of second standard parallel
+              << " +lat_0=" << ProjFalseOriginLat   // latitude of false origin
+              << " +lon_0=" << ProjFalseOriginLong; // longitude of false origin
+      } else {
+        METLIBS_LOG_ERROR("Projection CT " << ProjCoordTrans << " not yet supported");
+        return -1;
+      }
+
+      double ProjFalseEasting = 0, ProjFalseNorthing = 0;
+      GTIFKeyGet(gtifin.get(), ProjFalseEastingGeoKey, &ProjFalseEasting, 0, 1);
+      GTIFKeyGet(gtifin.get(), ProjFalseNorthingGeoKey, &ProjFalseNorthing, 0, 1);
+      if (ProjFalseEasting != 0)
+        proj4 << " +x_0=" << ProjFalseEasting;
+      if (ProjFalseNorthing != 0)
+        proj4 << " +y_0=" << ProjFalseNorthing;
+    }
     ginfo.projection = Projection(proj4.str());
   } else {
     METLIBS_LOG_ERROR("Grid type not supported, GTModelType = " << modeltype);
