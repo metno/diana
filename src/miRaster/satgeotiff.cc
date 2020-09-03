@@ -184,44 +184,6 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char* image[]
     std::ostringstream oss;
     oss << "T=(" << ginfo.BIr << ")+(" << ginfo.AIr << ")*C";
     ginfo.cal_ir = oss.str();
-
-    image[1] = (unsigned char *) malloc(ginfo.ysize*ginfo.xsize);
-    int nStrips = TIFFNumberOfStrips(in.get());
-    int s = 0;
-    int tiles = TIFFNumberOfTiles(in.get());
-
-    if (tiles > nStrips) {
-      uint32 imageWidth,imageLength;
-      uint32 x, y;
-      tdata_t buf;
-
-      imageWidth  = ginfo.xsize;
-      imageLength = ginfo.ysize;
-      int tileSize = TIFFTileSize(in.get());
-
-      buf = _TIFFmalloc(tileSize);
-
-      for (y = 0; y < imageLength; y += tileLength) {
-        for (x = 0; x < imageWidth; x += tileWidth) {
-          tsize_t res = TIFFReadTile(in.get(), buf, x, y, 0, -1);
-          if (res > 0) {
-            // place tile buf in the larger image buffer in the right place
-            // t = to, f = from
-            for (int t=y*imageWidth + x, f=0;  f < tileSize; t += imageWidth, f += tileWidth) {
-              memcpy(&image[1][t], (unsigned char *)buf + f, tileWidth);
-            }
-          } else {
-            METLIBS_LOG_ERROR("TIFFReadTile Failed at tile: " << x << "," << y << " result: " << res);
-          }
-        }
-      }
-      _TIFFfree(buf);
-    }
-    else {
-      for (int i=0; i < nStrips; ++i) {
-        s += TIFFReadEncodedStrip(in.get(), i, image[1] + s, -1);
-      }
-    }
   }
   METLIBS_LOG_DEBUG(LOGVAL(ginfo.projection.getProj4Definition()) << LOGVAL(size)
                     << LOGVAL(ginfo.xsize) << LOGVAL(ginfo.ysize) << LOGVAL(ginfo.zsize)
