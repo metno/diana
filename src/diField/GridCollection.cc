@@ -785,6 +785,7 @@ std::map<std::string, FieldPlotInfo> GridCollection::getFieldPlotInfo(const std:
     FieldPlotInfo vi;
     vi.fieldName = gp.key.name;
     vi.standard_name = gp.standard_name;
+    vi.units = gp.unit;
 
     if (tax_from_filenames)
       vi.time_axis = tax_from_filenames;
