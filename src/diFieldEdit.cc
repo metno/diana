@@ -444,8 +444,7 @@ bool FieldEdit::readEditfield(const std::string& filename)
   cmd->addOptions(miutil::KeyValue_v() << miutil::kv("units", fieldUnit));
   std::vector<FieldPlotCommand_cp> vpin(1, cmd);
 
-  bool dummy = false;
-  plottimes_t times = fieldPlotManager->getFieldTime(vpin, dummy);
+  plottimes_t times = fieldPlotManager->getFieldTime(vpin);
   miTime time;
   if (!times.empty()) {
     time = *times.begin();

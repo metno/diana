@@ -244,6 +244,7 @@ void FieldDialogAdd::modelboxClicked(const QModelIndex& filterIndex)
 
   currentModel = m_modelgroup[indexMGR].models[indexM].modelName;
 
+  m_data->updateFieldReferenceTimes(currentModel);
   const set<std::string> refTimes = m_data->getFieldReferenceTimes(currentModel);
 
   for (const std::string& rt : refTimes) {

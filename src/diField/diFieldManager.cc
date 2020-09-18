@@ -440,7 +440,7 @@ std::map<std::string,std::string> FieldManager::getGlobalAttributes(const std::s
 {
   METLIBS_LOG_SCOPE(LOGVAL(modelName)<<LOGVAL(refTime));
 
-  if (GridCollectionPtr pgc = getGridCollection(modelName, refTime, false))
+  if (GridCollectionPtr pgc = getGridCollection(modelName, refTime))
     return pgc->getGlobalAttributes(refTime);
   else
     return std::map<std::string,std::string>();
@@ -449,15 +449,31 @@ std::map<std::string,std::string> FieldManager::getGlobalAttributes(const std::s
 std::map<std::string, FieldPlotInfo> FieldManager::getFieldPlotInfo(const std::string& modelName, const std::string& refTime)
 {
   METLIBS_LOG_SCOPE(LOGVAL(modelName)<<LOGVAL(refTime));
-  if (GridCollectionPtr pgc = getGridCollection(modelName, refTime, false))
+  if (GridCollectionPtr pgc = getGridCollection(modelName, refTime))
     return pgc->getFieldPlotInfo(refTime);
   else
     return std::map<std::string, FieldPlotInfo>();
 }
 
-FieldManager::GridCollectionPtr FieldManager::getGridCollection(const std::string& modelName, const std::string& refTime, bool updateSources)
+bool FieldManager::updateGridCollection(const std::string& modelName)
 {
-  METLIBS_LOG_TIME();
+  METLIBS_LOG_TIME(LOGVAL(modelName));
+
+  GridSources_t::iterator p = gridSources.find(modelName);
+  if (p == gridSources.end()) {
+    METLIBS_LOG_WARN("Undefined model '" << modelName << "'");
+    return false;
+  }
+
+  GridCollectionPtr pgc = p->second;
+  if (pgc->updateSources())
+    pgc->makeInventory("");
+  return true;
+}
+
+FieldManager::GridCollectionPtr FieldManager::getGridCollection(const std::string& modelName, const std::string& refTime)
+{
+  METLIBS_LOG_TIME(LOGVAL(modelName) << LOGVAL(refTime));
 
   GridSources_t::iterator p = gridSources.find(modelName);
   if (p == gridSources.end()) {
@@ -466,10 +482,8 @@ FieldManager::GridCollectionPtr FieldManager::getGridCollection(const std::strin
   }
 
   GridCollectionPtr pgc = p->second;
-  if (updateSources || !pgc->inventoryOk(refTime)) {
-    if (!updateSources || pgc->updateSources())
-      pgc->makeInventory(refTime);
-  }
+  if (!pgc->inventoryOk(refTime))
+    pgc->makeInventory(refTime);
   return pgc;
 }
 
@@ -510,7 +524,7 @@ gridinventory::Grid FieldManager::getGrid(const std::string& modelName)
 {
   std::string reftime = getBestReferenceTime(modelName, 0, -1);
   gridinventory::Grid grid;
-  GridCollectionPtr pgc = getGridCollection(modelName, reftime, false);
+  GridCollectionPtr pgc = getGridCollection(modelName, reftime);
 
   if (pgc) {
     grid = pgc->getGrids();
@@ -519,12 +533,12 @@ gridinventory::Grid FieldManager::getGrid(const std::string& modelName)
   return grid;
 }
 
-plottimes_t FieldManager::getFieldTime(const FieldRequest& frq, bool updateSources)
+plottimes_t FieldManager::getFieldTime(const FieldRequest& frq)
 {
   METLIBS_LOG_SCOPE(LOGVAL(frq.modelName) << LOGVAL(frq.refTime) << LOGVAL(frq.paramName) << LOGVAL(frq.zaxis) << LOGVAL(frq.plevel));
   plottimes_t times;
 
-  if (GridCollectionPtr pgc = getGridCollection(frq.modelName, frq.refTime, updateSources)) {
+  if (GridCollectionPtr pgc = getGridCollection(frq.modelName, frq.refTime)) {
     // if fieldrequest.paramName is a standard_name, find variable_name (times will be empty if translation to variable name fails)
     std::string paramName = frq.paramName;
     if (!frq.standard_name || pgc->standardname2variablename(frq.refTime, frq.paramName, paramName))
@@ -545,7 +559,7 @@ plottimes_t FieldManager::getFieldTime(const FieldRequest& frq, bool updateSourc
   return times;
 }
 
-plottimes_t FieldManager::getFieldTime(const std::vector<FieldRequest>& fieldrequests, bool updateSources)
+plottimes_t FieldManager::getFieldTime(const std::vector<FieldRequest>& fieldrequests)
 {
   METLIBS_LOG_SCOPE();
 
@@ -555,7 +569,7 @@ plottimes_t FieldManager::getFieldTime(const std::vector<FieldRequest>& fieldreq
   for (const FieldRequest& frq : fieldrequests) {
     allTimeSteps &= frq.allTimeSteps;
 
-    const plottimes_t frq_times = getFieldTime(frq, updateSources);
+    const plottimes_t frq_times = getFieldTime(frq);
     if (allTimeSteps) {
       diutil::insert_all(all_times, frq_times);
     } else if (all_times.empty()) {
@@ -572,7 +586,7 @@ plottimes_t FieldManager::getFieldTime(const std::vector<FieldRequest>& fieldreq
 
 std::set<std::string> FieldManager::getReferenceTimes(const std::string& modelName)
 {
-  if (GridCollectionPtr pgc = getGridCollection(modelName, "", true))
+  if (GridCollectionPtr pgc = getGridCollection(modelName, ""))
     return pgc->getReferenceTimes();
   else
     return set<std::string>();
@@ -589,7 +603,7 @@ Field_p FieldManager::makeField(const FieldRequest& frq)
   METLIBS_LOG_TIME(LOGVAL(frq.modelName) << LOGVAL(frq.paramName) << LOGVAL(frq.zaxis) << LOGVAL(frq.refTime) << LOGVAL(frq.ptime) << LOGVAL(frq.plevel)
                                          << LOGVAL(frq.elevel) << LOGVAL(frq.unit));
 
-  GridCollectionPtr pgc = getGridCollection(frq.modelName, frq.refTime, false);
+  GridCollectionPtr pgc = getGridCollection(frq.modelName, frq.refTime);
   if (!pgc) {
     METLIBS_LOG_WARN("could not find grid collection for model=" << frq.modelName << " reftime=" << frq.refTime);
     return nullptr;
@@ -657,7 +671,7 @@ bool FieldManager::writeField(const FieldRequest& fieldrequest, Field_cp field)
       << LOGVAL(fieldrequest.ptime) << LOGVAL(fieldrequest.plevel)
       << LOGVAL(fieldrequest.elevel) << LOGVAL(fieldrequest.unit));
 
-  GridCollectionPtr pgc = getGridCollection(fieldrequest.modelName, fieldrequest.refTime, false);
+  GridCollectionPtr pgc = getGridCollection(fieldrequest.modelName, fieldrequest.refTime);
 
   if (not pgc) {
     METLIBS_LOG_WARN(LOGVAL(fieldrequest.modelName) << LOGVAL(fieldrequest.refTime) << "' not found");

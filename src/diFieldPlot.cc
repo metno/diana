@@ -190,7 +190,7 @@ const miutil::miTime& FieldPlot::getAnalysisTime() const
 
 plottimes_t FieldPlot::getFieldTimes() const
 {
-  return fieldplotm_->getFieldTime(std::vector<FieldPlotCommand_cp>(1, cmd_), false);
+  return fieldplotm_->getFieldTime(std::vector<FieldPlotCommand_cp>(1, cmd_));
 }
 
 miutil::miTime FieldPlot::getReferenceTime() const

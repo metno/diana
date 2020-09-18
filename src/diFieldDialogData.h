@@ -56,6 +56,9 @@ public:
   /// return the reference time given by refOffset and refhour or the last reference time for the given model
   virtual std::string getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour) = 0;
 
+  /// update reference times for the given model
+  virtual void updateFieldReferenceTimes(const std::string& model) = 0;
+
   /// return all reference times for the given model
   virtual std::set<std::string> getFieldReferenceTimes(const std::string& model) = 0;
 

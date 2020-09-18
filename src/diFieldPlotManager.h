@@ -68,6 +68,7 @@ public:
   bool addGridCollection(const std::string& modelname, const std::string& filename, bool writeable);
 
   FieldModelGroupInfo_v getFieldModelGroups();
+  void updateFieldReferenceTimes(const std::string& model);
   std::set<std::string> getFieldReferenceTimes(const std::string& model);
 
   void getSetupFieldOptions(std::map<std::string, miutil::KeyValue_v>& fieldoptions) const;
@@ -78,7 +79,7 @@ public:
 
   std::map<std::string, std::string> getFieldGlobalAttributes(const std::string& modelName, const std::string& refTime);
 
-  plottimes_t getFieldTime(std::vector<FieldRequest>& request, bool updateSources = false);
+  plottimes_t getFieldTime(std::vector<FieldRequest>& request);
 
   /// return all field groups for one model/file (to FieldDialog)
   void getFieldPlotGroups(const std::string& modelName, const std::string& refTime, bool predefinedPlots, FieldPlotGroupInfo_v& vfgi);
@@ -90,7 +91,7 @@ public:
   gridinventory::Grid getFieldGrid(const std::string& model);
 
   /// Returns the available times for the selected models and fields.
-  plottimes_t getFieldTime(const std::vector<FieldPlotCommand_cp>& pinfos, bool updateSources = false);
+  plottimes_t getFieldTime(const std::vector<FieldPlotCommand_cp>& pinfos);
 
   miutil::miTime getFieldReferenceTime(FieldPlotCommand_cp cmd);
 
