@@ -44,11 +44,14 @@ IF (ENABLE_HDF5)
 ENDIF ()
 
 SET (DIFIELD_SOURCES
+  diField/CachedGridIO.cc
   diField/DataReshape.cc
   diField/FimexIO.cc
   diField/FimexSource.cc
   diField/GridCollection.cc
   diField/GridIO.cc
+  diField/GridIOBase.cc
+  diField/GridIOsetup.cc
   diField/GridInventoryTypes.cc
   diField/VcrossData.cc
   diField/VcrossSource.cc
@@ -56,8 +59,8 @@ SET (DIFIELD_SOURCES
   diField/diArea.cc
   diField/diCommonFieldTypes.cc
   diField/diField.cc
-  diField/diFieldFwd.h
   diField/diFieldFunctions.cc
+  diField/diFieldFwd.h
   diField/diFieldManager.cc
   diField/diFieldUtil.cc
   diField/diFieldVerticalAxes.cc

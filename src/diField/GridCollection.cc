@@ -37,13 +37,15 @@
 #include "diana_config.h"
 
 #include "GridCollection.h"
-#include "GridIO.h"
+
+#include "CachedGridIO.h"
 #ifdef FIMEX
 #include "FimexIO.h"
 #endif
 #include "../diFieldUtil.h"
 #include "../diUtilities.h"
 #include "VcrossUtil.h"
+#include "diField.h"
 #include "diFieldFunctions.h"
 #include "util/misc_util.h"
 #include "util/nearest_element.h"
@@ -306,7 +308,7 @@ bool GridCollection::makeGridIOinstances()
       }
 
       // new source - add them according to the source type
-      GridIO* gp = 0;
+      GridIOBase* gp = 0;
 #ifdef FIMEX
       if (sourcetype == FimexIO::getSourceType()) {
         gp = new FimexIO(collectionname, sourcename, reftime_from_filename, format, config,
@@ -314,6 +316,9 @@ bool GridCollection::makeGridIOinstances()
       }
 #endif
       if ( gp ) {
+#if 0
+        gp = new CachedGridIO(gp);
+#endif
         gridsources.push_back(gp);
         if ( timeFromFilename ) {
           gridsourcesTimeMap[time]=gp;
@@ -345,7 +350,7 @@ bool GridCollection::makeInventory(const std::string& refTime)
   inventoryOK.clear();
   inventory.clear();
 
-  for (GridIO* io : gridsources) {
+  for (const auto io : gridsources) {
     // enforce the reference time limits
     //    (*itr)->setReferencetimeLimits(limit_min, limit_max); // not used yet
 
@@ -385,7 +390,7 @@ bool GridCollection::makeInventory(const std::string& refTime)
 
 bool GridCollection::sourcesChanged()
 {
-  for (GridIO* io : gridsources)
+  for (const auto& io : gridsources)
     if (io->sourceChanged(false))
       return true;
   return false;
@@ -428,7 +433,7 @@ std::set<std::string> GridCollection::getReferenceTimes() const
 const gridinventory::GridParameter* GridCollection::dataExists(const std::string& reftime, const std::string& paramname)
 {
   METLIBS_LOG_SCOPE("searching for: " <<LOGVAL(paramname));
-  for (GridIO* io : gridsources) {
+  for (const auto io : gridsources) {
     if (const gridinventory::GridParameter* param = dataExists_reftime(io->getReftimeInventory(reftime), paramname)) {
       return param;
     }
@@ -451,8 +456,8 @@ Field_p GridCollection::getData(const std::string& reftime, const std::string& p
   miutil::miTime  actualtime;
 
   if (timeFromFilename && getActualTime(reftime, paramname, time, time_tolerance, actualtime)) {
-    std::map<miutil::miTime,GridIO*>::const_iterator ip = gridsourcesTimeMap.find(actualtime);
-    if ( ip != gridsourcesTimeMap.end()) {
+    const auto ip = gridsourcesTimeMap.find(actualtime);
+    if (ip != gridsourcesTimeMap.end()) {
       ip->second->makeInventory(reftime);
       if (const gridinventory::GridParameter* param = dataExists_reftime(ip->second->getReftimeInventory(reftime), paramname)) {
         // Ignore time from file, just use the first timestep
@@ -464,7 +469,7 @@ Field_p GridCollection::getData(const std::string& reftime, const std::string& p
     }
 
   } else {
-    for (GridIO* io : gridsources) {
+    for (const auto io : gridsources) {
       gridinventory::GridParameter param;
       if (const gridinventory::GridParameter* param = dataExists_reftime(io->getReftimeInventory(reftime), paramname)) {
         if (param->key.taxis.empty() || getActualTime(reftime, paramname, time, time_tolerance, actualtime)) {
@@ -484,7 +489,7 @@ Field_p GridCollection::getData(const std::string& reftime, const std::string& p
  */
 vcross::Values_p GridCollection::getVariable(const std::string& reftime, const std::string& paramname)
 {
-  for (GridIO* io : gridsources) {
+  for (const auto io : gridsources) {
     if (const gridinventory::GridParameter* gp = dataExists_reftime(io->getReftimeInventory(reftime), paramname)) {
       return io->getVariable(paramname);
     }
@@ -498,7 +503,7 @@ std::set<miutil::miTime> GridCollection::getTimesFromIO(const std::string& refti
   METLIBS_LOG_SCOPE(LOGVAL(reftime) << LOGVAL(paramname));
   std::set<miutil::miTime> times;
 
-  for (GridIO* io : gridsources) {
+  for (const auto io : gridsources) {
     if (const gridinventory::GridParameter* gp = dataExists_reftime(io->getReftimeInventory(reftime), paramname)) {
       const Taxis& tx = io->getTaxis(reftime, gp->key.taxis);
       for (double v : tx.values) {
@@ -598,19 +603,16 @@ bool GridCollection::putData(const std::string& reftime, const std::string& para
   METLIBS_LOG_SCOPE(LOGVAL(reftime) << LOGVAL(paramname)
       << LOGVAL(level) << LOGVAL(time) <<  LOGVAL(elevel) << LOGVAL(output_time));
 
-#ifdef FIMEX
-  for (GridIO* io : gridsources) {
-    if (FimexIO* fio = dynamic_cast<FimexIO*>(io)) {
-      if (const gridinventory::GridParameter* param = dataExists_reftime(fio->getReftimeInventory(reftime), paramname)) {
-        // data exists ... calling getData
-        miutil::miTime actualtime;
-        return fio->putData(reftime, *param, level, actualtime, elevel, unit, field, output_time);
-      }
+  for (auto io : gridsources) {
+    if (const gridinventory::GridParameter* param = dataExists_reftime(io->getReftimeInventory(reftime), paramname)) {
+      // data exists ... calling getData
+      miutil::miTime actualtime;
+      return io->putData(reftime, *param, level, actualtime, elevel, unit, field, output_time);
     }
   }
-#endif
-  METLIBS_LOG_WARN("giving up .. returning 0");
-  return 0;
+
+  METLIBS_LOG_WARN("giving up ...");
+  return false;
 }
 
 bool GridCollection::updateSources()

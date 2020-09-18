@@ -35,6 +35,7 @@
 #include "diFieldManager.h"
 
 #include "GridCollection.h"
+#include "diField.h"
 #include "miSetupParser.h"
 
 #include "../diFieldUtil.h"

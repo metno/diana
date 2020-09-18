@@ -43,7 +43,7 @@
 #include <string>
 #include <vector>
 
-class GridIO;
+class GridIOBase;
 class GridIOsetup;
 
 class GridCollection {
@@ -146,9 +146,9 @@ private:
   /// the combined inventory with computed parameters
   gridinventory::ReftimeInventory computed_inventory;
   /// the actual data-containers - list of GridIO objects
-  typedef std::vector<GridIO*> gridsources_t;
+  typedef std::vector<GridIOBase*> gridsources_t;
   gridsources_t gridsources;
-  std::map<miutil::miTime, GridIO*> gridsourcesTimeMap;
+  std::map<miutil::miTime, GridIOBase*> gridsourcesTimeMap;
 
   bool useTimeFromFilename() const { return timeFromFilename; }
 
