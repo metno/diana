@@ -341,6 +341,8 @@ bool GridCollection::makeInventory(const std::string& refTime)
 {
   METLIBS_LOG_TIME(LOGVAL(refTime));
 
+  reftime_fieldplotinfo_.erase(refTime);
+
   bool ok = true;
   // decide if we should make new GridIO instances
   if (gridsources.empty()) {
@@ -753,7 +755,7 @@ FieldPlotAxis_cp AxisCache<Axis>::find(const std::string& id)
 
 } // namespace
 
-std::map<std::string, FieldPlotInfo> GridCollection::getFieldPlotInfo(const std::string& refTime)
+std::map<std::string, FieldPlotInfo> GridCollection::buildFieldPlotInfo(const std::string& refTime)
 {
   METLIBS_LOG_SCOPE(LOGVAL(refTime));
 
@@ -811,6 +813,14 @@ std::map<std::string, FieldPlotInfo> GridCollection::getFieldPlotInfo(const std:
   }
 
   return fieldInfo;
+}
+
+const std::map<std::string, FieldPlotInfo>& GridCollection::getFieldPlotInfo(const std::string& refTime)
+{
+  auto it = reftime_fieldplotinfo_.find(refTime);
+  if (it == reftime_fieldplotinfo_.end())
+    it = reftime_fieldplotinfo_.insert(std::make_pair(refTime, buildFieldPlotInfo(refTime))).first;
+  return it->second;
 }
 
 Field_p GridCollection::getField(const FieldRequest& fieldrequest)

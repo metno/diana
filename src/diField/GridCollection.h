@@ -113,7 +113,7 @@ public:
 
   std::map<std::string, std::string> getGlobalAttributes(const std::string& refTime);
 
-  std::map<std::string, FieldPlotInfo> getFieldPlotInfo(const std::string& refTime);
+  const std::map<std::string, FieldPlotInfo>& getFieldPlotInfo(const std::string& refTime);
 
   Field_p getField(const FieldRequest& fieldrequest);
 
@@ -145,6 +145,8 @@ private:
   gridinventory::Inventory inventory;
   /// the combined inventory with computed parameters
   gridinventory::ReftimeInventory computed_inventory;
+  /// plot information for each reference time
+  std::map<std::string, std::map<std::string, FieldPlotInfo>> reftime_fieldplotinfo_;
   /// the actual data-containers - list of GridIO objects
   typedef std::vector<GridIOBase*> gridsources_t;
   gridsources_t gridsources;
@@ -191,6 +193,8 @@ private:
    */
   Field_p getData(const std::string& reftime, const std::string& paramname, const std::string& zaxis, const std::string& taxis, const std::string& extraaxis,
                   const std::string& level, const miutil::miTime& time, const std::string& elevel, const int& time_tolerance);
+
+  std::map<std::string, FieldPlotInfo> buildFieldPlotInfo(const std::string& refTime);
 
   /**
    * check if any sources has changed
