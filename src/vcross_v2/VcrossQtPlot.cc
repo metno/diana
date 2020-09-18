@@ -34,11 +34,12 @@
 #include "VcrossQtContour.h"
 #include "VcrossQtPaint.h"
 #include "VcrossQtUtil.h"
+#include "diField/VcrossUtil.h"
 #include "diLinetype.h"
 #include "diPoint.h"
 #include "diUtilities.h"
+#include "qtUtility.h"
 #include "util/qstring_util.h"
-#include "diField/VcrossUtil.h"
 
 #include <mi_fieldcalc/MetConstants.h>
 #include <mi_fieldcalc/math_util.h>
@@ -183,9 +184,9 @@ void QtPlot::plotText(QPainter& painter, const std::vector<std::string>& annotat
   size_t idx_plot = 0;
   for (OptionPlot_cp plot : mPlots) {
     if (plot->poptions.options_1)
-      painter.setPen(util::QC(colourOrContrast(plot->poptions.linecolour)));
+      painter.setPen(diutil::QC(colourOrContrast(plot->poptions.linecolour)));
     else
-      painter.setPen(util::QC(colourOrContrast(mOptions->textColour)));
+      painter.setPen(diutil::QC(colourOrContrast(mOptions->textColour)));
     painter.drawText(QPointF(xModel, yPlot), QString::fromStdString(plot->model()));
     painter.drawText(QPointF(xField, yPlot), QString::fromStdString(plot->name()));
     if (idx_plot < reftimes.size())
@@ -205,7 +206,7 @@ void QtPlot::plotText(QPainter& painter, const std::vector<std::string>& annotat
         + " " + diutil::formatLatitude(mTimeCSPoint.latDeg(), 1, 5);
   }
   const float label_w = painter.fontMetrics().width(label);
-  painter.setPen(util::QC(colourOrContrast(mOptions->textColour)));
+  painter.setPen(diutil::QC(colourOrContrast(mOptions->textColour)));
   painter.drawText(QPointF(mTotalSize.width() - label_w - mCharSize.width(), yCSName), label);
   if (not isTimeGraph()) { // show cross section time
     const QString time = QString::fromStdString(mCrossectionTime.isoTime());
@@ -760,7 +761,7 @@ void QtPlot::plot(QPainter& painter)
   if (mViewChanged)
     prepareView(painter);
 
-  painter.fillRect(QRect(QPoint(0,0), mTotalSize), vcross::util::QC(mBackColour));
+  painter.fillRect(QRect(QPoint(0, 0), mTotalSize), diutil::QC(mBackColour));
   if (mPlots.empty())
     return;
 
@@ -809,7 +810,7 @@ void QtPlot::plotTitle(QPainter& painter)
     const OptionMarker& m = *im;
 
     QString q_str = QString::fromStdString(m.text);
-    painter.setPen(util::QC(Colour(m.colour)));
+    painter.setPen(diutil::QC(Colour(m.colour)));
 
     float mx = 0, my = y;
     if (m.position >= 0) {
@@ -850,7 +851,7 @@ void QtPlot::plotXLabels(QPainter& painter)
     float labelY = mAxisY->getPaintMin() + lines_1;
     // Distance from reference position (default left end)
     if (mOptions->pDistance) {
-      QPen pen(vcross::util::QC(colourOrContrast(mOptions->distanceColour)));
+      QPen pen(diutil::QC(colourOrContrast(mOptions->distanceColour)));
       painter.setPen(pen);
       float unit;
       std::string uname;
@@ -931,7 +932,7 @@ void QtPlot::plotXLabels(QPainter& painter)
     }
     // latitude,longitude
     if (mOptions->pGeoPos) {
-      painter.setPen(vcross::util::QC(colourOrContrast(mOptions->geoposColour)));
+      painter.setPen(diutil::QC(colourOrContrast(mOptions->geoposColour)));
       float nextLabelX = mAxisX->getPaintMin();
       for (size_t i=0; i<mCrossectionDistances.size(); ++i) {
         const float distance = mCrossectionDistances.at(i);
@@ -969,7 +970,7 @@ void QtPlot::plotXLabels(QPainter& painter)
   } else { // time graph
     float labelY = mAxisY->getPaintMin() + lines_1;
     if (mOptions->pDistance or mOptions->pGeoPos) {
-      painter.setPen(vcross::util::QC(colourOrContrast(mOptions->distanceColour)));
+      painter.setPen(diutil::QC(colourOrContrast(mOptions->distanceColour)));
       float nextLabelX = mAxisX->getPaintMin();
       for (size_t i=0; i<mTimeDistances.size(); ++i) {
         const float minutes = mTimeDistances.at(i);
@@ -1023,7 +1024,7 @@ void QtPlot::plotSurface(QPainter& painter)
 
   painter.save();
   painter.setPen(Qt::NoPen);
-  painter.setBrush(vcross::util::QC(Colour(mOptions->surfaceColour)));
+  painter.setBrush(diutil::QC(Colour(mOptions->surfaceColour)));
 
   QPolygonF polygon; // TODO set pen etc
   const int nx = mSurface->shape().length(H_COORD);
@@ -1066,7 +1067,7 @@ void QtPlot::plotVerticalGridLines(QPainter& painter)
   if (not mOptions->pVerticalGridLines)
     return;
 
-  QPen pen(vcross::util::QC(colourOrContrast(mOptions->vergridColour)), mOptions->vergridLinewidth);
+  QPen pen(diutil::QC(colourOrContrast(mOptions->vergridColour)), mOptions->vergridLinewidth);
   vcross::util::setDash(pen, mOptions->vergridLinetype);
   painter.setPen(pen);
 
@@ -1086,7 +1087,7 @@ void QtPlot::plotHorizontalGridLines(QPainter& painter, const ticks_t& tickValue
   if (not mOptions->pHorizontalGridLines)
     return;
 
-  QPen pen(vcross::util::QC(colourOrContrast(mOptions->horgridColour)), mOptions->horgridLinewidth);
+  QPen pen(diutil::QC(colourOrContrast(mOptions->horgridColour)), mOptions->horgridLinewidth);
   vcross::util::setDash(pen, mOptions->horgridLinetype);
   painter.setPen(pen);
 
@@ -1111,8 +1112,7 @@ void QtPlot::plotFrame(QPainter& painter,
     return;
 
   // colour etc. for frame etc.
-  const QPen pen(vcross::util::QC(colourOrContrast(mOptions->frameColour)),
-      mOptions->frameLinewidth);
+  const QPen pen(diutil::QC(colourOrContrast(mOptions->frameColour)), mOptions->frameLinewidth);
 
   if (mOptions->pFrame) {
     // paint frame
@@ -1248,7 +1248,7 @@ void QtPlot::plotDataContour(QPainter& painter, OptionPlot_cp plot)
     contouring::run(con_field, con_lines);
     con_lines.paint();
   } catch (contouring::too_many_levels& ex) {
-    QPen pen(vcross::util::QC(plot->poptions.linecolour));
+    QPen pen(diutil::QC(plot->poptions.linecolour));
     painter.setPen(pen);
     painter.setBrush(Qt::NoBrush);
     painter.drawText(area.center(), "too many lines");
@@ -1308,7 +1308,7 @@ void QtPlot::plotDataVectorExample(QPainter& painter, OptionPlot_cp plot)
   pv.setThickArrowScale(plot->poptions.vectorthickness);
   plotDataArrow(painter, plot, pv, ep->values(0), ep->values(1));
 
-  const QColor color(vcross::util::QC(plot->poptions.linecolour));
+  const QColor color(diutil::QC(plot->poptions.linecolour));
   painter.setPen(QPen(color, plot->poptions.linewidth));
 
   const int example_length = 50 / pv.size();
@@ -1354,7 +1354,7 @@ void QtPlot::plotDataArrow(QPainter& painter, OptionPlot_cp plot, const PaintArr
 {
   METLIBS_LOG_SCOPE(LOGVAL(plot->name()));
 
-  const QColor color(vcross::util::QC(plot->poptions.linecolour));
+  const QColor color(diutil::QC(plot->poptions.linecolour));
   painter.setPen(QPen(color, plot->poptions.linewidth));
   painter.setBrush(color);
 
@@ -1507,7 +1507,7 @@ std::string QtPlot::plotDataExtremes(QPainter& painter, OptionPlot_cp plot)
   // step 2 draw cross for min, point for max
   std::string annotation;
   if (have_max or have_min) {
-    const QColor color(vcross::util::QC(plot->poptions.linecolour));
+    const QColor color(diutil::QC(plot->poptions.linecolour));
     painter.setPen(QPen(color, plot->poptions.linewidth));
     painter.setBrush(Qt::NoBrush);
 
@@ -1540,7 +1540,7 @@ void QtPlot::plotDataLine(QPainter& painter, const OptionLine& ol)
   }
 
   painter.save();
-  QPen pen(vcross::util::QC(colourOrContrast(ol.linecolour)), ol.linewidth);
+  QPen pen(diutil::QC(colourOrContrast(ol.linecolour)), ol.linewidth);
   vcross::util::setDash(pen, ol.linetype);
   painter.setPen(pen);
 
