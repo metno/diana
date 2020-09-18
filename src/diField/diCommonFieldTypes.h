@@ -62,6 +62,7 @@ struct FieldPlotInfo
   std::string variableName;
   std::string groupName;
   std::string standard_name;
+  FieldPlotAxis_cp time_axis;
   FieldPlotAxis_cp vertical_axis;
   FieldPlotAxis_cp realization_axis; //(EPS clusters, EPS single runs etc.)
 

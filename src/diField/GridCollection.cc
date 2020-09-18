@@ -700,6 +700,21 @@ FieldPlotAxis_cp createFieldPlotAxisFromGridInventory(const Zaxis& zaxis)
   return vax;
 }
 
+FieldPlotAxis_cp createFieldPlotAxisFromGridInventory(const gridinventory::Taxis& taxis)
+{
+  FieldPlotAxis_p tax = std::make_shared<FieldPlotAxis>();
+  tax->name = taxis.getName();
+  tax->values.reserve(taxis.values.size());
+  for (double v : taxis.values) {
+    // double -> miTime -> iso string
+    time_t t = v;
+    miutil::miTime tt(t);
+    if (!tt.undef())
+      tax->values.push_back(tt.isoTime("T"));
+  }
+  return tax;
+}
+
 template <class Axis>
 struct AxisCache
 {
@@ -754,12 +769,27 @@ std::map<std::string, FieldPlotInfo> GridCollection::getFieldPlotInfo(const std:
 
   AxisCache<gridinventory::Zaxis> plot_axes_vertical(ritr->second.zaxes);
   AxisCache<gridinventory::ExtraAxis> plot_axes_realization(ritr->second.extraaxes);
+  AxisCache<gridinventory::Taxis> plot_axes_time(ritr->second.taxes);
+
+  FieldPlotAxis_p tax_from_filenames;
+  if (useTimeFromFilename()) {
+    const auto& tff = getTimesFromFilename();
+    tax_from_filenames = std::make_shared<FieldPlotAxis>();
+    tax_from_filenames->name = "time";
+    tax_from_filenames->values.reserve(tff.size());
+    for (const auto& tt : getTimesFromFilename())
+      tax_from_filenames->values.push_back(tt.isoTime("T"));
+  }
 
   for (const gridinventory::GridParameter& gp : ritr->second.parameters) {
     FieldPlotInfo vi;
     vi.fieldName = gp.key.name;
     vi.standard_name = gp.standard_name;
 
+    if (tax_from_filenames)
+      vi.time_axis = tax_from_filenames;
+    else
+      vi.time_axis = plot_axes_time.find(gp.taxis_id);
     vi.vertical_axis = plot_axes_vertical.find(gp.zaxis_id);
     vi.realization_axis = plot_axes_realization.find(gp.extraaxis_id);
 
