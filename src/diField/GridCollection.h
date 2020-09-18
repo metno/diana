@@ -152,7 +152,7 @@ private:
 
   bool useTimeFromFilename() const { return timeFromFilename; }
 
-  std::set<miutil::miTime> getTimesFromFilename() const { return timesFromFilename; }
+  const std::set<miutil::miTime>& getTimesFromFilename() const { return timesFromFilename; }
 
   /**
    * Check if data exists
