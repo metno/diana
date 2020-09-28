@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2015 met.no
+ Copyright (C) 2006-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -31,12 +31,15 @@
 
 #include "diProjection.h"
 #include "util/geo_util.h"
+#include "util/subprocess.h"
 
 #include <mi_fieldcalc/math_util.h>
 #include <mi_fieldcalc/openmp_tools.h>
 
 #include <puDatatypes/miCoordinates.h> // for earth radius
 #include <puTools/miString.h>
+
+#include <QRegExp>
 
 #include <cfloat>
 #include <cmath>
@@ -50,6 +53,117 @@
 
 using namespace miutil;
 
+namespace {
+bool extractParameterFromWKT(const QString& wkt, const QString& key, double& value)
+{
+  QRegExp r_parameter("PARAMETER\\[\"" + key + "\", *([0-9.Ee+-]+)\\]");
+  bool ok = false;
+  if (r_parameter.indexIn(wkt) >= 0)
+    value = r_parameter.cap(1).toDouble(&ok);
+  return ok;
+}
+
+bool extractProj4ParameterFromWKT(QString& proj4, const QString& wkt, const QString& wktkey, const QString& proj4key, double dflt)
+{
+  double value;
+  if (!extractParameterFromWKT(wkt, wktkey, value))
+    return false;
+
+  if (value != dflt)
+    proj4 += QString(" +%1=%2").arg(proj4key).arg(value, 0, 'f');
+  return true;
+}
+
+bool extractProj4ParameterFromWKT(QString& proj4, const QString& wkt, const QString& wktkey, const QString& proj4key)
+{
+  return extractProj4ParameterFromWKT(proj4, wkt, wktkey, proj4key, std::nan(""));
+}
+
+bool setProjectionViaGdalSRSInfo(Projection& p, QString wkt)
+{
+  const QString PROJECTION_LCC     = "PROJECTION[\"Lambert_Conformal_Conic\"]";
+  const QString PROJECTION_LCC_2SP = "PROJECTION[\"Lambert_Conformal_Conic_2SP\"]";
+  if (wkt.contains(PROJECTION_LCC) && wkt.contains("PARAMETER[\"standard_parallel_1\",") && wkt.contains("PARAMETER[\"standard_parallel_2\",")) {
+    wkt.replace(PROJECTION_LCC, PROJECTION_LCC_2SP);
+    METLIBS_LOG_INFO("trying to fix wkt for gdalsrsinfo, new wkt='" << wkt.toStdString() << "'");
+  }
+
+  QByteArray gdalStdOut;
+  if (diutil::execute("gdalsrsinfo",
+                      QStringList() << "-o"
+                                    << "proj4" << wkt,
+                      &gdalStdOut) != 0)
+    return false;
+
+  QString proj4(gdalStdOut);
+
+  // gdalsrsinfo puts its proj4 output in quotes and adds some whitespace
+  proj4 = proj4.trimmed();
+  if (proj4.startsWith("'"))
+    proj4 = proj4.mid(1);
+  if (proj4.endsWith("'"))
+    proj4 = proj4.mid(0, proj4.length() - 1);
+  proj4 = proj4.trimmed();
+
+  if (proj4.isEmpty())
+    return false;
+  METLIBS_LOG_DEBUG("gdalsrsinfo wkt='" << wkt.toStdString() << "', proj4='" << proj4.toStdString() << "'");
+  return p.setProj4Definition(proj4.toStdString());
+}
+
+bool guessProjectionFromWKT(Projection& p, const QString& wkt)
+{
+  QString proj4;
+
+  const QRegExp r_utm("\"WGS_1984_UTM_Zone_(\\d+).\"");
+  if (r_utm.indexIn(wkt, 0) != -1) {
+    proj4 = "+proj=utm +zone=" + r_utm.cap(1) + " +ellps=WGS84 +datum=WGS84 +units=m";
+
+  } else if (wkt.contains("PROJECTION[\"Lambert_Conformal_Conic\"]")) {
+    proj4 = QString("+proj=lcc");
+    if (!extractProj4ParameterFromWKT(proj4, wkt, "standard_parallel_1", "lat_1"))
+      return false;
+    extractProj4ParameterFromWKT(proj4, wkt, "standard_parallel_2", "lat_2");
+    extractProj4ParameterFromWKT(proj4, wkt, "central_meridian", "lon_0", 0);
+    extractProj4ParameterFromWKT(proj4, wkt, "latitude_of_origin", "lat_0", 0);
+    extractProj4ParameterFromWKT(proj4, wkt, "false_easting", "x_0", 0);
+    extractProj4ParameterFromWKT(proj4, wkt, "false_northing", "y_0", 0);
+    if (wkt.contains("GEOGCS[\"GCS_WGS_1984\"")) {
+      proj4 += " +ellps=WGS84";
+    } else {
+      return false;
+    }
+    if (wkt.contains("UNIT[\"Meter\",1]")) {
+      proj4 += " +units=m";
+    } else {
+      return false;
+    }
+
+  } else if (wkt.contains("PROJECTION[\"Geostationary_Satellite\"]")) {
+    proj4 = QString("+proj=geos");
+    if (!extractProj4ParameterFromWKT(proj4, wkt, "satellite_height", "h"))
+      return false;
+    extractProj4ParameterFromWKT(proj4, wkt, "central_meridian", "lon_0", 0);
+    extractProj4ParameterFromWKT(proj4, wkt, "false_easting", "x_0", 0);
+    extractProj4ParameterFromWKT(proj4, wkt, "false_northing", "y_0", 0);
+  }
+
+  if (!proj4.isEmpty()) {
+    METLIBS_LOG_INFO("guessing that wkt='" << wkt.toStdString() << "' translates to proj4='" << proj4.toStdString() << "'");
+    return p.setProj4Definition(proj4.toStdString());
+  }
+
+  if (wkt.startsWith("GEOGCS[\"GCS_WGS_1984\"")) {
+    METLIBS_LOG_INFO("wild guessing geographic from wkt '" << wkt.toStdString() << "'");
+    p = Projection::geographic();
+    return true;
+  }
+
+  return false;
+}
+
+} // namespace
+
 // static
 std::shared_ptr<Projection> Projection::sGeographic;
 
@@ -59,28 +173,42 @@ Projection::Projection()
 
 Projection::Projection(const std::string& projStr)
 {
-  set_proj_definition(projStr);
+  if (miutil::contains(projStr, "PROJCS[") || miutil::contains(projStr, "GEOGCS[")) {
+    setFromWKT(projStr);
+  } else if (!projStr.empty()) {
+    setProj4Definition(projStr);
+  }
 }
 
-bool Projection::set_proj_definition(const std::string& projStr)
+bool Projection::setProj4Definition(const std::string& proj4str)
 {
-  projDefinition = projStr;
+  proj4Definition = proj4str;
 
-  miutil::replace(projDefinition, "\"", "");
-  projObject = std::shared_ptr<PJ>(pj_init_plus(projDefinition.c_str()), pj_free);
-  if (!projObject)
-    METLIBS_LOG_WARN("proj4 init error for '" << projDefinition << "': " << pj_strerrno(pj_errno));
+  miutil::replace(proj4Definition, "\"", "");
+  proj4PJ = std::shared_ptr<PJ>(pj_init_plus(proj4Definition.c_str()), pj_free);
+  if (!proj4PJ)
+    METLIBS_LOG_WARN("proj4 init error for '" << proj4Definition << "': " << pj_strerrno(pj_errno));
 
-  return (projObject != 0);
+  return (proj4PJ != 0);
 }
 
-std::string Projection::getProjDefinitionExpanded() const
+bool Projection::setFromWKT(const std::string& wkt)
+{
+  const QString qwkt = QString::fromStdString(wkt);
+  if (setProjectionViaGdalSRSInfo(*this, qwkt))
+    return true;
+  if (guessProjectionFromWKT(*this, qwkt))
+    return true;
+  return false;
+}
+
+std::string Projection::getProj4DefinitionExpanded() const
 {
   static const std::string EMPTY;
-  if (!projObject)
+  if (!proj4PJ)
     return EMPTY;
   // get expanded definition, ie values from "+init=..." are included
-  return pj_get_def(projObject.get(), 0);
+  return pj_get_def(proj4PJ.get(), 0);
 }
 
 Projection::~Projection()
@@ -89,7 +217,7 @@ Projection::~Projection()
 
 bool Projection::operator==(const Projection &rhs) const
 {
-  return (projDefinition == rhs.projDefinition);
+  return (proj4Definition == rhs.proj4Definition);
 }
 
 bool Projection::operator!=(const Projection &rhs) const
@@ -99,7 +227,7 @@ bool Projection::operator!=(const Projection &rhs) const
 
 std::ostream& operator<<(std::ostream& output, const Projection& p)
 {
-  output << " proj4string=\"" << p.projDefinition<<"\"";
+  output << " proj4string=\"" << p.proj4Definition<<"\"";
   return output;
 }
 
@@ -203,7 +331,7 @@ bool Projection::transformAndCheck(const Projection& src, size_t npos, size_t of
 {
   // actual transformation -- here we spend most of the time when large matrixes.
   double* z = 0;
-  const int ret = pj_transform(src.projObject.get(), projObject.get(), npos, offset, x, y, z);
+  const int ret = pj_transform(src.proj4PJ.get(), proj4PJ.get(), npos, offset, x, y, z);
   if (ret != 0 && ret !=-20) {
     //ret=-20 :"tolerance condition error"
     //ret=-14 : "latitude or longitude exceeded limits"
@@ -407,8 +535,8 @@ bool Projection::isLegal(float lon, float lat) const
 
 bool Projection::isAlmostEqual(const Projection& p) const
 {
-  std::vector<std::string> thisProjectionParts = miutil::split(projDefinition, 0, " ");
-  std::vector<std::string> pProjectionParts = miutil::split(p.getProjDefinition(), 0, " ");
+  std::vector<std::string> thisProjectionParts = miutil::split(proj4Definition, 0, " ");
+  std::vector<std::string> pProjectionParts = miutil::split(p.getProj4Definition(), 0, " ");
 
   std::map<std::string, std::string> partMap;
 
@@ -445,7 +573,7 @@ float Projection::getMapLinesJumpLimit() const
 {
   float jumplimit = 100000000;
   // some projections do not benefit from using jumplimits
-  if (miutil::contains(projDefinition, "+proj=stere"))
+  if (miutil::contains(proj4Definition, "+proj=stere"))
     return jumplimit;
 
   // find position of two geographic positions
@@ -484,11 +612,6 @@ bool Projection::convertFromGeographic(int npos, float* x, float* y) const
     y[i] *=  DEG_TO_RAD;
   }
   return convertPoints(geographic(), npos, x, y);
-}
-
-void Projection::setDefault()
-{
-  set_proj_definition("+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=25 +x_0=0.811578 +y_0=0.637045 +ellps=WGS84 +towgs84=0,0,0 +no_defs");
 }
 
 bool Projection::calculateLatLonBoundingBox(const Rectangle & maprect,
@@ -538,7 +661,7 @@ bool Projection::adjustedLatLonBoundingBox(const Rectangle & maprect,
     float & lonmin, float & lonmax, float & latmin, float & latmax) const
 {
   // when UTM: keep inside a strict lat/lon-rectangle
-  if (miutil::contains(projDefinition, "+proj=utm")) {
+  if (miutil::contains(proj4Definition, "+proj=utm")) {
     if (!calculateLatLonBoundingBox(maprect, lonmin, lonmax, latmin, latmax)) {
       return false;
     }
@@ -615,10 +738,10 @@ bool Projection::getMapRatios(int nx, int ny, float x0, float y0, float gridReso
 
 bool Projection::isGeographic() const
 {
-  return (miutil::contains(projDefinition, "+proj=eqc")
-      || miutil::contains(projDefinition, "+proj=longlat")
-      || miutil::contains(projDefinition, "+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=90")
-      || pj_is_latlong(projObject.get()));
+  return (miutil::contains(proj4Definition, "+proj=eqc")
+      || miutil::contains(proj4Definition, "+proj=longlat")
+      || miutil::contains(proj4Definition, "+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=90")
+      || pj_is_latlong(proj4PJ.get()));
 }
 
 // static
@@ -633,6 +756,6 @@ bool Projection::getLatLonIncrement(float lat, float /*lon*/, float& dlat, float
 const Projection& Projection::geographic()
 {
   if (!sGeographic)
-    sGeographic = std::shared_ptr<Projection>(new Projection("+proj=longlat  +ellps=WGS84 +towgs84=0,0,0 +no_defs"));
+    sGeographic = std::make_shared<Projection>("+proj=longlat  +ellps=WGS84 +towgs84=0,0,0 +no_defs");
   return *sGeographic;
 }

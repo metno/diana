@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013-2019 met.no
+  Copyright (C) 2013-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -91,12 +91,6 @@ void Area::memberCopy(const Area& rhs)
   name= rhs.name;
 }
 
-void Area::setDefault()
-{
-  proj.setDefault();
-  rect = Rectangle(0, 0, 1.63188, 1.31772);
-}
-
 bool Area::setAreaFromString(const std::string& areaString)
 {
   if (areaString.empty())
@@ -132,7 +126,7 @@ bool Area::setAreaFromString(const std::string& areaString)
     return true;
   }
 
-  if (proj.set_proj_definition(projStr) && rect.setRectangle(rectangleStr)) {
+  if (proj.setProj4Definition(projStr) && rect.setRectangle(rectangleStr)) {
     return true;
   }
 
@@ -143,7 +137,8 @@ bool Area::setAreaFromString(const std::string& areaString)
 std::string Area::getAreaString() const
 {
   std::ostringstream ost;
-  ost << " proj4string=\"" << proj.getProjDefinition() << "\"" <<" rectangle=" << rect.toString();
+  ost << " proj4string=\"" << proj.getProj4Definition() << "\""
+      << " rectangle=" << rect.toString();
   return ost.str();
 }
 

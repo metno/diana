@@ -2,7 +2,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013 met.no
+  Copyright (C) 2013-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -52,6 +52,11 @@
 class Projection {
 public:
   Projection();
+  /*! Construct instance from a string.
+   *
+   * If the string contains 'PROJCS[' of 'GEGCS[', is it assumed to be WKT.
+   * Else is is assumed to be a proj4 init string.
+   */
   explicit Projection(const std::string& projStr);
 
   ~Projection();
@@ -62,23 +67,25 @@ public:
   friend std::ostream& operator<<(std::ostream& output, const Projection& p);
 
   /// set proj4 definitions
-  bool set_proj_definition(const std::string& proj4str);
+  bool setProj4Definition(const std::string& proj4str);
 
-  const std::string& getProjDefinition() const
-    { return projDefinition; }
+  /*! Set projection from WKT.
+   * This uses `gdalsrsinfo` if available, so it is rather slow.
+   */
+  bool setFromWKT(const std::string& wkt);
 
-  std::string getProjDefinitionExpanded() const;
+  const std::string& getProj4Definition() const { return proj4Definition; }
+
+  std::string getProj4DefinitionExpanded() const;
 
   /// return true if projection is defined
   bool isDefined() const
-    { return projObject != 0; }
+    { return proj4PJ != 0; }
 
   /**
    * Return true if geographic projection
    */
   bool isGeographic() const;
-
-  void setDefault();
 
   /// Convert Points to this projection
   bool convertPoints(const Projection& srcProj, size_t npos, float* x, float* y) const;
@@ -160,12 +167,12 @@ private:
   static bool areDefined(const Projection& srcProj, const Projection& tgtProj);
 
 private:
-  std::string projDefinition;
+  std::string proj4Definition;
 
 #if !defined(PROJECTS_H)
   typedef void PJ;
 #endif
-  std::shared_ptr<PJ> projObject;
+  std::shared_ptr<PJ> proj4PJ;
 
   static std::shared_ptr<Projection> sGeographic;
 };

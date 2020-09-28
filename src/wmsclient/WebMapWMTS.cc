@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015 MET Norway
+  Copyright (C) 2015-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -245,7 +245,7 @@ WebMapRequest_x WebMapWMTS::createRequest(const std::string& layerIdentifier,
     METLIBS_LOG_DEBUG("projection is undefined");
     return 0;
   }
-  METLIBS_LOG_DEBUG(LOGVAL(matrixSet->identifier()) << LOGVAL(p_tiles.getProjDefinitionExpanded()));
+  METLIBS_LOG_DEBUG(LOGVAL(matrixSet->identifier()) << LOGVAL(p_tiles.getProj4DefinitionExpanded()));
 
   WebMapWMTSTileMatrix_cx matrix = findMatrixForScale(matrixSet, viewScale);
   if (!matrix) {

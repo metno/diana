@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2018 met.no
+ Copyright (C) 2006-2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -37,14 +37,12 @@
 #include "diPoint.h"
 #include "diStaticPlot.h"
 #include "util/polygon_util.h"
-#include "util/subprocess.h"
 
 #include <mi_fieldcalc/math_util.h>
 
 #include <puTools/miStringFunctions.h>
 
 #include <QFile>
-#include <QRegExp>
 
 #include <cfloat>
 #include <sstream>
@@ -80,108 +78,6 @@ const float AREA_EXTRA = 0.02f;
 const float AREA_VISIBLE = 0.005f;
 
 const bool SKIP_SMALL = false;
-
-
-bool extractParameterFromWKT(const QString& wkt, const QString& key, double& value)
-{
-  QRegExp r_parameter("PARAMETER\\[\""+key+"\", *([0-9.Ee+-]+)\\]");
-  if (r_parameter.indexIn(wkt) >= 0) {
-    value = r_parameter.cap(1).toDouble();
-    return true;
-  } else {
-    return false;
-  }
-}
-
-bool setProjectionViaGdalSRSInfo(Projection& p, QString wkt)
-{
-  const QString PROJECTION_LCC     = "PROJECTION[\"Lambert_Conformal_Conic\"]";
-  const QString PROJECTION_LCC_2SP = "PROJECTION[\"Lambert_Conformal_Conic_2SP\"]";
-  if (wkt.contains(PROJECTION_LCC)
-      && wkt.contains("PARAMETER[\"standard_parallel_1\",")
-      && wkt.contains("PARAMETER[\"standard_parallel_2\","))
-  {
-    wkt.replace(PROJECTION_LCC, PROJECTION_LCC_2SP);
-    METLIBS_LOG_INFO("trying to fix wkt for gdalsrsinfo, new wkt='" << wkt.toStdString() << "'");
-  }
-
-  QByteArray gdalStdOut;
-  if (diutil::execute("gdalsrsinfo", QStringList() << "-o" << "proj4" << wkt, &gdalStdOut) != 0)
-    return false;
-
-  QString proj4(gdalStdOut);
-
-  // gdalsrsinfo puts its proj4 output in quotes and adds some whitespace
-  proj4 = proj4.trimmed();
-  if (proj4.startsWith("'"))
-    proj4 = proj4.mid(1);
-  if (proj4.endsWith("'"))
-    proj4 = proj4.mid(0, proj4.length()-1);
-  proj4 = proj4.trimmed();
-
-  if (proj4.isEmpty())
-    return false;
-  METLIBS_LOG_DEBUG("gdalsrsinfo wkt='" << wkt.toStdString() << "', proj4='" << proj4.toStdString() << "'");
-  return p.set_proj_definition(proj4.toStdString());
-}
-
-bool guessProjectionFromWKT(Projection& p, const QString& wkt)
-{
-  if (!wkt.startsWith("PROJCS[\""))
-    return false;
-
-  const QRegExp r_utm("\"WGS_1984_UTM_Zone_(\\d+).\"");
-  if (r_utm.indexIn(wkt, 0) != -1) {
-    const QString proj4 = "+proj=utm +zone=" + r_utm.cap(1)
-        + " +ellps=WGS84 +datum=WGS84 +units=m";
-    METLIBS_LOG_INFO("guessing utm from wkt='" << wkt.toStdString() << "', proj4='" << proj4.toStdString() << "'");
-    p.set_proj_definition(proj4.toStdString());
-    return true;
-  }
-
-  if (wkt.contains("PROJECTION[\"Lambert_Conformal_Conic\"]")) {
-    QString proj4 = QString("+proj=lcc");
-    double lat_1, lat_2, lon_0=0, lat_0, x_0, y_0;
-    if (extractParameterFromWKT(wkt, "standard_parallel_1", lat_1)
-        && extractParameterFromWKT(wkt, "standard_parallel_2", lat_2))
-    {
-      proj4 += QString(" +lat_1=%1 +lat_2=%2").arg(lat_1).arg(lat_2);
-    }
-    if (extractParameterFromWKT(wkt, "central_meridian", lon_0) && lon_0 != 0) {
-      proj4 += QString(" +lon_0=%1").arg(lon_0);
-    }
-    if (extractParameterFromWKT(wkt, "latitude_of_origin", lat_0)) {
-      proj4 += QString(" +lat_0=%1").arg(lat_0);
-    }
-    if (extractParameterFromWKT(wkt, "false_easting", x_0) && x_0 != 0) {
-      proj4 += QString(" +lat_0=%1").arg(x_0);
-    }
-    if (extractParameterFromWKT(wkt, "false_northing", y_0) && y_0 != 0) {
-      proj4 += QString(" +y_0=%1").arg(y_0);
-    }
-    if (wkt.contains("GEOGCS[\"GCS_WGS_1984\"")) {
-      proj4 += " +ellps=WGS84";
-    } else {
-      return false;
-    }
-    if (wkt.contains("UNIT[\"Meter\",1]")) {
-      proj4 += " +units=m";
-    } else {
-      return false;
-    }
-    METLIBS_LOG_DEBUG("guessing lcc from wkt='" << wkt.toStdString() << "', proj4='" << proj4.toStdString() << "'");
-    p.set_proj_definition(proj4.toStdString());
-    return true;
-  }
-
-  if (wkt.startsWith("GEOGCS[\"GCS_WGS_1984\"")) {
-    METLIBS_LOG_INFO("wild guessing geographic from wkt '" << wkt.toStdString() << "'");
-    p = Projection::geographic();
-    return true;
-  }
-
-  return false;
-}
 
 } // anonymous namespace
 
@@ -740,19 +636,16 @@ bool ShapeObject::readProjection(const std::string& shpfilename)
   METLIBS_LOG_DEBUG(LOGVAL(prjfile.size()));
 
   prjfile.open(QIODevice::ReadOnly);
-  const QString prj(prjfile.readAll());
+  const std::string prj = QString(prjfile.readAll()).toStdString();
   prjfile.close();
 
-  METLIBS_LOG_DEBUG(LOGVAL(prj.toStdString()));
-  if (prj.isEmpty())
+  METLIBS_LOG_DEBUG(LOGVAL(prj));
+  if (prj.empty())
     return false;
 
-  if (setProjectionViaGdalSRSInfo(projection, prj))
+  if (projection.setFromWKT(prj))
     return true;
 
-  if (guessProjectionFromWKT(projection, prj))
-    return true;
-
-  METLIBS_LOG_WARN("shapefile prj not understood: " << prj.toStdString());
+  METLIBS_LOG_WARN("shapefile prj not understood: '" << prj << "'");
   return false;
 }

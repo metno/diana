@@ -29,8 +29,11 @@
 
 #include "testinghelpers.h"
 
-#include <stdexcept>
+#include <miLogger/miLoggingMemory.h>
+
 #include <fstream>
+#include <iostream>
+#include <stdexcept>
 
 using std::string;
 
@@ -40,6 +43,21 @@ const string extra_data_dir(TEST_EXTRADATA_DIR "/");
 } // namespace
 
 namespace ditest {
+
+void setupMemoryLog()
+{
+  milogger::system::selectSystem(std::make_shared<milogger::memory::MemorySystem>());
+}
+
+void clearMemoryLog()
+{
+  milogger::memory::MemorySystem::instance()->clear();
+}
+
+const milogger::memory::MemorySystem::messages_v& getMemoryLogMessages()
+{
+  return milogger::memory::MemorySystem::instance()->messages();
+}
 
 const std::string& testSrcDir()
 {

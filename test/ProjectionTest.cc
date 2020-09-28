@@ -1,10 +1,37 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2017-2020 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #include <diProjection.h>
 
-#include <gtest/gtest.h>
-#include <iomanip>
+#include "testinghelpers.h"
 
-TEST(ProjectionTest, Convert1Point)
+TEST(Projection, Convert1Point)
 {
   const Projection p_geo = Projection::geographic();
   const Projection p_utm32("+proj=utm +zone=32 +ellps=WGS84 +datum=WGS84 +units=m +no_defs");
@@ -29,4 +56,32 @@ TEST(ProjectionTest, Convert1Point)
 
   EXPECT_NEAR(fxy.x(), dxy.x(), 1e-6);
   EXPECT_NEAR(fxy.y(), dxy.y(), 1e-6);
+}
+
+TEST(Projection, Empty)
+{
+  ditest::clearMemoryLog();
+  Projection p("");
+  EXPECT_EQ(0, ditest::getMemoryLogMessages().size());
+}
+
+TEST(Projection, BadProj4)
+{
+  ditest::clearMemoryLog();
+  Projection p("+proj=fishy +x_0=123");
+  const auto& msgs = ditest::getMemoryLogMessages();
+  EXPECT_EQ(1, msgs.size());
+  EXPECT_EQ(milogger::WARN, msgs[0].severity);
+  EXPECT_EQ("diField.Projection", msgs[0].tag);
+}
+
+TEST(Projection, GeosFromWKT)
+{
+  Projection p;
+  p.setFromWKT("PROJCS[\"Geostationary_Satellite\",GEOGCS[\"GCS_WGS_1984\",DATUM[\"D_unknown\",SPHEROID[\"WGS84\",6378137,298.257223563]],"
+               "PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]],PROJECTION[\"Geostationary_Satellite\"],"
+               "PARAMETER[\"central_meridian\",0],PARAMETER[\"satellite_height\",35785831],"
+               "PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"Meter\",1]]");
+  // fails unless gdalsrsinfo is available
+  EXPECT_EQ(p.getProj4Definition(), "+proj=geos +lon_0=0 +h=35785831 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs");
 }

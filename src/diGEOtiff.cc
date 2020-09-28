@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2019 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -135,8 +135,8 @@ bool GEOtiff::readGEOtiff(const std::string& filename, Sat& sd, int index)
   sd.By = ginfo.By;
 
   // Use proj4string from setupfile if present
-  if ( sd.proj_string.empty() ) {
-    sd.proj_string = ginfo.proj_string;
+  if (!sd.projection.isDefined()) {
+    sd.projection = ginfo.projection;
   }
 
   // Calibration

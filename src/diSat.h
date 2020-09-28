@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2019 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -83,7 +83,7 @@ public:
   float Ay;      ///< === area.resolutionY
   float Bx;      ///< === area.rect.x1
   float By;      ///< === area.rect.y1
-  std::string proj_string;
+  Projection projection;
 
   // calibration
   //Strings from file header

@@ -49,8 +49,6 @@
 
 using namespace std;
 
-static const double RAD_TO_DEG = 180 / M_PI;
-
 MeasurementsDialog::MeasurementsDialog( QWidget* parent, Controller* llctrl)
   : QDialog(parent), contr(llctrl)
 {

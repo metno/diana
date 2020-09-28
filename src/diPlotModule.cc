@@ -224,7 +224,7 @@ void PlotModule::prepareArea(const PlotCommand_cpv& inp)
         }
 
       } else if (kv.key() == key_proj) {
-        if (proj.set_proj_definition(kv.value())) {
+        if (proj.setProj4Definition(kv.value())) {
           requestedarea.setP(proj);
         } else {
           METLIBS_LOG_WARN("Unknown proj definition '" << kv.value());
@@ -436,7 +436,8 @@ void PlotModule::defineMapArea()
     mapdefined = true;
 
   if (!mapdefined) {
-    newMapArea.setDefault();
+    newMapArea.setP(Projection("+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=25 +x_0=0.811578 +y_0=0.637045 +ellps=WGS84 +towgs84=0,0,0 +no_defs"));
+    newMapArea.setR(Rectangle(0, 0, 1.63188, 1.31772));
     mapDefinedByView = true;
   }
 

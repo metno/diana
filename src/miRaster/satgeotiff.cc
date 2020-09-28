@@ -2,7 +2,7 @@
 /*
   libmiRaster - met.no tiff interface
 
-  Copyright (C) 2006-2019 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -166,6 +166,7 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char* image[]
   uint32  count;
   void    *data;
   // TIFFTAG_GDAL_METADATA 42112 defined in some projets
+  // see https://www.awaresystems.be/imaging/tiff/tifftags/geo_metadata.html
   if (samplesperpixel == 1 && TIFFGetField(in.get(), 42112, &count, &data)) {
     //    printf("Tag %d: %s, count %d0 \n", 42112, (char *)data, count);
     char* t = strstr((char *)data, "scale");
@@ -184,59 +185,12 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char* image[]
     std::ostringstream oss;
     oss << "T=(" << ginfo.BIr << ")+(" << ginfo.AIr << ")*C";
     ginfo.cal_ir = oss.str();
-
-    image[1] = (unsigned char *) malloc(ginfo.ysize*ginfo.xsize);
-    int nStrips = TIFFNumberOfStrips(in.get());
-    int s = 0;
-    int tiles = TIFFNumberOfTiles(in.get());
-
-    if (tiles > nStrips) {
-      uint32 imageWidth,imageLength;
-      uint32 x, y;
-      tdata_t buf;
-
-      imageWidth  = ginfo.xsize;
-      imageLength = ginfo.ysize;
-      int tileSize = TIFFTileSize(in.get());
-
-      buf = _TIFFmalloc(tileSize);
-
-      for (y = 0; y < imageLength; y += tileLength) {
-        for (x = 0; x < imageWidth; x += tileWidth) {
-          tsize_t res = TIFFReadTile(in.get(), buf, x, y, 0, -1);
-          if (res > 0) {
-            // place tile buf in the larger image buffer in the right place
-            // t = to, f = from
-            for (int t=y*imageWidth + x, f=0;  f < tileSize; t += imageWidth, f += tileWidth) {
-              memcpy(&image[1][t], (unsigned char *)buf + f, tileWidth);
-            }
-          } else {
-            METLIBS_LOG_ERROR("TIFFReadTile Failed at tile: " << x << "," << y << " result: " << res);
-          }
-        }
-      }
-      _TIFFfree(buf);
-    }
-    else {
-      for (int i=0; i < nStrips; ++i) {
-        s += TIFFReadEncodedStrip(in.get(), i, image[1] + s, -1);
-      }
-    }
-
   }
-  if (METLIBS_LOG_DEBUG_ENABLED()) {
-    METLIBS_LOG_DEBUG("ginfo.proj_string = " << ginfo.proj_string);
-    METLIBS_LOG_DEBUG("size = " <<size);
-    METLIBS_LOG_DEBUG("xsize = " <<ginfo.xsize);
-    METLIBS_LOG_DEBUG("ysize = " <<ginfo.ysize);
-    METLIBS_LOG_DEBUG("zsize = " <<ginfo.zsize);
-    METLIBS_LOG_DEBUG("tileWidth = " <<tileWidth);
-    METLIBS_LOG_DEBUG("tileLength = " <<tileLength);
-    METLIBS_LOG_DEBUG("tilesAcross = " <<tilesAcross);
-    METLIBS_LOG_DEBUG("tilesDown = " <<tilesDown);
-    METLIBS_LOG_DEBUG("samplesperpixel = " <<samplesperpixel);
-    METLIBS_LOG_DEBUG("ginfo.time() = " <<ginfo.time);
-  }
+  METLIBS_LOG_DEBUG(LOGVAL(ginfo.projection.getProj4Definition()) << LOGVAL(size)
+                    << LOGVAL(ginfo.xsize) << LOGVAL(ginfo.ysize) << LOGVAL(ginfo.zsize)
+                    << LOGVAL(tileWidth) << LOGVAL(tileLength)
+                    << LOGVAL(tilesAcross) << LOGVAL(tilesDown)
+                    << LOGVAL(samplesperpixel) << LOGVAL(ginfo.time));
   /*
    * Memory allocated for image data in this function (*image) is freed
    * in function main process.
@@ -250,27 +204,23 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char* image[]
   image[0] = (unsigned char *) malloc((size)*4);
   memset(image[0], 0, size*4);
 
-  int compression = 0;
-  if (!TIFFGetField(in.get(), TIFFTAG_COMPRESSION, &compression)) {
-    METLIBS_LOG_DEBUG("no TIFFGetField (TIFFTAG_COMPRESSION)");
-    compression = COMPRESSION_NONE;
-  }
-
   std::string file = infile.substr(infile.rfind("/") + 1);
   ImageCache* mImageCache = ImageCache::getInstance();
 
   if (!mImageCache->getFromCache(file, (uint8_t*)image[0])) {
-    // Dos not work correctly
-    /* uint16 orientation;
-         if(!TIFFGetField(in.get(),TIFFTAG_ORIENTATION, &orientation))
-         {
-                 orientation = ORIENTATION_BOTLEFT;
-         }*/
-
-    if (!TIFFReadRGBAImageOriented(in.get(), ginfo.xsize, ginfo.ysize, (uint32*)image[0], ORIENTATION_BOTLEFT,
-                                   // ORIENTATION_TOPLEFT,
-                                   0)) {
+    if (!TIFFReadRGBAImageOriented(in.get(), ginfo.xsize, ginfo.ysize, (uint32*)image[0])) {
       METLIBS_LOG_ERROR("TIFFReadRGBAImageOriented (ORIENTATION_BOTLEFT) failed: size " <<  ginfo.xsize << "," << ginfo.ysize);
+    }
+    // GDAL_NODATA, see https://www.awaresystems.be/imaging/tiff/tifftags/gdal_nodata.html
+    if (samplesperpixel == 1 && TIFFGetField(in.get(), 42113, &count, &data) && count > 0) {
+      const char* ascii = (const char*)data;
+      const unsigned int nodata = atoi(ascii);
+      const uint32_t rgba_nodata = 0xFF << 24 | nodata << 16 | nodata << 8 | nodata;
+      for (int i=0; i<size; ++i) {
+        uint32_t* rgba = (uint32_t*)(&image[0][i*4]);
+        if (*rgba == rgba_nodata)
+          *rgba = 0;
+      }
     }
     mImageCache->putInCache(file, (uint8_t*)image[0], size*4);
   }
@@ -415,47 +365,20 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
     return -1;
   }
 
-  std::ostringstream proj4;
   if (modeltype == 32767) {
-    // User defined, assumed GEOS SATELLITE PROJ
+    // User defined WKT, use gdalsrsrinfo to convert to proj4
     int cit_size;
     int cit_length = GTIFKeyInfo(gtifin.get(), PCSCitationGeoKey, &cit_size, NULL);
-    std::string PCSCitation;
-    if (cit_length > 0) {
-      std::unique_ptr<char[]> citation(new char[cit_length]);
-      GTIFKeyGet(gtifin.get(), PCSCitationGeoKey, citation.get(), 0, cit_length);
-      PCSCitation = std::string(citation.get());
-    }
-
-    cit_length = GTIFKeyInfo(gtifin.get(), GTCitationGeoKey, &cit_size, NULL);
-    std::string GTCitation;
-    if (cit_length > 0) {
-      std::unique_ptr<char[]> citation(new char[cit_length]);
-      GTIFKeyGet(gtifin.get(), GTCitationGeoKey, citation.get(), 0, cit_length);
-      GTCitation = std::string(citation.get());
-    }
-    if (!miutil::contains(GTCitation, "Geostationary_Satellite")) {
-      METLIBS_LOG_ERROR("This don't seem to be a Geostationary Satellite projection");
+    if (cit_length <= 0) {
+      METLIBS_LOG_ERROR("Missing PCSCitationGeoKey");
       return -1;
     }
+    std::unique_ptr<char[]> citation(new char[cit_length]);
+    GTIFKeyGet(gtifin.get(), PCSCitationGeoKey, citation.get(), 0, cit_length);
+    std::string PCSCitation(citation.get());
 
-    size_t pos, pos2;
-
-    std::string& projDesc = PCSCitation;
-    miutil::replace(projDesc, "ESRI PE String = ", "");
-    pos = projDesc.find("PROJECTION", 0);
-    const std::string projstr = projDesc.substr(pos, projDesc.size() - pos - 1);
-
-    pos = projstr.find(',', projstr.find("central_meridian", 0));
-    pos2 = projstr.find(']', pos);
-    double ProjCenterLong = miutil::to_double(projstr.substr(pos + 1, pos2 - pos - 1));
-
-    pos = projstr.find(',', projstr.find("satellite_height", 0));
-    pos2 = projstr.find(']', pos);
-    const std::string ProjSatelliteHeight = projstr.substr(pos + 1, pos2 - pos - 1);
-
-    proj4 << "+proj=geos +lon_0=" << ProjCenterLong;
-    proj4 << " +units=km +h=" << ProjSatelliteHeight;
+    miutil::replace(PCSCitation, "ESRI PE String = ", "");
+    ginfo.projection.setFromWKT(PCSCitation);
 
   } else if (modeltype == ModelTypeGeographic) {
     /* Geographic latitude-longitude System */
@@ -492,7 +415,7 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
       GTCitation = std::string(citation.get());
     }
 
-    proj4 << "+proj=lonlat +ellps=WGS84 +towgs84=0,0,0 +no_defs";
+    ginfo.projection = Projection("+proj=lonlat +ellps=WGS84 +towgs84=0,0,0 +no_defs");
     unit_scale_factor = M_PI / 180; // convert from degree to radian
 
     if (METLIBS_LOG_DEBUG_ENABLED()) {
@@ -505,80 +428,96 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
     }
 
   } else if (modeltype == ModelTypeProjected) {
-    unsigned short ProjCoordTrans;
-    double ProjFalseEasting, ProjFalseNorthing;
-    GTIFKeyGet(gtifin.get(), ProjCoordTransGeoKey, &ProjCoordTrans, 0, 1);
-    GTIFKeyGet(gtifin.get(), ProjFalseEastingGeoKey, &ProjFalseEasting, 0, 1);
-    GTIFKeyGet(gtifin.get(), ProjFalseNorthingGeoKey, &ProjFalseNorthing, 0, 1);
-
-    if (ProjCoordTrans == CT_PolarStereographic) {
-      // see http://geotiff.maptools.org/proj_list/polar_stereographic.html
-      double ProjNatOriginLat, ProjScaleAtNatOrigin = 1, ProjStraightVertPoleLong;
-      GTIFKeyGet(gtifin.get(), ProjNatOriginLatGeoKey, &ProjNatOriginLat, 0, 1);
-      GTIFKeyGet(gtifin.get(), ProjScaleAtNatOriginGeoKey, &ProjScaleAtNatOrigin, 0, 1);
-      GTIFKeyGet(gtifin.get(), ProjStraightVertPoleLongGeoKey, &ProjStraightVertPoleLong, 0, 1);
-      // clang-format off
-      proj4 << "+proj=stere"
-            << " +lat_ts=" << ProjNatOriginLat
-            << " +lat_0=" << (ProjNatOriginLat < 0 ? "-" : "") << "90"
-            << " +lon_0=" << ProjStraightVertPoleLong
-            << " +ellps=WGS84"
-            << " +units=m"
-            << " +k_0=" << ProjScaleAtNatOrigin;
-      // clang-format on
-    } else if (ProjCoordTrans == CT_Mercator) {
-      // see http://geotiff.maptools.org/proj_list/mercator_1sp.html
-      double ProjNatOriginLong, ProjNatOriginLat, ProjScaleAtNatOrigin;
-      GTIFKeyGet(gtifin.get(), ProjNatOriginLongGeoKey, &ProjNatOriginLong, 0, 1);
-      GTIFKeyGet(gtifin.get(), ProjNatOriginLatGeoKey, &ProjNatOriginLat, 0, 1);
-      GTIFKeyGet(gtifin.get(), ProjScaleAtNatOriginGeoKey, &ProjScaleAtNatOrigin, 0, 1);
-      // clang-format off
-      proj4 << "+proj=merc"
-            << " +lon_0=" << ProjNatOriginLong
-            << " +lat_0=" << ProjNatOriginLat
-            << " +k_0=" << ProjScaleAtNatOrigin;
-      // clang-format on
-    } else if (ProjCoordTrans == CT_Equirectangular) {
-      // see http://geotiff.maptools.org/proj_list/equirectangular.html
-      double ProjCenterLong, ProjCenterLat, ProjStdParallel1;
-      GTIFKeyGet(gtifin.get(), ProjCenterLongGeoKey, &ProjCenterLong, 0, 1);
-      GTIFKeyGet(gtifin.get(), ProjCenterLatGeoKey, &ProjCenterLat, 0, 1);
-      GTIFKeyGet(gtifin.get(), ProjStdParallel1GeoKey, &ProjStdParallel1, 0, 1);
-      // clang-format off
-      proj4 << "+proj=eqc"
-            << " +lat_ts=" << ProjCenterLat
-            << " +lon_0=" << ProjCenterLong;
-      // clang-format on
-    } else if (ProjCoordTrans == CT_LambertConfConic_2SP) {
-      // see http://geotiff.maptools.org/proj_list/lambert_conic_conformal_2sp.html
-      double ProjStdParallel1 = 63, ProjStdParallel2 = 63, ProjFalseOriginLat = 63, ProjFalseOriginLong = 15;
-      GTIFKeyGet(gtifin.get(), ProjStdParallel1GeoKey, &ProjStdParallel1, 0, 1);
-      GTIFKeyGet(gtifin.get(), ProjStdParallel2GeoKey, &ProjStdParallel2, 0, 1);
-      GTIFKeyGet(gtifin.get(), ProjFalseOriginLatGeoKey, &ProjFalseOriginLat, 0, 1);
-      GTIFKeyGet(gtifin.get(), ProjFalseOriginLongGeoKey, &ProjFalseOriginLong, 0, 1);
-      proj4 << "+proj=lcc"
-            << " +lat_1=" << ProjStdParallel1     // latitude of first standard parallel
-            << " +lat_2=" << ProjStdParallel2     // latitude of second standard parallel
-            << " +lat_0=" << ProjFalseOriginLat   // latitude of false origin
-            << " +lon_0=" << ProjFalseOriginLong; // longitude of false origin
-    } else {
-      METLIBS_LOG_ERROR("Projection " << ProjCoordTrans << " not yet supported");
+    unsigned short ProjectedCSType = 0;
+    if (!GTIFKeyGet(gtifin.get(), ProjectedCSTypeGeoKey, &ProjectedCSType, 0, 1)) {
+      METLIBS_LOG_ERROR("geotiff key ProjectedCSTypeGeoKey could not be read");
       return -1;
     }
-    proj4 << " +x_0=" << ProjFalseEasting << " +y_0=" << ProjFalseNorthing;
+    std::ostringstream proj4;
+    if (ProjectedCSType >= 1024 && ProjectedCSType <= 32766) {
+      // EPSG code; note: this range is for geotiff 1.1, in geotiff 1.0 the range was 20000 to 32766
+      proj4 << "+init=epsg:" << ProjectedCSType;
+    } else /*if (ProjectedCSType == 32767)*/ {
+      unsigned short ProjCoordTrans = 0;
+      if (!GTIFKeyGet(gtifin.get(), ProjectionGeoKey, &ProjCoordTrans, 0, 1)) {
+        METLIBS_LOG_ERROR("geotiff key ProjectionGeoKey could not be read");
+        return -1;
+      }
+      if (ProjCoordTrans == CT_PolarStereographic) {
+        // see http://geotiff.maptools.org/proj_list/polar_stereographic.html
+        double ProjNatOriginLat, ProjScaleAtNatOrigin = 1, ProjStraightVertPoleLong;
+        GTIFKeyGet(gtifin.get(), ProjNatOriginLatGeoKey, &ProjNatOriginLat, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjScaleAtNatOriginGeoKey, &ProjScaleAtNatOrigin, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjStraightVertPoleLongGeoKey, &ProjStraightVertPoleLong, 0, 1);
+        // clang-format off
+        proj4 << "+proj=stere"
+              << " +lat_ts=" << ProjNatOriginLat
+              << " +lat_0=" << (ProjNatOriginLat < 0 ? "-" : "") << "90"
+              << " +lon_0=" << ProjStraightVertPoleLong
+              << " +ellps=WGS84"
+              << " +units=m"
+              << " +k_0=" << ProjScaleAtNatOrigin;
+        // clang-format on
+      } else if (ProjCoordTrans == CT_Mercator) {
+        // see http://geotiff.maptools.org/proj_list/mercator_1sp.html
+        double ProjNatOriginLong, ProjNatOriginLat, ProjScaleAtNatOrigin;
+        GTIFKeyGet(gtifin.get(), ProjNatOriginLongGeoKey, &ProjNatOriginLong, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjNatOriginLatGeoKey, &ProjNatOriginLat, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjScaleAtNatOriginGeoKey, &ProjScaleAtNatOrigin, 0, 1);
+        // clang-format off
+        proj4 << "+proj=merc"
+              << " +lon_0=" << ProjNatOriginLong
+              << " +lat_0=" << ProjNatOriginLat
+              << " +k_0=" << ProjScaleAtNatOrigin;
+        // clang-format on
+      } else if (ProjCoordTrans == CT_Equirectangular) {
+        // see http://geotiff.maptools.org/proj_list/equirectangular.html
+        double ProjCenterLong, ProjCenterLat, ProjStdParallel1;
+        GTIFKeyGet(gtifin.get(), ProjCenterLongGeoKey, &ProjCenterLong, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjCenterLatGeoKey, &ProjCenterLat, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjStdParallel1GeoKey, &ProjStdParallel1, 0, 1);
+        // clang-format off
+        proj4 << "+proj=eqc"
+              << " +lat_ts=" << ProjCenterLat
+              << " +lon_0=" << ProjCenterLong;
+        // clang-format on
+      } else if (ProjCoordTrans == CT_LambertConfConic_2SP) {
+        // see http://geotiff.maptools.org/proj_list/lambert_conic_conformal_2sp.html
+        double ProjStdParallel1 = 63, ProjStdParallel2 = 63, ProjFalseOriginLat = 63, ProjFalseOriginLong = 15;
+        GTIFKeyGet(gtifin.get(), ProjStdParallel1GeoKey, &ProjStdParallel1, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjStdParallel2GeoKey, &ProjStdParallel2, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjFalseOriginLatGeoKey, &ProjFalseOriginLat, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjFalseOriginLongGeoKey, &ProjFalseOriginLong, 0, 1);
+        proj4 << "+proj=lcc"
+              << " +lat_1=" << ProjStdParallel1     // latitude of first standard parallel
+              << " +lat_2=" << ProjStdParallel2     // latitude of second standard parallel
+              << " +lat_0=" << ProjFalseOriginLat   // latitude of false origin
+              << " +lon_0=" << ProjFalseOriginLong; // longitude of false origin
+      } else {
+        METLIBS_LOG_ERROR("Projection CT " << ProjCoordTrans << " not yet supported");
+        return -1;
+      }
+
+      double ProjFalseEasting = 0, ProjFalseNorthing = 0;
+      GTIFKeyGet(gtifin.get(), ProjFalseEastingGeoKey, &ProjFalseEasting, 0, 1);
+      GTIFKeyGet(gtifin.get(), ProjFalseNorthingGeoKey, &ProjFalseNorthing, 0, 1);
+      if (ProjFalseEasting != 0)
+        proj4 << " +x_0=" << ProjFalseEasting;
+      if (ProjFalseNorthing != 0)
+        proj4 << " +y_0=" << ProjFalseNorthing;
+    }
+    ginfo.projection = Projection(proj4.str());
   } else {
     METLIBS_LOG_ERROR("Grid type not supported, GTModelType = " << modeltype);
     return -1;
   }
-
-  ginfo.proj_string = proj4.str();
 
   ginfo.Bx = x_0 * unit_scale_factor;
   ginfo.By = y_0 * unit_scale_factor;
   ginfo.Ax = x_scale * unit_scale_factor;
   ginfo.Ay = y_scale * unit_scale_factor;
 
-  METLIBS_LOG_DEBUG(LOGVAL(ginfo.Ax) << LOGVAL(ginfo.Ay) << LOGVAL(ginfo.Bx) << LOGVAL(ginfo.By) << LOGVAL(ginfo.proj_string));
+  METLIBS_LOG_DEBUG(LOGVAL(ginfo.Ax) << LOGVAL(ginfo.Ay) << LOGVAL(ginfo.Bx) << LOGVAL(ginfo.By) << LOGVAL(ginfo.projection.getProj4Definition()));
 
   if (pmi == PHOTOMETRIC_PALETTE)
     return 2;

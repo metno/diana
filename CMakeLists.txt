@@ -63,7 +63,7 @@ FIND_PACKAGE(fimex "1.2" REQUIRED)
 METNO_FIND_QT(Gui Network OpenGL PrintSupport Svg Xml XmlPatterns)
 
 SET(PKGS
-  metlibs-milogger>=6.0.0
+  metlibs-milogger>=6.0.4
   metlibs-putools>=8.0.0
   metlibs-pudatatypes>=6.0.0
 

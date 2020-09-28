@@ -1,7 +1,7 @@
 /*
   libmiRaster - met.no tiff interface
 
-  Copyright (C) 2006-2019 met.no
+  Copyright (C) 2006-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -37,6 +37,8 @@
 #ifndef _AUSAT_H
 #define _AUSAT_H
 
+#include "diField/diProjection.h"
+
 #include <puTools/miTime.h>
 
 #include <vector>
@@ -56,7 +58,7 @@ struct dihead
   unsigned int zsize;
   unsigned int xsize;
   unsigned int ysize;
-  std::string proj_string;
+  Projection projection;
   float Ax; ///< === Sat::area.resolutionX
   float Ay; ///< === Sat::area.resolutionY
   float Bx; ///< === Sat::area.rect.x1
