@@ -191,8 +191,6 @@ static const FieldFunctions::FunctionHelper functions[] {
     // level independent functions
     {FieldFunctions::f_temp_k2c, FieldVerticalAxes::vctype_none, "temp_k2c", u_C, {a_tk}, {}},
     {FieldFunctions::f_temp_c2k, FieldVerticalAxes::vctype_none, "temp_c2k", u_K, {a_tc}, {}},
-    {FieldFunctions::f_temp_k2c_possibly, FieldVerticalAxes::vctype_none, "temp_k2c_possibly", {a_tk}, {}},
-    {FieldFunctions::f_temp_c2k_possibly, FieldVerticalAxes::vctype_none, "temp_c2k_possibly", {a_tc}, {}},
     {FieldFunctions::f_tdk_tk_rh, FieldVerticalAxes::vctype_none, "tdk.tk_rh", u_K, {a_tk, a_rh}, {}},
     {FieldFunctions::f_tdc_tk_rh, FieldVerticalAxes::vctype_none, "tdc.tk_rh", u_C, {a_tk, a_rh}, {}},
     {FieldFunctions::f_abshum_tk_rh, FieldVerticalAxes::vctype_none, "abshum.tk_rh", {a_tk, a_rh}, {}},
@@ -961,12 +959,6 @@ bool FieldFunctions::fieldComputer(Function function, const std::vector<float>& 
   case f_temp_c2k:
     if (compute == 0)
       compute = 2;
-  case f_temp_k2c_possibly:
-    if (compute == 0)
-      compute = 3;
-  case f_temp_c2k_possibly:
-    if (compute == 0)
-      compute = 4;
     if (ninp != 1 || nout != 1)
       break;
     res = cvtemp(nx, ny, finp[0], compute, fout[0], fDefined, undef);
