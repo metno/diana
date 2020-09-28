@@ -239,9 +239,11 @@ TEST(FieldManager, FieldComputeUnitsSimpleFunctions)
   std::vector<std::string> field_compute_setup{
       "tc=temp_k2c(air_temperature_pl)",
       "tdk=tdk.plevel_tk_q(air_temperature_pl,specific_humidity_pl)",
+      "t_plus_q=add(air_temperature_pl,specific_humidity_pl)",
+      "tctc=multiply(air_temperature_pl:units=celsius,air_temperature_pl:units=celsius)",
   };
   for (int i = 0; i < 4; ++i) {
-    field_compute_setup.push_back("f_" + funcs[i] + "=" + funcs[i] + "(tc,tdk:unit=celsius)");
+    field_compute_setup.push_back("f_" + funcs[i] + "=" + funcs[i] + "(tc,tdk)");
   }
   std::vector<std::string> field_compute_errors;
   FieldFunctions::parseComputeSetup(field_compute_setup, field_compute_errors);
@@ -258,7 +260,7 @@ TEST(FieldManager, FieldComputeUnitsSimpleFunctions)
   frq.plevel = "1000"; // no "hPa" suffix becaus there is no vertical axis config
 
   const std::string degC = "celsius";
-  const std::string units[4]{degC, degC, "K2", "1"};
+  const std::string units[4]{degC, degC, "", ""};
 
   Field_p field_tc = fmanager->makeField(frqForParam(frq, "tc"));
   ASSERT_TRUE(field_tc != 0);
@@ -268,15 +270,28 @@ TEST(FieldManager, FieldComputeUnitsSimpleFunctions)
   ASSERT_TRUE(field_tdk != 0);
   EXPECT_EQ("K", field_tdk->unit);
 
-  const float tc0 = field_tc->data[0], tk0 = tc0 + miutil::constants::t0, tdk0 = field_tdk->data[0], tdc0 = tdk0 - miutil::constants::t0;
-  const float values[4]{tc0 + tdc0, tc0 - tdc0, tk0 * tdk0, tk0 / tdk0};
+  const float tc0 = field_tc->data[0], tdk0 = field_tdk->data[0];
 
-  for (int i = 0; i < 4; ++i) {
-    Field_p field_i = fmanager->makeField(frqForParam(frq, "f_" + funcs[i]));
-    ASSERT_TRUE(field_i != 0);
-    EXPECT_EQ(miutil::ALL_DEFINED, field_i->defined());
-    EXPECT_EQ(units[i], field_i->unit) << i << ' ' << funcs[i];
-    EXPECT_NEAR(values[i], field_i->data[0], epsilon) << i << ' ' << funcs[i];
+  {
+    const float values[4]{tc0 + tdk0, tc0 - tdk0, tc0 * tdk0, tc0 / tdk0};
+    for (int i = 0; i < 4; ++i) {
+      Field_p field_i = fmanager->makeField(frqForParam(frq, "f_" + funcs[i]));
+      ASSERT_TRUE(field_i != 0);
+      EXPECT_EQ(miutil::ALL_DEFINED, field_i->defined());
+      EXPECT_TRUE(field_i->unit.empty()) << i << ' ' << funcs[i];
+      EXPECT_NEAR(values[i], field_i->data[0], epsilon) << i << ' ' << funcs[i];
+    }
+  }
+  {
+    Field_p field_t_plus_q = fmanager->makeField(frqForParam(frq, "t_plus_q"));
+    ASSERT_TRUE(field_t_plus_q != 0);
+    EXPECT_TRUE(field_t_plus_q->unit.empty());
+  }
+  {
+    Field_p field_tctc = fmanager->makeField(frqForParam(frq, "tctc"));
+    ASSERT_TRUE(field_tctc != 0);
+    EXPECT_TRUE(field_tctc->unit.empty());
+    EXPECT_NEAR(tc0*tc0, field_tctc->data[0], epsilon);
   }
 }
 
@@ -286,7 +301,6 @@ TEST(FieldManager, FieldComputeUnitsVarargsF)
     return;
 
   std::unique_ptr<FieldManager> fmanager(new FieldManager());
-  const std::string funcs[4]{"add", "subtract", "multiply", "divide"};
   const std::vector<std::string> field_compute_setup {
       "tc=temp_k2c(air_temperature_pl)",
       "tdk=tdk.plevel_tk_q(air_temperature_pl,specific_humidity_pl)",
@@ -379,25 +393,25 @@ TEST(FieldManager, FieldComputeUnitsFC)
   {
     Field_p f = fmanager->makeField(frqForParam(frq, "tc2a"));
     ASSERT_TRUE(f != 0);
-    EXPECT_EQ(degC, f->unit);
+    EXPECT_TRUE(f->unit.empty()) << "tc2a";
     EXPECT_NEAR(2 + tc0, f->data[0], epsilon);
   }
   {
     Field_p f = fmanager->makeField(frqForParam(frq, "tc2b"));
     ASSERT_TRUE(f != 0);
-    EXPECT_EQ(degC, f->unit);
+    EXPECT_TRUE(f->unit.empty()) << "tc2b";
     EXPECT_NEAR(2 + tc0, f->data[0], epsilon);
   }
   {
     Field_p f = fmanager->makeField(frqForParam(frq, "tcm"));
     ASSERT_TRUE(f != 0);
-    EXPECT_EQ(degC, f->unit);
+    EXPECT_TRUE(f->unit.empty()) << "tcm";
     EXPECT_NEAR(tc0 / 2, f->data[0], epsilon);
   }
   {
     Field_p f = fmanager->makeField(frqForParam(frq, "tcd"));
     ASSERT_TRUE(f != 0);
-    EXPECT_EQ(degC, f->unit);
+    EXPECT_TRUE(f->unit.empty()) << "tcd";
     EXPECT_NEAR(tc0 / 2, f->data[0], epsilon);
   }
 }

@@ -105,15 +105,7 @@ bool addInputField(Field_pv& vfield, Field_p f, const FieldFunctions::FieldCompu
   if (!f)
     return false;
 
-  if (fcm.function == FieldFunctions::f_multiply_f_f || fcm.function == FieldFunctions::f_divide_f_f) {
-    // udunits result from temperature multiplication/division is always K, which is reasonable because K has no offset
-    for (const auto& no_offset_unit : {"K"}) {
-      if (vcross::util::unitsConvertible(f->unit, no_offset_unit)) {
-        f = convertUnit(f, no_offset_unit);
-        break;
-      }
-    }
-  } else if (!vfield.empty() && fcm.func && (fcm.func->varargs & FieldFunctions::varargs_field)) {
+  if (!vfield.empty() && fcm.func && (fcm.func->varargs & FieldFunctions::varargs_field)) {
     f = convertUnit(f, vfield.front()->unit);
   }
 
@@ -142,21 +134,12 @@ std::vector<Field_p> createOutputFields(const FieldFunctions::FieldCompute& fcm,
         return std::vector<Field_p>();
       ff->unit = unit;
     } else {
-      const bool is_multiply = (fcm.function == FieldFunctions::f_multiply_f_f);
-      const bool is_divide = (fcm.function == FieldFunctions::f_divide_f_f);
-      static const std::set<FieldFunctions::Function> same_as_first = {
-          FieldFunctions::f_add_f_f, FieldFunctions::f_add_f_c, FieldFunctions::f_add_c_f,
-          FieldFunctions::f_subtract_f_f, FieldFunctions::f_subtract_f_c, FieldFunctions::f_subtract_c_f,
-          FieldFunctions::f_multiply_f_c, FieldFunctions::f_multiply_c_f,
-          FieldFunctions::f_divide_f_c, FieldFunctions::f_divide_c_f,
-      };
-      if (is_multiply || is_divide) {
-        // warning: udunits multiply/divide result of temperatures is in K (probably applies to other units with offset)
-        ff->unit = vcross::util::unitsMultiplyDivide(vfield[0]->unit, vfield[1]->unit, is_multiply);
-      } else if (same_as_first.find(fcm.function) != same_as_first.end()) {
+      const bool is_add = (fcm.function == FieldFunctions::f_add_f_f);
+      const bool is_subtract = (fcm.function == FieldFunctions::f_subtract_f_f);
+      if ((is_add || is_subtract) && vfield[0]->unit == vfield[1]->unit) {
         ff->unit = vfield[0]->unit;
       } else {
-        ff->unit = fieldrequest.unit;
+        ff->unit.clear();
       }
     }
     vfresults.push_back(ff);
