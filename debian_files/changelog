@@ -1,3 +1,9 @@
+diana-3.54 (3.54.2-2) unstable; urgency=low
+
+  * debian perl: treat only xenial specially
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Fri, 09 Oct 2020 08:00:08 +0200
+
 diana-3.54 (3.54.2-1) unstable; urgency=low
 
   * add/subtract functions - removed units restriction
