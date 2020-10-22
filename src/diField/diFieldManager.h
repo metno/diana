@@ -86,14 +86,16 @@ public:
   std::map<std::string,std::string> getGlobalAttributes(const std::string& modelName, const std::string& refTime);
 
   /// return all variables/levels for one model/file (to FieldDialog)
-  std::map<std::string, FieldPlotInfo> getFieldPlotInfo(const std::string& modelName, const std::string& refTime);
+  const std::map<std::string, FieldPlotInfo>& getFieldPlotInfo(const std::string& modelName, const std::string& refTime);
 
   /// return grid from requested model, if the model contains more grids, the first one is returned
   gridinventory::Grid getGrid(const std::string& modelName);
 
   /// return available times for the requested models and fields
-  plottimes_t getFieldTime(const std::vector<FieldRequest>& fieldrequests, bool updateSources);
-  plottimes_t getFieldTime(const FieldRequest& fieldrequest, bool updateSources);
+  plottimes_t getFieldTime(const std::vector<FieldRequest>& fieldrequests);
+  plottimes_t getFieldTime(const FieldRequest& fieldrequest);
+
+  bool updateGridCollection(const std::string& modelName);
 
   /// return the reference time, time of analysis if a forecast
   std::set<std::string> getReferenceTimes(const std::string& modelName);
@@ -134,7 +136,7 @@ private:
   typedef std::map<std::string, std::string> gridio_sections_t;
   gridio_sections_t gridio_sections;
 
-  GridCollectionPtr getGridCollection(const std::string& modelName, const std::string& refTime, bool updateSources);
+  GridCollectionPtr getGridCollection(const std::string& modelName, const std::string& refTime);
 };
 
 #endif

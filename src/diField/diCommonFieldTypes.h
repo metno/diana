@@ -62,6 +62,10 @@ struct FieldPlotInfo
   std::string variableName;
   std::string groupName;
   std::string standard_name;
+
+  std::string units; // TODO should be one unit per component (for combined plots, like wind+temp)
+
+  FieldPlotAxis_cp time_axis;
   FieldPlotAxis_cp vertical_axis;
   FieldPlotAxis_cp realization_axis; //(EPS clusters, EPS single runs etc.)
 

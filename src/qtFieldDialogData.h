@@ -44,6 +44,7 @@ public:
   attributes_t getFieldGlobalAttributes(const std::string& modelName, const std::string& refTime) override;
   std::string getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour) override;
   plottimes_t getFieldTime(std::vector<FieldRequest>& request) override;
+  void updateFieldReferenceTimes(const std::string& model) override;
   std::set<std::string> getFieldReferenceTimes(const std::string& model) override;
   void getSetupFieldOptions(std::map<std::string, miutil::KeyValue_v>& fieldOptions) override;
 

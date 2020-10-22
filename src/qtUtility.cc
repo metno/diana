@@ -111,8 +111,7 @@ QPixmap createPixmapForStyle(const miutil::KeyValue_v& options)
         pixmap.fill(Qt::white);
       }
 
-      const Colour col(c);
-      QPen pen(QColor(col.R(), col.G(), col.B()));
+      QPen pen(diutil::QC(Colour(c)));
 
       QPainter qp;
       qp.begin(&pixmap);
@@ -237,8 +236,7 @@ QComboBox* ColourBox(QWidget* parent, const vector<Colour::ColourInfo>& cInfo,
 
 void ExpandColourBox(QComboBox* box, const Colour& col)
 {
-  const QColor pixcolor(col.R(),col.G(),col.B() );
-  ExpandColourBox(box, pixcolor, QString::fromStdString(col.Name()));
+  ExpandColourBox(box, diutil::QC(col), QString::fromStdString(col.Name()));
 }
 
 void SetCurrentItemColourBox(QComboBox* box, const std::string& value)
@@ -271,8 +269,7 @@ QPixmap pixmapForColourShading(const std::vector<Colour>& colour)
   QPainter qp;
   qp.begin(&pmap);
   for( int j=0; j<nr_colours; j+=step ){
-    QColor pixcolor=QColor(colour[j].R(), colour[j].G(), colour[j].B() );
-    qp.fillRect(j*factor, 0, factor, 20, pixcolor);
+    qp.fillRect(j * factor, 0, factor, 20, diutil::QC(colour[j]));
   }
   qp.end();
   return pmap;

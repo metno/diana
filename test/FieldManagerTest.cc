@@ -107,7 +107,8 @@ TEST(FieldManager, GetFieldTime)
   const miutil::miTime time0(frq0.refTime);
 
   {
-    const auto times = fmanager->getFieldTime({frq0}, true);
+    fmanager->updateGridCollection(frq0.modelName);
+    const auto times = fmanager->getFieldTime({frq0});
     ASSERT_EQ(67, times.size());
     EXPECT_EQ(time0, *times.begin());
   }
@@ -117,7 +118,8 @@ TEST(FieldManager, GetFieldTime)
     miutil::miTime time = time0;
     time.addHour(-frq.hourOffset);
 
-    const auto times = fmanager->getFieldTime({frq}, true);
+    fmanager->updateGridCollection(frq.modelName);
+    const auto times = fmanager->getFieldTime({frq});
     ASSERT_FALSE(times.empty());
     EXPECT_EQ(time, *times.begin());
   }
@@ -125,7 +127,9 @@ TEST(FieldManager, GetFieldTime)
     FieldRequest frq1 = frq0;
     frq1.paramName = "sea_surface_temperature";
 
-    const auto times = fmanager->getFieldTime({frq0, frq1}, true);
+    fmanager->updateGridCollection(frq0.modelName);
+    fmanager->updateGridCollection(frq1.modelName);
+    const auto times = fmanager->getFieldTime({frq0, frq1});
     ASSERT_FALSE(times.empty());
     EXPECT_EQ(time0, *times.begin());
   }
@@ -152,17 +156,20 @@ TEST(FieldManager, GetFieldTimeComputed)
     const FieldRequest frq_tdk = frqForParam(frq0, tdk);
     const FieldRequest frq_tk = frqForParam(frq0, tk); // not computed
 
-    const auto times_tdk = fmanager->getFieldTime({frq_tdk}, true);
+    fmanager->updateGridCollection(frq_tdk.modelName);
+    const auto times_tdk = fmanager->getFieldTime({frq_tdk});
     ASSERT_EQ(67, times_tdk.size());
     EXPECT_EQ(time0, *times_tdk.begin());
 
-    const auto times_tk = fmanager->getFieldTime({frq_tk}, true);
+    fmanager->updateGridCollection(frq_tk.modelName);
+    const auto times_tk = fmanager->getFieldTime({frq_tk});
     ASSERT_EQ(times_tdk, times_tk);
     EXPECT_EQ(time0, *times_tk.begin());
   }
   {
     const FieldRequest frq_dpt = frqForParam(frq0, "dew_point_temperature"); // not defined
-    ASSERT_TRUE(fmanager->getFieldTime({frq_dpt}, true).empty());
+    fmanager->updateGridCollection(frq_dpt.modelName);
+    ASSERT_TRUE(fmanager->getFieldTime({frq_dpt}).empty());
   }
 }
 

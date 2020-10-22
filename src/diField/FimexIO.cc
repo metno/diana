@@ -31,6 +31,7 @@
 
 #include "FimexIO.h"
 
+#include "diField.h"
 #include "util/misc_util.h"
 
 #include <puCtools/stat.h>

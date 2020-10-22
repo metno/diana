@@ -327,7 +327,7 @@ void SatDialogAdvanced::setColours(const std::vector<Colour>& colours)
   if (palette) {
     QPixmap pmap(20, 20);
     for (const Colour& c : colours) {
-      pmap.fill(vcross::util::QC(c));
+      pmap.fill(diutil::QC(c));
       colourList->addItem(new QListWidgetItem(QIcon(pmap), QString()));
     }
   } else {

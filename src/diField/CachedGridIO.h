@@ -1,6 +1,6 @@
 // -*- c++ -*-
 /*
- Copyright (C) 2006-2020 met.no
+ Copyright (C) 2020 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -23,66 +23,75 @@
  along with this program; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
-/*
- * GridIO.h
- *
- *  Created on: Mar 11, 2010
- *      Author: audunc
- */
 
-#ifndef DIANA_DIFIELD_GRIDIO_H_
-#define DIANA_DIFIELD_GRIDIO_H_
+#ifndef DIANA_DIFIELD_CACHEDGRIDIO_H_
+#define DIANA_DIFIELD_CACHEDGRIDIO_H_
 
 #include "GridIOBase.h"
 
+#include <memory>
+#include <mutex>
+
 /**
- * Base class for all grid sources with content.
+ * Caches a single request for a field from another GridIObase instance.
  */
-class GridIO : public GridIOBase
+class CachedGridIO : public GridIOBase
 {
-protected:
-  std::string source_name;
-  gridinventory::Inventory inventory; ///< The inventory for this grid source
-
-  std::string limit_min; ///< only include reference times greater than this
-  std::string limit_max; ///< only include reference times less than this
-
 public:
-  GridIO(const std::string& source);
-  ~GridIO();
+  CachedGridIO(GridIOBase* base) : base_(base) { }
+  ~CachedGridIO();
 
-  const std::string& getSourceName() const override { return source_name; }
+  const std::string& getSourceName() const override;
 
-  const gridinventory::Inventory& getInventory() const override { return inventory; }
+  const gridinventory::Inventory& getInventory() const override;
 
   const gridinventory::ReftimeInventory& getReftimeInventory(const std::string reftime) const override;
 
-  void setReferencetimeLimits(const std::string& min, const std::string& max) override
-  {
-    limit_min = min;
-    limit_max = max;
-  }
+  void setReferencetimeLimits(const std::string& min, const std::string& max) override;
 
   std::set<std::string> getReferenceTimes() const override;
 
-  //! get the grid from reftime with name = grid
   const gridinventory::Grid& getGrid(const std::string& reftime, const std::string& grid) override;
 
-  //! get the Taxis from reftime with name = taxis
   const gridinventory::Taxis& getTaxis(const std::string& reftime, const std::string& taxis) override;
 
-  //! get the Zaxis from reftime with name = zaxis
   const gridinventory::Zaxis& getZaxis(const std::string& reftime, const std::string& zaxis) override;
 
-  //! get the extraaxis from reftime with name = extraaxis
   const gridinventory::ExtraAxis& getExtraAxis(const std::string& reftime, const std::string& extraaxis) override;
 
-  //! make and initialize Field
   Field_p initializeField(const std::string& modelname, const std::string& reftime, const gridinventory::GridParameter& param, const std::string& level,
                           const miutil::miTime& time, const std::string& elevel) override;
 
+  bool sourceChanged(bool update) override;
+
+  std::string getReferenceTime() const override;
+
+  bool referenceTimeOK(const std::string& refTime) override;
+
+  bool makeInventory(const std::string& reftime) override;
+
+  Field_p getData(const std::string& reftime, const gridinventory::GridParameter& param, const std::string& level, const miutil::miTime& time,
+                  const std::string& elevel) override;
+
+  bool putData(const std::string& reftime, const gridinventory::GridParameter& param, const std::string& level, const miutil::miTime& time,
+               const std::string& elevel, const std::string& unit, Field_cp field, const std::string& output_time) override;
+
+  virtual vcross::Values_p getVariable(const std::string& varName) override;
+
 private:
-  const gridinventory::ReftimeInventory& findModelAndReftime(const std::string& reftime) const;
+  void clear();
+
+private:
+  std::mutex mutex_;
+  std::unique_ptr<GridIOBase> base_;
+
+  std::string cached_reftime_;
+  gridinventory::GridParameter cached_param_;
+  std::string cached_level_;
+  miutil::miTime cached_time_;
+  std::string cached_elevel_;
+
+  Field_p cached_field_;
 };
 
-#endif /* DIANA_DIFIELD_GRIDIO_H_ */
+#endif /* DIANA_DIFIELD_CACHEDGRIDIO_H_ */

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2020 met.no
+  Copyright (C) 2010-2020 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -26,26 +26,13 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+/*
+ *  Created on: Mar 11, 2010
+ *      Author: audunc
+ */
 
-#ifndef VCROSSQTUTIL_HH
-#define VCROSSQTUTIL_HH 1
+#include "GridIOsetup.h"
 
-#include <string>
+GridIOsetup::GridIOsetup() {}
 
-class Linetype;
-
-class QPainter;
-class QPen;
-
-namespace vcross {
-namespace util {
-
-void updateMaxStringWidth(QPainter& painter, float& w, const std::string& txt);
-
-void setDash(QPen& pen, bool stipple, int factor, unsigned short pattern);
-void setDash(QPen& pen, const Linetype& linetype);
-
-} // namespace util
-} // namespace vcross
-
-#endif // VCROSSQTUTIL_HH
+GridIOsetup::~GridIOsetup() {}

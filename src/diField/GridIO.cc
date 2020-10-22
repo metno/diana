@@ -34,7 +34,8 @@
 
 #include "GridIO.h"
 
-#include "diField/diFieldUtil.h"
+#include "diField.h"
+#include "diFieldUtil.h"
 
 #define MILOGGER_CATEGORY "diField.GridIO"
 #include "miLogger/miLogging.h"

@@ -44,11 +44,14 @@ IF (ENABLE_HDF5)
 ENDIF ()
 
 SET (DIFIELD_SOURCES
+  diField/CachedGridIO.cc
   diField/DataReshape.cc
   diField/FimexIO.cc
   diField/FimexSource.cc
   diField/GridCollection.cc
   diField/GridIO.cc
+  diField/GridIOBase.cc
+  diField/GridIOsetup.cc
   diField/GridInventoryTypes.cc
   diField/VcrossData.cc
   diField/VcrossSource.cc
@@ -56,8 +59,8 @@ SET (DIFIELD_SOURCES
   diField/diArea.cc
   diField/diCommonFieldTypes.cc
   diField/diField.cc
-  diField/diFieldFwd.h
   diField/diFieldFunctions.cc
+  diField/diFieldFwd.h
   diField/diFieldManager.cc
   diField/diFieldUtil.cc
   diField/diFieldVerticalAxes.cc
@@ -657,10 +660,6 @@ SET (LIBDIANAUI_XPM
   weather_storm.xpm
 )
 
-#QT5_WRAP_CPP(LIBDIANA_MOC_SRCS   ${LIBDIANA_QTHEADERS})
-#QT5_WRAP_CPP(LIBDIANAUI_MOC_SRCS ${LIBDIANAUI_QTHEADERS})
-#QT5_WRAP_CPP(DIANA_MOC_SRCS      ${DIANA_QTHEADERS})
-
 QT5_WRAP_UI(LIBDIANAUI_UIS ${LIBDIANAUI_QTFORMS})
 QT5_WRAP_UI(DIANA_UIS      ${DIANA_QTFORMS})
 
@@ -696,7 +695,7 @@ METNO_QT_CREATE_TRANSLATION(LIBDIANAUI_QM
 
 LINK_DIRECTORIES(${PC_LIBRARY_DIRS} ${PCUI_LIBRARY_DIRS} ${Boost_LIBRARY_DIRS})
 
-ADD_LIBRARY(libdiana SHARED
+ADD_LIBRARY(libdiana_core SHARED
   ${LIBDIANA_SOURCES}
   ${LIBDIANA_HEADERS}
 
@@ -711,14 +710,14 @@ ADD_LIBRARY(libdiana SHARED
   ${DIFIELD_SOURCES}
   ${DIFIELD_HEADERS}
 )
-SET_TARGET_PROPERTIES(libdiana PROPERTIES
+SET_TARGET_PROPERTIES(libdiana_core PROPERTIES
   VERSION 0
   SOVERSION 0
-  OUTPUT_NAME "diana-${PVERSION}"
+  OUTPUT_NAME "diana-core-${PVERSION}"
 )
-ADD_DEPENDENCIES(libdiana buildinfo)
+ADD_DEPENDENCIES(libdiana_core buildinfo)
 
-ADD_LIBRARY(libdianaui SHARED
+ADD_LIBRARY(libdiana_ui SHARED
   ${LIBDIANAUI_SOURCES}
   ${LIBDIANAUI_HEADERS}
 
@@ -731,50 +730,62 @@ ADD_LIBRARY(libdianaui SHARED
 
   ${LIBDIANAUI_XPM}
 )
-SET_TARGET_PROPERTIES(libdianaui PROPERTIES
+SET_TARGET_PROPERTIES(libdiana_ui PROPERTIES
   VERSION 0
   SOVERSION 0
-  OUTPUT_NAME "dianaui-${PVERSION}"
+  OUTPUT_NAME "diana-ui-${PVERSION}"
 )
 
-ADD_LIBRARY(libbdiana SHARED
+ADD_LIBRARY(libdiana_batch SHARED
   ${LIBBDIANA_SOURCES}
   ${LIBBDIANA_HEADERS}
 )
 
-SET_TARGET_PROPERTIES(libbdiana PROPERTIES
+SET_TARGET_PROPERTIES(libdiana_batch PROPERTIES
   VERSION 0
   SOVERSION 0
-  OUTPUT_NAME "bdiana-${PVERSION}"
+  OUTPUT_NAME "diana-batch-${PVERSION}"
 )
 
-ADD_EXECUTABLE(diana
+ADD_EXECUTABLE(diana_ui
   main_gui.cc
 
   ${DIANA_MOC_SRCS}
   ${DIANA_UIS}
 )
-SET_TARGET_PROPERTIES(diana PROPERTIES
+SET_TARGET_PROPERTIES(diana_ui PROPERTIES
   OUTPUT_NAME "diana.bin-${PVERSION}"
 )
 
-ADD_EXECUTABLE(bdiana
+ADD_EXECUTABLE(diana_batch
   bdiana.cc
 )
-SET_TARGET_PROPERTIES(bdiana PROPERTIES
+SET_TARGET_PROPERTIES(diana_batch PROPERTIES
   OUTPUT_NAME "bdiana-${PVERSION}"
 )
 
 ########################################################################
 
-INSTALL (TARGETS libdiana libdianaui libbdiana
-  DESTINATION ${LIBDIANA_DIR}
+INSTALL(
+  TARGETS
+    libdiana_core
+    libdiana_ui
+    libdiana_batch
+  DESTINATION
+    ${LIBDIANA_DIR}
 )
-INSTALL (TARGETS diana bdiana
-  DESTINATION ${CMAKE_INSTALL_FULL_BINDIR}
+INSTALL(
+  TARGETS
+    diana_ui
+    diana_batch
+  DESTINATION
+    ${CMAKE_INSTALL_FULL_BINDIR}
 )
-INSTALL(FILES ${LIBDIANAUI_QM}
-  DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/${PROJECT_NAME}/${PVERSION}/lang"
+INSTALL(
+  FILES
+    ${LIBDIANAUI_QM}
+  DESTINATION
+    "${CMAKE_INSTALL_FULL_DATAROOTDIR}/${PROJECT_NAME}/${PVERSION}/lang"
 )
 
 ########################################################################
@@ -785,7 +796,7 @@ INCLUDE_DIRECTORIES(
   diField
 )
 
-TARGET_LINK_LIBRARIES(libdiana
+TARGET_LINK_LIBRARIES(libdiana_core
   ${PC_LIBRARIES}
   ${geotiff_LIB}
   ${hdf5_LIB}
@@ -797,11 +808,11 @@ TARGET_LINK_LIBRARIES(libdiana
   mi-fieldcalc
   libfimex
 )
-TARGET_LINK_LIBRARIES(libdianaui libdiana ${PCUI_LIBRARIES})
-TARGET_LINK_LIBRARIES(libbdiana libdiana)
+TARGET_LINK_LIBRARIES(libdiana_ui libdiana_core ${PCUI_LIBRARIES})
+TARGET_LINK_LIBRARIES(libdiana_batch libdiana_core)
 
-TARGET_LINK_LIBRARIES(bdiana libbdiana)
-TARGET_LINK_LIBRARIES(diana  libdianaui)
+TARGET_LINK_LIBRARIES(diana_batch libdiana_batch)
+TARGET_LINK_LIBRARIES(diana_ui libdiana_ui)
 
 IF(ENABLE_SMHI)
   SET(SMHI TRUE)
@@ -814,16 +825,16 @@ ENDIF ()
 
 IF (ENABLE_GEOTIFF)
   SET(GEOTIFF TRUE)
-  TARGET_INCLUDE_DIRECTORIES(libdiana PUBLIC "${geotiff_INC_DIR}")
-  TARGET_COMPILE_OPTIONS(libdiana PUBLIC "${geotiff_CFLAGS_OTHER}")
-  TARGET_LINK_LIBRARIES(libdiana ${geotiff_LIB})
+  TARGET_INCLUDE_DIRECTORIES(libdiana_core PUBLIC "${geotiff_INC_DIR}")
+  TARGET_COMPILE_OPTIONS(libdiana_core PUBLIC "${geotiff_CFLAGS_OTHER}")
+  TARGET_LINK_LIBRARIES(libdiana_core ${geotiff_LIB})
 ENDIF ()
 
 IF (ENABLE_HDF5)
   SET(HDF5FILE TRUE)
-  TARGET_INCLUDE_DIRECTORIES(libdiana PUBLIC "${hdf5_INC_DIR}")
-  TARGET_COMPILE_OPTIONS(libdiana PUBLIC "${hdf5_CFLAGS_OTHER}")
-  TARGET_LINK_LIBRARIES(libdiana ${hdf5_LIB})
+  TARGET_INCLUDE_DIRECTORIES(libdiana_core PUBLIC "${hdf5_INC_DIR}")
+  TARGET_COMPILE_OPTIONS(libdiana_core PUBLIC "${hdf5_CFLAGS_OTHER}")
+  TARGET_LINK_LIBRARIES(libdiana_core ${hdf5_LIB})
 ENDIF ()
 
 if (ENABLE_OBS_BUFR)

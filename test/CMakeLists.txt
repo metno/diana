@@ -128,7 +128,7 @@ ADD_EXECUTABLE(dianaUnitTests
 )
 
 TARGET_LINK_LIBRARIES(dianaUnitTests
-  libdiana
+  libdiana_core
   ${Boost_SYSTEM_LIBRARY}
 )
 
@@ -164,7 +164,7 @@ TARGET_INCLUDE_DIRECTORIES(diFieldTest PRIVATE
 )
 
 TARGET_LINK_LIBRARIES(diFieldTest
-  libdiana
+  libdiana_core
 )
 
 ADD_TEST(NAME diFieldTest
@@ -188,7 +188,7 @@ ADD_EXECUTABLE(dianaGuiTests
 
 TARGET_LINK_LIBRARIES(dianaGuiTests PRIVATE
   Qt5::Gui
-  libdianaui
+  libdiana_ui
 )
 
 ADD_TEST(NAME dianaGuiTests
