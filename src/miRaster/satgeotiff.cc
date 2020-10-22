@@ -439,7 +439,7 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
       proj4 << "+init=epsg:" << ProjectedCSType;
     } else /*if (ProjectedCSType == 32767)*/ {
       unsigned short ProjCoordTrans = 0;
-      if (!GTIFKeyGet(gtifin.get(), ProjectionGeoKey, &ProjCoordTrans, 0, 1)) {
+      if (!GTIFKeyGet(gtifin.get(), ProjCoordTransGeoKey, &ProjCoordTrans, 0, 1)) {
         METLIBS_LOG_ERROR("geotiff key ProjectionGeoKey could not be read");
         return -1;
       }
