@@ -253,7 +253,7 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
         || plottype() == fpt_contour1 || plottype() == fpt_contour2))
     return;
 
-  if (poptions.table == 0 || (poptions.palettecolours.empty() && poptions.patterns.empty()))
+  if (poptions.table == 0 || (poptions.palettecolours.empty() && poptions.patterns.empty()) || poptions.minvalue > poptions.maxvalue)
     return;
 
   std::vector<std::string> annos_new;
@@ -279,19 +279,6 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
           continue;
       }
 
-      //find min/max if repeating colours
-      float cmin = fieldUndef;
-      float cmax = -fieldUndef;
-      if (!poptions.repeat) {
-        cmin = poptions.base;
-      } else {
-        int ndata = fields[0]->area.gridSize();
-        for (int i = 0; i < ndata; ++i) {
-          if (fields[0]->data[i] != fieldUndef)
-            miutil::minimaximize(cmin, cmax, fields[0]->data[i]);
-        }
-      }
-
       aTable table;
       std::vector<aTable> vtable;
 
@@ -301,9 +288,6 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
       size_t nlines = poptions.linevalues.size();
       size_t nloglines = poptions.loglinevalues.size();
       size_t ncodes = std::max(ncolours, npatterns);
-
-      if (cmin > poptions.base)
-        ncold = 0;
 
       const std::vector<std::string> classSpec = miutil::split(poptions.classSpecifications, ",");
 
@@ -315,13 +299,17 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
       if (nlines > 0 && nlines <= ncodes)
         ncodes = nlines;
 
-      for (int i = ncold - 1; i >= 0; i--) {
-        table.colour = poptions.palettecolours_cold[i].Name();
-        if (npatterns > 0) {
-          int ii = (npatterns - 1) - i % npatterns;
-          table.pattern = poptions.patterns[ii];
+      // initialize colour table
+      // cold palette makes no sense when using (log)line values
+      if (nlines == 0 && nloglines == 0) {
+        for (int i = ncold - 1; i >= 0; i--) {
+          table.colour = poptions.palettecolours_cold[i].Name();
+          if (npatterns > 0) {
+            int ii = (npatterns - 1) - i % npatterns;
+            table.pattern = poptions.patterns[ii];
+          }
+          vtable.push_back(table);
         }
-        vtable.push_back(table);
       }
 
       for (size_t i = 0; i < ncodes; i++) {
@@ -342,6 +330,7 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
 
       if (poptions.discontinuous == 1 && classSpec.size()
           && poptions.lineinterval > 0.99 && poptions.lineinterval < 1.01) {
+        // use discontinuous
         for (size_t i = 0; i < ncodes; i++) {
           const std::vector<std::string> tstr = miutil::split(classSpec[i], ":");
           if (tstr.size() > 1) {
@@ -352,6 +341,7 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
         }
 
       } else if (nlines > 0) {
+        // use line values
         if (!classSpec.size()) {
           for (size_t i = 0; i < ncodes - 1; i++) {
             float min = poptions.linevalues[i];
@@ -373,6 +363,7 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
         }
 
       } else if (nloglines > 0) {
+        // use logline values
         if (!classSpec.size()) {
           std::vector<float> vlog;
           for (size_t n = 0; n < ncodes; n++) {
@@ -401,67 +392,66 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
         }
 
       } else {
-        float max = poptions.base + poptions.lineinterval * (ncodes - 1);
-        if (max < poptions.maxvalue) {
-          std::ostringstream ostr;
-          ostr << "> " << max << unit;
-          vtable[ncodes + ncold - 1].text = ostr.str();
-        }
-        float min = poptions.base - poptions.lineinterval * (int(ncold) - 1);
-        if (min > poptions.minvalue) {
-          std::ostringstream ostr;
-          ostr << "< " << min << unit;
-          vtable[0].text = ostr.str();
-        }
-
-        //cold colours
-        max = poptions.base;
-        for (int i = ncold - 1; i > 0; i--) {
-          min = max - poptions.lineinterval;
-          std::ostringstream ostr;
-          if (fabs(min) < poptions.lineinterval / 10)
-            min = 0.;
-          if (fabs(max) < poptions.lineinterval / 10)
-            max = 0.;
-          ostr << min << " - " << max << unit;
-          max = min;
-          vtable[i].text = ostr.str();
-          if (max < poptions.minvalue) {
-            std::vector<aTable>::iterator it = vtable.begin();
-            it += i;
-            vtable.erase(vtable.begin(), it);
-            ncold -= i;
-            break;
-          }
-        }
-
-        //colours
-        if (cmin > poptions.base) {
-          float step = ncodes * poptions.lineinterval;
-          min = int((cmin - poptions.base) / step) * step + poptions.base;
-          if (cmax + cmin > 2 * (min + step))
-            min += step;
-        } else {
-          min = poptions.base + poptions.lineinterval;
-        }
-
-        size_t i = 1;
+        // use line interval
+        int base_index = 0;
+        int bottom_index = 0;
+        float minvalue = poptions.base;
         if (ncold > 0) {
-          i = ncold;
-          min -= poptions.lineinterval;
+          base_index = ncold;
+          minvalue -= poptions.lineinterval * ncold;
         }
-        for (; i < ncodes + ncold - 1; i++) {
-          max = min + poptions.lineinterval;
+        int top_index = base_index + ncodes;
+
+        // adjust limits if minvalue is given
+        int min_index = -1;
+        if (poptions.minvalue > -1 * fieldUndef) {
+          min_index = (poptions.minvalue - poptions.base) / poptions.lineinterval + base_index;
+          if (min_index > -1) {
+            bottom_index = min_index;
+            minvalue += min_index * poptions.lineinterval;
+          }
+        }
+
+        // adjust limits if maxvalue is given
+        int max_index = -1;
+        if (poptions.maxvalue < fieldUndef) {
+          max_index = (poptions.maxvalue - poptions.base) / poptions.lineinterval + base_index;
+          if (max_index < top_index)
+            top_index = max_index;
+        }
+
+        float min = minvalue;
+        float max = minvalue + poptions.lineinterval;
+        for (int i = bottom_index; i < top_index; i++) {
           std::ostringstream ostr;
           ostr << min << " - " << max << unit;
-          min = max;
           vtable[i].text = ostr.str();
-          if (min > poptions.maxvalue) {
-            std::vector<aTable>::iterator it = vtable.begin();
-            it += i;
-            vtable.erase(it, vtable.end());
-            break;
-          }
+          min = max;
+          max += poptions.lineinterval;
+        }
+
+        // adjust the text of the last colour if the colours are not limited by maxvalue
+        if (!poptions.repeat && (max_index == -1 || max_index > top_index)) {
+          min -= poptions.lineinterval;
+          std::ostringstream ostr;
+          ostr << "> " << min << unit;
+          vtable[top_index - 1].text = ostr.str();
+        } else if (top_index < vtable.size()) { // drop unused colours
+          std::vector<aTable>::iterator it = vtable.begin();
+          it += top_index;
+          vtable.erase(it, vtable.end());
+        }
+
+        // adjust the text of the first colour if the colours are not limited by minvalue
+        if (!poptions.repeat && min_index < 0) {
+          float max = minvalue + poptions.lineinterval;
+          std::ostringstream ostr;
+          ostr << "< " << max << unit;
+          vtable[bottom_index].text = ostr.str();
+        } else if (bottom_index > 0) { // drop unused colours
+          std::vector<aTable>::iterator it = vtable.begin();
+          it += bottom_index;
+          vtable.erase(vtable.begin(), it);
         }
       }
 
