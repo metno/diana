@@ -61,6 +61,11 @@ plottimes_t DianaFieldDialogData::getFieldTime(std::vector<FieldRequest>& reques
   return fpm_->getFieldTime(request);
 }
 
+void DianaFieldDialogData::updateFieldReferenceTimes(const std::string& model)
+{
+  return fpm_->updateFieldReferenceTimes(model);
+}
+
 std::set<std::string> DianaFieldDialogData::getFieldReferenceTimes(const std::string& model)
 {
   return fpm_->getFieldReferenceTimes(model);

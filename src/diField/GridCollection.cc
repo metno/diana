@@ -37,13 +37,15 @@
 #include "diana_config.h"
 
 #include "GridCollection.h"
-#include "GridIO.h"
+
+#include "CachedGridIO.h"
 #ifdef FIMEX
 #include "FimexIO.h"
 #endif
 #include "../diFieldUtil.h"
 #include "../diUtilities.h"
 #include "VcrossUtil.h"
+#include "diField.h"
 #include "diFieldFunctions.h"
 #include "util/misc_util.h"
 #include "util/nearest_element.h"
@@ -289,7 +291,7 @@ bool GridCollection::makeGridIOinstances()
       }
 
       // new source - add them according to the source type
-      GridIO* gp = 0;
+      GridIOBase* gp = 0;
 #ifdef FIMEX
       if (sourcetype == FimexIO::getSourceType()) {
         gp = new FimexIO(collectionname, sourcename, reftime_from_filename, format, config,
@@ -297,6 +299,9 @@ bool GridCollection::makeGridIOinstances()
       }
 #endif
       if ( gp ) {
+#if 0
+        gp = new CachedGridIO(gp);
+#endif
         gridsources.push_back(gp);
         if ( timeFromFilename ) {
           gridsourcesTimeMap[time]=gp;
@@ -319,6 +324,8 @@ bool GridCollection::makeInventory(const std::string& refTime)
 {
   METLIBS_LOG_TIME(LOGVAL(refTime));
 
+  reftime_fieldplotinfo_.erase(refTime);
+
   bool ok = true;
   // decide if we should make new GridIO instances
   if (gridsources.empty()) {
@@ -328,7 +335,7 @@ bool GridCollection::makeInventory(const std::string& refTime)
   inventoryOK.clear();
   inventory.clear();
 
-  for (GridIO* io : gridsources) {
+  for (const auto io : gridsources) {
     // enforce the reference time limits
     //    (*itr)->setReferencetimeLimits(limit_min, limit_max); // not used yet
 
@@ -368,7 +375,7 @@ bool GridCollection::makeInventory(const std::string& refTime)
 
 bool GridCollection::sourcesChanged()
 {
-  for (GridIO* io : gridsources)
+  for (const auto& io : gridsources)
     if (io->sourceChanged(false))
       return true;
   return false;
@@ -411,7 +418,7 @@ std::set<std::string> GridCollection::getReferenceTimes() const
 const gridinventory::GridParameter* GridCollection::dataExists(const std::string& reftime, const std::string& paramname)
 {
   METLIBS_LOG_SCOPE("searching for: " <<LOGVAL(paramname));
-  for (GridIO* io : gridsources) {
+  for (const auto io : gridsources) {
     if (const gridinventory::GridParameter* param = dataExists_reftime(io->getReftimeInventory(reftime), paramname)) {
       return param;
     }
@@ -434,8 +441,8 @@ Field_p GridCollection::getData(const std::string& reftime, const std::string& p
   miutil::miTime  actualtime;
 
   if (timeFromFilename && getActualTime(reftime, paramname, time, time_tolerance, actualtime)) {
-    std::map<miutil::miTime,GridIO*>::const_iterator ip = gridsourcesTimeMap.find(actualtime);
-    if ( ip != gridsourcesTimeMap.end()) {
+    const auto ip = gridsourcesTimeMap.find(actualtime);
+    if (ip != gridsourcesTimeMap.end()) {
       ip->second->makeInventory(reftime);
       if (const gridinventory::GridParameter* param = dataExists_reftime(ip->second->getReftimeInventory(reftime), paramname)) {
         // Ignore time from file, just use the first timestep
@@ -447,7 +454,7 @@ Field_p GridCollection::getData(const std::string& reftime, const std::string& p
     }
 
   } else {
-    for (GridIO* io : gridsources) {
+    for (const auto io : gridsources) {
       gridinventory::GridParameter param;
       if (const gridinventory::GridParameter* param = dataExists_reftime(io->getReftimeInventory(reftime), paramname)) {
         if (param->key.taxis.empty() || getActualTime(reftime, paramname, time, time_tolerance, actualtime)) {
@@ -467,7 +474,7 @@ Field_p GridCollection::getData(const std::string& reftime, const std::string& p
  */
 vcross::Values_p GridCollection::getVariable(const std::string& reftime, const std::string& paramname)
 {
-  for (GridIO* io : gridsources) {
+  for (const auto io : gridsources) {
     if (const gridinventory::GridParameter* gp = dataExists_reftime(io->getReftimeInventory(reftime), paramname)) {
       return io->getVariable(paramname);
     }
@@ -481,7 +488,7 @@ std::set<miutil::miTime> GridCollection::getTimesFromIO(const std::string& refti
   METLIBS_LOG_SCOPE(LOGVAL(reftime) << LOGVAL(paramname));
   std::set<miutil::miTime> times;
 
-  for (GridIO* io : gridsources) {
+  for (const auto io : gridsources) {
     if (const gridinventory::GridParameter* gp = dataExists_reftime(io->getReftimeInventory(reftime), paramname)) {
       const Taxis& tx = io->getTaxis(reftime, gp->key.taxis);
       for (double v : tx.values) {
@@ -581,19 +588,16 @@ bool GridCollection::putData(const std::string& reftime, const std::string& para
   METLIBS_LOG_SCOPE(LOGVAL(reftime) << LOGVAL(paramname)
       << LOGVAL(level) << LOGVAL(time) <<  LOGVAL(elevel) << LOGVAL(output_time));
 
-#ifdef FIMEX
-  for (GridIO* io : gridsources) {
-    if (FimexIO* fio = dynamic_cast<FimexIO*>(io)) {
-      if (const gridinventory::GridParameter* param = dataExists_reftime(fio->getReftimeInventory(reftime), paramname)) {
-        // data exists ... calling getData
-        miutil::miTime actualtime;
-        return fio->putData(reftime, *param, level, actualtime, elevel, unit, field, output_time);
-      }
+  for (auto io : gridsources) {
+    if (const gridinventory::GridParameter* param = dataExists_reftime(io->getReftimeInventory(reftime), paramname)) {
+      // data exists ... calling getData
+      miutil::miTime actualtime;
+      return io->putData(reftime, *param, level, actualtime, elevel, unit, field, output_time);
     }
   }
-#endif
-  METLIBS_LOG_WARN("giving up .. returning 0");
-  return 0;
+
+  METLIBS_LOG_WARN("giving up ...");
+  return false;
 }
 
 bool GridCollection::updateSources()
@@ -683,6 +687,21 @@ FieldPlotAxis_cp createFieldPlotAxisFromGridInventory(const Zaxis& zaxis)
   return vax;
 }
 
+FieldPlotAxis_cp createFieldPlotAxisFromGridInventory(const gridinventory::Taxis& taxis)
+{
+  FieldPlotAxis_p tax = std::make_shared<FieldPlotAxis>();
+  tax->name = taxis.getName();
+  tax->values.reserve(taxis.values.size());
+  for (double v : taxis.values) {
+    // double -> miTime -> iso string
+    time_t t = v;
+    miutil::miTime tt(t);
+    if (!tt.undef())
+      tax->values.push_back(tt.isoTime("T"));
+  }
+  return tax;
+}
+
 template <class Axis>
 struct AxisCache
 {
@@ -719,7 +738,7 @@ FieldPlotAxis_cp AxisCache<Axis>::find(const std::string& id)
 
 } // namespace
 
-std::map<std::string, FieldPlotInfo> GridCollection::getFieldPlotInfo(const std::string& refTime)
+std::map<std::string, FieldPlotInfo> GridCollection::buildFieldPlotInfo(const std::string& refTime)
 {
   METLIBS_LOG_SCOPE(LOGVAL(refTime));
 
@@ -737,12 +756,28 @@ std::map<std::string, FieldPlotInfo> GridCollection::getFieldPlotInfo(const std:
 
   AxisCache<gridinventory::Zaxis> plot_axes_vertical(ritr->second.zaxes);
   AxisCache<gridinventory::ExtraAxis> plot_axes_realization(ritr->second.extraaxes);
+  AxisCache<gridinventory::Taxis> plot_axes_time(ritr->second.taxes);
+
+  FieldPlotAxis_p tax_from_filenames;
+  if (useTimeFromFilename()) {
+    const auto& tff = getTimesFromFilename();
+    tax_from_filenames = std::make_shared<FieldPlotAxis>();
+    tax_from_filenames->name = "time";
+    tax_from_filenames->values.reserve(tff.size());
+    for (const auto& tt : getTimesFromFilename())
+      tax_from_filenames->values.push_back(tt.isoTime("T"));
+  }
 
   for (const gridinventory::GridParameter& gp : ritr->second.parameters) {
     FieldPlotInfo vi;
     vi.fieldName = gp.key.name;
     vi.standard_name = gp.standard_name;
+    vi.units = gp.unit;
 
+    if (tax_from_filenames)
+      vi.time_axis = tax_from_filenames;
+    else
+      vi.time_axis = plot_axes_time.find(gp.taxis_id);
     vi.vertical_axis = plot_axes_vertical.find(gp.zaxis_id);
     vi.realization_axis = plot_axes_realization.find(gp.extraaxis_id);
 
@@ -761,6 +796,14 @@ std::map<std::string, FieldPlotInfo> GridCollection::getFieldPlotInfo(const std:
   }
 
   return fieldInfo;
+}
+
+const std::map<std::string, FieldPlotInfo>& GridCollection::getFieldPlotInfo(const std::string& refTime)
+{
+  auto it = reftime_fieldplotinfo_.find(refTime);
+  if (it == reftime_fieldplotinfo_.end())
+    it = reftime_fieldplotinfo_.insert(std::make_pair(refTime, buildFieldPlotInfo(refTime))).first;
+  return it->second;
 }
 
 Field_p GridCollection::getField(const FieldRequest& fieldrequest)

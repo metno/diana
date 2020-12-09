@@ -27,25 +27,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef VCROSSQTUTIL_HH
-#define VCROSSQTUTIL_HH 1
+#include "GridIOBase.h"
 
-#include <string>
+GridIOBase::GridIOBase() {}
 
-class Linetype;
-
-class QPainter;
-class QPen;
-
-namespace vcross {
-namespace util {
-
-void updateMaxStringWidth(QPainter& painter, float& w, const std::string& txt);
-
-void setDash(QPen& pen, bool stipple, int factor, unsigned short pattern);
-void setDash(QPen& pen, const Linetype& linetype);
-
-} // namespace util
-} // namespace vcross
-
-#endif // VCROSSQTUTIL_HH
+GridIOBase::~GridIOBase() {}

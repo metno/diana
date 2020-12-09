@@ -379,7 +379,7 @@ vector<std::string> FieldPlotManager::splitComStr(const std::string& s, bool spl
   return tmp;
 }
 
-plottimes_t FieldPlotManager::getFieldTime(const std::vector<FieldPlotCommand_cp>& pinfos, bool updateSources)
+plottimes_t FieldPlotManager::getFieldTime(const std::vector<FieldPlotCommand_cp>& pinfos)
 {
   METLIBS_LOG_SCOPE();
 
@@ -394,7 +394,7 @@ plottimes_t FieldPlotManager::getFieldTime(const std::vector<FieldPlotCommand_cp
   if (requests.empty())
     return plottimes_t();
 
-  return getFieldTime(requests, updateSources);
+  return getFieldTime(requests);
 }
 
 miTime FieldPlotManager::getFieldReferenceTime(FieldPlotCommand_cp cmd)
@@ -435,7 +435,8 @@ void FieldPlotManager::getCapabilitiesTime(plottimes_t& normalTimes, int& timedi
   }
 
   //getting times
-  normalTimes = getFieldTime(std::vector<FieldPlotCommand_cp>(1, cmd), true);
+  fieldManager->updateGridCollection(cmd->field.model);
+  normalTimes = getFieldTime(std::vector<FieldPlotCommand_cp>(1, cmd));
 
   METLIBS_LOG_DEBUG("no. of times"<<normalTimes.size());
 }
@@ -461,7 +462,7 @@ vector<std::string> FieldPlotManager::getFieldLevels(FieldPlotCommand_cp cmd)
   return levels;
 }
 
-plottimes_t FieldPlotManager::getFieldTime(std::vector<FieldRequest>& request, bool updateSources)
+plottimes_t FieldPlotManager::getFieldTime(std::vector<FieldRequest>& request)
 {
   METLIBS_LOG_SCOPE();
 
@@ -479,7 +480,7 @@ plottimes_t FieldPlotManager::getFieldTime(std::vector<FieldRequest>& request, b
     flightlevel2pressure(frq);
   }
 
-  return fieldManager->getFieldTime(request, updateSources);
+  return fieldManager->getFieldTime(request);
 }
 
 bool FieldPlotManager::addGridCollection(const std::string& modelname, const std::string& filename, bool writeable)
@@ -498,6 +499,11 @@ bool FieldPlotManager::addGridCollection(const std::string& modelname, const std
 FieldModelGroupInfo_v FieldPlotManager::getFieldModelGroups()
 {
   return fieldManager->getFieldModelGroups();
+}
+
+void FieldPlotManager::updateFieldReferenceTimes(const std::string& model)
+{
+  fieldManager->updateGridCollection(model);
 }
 
 set<std::string> FieldPlotManager::getFieldReferenceTimes(const std::string& model)
@@ -711,11 +717,11 @@ void FieldPlotManager::getFieldPlotGroups(const std::string& modelName, const st
 {
   vfgi.clear();
 
-  const std::map<std::string, FieldPlotInfo> fieldInfo = fieldManager->getFieldPlotInfo(modelName, refTime);
+  const std::map<std::string, FieldPlotInfo>& fieldInfo = fieldManager->getFieldPlotInfo(modelName, refTime);
   map<std::string, FieldPlotGroupInfo> mfgi;
 
   if (!predefinedPlots) {
-    for (auto&& vi : fieldInfo) {
+    for (const auto& vi : fieldInfo) {
       const FieldPlotInfo& plotInfo = vi.second;
 
       // add plot to FieldGroup

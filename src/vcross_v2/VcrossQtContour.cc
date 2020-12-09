@@ -1,9 +1,39 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2020 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #include "VcrossQtContour.h"
 
 #include "VcrossQtAxis.h"
 #include "VcrossQtUtil.h"
 #include "diField/VcrossUtil.h"
+#include "qtUtility.h"
+
 #include <mi_fieldcalc/math_util.h>
 
 #include <cmath>
@@ -109,7 +139,7 @@ void VCLines::paint_labels()
 void VCLines::setLine(const Colour& colour, const Linetype& linetype, int linewidth)
 {
   if (linetype.bmap != 0) {
-    QPen pen(vcross::util::QC(colour), linewidth);
+    QPen pen(diutil::QC(colour), linewidth);
     vcross::util::setDash(pen, linetype);
     mPainter.setPen(pen);
   } else {
@@ -148,7 +178,7 @@ void VCLines::drawLabels(const QPolygonF& points, contouring::level_t li)
   if (points.size() < 10)
     return;
 
-  mPainter.setPen(vcross::util::QC(mPlotOptions.linecolour));
+  mPainter.setPen(diutil::QC(mPlotOptions.linecolour));
   mPainter.setBrush(Qt::NoBrush);
 
   const QString lbl = QString::number(mLevels.value_for_level(li));
@@ -218,7 +248,7 @@ void VCLines::restore()
 
 QColor VCLines::QCa(const Colour& colour)
 {
-  QColor qcolor(vcross::util::QC(colour));
+  QColor qcolor(diutil::QC(colour));
   qcolor.setAlpha(mPlotOptions.alpha);
   return qcolor;
 }

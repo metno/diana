@@ -75,7 +75,7 @@ plottimes_t FieldPlotCluster::getTimes()
   std::vector<FieldPlotCommand_cp> commands;
   for (FieldPlot* fp : diutil::static_content_cast<FieldPlot*>(plots_))
     commands.push_back(fp->command());
-  return fieldplotm_->getFieldTime(commands, false);
+  return fieldplotm_->getFieldTime(commands);
 }
 
 plottimes_t FieldPlotCluster::fieldAnalysisTimes() const

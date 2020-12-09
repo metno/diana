@@ -179,6 +179,8 @@ private:
   QObject* object_;
 };
 
+inline QColor QC(const Colour& c) { return QColor(c.R(), c.G(), c.B(), c.A()); }
+
 } // namespace diutil
 
 #endif
