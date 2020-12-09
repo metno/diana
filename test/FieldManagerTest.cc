@@ -236,6 +236,91 @@ TEST(FieldManager, FieldComputeUnits)
   EXPECT_NEAR(field_toto->data[0], fv_toto1.front()->data[0], 0.03125);
 }
 
+TEST(FieldManager, FieldComputeUnitsProb)
+{
+  ditest::clearMemoryLog();
+  if (!ditest::hasTestExtra())
+    return;
+
+  std::unique_ptr<FieldManager> fmanager(new FieldManager());
+  const std::vector<std::string> field_compute_setup{
+      "accumprecip.1h=accum.diff.forecast.hour(precipitation_amount_acc:unit=kg/m^2,-1,0)",
+      "accumsnow_total_water.1h=accum.diff.forecast.hour(snowfall_amount_acc,-1,0)",
+      "dur=undercooled.rain(accumprecip.1h,accumsnow_total_water.1h,air_temperature_2m,0.05,0.9,0.0)",
+      "prob_dur=probability_above(dur:ecoord,0)",
+
+      "ff10m=vector.abs(x_wind_10m,y_wind_10m)",
+      "ff10m_max3=max_of_fields(ff10m:fchour=-2)",
+      "prob_ff10m_max3=probability_above(ff10m_max3:ecoord,10.8)",
+  };
+  std::vector<std::string> field_compute_errors;
+  FieldFunctions::parseComputeSetup(field_compute_setup, field_compute_errors);
+  ASSERT_TRUE(field_compute_errors.empty());
+
+  const std::string inputfile = ditest::pathTestExtra("meps_lagged_20201019T03Z.nc");
+  const std::string model = "fctest";
+  ASSERT_TRUE(fmanager->addModels({"filegroup=x", "model=" + model + " t=netcdf f=" + inputfile}));
+
+  FieldRequest frq0;
+  frq0.modelName = model;
+  frq0.refTime = "2020-10-19T03:00:00";
+  frq0.ptime = miutil::miTime("2020-10-19 06:00:00");
+
+  {
+    FieldRequest frq = frq0;
+    frq.paramName = "accumprecip.1h";
+    frq.elevel = "0";
+    Field_p fld = fmanager->makeField(frq);
+    ASSERT_TRUE(fld != 0);
+    EXPECT_EQ("kg/m^2", fld->unit);
+    EXPECT_EQ(miutil::ALL_DEFINED, fld->defined());
+  }
+  {
+    FieldRequest frq = frq0;
+    frq.paramName = "accumsnow_total_water.1h";
+    frq.elevel = "0";
+    Field_p fld = fmanager->makeField(frq);
+    ASSERT_TRUE(fld != 0);
+    EXPECT_EQ("kg/m^2", fld->unit);
+    EXPECT_EQ(miutil::ALL_DEFINED, fld->defined());
+  }
+  {
+    FieldRequest frq = frq0;
+    frq.paramName = "prob_dur";
+    Field_p fld = fmanager->makeField(frq);
+    ASSERT_TRUE(fld != 0);
+    EXPECT_EQ("%", fld->unit);
+    EXPECT_EQ(miutil::ALL_DEFINED, fld->defined());
+  }
+
+  {
+    FieldRequest frq = frq0;
+    frq.paramName = "ff10m";
+    frq.elevel = "0";
+    Field_p fld = fmanager->makeField(frq);
+    ASSERT_TRUE(fld != 0);
+    EXPECT_EQ("m/s", fld->unit);
+    EXPECT_EQ(miutil::ALL_DEFINED, fld->defined());
+  }
+  {
+    FieldRequest frq = frq0;
+    frq.paramName = "ff10m_max3";
+    frq.elevel = "0";
+    Field_p fld = fmanager->makeField(frq);
+    ASSERT_TRUE(fld != 0);
+    EXPECT_EQ("m/s", fld->unit);
+    EXPECT_EQ(miutil::ALL_DEFINED, fld->defined());
+  }
+  {
+    FieldRequest frq = frq0;
+    frq.paramName = "prob_ff10m_max3";
+    Field_p fld = fmanager->makeField(frq);
+    ASSERT_TRUE(fld != 0);
+    EXPECT_EQ("%", fld->unit);
+    EXPECT_EQ(miutil::ALL_DEFINED, fld->defined());
+  }
+}
+
 TEST(FieldManager, FieldComputeUnitsSimpleFunctions)
 {
   if (!ditest::hasTestExtra())

@@ -130,8 +130,9 @@ std::vector<Field_p> createOutputFields(const FieldFunctions::FieldCompute& fcm,
     ff->shallowMemberCopy(*vfield[0]);
     ff->reserve(vfield[0]->area.nx, vfield[0]->area.ny);
     if (fcm.func) {
-      const bool is_varargs_f = (fcm.func && (fcm.func->varargs & FieldFunctions::varargs_field));
-      const std::string& unit = (is_varargs_f) ? vfield[0]->unit : fcm.func->units[j];
+      const bool is_varargs_f = (fcm.func->varargs & FieldFunctions::varargs_field);
+      const bool is_unit0 = (fcm.func->units[j] == "=0");
+      const std::string& unit = (is_varargs_f || is_unit0) ? vfield[0]->unit : fcm.func->units[j];
       if (!unit.empty() && !fieldrequest.unit.empty() && !vcross::util::unitsConvertible(unit, fieldrequest.unit))
         return std::vector<Field_p>();
       ff->unit = unit;
@@ -851,6 +852,7 @@ Field_p GridCollection::getField(const FieldRequest& fieldrequest)
   // special treatment for functions using fields with different forecast time
   if (FieldFunctions::isTimeStepFunction(fcm->function)) {
     FieldRequest fieldrequest_new = fieldrequest;
+    fieldrequest_new.unit.clear();
     FieldFunctions::FieldSpec fs;
     updateFieldRequestFromFieldSpec(*fcm, 0, fieldrequest_new, fs);
 
@@ -867,6 +869,7 @@ Field_p GridCollection::getField(const FieldRequest& fieldrequest)
     // loop trough input params with same zaxis
     for (size_t j = 0; j < fcm->input.size(); j++) {
       FieldRequest fieldrequest_new = fieldrequest;
+      fieldrequest_new.unit.clear();
       FieldFunctions::FieldSpec fs;
       updateFieldRequestFromFieldSpec(*fcm, j, fieldrequest_new, fs);
 
