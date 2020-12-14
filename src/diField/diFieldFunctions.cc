@@ -135,7 +135,7 @@ static const FieldFunctions::FunctionHelper functions[] {
 
     // FieldFunctions kIndex
     {FieldFunctions::f_kindex_plevel_tk_rh, FieldVerticalAxes::vctype_pressure, "kindex.plevel_tk_rh", "1", {{"tk500", u_K}, {"tk700", u_K}, {"rh700", u_pc}, {"tk850", u_K}, {"rh850", u_pc}}, {}},
-    {FieldFunctions::f_kindex_plevel_th_rh, FieldVerticalAxes::vctype_pressure, "kindex.plevel_th_rh", "1", {{"th500", u_K}, {"th700", u_K}, {"rh700", u_K}, {"th850", u_K}, {"rh850", u_K}}, {}},
+    {FieldFunctions::f_kindex_plevel_th_rh, FieldVerticalAxes::vctype_pressure, "kindex.plevel_th_rh", "1", {{"th500", u_K}, {"th700", u_K}, {"rh700", u_pc}, {"th850", u_K}, {"rh850", u_pc}}, {}},
 
     // FieldFunctions ductingIndex
     {FieldFunctions::f_ductingindex_plevel_tk_rh, FieldVerticalAxes::vctype_pressure, "ductingindex.plevel_tk_rh", "1", {{"tk850", u_K}, {"rh850", u_pc}}, {}},
