@@ -1050,6 +1050,11 @@ void GridCollection::addComputedParameters()
 
           set<gridinventory::Zaxis>::iterator zitr = rinventory.zaxes.find(Zaxis(pitr->zaxis_id));
 
+          // if the funcion is a hybrid function, the variables must have vctype_hybrid or a vertical axis with just one level.
+          // The variable with one vertical level are supposed to be the surface pressuer, but there are no futher tests.
+          if (fc.vctype == FieldVerticalAxes::vctype_hybrid && zitr->vc_type != FieldVerticalAxes::vctype_hybrid && zitr->values.size() > 1)
+            continue;
+
           //level do not exists
           if (levelSpecified && !zitr->valueExists(fs.levelName)) {
             inputOk = false;

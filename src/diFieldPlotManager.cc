@@ -889,22 +889,25 @@ bool FieldPlotManager::writeField(const FieldRequest& fieldrequest, Field_cp fie
 
 vector<FieldRequest> FieldPlotManager::getParamNames(const std::string& plotName, FieldRequest fieldrequest)
 {
-  //search through vPlotField
-  //if plotName and vcoord ok -> use it
-  //else use fieldname= plotname
+  // search through vPlotField
+  // Same plotName can be used for plots with different vertical levels.
+  // It's difficult to recoginze the different kinds of modellevels,
+  // so the test is just: is it pressure levels or not.
+
+  // If plotName is not found, use paramName = plotName
 
   vector<FieldRequest> vfieldrequest;
   const FieldVerticalAxes::Zaxis_info* zaxi = FieldVerticalAxes::findZaxisInfo(fieldrequest.zaxis);
+  bool z_fr_is_pressure = zaxi && (zaxi->vctype == FieldVerticalAxes::vctype_pressure);
 
   for (PlotField_p pf : vPlotField) {
-    if ((pf->name == plotName) &&
-        ((pf->vcoord.empty() && pf->vctype == FieldVerticalAxes::vctype_none) || pf->vcoord.count(fieldrequest.zaxis) || (zaxi && pf->vctype == zaxi->vctype))) {
+    bool z_pf_is_pressure = (pf->vctype == FieldVerticalAxes::vctype_pressure);
+    if (pf->name == plotName && z_fr_is_pressure == z_pf_is_pressure) {
       for (const auto& input : pf->input) {
         fieldrequest.paramName = input.name;
         fieldrequest.standard_name = input.is_standard_name;
         vfieldrequest.push_back(fieldrequest);
       }
-
       return vfieldrequest;
     }
   }
