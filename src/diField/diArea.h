@@ -60,7 +60,7 @@ public:
   Area& operator=(const Area &rhs);
 
   bool operator==(const Area &rhs) const;
-  bool operator!=(const Area &rhs) const;
+  bool operator!=(const Area& rhs) const { return !(*this == rhs); }
 
   friend std::ostream& operator<<(std::ostream& output, const Area& a);
 
@@ -107,6 +107,7 @@ public:
     { return ygrid*resolutionY + R().y1; }
 
   bool operator==(const GridArea& rhs) const;
+  bool operator!=(const GridArea& rhs) const { return !(*this == rhs); }
 
 public:
   int nx;
