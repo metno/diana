@@ -87,6 +87,7 @@ static const FieldFunctions::Arg a_tk("tk", u_K);
 static const FieldFunctions::Arg a_tc("tc", u_C);
 static const FieldFunctions::Arg a_q("q", u_kg_kg);
 static const FieldFunctions::Arg a_rh("rh", u_pc);
+static const FieldFunctions::Arg a_rh1("rh", "1");
 static const FieldFunctions::Arg a_tdk("tdk", u_K);
 static const FieldFunctions::Arg a_tdc("tdc", u_C);
 static const FieldFunctions::Arg a_psurf("psurf", u_hPa);
@@ -134,7 +135,7 @@ static const FieldFunctions::FunctionHelper functions[] {
 
     // FieldFunctions kIndex
     {FieldFunctions::f_kindex_plevel_tk_rh, FieldVerticalAxes::vctype_pressure, "kindex.plevel_tk_rh", "1", {{"tk500", u_K}, {"tk700", u_K}, {"rh700", u_pc}, {"tk850", u_K}, {"rh850", u_pc}}, {}},
-    {FieldFunctions::f_kindex_plevel_th_rh, FieldVerticalAxes::vctype_pressure, "kindex.plevel_th_rh", "1", {{"th500", u_K}, {"th700", u_K}, {"rh700", u_K}, {"th850", u_K}, {"rh850", u_K}}, {}},
+    {FieldFunctions::f_kindex_plevel_th_rh, FieldVerticalAxes::vctype_pressure, "kindex.plevel_th_rh", "1", {{"th500", u_K}, {"th700", u_K}, {"rh700", u_pc}, {"th850", u_K}, {"rh850", u_pc}}, {}},
 
     // FieldFunctions ductingIndex
     {FieldFunctions::f_ductingindex_plevel_tk_rh, FieldVerticalAxes::vctype_pressure, "ductingindex.plevel_tk_rh", "1", {{"tk850", u_K}, {"rh850", u_pc}}, {}},
@@ -212,7 +213,7 @@ static const FieldFunctions::FunctionHelper functions[] {
     {FieldFunctions::f_temp_c2k, FieldVerticalAxes::vctype_none, "temp_c2k", u_K, {a_tc}, {}},
     {FieldFunctions::f_tdk_tk_rh, FieldVerticalAxes::vctype_none, "tdk.tk_rh", u_K, {a_tk, a_rh}, {}},
     {FieldFunctions::f_tdc_tk_rh, FieldVerticalAxes::vctype_none, "tdc.tk_rh", u_C, {a_tk, a_rh}, {}},
-    {FieldFunctions::f_abshum_tk_rh, FieldVerticalAxes::vctype_none, "abshum.tk_rh", {a_tk, a_rh}, {}},
+    {FieldFunctions::f_abshum_tk_rh, FieldVerticalAxes::vctype_none, "abshum.tk_rh", {a_tk, a_rh1}, {}},
     {FieldFunctions::f_tdc_tc_rh, FieldVerticalAxes::vctype_none, "tdc.tc_rh", u_C, {a_tc, a_rh}, {}},
     {FieldFunctions::f_rh_tk_td, FieldVerticalAxes::vctype_none, "rh.tk_tdk", u_pc, {a_tk, a_tdk}, {}},
     {FieldFunctions::f_rh_tc_td, FieldVerticalAxes::vctype_none, "rh.tc_tdc", u_pc, {a_tc, a_tdc}, {}},
