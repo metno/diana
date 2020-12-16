@@ -94,6 +94,7 @@ METNO_HEADERS(dianaUnitTests_QTHEADERS   "cc" "h" ${dianaUnitTests_QTSOURCES})
 
 SET (dianaUnitTests_SOURCES
   ${dianaUnitTests_QTSOURCES}
+  TestArea.cc
   TestCommandParser.cc
   TestDianaLevels.cc
   TestFieldPlot.cc

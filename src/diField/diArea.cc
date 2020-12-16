@@ -73,11 +73,6 @@ bool Area::operator==(const Area &rhs) const
   return ((proj == rhs.proj) && (rect == rhs.rect));
 }
 
-bool Area::operator!=(const Area &rhs) const
-{
-  return !(this->operator==(rhs));
-}
-
 std::ostream& operator<<(std::ostream& output, const Area& a)
 {
   return output << "name="<<a.name<<" "<<a.proj<<"  "<<a.rect;
