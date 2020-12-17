@@ -88,7 +88,7 @@ TEST(FimexIO, NoSuchTime)
     EXPECT_TRUE(fio->getData(refTime, *it, "", ptime, "") == nullptr); // no such time
 
     const auto& lm = ditest::getMemoryLogMessages();
-    EXPECT_EQ(1, std::count_if(lm.begin(), lm.end(), [](milogger::memory::MemorySystem::Message m) { return m.severity == milogger::WARN; }));
+    EXPECT_EQ(0, std::count_if(lm.begin(), lm.end(), [](milogger::memory::MemorySystem::Message m) { return m.severity == milogger::WARN; }));
   }
 
   {
