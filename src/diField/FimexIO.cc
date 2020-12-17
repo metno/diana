@@ -57,8 +57,6 @@
 #include <fimex/coordSys/verticalTransform/ToVLevelConverter.h>
 #include <fimex/Units.h>
 
-#include <boost/algorithm/string/case_conv.hpp>
-#include <boost/algorithm/string/split.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/gregorian/greg_duration.hpp>
 
