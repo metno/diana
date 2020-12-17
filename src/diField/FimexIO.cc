@@ -169,7 +169,6 @@ MetNoFimex::CoordinateSystem_cp findCoordinateSystem(const CoordinateSystem_cp_v
 bool FimexIOsetup::parseSetup(std::vector<std::string> lines,
     std::vector<std::string>& errors)
 {
-
   optionMap.clear();
   const int nlines = lines.size();
   for (int l = 0; l < nlines; l++) {
@@ -725,18 +724,14 @@ bool FimexIO::makeInventory(const std::string& reftime)
       METLIBS_LOG_DEBUG("NEXT VAR: " << CDMparamName);
 
       // search for coordinate system for varName
-      CoordinateSystem_cp_v::const_iterator varSysIt =
-          find_if(coordSys.begin(), coordSys.end(),
-              CompleteCoordinateSystemForComparator(CDMparamName));
-
       std::string xaxisname, yaxisname, taxisname, zaxisname, projectionname;
-      if (varSysIt != coordSys.end()) {
-        copyAxisName((*varSysIt)->getTimeAxis(), taxisname);
-        copyAxisName((*varSysIt)->getGeoXAxis(), xaxisname);
-        copyAxisName((*varSysIt)->getGeoYAxis(), yaxisname);
-        copyAxisName((*varSysIt)->getGeoZAxis(), zaxisname);
+      if (CoordinateSystem_cp cs = findCompleteCoordinateSystemFor(coordSys, CDMparamName)) {
+        copyAxisName(cs->getTimeAxis(), taxisname);
+        copyAxisName(cs->getGeoXAxis(), xaxisname);
+        copyAxisName(cs->getGeoYAxis(), yaxisname);
+        copyAxisName(cs->getGeoZAxis(), zaxisname);
 
-        if (MetNoFimex::Projection_cp projection = (*varSysIt)->getProjection())
+        if (MetNoFimex::Projection_cp projection = cs->getProjection())
           projectionname = projection->getName();
       }
 
@@ -793,8 +788,8 @@ bool FimexIO::makeInventory(const std::string& reftime)
     }
 
     //loop throug reftimeinv
-    for (gridinventory::Inventory::reftimes_t::iterator it_ri = rtimes.begin(); it_ri != rtimes.end(); ++it_ri) {
-      gridinventory::ReftimeInventory& ri = it_ri->second;
+    for (auto& r_i : rtimes) {
+      gridinventory::ReftimeInventory& ri = r_i.second;
       ri.parameters = parameters;
       ri.grids = grids;
       ri.zaxes = zaxes;
@@ -812,8 +807,6 @@ bool FimexIO::makeInventory(const std::string& reftime)
     return false;
   }
 
-  //METLIBS_LOG_DEBUG(inventory);
-
   sourceOk = true;
   return true;
 }
@@ -825,11 +818,11 @@ CoordinateSystemSliceBuilder FimexIO::createSliceBuilder(CDMReader_p reader, con
   // the slicebuilder starts with the maximum variable size;
   // as we want the complete field, we leave the x- and y-axis alone
   CoordinateSystemSliceBuilder sb(reader->getCDM(), varCS);
-  // handling of time
-  if (tAxis.get() != 0) {
+
+  // handling of time axis
+  if (CoordinateAxis_cp tAxis = varCS->getTimeAxis()) {
     // time-Axis, eventually multi-dimensional, i.e. forecast_reference_time
-    if (varCS->hasAxisType(CoordinateAxis::ReferenceTime)) {
-      CoordinateAxis_cp rtAxis = varCS->findAxisOfType(CoordinateAxis::ReferenceTime);
+    if (CoordinateAxis_cp rtAxis = varCS->findAxisOfType(CoordinateAxis::ReferenceTime)) {
       DataPtr refTimes = reader->getScaledDataInUnit(rtAxis->getName(), SECONDS_SINCE_1970);
       MetNoFimex::shared_array<int> refdata = refTimes->asInt();
       // FIXME instead of converting each time from int to string, convert 'reftime' to int
@@ -861,7 +854,6 @@ CoordinateSystemSliceBuilder FimexIO::createSliceBuilder(const CoordinateSystem_
 {
   return createSliceBuilder(feltReader, varCS, reftime, param, taxis_index, zaxis_index, eaxis_index);
 }
-
 
 bool FimexIO::paramExists(const std::string& reftime, const gridinventory::GridParameter& param)
 {
@@ -945,8 +937,8 @@ Field_p FimexIO::getData(const std::string& reftime, const gridinventory::GridPa
 
   try {
     CoordinateSystem_cp varCS = findCoordinateSystem(param);
-    if (not varCS)
-      return 0;
+    if (!varCS)
+      return nullptr;
 
     const int taxis_index = findTimeIndex(getTaxis(reftime, param.key.taxis), time);
     const int zaxis_index = findZIndex(getZaxis(reftime, param.key.zaxis), level);
@@ -975,11 +967,8 @@ Field_p FimexIO::getData(const std::string& reftime, const gridinventory::GridPa
     }
 
     // get a-hybrid and b-hybrid (used to calculate pressure of hybrid levels)
-    std::vector<CoordinateSystem_cp>::iterator varSysIt =
-        find_if(coordSys.begin(), coordSys.end(), CompleteCoordinateSystemForComparator(param.key.name));
-    if (varSysIt != coordSys.end()) {
-      if ((*varSysIt)->hasVerticalTransformation()) {
-        const VerticalTransformation_cp vtran = (*varSysIt)->getVerticalTransformation();
+    if (CoordinateSystem_cp cs = findCompleteCoordinateSystemFor(coordSys, param.key.name)) {
+      if (const VerticalTransformation_cp vtran = cs->getVerticalTransformation()) {
         if (vtran->getName() == HybridSigmaPressure1::NAME()) {
           if (std::shared_ptr<const HybridSigmaPressure1> hyb1 = std::dynamic_pointer_cast<const HybridSigmaPressure1>(vtran)) {
             setHybridParametersIfPresent(reftime, param, hyb1->ap, hyb1->b, zaxis_index, field);
@@ -997,7 +986,7 @@ Field_p FimexIO::getData(const std::string& reftime, const gridinventory::GridPa
   } catch (std::exception& ex) {
     METLIBS_LOG_WARN("Could not open or process " << source_name << ", exception is: " << ex.what());
   }
-  return 0;
+  return nullptr;
 }
 
 /**
@@ -1008,9 +997,7 @@ vcross::Values_p  FimexIO::getVariable(const std::string& varName)
   METLIBS_LOG_SCOPE();
   METLIBS_LOG_INFO(LOGVAL(varName));
 
-
   try {
-
     // Get the CDM from the reader
     const CDM& cdm = feltReader->getCDM();
 
@@ -1040,21 +1027,22 @@ vcross::Values_p  FimexIO::getVariable(const std::string& varName)
 bool FimexIO::putData(const std::string& reftime, const gridinventory::GridParameter& param, const std::string& level, const miutil::miTime& time,
                       const std::string& elevel, const std::string& unit, Field_cp field, const std::string& output_time)
 {
-  if (not field)
+  METLIBS_LOG_TIME();
+
+  if (!field)
     return false;
 
-  METLIBS_LOG_TIME();
-  METLIBS_LOG_INFO(" Param: "<<param.key.name<<"  time:"<<time<<" Source:"<<source_name);
+  METLIBS_LOG_INFO("Param: "<<param.key.name<<"  time:"<<time<<" Source:"<<source_name);
 
   CDMReaderWriter_p feltWriter = std::dynamic_pointer_cast<CDMReaderWriter>(feltReader);
-  if (not feltWriter) {
-    METLIBS_LOG_INFO(" No feltWriter");
+  if (!feltWriter) {
+    METLIBS_LOG_INFO("No feltWriter");
     return false;
   }
 
   try {
     CoordinateSystem_cp varCS = findCoordinateSystem(param);
-    if (not varCS)
+    if (!varCS)
       return false;
 
     const int taxis_index = findTimeIndex(getTaxis(reftime, param.key.taxis), time);

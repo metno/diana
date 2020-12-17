@@ -210,7 +210,7 @@ public:
    * Get data slice as Field
    */
   Field_p getData(const std::string& reftime, const gridinventory::GridParameter& param, const std::string& level, const miutil::miTime& time,
-                  const std::string& run) override;
+                  const std::string& elevel) override;
 
   /**
    * Get data
