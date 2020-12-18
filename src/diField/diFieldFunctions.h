@@ -260,8 +260,6 @@ public:
     f_sea_soundspeed_ozlevel_tk_salt, //!< f_sea_soundspeed_ozlevel_tk_salt
 
     // level independent functions
-    f_temp_k2c,          //!< f_temp_k2c
-    f_temp_c2k,          //!< f_temp_c2k
     f_tdk_tk_rh,         //!< f_tdk_tk_rh
     f_tdc_tk_rh,         //!< f_tdc_tk_rh
     f_tdc_tc_rh,         //!< f_tdc_tc_rh

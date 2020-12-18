@@ -209,8 +209,6 @@ static const FieldFunctions::FunctionHelper functions[] {
     {FieldFunctions::f_sea_soundspeed_ozlevel_tk_salt, FieldVerticalAxes::vctype_oceandepth, "sea.soundspeed.ozlevel_tk_salt", u_m_s, {{"seatemp.k", u_K}, {"salt"}}, {}},
 
     // level independent functions
-    {FieldFunctions::f_temp_k2c, FieldVerticalAxes::vctype_none, "temp_k2c", u_C, {a_tk}, {}},
-    {FieldFunctions::f_temp_c2k, FieldVerticalAxes::vctype_none, "temp_c2k", u_K, {a_tc}, {}},
     {FieldFunctions::f_tdk_tk_rh, FieldVerticalAxes::vctype_none, "tdk.tk_rh", u_K, {a_tk, a_rh}, {}},
     {FieldFunctions::f_tdc_tk_rh, FieldVerticalAxes::vctype_none, "tdc.tk_rh", u_C, {a_tk, a_rh}, {}},
     {FieldFunctions::f_abshum_tk_rh, FieldVerticalAxes::vctype_none, "abshum.tk_rh", {a_tk, a_rh1}, {}},
@@ -971,17 +969,6 @@ bool FieldFunctions::fieldComputer(Function function, const std::vector<float>& 
     //---------------------------------------------------
     // level (pressure) independent functions
     //---------------------------------------------------
-
-  case f_temp_k2c:
-    if (compute == 0)
-      compute = 1;
-  case f_temp_c2k:
-    if (compute == 0)
-      compute = 2;
-    if (ninp != 1 || nout != 1)
-      break;
-    res = cvtemp(nx, ny, finp[0], compute, fout[0], fDefined, undef);
-    break;
 
   case f_tdk_tk_rh:
     if (compute == 0)
