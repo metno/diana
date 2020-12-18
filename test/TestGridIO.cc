@@ -65,3 +65,39 @@ TEST(GridIO, GetRefTimeFindZEC)
     return;
   TestGetRefTimeFindZ(ditest::pathTestExtra("ecmwf_2020050500.nc"), "pressure0");
 }
+
+TEST(FimexIO, NoSuchTime)
+{
+  const std::string fileName(TEST_SRCDIR "/test_fimexio_rw.nc");
+
+  const std::string refTime = "2013-02-27T00:00:00";
+  const std::string paramName = "lwe_precipitation_rate";
+
+  std::unique_ptr<FimexIOsetup> fios(new FimexIOsetup);
+  std::unique_ptr<FimexIO> fio(new FimexIO("mdl", fileName, refTime, "", "", {}, true, fios.get()));
+  EXPECT_TRUE(fio->makeInventory(refTime));
+
+  const auto& rti = fio->getReftimeInventory(refTime);
+  const auto it = std::find_if(rti.parameters.begin(), rti.parameters.end(), [&](const gridinventory::GridParameter& gp) { return gp.key.name == paramName; });
+  ASSERT_NE(it, rti.parameters.end());
+
+  {
+    ditest::clearMemoryLog();
+
+    const miutil::miTime ptime = miutil::miTime("2023-02-27 00:00:00");
+    EXPECT_TRUE(fio->getData(refTime, *it, "", ptime, "") == nullptr); // no such time
+
+    const auto& lm = ditest::getMemoryLogMessages();
+    EXPECT_EQ(0, std::count_if(lm.begin(), lm.end(), [](milogger::memory::MemorySystem::Message m) { return m.severity == milogger::WARN; }));
+  }
+
+  {
+    ditest::clearMemoryLog();
+
+    const miutil::miTime ptime = miutil::miTime("2013-02-27 00:00:00");
+    ASSERT_TRUE(fio->getData(refTime, *it, "", ptime, "") != nullptr); // time ok
+
+    const auto& lm = ditest::getMemoryLogMessages();
+    EXPECT_EQ(0, std::count_if(lm.begin(), lm.end(), [](milogger::memory::MemorySystem::Message m) { return m.severity == milogger::WARN; }));
+  }
+}

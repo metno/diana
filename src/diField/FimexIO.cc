@@ -57,8 +57,6 @@
 #include <fimex/coordSys/verticalTransform/ToVLevelConverter.h>
 #include <fimex/Units.h>
 
-#include <boost/algorithm/string/case_conv.hpp>
-#include <boost/algorithm/string/split.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/gregorian/greg_duration.hpp>
 
@@ -92,62 +90,52 @@ void copyAxisName(CoordinateAxis_cp axis, std::string& nameVar)
 
 // #######################################################################
 
-size_t FimexIO::findTimeIndex(const gridinventory::Taxis& taxis, const miutil::miTime& time)
+int FimexIO::findTimeIndex(const gridinventory::Taxis& taxis, const miutil::miTime& time)
 {
-  size_t taxis_index = 0;
-  if (not time.undef()) {
-    // TODO convert time to std::string in seconds-since-epoch, then use std::find
-    vector<double>::const_iterator titr = taxis.values.begin();
-    for (; titr != taxis.values.end(); ++titr, taxis_index++) {
-      time_t tt = (*titr);
-      miTime t(tt);
-      if (t == time) {
-        break;
-      }
+  if (time.undef())
+    return 0;
+
+  int taxis_index = 0;
+  // TODO convert time to std::string in seconds-since-epoch, then use std::find
+  for (double tv : taxis.values) {
+    time_t tt = tv;
+    miTime t(tt);
+    if (t == time) {
+      if (noOfClimateTimes > 0)
+        taxis_index %= noOfClimateTimes;
+      return taxis_index;
     }
-    if (noOfClimateTimes)
-      taxis_index = taxis_index % noOfClimateTimes;
+    taxis_index += 1;
   }
-  return taxis_index;
+  return -1;
 }
 
-size_t FimexIO::findZIndex(const gridinventory::Zaxis& zaxis, const std::string& zlevel)
+int FimexIO::findZIndex(const gridinventory::Zaxis& zaxis, const std::string& zlevel)
 {
-  size_t zaxis_index = 0;
-
   // if zaxis has just one value, do not even check
-  if ( zaxis.stringvalues.size() == 1 )
-    return zaxis_index;
+  if (zaxis.stringvalues.size() == 1)
+    return 0;
 
   // find the index to the correct Z value
+  const auto& zv = zaxis.stringvalues;
+  const auto it = std::find(zv.begin(), zv.end(), zlevel);
+  if (it == zv.end())
+    return -1;
   if (!zaxis.positive) {
-    vector<std::string>::const_iterator zitr = zaxis.stringvalues.begin();
-    for (; zitr != zaxis.stringvalues.end(); ++zitr, zaxis_index++) {
-      if (*zitr == zlevel) {
-        break;
-      }
-    }
+    return std::distance(zv.begin(), it);
   } else {
-    vector<std::string>::const_reverse_iterator zitr = zaxis.stringvalues.rbegin();
-    for (; zitr != zaxis.stringvalues.rend(); ++zitr, zaxis_index++) {
-      if (*zitr == zlevel) {
-        break;
-      }
-    }
+    return std::distance(it, zv.end()) - 1;
   }
-  return zaxis_index;
 }
 
-size_t FimexIO::findExtraIndex(const gridinventory::ExtraAxis& extraaxis, const std::string& elevel)
+int FimexIO::findExtraIndex(const gridinventory::ExtraAxis& extraaxis, const std::string& elevel)
 {
-  size_t extraaxis_index = 0;
-  vector<std::string>::const_iterator ritr = extraaxis.stringvalues.begin();
-  for (; ritr != extraaxis.stringvalues.end(); ++ritr, extraaxis_index++) {
-    if (*ritr == elevel) {
-      break;
-    }
-  }
-  return extraaxis_index;
+  const auto& ev = extraaxis.stringvalues;
+  const auto it = std::find(ev.begin(), ev.end(), elevel);
+  if (it == ev.end())
+    return -1;
+  else
+    return std::distance(ev.begin(), it);
 }
 
 // find an appropriate coordinate system for the variable
@@ -181,7 +169,6 @@ MetNoFimex::CoordinateSystem_cp findCoordinateSystem(const CoordinateSystem_cp_v
 bool FimexIOsetup::parseSetup(std::vector<std::string> lines,
     std::vector<std::string>& errors)
 {
-
   optionMap.clear();
   const int nlines = lines.size();
   for (int l = 0; l < nlines; l++) {
@@ -737,18 +724,14 @@ bool FimexIO::makeInventory(const std::string& reftime)
       METLIBS_LOG_DEBUG("NEXT VAR: " << CDMparamName);
 
       // search for coordinate system for varName
-      CoordinateSystem_cp_v::const_iterator varSysIt =
-          find_if(coordSys.begin(), coordSys.end(),
-              CompleteCoordinateSystemForComparator(CDMparamName));
-
       std::string xaxisname, yaxisname, taxisname, zaxisname, projectionname;
-      if (varSysIt != coordSys.end()) {
-        copyAxisName((*varSysIt)->getTimeAxis(), taxisname);
-        copyAxisName((*varSysIt)->getGeoXAxis(), xaxisname);
-        copyAxisName((*varSysIt)->getGeoYAxis(), yaxisname);
-        copyAxisName((*varSysIt)->getGeoZAxis(), zaxisname);
+      if (CoordinateSystem_cp cs = findCompleteCoordinateSystemFor(coordSys, CDMparamName)) {
+        copyAxisName(cs->getTimeAxis(), taxisname);
+        copyAxisName(cs->getGeoXAxis(), xaxisname);
+        copyAxisName(cs->getGeoYAxis(), yaxisname);
+        copyAxisName(cs->getGeoZAxis(), zaxisname);
 
-        if (MetNoFimex::Projection_cp projection = (*varSysIt)->getProjection())
+        if (MetNoFimex::Projection_cp projection = cs->getProjection())
           projectionname = projection->getName();
       }
 
@@ -805,8 +788,8 @@ bool FimexIO::makeInventory(const std::string& reftime)
     }
 
     //loop throug reftimeinv
-    for (gridinventory::Inventory::reftimes_t::iterator it_ri = rtimes.begin(); it_ri != rtimes.end(); ++it_ri) {
-      gridinventory::ReftimeInventory& ri = it_ri->second;
+    for (auto& r_i : rtimes) {
+      gridinventory::ReftimeInventory& ri = r_i.second;
       ri.parameters = parameters;
       ri.grids = grids;
       ri.zaxes = zaxes;
@@ -824,39 +807,22 @@ bool FimexIO::makeInventory(const std::string& reftime)
     return false;
   }
 
-  //METLIBS_LOG_DEBUG(inventory);
-
   sourceOk = true;
   return true;
 }
 
-CoordinateSystemSliceBuilder FimexIO::createSliceBuilder(CDMReader_p reader, const CoordinateSystem_cp& varCS,
-    const std::string& reftime, const gridinventory::GridParameter& param,
-    const std::string& zlevel, const miutil::miTime& time, const std::string& elevel, size_t& zaxis_index)
+CoordinateSystemSliceBuilder FimexIO::createSliceBuilder(CDMReader_p reader, const CoordinateSystem_cp& varCS, const std::string& reftime,
+    const gridinventory::GridParameter& param, int taxis_index, int zaxis_index, int eaxis_index)
 {
-
-  // find the taxis, zaxis and extraaxis for this variable
-  const gridinventory::Taxis& taxis = getTaxis(reftime, param.key.taxis);
-  const gridinventory::Zaxis& zaxis = getZaxis(reftime, param.key.zaxis);
-  const gridinventory::ExtraAxis& extraaxis = getExtraAxis(reftime, param.key.extraaxis);
-
-  const size_t taxis_index = findTimeIndex(taxis, time);
-  zaxis_index = findZIndex(zaxis, zlevel);
-  const size_t extraaxis_index = findExtraIndex(extraaxis, elevel);
-
-  // find vertical and time axes
-  CoordinateAxis_cp vAxis = varCS->getGeoZAxis();
-  CoordinateAxis_cp tAxis = varCS->getTimeAxis();
-
-  // create a slice-builder for the variable
-  // the slicebuilder starts with the maximum variable size
+  // create a slice-builder for the variable;
+  // the slicebuilder starts with the maximum variable size;
+  // as we want the complete field, we leave the x- and y-axis alone
   CoordinateSystemSliceBuilder sb(reader->getCDM(), varCS);
-  // We want the complete field: leave the x- and y-axis alone
-  // handling of time
-  if (tAxis.get() != 0) {
+
+  // handling of time axis
+  if (CoordinateAxis_cp tAxis = varCS->getTimeAxis()) {
     // time-Axis, eventually multi-dimensional, i.e. forecast_reference_time
-    if (varCS->hasAxisType(CoordinateAxis::ReferenceTime)) {
-      CoordinateAxis_cp rtAxis = varCS->findAxisOfType(CoordinateAxis::ReferenceTime);
+    if (CoordinateAxis_cp rtAxis = varCS->findAxisOfType(CoordinateAxis::ReferenceTime)) {
       DataPtr refTimes = reader->getScaledDataInUnit(rtAxis->getName(), SECONDS_SINCE_1970);
       MetNoFimex::shared_array<int> refdata = refTimes->asInt();
       // FIXME instead of converting each time from int to string, convert 'reftime' to int
@@ -869,10 +835,14 @@ CoordinateSystemSliceBuilder FimexIO::createSliceBuilder(CDMReader_p reader, con
     }
     sb.setTimeStartAndSize(taxis_index, 1);
   }
-  // select the vertical layer
-  sb.setStartAndSize(vAxis, zaxis_index, 1); // should not fail, though vAxis is undefined
+
+  // find and select zaxis
+  if (CoordinateAxis_cp vAxis = varCS->getGeoZAxis())
+    sb.setStartAndSize(vAxis, zaxis_index, 1);
+
+  // find and select extraaxis, unless empty
   if (!param.key.extraaxis.empty()) {
-    sb.setStartAndSize(param.key.extraaxis, extraaxis_index, 1);
+    sb.setStartAndSize(param.key.extraaxis, eaxis_index, 1);
   }
 
   return sb;
@@ -880,11 +850,10 @@ CoordinateSystemSliceBuilder FimexIO::createSliceBuilder(CDMReader_p reader, con
 
 CoordinateSystemSliceBuilder FimexIO::createSliceBuilder(const CoordinateSystem_cp& varCS,
     const std::string& reftime, const gridinventory::GridParameter& param,
-    const std::string& level, const miutil::miTime& time, const std::string& elevel, size_t& zaxis_index)
+    int taxis_index, int zaxis_index, int eaxis_index)
 {
-  return createSliceBuilder(feltReader, varCS, reftime, param, level, time, elevel, zaxis_index);
+  return createSliceBuilder(feltReader, varCS, reftime, param, taxis_index, zaxis_index, eaxis_index);
 }
-
 
 bool FimexIO::paramExists(const std::string& reftime, const gridinventory::GridParameter& param)
 {
@@ -968,11 +937,15 @@ Field_p FimexIO::getData(const std::string& reftime, const gridinventory::GridPa
 
   try {
     CoordinateSystem_cp varCS = findCoordinateSystem(param);
-    if (not varCS)
-      return 0;
+    if (!varCS)
+      return nullptr;
 
-    size_t zaxis_index;
-    const CoordinateSystemSliceBuilder sb = createSliceBuilder(varCS, reftime, param, level, time, elevel, zaxis_index);
+    const int taxis_index = findTimeIndex(getTaxis(reftime, param.key.taxis), time);
+    const int zaxis_index = findZIndex(getZaxis(reftime, param.key.zaxis), level);
+    const int eaxis_index = findExtraIndex(getExtraAxis(reftime, param.key.extraaxis), elevel);
+    if (taxis_index < 0 || (!param.key.zaxis.empty() && zaxis_index < 0) || (!param.key.extraaxis.empty() && eaxis_index < 0))
+      return nullptr;
+    const CoordinateSystemSliceBuilder sb = createSliceBuilder(varCS, reftime, param, taxis_index, zaxis_index, eaxis_index);
 
     // fetch the data
     const std::string& varName = extractVariableName(param);
@@ -994,11 +967,8 @@ Field_p FimexIO::getData(const std::string& reftime, const gridinventory::GridPa
     }
 
     // get a-hybrid and b-hybrid (used to calculate pressure of hybrid levels)
-    std::vector<CoordinateSystem_cp>::iterator varSysIt =
-        find_if(coordSys.begin(), coordSys.end(), CompleteCoordinateSystemForComparator(param.key.name));
-    if (varSysIt != coordSys.end()) {
-      if ((*varSysIt)->hasVerticalTransformation()) {
-        const VerticalTransformation_cp vtran = (*varSysIt)->getVerticalTransformation();
+    if (CoordinateSystem_cp cs = findCompleteCoordinateSystemFor(coordSys, param.key.name)) {
+      if (const VerticalTransformation_cp vtran = cs->getVerticalTransformation()) {
         if (vtran->getName() == HybridSigmaPressure1::NAME()) {
           if (std::shared_ptr<const HybridSigmaPressure1> hyb1 = std::dynamic_pointer_cast<const HybridSigmaPressure1>(vtran)) {
             setHybridParametersIfPresent(reftime, param, hyb1->ap, hyb1->b, zaxis_index, field);
@@ -1016,7 +986,7 @@ Field_p FimexIO::getData(const std::string& reftime, const gridinventory::GridPa
   } catch (std::exception& ex) {
     METLIBS_LOG_WARN("Could not open or process " << source_name << ", exception is: " << ex.what());
   }
-  return 0;
+  return nullptr;
 }
 
 /**
@@ -1027,9 +997,7 @@ vcross::Values_p  FimexIO::getVariable(const std::string& varName)
   METLIBS_LOG_SCOPE();
   METLIBS_LOG_INFO(LOGVAL(varName));
 
-
   try {
-
     // Get the CDM from the reader
     const CDM& cdm = feltReader->getCDM();
 
@@ -1059,25 +1027,30 @@ vcross::Values_p  FimexIO::getVariable(const std::string& varName)
 bool FimexIO::putData(const std::string& reftime, const gridinventory::GridParameter& param, const std::string& level, const miutil::miTime& time,
                       const std::string& elevel, const std::string& unit, Field_cp field, const std::string& output_time)
 {
-  if (not field)
+  METLIBS_LOG_TIME();
+
+  if (!field)
     return false;
 
-  METLIBS_LOG_TIME();
-  METLIBS_LOG_INFO(" Param: "<<param.key.name<<"  time:"<<time<<" Source:"<<source_name);
+  METLIBS_LOG_INFO("Param: "<<param.key.name<<"  time:"<<time<<" Source:"<<source_name);
 
   CDMReaderWriter_p feltWriter = std::dynamic_pointer_cast<CDMReaderWriter>(feltReader);
-  if (not feltWriter) {
-    METLIBS_LOG_INFO(" No feltWriter");
+  if (!feltWriter) {
+    METLIBS_LOG_INFO("No feltWriter");
     return false;
   }
 
   try {
     CoordinateSystem_cp varCS = findCoordinateSystem(param);
-    if (not varCS)
+    if (!varCS)
       return false;
 
-    size_t zaxis_index;
-    const CoordinateSystemSliceBuilder sb = createSliceBuilder(varCS, reftime, param, level, time, elevel, zaxis_index);
+    const int taxis_index = findTimeIndex(getTaxis(reftime, param.key.taxis), time);
+    const int zaxis_index = findZIndex(getZaxis(reftime, param.key.zaxis), level);
+    const int eaxis_index = findExtraIndex(getExtraAxis(reftime, param.key.extraaxis), elevel);
+    if (taxis_index < 0 || (!param.key.zaxis.empty() && zaxis_index < 0) || (!param.key.extraaxis.empty() && eaxis_index < 0))
+      return false;
+    const CoordinateSystemSliceBuilder sb = createSliceBuilder(varCS, reftime, param, taxis_index, zaxis_index, eaxis_index);
 
     const size_t fieldSize = field->area.gridSize();
     MetNoFimex::shared_array<float> fdata(new float[fieldSize]);

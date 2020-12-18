@@ -110,10 +110,10 @@ private:
 
   MetNoFimex::CoordinateSystemSliceBuilder createSliceBuilder(MetNoFimex::CDMReader_p reader, const MetNoFimex::CoordinateSystem_cp& varCS,
       const std::string& reftime, const gridinventory::GridParameter& param,
-      const std::string& zlevel, const miutil::miTime& time, const std::string& elevel, size_t& zaxis_index);
-  MetNoFimex::CoordinateSystemSliceBuilder createSliceBuilder(const MetNoFimex::CoordinateSystem_cp& varCS,
-      const std::string& reftime, const gridinventory::GridParameter& param,
-      const std::string& zlevel, const miutil::miTime& time, const std::string& elevel, size_t& zaxis_index);
+      int taxis_index, int zaxis_index, int extraaxis_index);
+  MetNoFimex::CoordinateSystemSliceBuilder createSliceBuilder(const MetNoFimex::CoordinateSystem_cp& varCS, const std::string& reftime,
+      const gridinventory::GridParameter& param,
+      int taxis_index, int zaxis_index, int extraaxis_index);
   bool paramExists(const std::string& reftime, const gridinventory::GridParameter& param);
   void setHybridParametersIfPresent(const std::string& reftime, const gridinventory::GridParameter& param, const std::string& apVar, const std::string& bVar,
                                     size_t zaxis_index, Field_p field);
@@ -123,9 +123,20 @@ private:
 
   MetNoFimex::CDMReader_p createReader();
 
-  size_t findTimeIndex(const gridinventory::Taxis& taxis, const miutil::miTime& time);
-  size_t findZIndex(const gridinventory::Zaxis& zaxis, const std::string& zlevel);
-  size_t findExtraIndex(const gridinventory::ExtraAxis& extraaxis, const std::string& elevel);
+  /*! Find index of time in taxis.
+   * \return time index, or -1 if not found
+   */
+  int findTimeIndex(const gridinventory::Taxis& taxis, const miutil::miTime& time);
+
+  /*! Find index of zlevel in zaxis.
+   * \return index if found, or 0 if not found but length 1, or -1 if not found and length != 1
+   */
+  int findZIndex(const gridinventory::Zaxis& zaxis, const std::string& zlevel);
+
+  /*! Find index of elevel in extraaxis.
+   * \return index if found, or -1 if not found
+   */
+  int findExtraIndex(const gridinventory::ExtraAxis& extraaxis, const std::string& elevel);
 
   //! helper function for inventoryExtractGrid
   void inventoryExtractGridProjection(MetNoFimex::Projection_cp projection, gridinventory::Grid& grid,
@@ -199,7 +210,7 @@ public:
    * Get data slice as Field
    */
   Field_p getData(const std::string& reftime, const gridinventory::GridParameter& param, const std::string& level, const miutil::miTime& time,
-                  const std::string& run) override;
+                  const std::string& elevel) override;
 
   /**
    * Get data
