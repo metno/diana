@@ -967,12 +967,10 @@ Field_p FimexIO::getData(const std::string& reftime, const gridinventory::GridPa
     }
 
     // get a-hybrid and b-hybrid (used to calculate pressure of hybrid levels)
-    if (CoordinateSystem_cp cs = findCompleteCoordinateSystemFor(coordSys, param.key.name)) {
-      if (const VerticalTransformation_cp vtran = cs->getVerticalTransformation()) {
-        if (vtran->getName() == HybridSigmaPressure1::NAME()) {
-          if (std::shared_ptr<const HybridSigmaPressure1> hyb1 = std::dynamic_pointer_cast<const HybridSigmaPressure1>(vtran)) {
-            setHybridParametersIfPresent(reftime, param, hyb1->ap, hyb1->b, zaxis_index, field);
-          }
+    if (const VerticalTransformation_cp vtran = varCS->getVerticalTransformation()) {
+      if (vtran->getName() == HybridSigmaPressure1::NAME()) {
+        if (std::shared_ptr<const HybridSigmaPressure1> hyb1 = std::dynamic_pointer_cast<const HybridSigmaPressure1>(vtran)) {
+          setHybridParametersIfPresent(reftime, param, hyb1->ap, hyb1->b, zaxis_index, field);
         }
       }
     }
