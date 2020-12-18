@@ -51,6 +51,9 @@ using namespace std;
 
 const int DIV_SPLINE = 5;
 
+static const float FLOAT_MAX = std::numeric_limits<float>::max();
+static const float FLOAT_LOW = std::numeric_limits<float>::lowest();
+
 // static
 const int ObjectPlot::siglinewidth = 2;
 // static
@@ -85,7 +88,7 @@ ObjectPlot::ObjectPlot(int objTy)
     , objectColour(Colour("black"))
     , currentState(active) // points can be added
     , fSense(2.5)          // sensitivity to mark rectangle
-    , boundBox(+INT_MAX, +INT_MAX, -INT_MAX, -INT_MAX)
+    , boundBox(FLOAT_MAX, FLOAT_MAX, FLOAT_LOW, FLOAT_LOW)
     , x(nullptr)
     , y(nullptr)
     , x_s(nullptr)
@@ -653,10 +656,10 @@ void ObjectPlot::updateBoundBox()
 {
   METLIBS_LOG_SCOPE();
 
-  boundBox.x1= +INT_MAX;   // makes impossible box
-  boundBox.x2= -INT_MAX;
-  boundBox.y1= +INT_MAX;
-  boundBox.y2= -INT_MAX;
+  boundBox.x1= FLOAT_MAX;   // makes impossible box
+  boundBox.x2= FLOAT_LOW;
+  boundBox.y1= FLOAT_MAX;
+  boundBox.y2= FLOAT_LOW;
 
   for (const ObjectPoint& np : nodePoints)
     changeBoundBox(np.x(), np.y());
