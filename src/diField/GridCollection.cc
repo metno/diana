@@ -139,8 +139,12 @@ std::vector<Field_p> createOutputFields(const FieldFunctions::FieldCompute& fcm,
     } else {
       const bool is_add = (fcm.function == FieldFunctions::f_add_f_f);
       const bool is_subtract = (fcm.function == FieldFunctions::f_subtract_f_f);
+      const bool is_add_const = (fcm.function == FieldFunctions::f_add_f_c || fcm.function == FieldFunctions::f_add_c_f);
+      const bool is_subtract_const = (fcm.function == FieldFunctions::f_subtract_f_c || fcm.function == FieldFunctions::f_subtract_c_f);
       if ((is_add || is_subtract) && vfield[0]->unit == vfield[1]->unit) {
         ff->unit = vfield[0]->unit;
+      } else if (is_add_const || is_subtract_const) {
+          ff->unit = vfield[0]->unit;
       } else {
         ff->unit.clear();
       }

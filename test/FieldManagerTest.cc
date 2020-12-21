@@ -485,13 +485,13 @@ TEST(FieldManager, FieldComputeUnitsFC)
   {
     Field_p f = fmanager->makeField(frqForParam(frq, "tc2a"));
     ASSERT_TRUE(f != 0);
-    EXPECT_TRUE(f->unit.empty()) << "tc2a";
+    EXPECT_EQ("celsius", f->unit) << "tc2a";
     EXPECT_NEAR(2 + tc0, f->data[0], epsilon);
   }
   {
     Field_p f = fmanager->makeField(frqForParam(frq, "tc2b"));
     ASSERT_TRUE(f != 0);
-    EXPECT_TRUE(f->unit.empty()) << "tc2b";
+    EXPECT_EQ("celsius", f->unit) << "tc2b";
     EXPECT_NEAR(2 + tc0, f->data[0], epsilon);
   }
   {
