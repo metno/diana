@@ -329,7 +329,7 @@ TEST(FieldManager, FieldComputeUnitsSimpleFunctions)
   std::unique_ptr<FieldManager> fmanager(new FieldManager());
   const std::string funcs[4]{"add", "subtract", "multiply", "divide"};
   std::vector<std::string> field_compute_setup{
-      "tc=temp_k2c(air_temperature_pl)",
+      "tc=add(air_temperature_pl:units=celsius,0.0)",
       "tdk=tdk.plevel_tk_q(air_temperature_pl,specific_humidity_pl)",
       "t_plus_q=add(air_temperature_pl,specific_humidity_pl)",
       "tctc=multiply(air_temperature_pl:units=celsius,air_temperature_pl:units=celsius)",
@@ -394,7 +394,7 @@ TEST(FieldManager, FieldComputeUnitsVarargsF)
 
   std::unique_ptr<FieldManager> fmanager(new FieldManager());
   const std::vector<std::string> field_compute_setup {
-      "tc=temp_k2c(air_temperature_pl)",
+      "tc=add(air_temperature_pl:units=celsius,0.0)",
       "tdk=tdk.plevel_tk_q(air_temperature_pl,specific_humidity_pl)",
       "tsum=sum(tc,air_temperature_pl,tdk)",
       "tmean=mean_value(tc,air_temperature_pl)",
@@ -454,7 +454,7 @@ TEST(FieldManager, FieldComputeUnitsFC)
   std::unique_ptr<FieldManager> fmanager(new FieldManager());
   const std::string funcs[4]{"add", "subtract", "multiply", "divide"};
   const std::vector<std::string> field_compute_setup {
-      "tc=temp_k2c(air_temperature_pl)",
+      "tc=add(air_temperature_pl:units=celsius,0.0)",
       "tc2a=add(tc,2.0)",
       "tc2b=add(2.0,tc)",
       "tcm=multiply(0.5,tc)",
@@ -485,13 +485,13 @@ TEST(FieldManager, FieldComputeUnitsFC)
   {
     Field_p f = fmanager->makeField(frqForParam(frq, "tc2a"));
     ASSERT_TRUE(f != 0);
-    EXPECT_TRUE(f->unit.empty()) << "tc2a";
+    EXPECT_EQ("celsius", f->unit) << "tc2a";
     EXPECT_NEAR(2 + tc0, f->data[0], epsilon);
   }
   {
     Field_p f = fmanager->makeField(frqForParam(frq, "tc2b"));
     ASSERT_TRUE(f != 0);
-    EXPECT_TRUE(f->unit.empty()) << "tc2b";
+    EXPECT_EQ("celsius", f->unit) << "tc2b";
     EXPECT_NEAR(2 + tc0, f->data[0], epsilon);
   }
   {
