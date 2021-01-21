@@ -105,7 +105,7 @@ Sat::~Sat()
  */
 void Sat::values(int x, int y, std::vector<SatValues>& satval) const
 {
-  if (x>=0 && x<area.nx && y>=0 && y<area.ny && approved) { // inside image/legal image
+  if (!mosaic && x >= 0 && x < area.nx && y >= 0 && y < area.ny && approved) { // inside image/legal image
     int index = area.nx*(area.ny-y-1) + x;
 
     //return value from  all channels
