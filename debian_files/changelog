@@ -1,3 +1,26 @@
+diana-3.53 (3.55.0~rc1-1) unstable; urgency=low
+
+  * Bugfix - do not show values for mosaic pictures
+  * Removed the functions temp_c2k and temp_k2c
+  * FimexIO: use same CS for hybrid as for slice builder
+  * FimexIO: check that requested time is available
+  * simplified translation from plotname to variable_name
+  * addComputedParameters - restrictions on hybrid functions
+  * Legend - changed FieldPlot::getTableAnnotations
+  * stop supporting 'temp_?2?_possibly' functions
+  * clear output unit after +-*/ except for +- with identical units or constants
+  * GridCollection: cache for getFieldPlotInfo
+  * separate reftimelist update and retrieval to avoid CachedGridIO::clear()
+  * add simple cache for GridIO
+  * add FieldPlotInfo::units
+  * add FieldPlotInfo::time_axis
+  * geotiff - several fixes
+  * allow creating Projection from WKT
+  * use Projection objects in most sat classes
+  * vcross height + altitude support
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Tue, 26 Jan 2021 10:00:36 +0100
+
 diana-3.53 (3.54.0~rc4-1) unstable; urgency=low
 
   * bugfix StringSliderControl: set pagestep to 1
