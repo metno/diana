@@ -852,9 +852,6 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
 
   setAcceptDrops(true);
 
-  connect(qApp, SIGNAL(aboutToQuit()),
-      SLOT(writeLogFile()));
-
   METLIBS_LOG_INFO("Creating DianaMainWindow done");
 }
 
@@ -2440,7 +2437,7 @@ void DianaMainWindow::save()
 void DianaMainWindow::filequit()
 {
   if (checkQuit()) {
-    // quit sends aboutToQuit SIGNAL, which is connected to slot writeLogFile
+    writeLogFile();
     qApp->quit();
   }
 }
@@ -2964,10 +2961,12 @@ void DianaMainWindow::inEdit(bool inedit)
 
 void DianaMainWindow::closeEvent(QCloseEvent* event)
 {
-  if (!checkQuit())
+  if (!checkQuit()) {
     event->ignore();
-  else
+  } else {
+    writeLogFile();
     qApp->quit();
+  }
 }
 
 bool DianaMainWindow::event(QEvent* event)
