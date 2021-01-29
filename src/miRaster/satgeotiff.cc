@@ -493,7 +493,22 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
               << " +lat_2=" << ProjStdParallel2     // latitude of second standard parallel
               << " +lat_0=" << ProjFalseOriginLat   // latitude of false origin
               << " +lon_0=" << ProjFalseOriginLong; // longitude of false origin
-      } else {
+      } else if (ProjCoordTrans == CT_HotineObliqueMercatorAzimuthCenter) {
+        // see http://geotiff.maptools.org/proj_list/oblique_mercator.html
+        double ProjCenterLat = 63, ProjCenterLong = 63, ProjAzimutAngle = 63, ProjRectifiedGridAngle = 15, 
+		ProjScaleAtCenter = 1;
+        GTIFKeyGet(gtifin.get(), ProjCenterLatGeoKey, &ProjCenterLat, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjCenterLongGeoKey, &ProjCenterLong, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjAzimuthAngleGeoKey, &ProjAzimutAngle, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjRectifiedGridAngleGeoKey, &ProjRectifiedGridAngle, 0, 1);
+		GTIFKeyGet(gtifin.get(), ProjScaleAtCenterGeoKey, &ProjScaleAtCenter, 0, 1);
+		proj4 <<"+proj=omerc"
+			  <<" +lat_0=" << ProjCenterLat //Latitude of projection center 
+              <<" +lonc=" << ProjCenterLong //Longitude of projection center
+              <<" +alpha=" << ProjAzimutAngle //Azimuth of initial line
+			  <<" +gamma=" << ProjRectifiedGridAngle //Angle from Rectified to Skew Grid
+              <<" +k_0=" << ProjScaleAtCenter; //Scale factor on initial line
+	  } else {
         METLIBS_LOG_ERROR("Projection CT " << ProjCoordTrans << " not yet supported");
         return -1;
       }
