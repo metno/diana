@@ -307,6 +307,7 @@ public:
     f_accum_diff_forecast_hour,   //!< f_accum_diff_forecast_hour
     f_sum_of_forecast_hours,      //!< f_sum_of_forecast_hours
     f_sum_of_fields,
+    f_mean_of_fields,
     f_max_of_fields,
     f_min_of_fields,
     f_no_of_fields_above,
