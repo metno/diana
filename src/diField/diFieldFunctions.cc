@@ -248,6 +248,7 @@ static const FieldFunctions::FunctionHelper functions[] {
     {FieldFunctions::f_accum_diff_forecast_hour, FieldVerticalAxes::vctype_none, "accum.diff.forecast.hour", u_as0, {{"accumfield"}}, {{"relHourFirst"}, {"relHourLast"}}},
     {FieldFunctions::f_sum_of_forecast_hours, FieldVerticalAxes::vctype_none, "sum_of_forecast_hours", u_as0, {{"field"}},{{"forecastHours"}}, FieldFunctions::varargs_const},
     {FieldFunctions::f_sum_of_fields, FieldVerticalAxes::vctype_none, "sum_of_fields", u_as0, {{"field"}}, {}},
+    {FieldFunctions::f_mean_of_fields, FieldVerticalAxes::vctype_none, "mean_of_fields", u_as0, {{"field"}}, {}},
     {FieldFunctions::f_max_of_fields, FieldVerticalAxes::vctype_none, "max_of_fields", u_as0, {{"field"}}, {}},
     {FieldFunctions::f_min_of_fields, FieldVerticalAxes::vctype_none, "min_of_fields", u_as0, {{"field"}}, {}},
     {FieldFunctions::f_no_of_fields_above, FieldVerticalAxes::vctype_none, "no_of_fields_above", "1", {{"field"}}, {{"limit"}}},
@@ -486,6 +487,8 @@ bool FieldFunctions::mapTimeStepFunction(Function& f)
     f = f_sum;
   else if (f == f_sum_of_fields)
     f = f_sum;
+  else if (f == f_mean_of_fields)
+    f = f_mean_value;
   else if (f == f_max_of_fields)
     f = f_max_value;
   else if (f == f_min_of_fields)
