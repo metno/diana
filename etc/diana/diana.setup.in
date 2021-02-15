@@ -1218,89 +1218,76 @@ end.field
 field=TH
       #"Potential Temperature"
       colour=red linetype=solid linewidth=1 line.interval=3.
-      vc_type=pressure
       plot=CONTOUR(air_potential_temperature_pl)
 end.field
 
 field=THE
       #"Equivalent Potential Temperature"
       colour=red linetype=solid linewidth=1 line.interval=2.5
-      vc_type=pressure
       plot=CONTOUR(the_pl)
 end.field
 
 field=THE_GRADIENT
       colour=red linetype=solid linewidth=1 line.interval=2
-      vc_type=pressure
       plot=CONTOUR(the.gradient_pl)
 end.field
 
 field=Td
       #"Dewpoint temperature"
       colour=red linetype=solid linewidth=1 line.interval=2.5 units=celsius
-      vc_type=pressure
       plot=CONTOUR(dew_point_temperature_pl)
 end.field
 
 field=RH
       #"Relative Humidity"
       colour=red linetype=solid linewidth=1 line.interval=10.
-      vc_type=pressure
       plot=CONTOUR(relative_humidity_pl)
 end.field
 
 field=Q
       #"Specific Humidity"
       colour=red linetype=solid linewidth=1 line.interval=0.05
-      vc_type=pressure
       plot=CONTOUR(specific_humidity_pl)
 end.field
 
 field=TFP
       colour=red linetype=solid linewidth=1 line.interval=1. zero.line=1
-      vc_type=pressure
       plot=CONTOUR(tfp_pl)
 end.field
 
 field=vorticity
       colour=red linetype=solid linewidth=1 line.interval=0.00005
       zero.line=1
-      vc_type=pressure
       plot=CONTOUR(vorticity_pl)
 end.field
 
 field=divergence
       colour=red linetype=solid linewidth=1 line.interval=0.00005
       zero.line=1
-      vc_type=pressure
       plot=CONTOUR(divergence_pl)
 end.field
 
 field=abs.vorticity
       colour=red linetype=solid linewidth=1 line.interval=0.00005
       zero.line=1
-      vc_type=pressure
       plot=CONTOUR(absvorticity_pl)
 end.field
 
 field=geostrofic.vorticity
       colour=red linetype=solid linewidth=1 line.interval=0.00005
       zero.line=1
-      vc_type=pressure
       plot=CONTOUR(gvorticity_pl)
 end.field
 
 field=advection(vorticity)
       colour=red linetype=solid linewidth=1 line.interval=0.0001
       zero.line=1
-      vc_type=pressure
       plot=CONTOUR(advection.vorticity_pl)
 end.field
 
 field=advection(T)
       colour=red linetype=solid linewidth=1 line.interval=3.
       zero.line=1
-      vc_type=pressure
       plot=CONTOUR(advection.t_pl)
 end.field
 
@@ -1372,25 +1359,21 @@ field=barotropic_current
 end.field
 
 field=Current
-      fieldgroup="Height"
       colour=red vector.unit=0.2
       plot=VECTOR(x_sea_water_velocity:standard_name,y_sea_water_velocity:standard_name)
 end.field
 
 field=Current_speed
-      fieldgroup="Height"
       colour=red line.interval=0.1
       plot=CONTOUR(current.speed)
 end.field
 
 field=Salinity
-      fieldgroup="Height"
       colour=red line.interval=0.5
       plot=CONTOUR(salinity)
 end.field
 
 field=Temperature
-      fieldgroup="Height"
       colour=red line.interval=0.5 units=celsius
       plot=CONTOUR(sea_water_potential_temperature:standard_name)
 end.field
@@ -1404,17 +1387,17 @@ end.field
 </FIELD_PLOT>
 
 <FIELD_VERTICAL_COORDINATES>
-name=atmosphere_hybrid_sigma_pressure_coordinate_1 vc_type=hybrid levelprefix=E. 
-name=pressure vc_type=pressure levelsuffix=hPa \
-derivedzaxis=flightlevel 
-name=pv vc_type=other levelsuffix=pvu 
-name=temperature vc_type=other levelsuffix=C 
-name=theta vc_type=isentropic levelsuffix=K 
-name=height vc_type=oceandepth levelsuffix=m
+name=atmosphere_hybrid_sigma_pressure_coordinate_1 vc_type=hybrid levelprefix=E.
+name=atmosphere_hybrid_sigma_pressure_coordinate_2 vc_type=hybrid levelprefix=E.
+name=atmosphere_sigma_coordinate vc_type=atmospheric
+name=pressure vc_type=pressure levelsuffix=hPa
+name=flightlevel vc_type=pressure levelprefix=FL
+name=depth vc_type=oceandepth levelsuffix=m
 </FIELD_VERTICAL_COORDINATES>
 
 <FIELD_GROUPS>
 name=Surface group=height
+name=Surface group=altitude
 </FIELD_GROUPS>
 
 
@@ -1428,6 +1411,7 @@ name=Surface group=height
 
 filegroup=MEPS
 m=meps_lagged_6_h_latest_2_5km_latest    t=netcdf f=$(THREDDS_MET_NO_DODSC)/mepslatest/meps_lagged_6_h_latest_2_5km_latest.nc
+filegroup=AROME_ARCTIC
 m=arome_arctic_pp_2_5km_latest.nc        t=netcdf f=$(THREDDS_MET_NO_DODSC)/aromearcticlatest/arome_arctic_pp_2_5km_latest.nc
 m=arome_arctic_extracted_2_5km_latest    t=netcdf f=$(THREDDS_MET_NO_DODSC)/aromearcticlatest/arome_arctic_extracted_2_5km_latest.nc
 

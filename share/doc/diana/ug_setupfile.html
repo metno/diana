@@ -121,6 +121,8 @@
 	  <td>defines common (for all sources) field computations </td></tr>
 	<tr><td><a href="#FIELD_PLOT">FIELD_PLOT</a></td>
 	  <td>defines fields for visualisation with default plot options </td></tr>
+	<tr><td><a href="#FIELD_VERTICAL_COORDINATES">FIELD_VERTICAL_COORDINATES</a></td>
+	  <td>defines prefix/suffix of vertical levels etc </td></tr>
 	<tr><td><a href="#FIELD_GROUPS">FIELD_GROUPS</a></td>
 	  <td>defines translations of field group names </td></tr>
 	<tr><td><a href="#FIELD_FILES">FIELD_FILES</a></td>
@@ -314,10 +316,7 @@ field4=multiply(field1,9.8067)
 	<tr><td>BOX_PATTERN</td><td>patterns in grid boxes</td></tr>
 	<tr><td>ALARM_BOX</td><td>Alarm colour in grid boxes</td></tr>
 	<tr><td>FILL_CELL</td><td>Fills each grid cell with a color according to the given 'values' and 'palettecolours' vectors</td></tr>
-	<tr><td>LAYER</td><td>Prints three numbers vertically in each grid cell with 
-		colors according to the given 'palettecolours' vectors, where the first 
-		element is colors the middle number, the second element the 
-		bottom number, and the third element the top number.</td></tr>
+	<tr><td>VALUE</td><td>Prints the values of the fields (max 5 fields)</td></tr>
     </table>
     <p>
  
@@ -371,6 +370,46 @@ end.field
     </pre>
     <p>
 
+<b> Special case: </b>
+<br>
+One can define two plots with the same name, one with pressure levels,
+and one with some other vertical coordinate. In that case, <b>vc_type</b> must be given.
+  <pre>
+field=T
+      vc_type=pressure
+      plot=CONTOUR(air_temperature_pl)
+end.field
+field=T
+      vc_type=other
+      plot=CONTOUR(air_temperature_ml)
+end.field
+</pre>
+The keyword <b>pressure</b> is recognized, while the other vc_type can be anything.
+<p>
+
+    <a name="FIELD_VERTICAL_COORDINATES"></a><h3>Section FIELD_VERTICAL_COORDINATES</h3>
+    <table border="1" cellpadding="1" cellspacing="0" >
+	<tr><td><b></b></td><td><b>Comment</b></td><td><b>Example</b></td></tr>
+	<tr><td>name</td><td>Name of vertical coordinate</td></tr>
+	<tr><td>vc_type</td><td>defines which functions can be used</td><td>pressure, hybrid, atmospheric, oceandepth</td></tr>
+	<tr><td>levelprefix</td><td></td><td>E</td></tr>
+	<tr><td>levelsuffix</td><td></td><td>hPa</td></tr>
+	<tr><td>index</td><td>Use the index (1,2,3,..), not the value (0.99815, 0.99362,...)</td><td>true</td></tr>
+    </table>
+<b>Examples:</b>
+    <pre>
+       name=atmosphere_hybrid_sigma_pressure_coordinate_1 vc_type=hybrid levelprefix=E.
+       name=atmosphere_sigma_coordinate vc_type=atmospheric
+       name=pressure vc_type=pressure levelsuffix=hPa
+       name=flightlevel vc_type=pressure levelprefix=FL
+       name=depth vc_type=oceandepth levelsuffix=m
+    </pre>
+    <p>
+
+<b> Special case: flightlevel</b>
+<br>
+Pressure levels are translated to flightlevels
+
     <a name="FIELD_GROUPS"></a><h3>Section FIELD_GROUPS</h3>
 
 Translations of the group names, both the automatic generated names and the names given in the plot definitions
@@ -393,13 +432,13 @@ name=pressure_levels(members) group=pressure_ensemble
 	<tr><td>archivefilegroup=</td><td>group name</td><td>Only used
 	in archive mode</td></tr>
 	<tr><td>m=</td><td>name</td><td>Model name</td></td></tr>
-	<tr><td>t=</td><td>fimex, etc.</td><td>Type of field source</td></tr>
-	<tr><td>format=</td><td>felt, netcdf, ncml, grib, etc.</td><td>Used by fimex </td></tr>
+	<tr><td>t=</td><td>netcdf, ncml, grib, etc.</td><td>File format </td></tr>
 	<tr><td>config=</td><td>/usr/share/fimex/cdmGribReaderConfig.xml </td><td>Parameter and axis definitions, used by fimex</td></tr>
 	<tr><td>f=</td><td>filename</td><td>file name, ? and * allowed</td></tr>
 	<tr><td>proj4string=</td><td>"+proj=stere +lat_ts=60 ..."</td><td>This projection overwrites the projection in the datasource</td></tr>
 	<tr><td>turnwavedirection</td><td>true/false</td><td>Different models define wave direction different, possible to turn the direction</td></tr>
 	<tr><td>r</td><td>name of reprojection</td><td>The reprojection should be defined in FIMEX_SETUP section</td></tr>
+	<tr><td>time</td><td>validtime</td><td>Timestamp in filename is validtime, not referencetime</td></tr>
 	<tr><td>CLEAR_FILES</td><td></td><td>Delete all models in current
 	file group</td></tr>
 	<tr><td>CLEAR_FILEGROUP</td><td></td><td>Delete current file group</td></tr>
@@ -408,41 +447,24 @@ name=pressure_levels(members) group=pressure_ensemble
     <br>
 <b>Examples:</b>
     <pre>
-filegroup=HIRLAM8km
-m=HIRLAM.8KM.00 t=fimex format=felt f=/opdata/hirlam8/h8km00.dat config=$(share_diana_dir)/fimex/fimex_atmos.xml
 
-filegroup=NetCDF
-m=ice_sst t=fimex f=/disk1/tmp/iceSST.nc format=netcdf 
-    </pre>
+filegroup=MEPS
+m=MEPS_prob t=netcdf \
+  f=meps_lagged_6_h_prob_2_5km_[yyyymmddTHH]Z.nc
+m=meps_lagged_6_h_his t=grbml \
+  config=AromeEPSGribReaderConfig.xml \
+  f=meps_lagged_6_h_his_2_5km_[yyyymmddTHH]Z.grbml
 
-With reference time in filename:
-    <pre>
-filegroup=AROME-MetCoOp
-m=AROME-MetCoOp.2.5KM    t=fimex format=netcdf f=/opdata/arome2_5/arome_metcoop2_5km_[yyyymmdd_HH].nc
+filegroup=Radar
+  m=radar_yrwms t=netcdf time=validtime \
+  f=yrwms-nordic.mos.pcappi-0-dbz.noclass-clfilter-novpr-clcorr-block.nordiclcc-1000.[yyyymmddTHHMM]00Z.nc
+
     </pre>
-reprojection, LL02_GLDI is the name of the reprojection.
+    <b>Reprojection</b>
     <pre>
 m=LL02_GLDI t=fimex format=grib config=${DIANADIR}/share/fimex/CommonGribReaderConfig.xml f=$(DATA)/24/sam/data/data/S/REDA/Diana/LL02_GLDI_[yyyymmddHH]* r=LL02_GLDI
-	</pre>
-Redefine models:
-    <pre>
-FileGroup=HIRLAM8km
-m=HIRLAM.8KM.00 t=fimex format=felt f=/disk1/h8km00.dat config=/usr/share/diana/3.35/fimex/fimex_atmos.xml
     </pre>
 
-Define new models in existing file group:
-    <pre>
-FileGroup=HIRLAM4km
-CLEAR_FILES
-m=MY_MODEL   t=fimex f=/disk1/myfile.nc format=netcdf 
-
-    </pre>
-Delete file group:
-    <pre>
-FileGroup=HIRLAM8km
-CLEAR_FILEGROUP
-    </pre>
-	
 	<a name="FIMEX_SETUP"></a><h3>Section FIMEX_SETUP</h3>
     Options to fimexreader, for example reprojection of fields.
 	All keys must be defined.
@@ -484,7 +506,7 @@ CLEAR_FILEGROUP
 	<tr><td>vertical_levels=</td><td>700,850,925,1000</td>
 	  <td>Used for the pressure and ocean plottypes</td>
 	</tr>
-  	</tr>
+       </tr>
     </table>
     <p>
 
@@ -516,7 +538,7 @@ CLEAR_FILEGROUP
 	  <td>bufr format, filename may include <a href="#TIME.INFO">time
 	    information</a></td>
 	</tr>
-  	</tr>
+	</tr>
 	<tr><td>ascii=</td><td>filename or URL</td>
 	  <td><a href="ug_fileformats.html#OBSERVATION.ASCII.FILES">
 	    ascii format</a>, filename may include <a href="#TIME.INFO">time
@@ -551,11 +573,10 @@ CLEAR_FILEGROUP
 
     <br>Example:
     <pre>
-    export BUFR_TABLES=/usr/local/etc/emos/bufrtables/ 
+    export BUFR_TABLES=/usr/local/etc/emos/bufrtables/
     </pre>
     the path must end with "<code>/</code>".
 
-    
     <a name="OBSERVATION_PRIORITY_LISTS"></a><h3>Section OBSERVATION_PRIORITY_LISTS</h3>
     list of files with priority list for observation plotting.
     Ascii files with one station id per line.
@@ -603,7 +624,7 @@ CLEAR_FILEGROUP
 <p>
 
       <a name="OBSERVATION_POPUP_SPEC"></a><h3>Section OBSERVATION_POPUP_SPEC</h3>
-    Definitions of the text in the popup window. The popup window can be turned on/off in the <a href="ug_obsdialogue.html">observation dialogue</a>. 
+    Definitions of the text in the popup window. The popup window can be turned on/off in the <a href="ug_obsdialogue.html">observation dialogue</a>.
     If this section has no definition for the selected datatype, the parameters selected in the dialogue will be shown.
 <p>
 	datatype = name of observation type <br>
@@ -612,7 +633,7 @@ CLEAR_FILEGROUP
     <br>Example:
     <pre>
     datatype=Lightning
-    Lat $Lat Lon $Lon 
+    Lat $Lat Lon $Lon
     Maximum current $Pk
     $Ci 0=Cloud-Ground:1=Cloud-Cloud
     </pre>
