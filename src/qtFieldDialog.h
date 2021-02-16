@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -201,6 +201,7 @@ private:
   void setLevel();
   void setIdnum();
   bool decodeCommand(FieldPlotCommand_cp cmd, const FieldPlotCommand::FieldSpec& fs, SelectedField& sf);
+  void maybeUpdateFieldReferenceTimes(std::set<std::string>& updated_models, const std::string& model);
 
   void toolTips();
 

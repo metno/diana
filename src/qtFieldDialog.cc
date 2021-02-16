@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2021 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -774,6 +774,13 @@ bool FieldDialog::levelsExists(bool up, int type)
   return false;
 }
 
+void FieldDialog::maybeUpdateFieldReferenceTimes(std::set<std::string>& updated_models, const std::string& model)
+{
+  if (updated_models.insert(model).second) {
+    m_data->updateFieldReferenceTimes(model);
+  }
+}
+
 void FieldDialog::putOKString(const PlotCommand_cpv& vstr)
 {
   METLIBS_LOG_SCOPE();
@@ -786,10 +793,16 @@ void FieldDialog::putOKString(const PlotCommand_cpv& vstr)
     return;
   }
 
+  std::set<std::string> updated_models;
+
   for (PlotCommand_cp pc : vstr) {
     FieldPlotCommand_cp cmd = std::dynamic_pointer_cast<const FieldPlotCommand>(pc);
     if (!cmd)
       continue;
+
+    maybeUpdateFieldReferenceTimes(updated_models, cmd->field.model);
+    if (cmd->hasMinusField())
+      maybeUpdateFieldReferenceTimes(updated_models, cmd->minus.model);
 
     SelectedField sf;
     sf.external = true;
