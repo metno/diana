@@ -64,7 +64,7 @@ void VprofBoxWind::configureOptions(const miutil::KeyValue_v& options)
 {
   VprofBoxZ::configureOptions(options);
 
-  const size_t i_id = miutil::rfind(options, "separate");
+  const size_t i_id = miutil::rfind(options, key_separate);
   if (i_id != size_t(-1))
     setSeparate(options.at(i_id).toBool());
 }
@@ -99,7 +99,7 @@ void VprofBoxWind::plotValues(VprofPainter* p, VprofValues_cp values, const Vpro
   if (!vprof::check_same_z(u, v))
     return;
 
-  const int n = separate_ ? ms.nplot : 1;
+  const int n = separate_ ? ms.nplot : 0;
   const Rectangle area = this->area();
   float x0 = area.x1 + width() * (0.5 + n);
   float flagl = width() * 0.5 * 0.85;
