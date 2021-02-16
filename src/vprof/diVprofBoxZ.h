@@ -44,6 +44,8 @@ public:
 
   bool addGraph(const miutil::KeyValue_v& options) override;
 
+  static const std::string key_separate;
+
 protected:
   vcross::detail::AxisPtr axis_z;
 

@@ -31,6 +31,8 @@
 
 #include "diVprofAxesStandard.h"
 
+const std::string VprofBoxZ::key_separate = "separate";
+
 VprofBoxZ::VprofBoxZ()
     : axis_z(std::make_shared<vcross::detail::Axis>(false))
 {

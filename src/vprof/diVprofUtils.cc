@@ -301,7 +301,9 @@ VprofPlotCommand_cpv createVprofCommandsFromOptions(const VprofOptions* vpopt)
   }
 
   if (vpopt->pwind) {
-    cmds.push_back(createBoxCommand(VprofBoxWind::boxType(), "wind"));
+    VprofPlotCommand_p cmd = createBoxCommand(VprofBoxWind::boxType(), "wind");
+    cmd->add(kv(VprofBoxWind::key_separate, vpopt->windseparate));
+    cmds.push_back(cmd);
   }
 
   if (vpopt->pvwind) {
