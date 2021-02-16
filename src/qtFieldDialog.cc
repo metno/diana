@@ -907,7 +907,7 @@ bool FieldDialog::decodeCommand(FieldPlotCommand_cp cmd, const FieldPlotCommand:
     if (it == fgip.end())
       continue;
     const FieldPlotInfo& p = *it;
-    if ((sf.zaxis == p.vcoord() || (sf.zaxis.empty() && p.vlevels().size() == 1))) {
+    if ((sf.zaxis == p.vcoord() || (p.vlevels().size() == 1))) {
       fi_found = &(*it);
       // if there are elevels, but the elevel isn't specified, use first elevel
       // if there are no elevels, but an elevel is specified, remove it.
