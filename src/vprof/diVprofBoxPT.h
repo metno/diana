@@ -54,7 +54,7 @@ public:
   void setMixingRatioPMin(int pmin) { mixingratioPmin = pmin; }
   void setMixingRatioTMin(int tmin) { mixingratioTmin = tmin; }
   void setMixingRatioStyle(const Linestyle& s) { mixingratioLineStyle = s; }
-  void setCotrails(bool on) { pmixingratio = on; }
+  void setCotrails(bool on) { pcotrails = on; }
   void setCotrailsPMin(int pmin) { cotrailsPmin = pmin; }
   void setCotrailsPMax(int pmax) { cotrailsPmax = pmax; }
   void setCotrailsStyle(const Linestyle& s) { cotrailsLineStyle = s; }
