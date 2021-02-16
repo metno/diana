@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2018-2020 met.no
+  Copyright (C) 2018-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -43,6 +43,9 @@
 #include "miLogger/miLogging.h"
 
 namespace {
+const std::string MODEL1 = "supermodel";
+const std::string PARAM1 = "param_a";
+
 class TestFieldDialogData : public FieldDialogData
 {
 public:
@@ -50,7 +53,7 @@ public:
 
   FieldModelGroupInfo_v getFieldModelGroups() override { return fieldModelGroups; }
   attributes_t getFieldGlobalAttributes(const std::string& /*model*/, const std::string& /*refTime*/) override { return attributes_t(); }
-  void updateFieldReferenceTimes(const std::string&) override { }
+  void updateFieldReferenceTimes(const std::string& model) override { if (model == MODEL1) fieldReferenceTimeUpdates += 1; }
   std::set<std::string> getFieldReferenceTimes(const std::string& m) override { return fieldReferenceTimes[m]; }
   std::string getBestFieldReferenceTime(const std::string& m, int ro, int rh) override { return ::getBestReferenceTime(getFieldReferenceTimes(m), ro, rh); }
   void getSetupFieldOptions(std::map<std::string, miutil::KeyValue_v>& fieldoptions) override { fieldoptions = setupFieldOptions; }
@@ -65,12 +68,12 @@ public:
 
   //! key: plot name, value: options
   std::map<std::string, miutil::KeyValue_v> setupFieldOptions;
+
+  int fieldReferenceTimeUpdates;
 };
 
-const std::string MODEL1 = "supermodel";
-const std::string PARAM1 = "param_a";
-
 TestFieldDialogData::TestFieldDialogData()
+    : fieldReferenceTimeUpdates(0)
 {
   FieldModelGroupInfo fmg;
   fmg.groupName = "My Favourite Test Group";
@@ -137,6 +140,7 @@ TEST(TestFieldDialog, PutGetOKStringRaw)
 
   const PlotCommand_cpv cmds_put = makeCommands({"FIELD model=" + MODEL1 + " refhour=0 parameter=" + PARAM1 + " plottype=contour"});
   dialog->putOKString(cmds_put);
+  EXPECT_EQ(data->fieldReferenceTimeUpdates, 1);
 
   const PlotCommand_cpv cmds_get = dialog->getOKString();
   ASSERT_EQ(cmds_get.size(), 1);
@@ -159,6 +163,7 @@ TEST(TestFieldDialog, PutGetOKStringMinus)
                                                     + " ) refhour=0 plottype=contour"});
   // clang-format on
   dialog->putOKString(cmds_put);
+  EXPECT_EQ(data->fieldReferenceTimeUpdates, 1); // same model, should update only once
 
   const PlotCommand_cpv cmds_get = dialog->getOKString();
   ASSERT_EQ(cmds_get.size(), 1);
