@@ -1,3 +1,15 @@
+diana-3.53 (3.55.0~rc2-1) unstable; urgency=low
+
+  * FieldDialog - ignore vcoord mismach
+  * Fix vc_type
+  * vprof bugfix separate horizontal wind columns
+  * vprof - bugfix cotrails in VprofBoxPT
+  * bugfix reference times update for quickmenus
+  * add timestep function mean_of_fields
+  * write logfile / docstate before closing
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 17 Feb 2021 10:41:00 +0100
+
 diana-3.53 (3.55.0~rc1-1) unstable; urgency=low
 
   * Bugfix - do not show values for mosaic pictures
