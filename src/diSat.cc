@@ -105,9 +105,10 @@ Sat::~Sat()
  */
 void Sat::values(int x, int y, std::vector<SatValues>& satval) const
 {
+  //METLIBS_LOG_DEBUG(LOGVAL(x) << LOGVAL(y));
   if (x>=0 && x<area.nx && y>=0 && y<area.ny && approved) { // inside image/legal image
     int index = area.nx*(area.ny-y-1) + x;
-
+	//METLIBS_LOG_DEBUG(LOGVAL(x) << LOGVAL(y) << LOGVAL(index));
     //return value from  all channels
 
     std::map<int, table_cal>::const_iterator p = calibrationTable.begin();
@@ -115,6 +116,7 @@ void Sat::values(int x, int y, std::vector<SatValues>& satval) const
     for (; p!=q && rawimage[p->first]!=NULL; p++) {
       SatValues sv;
       sv.value = -999.99;
+	  
       int pvalue;
       // For satellite pictures, get the original value
       if(hdf5type!=0) {
@@ -125,6 +127,7 @@ void Sat::values(int x, int y, std::vector<SatValues>& satval) const
       else {
         pvalue = rawimage[p->first][index];
       }
+	  //METLIBS_LOG_DEBUG(LOGVAL(x) << LOGVAL(y) << LOGVAL(sv.value) << LOGVAL(pvalue));
       //return if colour is hidden
       const auto ithc = hideColour.find(pvalue);
       if (ithc != hideColour.end() && ithc->second == 0) {
@@ -145,6 +148,7 @@ void Sat::values(int x, int y, std::vector<SatValues>& satval) const
         } else {
           sv.value = p->second.a * pvalue + p->second.b;
         }
+		//METLIBS_LOG_DEBUG(LOGVAL(x) << LOGVAL(y) << LOGVAL(sv.value));
         sv.channel=p->second.channel;
         satval.push_back(sv);
       }
@@ -231,6 +235,7 @@ void Sat::setCalibration()
   bool ir = false;
   float AIr = 0.0, BIr = 0.0;
   if (not cal_ir.empty()) {
+    //METLIBS_LOG_DEBUG(LOGVAL(cal_ir));
     std::vector<std::string> cal = miutil::split(cal_ir, "+");
     if (cal.size()==2) {
       std::string str = cal[0].substr(cal[0].find_first_of("(")+1);
@@ -238,6 +243,7 @@ void Sat::setCalibration()
       str = cal[1].substr(cal[1].find_first_of("(")+1);
       AIr = atof(str.c_str());
       ir=true;
+	  //METLIBS_LOG_DEBUG(LOGVAL(BIr)<<LOGVAL(AIr)<<LOGVAL(ir));
     }
   }
 
@@ -265,6 +271,25 @@ void Sat::setCalibration()
       ct.channel = start + "Infrared (" + plotChannels + "):";
       ct.a= AIr;
       ct.b= BIr -273.0;
+      // Set in map 1, 0 is the image
+      calibrationTable[1]=ct;
+      cal_channels.push_back(ct.channel);
+
+    }
+	else if (plotChannels == "CTTH") {
+      table_cal ct;
+      ct.channel = start + "Height (" + plotChannels + "):";
+      ct.a= AIr;
+      ct.b= BIr;
+      // Set in map 1, 0 is the image
+      calibrationTable[1]=ct;
+      cal_channels.push_back(ct.channel);
+
+    }else if (plotChannels == "CTTH_HFT") {
+      table_cal ct;
+      ct.channel = start + "Height_hft (" + plotChannels + "):";
+      ct.a= (AIr*3.2808)/100.0;
+      ct.b= BIr;
       // Set in map 1, 0 is the image
       calibrationTable[1]=ct;
       cal_channels.push_back(ct.channel);
