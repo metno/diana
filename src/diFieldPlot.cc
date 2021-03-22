@@ -288,11 +288,12 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
       size_t nlines = poptions.linevalues.size();
       size_t nloglines = poptions.loglinevalues.size();
       size_t ncodes = std::max(ncolours, npatterns);
+      bool nolinevalues = (nlines == 0 && nloglines == 0);
 
       const std::vector<std::string> classSpec = miutil::split(poptions.classSpecifications, ",");
 
       // if class specification is given, do not plot more entries than class specifications
-      if (classSpec.size() && ncodes > classSpec.size()) {
+      if (!nolinevalues && classSpec.size() && ncodes > classSpec.size()) {
         ncodes = classSpec.size();
       }
 
@@ -301,7 +302,7 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
 
       // initialize colour table
       // cold palette makes no sense when using (log)line values
-      if (nlines == 0 && nloglines == 0) {
+      if (nolinevalues) {
         for (int i = ncold - 1; i >= 0; i--) {
           table.colour = poptions.palettecolours_cold[i].Name();
           if (npatterns > 0) {
@@ -406,6 +407,7 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
         int min_index = -1;
         if (poptions.minvalue > -1 * fieldUndef) {
           min_index = (poptions.minvalue - poptions.base) / poptions.lineinterval + base_index;
+
           if (min_index > -1) {
             bottom_index = min_index;
             minvalue += min_index * poptions.lineinterval;
@@ -420,11 +422,17 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
             top_index = max_index;
         }
 
+        if (top_index < bottom_index) {
+          // empty table
+          return;
+        }
+
         float min = minvalue;
         float max = minvalue + poptions.lineinterval;
         for (int i = bottom_index; i < top_index; i++) {
           std::ostringstream ostr;
           ostr << min << " - " << max << unit;
+
           vtable[i].text = ostr.str();
           min = max;
           max += poptions.lineinterval;
