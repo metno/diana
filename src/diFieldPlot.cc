@@ -418,8 +418,7 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
         int max_index = -1;
         if (poptions.maxvalue < fieldUndef) {
           max_index = (poptions.maxvalue - poptions.base) / poptions.lineinterval + base_index;
-          if (max_index < top_index)
-            top_index = max_index;
+          miutil::minimize(top_index, max_index);
         }
 
         if (top_index < bottom_index) {
