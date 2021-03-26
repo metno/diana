@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2014-2020 met.no
+  Copyright (C) 2014-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -667,17 +667,17 @@ Values_p FimexReftimeSource::getSlicedValuesGeoZTransformed(CDMReader_p reader, 
   const std::string& ztid = transformedZAxisName(converted->id());
   zaxis_cs_m::const_iterator itCsId = zaxis_cs.find(ztid);
   if (itCsId == zaxis_cs.end())
-    return Values_p();
+    THROW(std::runtime_error, "no z-axis '" << ztid << "' for '" << converted->id() << "'");
 
   // this is almost the same as cs, except that it may be for a different CDMReader
   CoordinateSystem_cp ex_cs = findGeoZTransformed
       (MetNoFimex::listCoordinateSystems(extractor), ztid, itCsId->second);
   if (!ex_cs)
-    return Values_p();
+    THROW(std::runtime_error, "no cs with z-axis '" << ztid << "' for '" << converted->id() << "'");
 
   VerticalTransformation_cp ex_vt = ex_cs->getVerticalTransformation();
-  if (not ex_vt)
-    return Values_p();
+  if (!ex_vt)
+    THROW(std::runtime_error, "no vertical transformation for z-axis '" << ztid << "' for '" << converted->id() << "'");
 
   METLIBS_LOG_DEBUG(LOGVAL(ex_vt->getName()));
 
@@ -685,6 +685,8 @@ Values_p FimexReftimeSource::getSlicedValuesGeoZTransformed(CDMReader_p reader, 
   if (VerticalConverter_p vc_p = ex_vt->getConverter(extractor, ex_cs, verticalType)) {
     const SliceBuilder sb = createSliceBuilder(extractor->getCDM(), vc_p);
     DataPtr dataCdm = vc_p->getDataSlice(sb);
+    if (!dataCdm)
+      THROW(std::runtime_error, "no vertical data for z-axis '" << ztid << "' for '" << converted->id() << "'");
     MetNoFimex::shared_array<float> floats = dataCdm->asFloat();
 
     const Values::Shape shapeVC(vc_p->getShape(), getDimSizes(extractor->getCDM(), vc_p->getShape()));
