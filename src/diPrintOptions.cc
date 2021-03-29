@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -202,10 +202,9 @@ bool printerManager::readPrinterInfo(const std::string fname)
     return false;
 
   // open filestream
-  ifstream file(fname.c_str());
-  if (!file){
-    METLIBS_LOG_ERROR("printerManager ERROR: can't open printer definition file " <<
-      fname);
+  std::ifstream file(fname);
+  if (!file) {
+    METLIBS_LOG_ERROR("Cannot open printer definition file '" << fname << "'");
     return false;
   }
 
@@ -315,7 +314,7 @@ bool printerManager::parseSetup() {
   std::string printerfile= "";
 
   if (!SetupParser::getSection(section,vstr)){
-    METLIBS_LOG_ERROR("No " << section << " section in setupfile, ok.");
+    METLIBS_LOG_WARN("No " << section << " section in setupfile, ok.");
     return true;
   }
 

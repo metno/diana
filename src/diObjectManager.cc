@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2019 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -87,7 +87,7 @@ bool ObjectManager::parseSetup() {
   vector<std::string> vstr;
 
   if (!SetupParser::getSection(section,vstr)){
-    METLIBS_LOG_ERROR("No " << section << " section in setupfile, ok.");
+    METLIBS_LOG_WARN("No " << section << " section in setupfile, ok.");
     return true;
   }
 

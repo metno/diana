@@ -133,7 +133,7 @@ void VprofManager::parseSetup()
   std::vector<std::string> lines;
 
   if (!miutil::SetupParser::getSection(section2, lines)) {
-    METLIBS_LOG_ERROR("Missing section " << section2 << " in setupfile.");
+    METLIBS_LOG_WARN("Missing section " << section2 << " in setupfile.");
     return;
   }
 
