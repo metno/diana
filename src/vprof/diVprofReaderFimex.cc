@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -73,6 +73,13 @@ VprofSimpleData_p copy_vprof_values(Values_cp zvalues, const name2value_t& n2v, 
 }
 
 } // namespace
+
+VprofReaderFimex::VprofReaderFimex()
+    : setup(std::make_shared<vcross::Setup>())
+{
+}
+
+VprofReaderFimex::~VprofReaderFimex() {}
 
 std::set<std::string> VprofReaderFimex::getReferencetimes(const std::string& modelName)
 {
