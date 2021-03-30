@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -51,9 +51,13 @@ private:
   std::vector<int> forecastHour;
 };
 
-struct VprofReaderFimex : public VprofReader
+class VprofReaderFimex : public VprofReader
 {
+public:
   vcross::Setup_p setup;
+
+  VprofReaderFimex();
+  ~VprofReaderFimex();
   std::set<std::string> getReferencetimes(const std::string& modelName) override;
   VprofData_p find(const VprofSelectedModel& vsm, const std::string& stationsfilename) override;
 

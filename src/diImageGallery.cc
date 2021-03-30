@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -810,7 +810,7 @@ bool ImageGallery::parseSetup()
   vector<std::string> sect_ig;
 
   if (!SetupParser::getSection(ig_name,sect_ig)){
-    METLIBS_LOG_ERROR(ig_name << " section not found");
+    METLIBS_LOG_WARN(ig_name << " section not found");
     return false;
   }
 

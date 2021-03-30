@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -130,16 +130,17 @@ void VprofManager::parseSetup()
   dialogFileNames.clear();
 
   const std::string section2 = "VERTICAL_PROFILE_FILES";
-  vector<std::string> vstr, sources;
+  std::vector<std::string> lines;
 
-  if (!miutil::SetupParser::getSection(section2, vstr)) {
-    METLIBS_LOG_ERROR("Missing section " << section2 << " in setupfile.");
+  if (!miutil::SetupParser::getSection(section2, lines)) {
+    METLIBS_LOG_WARN("Missing section " << section2 << " in setupfile.");
     return;
   }
 
-  for (size_t i = 0; i < vstr.size(); i++) {
-    METLIBS_LOG_DEBUG(LOGVAL(vstr[i]));
-    std::vector<std::string> tokens = miutil::split(vstr[i]);
+  std::vector<std::string> fimex_sources;
+  for (const auto& line : lines) {
+    METLIBS_LOG_DEBUG(LOGVAL(line));
+    std::vector<std::string> tokens = miutil::split(line);
     std::string filetype = "standard", model, filename, stationsfilename, db_parameterfile, db_connectfile;
 
     // obsolete
@@ -175,8 +176,8 @@ void VprofManager::parseSetup()
       }
     }
     if (isFimexType(filetype)) {
-      METLIBS_LOG_DEBUG(LOGVAL(vstr[i]));
-      sources.push_back(vstr[i]);
+      METLIBS_LOG_DEBUG(LOGVAL(line));
+      fimex_sources.push_back(line);
     }
 
     stationsfilenames[model] = stationsfilename;
@@ -191,10 +192,10 @@ void VprofManager::parseSetup()
     dialogFileNames.push_back(filename);
   }
 
+  reader_fimex->setup->configureSources(fimex_sources);
+
   std::vector<std::string> computations;
   miutil::SetupParser::getSection("VERTICAL_PROFILE_COMPUTATIONS", computations);
-  reader_fimex->setup = std::make_shared<vcross::Setup>();
-  reader_fimex->setup->configureSources(sources);
   reader_fimex->setup->configureComputations(computations);
 }
 

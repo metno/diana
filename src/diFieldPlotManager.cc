@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2020 met.no
+ Copyright (C) 2006-2021 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -111,7 +111,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
   vector<std::string> lines;
 
   if (!SetupParser::getSection(sect_name, lines)) {
-    METLIBS_LOG_ERROR(sect_name << " section not found");
+    METLIBS_LOG_WARN(sect_name << " section not found");
     return true;
   }
 
@@ -281,7 +281,7 @@ bool FieldPlotManager::parseFieldGroupSetup()
   vector<std::string> lines;
 
   if (!SetupParser::getSection(sect_name, lines)) {
-    METLIBS_LOG_ERROR(sect_name << " section not found");
+    METLIBS_LOG_WARN(sect_name << " section not found");
     return true;
   }
 
