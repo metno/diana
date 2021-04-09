@@ -42,6 +42,8 @@ IF (NOT (CMAKE_BINARY_DIR STREQUAL CMAKE_SOURCE_DIR))
     PATTERN "*.in" EXCLUDE)
 ENDIF ()
 
+GET_TARGET_PROPERTY (LIBDIANA_BATCH_OUTPUT_NAME libdiana_batch OUTPUT_NAME)
+
 CONFIGURE_FILE(Metno-Bdiana/lib/Metno/Bdiana.pm.in
   Metno-Bdiana/lib/Metno/Bdiana.pm
   @ONLY
