@@ -13,5 +13,5 @@ WriteMakefile(
     PREFIX            => '@CMAKE_INSTALL_PREFIX@',
     DEFINE            => '-Wall',
     INC               => '-I@CMAKE_SOURCE_DIR@/src',
-    LIBS              => ['-L@CMAKE_BINARY_DIR@/src -lbdiana-@PVERSION@ -Wl,-rpath=@CMAKE_BINARY_DIR@/src -Wl,-rpath=@LIBDIANA_DIR@'],
+    LIBS              => ['-L@CMAKE_BINARY_DIR@/src -l@LIBDIANA_BATCH_OUTPUT_NAME@ -Wl,-rpath=@CMAKE_BINARY_DIR@/src -Wl,-rpath=@LIBDIANA_DIR@'],
 );
