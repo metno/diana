@@ -649,10 +649,13 @@ void SatDialog::putOKString(const PlotCommand_cpv& vstr)
     }
     m_state.push_back(ccmd); // add modified copy
   }
+  
+  if (!m_state.empty())
+    // Loop through all pictures to ensure correct timelist.
+    for (int i = 0; i < m_state.size(); i++)
+      updatePictures(i, true);
 
   emitSatTimes(true);
-
-  updatePictures(0, true);
 }
 
 void SatDialog::putOptions(SatPlotCommand_cp cmd)
