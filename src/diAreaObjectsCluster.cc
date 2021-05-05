@@ -51,7 +51,6 @@ AreaObjectsCluster::~AreaObjectsCluster()
 
 void AreaObjectsCluster::plot(DiGLPainter* gl, PlotOrder zorder)
 {
-  METLIBS_LOG_WARN("plotareaobj");
   for (AreaObjects& ao : vareaobjects)
     ao.plot(gl, zorder);
 }
