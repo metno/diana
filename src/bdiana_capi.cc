@@ -1119,9 +1119,15 @@ command_result Bdiana::handlePlotCommand(int& k)
       }
     }
   }
-
-  if (getTimeChoice() != BdianaSource::USE_FIXEDTIME)
+  
+   if (getTimeChoice() != BdianaSource::USE_FIXEDTIME)
+#if 0
     fixedtime = ptime = miutil::miTime();
+#else 
+    ptime = miutil::miTime();
+  if (getTimeChoice() == BdianaSource::USE_REFERENCETIME)
+    fixedtime =  miutil::miTime();
+#endif
 
   if (plottype == plot_standard) {
     // -- normal plot
@@ -1984,5 +1990,7 @@ int diana_dealloc()
 {
   bdiana_instance.reset(0);
   milogger::system::selectSystem(milogger::system::SystemPtr());
+  if (application)
+    delete application;
   return DIANA_OK;
 }
