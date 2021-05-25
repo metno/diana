@@ -1129,6 +1129,8 @@ command_result Bdiana::handlePlotCommand(int& k)
     fixedtime =  miutil::miTime();
 #endif
 
+
+
   if (plottype == plot_standard) {
     // -- normal plot
 
