@@ -219,6 +219,7 @@ struct Bdiana
   bool commandline_time_enabled = false; //!< true iff time specified on commandline
   miTime commandline_time;               //!< fixed TIME from commandline
   int addhour, addminute;
+  bool plot_empty_maps;
 
   map<std::string, map<std::string, std::string>> outputTextMaps; // output text for cases where output data is XML/JSON
   vector<std::string> outputTextMapOrder;                         // order of legends in output text
@@ -282,7 +283,12 @@ Bdiana::Bdiana()
     , time_format("$time")
     , addhour(0)
     , addminute(0)
+	, plot_empty_maps(false)
 {
+	// get the PLOT_EMPTY_MAPS variable
+   if (char* ctmp = getenv("PLOT_EMPTY_MAPS")) {
+     plot_empty_maps = (bool)miutil::to_int(ctmp);
+   }
 }
 
 Bdiana::~Bdiana()
@@ -1121,15 +1127,7 @@ command_result Bdiana::handlePlotCommand(int& k)
   }
   
    if (getTimeChoice() != BdianaSource::USE_FIXEDTIME)
-#if 0
     fixedtime = ptime = miutil::miTime();
-#else 
-    ptime = miutil::miTime();
-  if (getTimeChoice() == BdianaSource::USE_REFERENCETIME)
-    fixedtime =  miutil::miTime();
-#endif
-
-
 
   if (plottype == plot_standard) {
     // -- normal plot
@@ -1154,8 +1152,12 @@ command_result Bdiana::handlePlotCommand(int& k)
 
     main.commands(pcom);
 
-    if (!set_ptime(main))
-      return cmd_fail;
+    if (!plot_empty_maps)
+		if (!set_ptime(main))
+			return cmd_fail;
+	else
+		set_ptime(main);
+
 
     if (verbose)
       METLIBS_LOG_INFO("- updatePlots");
