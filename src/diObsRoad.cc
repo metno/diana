@@ -135,7 +135,7 @@ void ObsRoad::readHeader(ObsDataRequest_cp request)
       line = "[COLUMNS";
       lines.push_back(line);
       // The fixed part..
-      line = "Name:id: Date:d: Time:t: Lat:lat: Lon:lon: ";
+      line = "StationName:s: Name:id: Date:d: Time:t: Lat:lat: Lon:lon: ";
       // the dynamic part
       // the data value parameters
       for (i = 0; i < params->size(); i++) {
@@ -536,6 +536,8 @@ void ObsRoad::decodeHeader()
       asciiColumn["image"] = i;
     else if (cn_lower == "name" || ct == "id")
       asciiColumn["Name"] = i;
+	else if (cn_lower == "stationname" && ct == "s")
+      asciiColumn["StationName"] = i;
 
     if (ct_lower == "ffk" || cn_lower == "ffk")
       knots = true;
@@ -767,6 +769,20 @@ bool ObsRoad::isAuto(const ObsData& obs)
   return pauto && (*pauto == 0);
 }
 
+void ObsRoad::decodeMetarCloudAmount(const int & Nsx, QString & ost)
+{
+  if (Nsx == 8)
+	ost = "O";
+  else if ((Nsx <=4) && (Nsx>=3))
+	ost = "S";
+  else if ((Nsx <= 7) && (Nsx >=5))
+	ost = "B";
+  else if ((Nsx <= 2) && (Nsx >=1))
+	ost = "F";
+  else
+	ost.setNum(Nsx);
+}
+
 
 void ObsRoad::amountOfClouds_1_4(ObsData& dta, bool metar)
 {
@@ -782,7 +798,7 @@ void ObsRoad::amountOfClouds_1_4(ObsData& dta, bool metar)
   int hs4 = _undef;
   const float * ppar = nullptr;
   // manned / automated station
-    if (isAuto(dta)) {
+    if (isAuto(dta)&&!metar) {
       // automated station
       if ((ppar = dta.get_unrotated_float("NS_A1")) != nullptr)
           Ns1 = *ppar;
@@ -793,16 +809,16 @@ void ObsRoad::amountOfClouds_1_4(ObsData& dta, bool metar)
       if ((ppar = dta.get_unrotated_float("NS_A4")) != nullptr)
           Ns4 = *ppar;
       if ((ppar = dta.get_unrotated_float("HS_A1")) != nullptr)
-          hs1 = *ppar;
+          hs1 = (int)(*ppar+.5);
       if ((ppar = dta.get_unrotated_float("HS_A2")) != nullptr)
-          hs2 = *ppar;
+          hs2 =(int)(*ppar+.5);
       if ((ppar = dta.get_unrotated_float("HS_A3")) != nullptr)
-          hs3 = *ppar;
+          hs3 = (int)(*ppar+.5);
       if ((ppar = dta.get_unrotated_float("HS_A4")) != nullptr)
-          hs4 = *ppar;
+          hs4 = (int)(*ppar+.5);
         
   } else {
-      // manual station
+      // manual station or metar
       if ((ppar = dta.get_unrotated_float("NS1")) != nullptr)
           Ns1 = *ppar;
       if ((ppar = dta.get_unrotated_float("NS2")) != nullptr)
@@ -812,96 +828,60 @@ void ObsRoad::amountOfClouds_1_4(ObsData& dta, bool metar)
       if ((ppar = dta.get_unrotated_float("NS4")) != nullptr)
           Ns4 = *ppar;
       if ((ppar = dta.get_unrotated_float("HS1")) != nullptr)
-          hs1 = *ppar;
+          hs1 = (int)(*ppar+.5);
       if ((ppar = dta.get_unrotated_float("HS2")) != nullptr)
-          hs2 = *ppar;
+          hs2 = (int)(*ppar+.5);
       if ((ppar = dta.get_unrotated_float("HS3")) != nullptr)
-          hs3 = *ppar;
+          hs3 = (int)(*ppar+.5);
       if ((ppar = dta.get_unrotated_float("HS4")) != nullptr)
-          hs4 = *ppar;
+          hs4 = (int)(*ppar+.5);
   }
   // if metar station do not report Ns1 ... Ns4 and hs1 .. hs4 try Nh and h
   if (metar) {
     if (Ns1 == _undef && hs1 == _undef && Ns2 == _undef && hs2 == _undef && Ns3 == _undef && hs3 == _undef && Ns4 == _undef && hs4 == _undef) {
-      amountOfClouds_1(dta, metar);
-      return;
+      // Nothing to do.
+	  return;
     }
   }
 
   if (Ns4 != _undef && Ns4 > 0 && hs4 != _undef && hs4 > 0) {
     QString ost;
     if (metar) {
-      if (Ns4 == 8)
-        ost = "O";
-      else if (Ns4 == 11)
-        ost = "S";
-      else if (Ns4 == 12)
-        ost = "B";
-      else if (Ns4 == 13)
-        ost = "F";
-      else
-        ost.setNum(Ns4);
+	  decodeMetarCloudAmount(Ns4,ost);
     } else
       ost.setNum(Ns4);
     ost += "-";
-    ost += QString::number(hs4);
+    ost += QString::asprintf("%02i",hs4);
     dta.cloud.push_back(ost.toStdString());
   }
   if (Ns3 != _undef && Ns3 > 0 && hs3 != _undef && hs3 > 0) {
     QString ost;
     if (metar) {
-      if (Ns3 == 8)
-        ost = "O";
-      else if (Ns3 == 11)
-        ost = "S";
-      else if (Ns3 == 12)
-        ost = "B";
-      else if (Ns3 == 13)
-        ost = "F";
-      else
-        ost.setNum(Ns3);
+      decodeMetarCloudAmount(Ns3,ost);
     } else
       ost.setNum(Ns3);
     ost += "-";
-    ost += QString::number(hs3);
+    ost += QString::asprintf("%02i",hs3);
     dta.cloud.push_back(ost.toStdString());
   }
   if (Ns2 != _undef && Ns2 > 0 && hs2 != _undef && hs2 > 0) {
     QString ost;
     if (metar) {
-      if (Ns2 == 8)
-        ost = "O";
-      else if (Ns2 == 11)
-        ost = "S";
-      else if (Ns2 == 12)
-        ost = "B";
-      else if (Ns2 == 13)
-        ost = "F";
-      else
-        ost.setNum(Ns2);
+      decodeMetarCloudAmount(Ns2,ost);
     } else
       ost.setNum(Ns2);
     ost += "-";
-    ost += QString::number(hs2);
+    ost += QString::asprintf("%02i",hs2);
     dta.cloud.push_back(ost.toStdString());
   }
   if (Ns1 != _undef && Ns1 > 0 && hs1 != _undef && hs1 > 0) {
     QString ost;
     if (metar) {
-      if (Ns1 == 8)
-        ost = "O";
-      else if (Ns1 == 11)
-        ost = "S";
-      else if (Ns1 == 12)
-        ost = "B";
-      else if (Ns1 == 13)
-        ost = "F";
-      else
-        ost.setNum(Ns1);
+      decodeMetarCloudAmount(Ns1,ost);
     } else
       ost.setNum(Ns1);
     ost += "-";
-    ost += QString::number(hs1);
+    ost += QString::asprintf("%02i",hs1);
     dta.cloud.push_back(ost.toStdString());
   }
 }
@@ -955,6 +935,7 @@ void ObsRoad::decodeData()
     int obshour = 0;
     float value;
     std::string text;
+	obsData.CAVOK=false;
     if (getColumnValue("time", pstr, text)) {
       METLIBS_LOG_DEBUG("time: " << text);
       vector<std::string> tpart = miutil::split(text, ":");
@@ -988,6 +969,9 @@ void ObsRoad::decodeData()
             value = miutil::to_float(pstr[i]);
             if (value == 2.) {
               obsData.put_string(m_columnName[i], "OK");
+			  // Fixme, needed ?
+			  //obsData.CAVOK=true;
+			  obsData.CAVOK=false;
             } else if (value == 1.) { // Clouds
               obsData.put_string(m_columnName[i], "NSC");
             } else if (value == 3.) { // Clouds
@@ -1059,8 +1043,13 @@ void ObsRoad::decodeData()
     if (getColumnValue("y", pstr, value) || getColumnValue("Lat", pstr, value))
       if (value != _undef)
         obsData.ypos = value;
-    if (getColumnValue("Name", pstr, text))
+    if (getColumnValue("Name", pstr, text)) {
       obsData.id = text;
+	  obsData.metarId = text;
+	  obsData.put_string("Name", text);
+	}
+	if (getColumnValue("StationName", pstr, text))
+      obsData.put_string("StationName", text);
     if (getColumnValue("ff", pstr, value))
       if (value != _undef)
         obsData.put_float("ff", knots ? miutil::knots2ms(value) : value);

@@ -37,6 +37,15 @@
 
 #include <map>
 
+//static values that should be set from SatManager
+namespace {
+const float defaultCut = -1;
+const int defaultAlphacut = 0;
+const int defaultAlpha = 255;
+const int defaultTimediff = 60;
+const bool defaultClasstable = false;
+} // namespace
+
 class SatPlotCommand : public KVListPlotCommand
 {
 public:

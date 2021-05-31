@@ -40,11 +40,11 @@ static const std::string SAT = "SAT";
 SatPlotCommand::SatPlotCommand()
     : KVListPlotCommand(SAT)
     , mosaic(false)
-    , timediff(60)
-    , cut(0.02)
-    , alphacut(0)
-    , alpha(1)
-    , classtable(false)
+    , timediff(defaultTimediff)
+    , cut(defaultCut)
+    , alphacut(defaultAlphacut)
+    , alpha(defaultAlpha/255)
+    , classtable(defaultClasstable)
 {
 }
 

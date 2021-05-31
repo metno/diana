@@ -111,7 +111,8 @@ private:
   VprofSimpleData_p temperature, dewpoint_temperature, wind_dd, wind_ff, wind_sig;
   VerticalAxis vertical_axis_;
   // New obsData interface
-  bool isAuto(const ObsData& obs);  
+  bool isAuto(const ObsData& obs);
+  void decodeMetarCloudAmount(const int & Nsx, QString & ost);  
 
 public:
   ObsRoad(const std::string& filename, const std::string& databasefile, const std::string& stationfile, const std::string& headerfile,

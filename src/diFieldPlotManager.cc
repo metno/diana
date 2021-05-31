@@ -889,6 +889,7 @@ bool FieldPlotManager::writeField(const FieldRequest& fieldrequest, Field_cp fie
 
 vector<FieldRequest> FieldPlotManager::getParamNames(const std::string& plotName, FieldRequest fieldrequest)
 {
+
   // search through vPlotField
   // Same plotName can be used for plots with different vertical levels.
   // In that case, vc_type must be specified.

@@ -2106,9 +2106,24 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   // Clouds, detailed
   if (pFlag.count("clouds")) {
     checkColourCriteria(gl, "Clouds", 0);
-    int ncl = dta.cloud.size();
-    for (int i = 0; i < ncl; i++)
-      printString(gl, dta.cloud[i], xytab(lpos + 18) + QPointF(0, -i * 12));
+    int ncl = dta.cloud.size();    	  
+	if (pFlag.count("nh") || pFlag.count("h")) {
+	    if (ClFlag) {
+			for (int i = 0; i < ncl; i++)
+				printString(gl, dta.cloud[i], xytab(lpos + 18) + QPointF(0, -i * 12) + QPointF(-12,0));
+		} else {
+			for (int i = 0; i < ncl; i++)
+				printString(gl, dta.cloud[i], xytab(lpos + 18) + QPointF(0, -i * 12) + QPointF(-12,10));
+		}
+	} else {
+		if ((ClFlag)|| pFlag.count("rrr") || pFlag.count("W1")) {
+			for (int i = 0; i < ncl; i++)
+				printString(gl, dta.cloud[i], xytab(lpos + 24) + QPointF(0, -i * 12) + QPointF(0, -10));
+		} else {
+			for (int i = 0; i < ncl; i++)
+				printString(gl, dta.cloud[i], xytab(lpos + 24) + QPointF(0, -i * 12) + QPointF(0, 10));
+		}
+	}
   }
 
   //Precipitation - RRR
