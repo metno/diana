@@ -220,6 +220,7 @@ struct Bdiana
   miTime commandline_time;               //!< fixed TIME from commandline
   int addhour, addminute;
   bool plot_empty_maps;
+  miTime first_reference_time; //!< bdiana uses always the first reference time
 
   map<std::string, map<std::string, std::string>> outputTextMaps; // output text for cases where output data is XML/JSON
   vector<std::string> outputTextMapOrder;                         // order of legends in output text
@@ -898,7 +899,17 @@ bool Bdiana::set_ptime(BdianaSource& src)
     fixedtime = commandline_time;
   }
   if (fixedtime.undef()) {
-    fixedtime = src.getTime();
+    if (getTimeChoice() == BdianaSource::USE_REFERENCETIME)
+	{
+	  if (first_reference_time.undef())
+	  {
+		fixedtime=first_reference_time=src.getTime(); 
+	  } else {
+		fixedtime=first_reference_time;
+	  }
+	} else {
+		fixedtime = src.getTime();
+	}
     if (verbose)
       METLIBS_LOG_INFO("using default time:" << format_time(fixedtime));
   }
@@ -1152,13 +1163,10 @@ command_result Bdiana::handlePlotCommand(int& k)
 
     main.commands(pcom);
 
-    if (!plot_empty_maps)
-		if (!set_ptime(main))
+	if (!set_ptime(main))
+		if (!plot_empty_maps)
 			return cmd_fail;
-	else
-		set_ptime(main);
-
-
+	
     if (verbose)
       METLIBS_LOG_INFO("- updatePlots");
     if (!main.controller->hasData() && failOnMissingData) {
@@ -1214,7 +1222,8 @@ command_result Bdiana::handlePlotCommand(int& k)
     vc.commands(pcom);
 
     if (!set_ptime(vc))
-      return cmd_fail;
+      if (!plot_empty_maps)
+			return cmd_fail;
 
     expandTime(outputfilename, ptime);
     go.setOutputFile(outputfilename);
@@ -1232,7 +1241,8 @@ command_result Bdiana::handlePlotCommand(int& k)
     vprof.commands(pcom);
 
     if (!set_ptime(vprof))
-      return cmd_fail;
+      if (!plot_empty_maps)
+			return cmd_fail;
 
     expandTime(outputfilename, ptime);
     go.setOutputFile(outputfilename);
