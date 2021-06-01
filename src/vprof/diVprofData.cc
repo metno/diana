@@ -119,7 +119,8 @@ void VprofData::readStationNames()
     } else {
       // the old format
       stationVector = miutil::split(line, ",", false);
-      if (stationVector.size() == 7) {
+	  // miutil::split problems with "," as last char in string
+      if ((stationVector.size() == 7) || (stationVector.size() == 6)) {
         baseIdx = 1;
       } else {
         METLIBS_LOG_ERROR("Something is wrong with: '" << line << "'");
