@@ -64,6 +64,7 @@ TEST(TestObsReaderAscii, GetData)
   req->timeDiff = 10;
   ObsDataResult_p res = std::make_shared<ObsDataResult>();
   ascii->getData(req, res);
+  EXPECT_TRUE(res->success());
   EXPECT_EQ(7, res->data().size());
 }
 
@@ -79,6 +80,22 @@ TEST(TestObsReaderAscii, GetParameters)
   ASSERT_EQ(ex_params.size(), ac_params.size());
   for (size_t i = 0; i < ex_params.size(); ++i)
     EXPECT_EQ(ex_params[i], ac_params[i].name);
+}
+
+TEST(TestObsReaderAscii, GetDataError)
+{
+  ObsReader_p ascii = std::make_shared<ObsReaderAscii>();
+  EXPECT_TRUE(ascii->configure("ascii", LYN_LX + "lx-opendata.[yyyymmddTHHMMSS]Z"));
+  EXPECT_TRUE(ascii->configure("headerfile", LYN_LX + "lx.header.bad"));
+  EXPECT_TRUE(ascii->configure("timerange", "-5,0"));
+
+  ObsDataRequest_p req = std::make_shared<ObsDataRequest>();
+  req->obstime = t_19_10;
+  req->timeDiff = 10;
+  ObsDataResult_p res = std::make_shared<ObsDataResult>();
+  ascii->getData(req, res);
+  EXPECT_TRUE(res->data().empty());
+  EXPECT_FALSE(res->success());
 }
 
 TEST(TestObsAscii, BracketContentsOk)

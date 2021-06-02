@@ -1,3 +1,32 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2017-2021 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+
 #include "diObsReaderAscii.h"
 
 #include "diObsAscii.h"
@@ -46,7 +75,7 @@ std::string ObsReaderAscii::decodeText(const std::string& text) const
     return text;
 }
 
-void ObsReaderAscii::getDataFromFile(const FileInfo& fi, ObsDataRequest_cp request, ObsDataResult_p result)
+bool ObsReaderAscii::getDataFromFile(const FileInfo& fi, ObsDataRequest_cp request, ObsDataResult_p result)
 {
   ObsAscii obsAscii(fi.filename, headerfile_, EMPTY_HEADERINFO);
 #if 0
@@ -56,6 +85,7 @@ void ObsReaderAscii::getDataFromFile(const FileInfo& fi, ObsDataRequest_cp reque
   for (ObsData& obs : obsdata)
     obs.dataType = dataType();
   result->add(obsdata);
+  return !obsAscii.hasError();
 }
 
 std::vector<ObsDialogInfo::Par> ObsReaderAscii::getParameters()
