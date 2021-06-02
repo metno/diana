@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015 MET Norway
+  Copyright (C) 2015-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -86,6 +86,12 @@ struct WmsInterval {
   double year, month, day, hour, minute, second;
 
   WmsInterval();
+
+  //! \returns true iff resolution is not INVALID and all values are >= 0
+  bool valid() const;
+
+  //! \returns true iff valid and at least one value is > 0
+  bool positive() const;
 };
 
 namespace detail {

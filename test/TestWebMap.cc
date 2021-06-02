@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015 met.no
+  Copyright (C) 2015-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -261,6 +261,18 @@ TEST(WebMapUtilities, ParseWmsIso8601Interval)
   { const WmsInterval wi = parseWmsIso8601Interval("P1YT0S");
     EXPECT_EQ(WmsTime::SECOND, wi.resolution);
     EXPECT_EQ(1, wi.year);
+    EXPECT_TRUE(wi.valid());
+    EXPECT_TRUE(wi.positive());
+  }
+  {
+    const WmsInterval wi = parseWmsIso8601Interval("PT0S");
+    EXPECT_EQ(WmsTime::SECOND, wi.resolution);
+    EXPECT_TRUE(wi.valid());
+    EXPECT_FALSE(wi.positive());
+  }
+  {
+    const WmsInterval wi = parseWmsIso8601Interval("P3H");
+    EXPECT_FALSE(wi.valid());
   }
 }
 
