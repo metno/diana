@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -48,7 +48,6 @@ public:
 
   void changeTime(const miutil::miTime& mapTime) override;
   void plot(DiGLPainter* gl, PlotOrder zorder) override;
-  bool hasData() const override;
   void getAnnotation(std::string&, Colour&) const override;
   void getDataAnnotations(std::vector<std::string>& anno) const override;
 
@@ -62,6 +61,9 @@ private:
   SatPlot(const SatPlot& rhs) = delete;
   SatPlot& operator=(const SatPlot& rhs) = delete;
 
+  bool hasData() const;
+
+private:
   SatManager* satm_;
   std::unique_ptr<Sat> satdata;
 };

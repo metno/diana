@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2020 met.no
+  Copyright (C) 2020-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -65,7 +65,7 @@ TEST(FieldPlot, GetAnnotations)
   field->reserve(2, 2);
   field->fieldText = "myfieldname";
   fp->setData({ field }, miutil::miTime("2020-05-05 00:00:00"));
-  EXPECT_TRUE(fp->hasData());
+  EXPECT_EQ(P_OK_DATA, fp->getStatus());
 
   const std::string anno0end = ",colour=blue", anno0 = "table"+anno0end, anno1 = "arrow";
   std::vector<std::string> annotations { anno0, anno1 };

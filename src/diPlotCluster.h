@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2020 met.no
+  Copyright (C) 2017-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -71,11 +71,10 @@ public:
   virtual void changeProjection(const Area& mapArea, const Rectangle& plotSize, const diutil::PointI& physSize);
   virtual void changeTime(const miutil::miTime& mapTime);
 
-  //! Check if some plot has data.
-  /*! In some cases, this should verify that that expected content is actually available.
-   *  \returns true iff some plot has data
+  //! Check the plot status (complete, empty, ...)
+  /*! \returns status counts for the plots in this cluster
    */
-  virtual bool hasData();
+  virtual PlotStatus getStatus();
 
 protected:
   virtual void processInputPE(const PlotCommand_cpv& cmds);

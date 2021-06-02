@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2019-2021 met.no
+  Copyright (C) 2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,27 +27,32 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef TRAJECTORYPLOTCLUSTER_H
-#define TRAJECTORYPLOTCLUSTER_H
+#include <diPlotStatus.h>
 
-#include "diPlotCluster.h"
+#include <gtest/gtest.h>
 
-class TrajectoryPlot;
+using namespace std;
 
-class TrajectoryPlotCluster : public PlotCluster
+TEST(TestPlotStatus, Init)
 {
-public:
-  TrajectoryPlotCluster();
+  const PlotStatus pcs1;
+  EXPECT_EQ(0, pcs1.count());
 
-  void processInput(const PlotCommand_cpv& cmds) override;
+  const PlotStatus pcs2(P_OK_EMPTY, 3);
+  EXPECT_EQ(3, pcs2.count());
+  EXPECT_EQ(0, pcs2.get(P_WAITING));
+  EXPECT_EQ(3, pcs2.get(P_OK_EMPTY));
+}
 
-  TrajectoryPlot* getPlot(size_t idx);
+TEST(TestPlotStatus, Add)
+{
+  PlotStatus pcs;
 
-  /// handle command
-  /// \returns true if plots changed
-  bool trajPos(const std::vector<std::string>& vstr);
+  pcs.add(PlotStatus());
+  EXPECT_EQ(0, pcs.count());
 
-  bool hasTrajectories() { return !plots_.empty(); }
-};
-
-#endif // TRAJECTORYPLOTCLUSTER_H
+  pcs.add(P_WAITING);
+  EXPECT_EQ(0, pcs.get(P_ERROR));
+  EXPECT_EQ(1, pcs.get(P_WAITING));
+  EXPECT_EQ(1, pcs.count());
+}

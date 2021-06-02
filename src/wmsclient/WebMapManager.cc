@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2020 met.no
+  Copyright (C) 2015-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -344,7 +344,10 @@ void WebMapManager::changeTime(const miutil::miTime& time)
     wmp->changeTime(time);
 }
 
-bool WebMapManager::hasData()
+PlotStatus WebMapManager::getStatus()
 {
-  return !webmaps.empty(); // FIXME webmaps may not have data
+  PlotStatus pcs;
+  for (WebMapPlot* wmp : webmaps)
+    pcs.add(wmp->getStatus());
+  return pcs;
 }

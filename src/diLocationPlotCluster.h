@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2019 met.no
+  Copyright (C) 2019-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -40,7 +40,6 @@ public:
   LocationPlotCluster();
 
   void processInput(const PlotCommand_cpv& cmds) override;
-  bool hasData() override { return false; }
 
   void putLocation(const LocationData& locationdata);
   bool deleteLocation(const std::string& name);

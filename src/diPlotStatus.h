@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2019-2021 met.no
+  Copyright (C) 2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,27 +27,34 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef TRAJECTORYPLOTCLUSTER_H
-#define TRAJECTORYPLOTCLUSTER_H
+#ifndef PLOTSTATUS_H
+#define PLOTSTATUS_H
 
-#include "diPlotCluster.h"
-
-class TrajectoryPlot;
-
-class TrajectoryPlotCluster : public PlotCluster
-{
-public:
-  TrajectoryPlotCluster();
-
-  void processInput(const PlotCommand_cpv& cmds) override;
-
-  TrajectoryPlot* getPlot(size_t idx);
-
-  /// handle command
-  /// \returns true if plots changed
-  bool trajPos(const std::vector<std::string>& vstr);
-
-  bool hasTrajectories() { return !plots_.empty(); }
+enum PlotStatusValue {
+  P_UNKNOWN,  //! unknown or irrelevant status
+  P_WAITING,  //!< waiting for data
+  P_OK_EMPTY, //!< plot is good but has no data
+  P_OK_DATA,  //!< plot is good and has data
+  P_ERROR,    //!< error in plot
+  P_STATUS_MAX = P_ERROR
 };
 
-#endif // TRAJECTORYPLOTCLUSTER_H
+class PlotStatus
+{
+public:
+  PlotStatus();
+  explicit PlotStatus(PlotStatusValue ps, int n = 1);
+
+  bool operator==(const PlotStatus& other) const;
+  bool operator!=(const PlotStatus& other) const { return !(*this == other); }
+
+  void add(PlotStatusValue ps, int n = 1) { statuscounts_[ps] += n; }
+  void add(const PlotStatus& pcs);
+  int get(PlotStatusValue ps) const { return statuscounts_[ps]; }
+  int count() const;
+
+private:
+  int statuscounts_[P_STATUS_MAX + 1];
+};
+
+#endif // PLOTSTATUS_H

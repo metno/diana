@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2019-2021 met.no
+  Copyright (C) 2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,27 +27,36 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef TRAJECTORYPLOTCLUSTER_H
-#define TRAJECTORYPLOTCLUSTER_H
+#include "diPlotStatus.h"
 
-#include "diPlotCluster.h"
+#include <numeric>
 
-class TrajectoryPlot;
-
-class TrajectoryPlotCluster : public PlotCluster
+PlotStatus::PlotStatus()
+    : statuscounts_{} // init with zeroes
 {
-public:
-  TrajectoryPlotCluster();
+}
 
-  void processInput(const PlotCommand_cpv& cmds) override;
+PlotStatus::PlotStatus(PlotStatusValue ps, int n)
+    : PlotStatus()
+{
+  add(ps, n);
+}
 
-  TrajectoryPlot* getPlot(size_t idx);
+bool PlotStatus::operator==(const PlotStatus& other) const
+{
+  for (int i = 0; i <= P_STATUS_MAX; ++i)
+    if (statuscounts_[i] != other.statuscounts_[i])
+      return false;
+  return true;
+}
 
-  /// handle command
-  /// \returns true if plots changed
-  bool trajPos(const std::vector<std::string>& vstr);
+void PlotStatus::add(const PlotStatus& pcs)
+{
+  for (int i = 0; i <= P_STATUS_MAX; ++i)
+    statuscounts_[i] += pcs.statuscounts_[i];
+}
 
-  bool hasTrajectories() { return !plots_.empty(); }
-};
-
-#endif // TRAJECTORYPLOTCLUSTER_H
+int PlotStatus::count() const
+{
+  return std::accumulate(statuscounts_, statuscounts_ + P_STATUS_MAX + 1, 0);
+}

@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2020 met.no
+ Copyright (C) 2006-2021 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -366,18 +366,25 @@ void PlotModule::changeTime(const miutil::miTime& mapTime)
   setAnnotations(); // time / data change
 }
 
-bool PlotModule::hasData()
+PlotStatus PlotModule::getStatus()
 {
+  PlotStatus pcs;
   for (PlotCluster* pc : clusters())
-    if (pc->hasData())
-      return true;
+    pcs.add(pc->getStatus());
+
   // FIXME vMeasurementsPlot
 
   for (Manager* m : boost::adaptors::values(managers)) {
-    if (m->isEnabled() && m->hasData())
-      return true;
+    if (m->isEnabled())
+      pcs.add(m->getStatus());
   }
-  return false;
+
+  return pcs;
+}
+
+bool PlotModule::hasData()
+{
+  return (getStatus().get(P_OK_DATA) > 0);
 }
 
 bool PlotModule::defineMapAreaFromData(Area& newMapArea, bool& allowKeepCurrentArea)

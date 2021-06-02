@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2019-2020 met.no
+  Copyright (C) 2019-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -51,7 +51,7 @@ public:
   bool enablePlotElement(const PlotElement& pe) override;
   void plot(DiGLPainter* gl, PlotOrder zorder) override;
   void cleanup() override;
-  bool hasData() override;
+  PlotStatus getStatus() override;
 
 private:
   ObjectManager* objm;

@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2020 met.no
+ Copyright (C) 2006-2021 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -134,6 +134,8 @@ private:
   std::vector<PlotCluster*> clusters() const;
   void plotClustersAndManagers(DiGLPainter* gl, PlotOrder po);
 
+  PlotStatus getStatus();
+
   static PlotModule *self;
 
   /// delete all data vectors
@@ -183,8 +185,7 @@ public:
   void setAnnotations();
 
   //! Check if any plot has data
-  /*! Results are useful only after calling setMapArea and changeTime.
-   *  \returns true if any plot says it has data
+  /*! \returns true if any plot says it has data
    */
   bool hasData();
 

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2020 met.no
+  Copyright (C) 2017-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -164,13 +164,13 @@ void PlotCluster::changeTime(const miutil::miTime& mapTime)
     p->changeTime(mapTime);
 }
 
-bool PlotCluster::hasData()
+PlotStatus PlotCluster::getStatus()
 {
+  PlotStatus pcs;
   for (Plot* p : plots_) {
-    if (p->hasData())
-      return true;
+    pcs.add(p->getStatus());
   }
-  return false;
+  return pcs;
 }
 
 void PlotCluster::processInputPE(const PlotCommand_cpv&) {}
