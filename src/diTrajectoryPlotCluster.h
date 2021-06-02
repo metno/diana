@@ -47,6 +47,8 @@ public:
   /// handle command
   /// \returns true if plots changed
   bool trajPos(const std::vector<std::string>& vstr);
+
+  bool hasTrajectories() { return !plots_.empty(); }
 };
 
 #endif // TRAJECTORYPLOTCLUSTER_H

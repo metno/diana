@@ -1058,7 +1058,7 @@ void PlotModule::deleteAllEditAnnotations()
 bool PlotModule::startTrajectoryComputation()
 {
   METLIBS_LOG_SCOPE();
-  if (trajectoryplots_->hasData())
+  if (trajectoryplots_->hasTrajectories())
     return false;
 
   TrajectoryPlot* tp = trajectoryplots_->getPlot(0);
@@ -1086,7 +1086,7 @@ void PlotModule::stopTrajectoryComputation()
 // write trajectory positions to file
 bool PlotModule::printTrajectoryPositions(const std::string& filename)
 {
-  if (trajectoryplots_->hasData())
+  if (trajectoryplots_->hasTrajectories())
     return trajectoryplots_->getPlot(0)->printTrajectoryPositions(filename);
 
   return false;
