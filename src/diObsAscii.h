@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -53,8 +53,10 @@ public:
     std::string name;
     std::string tooltip;
   };
+
 private:
   bool m_needDataRead;
+  bool m_error;
   std::string m_filename;
 
   std::vector<std::string> lines;
@@ -101,8 +103,7 @@ private:
   void readHeaderInfo(const std::string& filename, const std::string& headerfile,
       const std::vector<std::string>& headerinfo);
   void decodeHeader();
-  bool bracketContents(std::vector<std::string>& in_out);
-  void parseHeaderBrackets(const std::string& str);
+  bool parseHeaderBrackets(const std::string& str);
 
   void addStationsToUrl(std::string& filename);
 
@@ -115,7 +116,11 @@ public:
   const std::vector<Column>& getColumns() const
     { return column; }
 
-  const std::vector<ObsData> &getObsData(const miutil::miTime &filetime, const miutil::miTime &time, int timeDiff);
+  const std::vector<ObsData>& getObsData(const miutil::miTime& filetime, const miutil::miTime& time, int timeDiff);
+  bool hasError() const { return m_error; }
+
+public:
+  static bool bracketContents(std::vector<std::string>& in_out);
 };
 
 #endif
