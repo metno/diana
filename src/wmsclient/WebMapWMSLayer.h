@@ -44,6 +44,7 @@ struct WebMapWmsCrsBoundingBox
 };
 
 typedef std::vector<WebMapWmsCrsBoundingBox> WebMapWmsCrsBoundingBox_v;
+typedef const WebMapWmsCrsBoundingBox* WebMapWmsCrsBoundingBox_cx;
 
 // ========================================================================
 

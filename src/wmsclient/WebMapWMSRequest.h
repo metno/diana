@@ -48,12 +48,15 @@ class WebMapWMSLayer;
 typedef WebMapWMSLayer* WebMapWMSLayer_x;
 typedef const WebMapWMSLayer* WebMapWMSLayer_cx;
 
+class WebMapWmsCrsBoundingBox;
+typedef const WebMapWmsCrsBoundingBox* WebMapWmsCrsBoundingBox_cx;
+
 class WebMapWMSRequest : public WebMapTilesRequest
 {
   Q_OBJECT
 
 public:
-  WebMapWMSRequest(WebMapWMS_x service, WebMapWMSLayer_cx layer, int crsIndex, int zoom);
+  WebMapWMSRequest(WebMapWMS_x service, WebMapWMSLayer_cx layer, WebMapWmsCrsBoundingBox_cx crs, int zoom);
 
   ~WebMapWMSRequest();
 
@@ -79,7 +82,7 @@ private Q_SLOTS:
 
 private:
   WebMapWMSLayer_cx mLayer;
-  int mCrsIndex;
+  WebMapWmsCrsBoundingBox_cx mCrs;
   int mZoom;
   std::map<std::string, std::string> mDimensionValues;
 

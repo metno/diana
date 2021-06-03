@@ -39,10 +39,10 @@
 #define MILOGGER_CATEGORY "diana.WebMapWMSRequest"
 #include <miLogger/miLogging.h>
 
-WebMapWMSRequest::WebMapWMSRequest(WebMapWMS_x service, WebMapWMSLayer_cx layer, int crsIndex, int zoom)
+WebMapWMSRequest::WebMapWMSRequest(WebMapWMS_x service, WebMapWMSLayer_cx layer, WebMapWmsCrsBoundingBox_cx crs, int zoom)
     : WebMapTilesRequest(service)
     , mLayer(layer)
-    , mCrsIndex(crsIndex)
+    , mCrs(crs)
     , mZoom(zoom)
     , mLegend(nullptr)
 {
@@ -60,13 +60,13 @@ void WebMapWMSRequest::setDimensionValue(const std::string& dimIdentifier, const
 
 const Projection& WebMapWMSRequest::tileProjection() const
 {
-  return mLayer->crsBoundingBox(mCrsIndex).projection;
+  return mCrs->projection;
 }
 
 void WebMapWMSRequest::addTile(int tileX, int tileY)
 {
   METLIBS_LOG_SCOPE(LOGVAL(tileX) << LOGVAL(tileY));
-  const Rectangle& bb = mLayer->crsBoundingBox(mCrsIndex).boundingbox;
+  const Rectangle& bb = mCrs->boundingbox;
   const int nxy = (1<<mZoom);
   const double x0 = bb.x1,
       dx = bb.width() / nxy,
@@ -94,7 +94,7 @@ void WebMapWMSRequest::submit()
 
 QNetworkReply* WebMapWMSRequest::submitRequest(WebMapTile* tile)
 {
-  return static_cast<WebMapWMS*>(mService)->submitRequest(mLayer, mDimensionValues, mLayer->CRS(mCrsIndex), tile);
+  return static_cast<WebMapWMS*>(mService)->submitRequest(mLayer, mDimensionValues, mCrs->crs, tile);
 }
 
 void WebMapWMSRequest::abort()
