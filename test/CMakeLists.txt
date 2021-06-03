@@ -196,3 +196,5 @@ TARGET_LINK_LIBRARIES(dianaGuiTests PRIVATE
 ADD_TEST(NAME dianaGuiTests
   COMMAND dianaGuiTests --gtest_color=yes
 )
+
+ADD_SUBDIRECTORY(bdiana)

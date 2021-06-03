@@ -1,0 +1,11 @@
+# -*- coding: utf-8 -*-
+
+%include @CMAKE_CURRENT_BINARY_DIR@/bdiana.setup
+
+<OBSERVATION_FILES>
+PROD=ascii:Lyn
+ascii=@CMAKE_CURRENT_SOURCE_DIR@/testdata/lyndata/lx-opendata.[yyyymmddTHHMMSS]Z
+headerfile=@CMAKE_CURRENT_SOURCE_DIR@/testdata/lyndata/lx.header
+timerange=0,60
+synoptic=false
+</OBSERVATION_FILES>

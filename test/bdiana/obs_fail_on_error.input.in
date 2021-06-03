@@ -1,0 +1,15 @@
+buffersize=1200x1200
+keepPlotArea=NO
+output=PNG
+
+fail_on_data_error=yes
+
+filename=obs_fail_on_error.png
+settime=nowtime
+
+PLOT
+OBS plot=Lyn data=Lyn parameter=Pk colour=black density=1 image=lyn scale=1 tempprecision=true timediff=10
+AREA name=Europa
+MAP backcolour=grey90 lon=on lon.colour=grey90 lon.linewidth=1 lon.linetype=solid lon.density=15 lon.zorder=0 lon.showvalue=off lon.value_pos=bottom lon.fontsize=10 lat=on lat.colour=grey90 lat.linewidth=1 lat.linetype=solid lat.density=15 lat.zorder=0 lat.showvalue=off lat.value_pos=left lat.fontsize=10 frame=on frame.colour=black frame.linewidth=1 frame.linetype=solid frame.zorder=1
+LABEL data font=BITMAPFONT fontsize=8
+ENDPLOT
