@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2020 met.no
+  Copyright (C) 2015-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,19 +29,14 @@
 
 #include "WebMapWMS.h"
 
-#include "diUtilities.h"
 #include "WebMapTile.h"
 #include "WebMapUtilities.h"
 
-#include <diField/diArea.h>
 #include <puTools/miStringFunctions.h>
 
 #include <QDomDocument>
 #include <QDomElement>
-#include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include <QNetworkRequest>
-#include <QStringList>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QUrlQuery>
 #endif
@@ -104,144 +99,6 @@ inline QString toQString(float number)
 
 } // anonymous namespace
 
-// ========================================================================
-
-WebMapWmsCrsBoundingBox::WebMapWmsCrsBoundingBox(const std::string& c, const Rectangle& bb)
-  : crs(c)
-  , projection(diutil::projectionForCRS(crs))
-  , metersPerUnit(diutil::metersPerUnit(projection))
-  , boundingbox(bb)
-{
-}
-
-// ========================================================================
-
-WebMapWMSLayer::WebMapWMSLayer(const std::string& identifier)
-  : WebMapLayer(identifier)
-  , mMinZoom(0)
-  , mMaxZoom(13)
-{
-}
-
-// ========================================================================
-
-WebMapWMSRequest::WebMapWMSRequest(WebMapWMS_x service,
-    WebMapWMSLayer_cx layer, int crsIndex, int zoom)
-  : mService(service)
-  , mLayer(layer)
-  , mCrsIndex(crsIndex)
-  , mZoom(zoom)
-  , mLegend(0)
-{
-}
-
-WebMapWMSRequest::~WebMapWMSRequest()
-{
-  diutil::delete_all_and_clear(mTiles);
-  delete mLegend;
-}
-
-void WebMapWMSRequest::setDimensionValue(const std::string& dimIdentifier,
-    const std::string& dimValue)
-{
-  mDimensionValues[dimIdentifier] = dimValue;
-}
-
-void WebMapWMSRequest::addTile(int tileX, int tileY)
-{
-  METLIBS_LOG_SCOPE(LOGVAL(tileX) << LOGVAL(tileY));
-  if (mTiles.size() >= 256)
-    return;
-  const Rectangle& bb = mLayer->crsBoundingBox(mCrsIndex).boundingbox;
-  const int nxy = (1<<mZoom);
-  const double x0 = bb.x1,
-      dx = bb.width() / nxy,
-      y0 = bb.y2,
-      dy = -dx; // bb.height() / nxy;
-  const double tx0 = x0 + dx*tileX,
-      ty1 = y0 + dy*tileY;
-  METLIBS_LOG_DEBUG(LOGVAL(nxy) << LOGVAL(x0) << LOGVAL(dx) << LOGVAL(y0) << LOGVAL(dy) << LOGVAL(tx0) << LOGVAL(ty1));
-  const Rectangle rect(tx0, ty1+dy, tx0+dx, ty1);
-  mTiles.push_back(new WebMapTile(tileX, tileY, rect));
-}
-
-void WebMapWMSRequest::submit()
-{
-  METLIBS_LOG_SCOPE();
-  mUnfinished = mTiles.size();
-
-  if (!mLayer->legendUrl().empty()) {
-    mLegend = new WebMapImage();
-    connect(mLegend, SIGNAL(finishedImage(WebMapImage*)),
-        this, SLOT(legendFinished(WebMapImage*)));
-    mUnfinished += 1;
-    mLegend->submit(mService->submitUrl(QUrl(QString::fromStdString(mLayer->legendUrl()))));
-  }
-
-  for (size_t i=0; i<mTiles.size(); ++i) {
-    WebMapTile* tile = mTiles[i];
-    connect(tile, SIGNAL(finished(WebMapTile*)),
-        this, SLOT(tileFinished(WebMapTile*)));
-    QNetworkReply* reply = mService->submitRequest(mLayer, mDimensionValues,
-        mLayer->CRS(mCrsIndex), tile);
-    tile->submit(reply);
-  }
-}
-
-void WebMapWMSRequest::abort()
-{
-  METLIBS_LOG_SCOPE();
-  if (mLegend)
-    mLegend->abort();
-  for (size_t i=0; i<mTiles.size(); ++i)
-    mTiles[i]->abort();
-}
-
-void WebMapWMSRequest::tileFinished(WebMapTile* tile)
-{
-  METLIBS_LOG_SCOPE();
-  if (diutil::checkRedirect(mService, tile))
-    return;
-  if (!tile->loadImage(mService->tileFormat()))
-    tile->dummyImage(TILESIZE, TILESIZE);
-  mUnfinished -= 1;
-  METLIBS_LOG_DEBUG(LOGVAL(mUnfinished));
-  if (mUnfinished == 0)
-    Q_EMIT completed();
-}
-
-void WebMapWMSRequest::legendFinished(WebMapImage*)
-{
-  METLIBS_LOG_SCOPE();
-  if (diutil::checkRedirect(mService, mLegend))
-    return;
-  mLegend->loadImage("image/png");
-  mUnfinished -= 1;
-  METLIBS_LOG_DEBUG(LOGVAL(mUnfinished));
-  if (mUnfinished == 0)
-    Q_EMIT completed();
-}
-
-QImage WebMapWMSRequest::legendImage() const
-{
-  if (mLegend)
-    return mLegend->image();
-  else
-    return QImage();
-}
-
-const Rectangle& WebMapWMSRequest::tileRect(size_t idx) const
-{
-  return mTiles.at(idx)->rect();
-}
-
-const QImage& WebMapWMSRequest::tileImage(size_t idx) const
-{
-  return mTiles.at(idx)->image();
-}
-
-// ========================================================================
-
 WebMapWMS::WebMapWMS(const std::string& identifier, const QUrl& url, QNetworkAccessManager* network)
   : WebMapService(identifier, network)
   , mServiceURL(url)
@@ -285,8 +142,10 @@ WebMapRequest_x WebMapWMS::createRequest(const std::string& layerIdentifier,
   const float z0denominator = bb.width() * cb.metersPerUnit / TILESIZE / diutil::WMTS_M_PER_PIXEL;
   const int zoom = findZoomForScale(z0denominator, viewScale);
   METLIBS_LOG_DEBUG(LOGVAL(z0denominator) << LOGVAL(viewScale) << LOGVAL(zoom));
-  if (zoom < layer->minZoom() || zoom > layer->maxZoom())
+  if (zoom < layer->minZoom() || zoom > layer->maxZoom()) {
+    METLIBS_LOG_DEBUG(LOGVAL(zoom) << LOGVAL(layer->minZoom()) << LOGVAL(layer->maxZoom()));
     return 0;
+  }
 
   std::unique_ptr<WebMapWMSRequest> request(new WebMapWMSRequest(this, layer, crsIndex, zoom));
   const int nx = (1<<zoom);
@@ -403,14 +262,14 @@ bool WebMapWMS::parseReply()
   using diutil::qs;
 
   if (mRefeshReply->error() != QNetworkReply::NoError) {
-    METLIBS_LOG_DEBUG("request error " <<  mRefeshReply->error()
-        << ", HTTP status=" << mRefeshReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt());
+    METLIBS_LOG_WARN("request error " << qs(mRefeshReply->errorString())
+                                      << ", HTTP status=" << mRefeshReply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt());
     return false;
   }
 
   QDomDocument doc;
   if (!doc.setContent(mRefeshReply)) {
-    METLIBS_LOG_DEBUG("document error");
+    METLIBS_LOG_WARN("capabilities document xml error");
     return false;
   }
 
@@ -420,7 +279,7 @@ bool WebMapWMS::parseReply()
   } else if (eDoc.attribute("version") == "1.3.0") {
     mVersion = WMS_130;
   } else {
-    METLIBS_LOG_DEBUG("unsupported version");
+    METLIBS_LOG_WARN("unsupported WMS version");
     return false;
   }
   METLIBS_LOG_DEBUG(LOGVAL(mVersion));
@@ -524,7 +383,7 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::string style, std::string l
   }
   for (const QString& crs : lCRS) {
     float minx, miny, maxx, maxy;
-    const std::string sCRS = crs.toStdString();
+    const std::string sCRS = qs(crs);
     METLIBS_LOG_DEBUG("known bbox check" << LOGVAL(sCRS));
     crs_bbox_m::iterator it = crs_bboxes.find(sCRS);
     if (sCRS == EPSG3857) {

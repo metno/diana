@@ -309,13 +309,28 @@ SET(LIBDIANA_QTSOURCES
   vcross_v2/VcrossQtManager.cc
   vcross_v2/VcrossQuickmenues.cc
 
+  wmsclient/WebMapDimension.cc
+  wmsclient/WebMapImage.cc
+  wmsclient/WebMapLayer.cc
   wmsclient/WebMapManager.cc
   wmsclient/WebMapPlot.cc
+  wmsclient/WebMapRequest.cc
   wmsclient/WebMapService.cc
   wmsclient/WebMapSlippyOSM.cc
+  wmsclient/WebMapSlippyOSMLayer.cc
+  wmsclient/WebMapSlippyOSMRequest.cc
   wmsclient/WebMapTile.cc
+  wmsclient/WebMapTilesRequest.cc
+
   wmsclient/WebMapWMS.cc
+  wmsclient/WebMapWMSLayer.cc
+  wmsclient/WebMapWMSRequest.cc
+
   wmsclient/WebMapWMTS.cc
+  wmsclient/WebMapWMTSLayer.cc
+  wmsclient/WebMapWMTSRequest.cc
+  wmsclient/WebMapWMTSTileMatrix.cc
+  wmsclient/WebMapWMTSTileMatrixSet.cc
 )
 
 SET(LIBBDIANA_SOURCES
@@ -448,6 +463,7 @@ SET(LIBDIANAUI_QTSOURCES
   vprof/qtVprofWindow.cc
 
   wmsclient/WebMapDialog.cc
+  wmsclient/WebMapPlotListModel.cc
 )
 
 IF (ENABLE_GEOTIFF)

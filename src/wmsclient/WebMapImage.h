@@ -27,41 +27,45 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef WebMapTile_h
-#define WebMapTile_h 1
+#ifndef WebMapImage_h
+#define WebMapImage_h 1
 
-#include "WebMapImage.h"
+#include <QImage>
+#include <QObject>
 
-#include <diField/diRectangle.h>
+class QNetworkReply;
 
-class WebMapTile : public WebMapImage {
+class WebMapImage : public QObject
+{
   Q_OBJECT;
 
 public:
-  WebMapTile(int column, int row, const Rectangle& rect);
+  WebMapImage();
 
-  ~WebMapTile();
+  ~WebMapImage();
 
-  int column() const
-    { return mColumn; }
-  int row() const
-    { return mRow; }
+  const QImage& image() const { return mImage; }
 
-  const Rectangle& rect() const
-    { return mRect; }
+  void submit(QNetworkReply* reply);
 
-  void dummyImage(int tw, int th);
+  void abort();
 
-protected /*Q_SLOTS*/:
-  void replyFinished() Q_DECL_OVERRIDE;
+  bool loadImage();
+
+  const QNetworkReply* reply() const { return mReply; }
+
+protected Q_SLOTS:
+  virtual void replyFinished();
 
 Q_SIGNALS:
-  void finished(WebMapTile* self);
+  void finishedImage(WebMapImage* self);
+
+private:
+  void dropRequest();
 
 protected:
-  int mColumn;
-  int mRow;
-  Rectangle mRect;
+  QImage mImage;
+  QNetworkReply* mReply;
 };
 
-#endif // WebMapTile_h
+#endif // WebMapImage_h

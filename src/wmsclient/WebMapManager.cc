@@ -270,7 +270,7 @@ void WebMapManager::addMap(WebMapPlot* plot)
 
 void WebMapManager::onPlotUpdate()
 {
-  Q_EMIT repaintNeeded(true);
+  /*Q_EMIT*/ repaintNeeded(true);
 }
 
 void WebMapManager::plot(DiGLPainter* gl, PlotOrder zorder)
@@ -285,7 +285,9 @@ std::vector<PlotElement> WebMapManager::getPlotElements()
   std::vector<PlotElement> pel;
   pel.reserve(webmaps.size());
   for (size_t i = 0; i < webmaps.size(); i++) {
-    pel.push_back(PlotElement(WEBMAP, miutil::from_number((int) i), WEBMAP, webmaps[i]->isEnabled()));
+    WebMapPlot* p = webmaps[i];
+    pel.push_back(PlotElement(WEBMAP, miutil::from_number((int)i), WEBMAP, p->isEnabled()));
+    pel.back().status = p->getStatus();
   }
   return pel;
 }

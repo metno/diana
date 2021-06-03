@@ -25,43 +25,39 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- */
+*/
 
-#ifndef WebMapTile_h
-#define WebMapTile_h 1
+#include "WebMapRequest.h"
 
-#include "WebMapImage.h"
+#include <QImage>
 
-#include <diField/diRectangle.h>
+#define MILOGGER_CATEGORY "diana.WebMapRequest"
+#include <miLogger/miLogging.h>
 
-class WebMapTile : public WebMapImage {
-  Q_OBJECT;
+static const size_t INVALID_IDX = size_t(-1);
 
-public:
-  WebMapTile(int column, int row, const Rectangle& rect);
+WebMapRequest::WebMapRequest()
+    : lastTileIndex(INVALID_IDX)
+{
+}
 
-  ~WebMapTile();
+WebMapRequest::~WebMapRequest() {}
 
-  int column() const
-    { return mColumn; }
-  int row() const
-    { return mRow; }
+QImage WebMapRequest::legendImage() const
+{
+  return QImage();
+}
 
-  const Rectangle& rect() const
-    { return mRect; }
-
-  void dummyImage(int tw, int th);
-
-protected /*Q_SLOTS*/:
-  void replyFinished() Q_DECL_OVERRIDE;
-
-Q_SIGNALS:
-  void finished(WebMapTile* self);
-
-protected:
-  int mColumn;
-  int mRow;
-  Rectangle mRect;
-};
-
-#endif // WebMapTile_h
+size_t WebMapRequest::tileIndex(float x, float y)
+{
+  if (lastTileIndex == INVALID_IDX || !tileRect(lastTileIndex).isinside(x, y)) {
+    lastTileIndex = INVALID_IDX;
+    for (size_t i = 0; i < countTiles(); ++i) {
+      if (tileRect(i).isinside(x, y)) {
+        lastTileIndex = i;
+        break;
+      }
+    }
+  }
+  return lastTileIndex;
+}

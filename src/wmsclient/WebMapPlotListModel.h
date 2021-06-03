@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2021 met.no
+  Copyright (C) 2015 MET Norway
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,41 +27,32 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef WebMapTile_h
-#define WebMapTile_h 1
+#ifndef WebMapPlotListModel_h
+#define WebMapPlotListModel_h 1
 
-#include "WebMapImage.h"
+#include <QAbstractListModel>
 
-#include <diField/diRectangle.h>
+class WebMapDialog;
 
-class WebMapTile : public WebMapImage {
-  Q_OBJECT;
+class WebMapPlotListModel : public QAbstractListModel
+{
+  Q_OBJECT
 
 public:
-  WebMapTile(int column, int row, const Rectangle& rect);
+  WebMapPlotListModel(WebMapDialog* parent = 0);
 
-  ~WebMapTile();
+  int rowCount(const QModelIndex& parent = QModelIndex()) const Q_DECL_OVERRIDE;
 
-  int column() const
-    { return mColumn; }
-  int row() const
-    { return mRow; }
+  QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const Q_DECL_OVERRIDE;
 
-  const Rectangle& rect() const
-    { return mRect; }
+public:
+  void onPlotsRemoveBegin();
+  void onPlotsRemoveEnd();
+  void onPlotAddBegin(int idx);
+  void onPlotAddEnd();
 
-  void dummyImage(int tw, int th);
-
-protected /*Q_SLOTS*/:
-  void replyFinished() Q_DECL_OVERRIDE;
-
-Q_SIGNALS:
-  void finished(WebMapTile* self);
-
-protected:
-  int mColumn;
-  int mRow;
-  Rectangle mRect;
+private:
+  WebMapDialog* dialog() const;
 };
 
-#endif // WebMapTile_h
+#endif // WebMapPlotListModel_h

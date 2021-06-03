@@ -27,41 +27,26 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef WebMapTile_h
-#define WebMapTile_h 1
+#include "WebMapWMSLayer.h"
 
-#include "WebMapImage.h"
+#include "WebMapUtilities.h"
 
-#include <diField/diRectangle.h>
+#define MILOGGER_CATEGORY "diana.WebMapWMSLayer"
+#include <miLogger/miLogging.h>
 
-class WebMapTile : public WebMapImage {
-  Q_OBJECT;
+WebMapWmsCrsBoundingBox::WebMapWmsCrsBoundingBox(const std::string& c, const Rectangle& bb)
+    : crs(c)
+    , projection(diutil::projectionForCRS(crs))
+    , metersPerUnit(diutil::metersPerUnit(projection))
+    , boundingbox(bb)
+{
+}
 
-public:
-  WebMapTile(int column, int row, const Rectangle& rect);
+// ========================================================================
 
-  ~WebMapTile();
-
-  int column() const
-    { return mColumn; }
-  int row() const
-    { return mRow; }
-
-  const Rectangle& rect() const
-    { return mRect; }
-
-  void dummyImage(int tw, int th);
-
-protected /*Q_SLOTS*/:
-  void replyFinished() Q_DECL_OVERRIDE;
-
-Q_SIGNALS:
-  void finished(WebMapTile* self);
-
-protected:
-  int mColumn;
-  int mRow;
-  Rectangle mRect;
-};
-
-#endif // WebMapTile_h
+WebMapWMSLayer::WebMapWMSLayer(const std::string& identifier)
+    : WebMapLayer(identifier)
+    , mMinZoom(0)
+    , mMaxZoom(13)
+{
+}

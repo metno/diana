@@ -29,6 +29,7 @@
 
 #include "WebMapDialog.h"
 
+#include "WebMapPlotListModel.h"
 #include "WebMapManager.h"
 #include "WebMapPlot.h"
 #include "WebMapService.h"
@@ -52,12 +53,6 @@ namespace {
 const std::string WEBMAP = "WEBMAP";
 const size_t IDX_INVALID = size_t(-1);
 
-const std::string WEBMAP_SERVICE = "webmap.service";
-const std::string WEBMAP_LAYER = "webmap.layer";
-const std::string WEBMAP_ZORDER = "webmap.zorder";
-const std::string WEBMAP_TIME_TOLERANCE = "webmap.time_tolerance";
-const std::string WEBMAP_TIME_OFFSET = "webmap.time_offset";
-
 const std::string STYLE_ALPHA_SCALE = "style.alpha_scale";
 const std::string STYLE_ALPHA_OFFSET = "style.alpha_offset";
 const std::string STYLE_GREY = "style.grey";
@@ -75,56 +70,11 @@ const int plotorder_lines_idx = 3;
 const size_t N_PLOTORDERS = sizeof(plotorders)/sizeof(plotorders[0]);
 } // namespace
 
-WebMapPlotListModel::WebMapPlotListModel(WebMapDialog *parent )
-  : QAbstractListModel(parent)
-{
-}
-
-int WebMapPlotListModel::rowCount(const QModelIndex&) const
-{
-  return dialog()->plotCommandCount();
-}
-
-QVariant WebMapPlotListModel::data(const QModelIndex& index, int role) const
-{
-  if (role == Qt::DisplayRole) {
-    if (KVListPlotCommand_cp pc = std::dynamic_pointer_cast<const KVListPlotCommand>(dialog()->plotCommand(index.row()))) {
-      const size_t idx_ws = pc->find(WEBMAP_SERVICE);
-      const size_t idx_wl = pc->find(WEBMAP_LAYER);
-      QString ws = (idx_ws != IDX_INVALID) ? QString::fromStdString(pc->get(idx_ws).value()) : "?";
-      QString wl = (idx_wl != IDX_INVALID) ? QString::fromStdString(pc->get(idx_wl).value()) : "?";
-      return QString("%1 -- %2").arg(ws).arg(wl);
-    }
-  }
-  return QVariant();
-}
-
-void WebMapPlotListModel::onPlotsRemoveBegin()
-{
-  beginResetModel();
-}
-
-void WebMapPlotListModel::onPlotsRemoveEnd()
-{
-  endResetModel();
-}
-
-void WebMapPlotListModel::onPlotAddBegin(int idx)
-{
-  Q_EMIT beginInsertRows(QModelIndex(), idx, idx);
-}
-
-void WebMapPlotListModel::onPlotAddEnd()
-{
-  Q_EMIT endInsertRows();
-}
-
-WebMapDialog* WebMapPlotListModel::dialog() const
-{
-  return static_cast<WebMapDialog*>(parent());
-}
-
-// ========================================================================
+const std::string WEBMAP_SERVICE = "webmap.service";
+const std::string WEBMAP_LAYER = "webmap.layer";
+const std::string WEBMAP_ZORDER = "webmap.zorder";
+const std::string WEBMAP_TIME_TOLERANCE = "webmap.time_tolerance";
+const std::string WEBMAP_TIME_OFFSET = "webmap.time_offset";
 
 WebMapDialog::WebMapDialog(QWidget *parent, Controller *ctrl)
   : DataDialog(parent, ctrl)

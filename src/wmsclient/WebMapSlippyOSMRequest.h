@@ -27,41 +27,42 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef WebMapTile_h
-#define WebMapTile_h 1
+#ifndef WebMapSlippyOSMRequest_h
+#define WebMapSlippyOSMRequest_h 1
 
-#include "WebMapImage.h"
+#include "WebMapTilesRequest.h"
 
-#include <diField/diRectangle.h>
+class Projection;
 
-class WebMapTile : public WebMapImage {
+class WebMapSlippyOSMLayer;
+typedef WebMapSlippyOSMLayer* WebMapSlippyOSMLayer_x;
+typedef const WebMapSlippyOSMLayer* WebMapSlippyOSMLayer_cx;
+
+class WebMapSlippyOSM;
+typedef WebMapSlippyOSM* WebMapSlippyOSM_x;
+typedef const WebMapSlippyOSM* WebMapSlippyOSM_cx;
+
+class WebMapSlippyOSMRequest : public WebMapTilesRequest
+{
   Q_OBJECT;
 
 public:
-  WebMapTile(int column, int row, const Rectangle& rect);
+  WebMapSlippyOSMRequest(WebMapSlippyOSM_x service, WebMapSlippyOSMLayer_cx layer, int zoom);
+  ~WebMapSlippyOSMRequest();
 
-  ~WebMapTile();
+  void addTile(int tileX, int tileY);
 
-  int column() const
-    { return mColumn; }
-  int row() const
-    { return mRow; }
+  void setDimensionValue(const std::string&, const std::string&) override
+    { }
 
-  const Rectangle& rect() const
-    { return mRect; }
-
-  void dummyImage(int tw, int th);
-
-protected /*Q_SLOTS*/:
-  void replyFinished() Q_DECL_OVERRIDE;
-
-Q_SIGNALS:
-  void finished(WebMapTile* self);
+  const Projection& tileProjection() const override;
 
 protected:
-  int mColumn;
-  int mRow;
-  Rectangle mRect;
+  QNetworkReply* submitRequest(WebMapTile* tile) override;
+
+private:
+  WebMapSlippyOSMLayer_cx mLayer;
+  int mZoom;
 };
 
-#endif // WebMapTile_h
+#endif // WebMapSlippyOSMRequest_h

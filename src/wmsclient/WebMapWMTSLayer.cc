@@ -27,41 +27,11 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef WebMapTile_h
-#define WebMapTile_h 1
+#include "WebMapWMTSLayer.h"
 
-#include "WebMapImage.h"
+WebMapWMTSLayer::WebMapWMTSLayer(const std::string& identifier)
+    : WebMapLayer(identifier)
+{
+}
 
-#include <diField/diRectangle.h>
-
-class WebMapTile : public WebMapImage {
-  Q_OBJECT;
-
-public:
-  WebMapTile(int column, int row, const Rectangle& rect);
-
-  ~WebMapTile();
-
-  int column() const
-    { return mColumn; }
-  int row() const
-    { return mRow; }
-
-  const Rectangle& rect() const
-    { return mRect; }
-
-  void dummyImage(int tw, int th);
-
-protected /*Q_SLOTS*/:
-  void replyFinished() Q_DECL_OVERRIDE;
-
-Q_SIGNALS:
-  void finished(WebMapTile* self);
-
-protected:
-  int mColumn;
-  int mRow;
-  Rectangle mRect;
-};
-
-#endif // WebMapTile_h
+WebMapWMTSLayer::~WebMapWMTSLayer() {}
