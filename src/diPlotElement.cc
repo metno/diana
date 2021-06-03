@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2021 met.no
+  Copyright (C) 2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,27 +27,19 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef DIANA_DIPLOTELEMENT_H
-#define DIANA_DIPLOTELEMENT_H
+#include "diPlotElement.h"
 
-#include "diPlotStatus.h"
-
-#include <string>
-
-/**
-   \brief metadata on one data layer (on map)
-*/
-class PlotElement
+PlotElement::PlotElement()
+    : enabled(false)
+    , status(P_OK_DATA)
 {
-public:
-  std::string type;
-  std::string str;
-  std::string icon;
-  bool enabled;
-  PlotStatusValue status;
+}
 
-  PlotElement();
-  PlotElement(std::string t, std::string s, std::string i, bool e);
-};
-
-#endif // DIANA_DIPLOTELEMENT_H
+PlotElement::PlotElement(std::string t, std::string s, std::string i, bool e)
+    : type(t)
+    , str(s)
+    , icon(i)
+    , enabled(e)
+    , status(P_OK_DATA)
+{
+}

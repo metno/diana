@@ -125,6 +125,7 @@ void PlotCluster::addPlotElements(std::vector<PlotElement>& pel)
       const std::string& icon = icon_.empty() ? key : icon_;
       std::string str = nm + "# " + miutil::from_number(int(j));
       pel.push_back(PlotElement(key, str, icon, p->isEnabled()));
+      pel.back().status = p->getStatus();
     }
   }
 }

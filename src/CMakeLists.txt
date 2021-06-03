@@ -162,6 +162,7 @@ SET (LIBDIANA_SOURCES
   diPlotCluster.cc
   diPlotCommand.cc
   diPlotCommandFactory.cc
+  diPlotElement.cc
   diPlotModule.cc
   diPlotOptions.cc
   diPlotOptionsPlot.cc
@@ -482,7 +483,6 @@ LIST (APPEND LIBDIANA_HEADERS
   diEditTypes.h
   diEventResult.h
   diObjTypes.h
-  diPlotElement.h
   diPlotOrder.h
   diQuickMenuTypes.h
   diSatDialogInfo.h
