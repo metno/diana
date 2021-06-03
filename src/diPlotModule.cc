@@ -387,6 +387,11 @@ bool PlotModule::hasData()
   return (getStatus().get(P_OK_DATA) > 0);
 }
 
+bool PlotModule::hasError()
+{
+  return (getStatus().get(P_ERROR) > 0);
+}
+
 bool PlotModule::defineMapAreaFromData(Area& newMapArea, bool& allowKeepCurrentArea)
 {
   // TODO this is common for all grid-based plots, in strange order

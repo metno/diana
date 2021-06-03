@@ -2,7 +2,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2018 met.no
+ Copyright (C) 2006-2021 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -125,7 +125,9 @@ const std::string com_archive = "archive";
 const std::string com_keepplotarea = "keepplotarea";
 const std::string com_plotannotationsonly = "plotannotationsonly";
 
-const std::string com_fail_on_missing_data="failonmissingdata";
+const std::string com_fail_on_missing_data="fail_on_missing_data";
+const std::string com_fail_on_missing_data_unreadable="failonmissingdata";
+const std::string com_fail_on_data_error = "fail_on_data_error";
 const std::string com_multiple_plots = "multiple.plots";
 const std::string com_plotcell = "plotcell";
 
@@ -212,6 +214,7 @@ struct Bdiana
   std::string outputfilename; // except for graphics output
 
   bool failOnMissingData;
+  bool failOnDataError;
   bool useArchive;
   bool time_union;
   std::string time_format;
@@ -277,6 +280,7 @@ Bdiana::Bdiana()
     , output_format(output_graphics)
     , outputfilename("tmp_diana.png")
     , failOnMissingData(false)
+    , failOnDataError(false)
     , useArchive(false)
     , time_union(false)
     , time_format("$time")
@@ -1151,8 +1155,11 @@ command_result Bdiana::handlePlotCommand(int& k)
 
     if (verbose)
       METLIBS_LOG_INFO("- updatePlots");
-    if (!main.controller->hasData() && failOnMissingData) {
-      METLIBS_LOG_WARN("Failed to update plots.");
+    if (failOnDataError && main.controller->hasError()) {
+      METLIBS_LOG_WARN("Failed plots.");
+      return cmd_abort;
+    } else if (failOnMissingData && !main.controller->hasData()) {
+      METLIBS_LOG_WARN("Empty plots.");
       return cmd_abort;
     }
     METLIBS_LOG_INFO("map area = " << main.controller->getMapArea());
@@ -1694,8 +1701,11 @@ command_result Bdiana::parseAndProcess(istream& is)
     } else if (key == com_plotannotationsonly) {
       main.setAnnotationsOnly(miutil::to_lower(value) == "yes");
 
-    } else if (key == com_fail_on_missing_data) {
+    } else if (key == com_fail_on_missing_data || key == com_fail_on_missing_data_unreadable) {
       failOnMissingData = (miutil::to_lower(value) == "yes");
+
+    } else if (key == com_fail_on_data_error) {
+      failOnDataError = (miutil::to_lower(value) == "yes");
 
     } else if (key == com_multiple_plots) {
       if (handleMultiplePlotsCommand(k, value) == cmd_abort)

@@ -189,6 +189,11 @@ public:
    */
   bool hasData();
 
+  //! Check if any plot has an error
+  /*! \returns true if any plot says it has an error
+   */
+  bool hasError();
+
   /// set maparea from map spec., sat or fields
   void defineMapArea();
 
