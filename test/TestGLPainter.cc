@@ -141,6 +141,7 @@ void TestPaintable::paintOverlay(DiPainter*)
 
 } // namespace
 
+#if 0 // this does not work without DISPLAY
 TEST(TestOpenGL, Text)
 {
   TestPaintable* tp = new TestPaintable();
@@ -154,6 +155,7 @@ TEST(TestOpenGL, Text)
 
   snapshot.save(TEST_BUILDDIR "/opengl_text.png");
 }
+#endif
 
 TEST(TestPaintGL, Text)
 {

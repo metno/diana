@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017 met.no
+  Copyright (C) 2017-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -49,8 +49,16 @@ void ObsDataResult::add(const std::vector<ObsData>& data)
   diutil::insert_all(obsdata_, data);
 }
 
-void ObsDataResult::complete()
+ObsDataResult::ObsDataResult()
+    : success_(false)
 {
+}
+
+ObsDataResult::~ObsDataResult() {}
+
+void ObsDataResult::setComplete(bool success)
+{
+  success_ = success;
 }
 
 ObsReader::ObsReader()

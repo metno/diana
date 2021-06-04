@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017 met.no
+  Copyright (C) 2017-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -124,10 +124,12 @@ void ObsReaderFile::getData(ObsDataRequest_cp request, ObsDataResult_p result)
   int best_diff = -1;
   const FileInfo* best_fi = 0;
 
+  bool success = true;
   // find file(s) where [req_min..req_max] overlaps [filetime+timeRangeMin..filetime+timeRangeMax]
   for (const FileInfo& fi : fileInfo) {
     if (fi.time.undef() || (!isSynoptic() && request->timeDiff < 0)) {
-      getDataFromFile(fi, request, result);
+      if (!getDataFromFile(fi, request, result))
+        success = false;
     } else {
       const miutil::miTime file_min = miutil::addMin(fi.time, timeRangeMin());
       const miutil::miTime file_max = miutil::addMin(fi.time, timeRangeMax());
@@ -139,7 +141,8 @@ void ObsReaderFile::getData(ObsDataRequest_cp request, ObsDataResult_p result)
             best_fi = &fi;
           }
         } else {
-          getDataFromFile(fi, request, result);
+          if (!getDataFromFile(fi, request, result))
+            success = false;
           result->setTime(fi.time);
         }
       }
@@ -147,9 +150,11 @@ void ObsReaderFile::getData(ObsDataRequest_cp request, ObsDataResult_p result)
   }
 
   if (isSynoptic() && best_fi) {
-    getDataFromFile(*best_fi, request, result);
+    if (!getDataFromFile(*best_fi, request, result))
+      success = false;
     result->setTime(best_fi->time);
   }
+  result->setComplete(success);
 }
 
 bool ObsReaderFile::checkForUpdates(bool useArchive)

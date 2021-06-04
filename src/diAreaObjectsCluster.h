@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2020 met.no
+  Copyright (C) 2017-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -49,7 +49,7 @@ public:
 
   bool enablePlotElement(const PlotElement& pe) override;
 
-  bool hasData() override;
+  PlotStatus getStatus() override;
 
   ///put area into list of area objects
   void makeAreaObjects(std::string name, std::string areastring, int id);

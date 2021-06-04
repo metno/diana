@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015 MET Norway
+  Copyright (C) 2015-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,115 +29,20 @@
 
 #include "WebMapService.h"
 
-#include "diUtilities.h"
 #include "WebMapUtilities.h"
-
-#include <puTools/miStringFunctions.h>
+#include "diField/diRectangle.h"
+#include "diUtilities.h"
 
 #include <QNetworkReply>
 #include <QNetworkRequest>
-#include <QImage>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QUrlQuery>
 #endif
 
 #include "diana_config.h"
 
-WebMapDimension::WebMapDimension(const std::string& identifier)
-  : mIdentifier(identifier)
-  , mDefaultIndex(0)
-{
-}
-
-void WebMapDimension::addValue(const std::string& value, bool isDefault)
-{
-  if (isDefault)
-    mDefaultIndex = mValues.size();
-  mValues.push_back(value);
-}
-
-void WebMapDimension::clearValues()
-{
-  mValues.clear();
-  mDefaultIndex = 0;
-}
-
-const std::string& WebMapDimension::defaultValue() const
-{
-  if (/*mDefaultIndex >= 0 &&*/ mDefaultIndex < mValues.size())
-    return mValues[mDefaultIndex];
-  static const std::string DEFAULT("default");
-  return DEFAULT;
-}
-
-bool WebMapDimension::isTime() const
-{
-  return miutil::to_lower(identifier()) == "time";
-}
-
-bool WebMapDimension::isElevation() const
-{
-  return miutil::to_lower(identifier()) == "elevation";
-}
-
-bool WebMapDimension::isTimeDimension() const
-{
-  return units() == "ISO8601";
-}
-
-// ========================================================================
-
-WebMapLayer::WebMapLayer(const std::string& identifier)
-  : mIdentifier(identifier)
-{
-}
-
-WebMapLayer::~WebMapLayer()
-{
-}
-
-int WebMapLayer::findDimensionByIdentifier(const std::string& dimId) const
-{
-  for (size_t i=0; i<countDimensions(); ++i) {
-    if (dimension(i).identifier() == dimId)
-      return i;
-  }
-  return -1;
-}
-
-// ========================================================================
-
-static const size_t INVALID_IDX = size_t(-1);
-
-WebMapRequest::WebMapRequest()
-  : lastTileIndex(INVALID_IDX)
-{
-}
-
-WebMapRequest::~WebMapRequest()
-{
-}
-
-QImage WebMapRequest::legendImage() const
-{
-  return QImage();
-}
-
-size_t WebMapRequest::tileIndex(float x, float y)
-{
-  if (lastTileIndex == INVALID_IDX || !tileRect(lastTileIndex).isinside(x, y)) {
-    lastTileIndex = INVALID_IDX;
-    for (size_t i=0; i<countTiles(); ++i) {
-      if (tileRect(i).isinside(x, y)) {
-        lastTileIndex = i;
-        break;
-      }
-    }
-  }
-  return lastTileIndex;
-}
-
-// ========================================================================
+#define MILOGGER_CATEGORY "diana.WebMapService"
+#include <miLogger/miLogging.h>
 
 WebMapService::WebMapService(const std::string& identifier, QNetworkAccessManager* network)
   : mIdentifier(identifier)

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015 MET Norway
+  Copyright (C) 2015-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,141 +31,13 @@
 #define WebMapWMS_h 1
 
 #include "WebMapService.h"
-#include "WebMapTile.h"
 
-#include <diField/diProjection.h>
+#include "WebMapWMSLayer.h"
+#include "WebMapWMSRequest.h"
 
-#include <QImage>
 #include <QUrl>
 
-#include <map>
-
-class WebMapTile;
-
 class QDomElement;
-
-struct WebMapWmsCrsBoundingBox {
-  std::string crs;
-  Projection projection;
-  double metersPerUnit;
-  Rectangle boundingbox;
-  WebMapWmsCrsBoundingBox(const std::string& c, const Rectangle& bb);
-};
-
-typedef std::vector<WebMapWmsCrsBoundingBox> WebMapWmsCrsBoundingBox_v;
-
-// ========================================================================
-
-class WebMapWMSLayer : public WebMapLayer {
-public:
-
-public:
-  WebMapWMSLayer(const std::string& identifier);
-
-  void setDimensions(const WebMapDimension_v& dimensions)
-    { mDimensions = dimensions; }
-
-  void setDefaultStyle(const std::string& styleId, const std::string& legendUrl = std::string())
-    { mDefaultStyle = styleId; mLegendUrl = legendUrl; }
-
-  void setZoomRange(int minZoom, int maxZoom)
-    { mMinZoom = minZoom; mMaxZoom = maxZoom; }
-
-  void addCRS(const std::string& crs, const Rectangle& bbox)
-    { mCRS.push_back(WebMapWmsCrsBoundingBox(crs, bbox)); }
-
-  size_t countCRS() const
-    { return mCRS.size(); }
-
-  const std::string& CRS(size_t idx) const
-    { return crsBoundingBox(idx).crs; }
-
-  const WebMapWmsCrsBoundingBox& crsBoundingBox(size_t idx) const
-    { return mCRS.at(idx); }
-
-  int minZoom() const
-    { return mMinZoom; }
-
-  int maxZoom() const
-    { return mMaxZoom; }
-
-  const std::string& defaultStyle() const
-    { return mDefaultStyle; }
-
-  const std::string& legendUrl() const
-    { return mLegendUrl; }
-
-private:
-  WebMapWmsCrsBoundingBox_v mCRS;
-  int mMinZoom;
-  int mMaxZoom;
-  std::string mDefaultStyle;
-  std::string mLegendUrl;
-};
-
-typedef WebMapWMSLayer* WebMapWMSLayer_x;
-typedef const WebMapWMSLayer* WebMapWMSLayer_cx;
-
-// ========================================================================
-
-class WebMapWMS;
-typedef WebMapWMS* WebMapWMS_x;
-typedef const WebMapWMS* WebMapWMS_cx;
-
-class WebMapWMSRequest : public WebMapRequest {
-  Q_OBJECT
-
-public:
-  WebMapWMSRequest(WebMapWMS_x service, WebMapWMSLayer_cx layer, int crsIndex, int zoom);
-
-  ~WebMapWMSRequest();
-
-  void addTile(int tileX, int tileY);
-
-  void setDimensionValue(const std::string& dimName, const std::string& dimValue) override;
-
-  /*! start fetching data */
-  void submit() override;
-
-  /*! stop fetching data */
-  void abort() override;
-
-  /*! number of tiles */
-  size_t countTiles() const override
-    { return mTiles.size(); }
-
-  /*! rectangle of one tile, in tileProjection coordinates */
-  const Rectangle& tileRect(size_t idx) const override;
-
-  /*! image data of one tile; might have isNull() == true */
-  const QImage& tileImage(size_t idx) const override;
-
-  const Projection& tileProjection() const override
-    { return mLayer->crsBoundingBox(mCrsIndex).projection; }
-
-  QImage legendImage() const override;
-
-private Q_SLOTS:
-  void tileFinished(WebMapTile*);
-  void legendFinished(WebMapImage*);
-
-private:
-  WebMapWMS_x mService;
-  WebMapWMSLayer_cx mLayer;
-  int mCrsIndex;
-  int mZoom;
-  std::map<std::string, std::string> mDimensionValues;
-
-  std::vector<WebMapTile*> mTiles;
-  WebMapImage* mLegend;
-  size_t mUnfinished;
-
-  QImage mLegendImage;
-};
-
-typedef std::shared_ptr<WebMapRequest> WebMapRequest_p;
-
-// ========================================================================
 
 class WebMapWMS : public WebMapService
 {
@@ -202,6 +74,7 @@ private:
   bool parseReply();
   bool parseLayer(QDomElement& eLayer, std::string style, std::string legendUrl, QStringList lCRS, crs_bbox_m crs_bboxes, WebMapDimension_v dimensions);
   void parseDimensionValues(WebMapDimension& dim, const QString& text, const QString& defaultValue);
+  WebMapWmsCrsBoundingBox_cx findBestCRS(WebMapWMSLayer_cx layer, const Rectangle& viewRect, const Projection& viewProj) const;
 
 private Q_SLOTS:
   void refreshReplyFinished();
@@ -214,5 +87,8 @@ private:
   long mNextRefresh;
   QNetworkReply* mRefeshReply;
 };
+
+typedef WebMapWMS* WebMapWMS_x;
+typedef const WebMapWMS* WebMapWMS_cx;
 
 #endif // WebMapWMS_h

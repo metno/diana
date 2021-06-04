@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017 met.no
+  Copyright (C) 2017-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -85,7 +85,9 @@ protected:
   void addPattern(const std::string& pattern, bool archive);
 
   virtual miutil::miTime getTimeFromFile(const std::string& filename);
-  virtual void getDataFromFile(const FileInfo& fi, ObsDataRequest_cp request, ObsDataResult_p result) = 0;
+
+  //! \returns true if no errors were encountered
+  virtual bool getDataFromFile(const FileInfo& fi, ObsDataRequest_cp request, ObsDataResult_p result) = 0;
 
 protected:
   std::vector<patternInfo> pattern;

@@ -1,0 +1,25 @@
+#!/bin/false
+
+unset LC_NUMERIC
+unset DISPLAY
+
+export QT_QPA_FONTDIR=/usr/share/fonts/truetype
+export QT_QPA_PLATFORM=offscreen
+
+export OMP_NUM_THREADS=2
+
+get_filename() {
+    grep filename "$1" | sed -e 's,^filename=,,'
+}
+
+run_bdiana() {
+    "@CMAKE_BINARY_DIR@/src/@DIANA_BATCH_OUTPUT_NAME@" "$@"
+}
+
+run_bdiana_test() {
+    TEST="$1"
+    shift
+    test -r "$TEST.input" -a -r "$TEST.setup"
+    rm -f "$TEST.out" `get_filename "$TEST.input"`
+    run_bdiana -s "$TEST.setup" -i "$TEST.input" "$@" > "$TEST.out" 2>&1
+}

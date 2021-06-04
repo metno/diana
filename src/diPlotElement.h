@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -30,6 +30,8 @@
 #ifndef DIANA_DIPLOTELEMENT_H
 #define DIANA_DIPLOTELEMENT_H
 
+#include "diPlotStatus.h"
+
 #include <string>
 
 /**
@@ -42,18 +44,10 @@ public:
   std::string str;
   std::string icon;
   bool enabled;
+  PlotStatusValue status;
 
-  PlotElement()
-      : enabled(false)
-  {
-  }
-  PlotElement(std::string t, std::string s, std::string i, bool e)
-      : type(t)
-      , str(s)
-      , icon(i)
-      , enabled(e)
-  {
-  }
+  PlotElement();
+  PlotElement(std::string t, std::string s, std::string i, bool e);
 };
 
 #endif // DIANA_DIPLOTELEMENT_H

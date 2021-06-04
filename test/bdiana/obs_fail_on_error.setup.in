@@ -1,0 +1,12 @@
+# -*- coding: utf-8 -*-
+
+%include @CMAKE_CURRENT_BINARY_DIR@/bdiana.setup
+
+<OBSERVATION_FILES>
+PROD=url:Lyn
+url=file:///no/such/files/lx-opendata.[yyyymmddTHHMMSS]Z
+time_from_offset=-180000
+time_to_offset=1800
+time_interval=600
+synoptic=false
+</OBSERVATION_FILES>

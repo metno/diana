@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2020 met.no
+  Copyright (C) 2015-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -86,7 +86,7 @@ public:
 
   void changeTime(const miutil::miTime&) Q_DECL_OVERRIDE;
 
-  bool hasData() override;
+  PlotStatus getStatus() override;
 
   void plot(DiGLPainter*, bool, bool) Q_DECL_OVERRIDE
     { }

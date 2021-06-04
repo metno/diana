@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,7 +33,8 @@
 #include "diPlotModule.h"
 
 Plot::Plot()
-  : enabled(true)
+    : enabled(true)
+    , status_(P_UNKNOWN)
 {
 }
 
@@ -60,9 +61,9 @@ void Plot::changeTime(const miutil::miTime& /*newTime*/)
   // ignore
 }
 
-bool Plot::hasData() const
+void Plot::setStatus(PlotStatusValue ps)
 {
-  return true;
+  status_ = ps;
 }
 
 const StaticPlot* Plot::getStaticPlot() const

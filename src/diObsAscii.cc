@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -47,11 +47,12 @@ using namespace miutil;
 
 static const size_t BAD = 0xFFFFFF;
 
-ObsAscii::ObsAscii(const string& filename, const string& headerfile,
-    const vector<string>& headerinfo)
+ObsAscii::ObsAscii(const string& filename, const string& headerfile, const vector<string>& headerinfo)
+    : m_needDataRead(true)
+    , m_error(false)
+    , knots(false)
 {
   METLIBS_LOG_SCOPE();
-  knots = false;
   readHeaderInfo(filename, headerfile, headerinfo);
   decodeHeader();
 }
@@ -75,7 +76,6 @@ void ObsAscii::readHeaderInfo(const string& filename, const string& headerfile,
 {
   METLIBS_LOG_SCOPE(LOGVAL(filename) << LOGVAL(headerfile) << LOGVAL(headerinfo.size()));
 
-  m_needDataRead = true;
   if (not headerinfo.empty()) {
     lines = headerinfo;
   } else if (not headerfile.empty()) {
@@ -93,17 +93,21 @@ void ObsAscii::readDecodeData()
   METLIBS_LOG_SCOPE();
   if (m_needDataRead)
     readData(m_filename);
-  decodeData();
+  if (!m_error)
+    decodeData();
 }
 
 void ObsAscii::readData(const std::string& filename)
 {
   METLIBS_LOG_SCOPE();
-  METLIBS_LOG_INFO("Start reading '" << filename << "'");
-  if (diutil::getFromAny(filename, lines))
-    METLIBS_LOG_INFO("Done reading '" << filename << "'");
-  else
-    METLIBS_LOG_WARN("Error reading '" << filename << "'");
+  METLIBS_LOG_DEBUG("Start reading '" << filename << "'");
+  const bool success = diutil::getFromAny(filename, lines);
+  if (success) {
+    METLIBS_LOG_DEBUG("Done reading '" << filename << "'");
+  } else {
+    m_error = true;
+    METLIBS_LOG_ERROR("Error reading '" << filename << "'");
+  }
 }
 
 static void erase_comment(std::string& line, const std::string& comment = "#")
@@ -113,6 +117,7 @@ static void erase_comment(std::string& line, const std::string& comment = "#")
     line.erase(cpos);
 }
 
+// static
 bool ObsAscii::bracketContents(std::vector<std::string>& in_out)
 {
   METLIBS_LOG_SCOPE();
@@ -122,7 +127,6 @@ bool ObsAscii::bracketContents(std::vector<std::string>& in_out)
   std::string joined = in_out[0];
   for (size_t i=1; i<in_out.size(); ++i)
     joined += " " + in_out[i];
-  METLIBS_LOG_DEBUG(LOGVAL(joined));
 
   in_out.clear();
 
@@ -132,21 +136,23 @@ bool ObsAscii::bracketContents(std::vector<std::string>& in_out)
     if (p_open == std::string::npos)
       break;
     size_t p_close = joined.find(']', p_open + 1);
-    if (p_close == std::string::npos)
+    if (p_close == std::string::npos) {
+      METLIBS_LOG_ERROR("Bad header, cannot find closing ']'");
       return false;
+    }
     in_out.push_back(joined.substr(p_open+1, p_close - p_open - 1));
-    METLIBS_LOG_DEBUG(LOGVAL(in_out.back()));
     start = p_close + 1;
   }
   return true;
 }
 
-void ObsAscii::parseHeaderBrackets(const std::string& str)
+bool ObsAscii::parseHeaderBrackets(const std::string& str)
 {
   METLIBS_LOG_SCOPE(LOGVAL(str));
   vector<string> pstr = miutil::split_protected(str, '"', '"');
-  if (pstr.size() <= 1)
-    return;
+  if (pstr.size() <= 1) {
+    return false;
+  }
 
   if (pstr[0] == "COLUMNS") {
     if (not separator.empty())
@@ -173,7 +179,10 @@ void ObsAscii::parseHeaderBrackets(const std::string& str)
     labels.push_back(LabelPlotCommand::fromString(pstr[1]));
   } else if (pstr[0] == "SEPARATOR") {
     separator = pstr[1];
+  } else {
+    METLIBS_LOG_INFO("Ignoring unknown header key '" << pstr[0] << "' in '" << str << "'");
   }
+  return true;
 }
 
 void ObsAscii::decodeHeader()
@@ -219,13 +228,17 @@ void ObsAscii::decodeHeader()
 
   // parse header
 
-  if (not bracketContents(vstr)) {
-    METLIBS_LOG_ERROR("bad header, cannot find closing ']'");
+  if (!bracketContents(vstr)) {
+    m_error = true;
     return;
   }
-  for (size_t i=0; i<vstr.size(); ++i)
-    parseHeaderBrackets(vstr[i]);
-  
+  for (const auto& b : vstr) {
+    if (!parseHeaderBrackets(b)) {
+      m_error = true;
+      return;
+    }
+  }
+
   METLIBS_LOG_DEBUG("#columns: " << column.size() << LOGVAL(asciiSkipDataLines));
   
   knots=false;

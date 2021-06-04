@@ -1,6 +1,6 @@
 #  Diana - A Free Meteorological Visualisation Tool
 #
-#  Copyright (C) 2017-2020 met.no
+#  Copyright (C) 2017-2021 met.no
 #
 #  Contact information:
 #  Norwegian Meteorological Institute
@@ -162,9 +162,11 @@ SET (LIBDIANA_SOURCES
   diPlotCluster.cc
   diPlotCommand.cc
   diPlotCommandFactory.cc
+  diPlotElement.cc
   diPlotModule.cc
   diPlotOptions.cc
   diPlotOptionsPlot.cc
+  diPlotStatus.cc
   diPolyContouring.cc
   diPrintOptions.cc
   diQuickMenues.cc
@@ -307,13 +309,28 @@ SET(LIBDIANA_QTSOURCES
   vcross_v2/VcrossQtManager.cc
   vcross_v2/VcrossQuickmenues.cc
 
+  wmsclient/WebMapDimension.cc
+  wmsclient/WebMapImage.cc
+  wmsclient/WebMapLayer.cc
   wmsclient/WebMapManager.cc
   wmsclient/WebMapPlot.cc
+  wmsclient/WebMapRequest.cc
   wmsclient/WebMapService.cc
   wmsclient/WebMapSlippyOSM.cc
+  wmsclient/WebMapSlippyOSMLayer.cc
+  wmsclient/WebMapSlippyOSMRequest.cc
   wmsclient/WebMapTile.cc
+  wmsclient/WebMapTilesRequest.cc
+
   wmsclient/WebMapWMS.cc
+  wmsclient/WebMapWMSLayer.cc
+  wmsclient/WebMapWMSRequest.cc
+
   wmsclient/WebMapWMTS.cc
+  wmsclient/WebMapWMTSLayer.cc
+  wmsclient/WebMapWMTSRequest.cc
+  wmsclient/WebMapWMTSTileMatrix.cc
+  wmsclient/WebMapWMTSTileMatrixSet.cc
 )
 
 SET(LIBBDIANA_SOURCES
@@ -446,6 +463,7 @@ SET(LIBDIANAUI_QTSOURCES
   vprof/qtVprofWindow.cc
 
   wmsclient/WebMapDialog.cc
+  wmsclient/WebMapPlotListModel.cc
 )
 
 IF (ENABLE_GEOTIFF)
@@ -481,7 +499,6 @@ LIST (APPEND LIBDIANA_HEADERS
   diEditTypes.h
   diEventResult.h
   diObjTypes.h
-  diPlotElement.h
   diPlotOrder.h
   diQuickMenuTypes.h
   diSatDialogInfo.h

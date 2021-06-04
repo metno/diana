@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2019 met.no
+  Copyright (C) 2019-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -40,13 +40,14 @@ public:
   TrajectoryPlotCluster();
 
   void processInput(const PlotCommand_cpv& cmds) override;
-  bool hasData() override { return false; }
 
   TrajectoryPlot* getPlot(size_t idx);
 
   /// handle command
   /// \returns true if plots changed
   bool trajPos(const std::vector<std::string>& vstr);
+
+  bool hasTrajectories() { return !plots_.empty(); }
 };
 
 #endif // TRAJECTORYPLOTCLUSTER_H

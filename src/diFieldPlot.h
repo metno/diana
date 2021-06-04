@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -55,7 +55,6 @@ public:
   void changeTime(const miutil::miTime& mapTime) override;
   void changeProjection(const Area& mapArea, const Rectangle& plotSize, const diutil::PointI& physSize) override;
 
-  bool hasData() const override;
   void plot(DiGLPainter* gl, PlotOrder zorder) override;
   void getAnnotation(std::string&, Colour&) const override;
   void getDataAnnotations(std::vector<std::string>& anno) const override;
@@ -98,6 +97,7 @@ private:
   Field_pv fields;               // fields, stored elsewhere
   miutil::miTime ftime;          // current field time
 
+  bool hasData() const;
   void clearFields();
   void getTableAnnotations(std::vector<std::string>& anno) const;
 

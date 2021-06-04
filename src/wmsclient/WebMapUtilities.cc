@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2020 met.no
+  Copyright (C) 2015-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -433,6 +433,16 @@ std::string to_wmsIso8601(const miutil::miTime& t, WmsTime::Resolution resolutio
 WmsInterval::WmsInterval()
   : resolution(WmsTime::INVALID), year(0), month(0), day(0), hour(0), minute(0), second(0) { }
 
+bool WmsInterval::valid() const
+{
+  return resolution != WmsTime::INVALID && year >= 0 && month >= 0 && day >= 0 && hour >= 0 && minute >= 0 && second >= 0;
+}
+
+bool WmsInterval::positive() const
+{
+  return valid() && (year > 0 || month > 0 || day > 0 || hour > 0 || minute > 0 || second > 0);
+}
+
 WmsInterval parseWmsIso8601Interval(const std::string& text)
 {
   const size_t len = text.size();
@@ -534,8 +544,9 @@ QStringList expandWmsTimes(const QString& timesSpec)
       break;
     }
   }
+
   miutil::miTime start = to_miTime(wstart), end = to_miTime(wend);
-  if (end == start)
+  if (end == start || !wint.positive())
     return QStringList(mmr.at(0)); // FIXME how to represent "repeated but not stored"?
   if (end < start)
     std::swap(start, end);
@@ -548,7 +559,7 @@ QStringList expandWmsTimes(const QString& timesSpec)
     t.addSec(wint.second);
     t.addMin(wint.minute + 60 * wint.hour);
     t.addDay(wint.day + 365.25 * (wint.month/12.0 + wint.year)); // FIXME what is the meaning of adding 3.1415 months?
-  };
+  }
   times << sq(to_wmsIso8601(end, wint.resolution));
   return times;
 }

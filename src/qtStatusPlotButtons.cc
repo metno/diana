@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -47,12 +47,9 @@
 
 static bool oktoemit;
 
-
-PlotButton::PlotButton(QWidget * parent,
-    PlotElement& pe)
-: QToolButton(parent)
+PlotButton::PlotButton(QWidget* parent, PlotElement& pe)
+    : QToolButton(parent)
 {
-
   setMinimumWidth(30);
   setPlotElement(pe);
   setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
@@ -62,7 +59,6 @@ PlotButton::PlotButton(QWidget * parent,
 void PlotButton::setPlotElement(const PlotElement& pe)
 {
   QtImageGallery ig;
-  std::string str= pe.str;
   if (not pe.icon.empty()) {
     if (plotelement_.icon!=pe.icon ){
       QImage image;
@@ -78,9 +74,48 @@ void PlotButton::setPlotElement(const PlotElement& pe)
 
   plotelement_= pe;
 
-  tipstr_= QString(str.c_str());
+  tipstr_ = QString::fromStdString(pe.str);
+  QString text = tipstr_.right(1);
+
+  QString statusTip;
+  QColor statusFg, statusBg;
+  switch (pe.status) {
+  case P_UNKNOWN:
+    break; // no palette change
+  case P_WAITING:
+    text += ":";
+    statusTip += "WAITING";
+    statusBg = Qt::yellow;
+    break;
+  case P_OK_EMPTY:
+    text += "-";
+    statusTip += "OK/EMPTY";
+    statusFg = Qt::green;
+    break;
+  case P_OK_DATA:
+    text += "+";
+    statusTip += "OK/DATA";
+    statusFg = Qt::darkGreen;
+    break;
+  case P_ERROR:
+    text += "!";
+    statusTip += "ERROR";
+    statusBg = Qt::red;
+  }
+  if (statusBg.isValid() || statusFg.isValid()) {
+    QPalette palette;
+    if (statusBg.isValid())
+      palette.setColor(backgroundRole(), statusBg);
+    if (statusFg.isValid())
+      palette.setColor(backgroundRole(), statusFg);
+    setPalette(palette);
+  }
+  if (!statusTip.isEmpty()) {
+    tipstr_ += QString("\nStatus: %1").arg(statusTip);
+  }
+
   setToolTip(tipstr_);
-  setText(tipstr_.right(1));
+  setText(text);
   setCheckable(true);
   setChecked(plotelement_.enabled);
 }

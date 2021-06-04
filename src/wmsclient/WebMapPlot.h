@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2020 met.no
+  Copyright (C) 2015-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -35,6 +35,7 @@
 #include "diArea.h"
 #include "diTimeTypes.h"
 
+#include <QImage>
 #include <QObject>
 
 class WebMapLayer;
@@ -48,6 +49,16 @@ class SimpleColourTransform;
 class WebMapPlot : public QObject, public Plot
 {
   Q_OBJECT;
+
+private:
+  enum RequestStatus {
+    R_NONE,      // 0
+    R_REQUIRED,  // 1
+    R_SUBMITTED, // 2
+    R_COMPLETED, // 3
+    R_FAILED,
+    R_MAX = R_FAILED // 4
+  };
 
 public:
   WebMapPlot(WebMapService* service, const std::string& layer);
@@ -111,10 +122,14 @@ Q_SIGNALS:
 private Q_SLOTS:
   void serviceRefreshStarting();
   void serviceRefreshFinished();
-  void requestCompleted();
+  void requestCompleted(bool success);
 
 private:
+  void prepareData();
+  void createRequest();
   void dropRequest();
+  void setRequestStatus(RequestStatus rs);
+
   void findLayerAndTimeDimension();
 
 private:
@@ -127,6 +142,8 @@ private:
   int mTimeTolerance; // time tolerance in seconds
   int mTimeOffset; // time offset in seconds
   std::string mFixedTime;
+  miutil::miTime mMapTime;
+  bool mMapTimeChanged;
 
   int mLegendOffsetX; // legend position x offset (<0 from left, >0 from right, ==0 off)
   int mLegendOffsetY; // legend position y offset (<0 from bottom, >0 from top, ==0 off)
@@ -141,9 +158,11 @@ private:
   TimeDimensionValues_t mTimeDimensionValues; //!< maps time value to index along time dimension
 
   WebMapRequest* mRequest;
-  bool mRequestCompleted;
 
-  Area mOldArea;
+  RequestStatus mRequestStatus;
+
+  QImage mReprojected;
+  QImage mLegendImage;
 };
 
 #endif // WebMapPlot_h
