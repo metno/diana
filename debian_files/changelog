@@ -1,3 +1,13 @@
+diana-3.56 (3.56.0~rc1-1) unstable; urgency=low
+
+  * - plot status: coloured buttons in GUI, bdiana has fail_on_data_error
+  * - errors from reading observations propagate to OBS plot
+  * - wmsclient: select WMS CRS by distortion
+  * - wmsclient: handle malformed time intervals
+  * - bugfixes
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Mon, 07 Jun 2021 08:00:08 +0200
+
 diana-3.53 (3.55.0-1) unstable; urgency=low
 
   * Operational version
