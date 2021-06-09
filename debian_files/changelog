@@ -1,3 +1,9 @@
+diana-3.56 (3.56.0~rc2-1) unstable; urgency=low
+
+  * status buttons: colour depends on checked state
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Wed, 09 Jun 2021 08:00:08 +0200
+
 diana-3.56 (3.56.0~rc1-1) unstable; urgency=low
 
   * - plot status: coloured buttons in GUI, bdiana has fail_on_data_error
