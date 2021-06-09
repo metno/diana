@@ -47,6 +47,14 @@
 
 static bool oktoemit;
 
+namespace {
+QString makeCSS(QString rgb)
+{
+  QString tmpl = "QToolButton:checked { background-color:#COLOR; color:black; } QToolButton:!checked { color:#COLOR; }";
+  return tmpl.replace("COLOR", rgb);
+}
+} // namespace
+
 PlotButton::PlotButton(QWidget* parent, PlotElement& pe)
     : QToolButton(parent)
 {
@@ -77,38 +85,32 @@ void PlotButton::setPlotElement(const PlotElement& pe)
   tipstr_ = QString::fromStdString(pe.str);
   QString text = tipstr_.right(1);
 
-  QString statusTip;
-  QColor statusFg, statusBg;
+  QString statusTip, statusStyle;
   switch (pe.status) {
   case P_UNKNOWN:
     break; // no palette change
   case P_WAITING:
     text += ":";
     statusTip += "WAITING";
-    statusBg = Qt::yellow;
+    statusStyle = makeCSS("ffb000");
     break;
   case P_OK_EMPTY:
     text += "-";
     statusTip += "OK/EMPTY";
-    statusFg = Qt::green;
+    statusStyle = makeCSS("00ff00");
     break;
   case P_OK_DATA:
     text += "+";
     statusTip += "OK/DATA";
-    statusFg = Qt::darkGreen;
+    statusStyle = makeCSS("006400");
     break;
   case P_ERROR:
     text += "!";
     statusTip += "ERROR";
-    statusBg = Qt::red;
+    statusStyle = makeCSS("ff0000");
   }
-  if (statusBg.isValid() || statusFg.isValid()) {
-    QPalette palette;
-    if (statusBg.isValid())
-      palette.setColor(backgroundRole(), statusBg);
-    if (statusFg.isValid())
-      palette.setColor(backgroundRole(), statusFg);
-    setPalette(palette);
+  if (!statusStyle.isEmpty()) {
+    setStyleSheet(statusStyle);
   }
   if (!statusTip.isEmpty()) {
     tipstr_ += QString("\nStatus: %1").arg(statusTip);
