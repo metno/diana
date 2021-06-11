@@ -98,6 +98,7 @@ void FieldDialogAdd::setupUi()
   // refTime
   QLabel* refTimelabel = TitleLabel(tr("Reference time"), this);
   refTimeComboBox = new QComboBox(this);
+  refTimeComboBox->view()->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
   connect(refTimeComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &FieldDialogAdd::updateFieldGroups);
 
   // fieldGRbox

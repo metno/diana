@@ -79,6 +79,7 @@ MapDialog::MapDialog(QWidget* parent, Controller* llctrl)
 
   ui = new Ui_MapDialog();
   ui->setupUi(this);
+  ui->areabox->view()->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
   ui->ff_linestyle->setWhat(tr("frame"));
   ui->lon_linestyle->setWhat(tr("longitude"));
   ui->lat_linestyle->setWhat(tr("latitude"));
