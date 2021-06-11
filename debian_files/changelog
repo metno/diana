@@ -1,3 +1,9 @@
+diana-3.56 (3.56.0~rc3-1) unstable; urgency=low
+
+  * always use scrollbar in map area and field reference time combo boxes
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Fri, 11 Jun 2021 08:00:08 +0200
+
 diana-3.56 (3.56.0~rc2-1) unstable; urgency=low
 
   * status buttons: colour depends on checked state
