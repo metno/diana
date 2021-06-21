@@ -1,3 +1,9 @@
+diana-3.56 (3.56.0-1) unstable; urgency=low
+
+  * Operational version
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 21 Jun 2021 08:30:38 +0200
+
 diana-3.56 (3.56.0~rc3-1) unstable; urgency=low
 
   * always use scrollbar in map area and field reference time combo boxes
