@@ -113,10 +113,8 @@ ObsDialog::ObsDialog(QWidget* parent, Controller* llctrl)
 
   loadDialogInfo();
 
-  if (nr_plot() == 0)
-    return;
-
-  plotbox->setCurrentIndex(0);
+  if (nr_plot() > 0)
+    plotbox->setCurrentIndex(0);
   savelog.resize(nr_plot());
 
   multiplot = false;
@@ -134,7 +132,7 @@ ObsDialog::ObsDialog(QWidget* parent, Controller* llctrl)
   QVBoxLayout* vlayout = new QVBoxLayout(this);
   vlayout->setSpacing(1);
   vlayout->addWidget(plotbox);
-  vlayout->addWidget(stackedWidget);
+  vlayout->addWidget(stackedWidget, 1);
   vlayout->addLayout(helplayout);
   vlayout->addLayout(applylayout);
 
@@ -444,7 +442,9 @@ void ObsDialog::makeExtension()
   extension = new QWidget(this);
 
   QLabel* listLabel = TitleLabel(tr("List of Criteria"),extension);
-  vector<std::string> critName = obsWidget[m_selected]->getCriteriaNames();
+  vector<std::string> critName;
+  if (m_selected >= 0 && m_selected < (int)obsWidget.size() && m_selected < nr_plot())
+    critName = obsWidget[m_selected]->getCriteriaNames();
   criteriaBox = ComboBox( extension,critName,true);
 
   QLabel* criteriaLabel = TitleLabel(tr("Criteria"),extension);
