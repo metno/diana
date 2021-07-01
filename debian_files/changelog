@@ -1,3 +1,9 @@
+diana-3.56 (3.56.1-1) unstable; urgency=low
+
+  * avoid segfault when <OBSERVATION_FILES> is empty
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Thu, 01 Jul 2021 08:00:08 +0200
+
 diana-3.56 (3.56.0-1) unstable; urgency=low
 
   * Operational version
