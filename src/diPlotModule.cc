@@ -1070,7 +1070,7 @@ void PlotModule::deleteAllEditAnnotations()
 bool PlotModule::startTrajectoryComputation()
 {
   METLIBS_LOG_SCOPE();
-  if (trajectoryplots_->hasTrajectories())
+  if (!trajectoryplots_->hasTrajectories())
     return false;
 
   TrajectoryPlot* tp = trajectoryplots_->getPlot(0);
