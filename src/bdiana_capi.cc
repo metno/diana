@@ -2002,9 +2002,13 @@ int diana_init(int _argc, char** _argv)
 
 int diana_dealloc()
 {
+  if (verbose)
+	std::cerr << "diana_dealloc()" << std::endl;
   bdiana_instance.reset(0);
   milogger::system::selectSystem(milogger::system::SystemPtr());
   if (application)
     delete application;
+  if (verbose)
+	std::cerr << "diana_dealloc() DONE" << std::endl;
   return DIANA_OK;
 }

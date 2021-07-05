@@ -2498,7 +2498,10 @@ std::string DianaMainWindow::getLogFileExt()
 std::string DianaMainWindow::getLogFileName() const
 {
   // FIXME toStdString uses utf8 which might cause encoding problems
-  return getLogFileDir() + instanceName().toStdString() + getLogFileExt();
+  // FIXME If we uses processid as part of instancename, we should not create a logfile
+  // each time a new diana is created
+  // return getLogFileDir() + instanceName().toStdString() + getLogFileExt();
+  return getLogFileDir() + "diana" + getLogFileExt();
 }
 
 void DianaMainWindow::writeLogFile()
