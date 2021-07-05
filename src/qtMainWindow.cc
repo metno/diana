@@ -131,6 +131,7 @@
 #include <fstream>
 #include <iomanip>
 #include <sstream>
+#include <iostream>
 
 #include "EditItems/drawingdialog.h"
 #include "EditItems/kml.h"
@@ -1884,12 +1885,37 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
   }
 
   else if (!handlingTimeMessage && ((command == qmstrings::settime && qletter.findCommonDesc("time") == 0) ||
-                                    (command == qmstrings::timechanged && qletter.findCommonDesc("time") == 0 && sync_diana_time == true))) {
-    const std::string l_common = qletter.getCommonValue(0).toStdString();
-    miutil::miTime t(l_common);
-    handlingTimeMessage = true;
-    timeNavigator->requestTime(t); // triggers "timeSelected" signal, connected to "setPlotTime"
-    handlingTimeMessage = false;
+                                    (command == qmstrings::timechanged && qletter.findCommonDesc("time") == 0/* && sync_diana_time == true*/))) {
+    if (command == qmstrings::timechanged && qletter.findCommonDesc("time") == 0) {
+		// check if user has selected one ore more diana's to connect with
+		std::vector<ClientAction*> selectedClients = pluginB->getSelectedClientActions();
+		ClientIds ids;
+		for (size_t i = 0; i < selectedClients.size(); i++) {
+		   if (selectedClients[i]->isConnected() &&
+				pluginB->client()->getClientType(selectedClients[i]->id()).toStdString() == "Diana")
+		   {
+				ids.insert(selectedClients[i]->id());
+		   }
+		}
+		if (ids.empty()) return;
+		ClientIds::iterator it = ids.begin();
+		if (ids.find(fromId)!= ids.end()){
+			// The message comes from a selected diana instance
+			const std::string l_common = qletter.getCommonValue(0).toStdString();
+			miutil::miTime t(l_common);
+			handlingTimeMessage = true;
+			timeNavigator->requestTime(t); // triggers "timeSelected" signal, connected to "setPlotTime"
+			handlingTimeMessage = false;
+		} else {
+			return;
+		}
+	} else {
+		const std::string l_common = qletter.getCommonValue(0).toStdString();
+		miutil::miTime t(l_common);
+		handlingTimeMessage = true;
+		timeNavigator->requestTime(t); // triggers "timeSelected" signal, connected to "setPlotTime"
+		handlingTimeMessage = false;
+	}
   }
 
   else if (command == qmstrings::getcurrentplotcommand) {
