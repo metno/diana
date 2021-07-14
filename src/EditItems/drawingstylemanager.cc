@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013-2018 met.no
+  Copyright (C) 2013-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -38,6 +38,7 @@
 #include "diPlotModule.h"
 #include "diPlotOptions.h"
 #include "diStaticPlot.h"
+#include "qtUtility.h"
 
 #include <QApplication>
 #include <QComboBox>
@@ -47,6 +48,21 @@
 
 // Use the predefined fill patterns already defined for the existing editing and objects modes.
 #include "polyStipMasks.h"
+
+namespace {
+Colour colourFromStyle(const QVariantMap& style, const QString& colourkey, const QString& alphakey, const Colour& fallback = Colour::BLACK)
+{
+  QColor textColour = style.value(colourkey).value<QColor>();
+  bool alphaOk;
+  const int alpha = style.value(alphakey).toInt(&alphaOk);
+  if (alphaOk)
+    textColour.setAlpha(alpha);
+  if (textColour.isValid())
+    return diutil::fromQColor(textColour);
+  else
+    return fallback;
+}
+} // namespace
 
 DrawingStyleProperty::DrawingStyleProperty()
 {
@@ -342,15 +358,7 @@ void DrawingStyleManager::beginLine(DiGLPainter* gl, DrawingItemBase *item)
 
   float lineWidth = style.value("linewidth").toFloat();
   gl->LineWidth(lineWidth);
-
-  QColor borderColour = style.value("linecolour").value<QColor>();
-  if (!borderColour.isValid())
-    borderColour = QColor(Qt::black);
-
-  bool alphaOk;
-  const int alpha = style.value("linealpha").toInt(&alphaOk);
-  if (borderColour.isValid())
-    gl->Color4ub(borderColour.red(), borderColour.green(), borderColour.blue(), alphaOk ? alpha : 255);
+  gl->setColour(colourFromStyle(style, "linecolour", "linealpha"));
 }
 
 void DrawingStyleManager::endLine(DiGLPainter* gl, DrawingItemBase *item)
@@ -366,18 +374,7 @@ void DrawingStyleManager::beginFill(DiGLPainter* gl, DrawingItemBase *item)
 
   QVariantMap style = getStyle(item);
 
-  QColor fillColour = style.value("fillcolour").value<QColor>();
-
-  bool alphaOk;
-  int alpha = style.value("fillalpha").toInt(&alphaOk);
-
-  if (!fillColour.isValid()) {
-    fillColour = QColor(Qt::gray);
-    alpha = 50;
-    alphaOk = true;
-  }
-
-  gl->Color4ub(fillColour.red(), fillColour.green(), fillColour.blue(), alphaOk ? alpha : 255);
+  gl->setColour(colourFromStyle(style, "fillcolour", "fillalpha", Colour(128, 128, 128, 50)));
 
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
 
@@ -522,7 +519,7 @@ void DrawingStyleManager::highlightPolyLine(DiGLPainter* gl, const DrawingItemBa
   else
     points_ = points;
 
-  gl->Color4ub(col.red(), col.green(), col.blue(), col.alpha());
+  gl->setColour(diutil::fromQColor(col));
 
   gl->PushAttrib(DiGLPainter::gl_POLYGON_BIT);
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
@@ -634,12 +631,7 @@ void DrawingStyleManager::drawLines(DiGLPainter* gl, const DrawingItemBase *item
   const bool reversed = !style.value("reversed").toBool();
 
   if (style.value("decoration1").isValid()) {
-
-    QColor colour = style.value("decoration1.colour").value<QColor>();
-    bool alphaOk;
-    const int alpha = style.value("decoration1.alpha").toInt(&alphaOk);
-    gl->Color4ub(colour.red(), colour.green(), colour.blue(), alphaOk ? alpha : colour.alpha());
-
+    gl->setColour(colourFromStyle(style, "decoration1.colour", "decoration1.alpha"));
     unsigned int offset = style.value("decoration1.offset").toInt();
     foreach (QVariant v, style.value("decoration1").toList()) {
       QString decor = v.toString();
@@ -649,11 +641,7 @@ void DrawingStyleManager::drawLines(DiGLPainter* gl, const DrawingItemBase *item
   }
 
   if (style.value("decoration2").isValid()) {
-    QColor colour = style.value("decoration2.colour").value<QColor>();
-    bool alphaOk;
-    const int alpha = style.value("decoration2.alpha").toInt(&alphaOk);
-    gl->Color4ub(colour.red(), colour.green(), colour.blue(), alphaOk ? alpha : colour.alpha());
-
+    gl->setColour(colourFromStyle(style, "decoration2.colour", "decoration2.alpha"));
     unsigned int offset = style.value("decoration2.offset").toInt();
     foreach (QVariant v, style.value("decoration2").toList()) {
       QString decor = v.toString();
@@ -1111,13 +1099,7 @@ void DrawingStyleManager::drawText(DiGLPainter* gl, const DrawingItemBase *item_
 
   QVariantMap style = getStyle(item);
 
-  const QColor textColour = style.value("textcolour").value<QColor>();
-  bool alphaOk;
-  const int alpha = style.value("textalpha").toInt(&alphaOk);
-  if (textColour.isValid())
-    gl->Color4ub(textColour.red(), textColour.green(), textColour.blue(), alphaOk ? alpha : 255);
-  else
-    gl->Color4ub(0, 0, 0, 255);
+  gl->setColour(colourFromStyle(style, "textcolour", "textalpha"));
 
   setFont(item);
   const float scale = 1/PlotModule::instance()->getStaticPlot()->getPhysToMapScaleX();

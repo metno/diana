@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013 met.no
+  Copyright (C) 2013-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,9 +27,10 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "drawingpolyline.h"
 #include "editpolyline.h"
+#include "diColour.h"
 #include "diGLPainter.h"
+#include "drawingpolyline.h"
 #include "util/qstring_util.h"
 
 #include <diDrawingManager.h>
@@ -377,7 +378,7 @@ void PolyLine::drawHoverHighlighting(DiGLPainter* gl, bool incomplete, bool sele
 
     if (selected && (hoverCtrlPointIndex_ < 0) && (hoverLineIndex_ >= 0)) {
       // highlight the insertion position of a new point
-      gl->Color3ub(0, 200, 0);
+      gl->setColour(Colour(0, 200, 0));
       const int w = 4;
       const int w_2 = w/2;
       const QRectF r(hoverPos_.x() - w_2, hoverPos_.y() - w_2, w, w);

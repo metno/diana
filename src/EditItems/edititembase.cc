@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013 met.no
+  Copyright (C) 2013-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -28,7 +28,9 @@
 */
 
 #include "edititembase.h"
+#include "diColour.h"
 #include "diGLPainter.h"
+#include "qtUtility.h"
 
 #include <qglobal.h>
 
@@ -131,6 +133,8 @@ void EditItemBase::drawControlPoints(DiGLPainter* gl, const QColor &color, const
   gl->PushAttrib(DiGLPainter::gl_POLYGON_BIT);
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
 
+  const Colour joinC = diutil::fromQColor(joinColor);
+  const Colour colorC = diutil::fromQColor(color);
 
   const int jId = ConstDrawing(this)->joinId();
   const int jCount = ConstDrawing(this)->joinCount();
@@ -138,12 +142,12 @@ void EditItemBase::drawControlPoints(DiGLPainter* gl, const QColor &color, const
   for (int i = 0; i < n; ++i) {
     int extraPad = 0;
     if (isJoinedEndPoint(jCount, jId, i, n)) {
-      gl->Color4ub(joinColor.red(), joinColor.green(), joinColor.blue(), joinColor.alpha());
+      gl->setColour(joinC);
       extraPad = 1;
     } else if (pressedCtrlPointIndex_.contains(i))
-      gl->Color4ub(255, 0, 0, 255);
+      gl->setColour(Colour::RED);
     else
-      gl->Color4ub(color.red(), color.green(), color.blue(), color.alpha());
+      gl->setColour(colorC);
 
     drawRect(gl, controlPoints_.at(i), pad + extraPad);
   }
@@ -156,7 +160,7 @@ void EditItemBase::drawHoveredControlPoint(DiGLPainter* gl, const QColor &color,
   Q_ASSERT(hoverCtrlPointIndex_ >= 0);
   gl->PushAttrib(DiGLPainter::gl_POLYGON_BIT);
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
-  gl->Color4ub(color.red(), color.green(), color.blue(), color.alpha());
+  gl->setColour(diutil::fromQColor(color));
   drawRect(gl,
         controlPoints_.at(hoverCtrlPointIndex_),
         pad + (isJoinedEndPoint(ConstDrawing(this)->joinCount(), ConstDrawing(this)->joinId(), hoverCtrlPointIndex_, controlPoints_.size()) ? 1 : 0));

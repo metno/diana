@@ -2862,14 +2862,13 @@ void ObsPlot::printNumber(DiGLPainter* gl, float f, QPointF xy, const std::strin
     gl->getTextSize(str, cw, ch);
 
   if (mark) {
-    Colour col("white");
-    if (!(colour == col))
-      gl->setColour(col); //white
+    if (!(colour == Colour::WHITE))
+      gl->setColour(Colour::WHITE);
     else
-      gl->Color3ub(0, 0, 0); //black
+      gl->setColour(Colour::BLACK);
     gl->drawRect(true, x, y - 0.2 * ch, x + cw, y + 0.8 * ch);
 
-    gl->Color3ub(0, 0, 0); //black
+    gl->setColour(Colour::BLACK);
     gl->drawRect(false, x, y - 0.2 * ch, x + cw, y + 0.8 * ch);
     gl->setColour(colour);
   }

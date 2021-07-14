@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013 met.no
+  Copyright (C) 2013-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -567,10 +567,13 @@ void DianaGLLines::paint_lines()
 
 void DianaGLLines::setFillColour(const Colour& colour)
 {
-  if (mPlotOptions.alpha < 255)
-    mGL->Color4ub(colour.R(), colour.G(), colour.B(), mPlotOptions.alpha);
-  else
+  if (mPlotOptions.alpha < 255) {
+    Colour c = colour;
+    c.set(Colour::alpha, mPlotOptions.alpha);
+    mGL->setColour(c);
+  } else {
     mGL->setColour(colour);
+  }
 }
 
 void DianaGLLines::setFillPattern(const std::string& pattern)

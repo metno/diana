@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -89,9 +89,7 @@ void AreaBorder::plot(DiGLPainter* gl, PlotOrder porder)
 
       s_length=smoothline(length, &x[0], &y[0], 0, length-1,div, &x_s[0], &y_s[0]);
 
-
-      gl->Color3f(0.0,0.0,0.0);
-      gl->LineWidth(linewidth);
+      gl->setLineStyle(Colour::BLACK, linewidth);
 
       //draw border
       gl->Begin(DiGLPainter::gl_LINE_STRIP);        // Draws the smooth line

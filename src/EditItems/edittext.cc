@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2014 met.no
+  Copyright (C) 2014-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -145,7 +145,7 @@ void Text::drawHoverHighlighting(DiGLPainter* gl, bool, bool) const
 {
   QRectF bbox = drawingRect();
 
-  gl->Color3ub(255, 0, 0);
+  gl->setColour(Colour::RED);
   gl->Begin(DiGLPainter::gl_LINE_LOOP);
   gl->Vertex2f(bbox.bottomLeft().x(), bbox.bottomLeft().y());
   gl->Vertex2f(bbox.bottomRight().x(), bbox.bottomRight().y());
@@ -163,7 +163,7 @@ void Text::drawIncomplete(DiGLPainter* gl) const
   const float x = points_.first().x();
   const float y = points_.first().y();
   const float s = 4;
-  gl->Color3ub(255, 0, 0);
+  gl->setColour(Colour::RED);
   gl->Begin(DiGLPainter::gl_POLYGON);
   gl->Vertex2f(x - s, y - s);
   gl->Vertex2f(x + s, y - s);

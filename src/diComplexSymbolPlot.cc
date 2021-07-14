@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -67,6 +67,24 @@ using namespace std;
 #define SNOWSHOWERSYMBOL 114
 #define SHOWERSYMBOL 109
 #define FZRASYMBOL 93
+
+namespace {
+
+struct ChangeColour
+{
+  ChangeColour(DiGLPainter* gl, const Colour& c)
+      : gl_(gl)
+      , restore_(gl_->getColour())
+  {
+    gl_->setColour(c);
+  }
+  ~ChangeColour() { gl_->setColour(restore_); }
+
+  DiGLPainter* gl_;
+  const Colour restore_;
+};
+
+} // namespace
 
 //static variables
 // text used in new complex symbols
@@ -507,7 +525,7 @@ void ComplexSymbolPlot::drawTextBox(DiGLPainter* gl, int drawIndex,int size, flo
   float linewidth=symbolSizeToPlot/50+1;
   gl->LineWidth(linewidth);
   drawBox(gl, drawIndex,0,0,false);
-  gl->Color3f(0.0, 0.0, 0.0);
+  gl->setColour(Colour::BLACK);
 
   float sx, sy, cw, ch;
   sx = 0.0; sy = 0.0;
@@ -866,15 +884,11 @@ void ComplexSymbolPlot::drawSig30(DiGLPainter* gl, float x, float y)
     drawBox(gl, 1030,x,y);
   }
   drawSymbol(gl, FOGSYMBOL,x,y);
-  DiGLPainter::GLfloat currentColor[4];
-  gl->GetFloatv(DiGLPainter::gl_CURRENT_COLOR,currentColor);
-  gl->setColour(borderColour);
+  ChangeColour cc(gl, borderColour);
   float cw,ch;
   gl->setFont(poptions.fontname,poptions.fontface,symbolSizeToPlot/2);
   gl->getTextSize("V",cw,ch);
   gl->drawText("V",x-cw/2,y-ch/2,0.0);
-  gl->Color4fv(currentColor);
-
 }
 
 //Nuclear
@@ -932,25 +946,16 @@ void ComplexSymbolPlot::drawBox(DiGLPainter* gl, int index,float x, float y,
 {
   METLIBS_LOG_SCOPE(LOGVAL(x) << LOGVAL(y) << LOGVAL(fill));
 
-  DiGLPainter::GLfloat currentColor[4];
-  gl->GetFloatv(DiGLPainter::gl_CURRENT_COLOR,currentColor);
-
   float sw,sh;
   getComplexSize(gl, index,sw,sh);
   METLIBS_LOG_DEBUG(LOGVAL(sw) << LOGVAL(sh));
 
-  if( fill ){
-    gl->setColour(Colour::fromF(1,1,1,1));
-  } else {
-    gl->setColour(borderColour);
-  }
+  ChangeColour cc(gl, fill ? Colour::WHITE : borderColour);
   if (index == 3001) {
     gl->drawRect(fill, x-25000, y-295000, x+1100000, y+37000);
   } else {
     gl->drawRect(fill, x-0.5*sw, y-0.5*sh, x+0.6*sw, y+0.5*sh);
   }
-
-  gl->Color4fv(currentColor);
 }
 
 void ComplexSymbolPlot::drawFlag(DiGLPainter* gl, int index, float x, float y)
@@ -987,26 +992,18 @@ void ComplexSymbolPlot::drawFlag(DiGLPainter* gl, int index, float x, float y)
   for(int i=0; i<=NSTEP; ++i)
     polygon << QPointF(x - radius + rcos[i], y3 - rsin2[i] + i*tiltStep);
 
-  DiGLPainter::GLfloat currentColor[4];
-  gl->GetFloatv(DiGLPainter::gl_CURRENT_COLOR,currentColor);
-
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
-  gl->setColour(Colour::fromF(1, 1, 1, 1));
+  ChangeColour cc(gl, Colour::WHITE);
   gl->drawPolygon(polygon);
 
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE_LOOP);
   gl->setLineStyle(borderColour, 1);
   gl->drawPolyline(polygon);
-
-  gl->Color4fv(currentColor);
 }
 
 void ComplexSymbolPlot::drawCircle(DiGLPainter* gl, int index,
     float x, float y, bool circle)
 {
-  DiGLPainter::GLfloat currentColor[4];
-  gl->GetFloatv(DiGLPainter::gl_CURRENT_COLOR,currentColor);
-
   float sw,sh;
   if(circle) {
     std::string s = "10";
@@ -1029,9 +1026,9 @@ void ComplexSymbolPlot::drawCircle(DiGLPainter* gl, int index,
   }
 
   //draw white background
+  ChangeColour cc(gl, Colour::WHITE);
   if (whiteBox) {
     gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
-    gl->Color4f(1.0,1.0,1.0,1.0);
     gl->Begin(DiGLPainter::gl_POLYGON);
     for(int i=0;i<50;i++){
       xc = sw/2+radius*sin(i*2*M_PI/100.0);
@@ -1060,17 +1057,10 @@ void ComplexSymbolPlot::drawCircle(DiGLPainter* gl, int index,
       gl->Vertex2f(yc,xc);
     }
   gl->End();
-
-  //reset colour
-  gl->Color4fv(currentColor);
 }
 
 void ComplexSymbolPlot::drawDiamond(DiGLPainter* gl, int index,float x, float y)
 {
-  //save curent colour
-  DiGLPainter::GLfloat currentColor[4];
-  gl->GetFloatv(DiGLPainter::gl_CURRENT_COLOR,currentColor);
-
   float sw,sh;
   std::string s = "10";
   gl->setFont(poptions.fontname,poptions.fontface,symbolSizeToPlot);
@@ -1078,42 +1068,35 @@ void ComplexSymbolPlot::drawDiamond(DiGLPainter* gl, int index,float x, float y)
   sw=1.1*sw; sh=1.2*sh;
 
   //draw white background
+  ChangeColour cc(gl, Colour::WHITE);
   if (whiteBox) {
     gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
-    gl->Color4f(1.0,1.0,1.0,1.0);
     gl->Begin(DiGLPainter::gl_POLYGON);
-      gl->Vertex2f(0,y-sh);
-      gl->Vertex2f(x-sw,0);
-      gl->Vertex2f(0,y+sh);
-      gl->Vertex2f(x+sw,0);
-    gl->End();
-   }
-
-  //draw diamond
-  gl->LineWidth(2);
-  gl->Begin(DiGLPainter::gl_LINE_LOOP);
-  gl->setColour(borderColour);
     gl->Vertex2f(0,y-sh);
     gl->Vertex2f(x-sw,0);
     gl->Vertex2f(0,y+sh);
     gl->Vertex2f(x+sw,0);
-  gl->End();
+    gl->End();
+  }
 
-  //reset colour
-  gl->Color4fv(currentColor);
+  //draw diamond
+  gl->setLineStyle(borderColour, 2);
+  gl->Begin(DiGLPainter::gl_LINE_LOOP);
+  gl->Vertex2f(0, y - sh);
+  gl->Vertex2f(x - sw, 0);
+  gl->Vertex2f(0, y + sh);
+  gl->Vertex2f(x + sw, 0);
+  gl->End();
 }
 
 void ComplexSymbolPlot::drawNuclear(DiGLPainter* gl, float x, float y)
 {
-  DiGLPainter::GLfloat currentColor[4];
-  gl->GetFloatv(DiGLPainter::gl_CURRENT_COLOR,currentColor);
-
   float sw,sh;
   getComplexSize(gl, 1031,sw,sh);
   DiGLPainter::GLfloat xc,yc;
   DiGLPainter::GLfloat radius = sh/1.5;
 
-  gl->setColour(borderColour);
+  ChangeColour cc(gl, borderColour);
   gl->drawCircle(false, 0, 0, radius);
 
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
@@ -1139,8 +1122,8 @@ void ComplexSymbolPlot::drawNuclear(DiGLPainter* gl, float x, float y)
     gl->Vertex2f(x,y);
     gl->End();
 
-    gl->Color4f(1.0,1.0,1.0,1.0);
-  gl->Begin(DiGLPainter::gl_POLYGON);
+    gl->setColour(Colour::WHITE);
+    gl->Begin(DiGLPainter::gl_POLYGON);
     gl->Vertex2f(x,y);
     for(int i=100/6;i<200/6;i++){
       xc = radius*cos(i*2*M_PI/100.0);
@@ -1161,27 +1144,20 @@ void ComplexSymbolPlot::drawNuclear(DiGLPainter* gl, float x, float y)
     }
 
     gl->End();
-
-
-  gl->Color4fv(currentColor);
 }
 
 void ComplexSymbolPlot::drawPrecipitation(DiGLPainter* gl, float x, float y)
 {
-  DiGLPainter::GLfloat currentColor[4];
-  gl->GetFloatv(DiGLPainter::gl_CURRENT_COLOR,currentColor);
-
   float sw,sh;
   getComplexSize(gl, 1026,sw,sh);
 
   gl->Rotatef(-45,0.0,0.0,1.0);
 
   if (whiteBox) {
-    gl->Color4f(1,1,1,1);
+    ChangeColour cc(gl, Colour::WHITE);
     gl->drawRect(true, -sw, -sh, sw, sh);
   }
 
-  gl->Color4fv(currentColor);
   gl->LineWidth(3);
   gl->drawLine( sw/4,  sh/2-sh/4,  sw/4,  -sh/2-sh/4);
   gl->drawLine( sw/12, sh/2,       sw/12, -sh/2);

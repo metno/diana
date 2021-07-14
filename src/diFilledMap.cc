@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2020 met.no
+ Copyright (C) 2006-2021 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -314,17 +314,17 @@ bool FilledMap::readheader()
 }
 
 bool FilledMap::plot(DiGLPainter* gl,
-    const Area& area, // current area
-    const Rectangle& maprect, // the visible rectangle
-    double gcd, // size of plotarea in m
-    bool land, // plot triangles
-    bool cont, // plot contour-lines
-    bool keepcont, // keep contourlines for later
-    DiGLPainter::GLushort linetype, // contour line type
-    float linewidth, // contour linewidth
-    const unsigned char* lcolour, // contour linecolour
-    const unsigned char* fcolour, // triangles fill colour
-    const unsigned char* bcolour) // background color
+                     const Area& area,               // current area
+                     const Rectangle& maprect,       // the visible rectangle
+                     double gcd,                     // size of plotarea in m
+                     bool land,                      // plot triangles
+                     bool cont,                      // plot contour-lines
+                     bool keepcont,                  // keep contourlines for later
+                     DiGLPainter::GLushort linetype, // contour line type
+                     float linewidth,                // contour linewidth
+                     const Colour& lcolour,          // contour linecolour
+                     const Colour& fcolour,          // triangles fill colour
+                     const Colour& bcolour)          // background color
 {
   bool startfresh = false;
 
@@ -362,7 +362,7 @@ bool FilledMap::plot(DiGLPainter* gl,
   }
 
   if (cont && contexist) {
-    gl->Color4ubv(lcolour);
+    gl->setColour(lcolour);
     for (int psize = 0; psize < numPolytiles; psize++) {
       int numpo = polydata[psize].polysize.size();
       int id1 = 0, id2;
@@ -751,10 +751,7 @@ bool FilledMap::plot(DiGLPainter* gl,
 
         // draw triangles
         if (tidx > 0 && land) {
-          if (type == 1)
-            gl->Color4ubv(bcolour);
-          else
-            gl->Color4ubv(fcolour);
+          gl->setColour(type == 1 ? bcolour : fcolour);
 
           gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
 
@@ -781,7 +778,7 @@ bool FilledMap::plot(DiGLPainter* gl,
             polydata[psize].polyverx, polydata[psize].polyvery);
 
         if (cont) {
-          gl->Color4ubv(lcolour);
+          gl->setColour(lcolour);
           int id1 = 0, id2;
           for (int ipp = 0; ipp < numpo; ipp++) {
             id2 = id1 + polydata[psize].polysize[ipp];

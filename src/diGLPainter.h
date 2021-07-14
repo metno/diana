@@ -243,16 +243,6 @@ public:
     { return static_cast<DiGLCanvas*>(DiPainter::canvas()); }
 
   virtual void Begin(GLenum mode) = 0;
-  virtual void Color3d(GLdouble red, GLdouble green, GLdouble blue) = 0;
-  virtual void Color3f(GLfloat red, GLfloat green, GLfloat blue) = 0;
-  virtual void Color3fv(const GLfloat *v) = 0;
-  virtual void Color3ub(GLubyte red, GLubyte green, GLubyte blue) = 0;
-  virtual void Color3ubv(const GLubyte *v) = 0;
-  virtual void Color4d(GLdouble red, GLdouble green, GLdouble blue, GLdouble alpha) = 0;
-  virtual void Color4f(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha) = 0;
-  virtual void Color4ub(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha) = 0;
-  virtual void Color4fv(const GLfloat *v) = 0;
-  virtual void Color4ubv(const GLubyte *v) = 0;
   virtual void End() = 0;
   virtual void RasterPos2f(GLfloat x, GLfloat y) = 0;
   virtual void Vertex2f(GLfloat x, GLfloat y) = 0;
@@ -266,7 +256,6 @@ public:
   virtual void EdgeFlag(GLboolean flag) = 0;
   virtual void Enable(GLenum cap) = 0;
   virtual void Flush(void) = 0;
-  virtual void GetFloatv(GLenum pname, GLfloat *params) = 0;
   virtual GLboolean IsEnabled(GLenum cap) = 0;
   virtual void LineStipple(GLint factor, GLushort pattern) = 0;
   virtual void LineWidth(GLfloat width) = 0;
@@ -302,7 +291,7 @@ public:
   virtual bool supportsReadPixels() const = 0;
 
   void clear(const Colour& colour) override;
-  void setColour(const Colour& c, bool alpha = true) override;
+  virtual Colour getColour() = 0;
   void setLineStyle(const Colour& c, float lw=1, bool alpha = true) override;
   void setLineStyle(const Colour& c, float lw, const Linetype& lt, bool alpha = true) override;
 

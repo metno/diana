@@ -154,16 +154,6 @@ public:
 
   // begin DiGLPainter interface
   void Begin(GLenum mode) override;
-  void Color3d(GLdouble red, GLdouble green, GLdouble blue) override;
-  void Color3f(GLfloat red, GLfloat green, GLfloat blue) override;
-  void Color3fv(const GLfloat *v) override;
-  void Color3ub(GLubyte red, GLubyte green, GLubyte blue) override;
-  void Color3ubv(const GLubyte *v) override;
-  void Color4d(GLdouble red, GLdouble green, GLdouble blue, GLdouble alpha) override;
-  void Color4f(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha) override;
-  void Color4ub(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha) override;
-  void Color4fv(const GLfloat *v) override;
-  void Color4ubv(const GLubyte *v) override;
   void End() override;
   void RasterPos2f(GLfloat x, GLfloat y) override;
   void Vertex2f(GLfloat x, GLfloat y) override;
@@ -177,7 +167,6 @@ public:
   void EdgeFlag(GLboolean flag) override;
   void Enable(GLenum cap) override;
   void Flush(void) override;
-  void GetFloatv(GLenum pname, GLfloat *params) override;
   GLboolean IsEnabled(GLenum cap) override;
   void LineStipple(GLint factor, GLushort pattern) override;
   void LineWidth(GLfloat width) override;
@@ -210,7 +199,10 @@ public:
     { return false; }
   // end DiGLPainter interface
 
+  Colour getColour() override;
+
   // begin DiPainter interface
+  void setColour(const Colour& c, bool alpha = true) override;
   bool drawText(const QString& text, const QPointF& xy, float angle = 0) override;
   void drawCircle(bool fill, float centerx, float centery, float radius) override;
   void drawRect(bool fill, float x1, float y1, float x2, float y2) override;

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2019 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -53,6 +53,9 @@ const int DIV_SPLINE = 5;
 
 static const float FLOAT_MAX = std::numeric_limits<float>::max();
 static const float FLOAT_LOW = std::numeric_limits<float>::lowest();
+
+static const Colour BLACK03 = Colour::fromF(0, 0, 0, 0.3);
+static const Colour CYAN05(0, 255, 255, 128);
 
 // static
 const int ObjectPlot::siglinewidth = 2;
@@ -676,14 +679,14 @@ void ObjectPlot::drawJoinPoints(DiGLPainter* gl)
     const std::vector<XY> xy = getXYjoined();
     gl->Enable(DiGLPainter::gl_BLEND);
     gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
-    gl->Color4f(0,0,0,0.3);
+    gl->setColour(BLACK03);
     //draw all points in grey here (if cursor inside bounding box)
     drawPoints(gl, xy,true);
     gl->Disable(DiGLPainter::gl_BLEND);
   }
-  gl->Color4f(0,1,1,0.5);
+  gl->setColour(CYAN05);
   const std::vector<XY> xymark = getXYmarkedJoined();
-  gl->Color4f(0,1,1,1.0);
+  gl->setColour(Colour::CYAN);
   //draw marked points here
   drawPoints(gl, xymark,true);
 }
@@ -698,14 +701,14 @@ void ObjectPlot::drawNodePoints(DiGLPainter* gl)
     const std::vector<XY> xy = getXY();
     gl->Enable(DiGLPainter::gl_BLEND);
     gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
-    gl->Color4f(0,0,0,0.3);
+    gl->setColour(BLACK03);
     //draw all points in grey here (if cursor inside bounding box)
     drawPoints(gl, xy);
     gl->Disable(DiGLPainter::gl_BLEND);
   }
   const std::vector<XY> xymark = getXYmarked();
 
-  gl->Color4f(0,1,1,1.0);
+  gl->setColour(Colour::CYAN);
   //draw marked points here
   drawPoints(gl, xymark);
 }
