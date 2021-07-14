@@ -248,7 +248,7 @@ public:
   virtual void Vertex2f(GLfloat x, GLfloat y) = 0;
   virtual void Vertex3f(GLfloat x, GLfloat y, GLfloat z) = 0;
   virtual void Vertex3i(GLint x, GLint y, GLint z) = 0;
-  virtual void BlendFunc(GLenum sfactor, GLenum dfactor) = 0;
+  virtual void BlendFunc(GLenum sfactor, GLenum dfactor) = 0; // only called with args gl_SRC_ALPHA, gl_ONE_MINUS_SRC_ALPHA
   virtual void ClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha) = 0;
   virtual void Clear(GLbitfield mask) = 0;
   virtual void ColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha) = 0;
