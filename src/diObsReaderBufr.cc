@@ -71,6 +71,8 @@ bool ObsReaderBufr::getDataFromFile(const FileInfo& fi, ObsDataRequest_cp reques
       obs.dataType = dataType();
     result->add(obsp);
   }
+#else // !BUFROBS
+  METLIBS_LOG_WARN("Diana compiled without BUFR reader");
 #endif
   return success;
 }
@@ -83,6 +85,8 @@ miutil::miTime ObsReaderBufr::getTimeFromFile(const std::string& filename)
   if (ObsBufr::ObsTime(filename, time)) {
     METLIBS_LOG_DEBUG(LOGVAL(time));
   }
+#else // !BUFROBS
+  METLIBS_LOG_WARN("Diana compiled without BUFR reader");
 #endif
   return time;
 }
