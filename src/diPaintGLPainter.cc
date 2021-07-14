@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2011-2018 met.no
+ Copyright (C) 2011-2021 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -1047,16 +1047,6 @@ void DiPaintGLPainter::ReadPixels(GLint x, GLint y, GLsizei width, GLsizei heigh
      this OpenGL wrapper is in use. */
 }
 
-void DiPaintGLPainter::Rectf(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
-{
-  Begin(gl_POLYGON);
-  Vertex2f(x1, y1);
-  Vertex2f(x2, y1);
-  Vertex2f(x2, y2);
-  Vertex2f(x1, y2);
-  End();
-}
-
 void DiPaintGLPainter::Rotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloat z)
 {
   // Diana only rotates about the z axis.
@@ -1124,25 +1114,12 @@ void DiPaintGLPainter::Translatef(GLfloat x, GLfloat y, GLfloat z)
   this->transform.translate(x, y);
 }
 
-void DiPaintGLPainter::Vertex2dv(const GLdouble *v)
-{
-  QPointF p = this->transform * QPointF(v[0], v[1]);
-  this->points.append(p);
-  this->validPoints.append(!std::isnan(p.x()) && !std::isnan(p.y()));
-  this->colors.append(this->attributes.color);
-}
-
 void DiPaintGLPainter::Vertex2f(GLfloat x, GLfloat y)
 {
   QPointF p = this->transform * QPointF(x, y);
   this->points.append(p);
   this->validPoints.append(!std::isnan(p.x()) && !std::isnan(p.y()));
   this->colors.append(this->attributes.color);
-}
-
-void DiPaintGLPainter::Vertex2i(GLint x, GLint y)
-{
-  Vertex2f(x, y);
 }
 
 void DiPaintGLPainter::Vertex3f(GLfloat x, GLfloat y, GLfloat z)

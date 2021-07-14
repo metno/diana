@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2019 met.no
+  Copyright (C) 2015-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -188,17 +188,8 @@ void DiOpenGLPainter::End()
 void DiOpenGLPainter::RasterPos2f(GLfloat x, GLfloat y)
 { glRasterPos2f(x, y); }
 
-void DiOpenGLPainter::Rectf(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
-{ glRectf(x1, y1, x2, y2); }
-
-void DiOpenGLPainter::Vertex2dv(const GLdouble *v)
-{ glVertex2dv(v); }
-
 void DiOpenGLPainter::Vertex2f(GLfloat x, GLfloat y)
 { glVertex2f(x, y); }
-
-void DiOpenGLPainter::Vertex2i(GLint x, GLint y)
-{ glVertex2i(x, y); }
 
 void DiOpenGLPainter::Vertex3f(GLfloat x, GLfloat y, GLfloat z)
 { glVertex3f(x, y, z); }

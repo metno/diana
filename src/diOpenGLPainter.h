@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2019 met.no
+  Copyright (C) 2015-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -91,10 +91,7 @@ public:
   void Color4ubv(const GLubyte *v) override;
   void End() override;
   void RasterPos2f(GLfloat x, GLfloat y) override;
-  void Rectf(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) override;
-  void Vertex2dv(const GLdouble *v) override;
   void Vertex2f(GLfloat x, GLfloat y) override;
-  void Vertex2i(GLint x, GLint y) override;
   void Vertex3f(GLfloat x, GLfloat y, GLfloat z) override;
   void Vertex3i(GLint x, GLint y, GLint z) override;
   void BlendFunc(GLenum sfactor, GLenum dfactor) override;
