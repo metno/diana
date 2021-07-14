@@ -1035,10 +1035,7 @@ void DiPaintGLPainter::Vertex2f(GLfloat x, GLfloat y)
 void DiPaintGLPainter::Vertex3f(GLfloat x, GLfloat y, GLfloat z)
 {
   Q_UNUSED(z);
-  QPointF p = this->transform * QPointF(x, y);
-  this->points.append(p);
-  this->validPoints.append(!std::isnan(p.x()) && !std::isnan(p.y()));
-  this->colors.append(this->attributes.color);
+  Vertex2f(x, y);
 }
 
 void DiPaintGLPainter::Vertex3i(GLint x, GLint y, GLint z)
