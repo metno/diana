@@ -43,6 +43,8 @@
 #include "diField/diProjection.h"
 #include "diField/diRectangle.h"
 
+#include "mi_fieldcalc/math_util.h"
+
 #include <puTools/miStringFunctions.h>
 
 #include <QNetworkReply>
@@ -145,6 +147,36 @@ Projection projectionForCRS(const std::string& crs)
     return Projection("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs");
   else
     return Projection();
+}
+
+// ========================================================================
+
+float dist(const float* x, const float* y, int i0, int i1)
+{
+  return std::sqrt(miutil::square(x[i0] - x[i1]) + miutil::square(y[i0] - y[i1]));
+}
+
+float distortion(const float* x, const float* y, int ia0, int ia1, int ib0, int ib1)
+{
+  return std::abs(dist(x, y, ia0, ia1) / dist(x, y, ib0, ib1) - 1);
+}
+
+float distortion(const Projection& cp, const Projection& vp, const Rectangle& vr)
+{
+  const size_t P = 6;
+  float xpos[P]{vr.x1, vr.x2, vr.x2, vr.x1, vr.x1 / 3 + vr.x2 * 2 / 3.0f, vr.x1 * 2 / 3.0f + vr.x2 / 3};
+  float ypos[P]{vr.y1, vr.y1, vr.y2, vr.y2, (vr.y1 + vr.y2) / 2, (vr.y1 + vr.y2) / 2};
+  cp.convertPoints(vp, P, xpos, ypos);
+  const float d[] = {
+    distortion(xpos, ypos, 0, 4, 3, 4),
+    distortion(xpos, ypos, 1, 5, 2, 5),
+#if 0
+    distortion(xpos, ypos, 0, 5, 1, 4),
+    distortion(xpos, ypos, 3, 5, 2, 4),
+    distortion(xpos, ypos, 0, 2, 1, 3),
+#endif
+  };
+  return std::accumulate(std::begin(d), std::end(d), 0.0f);
 }
 
 // ========================================================================

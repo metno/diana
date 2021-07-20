@@ -74,7 +74,7 @@ private:
   bool parseReply();
   bool parseLayer(QDomElement& eLayer, std::string style, std::string legendUrl, QStringList lCRS, crs_bbox_m crs_bboxes, WebMapDimension_v dimensions);
   void parseDimensionValues(WebMapDimension& dim, const QString& text, const QString& defaultValue);
-  WebMapWmsCrsBoundingBox_cx findBestCRS(WebMapWMSLayer_cx layer, const Rectangle& viewRect, const Projection& viewProj) const;
+  WebMapWmsCrsBoundingBox_cx findBestCRS(WebMapWMSLayer_cx layer, const Rectangle& viewRect, const Projection& viewProj, double viewScale) const;
 
 private Q_SLOTS:
   void refreshReplyFinished();
