@@ -32,11 +32,7 @@
 #define MILOGGER_CATEGORY "diana.WebMapSlippyOSMLayer"
 #include <miLogger/miLogging.h>
 
-namespace /* anonymous */ {
-const std::string EPSG_3857 = "EPSG:3857";
-} // anonymous namespace
-
-const std::string& WebMapSlippyOSMLayer::CRS(size_t) const
+WebMapSlippyOSMLayer::WebMapSlippyOSMLayer(const std::string& identifier)
+    : WebMapLayer(identifier)
 {
-  return EPSG_3857;
 }

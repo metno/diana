@@ -51,8 +51,6 @@ public:
 
   size_t countCRS() const { return mMatrixSets.size(); }
 
-  const std::string& CRS(size_t idx) const { return matrixSet(idx)->CRS(); }
-
   const WebMapWMTSTileMatrixSet_cx& matrixSet(size_t idx) const { return mMatrixSets.at(idx); }
 
   const std::string& urlTemplate() const { return mURLTemplate; }

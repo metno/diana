@@ -36,7 +36,6 @@
 
 WebMapWMTSTileMatrixSet::WebMapWMTSTileMatrixSet(const std::string& id, const std::string& crs)
     : mIdentifier(id)
-    , mCRS(crs)
     , mProjection(diutil::projectionForCRS(crs))
     , mMetersPerUnit(diutil::metersPerUnit(mProjection))
 {

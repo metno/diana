@@ -34,8 +34,7 @@
 
 class WebMapSlippyOSMLayer : public WebMapLayer {
 public:
-  WebMapSlippyOSMLayer(const std::string& identifier)
-    : WebMapLayer(identifier) { }
+  WebMapSlippyOSMLayer(const std::string& identifier);
 
   void setURLTemplate(const std::string& t)
     { mURLTemplate = t; }
@@ -57,8 +56,6 @@ public:
 
   size_t countCRS() const
     { return 1; }
-
-  const std::string& CRS(size_t) const;
 
   const std::string& urlTemplate() const
     { return mURLTemplate; }

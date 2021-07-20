@@ -65,8 +65,6 @@ public:
 
   size_t countCRS() const { return mCRS.size(); }
 
-  const std::string& CRS(size_t idx) const { return crsBoundingBox(idx).crs; }
-
   const WebMapWmsCrsBoundingBox& crsBoundingBox(size_t idx) const { return mCRS.at(idx); }
 
   int minZoom() const { return mMinZoom; }

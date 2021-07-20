@@ -47,8 +47,6 @@ public:
   /*! TileMatrixSet identifier */
   const std::string& identifier() const { return mIdentifier; }
 
-  const std::string& CRS() const { return mCRS; }
-
   const Projection& projection() const { return mProjection; }
 
   double metersPerUnit() const { return mMetersPerUnit; }
@@ -64,7 +62,6 @@ public:
 
 private:
   std::string mIdentifier;
-  std::string mCRS;
   Projection mProjection;
   double mMetersPerUnit;
   std::vector<WebMapWMTSTileMatrix> mMatrices;

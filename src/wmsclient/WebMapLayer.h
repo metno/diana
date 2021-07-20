@@ -57,9 +57,6 @@ public:
   /*! number of CRS available */
   virtual size_t countCRS() const = 0;
 
-  /*! access CRS for this layer */
-  virtual const std::string& CRS(size_t idx) const = 0;
-
   /*! number of extra dimensions */
   size_t countDimensions() const { return mDimensions.size(); }
 
