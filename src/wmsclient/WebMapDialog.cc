@@ -63,15 +63,14 @@ const std::string STYLE_GREY = "style.grey";
 const std::string STYLE_NAME = "style.name";
 
 // this must match ui->comboPlotOrder
-const std::string plotorder_lines = "lines";
 const std::string plotorders[] = {
   "background",
   "shade_background",
   "shade",
   "lines_background",
-  plotorder_lines
+  "lines"
 };
-const int plotorder_lines_idx = 3;
+const int plotorder_default_idx = 1;
 const size_t N_PLOTORDERS = sizeof(plotorders)/sizeof(plotorders[0]);
 
 class DimensionValuesItemDelegate : public ComboBoxItemDelegate
@@ -457,8 +456,8 @@ void WebMapDialog::onModifyLayerSelected()
       ui->spinTimeOffset->setValue(time_offset_sec);
     }
     { const size_t idx_po = pc->find(WEBMAP_ZORDER);
-      const std::string& pot = (idx_po != IDX_INVALID) ? pc->get(idx_po).value() : plotorder_lines;
-      int po = plotorder_lines_idx;
+      int po = plotorder_default_idx;
+      const std::string& pot = (idx_po != IDX_INVALID) ? pc->get(idx_po).value() : plotorders[po];
       for (size_t i=0; i < N_PLOTORDERS; ++i) {
         if (plotorders[i] == pot) {
           po = i;
