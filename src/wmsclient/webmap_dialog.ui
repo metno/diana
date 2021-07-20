@@ -533,9 +533,6 @@
        </item>
        <item>
         <widget class="QGroupBox" name="groupStyleOtherDims">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
          <property name="title">
           <string>Other dimensions</string>
          </property>
@@ -556,23 +553,25 @@
            <number>2</number>
           </property>
           <item>
-           <widget class="QScrollArea" name="scrollOtherDims">
+           <widget class="QTableWidget" name="tableOtherDims">
             <property name="frameShape">
              <enum>QFrame::NoFrame</enum>
             </property>
-            <property name="widgetResizable">
+            <property name="alternatingRowColors">
              <bool>true</bool>
             </property>
-            <widget class="QWidget" name="scrollAreaWidgetContents">
-             <property name="geometry">
-              <rect>
-               <x>0</x>
-               <y>0</y>
-               <width>390</width>
-               <height>92</height>
-              </rect>
-             </property>
-            </widget>
+            <property name="selectionMode">
+             <enum>QAbstractItemView::NoSelection</enum>
+            </property>
+            <attribute name="horizontalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="horizontalHeaderStretchLastSection">
+             <bool>true</bool>
+            </attribute>
+            <attribute name="verticalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
            </widget>
           </item>
          </layout>

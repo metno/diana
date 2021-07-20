@@ -123,6 +123,7 @@ private Q_SLOTS:
   void onModifyPlotOrderChanged();
   void onModifyTimeToleranceChanged();
   void onModifyTimeOffsetChanged();
+  void onModifyDimensionValuesChanged();
 
 private:
   void setupUi();
