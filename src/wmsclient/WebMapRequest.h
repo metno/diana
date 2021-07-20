@@ -53,6 +53,9 @@ public:
    *  without explicitly specified value are set to a default value */
   virtual void setDimensionValue(const std::string& dimIdentifier, const std::string& dimValue) = 0;
 
+  void setStyleName(const std::string& name) { mStyleName = name; }
+  const std::string& styleName() const { return mStyleName; }
+
   /*! start fetching data */
   virtual void submit() = 0;
 
@@ -83,6 +86,9 @@ public:
 
 private:
   size_t lastTileIndex; //! cache for "tileIndex"
+
+private:
+  std::string mStyleName;
 
 Q_SIGNALS:
   /*! the request is complete, ready for rendering, or aborted */

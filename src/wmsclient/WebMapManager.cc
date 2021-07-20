@@ -203,7 +203,7 @@ WebMapPlot* WebMapManager::createPlot(KVListPlotCommand_cp qmstring)
   std::unique_ptr<WebMapPlot> plot(new WebMapPlot(service, wm_layer));
 
   std::map<std::string, std::string> wm_dims; // optional
-  std::string wm_crs, wm_time_tolerance, wm_time_offset; // optional
+  std::string wm_crs, wm_time_tolerance, wm_time_offset, wm_style_name; // optional
   float style_alpha_offset = 0, style_alpha_scale = 1;
   bool style_grey = false;
   PlotOrder plotorder = PO_LINES;
@@ -231,6 +231,8 @@ WebMapPlot* WebMapManager::createPlot(KVListPlotCommand_cp qmstring)
         plotorder = PO_LINES_BACKGROUND;
       else
         plotorder = PO_LINES;
+    } else if (key == "style.name") {
+      plot->setStyleName(value);
     } else if (key == "style.alpha_scale") {
       style_alpha_scale = miutil::to_float(value);
     } else if (key == "style.alpha_offset") {

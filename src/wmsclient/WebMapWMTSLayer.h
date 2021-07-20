@@ -47,7 +47,7 @@ public:
 
   void setTileFormat(const std::string& mime) { mTileFormat = mime; }
 
-  void setDefaultStyle(const std::string& styleId) { mDefaultStyle = styleId; }
+  void setStyles(const std::vector<std::string>& styles, const std::string& defaultStyle);
 
   size_t countCRS() const { return mMatrixSets.size(); }
 

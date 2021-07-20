@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2018 met.no
+  Copyright (C) 2015-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -56,6 +56,7 @@ const size_t IDX_INVALID = size_t(-1);
 const std::string STYLE_ALPHA_SCALE = "style.alpha_scale";
 const std::string STYLE_ALPHA_OFFSET = "style.alpha_offset";
 const std::string STYLE_GREY = "style.grey";
+const std::string STYLE_NAME = "style.name";
 
 // this must match ui->comboPlotOrder
 const std::string plotorder_lines = "lines";
@@ -240,6 +241,7 @@ void WebMapDialog::onServiceRefreshFinished()
   ui->labelPending->setVisible(false);
   ui->listAddLayers->setEnabled(true);
   updateAddLayers();
+  onModifyLayerSelected();
 }
 
 void WebMapDialog::updateAddLayers()
@@ -343,12 +345,60 @@ void WebMapDialog::onModifyReset()
 {
 }
 
+namespace {
+WebMapService* findService(const std::string& id)
+{
+  if (WebMapManager* wmm = WebMapManager::instance()) {
+    for (int i = 0; i < wmm->getServiceCount(); ++i) {
+      WebMapService* ws = wmm->getService(i);
+      if (ws->identifier() == id)
+        return ws;
+    }
+  }
+  return nullptr;
+}
+
+WebMapLayer_cx getLayerForCommand(KVListPlotCommand_cp cmd)
+{
+  const size_t idx_service = cmd->find(WEBMAP_SERVICE);
+  const size_t idx_layer = cmd->find(WEBMAP_LAYER);
+  if (idx_service == IDX_INVALID || idx_layer == IDX_INVALID)
+    return nullptr;
+
+  WebMapService* ws = findService(cmd->get(idx_service).value());
+  if (!ws)
+    return nullptr;
+
+  return ws->findLayerByIdentifier(cmd->get(idx_layer).value());
+}
+} // namespace
+
 void WebMapDialog::onModifyLayerSelected()
 {
   bool enable = false;
   if (KVListPlotCommand_cp pc = plotCommand(ui->comboStyleLayer->currentIndex())) {
     enable = true;
 
+    {
+      ui->comboStyle->clear();
+      WebMapLayer_cx wl = getLayerForCommand(pc);
+      const int nStyles = wl ? wl->countStyles() : 0;
+      ui->comboStyle->setEnabled(nStyles > 1);
+      if (nStyles > 0) {
+        for (int i = 0; i < nStyles; ++i) {
+          ui->comboStyle->addItem(QString::fromStdString(wl->style(i)));
+        }
+      }
+    }
+    {
+      const size_t idx_name = pc->find(STYLE_NAME);
+      int c_idx = 0;
+      if (idx_name != IDX_INVALID) {
+        const std::string stylename = pc->get(idx_name).value();
+        c_idx = std::max(ui->comboStyle->findText(QString::fromStdString(stylename)), 0); // findText returns -1 if not found
+      }
+      ui->comboStyle->setCurrentIndex(c_idx);
+    }
     { const size_t idx_grey = pc->find(STYLE_GREY);
       bool grey = (idx_grey != IDX_INVALID) ? pc->get(idx_grey).toBool() : false;
       ui->checkGrey->setChecked(grey);
@@ -402,6 +452,12 @@ void WebMapDialog::onModifyLayerRemove()
   m->onPlotsRemoveEnd();
 
   Q_EMIT applyData();
+}
+
+void WebMapDialog::onModifyStyleChanged()
+{
+  METLIBS_LOG_SCOPE();
+  replaceCommandKV(miutil::kv(STYLE_NAME, ui->comboStyle->currentText().toStdString()));
 }
 
 void WebMapDialog::onModifyGreyToggled()

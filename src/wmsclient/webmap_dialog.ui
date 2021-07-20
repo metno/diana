@@ -838,6 +838,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>comboStyle</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>WebMapDialog</receiver>
+   <slot>onModifyStyleChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>24</x>
+     <y>99</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-4</x>
+     <y>211</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onModifyGreyToggled()</slot>
@@ -850,5 +866,6 @@
   <slot>onModifyLayerRemove()</slot>
   <slot>onModifyTimeToleranceChanged()</slot>
   <slot>onModifyTimeOffsetChanged()</slot>
+  <slot>onModifyStyleChanged()</slot>
  </slots>
 </ui>

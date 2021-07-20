@@ -63,6 +63,9 @@ public:
   /*! access to an extra dimension */
   const WebMapDimension& dimension(size_t idx) const { return mDimensions.at(idx); }
 
+  size_t countStyles() const { return mStyles.size(); }
+  const std::string& style(size_t idx) const { return mStyles.at(idx); }
+
   int findDimensionByIdentifier(const std::string& dimId) const;
 
 private:
@@ -71,6 +74,7 @@ private:
   std::string mAttribution;
 
 protected:
+  std::vector<std::string> mStyles;
   WebMapDimension_v mDimensions;
 };
 

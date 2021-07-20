@@ -82,10 +82,11 @@ void WebMapWMSRequest::addTile(int tileX, int tileY)
 void WebMapWMSRequest::submit()
 {
   METLIBS_LOG_SCOPE();
-  if (!mLayer->legendUrl().empty()) {
+  const std::string& legendUrl = mLayer->findLegendUrl(styleName());
+  if (!legendUrl.empty()) {
     mLegend = new WebMapImage();
     connect(mLegend, &WebMapImage::finishedImage, this, &WebMapWMSRequest::legendFinished);
-    mLegend->submit(mService->submitUrl(QUrl(QString::fromStdString(mLayer->legendUrl()))));
+    mLegend->submit(mService->submitUrl(QUrl(QString::fromStdString(legendUrl))));
     addExpected();
   }
 
@@ -94,7 +95,11 @@ void WebMapWMSRequest::submit()
 
 QNetworkReply* WebMapWMSRequest::submitRequest(WebMapTile* tile)
 {
-  return static_cast<WebMapWMS*>(mService)->submitRequest(mLayer, mDimensionValues, mCrs->crs, tile);
+  std::string style = styleName();
+  if (style.empty() && mLayer->countStyles() > 0) {
+    style = mLayer->style(0);
+  }
+  return static_cast<WebMapWMS*>(mService)->submitRequest(mLayer, mDimensionValues, style, mCrs->crs, tile);
 }
 
 void WebMapWMSRequest::abort()

@@ -93,6 +93,10 @@ public:
   void setCRS(const std::string& crs)
     { mCRS = crs; }
 
+  void setStyleName(const std::string& name) { mStyleName = name; }
+
+  const std::string& styleName() const { return mStyleName; }
+
   void setStyleAlpha(float offset, float scale);
 
   void setStyleGrey(bool makeGrey);
@@ -149,6 +153,7 @@ private:
   int mLegendOffsetY; // legend position y offset (<0 from bottom, >0 from top, ==0 off)
 
   std::string mCRS;
+  std::string mStyleName;
   float mAlphaOffset, mAlphaScale;
   bool mMakeGrey;
   PlotOrder mPlotOrder;

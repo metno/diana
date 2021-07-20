@@ -50,3 +50,14 @@ WebMapWMSLayer::WebMapWMSLayer(const std::string& identifier)
     , mMaxZoom(13)
 {
 }
+
+const std::string& WebMapWMSLayer::findLegendUrl(const std::string& stylename) const
+{
+  const auto it = std::find(mStyles.begin(), mStyles.end(), stylename);
+  if (it != mStyles.end()) {
+    return mLegendUrls.at(std::distance(mStyles.begin(), it));
+  } else {
+    static const std::string EMPTY;
+    return EMPTY;
+  }
+}
