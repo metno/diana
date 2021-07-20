@@ -34,9 +34,9 @@
 #define MILOGGER_CATEGORY "diana.WebMapWMSLayer"
 #include <miLogger/miLogging.h>
 
-WebMapWmsCrsBoundingBox::WebMapWmsCrsBoundingBox(const std::string& c, const Rectangle& bb)
+WebMapWmsCrsBoundingBox::WebMapWmsCrsBoundingBox(const std::string& c, const Projection& p, const Rectangle& bb)
     : crs(c)
-    , projection(diutil::projectionForCRS(crs))
+    , projection(p)
     , metersPerUnit(diutil::metersPerUnit(projection))
     , boundingbox(bb)
 {

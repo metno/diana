@@ -528,8 +528,14 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::string style, std::string l
     for (const QString& crs : lCRS) {
       const std::string sCRS = qs(crs);
       crs_bbox_m::iterator it = crs_bboxes.find(sCRS);
-      if (it != crs_bboxes.end())
-        layer->addCRS(it->first, it->second);
+      if (it != crs_bboxes.end()) {
+        const Projection proj = diutil::projectionForCRS(it->first);
+        if (proj.isDefined()) {
+          layer->addCRS(it->first, proj, it->second);
+        } else {
+          METLIBS_LOG_DEBUG("unable to create Projection for CRS '" << it->first << "'");
+        }
+      }
     }
     layer->setDefaultStyle(style, legendUrl);
     layer->setDimensions(dimensions);

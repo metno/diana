@@ -40,7 +40,7 @@
 class WebMapWMTSTileMatrixSet
 {
 public:
-  WebMapWMTSTileMatrixSet(const std::string& id, const std::string& crs);
+  WebMapWMTSTileMatrixSet(const std::string& id, const Projection& proj);
 
   void addMatrix(const WebMapWMTSTileMatrix& m) { mMatrices.push_back(m); }
 

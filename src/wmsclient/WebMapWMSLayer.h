@@ -40,7 +40,7 @@ struct WebMapWmsCrsBoundingBox
   Projection projection;
   double metersPerUnit;
   Rectangle boundingbox;
-  WebMapWmsCrsBoundingBox(const std::string& c, const Rectangle& bb);
+  WebMapWmsCrsBoundingBox(const std::string& c, const Projection& p, const Rectangle& bb);
 };
 
 typedef std::vector<WebMapWmsCrsBoundingBox> WebMapWmsCrsBoundingBox_v;
@@ -61,7 +61,7 @@ public:
   void setZoomRange(int minZoom, int maxZoom)
     { mMinZoom = minZoom; mMaxZoom = maxZoom; }
 
-  void addCRS(const std::string& crs, const Rectangle& bbox) { mCRS.push_back(WebMapWmsCrsBoundingBox(crs, bbox)); }
+  void addCRS(const std::string& crs, const Projection& proj, const Rectangle& bbox) { mCRS.push_back(WebMapWmsCrsBoundingBox(crs, proj, bbox)); }
 
   size_t countCRS() const { return mCRS.size(); }
 

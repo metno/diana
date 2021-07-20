@@ -281,8 +281,13 @@ bool WebMapWMTS::parseReply()
   QDOM_FOREACH_CHILD(eTileMatrixSet, eContents, "TileMatrixSet") {
     QDomElement eId = eTileMatrixSet.firstChildElement("ows:Identifier");
     QDomElement eCRS = eTileMatrixSet.firstChildElement("ows:SupportedCRS");
-    std::unique_ptr<WebMapWMTSTileMatrixSet> ms
-        (new WebMapWMTSTileMatrixSet(qs(eId.text()), qs(eCRS.text())));
+    const std::string crs = qs(eCRS.text());
+    const Projection proj = diutil::projectionForCRS(crs);
+    if (!proj.isDefined()) {
+      METLIBS_LOG_DEBUG("unable to create Projection for CRS '" << crs << "'");
+      continue;
+    }
+    std::unique_ptr<WebMapWMTSTileMatrixSet> ms(new WebMapWMTSTileMatrixSet(qs(eId.text()), proj));
     QDOM_FOREACH_CHILD(eTileMatrix, eTileMatrixSet, "TileMatrix") {
       QDomElement eMId = eTileMatrix.firstChildElement("ows:Identifier");
       QDomElement eScale = eTileMatrix.firstChildElement("ScaleDenominator");
