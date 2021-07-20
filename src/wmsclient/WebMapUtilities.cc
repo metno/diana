@@ -134,19 +134,33 @@ double metersPerUnit(const Projection& proj)
 
 Projection projectionForCRS(const std::string& crs)
 {
+  if (crs == "CRS:84")
+    return Projection("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs");
+
   static const char PREFIX_EPSG[] = "EPSG:";
   static const char PREFIX_URN_EPSG[] = "urn:ogc:def:crs:EPSG::";
 
-  if (crs == "EPSG:900913")
-    return Projection("+init=epsg:3857");
-  else if (diutil::startswith(crs, PREFIX_EPSG))
-    return Projection("+init=epsg:" + crs.substr(sizeof(PREFIX_EPSG)-1));
-  else if (diutil::startswith(crs, PREFIX_URN_EPSG))
-    return Projection("+init=epsg:" + crs.substr(sizeof(PREFIX_URN_EPSG)-1));
-  else if (crs == "CRS:84")
-    return Projection("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs");
-  else
-    return Projection();
+  // clang-format off
+  static std::map<std::string, std::string> EPSG_EXTRA = { // EPSG code -> proj4 init
+    { "900913", "+init=epsg:3857"},
+
+    // DWD, see https://epsg.io/4839
+    { "4389", "+proj=lcc +lat_1=48.66666666666666 +lat_2=53.66666666666666 +lat_0=51 +lon_0=10.5 +x_0=0 +y_0=0"
+              " +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"},
+  };
+  // clang-format on
+
+  const bool prefix_epsg = diutil::startswith(crs, PREFIX_EPSG);
+  const bool prefix_urn_epsg = diutil::startswith(crs, PREFIX_URN_EPSG);
+  if (prefix_epsg || prefix_urn_epsg) {
+    const std::string code = crs.substr((prefix_epsg ? sizeof(PREFIX_EPSG) : sizeof(PREFIX_URN_EPSG)) - 1);
+    const auto it = EPSG_EXTRA.find(code);
+    if (it != EPSG_EXTRA.end())
+      return Projection(it->second);
+    else
+      return Projection("+init=epsg:" + code);
+  }
+  return Projection();
 }
 
 // ========================================================================
