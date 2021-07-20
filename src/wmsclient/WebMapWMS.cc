@@ -529,10 +529,11 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::vector<std::string> styles,
       && !hasAttributeValue(eLayer, "fixedWidth", (QStringList() << "0"))
       && !hasAttributeValue(eLayer, "fixedHeight", (QStringList() << "0"));
   const bool hasCRS = !crs_bboxes.empty();
+  const bool hasChildrenExcluded = excludeLayersWithChildren() && (!eLayer.firstChildElement("Layer").isNull());
 
   METLIBS_LOG_DEBUG(LOGVAL(hasContent) << LOGVAL(goodName) << LOGVAL(unusedName) << LOGVAL(tileable) << LOGVAL(hasCRS));
 
-  if (hasContent && goodName && unusedName && tileable && hasCRS) {
+  if (hasContent && goodName && unusedName && tileable && hasCRS && !hasChildrenExcluded) {
     METLIBS_LOG_DEBUG("adding layer '" << sLayerName << "'");
     std::unique_ptr<WebMapWMSLayer> layer(new WebMapWMSLayer(sLayerName));
     layer->setTitle(qs(eLayer.firstChildElement("Title").text()));

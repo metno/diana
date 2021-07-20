@@ -120,6 +120,7 @@ bool WebMapManager::parseSetup()
     METLIBS_LOG_DEBUG(LOGVAL(lines[l]));
     std::string service_id, service_type, service_url, service_basicauth;
     std::vector< std::pair< std::string,std::string > > service_extra_query_items;
+    bool service_exclude_layers_with_children = false;
 
     const std::vector<std::string> kvpairs = miutil::split(lines[l]);
     for (size_t i=0; i<kvpairs.size(); i++) {
@@ -136,6 +137,8 @@ bool WebMapManager::parseSetup()
         service_url = value;
       else if (key == "service.basicauth")
         service_basicauth = value;
+      else if (key == "service.exclude_layers_with_children")
+        service_exclude_layers_with_children = miutil::kv(key, value).toBool();
       else if (key == "service.extra_query_item") {
         const std::vector<std::string> qkv = miutil::split(value, 1, "=");
         service_extra_query_items.push_back(std::make_pair(qkv[0], qkv.size() > 1 ? qkv[1] : ""));
@@ -156,6 +159,7 @@ bool WebMapManager::parseSetup()
           s->setBasicAuth(service_basicauth);
         for (auto&& kv : service_extra_query_items)
           s->addExtraQueryItem(kv.first, kv.second);
+        s->setExcludeLayersWithChildren(service_exclude_layers_with_children);
         connect(s, &WebMapService::refreshFinished, this, &WebMapManager::serviceRefreshFinished);
         webmapservices.push_back(s);
       }

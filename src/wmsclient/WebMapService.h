@@ -59,6 +59,10 @@ public:
   void addExtraQueryItem(const std::string& k, const std::string& v)
     { mExtraQueryItems.push_back(std::make_pair(k, v)); }
 
+  void setExcludeLayersWithChildren(bool exclude) { mExcludeLayersWithChildren = exclude; }
+
+  bool excludeLayersWithChildren() const { return mExcludeLayersWithChildren; }
+
   const std::string& identifier() const
     { return mIdentifier; }
 
@@ -105,6 +109,8 @@ protected:
   std::string mTitle;
   std::string mBasicAuth;
   std::vector< std::pair< std::string,std::string > > mExtraQueryItems;
+  bool mExcludeLayersWithChildren;
+
   std::vector<WebMapLayer_cx> mLayers;
 
 private:

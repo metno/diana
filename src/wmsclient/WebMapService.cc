@@ -45,8 +45,9 @@
 #include <miLogger/miLogging.h>
 
 WebMapService::WebMapService(const std::string& identifier, QNetworkAccessManager* network)
-  : mIdentifier(identifier)
-  , mNetworkAccess(network)
+    : mIdentifier(identifier)
+    , mExcludeLayersWithChildren(false)
+    , mNetworkAccess(network)
 {
 }
 
