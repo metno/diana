@@ -1825,14 +1825,7 @@ int diana_init(int _argc, char** _argv)
     const std::string sarg = argv[ac].toStdString();
     ac += 1;
 
-    if (sarg == "-display") {
-      if (ac >= argc)
-        printUsage(false);
-
-      cerr << "WARN, -display <..> is ignored and deprecated, please remove from command invocation" << endl;
-      ac += 1;
-
-    } else if (sarg == "-input" || sarg == "-i") {
+    if (sarg == "-input" || sarg == "-i") {
       if (ac >= argc)
         printUsage(false);
 
