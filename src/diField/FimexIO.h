@@ -5,7 +5,7 @@
  *      Author: audunc
  */
 /*
- Copyright (C) 2006-2020 met.no
+ Copyright (C) 2006-2021 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -37,9 +37,6 @@
 
 #include <fimex/CDMReader.h>
 #include <fimex/coordSys/CoordinateSystem.h>
-
-#include <boost/shared_array.hpp>
-#include <boost/shared_ptr.hpp>
 
 #include <string>
 #include <vector>

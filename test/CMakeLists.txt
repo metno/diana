@@ -131,7 +131,6 @@ ADD_EXECUTABLE(dianaUnitTests
 
 TARGET_LINK_LIBRARIES(dianaUnitTests
   libdiana_core
-  ${Boost_SYSTEM_LIBRARY}
 )
 
 ADD_TEST(NAME dianaUnitTests

@@ -2,7 +2,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013-2020 met.no
+  Copyright (C) 2013-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -38,9 +38,8 @@
 #endif
 #include <proj_api.h>
 
-#include <boost/shared_ptr.hpp>
-
 #include <iosfwd>
+#include <memory>
 #include <string>
 
 /**

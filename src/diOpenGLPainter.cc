@@ -40,8 +40,6 @@
 #include <QPolygonF>
 #include <QVector2D>
 
-#include <boost/shared_array.hpp>
-
 #include <cassert>
 
 #define MILOGGER_CATEGORY "diana.DiOpenGLPainter"

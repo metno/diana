@@ -50,8 +50,6 @@
 #include <QVariant>
 #include <QUrl>
 
-#include <boost/shared_array.hpp>
-
 #include <iomanip>
 #include <sstream>
 

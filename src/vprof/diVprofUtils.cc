@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2018 met.no
+ Copyright (C) 2018-2021 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -42,7 +42,6 @@
 
 #include "diField/diPoint.h"
 
-#include <boost/range/size.hpp>
 #include <puTools/miStringFunctions.h>
 
 using diutil::PointF;
