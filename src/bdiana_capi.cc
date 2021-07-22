@@ -37,10 +37,7 @@
 #include "bdiana_vcross.h"
 #include "bdiana_vprof.h"
 
-#include <fstream>
-#include <iostream>
-#include <sstream>
-
+#include "diCommandlineOptions.h"
 #include "diQuickMenues.h"
 #include <diAnnotationPlot.h>
 #include <diController.h>
@@ -59,6 +56,7 @@
 #include "util/diLineMerger.h"
 #include "util/fimex_logging.h"
 #include "util/misc_util.h"
+#include "util/qstring_util.h"
 #include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
@@ -67,6 +65,10 @@
 
 #include <QApplication>
 #include <QtCore>
+
+#include <fstream>
+#include <iostream>
+#include <sstream>
 
 #include <miLogger/miLoggingSystem.h>
 #define MILOGGER_CATEGORY "diana.bdiana"
@@ -205,7 +207,6 @@ struct Bdiana
   BdianaVprof vprof;
   BdianaSpectrum wavespec;
 
-  std::string logfilename;
   std::string setupfile; //! diana setup file
   bool setupread;
 
@@ -551,7 +552,7 @@ bool Bdiana::ensureSetup()
   if (!setupread)
     setupread = readSetup(setupfile);
   if (!setupread) {
-    METLIBS_LOG_ERROR("ERROR, no setupinformation..exiting");
+    METLIBS_LOG_ERROR("no setup information .. exiting");
     return false;
   }
   return true;
@@ -561,7 +562,7 @@ bool Bdiana::ensureSetup()
  Output Help-message:  call-syntax and optionally an example
  input-file for bdiana
  */
-static void printUsage(bool showexample)
+static void printUsage(std::ostream& out, const miutil::program_options::option_set& options)
 {
   const char* help[] = {
       "***************************************************",
@@ -574,23 +575,34 @@ static void printUsage(bool showexample)
       " - Vertical profiles",
       " - WaveSpectrum plots",
       " Available output-formats:",
-      " - as PDF, PS and EPS (using pdf2ps)",
+      " - as PDF, PS and EPS (using pdftops)",
       " - as PNG, SVG",
       " - as AVI MPG, MP4",
       "***************************************************",
       "",
-      "Usage: bdiana -i <job-filename> [-s <setup-filename>] [-v] [-example] [key=value key=value]",
+      "Usage: bdiana [options] [key=value [key=value]] ...",
       "",
-      "-i                   : job-control file. See '-example' below",
-      "-s                   : setupfile for diana",
-      "-v                   : (verbose) for more job-output",
-      "-example             : list example input-file and exit",
+  };
+  const char* help2[] = {
       "",
       "special key/value pairs:",
-      " - TIME=\"YYYY-MM-DD hh:mm:ss\"      plot-time",
+      " - TIME=\"YYYY-MM-DD hh:mm:ss\"      plot-time (ignored when the use_nowtime option is given)",
+      "",
+      "A logging configuration file may be specified in the environment variable",
+      "'BDIANA_LOGGER', but the command line option overrides this.",
+      "",
   };
-  const char** help_end = help + sizeof(help)/sizeof(help[0]);
+  for (const auto h : help)
+    out << h << std::endl;
+  options.help(out);
+  for (const auto h : help2)
+    out << h << std::endl;
 
+  exit(1);
+}
+
+static void printExample(std::ostream& out)
+{
   const char* example[] = {
     "#--------------------------------------------------------------",
     "# inputfile for bdiana",
@@ -856,19 +868,8 @@ static void printUsage(bool showexample)
     "#--------------------------------------------------------------",
     ""
   };
-  const char** example_end = example + sizeof(example)/sizeof(example[0]);
-
-  const char** txt_begin, **txt_end;
-  if (!showexample) {
-    txt_begin = help;
-    txt_end = help_end;
-  } else {
-    txt_begin = example;
-    txt_end = example_end;
-  }
-  std::copy(txt_begin, txt_end,
-      std::ostream_iterator<std::string>(std::cout, "\n"));
-
+  for (const auto& e : example)
+    out << e << std::endl;
   exit(1);
 }
 
@@ -1634,7 +1635,7 @@ command_result Bdiana::parseAndProcess(istream& is)
 
     if (key == com_setupfile) {
       if (setupread) {
-        METLIBS_LOG_WARN("setupfile overrided by command line option. Linenumber:" << linenumbers[k]);
+        METLIBS_LOG_WARN("Ignoring setupfile option, overwritten by command-line. Linenumber:" << linenumbers[k]);
       } else {
         setupfile = value;
         if (!ensureSetup())
@@ -1781,6 +1782,12 @@ int diana_parseAndProcessString(const char* string)
     return DIANA_ERROR;
 }
 
+namespace po = miutil::program_options;
+
+const po::option op_example = po::option("example", "list example input-file and exit").add_shortkey("example").set_narg(0);
+const po::option op_input = po::option("input", "job-control file (see --" + op_example.key() + ")").add_shortkey("input").add_shortkey("i");
+const po::option op_verbose = po::option("", "for more job-output").set_shortkey("v").set_narg(0);
+const po::option op_nowtime = po::option("use_nowtime", "use current time").add_shortkey("use_nowtime").set_narg(0);
 
 /*
  =================================================================
@@ -1801,121 +1808,114 @@ int diana_init(int _argc, char** _argv)
   setlocale(LC_MEASUREMENT, "C");
   setlocale(LC_TIME, "C");
 
-  bool setupfilegiven = false;
-  std::string logfilename;
-  std::string batchinput;
+  const po::option op_setup = po::option(diutil::op_setup).add_shortkey("setup");
+  const po::option op_logger = po::option(diutil::op_logger).add_shortkey("logger");
 
-  // get the BDIANA_LOGGER variable
-  if (char* ctmp = getenv("BDIANA_LOGGER")) {
-    logfilename = ctmp;
+  po::option_set cmdline_options;
+  cmdline_options
+      << op_setup
+      << op_logger
+      << op_input
+      << op_nowtime
+      << op_verbose
+      << op_example;
+
+  auto argv = diutil::toVector(application->arguments());
+  const std::string executable = std::move(argv.front());
+  argv.erase(argv.begin());
+  if (argv.empty()) {
+    printUsage(std::cout, cmdline_options);
+    return DIANA_OK;
   }
 
-  QStringList argv = application->arguments();
-  int argc = argv.size();
-
-  // check command line arguments
-  if (argc < 2) {
-    printUsage(false);
+  std::vector<std::string> positional;
+  po::value_set vm;
+  try {
+    vm = po::parse_command_line(argv, cmdline_options, positional);
+  } catch (po::option_error& e) {
+    std::cerr << "ERROR while parsing commandline options: " << e.what() << std::endl;
+    printUsage(std::cout, cmdline_options);
+    return DIANA_OK;
   }
 
   SetupParser::replaceUserVariables("PVERSION", PVERSION);
   SetupParser::replaceUserVariables("SYSCONFDIR", SYSCONFDIR);
 
-  for (int ac = 1; ac < argc;) {
-    const std::string sarg = argv[ac].toStdString();
-    ac += 1;
+  if (vm.is_set(op_example)) {
+    printExample(std::cout);
+  }
 
-    if (sarg == "-input" || sarg == "-i") {
-      if (ac >= argc)
-        printUsage(false);
-
-      batchinput = argv[ac].toStdString();
-      ac += 1;
-
-    } else if (sarg == "-setup" || sarg == "-s") {
-      if (ac >= argc)
-        printUsage(false);
-
-      setupfilegiven = true;
-      bdiana()->setupfile = argv[ac].toStdString();
-      ac += 1;
-
-    } else if (sarg == "-logger" || sarg == "-L") {
-      if (ac >= argc)
-        printUsage(false);
-
-      logfilename = argv[ac].toStdString();
-      ac += 1;
-
-    } else if (sarg == "-v") {
-      verbose = true;
-
-    } else if (sarg == "-example") {
-      printUsage(true);
-
-    } else if (sarg == "-use_nowtime") {
-      // Use time closest to the current time even if there exists a field
-      // and not the timestamps for the future. This corresponds to the
-      // default value when using the gui.
-      bdiana()->commandline_time_enabled = true;
-      bdiana()->commandline_time = miutil::miTime();
-      bdiana()->setTimeChoice(BdianaSource::USE_NOWTIME);
-
-    } else {
-      const vector<std::string> ks = miutil::split(sarg, "=");
-      if (ks.size() != 2) {
-        cerr << "WARNING, unknown argument on commandline:" << sarg << endl;
-        continue;
-      }
-
-      keyvalue tmp;
-      tmp.key = ks[0];
-      tmp.value = ks[1];
-      bdiana()->keys.push_back(tmp);
-
-      // temporary: force plottime
-      if (tmp.key == "TIME") {
-        if (miTime::isValid(tmp.value)) {
-          bdiana()->commandline_time_enabled = true;
-          bdiana()->commandline_time = miTime(tmp.value);
-          bdiana()->setTimeChoice(BdianaSource::USE_FIXEDTIME);
-        } else {
-          cerr << "ERROR, invalid TIME-variable on commandline: '" << tmp.value << "'" << endl;
-          return 1;
-        }
-      }
+  do {
+    std::string logfilename;
+    if (char* ctmp = getenv("BDIANA_LOGGER")) {
+      logfilename = ctmp;
+    } else if (!diutil::value_if_set(vm, op_logger, logfilename)) {
+      break;
     }
-  } // command line parameters
+    milogger::system::selectedSystem()->configure(logfilename);
+  } while (false);
 
-  milogger::system::selectedSystem()->configure(logfilename);
+  METLIBS_LOG_INFO(executable << " : DIANA batch version " << VERSION << LOGVAL(argv.size()));
 
-  METLIBS_LOG_INFO(argv[0].toStdString() << " : DIANA batch version " << VERSION);
+  verbose = vm.is_set(op_verbose);
+
+  if (vm.is_set(op_nowtime)) {
+    // Use time closest to the current time even if there exists a field
+    // and not the timestamps for the future. This corresponds to the
+    // default value when using the gui.
+    bdiana()->commandline_time_enabled = true;
+    bdiana()->commandline_time = miutil::miTime();
+    bdiana()->setTimeChoice(BdianaSource::USE_NOWTIME);
+  }
 
   /*
    if setupfile specified on the command-line, parse it now
    */
-  if (setupfilegiven) {
+  if (vm.is_set(op_setup)) {
+    bdiana()->setupfile = vm.value(op_setup);
     if (!(bdiana()->setupread = readSetup(bdiana()->setupfile))) {
-      METLIBS_LOG_ERROR("ERROR, unable to read setup:" << bdiana()->setupfile);
-      return 99;
+      METLIBS_LOG_ERROR("Unable to read setup file '" << bdiana()->setupfile << "'");
+      return DIANA_ERROR;
     }
+  }
+
+  auto user_variables = diutil::parse_user_variables(positional);
+  // temporary: force plottime
+  const auto it_time = user_variables.find("TIME");
+  if (it_time != user_variables.end()) {
+    if (!vm.is_set(op_nowtime)) {
+      const std::string& time = it_time->second;
+      if (miTime::isValid(time)) {
+        bdiana()->commandline_time_enabled = true;
+        bdiana()->commandline_time = miTime(time);
+        bdiana()->setTimeChoice(BdianaSource::USE_FIXEDTIME);
+      } else {
+        METLIBS_LOG_ERROR("invalid TIME-variable on commandline: '" << time << "'");
+        return DIANA_ERROR;
+      }
+    } else {
+      METLIBS_LOG_ERROR("both TIME and option '" << op_nowtime.key() << "' given, ignoring TIME");
+    }
+    user_variables.erase(it_time);
+  }
+  for (const auto& u : user_variables) {
+    bdiana()->keys.push_back(keyvalue{u.first, u.second});
   }
 
   /*
    Read initial input and process commands...
    */
-  if (!batchinput.empty()) {
-    METLIBS_LOG_INFO("Reading input file: " << batchinput.c_str());
-    ifstream is(batchinput.c_str());
+  if (vm.is_set(op_input)) {
+    const std::string& batchinput = vm.value(op_input);
+    METLIBS_LOG_INFO("Reading input file: '" << batchinput << "'");
+    std::ifstream is(batchinput);
     if (!is) {
-        METLIBS_LOG_ERROR("ERROR, cannot open inputfile " << batchinput);
-      return 99;
+      METLIBS_LOG_ERROR("ERROR, cannot open inputfile '" << batchinput << "'");
+      return DIANA_ERROR;
     }
     command_result res = bdiana()->parseAndProcess(is);
     if (res != cmd_success)
-      return 99;
-  } else {
-    METLIBS_LOG_WARN("No input file was specified");
+      return DIANA_ERROR;
   }
   return DIANA_OK;
 }

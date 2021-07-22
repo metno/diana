@@ -341,6 +341,8 @@ SET(LIBBDIANA_SOURCES
   bdiana_spectrum.cc
   bdiana_vcross.cc
   bdiana_vprof.cc
+
+  diCommandlineOptions.cc
 )
 
 SET (LIBDIANAUI_SOURCES
@@ -758,6 +760,7 @@ SET_TARGET_PROPERTIES(libdiana_batch PROPERTIES
 )
 
 ADD_EXECUTABLE(diana_ui
+  diCommandlineOptions.cc
   main_gui.cc
 
   ${DIANA_MOC_SRCS}
@@ -819,10 +822,16 @@ TARGET_LINK_LIBRARIES(libdiana_core
   libfimex
 )
 TARGET_LINK_LIBRARIES(libdiana_ui libdiana_core ${PCUI_LIBRARIES})
-TARGET_LINK_LIBRARIES(libdiana_batch libdiana_core)
+TARGET_LINK_LIBRARIES(libdiana_batch
+  libdiana_core
+  mi-programoptions
+)
 
 TARGET_LINK_LIBRARIES(diana_batch libdiana_batch)
-TARGET_LINK_LIBRARIES(diana_ui libdiana_ui)
+TARGET_LINK_LIBRARIES(diana_ui
+  libdiana_ui
+  mi-programoptions
+)
 
 IF(ENABLE_SMHI)
   SET(SMHI TRUE)

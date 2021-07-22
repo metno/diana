@@ -57,6 +57,7 @@ OPTION(ENABLE_HDF5 "Enable HDF5 file support" OFF)
 
 FIND_PACKAGE(Boost COMPONENTS date_time REQUIRED)
 
+FIND_PACKAGE(mi-programoptions "1.0.0" REQUIRED)
 FIND_PACKAGE(mi-fieldcalc "0.1.0" REQUIRED)
 FIND_PACKAGE(fimex "1.2" REQUIRED)
 
