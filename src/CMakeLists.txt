@@ -341,13 +341,6 @@ SET(LIBBDIANA_SOURCES
   bdiana_spectrum.cc
   bdiana_vcross.cc
   bdiana_vprof.cc
-  signalhelper.cc
-
-  diOrderBook.cc
-  diOrderClient.cc
-  diOrderListener.cc
-  diOrderQueue.cc
-  diWorkOrder.cc
 )
 
 SET (LIBDIANAUI_SOURCES

@@ -52,7 +52,6 @@
 #include "diPlotCommandFactory.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
-#include <diOrderBook.h>
 
 #include "diField/diRectangle.h"
 
@@ -585,9 +584,6 @@ static void printUsage(bool showexample)
       "-i                   : job-control file. See '-example' below",
       "-s                   : setupfile for diana",
       "-v                   : (verbose) for more job-output",
-      "-address=addr[:port] : production triggered by TCP connection",
-      "                        * addr is a hostname or IP address",
-      "                        * port is an optional port number, default is 3190", // diOrderListener::DEFAULT_PORT
       "-example             : list example input-file and exit",
       "",
       "special key/value pairs:",
@@ -1808,8 +1804,6 @@ int diana_init(int _argc, char** _argv)
   bool setupfilegiven = false;
   std::string logfilename;
   std::string batchinput;
-  diOrderBook* orderbook = nullptr;
-  int port;
 
   // get the BDIANA_LOGGER variable
   if (char* ctmp = getenv("BDIANA_LOGGER")) {
@@ -1874,37 +1868,6 @@ int diana_init(int _argc, char** _argv)
       bdiana()->commandline_time = miutil::miTime();
       bdiana()->setTimeChoice(BdianaSource::USE_NOWTIME);
 
-    } else if (sarg.find("-address=") == 0) {
-      if (!orderbook) {
-        orderbook = new diOrderBook();
-        orderbook->start();
-      }
-      const vector<std::string> ks = miutil::split(sarg, "=");
-      if (ks.size() != 2) {
-        cerr << "ERROR, invalid -address argument '" << sarg << "'" << endl;
-        return 1;
-      }
-      const vector<std::string> ads = miutil::split(ks[1], ":");
-      if (ads.size() == 2) {
-        const std::string& port_txt = ads[1];
-        if (miutil::is_number(port_txt)) {
-          port = miutil::to_int(port_txt);
-        } else {
-          cerr << "ERROR, " << port_txt << " is not a valid TCP port number" << endl;
-          return 1;
-        }
-        if (port < 1 || port > 65535) {
-          cerr << "ERROR, " << port << "  is not a valid TCP port number" << endl;
-          return 1;
-        }
-      } else {
-        port = diOrderListener::DEFAULT_PORT;
-      }
-      const std::string& host_txt = ads[0];
-      if (!orderbook->addListener(QString::fromStdString(host_txt), port)) {
-        cerr << "ERROR, unable to listen on " << host_txt << ":" << port << endl;
-        return 1;
-      }
     } else {
       const vector<std::string> ks = miutil::split(sarg, "=");
       if (ks.size() != 2) {
@@ -1958,34 +1921,8 @@ int diana_init(int _argc, char** _argv)
     command_result res = bdiana()->parseAndProcess(is);
     if (res != cmd_success)
       return 99;
-  }
-
-  if (orderbook != NULL) {
-    bool quit = false;
-    /*
-     * XXX should handle SIGTERM / SIGINT somehow; currently, quit can
-     * never be false in this branch, and a SIGTERM or SIGINT will
-     * terminate bdiana immediately, with no chance for cleanup.
-     */
-    while (!quit) {
-      QPointer<diWorkOrder> order = orderbook->getNextOrder();
-      if (order) {
-        std::istringstream is(order->getText());
-        METLIBS_LOG_INFO("processing order...");
-        bdiana()->parseAndProcess(is);
-        METLIBS_LOG_INFO("done");
-        if (order) // may have been deleted (if the client disconnected)
-          order->signalCompletion();
-        else
-          METLIBS_LOG_INFO("diWorkOrder went away");
-        application->processEvents();
-      } else {
-        METLIBS_LOG_INFO("waiting");
-        application->processEvents(QEventLoop::WaitForMoreEvents);
-      }
-    }
-  } else if (batchinput.empty()) {
-    METLIBS_LOG_WARN("No -address was specified");
+  } else {
+    METLIBS_LOG_WARN("No input file was specified");
   }
   return DIANA_OK;
 }
