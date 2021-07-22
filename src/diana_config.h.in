@@ -11,7 +11,6 @@
 #cmakedefine HAVE_OPENMP
 
 #cmakedefine HDF5FILE 1
-#cmakedefine SMHI 1
 #cmakedefine ROADOBS 1
 #cmakedefine NEWARK_INC 1
 

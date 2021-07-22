@@ -29,6 +29,7 @@ Build-Depends: debhelper (>= 9),
  libproj-dev,
  libshp-dev,
  libemos-dev,
+ libemos-bin,
  libgtest-dev,
  poppler-utils
 Standards-Version: 3.9.2

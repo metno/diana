@@ -41,7 +41,6 @@
 
 #include <QPainter>
 #include <QPicture>
-#include <QPrinter>
 #include <QtSvg>
 
 #include <memory>
