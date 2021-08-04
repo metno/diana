@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2020 met.no
+ Copyright (C) 2006-2021 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -122,10 +122,8 @@ public:
    * @param bcolour, background color
    * @return successful plot
    */
-  bool plot(DiGLPainter* gl, const Area& area, const Rectangle& maprect,
-      double gcd, bool land, bool cont,
-      bool keepcont, DiGLPainter::GLushort linetype, float linewidth,
-      const unsigned char* lcolour, const unsigned char* fcolour, const unsigned char* bcolour);
+  bool plot(DiGLPainter* gl, const Area& area, const Rectangle& maprect, double gcd, bool land, bool cont, bool keepcont, DiGLPainter::GLushort linetype,
+            float linewidth, const Colour& lcolour, const Colour& fcolour, const Colour& bcolour);
 };
 
 #endif

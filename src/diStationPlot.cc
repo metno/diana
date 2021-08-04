@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2020 met.no
+ Copyright (C) 2006-2021 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -336,7 +336,7 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
           plotted = false;
       }
       if (si->isSelected && si->image != "wind")
-        gl->Color3ub(255, 0, 0); //red
+        gl->setColour(Colour::RED);
       glPlot(gl, Station::noStatus, x, y);
     } else if (!si->image.empty() && !si->image2.empty()) {
       float h1 = ig.height_(si->image);
@@ -344,14 +344,14 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
       h = std::max(h1, h2) * getStaticPlot()->getPhysToMapScaleY();
       float w1 = ig.width_(si->image);
       float w2 = ig.width_(si->image2);
-      gl->Color3ub(128, 128, 128); //grey
+      gl->setColour(Colour(128, 128, 128)); // grey
       glPlot(gl, Station::noStatus, x, y);
       if (!ig.plotImage(gl, getStaticPlot()->plotArea(), si->image, x - w1 / 2, y, true, 1, si->alpha))
         plotted = false;
       if (!ig.plotImage(gl, getStaticPlot()->plotArea(), si->image2, x + w2 / 2, y, true, 1, si->alpha))
         plotted = false;
       if (si->isSelected)
-        gl->Color3ub(255, 0, 0); //red
+        gl->setColour(Colour::RED);
       glPlot(gl, Station::noStatus, x, y);
     } else if (!si->isSelected && !imageNormal.empty()) {
       //otherwise plot images for selected/normal stations
@@ -382,12 +382,12 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
     gl->setFont(diutil::BITMAPFONT, diutil::F_NORMAL, 10);
     gl->getTextSize(si->name, cw, ch);
     if (useStationNameNormal && !si->isSelected) {
-      gl->Color3ub(0, 0, 0); // black
+      gl->setColour(Colour::BLACK);
       gl->drawText(si->name, x - cw / 2, y + h / 2, 0.0);
     } else if (useStationNameSelected && si->isSelected) {
-      gl->Color3ub(255, 255, 255); // white
+      gl->setColour(Colour::WHITE);
       glPlot(gl, Station::noStatus, x, y + h / 2 + ch * 0.1);
-      gl->Color3ub(0, 0, 0); // black
+      gl->setColour(Colour::BLACK);
       gl->drawText(si->name, x - cw / 2, y + h / 2 + ch * 0.35, 0.0);
     }
   }
@@ -405,7 +405,7 @@ void StationPlot::plotStation(DiGLPainter* gl, int i)
         gl->drawText(text, x - cw / 2, y + h / 2, 0.0);
       else if (t.hAlign == align_bottom) {
         if (si->isSelected)
-          gl->Color3ub(255, 255, 255); //white
+          gl->setColour(Colour::WHITE);
         glPlot(gl, Station::noStatus, x, y - h / 1.9 - ch * 1.0);
         gl->setColour(textColour);
         gl->drawText(text, x - cw / 2, y - h / 1.9 - ch * 0.7, 0.0);
@@ -994,7 +994,7 @@ void StationPlot::glPlot(DiGLPainter* gl, Station::Status tp, float x, float y, 
     linewidth = 2;
     r = linewidth * scale;
     //plot grey transparent square
-    gl->Color4ub(100, 100, 100, 50);
+    gl->setColour(Colour(100, 100, 100, 50));
     gl->Enable(DiGLPainter::gl_BLEND);
     gl->BlendFunc(DiGLPainter::gl_SRC_ALPHA, DiGLPainter::gl_ONE_MINUS_SRC_ALPHA);
     gl->drawRect(true, x - r, y - r, x + r, y + r);
@@ -1005,7 +1005,7 @@ void StationPlot::glPlot(DiGLPainter* gl, Station::Status tp, float x, float y, 
     gl->LineWidth(linewidth);
     r = linewidth * scale;
     //plot crosses
-    gl->Color3ub(255, 0, 0); //red
+    gl->setColour(Colour::RED);
     gl->drawCross(x, y, r, true);
     break;
   case Station::underRepair:
@@ -1013,7 +1013,7 @@ void StationPlot::glPlot(DiGLPainter* gl, Station::Status tp, float x, float y, 
     gl->LineWidth(linewidth);
     r = linewidth * scale;
     //plot crosses
-    gl->Color3ub(255, 255, 0); //yellow
+    gl->setColour(Colour::YELLOW);
     gl->drawCross(x, y, r, true);
     break;
   case Station::working:
@@ -1021,7 +1021,7 @@ void StationPlot::glPlot(DiGLPainter* gl, Station::Status tp, float x, float y, 
     gl->LineWidth(linewidth);
     r = linewidth * scale;
     //plot crosses
-    gl->Color3ub(0, 255, 0); //green
+    gl->setColour(Colour::GREEN);
     gl->drawCross(x, y, r, true);
     break;
   case Station::noStatus:
@@ -1035,7 +1035,7 @@ void StationPlot::glPlot(DiGLPainter* gl, Station::Status tp, float x, float y, 
     gl->LineWidth(linewidth);
     r = linewidth * scale;
     radius = 1.5 * r;
-    gl->Color3ub(255, 255, 0);
+    gl->setColour(Colour::YELLOW);
     gl->drawCircle(false, x, y, radius);
   }
 }
@@ -1060,7 +1060,7 @@ void StationPlot::plotWind(DiGLPainter* gl, int ii, float x, float y, bool class
     //compass
     int linewidth = 1;
     gl->LineWidth(linewidth);
-    gl->Color3ub(0, 0, 0);
+    gl->setColour(Colour::BLACK);
     gl->drawCircle(false, 0, 0, 1);
 
     diutil::GlMatrixPushPop pushpop2(gl);
@@ -1097,7 +1097,7 @@ void StationPlot::plotWind(DiGLPainter* gl, int ii, float x, float y, bool class
     gl->Rotatef(-1 * (dd + 180), 0.0, 0.0, 1.0);
   }
 
-  gl->Color3ub(0, 0, 0); //black
+  gl->setColour(Colour::BLACK);
   gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK,DiGLPainter::gl_FILL);
 
   // ff in m/s
@@ -1170,7 +1170,9 @@ void StationPlot::plotWind(DiGLPainter* gl, int ii, float x, float y, bool class
 
       gl->Begin(DiGLPainter::gl_POLYGON);
       gl->Vertex2f(0.5, -0.3);
-      gl->Color4f(colour.fR(), colour.fG(), colour.fB(), 0.3);
+      Colour colour03(colour);
+      colour03.setF(Colour::alpha, 0.3);
+      gl->setColour(colour03);
       gl->Vertex2f(0.5, -1.0);
       gl->Vertex2f(-0.5, -1.0);
       gl->setColour(colour);
@@ -1178,7 +1180,7 @@ void StationPlot::plotWind(DiGLPainter* gl, int ii, float x, float y, bool class
       gl->End();
 
       gl->ShadeModel(DiGLPainter::gl_FLAT);
-      gl->Color4f(1.0, 1.0, 1.0, 1.0);
+      gl->setColour(Colour::WHITE);
     }
   }
 
@@ -1191,7 +1193,7 @@ void StationPlot::plotWind(DiGLPainter* gl, int ii, float x, float y, bool class
     gl->getTextSize(ost, sW, sH);
     float sx = x - 0.45 * sW;
     float sy = y - 0.35 * sH;
-    gl->Color4f(1.0, 1.0, 1.0, 1.0); //white
+    gl->setColour(Colour::WHITE);
     gl->drawText(ost, sx, sy);
   }
 
@@ -1211,9 +1213,9 @@ void StationPlot::plotWind(DiGLPainter* gl, int ii, float x, float y, bool class
     gl->getTextSize(ddString[dd], sW, sH);
     float sx = x - 0.45 * sW;
     float sy = y - 2.35 * sH;
-    gl->Color3ub(255, 255, 255); //white
+    gl->setColour(Colour::WHITE);
     glPlot(gl, Station::noStatus, x, y - 2.5 * sH);
-    gl->Color4f(0.0, 0.0, 0.0, 1.0); //black
+    gl->setColour(Colour::BLACK);
     gl->drawText(ddString[dd], sx, sy);
   }
 

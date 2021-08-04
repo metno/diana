@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2020 met.no
+ Copyright (C) 2006-2021 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -592,10 +592,10 @@ bool AnnotationPlot::plotElements(DiGLPainter* gl,
       if (e.eType == input && isMarked) {
         if (e.isInside) {
           //red - ctrl-e works
-          gl->Color4f(1, 0, 0, 1.0);
+          gl->setColour(Colour::RED);
         } else if (isMarked) {
           //show text to be edited in blue
-          gl->Color4f(0, 0, 1, 1.0);
+          gl->setColour(Colour::BLUE);
         }
       }
       gl->setFont(poptions.fontname, e.eFace, e.eSize * fontsizeToPlot);
@@ -615,7 +615,7 @@ bool AnnotationPlot::plotElements(DiGLPainter* gl,
         float w, h;
         QString substring = astring.left(e.itsCursor);
         gl->getTextSize(substring, w, h);
-        gl->setColour(Colour::fromF(0, 0, 0, 1));
+        gl->setColour(Colour::BLACK);
         gl->drawLine(e.x1 + w, e.y1, e.x1 + w, e.y2);
       }
     } else if (e.eType == symbol) {
