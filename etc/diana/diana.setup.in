@@ -283,7 +283,7 @@ geopotential_height_pl:level=700hPa,geopotential_height_pl:level=1000hPa)
 topodiff=subtract(unsmoothed_altitude,altitude)
 topodiff_06=multiply(topodiff,0.006)
 kalman_air_temperature=subtract(tk2m,topodiff_06)
-kalman_air_temperature_celsius=temp_k2c(kalman_air_temperature)
+kalman_air_temperature_celsius=add(kalman_air_temperature,-273.15)
 
 # computations in hybrid/eta/sigma_norlam levels (needs surface_air_pressure) (".hlevel_")
 air_temperature_ml=tk.hlevel_th_psurf(air_potential_temperature_ml,surface_air_pressure:unit=hectopascal)
@@ -354,8 +354,6 @@ tfp1_ml=thermal.front.parameter_tx(air_temperature_ml:unit=kelvin)
 tfp_ml=multiply(tfp1_ml,1.e+11)
 
 sea_surface_temperature=equivalent_to(air_temperature_0m)  
-
-climatological_deep_soil_temperature=temp_k2c(tksc.param)
 
 pressure.tendency=field.diff.forecast.hour(surface_air_pressure:unit=hectopascal,-3,0)
 pressure.tendency=field.diff.forecast.hour(mslp,-3,0)
@@ -539,8 +537,7 @@ fluxsl.3h=add(fluxsens.3h,fluxlat.3h)
 fluxsl.6h=add(fluxsens.6h,fluxlat.6h)	
 fluxsl.12h=add(fluxsens.12h,fluxlat.12h)	
 
-air_temperature_pl_celsius=temp_k2c(air_temperature_pl)
-the_pl_celcius=temp_k2c(the_pl)
+air_temperature_pl_celsius=add(air_temperature_pl,-273.15)
 
 vorticity_pl=rel.vorticity(x_wind_pl,y_wind_pl)
 divergence_pl=divergence(x_wind_pl,y_wind_pl)
@@ -629,7 +626,7 @@ total.totals=subtract(total.totals.1:level=850hPa,total.totals.2:level=500hPa)
 
 #Tzoneforecast=dz*9.81/(287*ln(1000/700))-273 = dz*0.09583287318-273  /From Eirik Samuelsen, implemented by Gjermund Mamen Haugen
 Tzoneforecast_kelvin = multiply(dz.700-1000,0.09583287318)
-Tzoneforecast=temp_k2c(Tzoneforecast_kelvin)
+Tzoneforecast=add(Tzoneforecast_kelvin,-273.15)
 
 tke_sqrt_pl=power(turbulent_kinetic_energy_pl,0.5)
 

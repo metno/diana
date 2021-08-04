@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2019 met.no
+  Copyright (C) 2017-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -30,6 +30,8 @@
 #include "diLocationPlotCluster.h"
 
 #include "diLocationPlot.h"
+
+#include <algorithm>
 
 static const std::string LOCATION = "LOCATION";
 

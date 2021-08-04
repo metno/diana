@@ -51,8 +51,6 @@ ENDIF ()
 ########################################################################
 
 INCLUDE_DIRECTORIES(
-  ${PC_INCLUDE_DIRS}
-  ${PCUI_INCLUDE_DIRS}
   ${CMAKE_SOURCE_DIR}/src
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_BINARY_DIR}/src
@@ -73,13 +71,13 @@ TARGET_LINK_LIBRARIES(testinghelpers
   PUBLIC
   ${GTEST_LIBRARY}
   ${GTEST_MAIN_LIBRARY}
+  PRIVATE
+  ${milogger_PACKAGE}
 )
 
 LINK_LIBRARIES(
   testinghelpers
 )
-
-LINK_DIRECTORIES(${PC_LIBRARY_DIRS} ${PCUI_LIBRARY_DIRS} ${Boost_LIBRARY_DIRS})
 
 ########################################################################
 
@@ -131,7 +129,6 @@ ADD_EXECUTABLE(dianaUnitTests
 
 TARGET_LINK_LIBRARIES(dianaUnitTests
   libdiana_core
-  ${Boost_SYSTEM_LIBRARY}
 )
 
 ADD_TEST(NAME dianaUnitTests
@@ -165,7 +162,7 @@ TARGET_INCLUDE_DIRECTORIES(diFieldTest PRIVATE
   ${CMAKE_SOURCE_DIR}/src/diField
 )
 
-TARGET_LINK_LIBRARIES(diFieldTest
+TARGET_LINK_LIBRARIES(diFieldTest PRIVATE
   libdiana_core
 )
 

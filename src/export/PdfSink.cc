@@ -35,7 +35,6 @@
 #include <QPageSize>
 #include <QPdfWriter>
 #include <QPicture>
-#include <QPrinter>
 
 #define MILOGGER_CATEGORY "diana.bdiana" // FIXME
 #include <miLogger/miLogging.h>

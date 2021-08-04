@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2018 met.no
+  Copyright (C) 2015-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -39,6 +39,7 @@
 #include <QStringList>
 #include <QStringListModel>
 
+#include <cassert>
 #include <sstream>
 
 #include "ui_webmap_dialog.h"

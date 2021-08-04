@@ -1,3 +1,31 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2015-2021 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #include "ImageCache.h"
 #include <iostream>
@@ -9,8 +37,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
-
-#include <boost/bind.hpp>
 
 #include <puTools/miStringFunctions.h>
 
@@ -36,7 +62,7 @@ ImageCache::ImageCache(std::string path) :
   if (getenv("DIANA_TMP_MEM") != NULL) {
     useMem = true;
   }
-  m_thread = std::make_shared<std::thread>(boost::bind(&ImageCache::cleanCache, this));
+  m_thread = std::make_shared<std::thread>(&ImageCache::cleanCache, this);
 }
 
 ImageCache::~ImageCache()
@@ -75,8 +101,9 @@ bool ImageCache::getFromCache(const std::string& fileName, uint8_t* image)
 
 bool ImageCache::getFromMemCache(const std::string& fileName, uint8_t* image)
 {
-  if (mCache.count(fileName) > 0) {
-    memcpy(image, mCache[fileName].data, mCache[fileName].length);
+  const auto it = mCache.find(fileName);
+  if (it != mCache.end()) {
+    memcpy(image, it->second.data, it->second.length);
     return true;
   }
   return false;
