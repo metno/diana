@@ -195,7 +195,7 @@ std::string format_time(const miutil::miTime& time)
 
 struct Bdiana
 {
-  enum output_format_t { output_graphics, output_shape, output_json };
+  enum output_format_t { output_graphics, output_json };
 
   Bdiana();
   ~Bdiana();
@@ -267,7 +267,7 @@ struct Bdiana
   command_result handleDescribeCommand(int& k);
   command_result handleDescribeSpectrumCommand(int& k);
   command_result handleBuffersize(int& k, const std::string& value);
-  command_result handleOutputCommand(int& k, const std::string& value);
+  void detectOutputFormat();
   command_result handleMultiplePlotsCommand(int& k, const std::string& value);
   command_result handlePlotCellCommand(int& k, const std::string& value);
 
@@ -575,9 +575,9 @@ static void printUsage(std::ostream& out, const miutil::program_options::option_
       " - Vertical profiles",
       " - WaveSpectrum plots",
       " Available output-formats:",
-      " - as PDF, PS and EPS (using pdftops)",
-      " - as PNG, SVG",
-      " - as AVI MPG, MP4",
+      " - as SVG, PDF, POSTSCRIPT and EPS (the latter two require 'pdftops')",
+      " - as PNG, JPG/JPEG, BMP",
+      " - as AVI, MPG, MP4, GIF",
       "***************************************************",
       "",
       "Usage: bdiana [options] [key=value [key=value]] ...",
@@ -611,17 +611,17 @@ static void printExample(std::ostream& out)
     "#--------------------------------------------------------------",
     "",
     "buffersize=1696x1200     # plotbuffer (WIDTHxHEIGHT)",
-    "                         # For output=RASTER: size of plot.",
+    "                         # For output=AUTO/...: size of plot.",
     "                         # For output=POSTSCRIPT: size of buffer",
     "                         #  affects output-quality. TIP: make",
     "                         #  sure width/height ratio = width/height",
     "                         #  ratio of MAP-area (defined under PLOT)",
     "setupfile=diana.setup    # use a standard setup-file",
-    "output=PDF               # PDF/POSTSCRIPT/EPS/PNG/RASTER/AVI/MPG/MP4/SHP",
-    "                         # RASTER: format from filename-suffix",
-    "                         # PDF/SVG/JSON",
-    "                         # JSON (only for annotations)",
-    "filename=diana.pdf       # output filename",
+    "filename=diana.png       # output filename, output type determined from filename suffix",
+    "                         # - png, jpeg, jpg, bmp: raster graphics",
+    "                         # - svg, pdf, ps, eps: vector graphics (ps and eps last two require 'pdftops' utility)",
+    "                         # - avi, mp4, mpg, gif: video / animation",
+    "                         # - json: annotations only in a json format",
     "",
     "# the next options only apply to map-based plots:",
     "keepPlotArea=NO          # YES=try to keep plotarea for several plots",
@@ -1096,30 +1096,11 @@ command_result Bdiana::handlePlotCommand(int& k)
     return cmd_abort;
   }
 
-  if (output_format == output_shape && plottype != plot_standard) {
-    METLIBS_LOG_ERROR("ERROR, you can only use plottype STANDARD when using shape option"
-        << "..Exiting..");
-    return cmd_abort;
-  }
+  detectOutputFormat();
 
   if (!ensureSetup())
     return cmd_abort;
   std::vector<std::string> pcom = FIND_END_COMMAND(k, com_endplot, com_plotend);
-  if (output_format == output_shape) {
-    for (std::string& line : pcom) {
-      if (diutil::startswith(line, "FIELD ")) {
-        std::string shapeFileName = outputfilename;
-        line += " shapefilename=" + shapeFileName;
-        if (miutil::contains(line, "shapefile=0"))
-          miutil::replace(line, "shapefile=0", "shapefile=1");
-        else if (not miutil::contains(line, "shapefile="))
-          line += " shapefile=1";
-      } else {
-        METLIBS_LOG_ERROR("Error, Shape option cannot be used for OBS/OBJECTS/SAT/TRAJECTORY/EDITFIELD.. exiting");
-        return cmd_abort;
-      }
-    }
-  }
 
   if (getTimeChoice() != BdianaSource::USE_FIXEDTIME)
     fixedtime = ptime = miutil::miTime();
@@ -1187,9 +1168,6 @@ command_result Bdiana::handlePlotCommand(int& k)
     if (verbose)
       METLIBS_LOG_INFO("- plot");
 
-    if (output_format == output_shape)
-      main.controller->plot(nullptr /*go.glpainter*/, true, false); // FIXME
-
     // Create JSON annotations irrespective of the value of plotAnnotationsOnly.
     if (output_format == output_json)
       createJsonAnnotation();
@@ -1255,20 +1233,12 @@ command_result Bdiana::handlePlotCommand(int& k)
       METLIBS_LOG_INFO("- plot");
     go.render(wavespec);
   }
+
   // --------------------------------------------------------
   // Write output to a file.
   // --------------------------------------------------------
 
-  if (output_format == output_shape) { // Only shape output
-
-    if (miutil::contains(outputfilename, "tmp_diana")) {
-      METLIBS_LOG_INFO("Using shape option without file name, it will be created automatically");
-    } else {
-      METLIBS_LOG_INFO("Using shape option with given file name: '" << outputfilename << "'");
-    }
-
-  } else if (output_format == output_json) {
-
+  if (output_format == output_json) {
     QFile outputFile(QString::fromStdString(outputfilename));
     if (outputFile.open(QFile::WriteOnly)) {
       outputFile.write("{");
@@ -1466,40 +1436,15 @@ command_result Bdiana::handleBuffersize(int& k, const std::string& value)
   return go.setBufferSize(w, h) ? cmd_success : cmd_abort;
 }
 
-command_result Bdiana::handleOutputCommand(int& k, const std::string& value)
+void Bdiana::detectOutputFormat()
 {
-  const std::string lvalue = miutil::to_lower(value);
-  output_format = output_graphics;
-  if (lvalue == "auto") {
-    go.setImageType(image_auto);
-  } else if (lvalue == "postscript") {
-    go.setImageType(image_ps);
-  } else if (lvalue == "eps") {
-    go.setImageType(image_eps);
-  } else if (lvalue == "png" || lvalue == "raster") {
-    go.setImageType(image_raster);
-  } else if (lvalue == "shp") {
-    output_format = output_shape;
-  } else if (lvalue == "avi") {
-    go.setMovieFormat("avi");
-  } else if (lvalue == "mpg") {
-    go.setMovieFormat("mpg");
-  } else if (lvalue == "mp4") {
-    go.setMovieFormat("mp4");
-  } else if (lvalue == "pdf") {
-    go.setImageType(image_pdf);
-  } else if (lvalue == "svg") {
-    go.setImageType(image_svg);
-  } else if (lvalue == "json") {
+  if (diutil::endswith(outputfilename, ".json")) {
     output_format = output_json;
     outputTextMaps.clear();
     outputTextMapOrder.clear();
   } else {
-    METLIBS_LOG_ERROR("ERROR, unknown output-format:" << lines[k] << " Linenumber:" << linenumbers[k]);
-    return cmd_abort;
+    output_format = output_graphics;
   }
-
-  return cmd_success;
 }
 
 command_result Bdiana::handleMultiplePlotsCommand(int& k, const std::string& value)
@@ -1647,7 +1592,7 @@ command_result Bdiana::parseAndProcess(istream& is)
         return cmd_abort;
 
     } else if (key == com_papersize || key == com_toprinter || key == com_printer || key == com_colour || key == com_drawbackground || key == com_orientation ||
-               key == com_antialiasing) {
+               key == com_antialiasing || key == com_output) {
       METLIBS_LOG_WARN("the bdiana option '" << key << "' has no effect any more");
 
     } else if (key == com_filename) {
@@ -1657,10 +1602,6 @@ command_result Bdiana::parseAndProcess(istream& is)
         return cmd_abort;
       } else
         outputfilename = value;
-
-    } else if (key == com_output) {
-      if (handleOutputCommand(k, value) == cmd_abort)
-        return cmd_abort;
 
     } else if (key == com_addhour) {
       addhour=atoi(value.c_str());
