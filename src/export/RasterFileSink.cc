@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017 met.no
+  Copyright (C) 2017-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,23 +33,26 @@
 #include <QFileInfo>
 
 namespace {
-bool save(const QImage& image, const QString& filename)
+bool save(const QImage& image, const QString& filename, const QString format)
 {
   const QString suffix = QFileInfo(filename).suffix().toLower();
-  if (suffix == "png") {
+  if (format == "png" || (format.isEmpty() && suffix == "png")) {
     QFile file(filename);
     file.open(QIODevice::WriteOnly);
     QImagePNGWriter writer(&file);
     return writer.write(image);
+  } else if (!format.isEmpty()) {
+    return image.save(filename, format.toStdString().c_str());
   } else {
     return image.save(filename);
   }
 }
 } // namespace
 
-RasterFileSink::RasterFileSink(const QSize& size, const QString& filename)
+RasterFileSink::RasterFileSink(const QSize& size, const QString& filename, const QString format)
     : image_(size, QImage::Format_ARGB32_Premultiplied)
     , filename_(filename)
+    , format_(format)
 {
 }
 
@@ -87,7 +90,7 @@ bool RasterFileSink::finish()
 bool RasterFileSink::saveTo(const QString& filename)
 {
   if (!filename.isEmpty())
-    return save(image_, filename);
+    return save(image_, filename, format_);
   else
     return false;
 }
