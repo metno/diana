@@ -52,6 +52,7 @@
 #include <algorithm>
 #include <fstream>
 #include <vector>
+#include <iostream>
 
 #define MILOGGER_CATEGORY "diana.ObsRoad"
 #include <miLogger/miLogging.h>
@@ -1213,7 +1214,7 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
   stations_to_plot.push_back(station_n);
   /* get the data */
   map<int, vector<RDKCOMBINEDROW_2>> raw_data_map;
-  road.getData(stations_to_plot, raw_data_map);
+  road.getRadiosondeData(stations_to_plot, raw_data_map);
 
   road.close();
   vector<RDKCOMBINEDROW_2> raw_data;
@@ -1225,6 +1226,7 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("Lines returned from road.getData(): " << raw_data.size());
 #endif
+  
   // For now, we dont use the surface data!
   vector<diParam>* params = 0;
   map<std::string, vector<diParam>*>::iterator itp = diParam::params_map.find(headerfile_);
@@ -1241,7 +1243,7 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
   for (size_t k = 0; k < params->size(); k++) {
     map<float, RDKCOMBINEDROW_2> tmpresult;
     for (int i = 0; i < no_of_data_rows; i++) {
-      if ((*params)[k].isMapped(raw_data[i])) {
+      if ((*params)[k].parameter()==raw_data[i].parameter && (*params)[k].srid()==raw_data[i].srid) {
         // Data must be keyed with pressure
         if (raw_data[i].srid - 1000 == 4)
           tmpresult[raw_data[i].altitudefrom] = raw_data[i];
@@ -1273,65 +1275,8 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
   map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator itsig_13 = data_map.begin();
   map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator itsig_14 = data_map.begin();
 
-  /* the surface values */
-  map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator ittts = data_map.begin();
-  map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator ittds = data_map.begin();
-  map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator itdds = data_map.begin();
-  map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator itffs = data_map.begin();
-  /* the ground pressure */
-  map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator itpps = data_map.begin();
-
   map<float, RDKCOMBINEDROW_2>::iterator ittp;
 
-  ittts = data_map.find("TTTs");
-  float TTTs_value = -32767.0;
-  if (ittts != data_map.end()) {
-    ittp = ittts->second.begin();
-    for (; ittp != ittts->second.end(); ittp++) {
-      TTTs_value = ittp->second.floatvalue;
-    }
-  }
-
-  ittds = data_map.find("TdTdTds");
-  float TdTdTds_value = -32767.0;
-
-  if (ittds != data_map.end()) {
-    ittp = ittds->second.begin();
-    for (; ittp != ittds->second.end(); ittp++) {
-      TdTdTds_value = ittp->second.floatvalue;
-    }
-  }
-
-  itdds = data_map.find("dds");
-  float dds_value = -32767.0;
-  if (itdds != data_map.end()) {
-    ittp = itdds->second.begin();
-    for (; ittp != itdds->second.end(); ittp++) {
-      dds_value = ittp->second.floatvalue;
-    }
-  }
-
-  itffs = data_map.find("ffs");
-  float ffs_value = -32767.0;
-  if (itffs != data_map.end()) {
-    ittp = itffs->second.begin();
-    for (; ittp != itffs->second.end(); ittp++) {
-      ffs_value = ittp->second.floatvalue;
-    }
-  }
-
-  itpps = data_map.find("PPPP");
-  float PPPPs_value = -32767.0;
-  if (itpps != data_map.end()) {
-    ittp = itpps->second.begin();
-    for (; ittp != itpps->second.end(); ittp++) {
-      PPPPs_value = ittp->second.floatvalue;
-    }
-  }
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("surface data TTTs: " << TTTs_value << " TdTdTds: " << TdTdTds_value << " dds: " << dds_value << " ffs: " << ffs_value
-                                          << " PPPP: " << PPPPs_value);
-#endif
 
   ittt = data_map.find("TTT");
   /* Only surface observations */
@@ -1402,71 +1347,65 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
   ittp = ittt->second.begin();
   // Here should we sort!
   std::set<float> keys;
-  /* Check if PPPP is in telegram */
-  if (PPPPs_value != -32767.0)
-    keys.insert(PPPPs_value * 100.0);
   for (; ittp != ittt->second.end(); ittp++) {
     // insert altitudefrom in the set
     keys.insert(ittp->second.altitudefrom);
   }
-  int siglevels = sig_1.size() + sig_4.size() + sig_7.size() + sig_12.size() + sig_13.size() + sig_14.size();
-  // Iterate over the sorted set */
-  int d = 0;
   std::set<float>::iterator it = keys.begin();
+  // First, the temperatures
   for (; it != keys.end(); it++) {
     float key = *it;
     p = key * 0.01;
-    // check with ground level pressure !
-    if ((p > PPPPs_value) && (PPPPs_value != -32767.0))
-      continue;
     if (p > 0. && p < 1300.) {
-      if (key == (PPPPs_value * 100.0)) {
-        tt = TTTs_value;
-        td = TdTdTds_value;
-      } else {
-        tt = -30000.;
-        if (ittt->second.count(key))
-          tt = ittt->second[key].floatvalue;
-        td = -30000.;
-        if (ittd->second.count(key))
-          td = ittd->second[key].floatvalue;
-      }
-      if (tt > -30000.) {
-        temperature->add(p, tt);
-        if (td > -30000.) {
-          dewpoint_temperature->add(p, td);
-        }
-      }
-      if (key == (PPPPs_value * 100.0)) {
-        dd = dds_value;
-        ff = ffs_value;
-      } else {
-        dd = -1;
+		tt = -30000.;
+		if (ittt->second.count(key))
+		  tt = ittt->second[key].floatvalue;
+		td = -30000.;
+		if (ittd->second.count(key))
+		  td = ittd->second[key].floatvalue;
+		if (tt > -30000.) {
+			temperature->add(p, tt);
+			if (td > -30000.) {
+				dewpoint_temperature->add(p, td);
+			}
+		}
+	}
+  } // End temperature loop
+  
+  ittp = itdd->second.begin();
+  keys.clear();
+  for (; ittp != itdd->second.end(); ittp++) {
+    // insert altitudefrom in the set
+    keys.insert(ittp->second.altitudefrom);
+  }
+  it = keys.begin();
+  for (; it != keys.end(); it++) {
+    float key = *it;
+    p = key * 0.01;
+    if (p > 0. && p < 1300.) {
+		dd = -1;
         if (itdd->second.count(key))
           dd = int(itdd->second[key].floatvalue);
         ff = -1;
         if (itff->second.count(key))
           ff = int(itff->second[key].floatvalue);
-      }
-      if (dd >= 0 && dd <= 360 && ff >= 0) {
-        // Only plot the significant winds
-        bpart = 0;
-        // SHOULD it always be 1 ?
-        if (sig_1.count(key) || sig_4.count(key) || sig_7.count(key) || sig_12.count(key) || sig_13.count(key) || sig_14.count(key))
-          bpart = 1;
-        // Plot winds at significant levels and at standard pressure levels.
-        if (bpart > 0 || p == 1000 || p == 925 || p == 850 || p == 800 || p == 700 || p == 500 || p == 400 || p == 300 || p == 200 || p == 100 || p == 50) {
-          wind_dd->add(p, dd);
-          wind_ff->add(p, ff);
-          wind_sig->add(p, bpart);
-          if (ff > ffmax) {
-            ffmax = ff;
-            kmax = wind_sig->length() - 1;
-          }
-        }
-      }
-    }
-  } /* End for */
+		if (dd >= 0 && dd <= 360 && ff >= 0) {
+			// Mark the significant winds
+			bpart = 0;
+			if (sig_1.count(key) || sig_4.count(key) || sig_7.count(key) || sig_12.count(key) || sig_13.count(key) || sig_14.count(key))
+			   bpart = 1;
+			
+			wind_dd->add(p, dd);
+			wind_ff->add(p, ff);
+			wind_sig->add(p, bpart);
+			if (ff > ffmax) {
+				ffmax = ff;
+				kmax = wind_sig->length() - 1;
+			}
+		}
+	}
+  } // End wind loop
+
   if (kmax >= 0)
     wind_sig->setX(kmax, 3);
   vp->prognostic = false;
