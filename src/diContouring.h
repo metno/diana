@@ -29,57 +29,11 @@
 #ifndef CONTOURING_H
 #define CONTOURING_H
 
-#include "diPlotOptions.h"
-
-#include <diField/diArea.h>
-
-#include <vector>
 #include <string>
 
-class DiPainter;
+class PlotOptions;
+class Area;
 class DiGLPainter;
-
-  /// temporary field contouring info
-  struct LinePart {
-    int   pfirst,plast;
-    bool  addfirst,addlast;
-    float xfirst,yfirst,xlast,ylast;
-    int   connect[2][2];  // connection[0=first/1=last][0=left/1=right]
-    bool  closed;
-  };
-
-  /// field contour data and misc info to make closed lines for shading
-  struct ContourLine {
-    bool  original;
-    int   ivalue;
-    float value;
-    bool  highInside;
-    bool  highLeft;
-    bool  closed;
-    int   izleft;
-    int   izright;
-    int   direction;  // 1=counterclockwise  -1=clockwise  0=no polygon
-    int   npos;
-    float *xpos;
-    float *ypos;
-    float xmin;
-    float xmax;
-    float ymin;
-    float ymax;
-    //....................................
-    bool  undefLine;
-    bool  corner;
-    int   connect[2][2];  // connection[0=first/1=last][0=left/1=right]
-    //....................................
-    int   use;
-    bool  isoLine;
-    bool  undefTouch;
-    bool  undefLeft;
-    bool  undefRight;
-    bool  outer;
-    bool  inner;
-    std::vector<int> joined;
-  };
 
 /// the field contouring routine
 bool contour(int nx, int ny, float z[], const float xz[], const float yz[],
@@ -98,69 +52,5 @@ bool contour(int nx, int ny, float z[], const float xz[], const float yz[],
              int nxbmap, int nybmap, float rbmap[],
              DiGLPainter* gl, const PlotOptions& poptions,
              const Area& fieldArea, const float& fieldUndef);
-
-// functions called from contour
-
-/// sorts isolines to contour and may add colour,linetype and width to each
-int sortlines(float zvmin, float zvmax, int mvalue, int nvalue,
-     	      float zvalue[], int ivalue[],
-	      int icolour[], int linetype[], int linewidth[],
-	      int idraw, float zrange[], float zstep, float zoff,
-	      int nlines, float rlines[],
-	      int ncol, int icol[], int ntyp, int ityp[],
-	      int nwid, int iwid[], int nlim, float rlim[],
-	      const float& fieldUndef);
-
-/// line smoothing (inserts extra points by a spline methode)
-int smoothline(int npos, float x[], float y[], int nfirst, int nlast,
-	       int ismooth, float xsmooth[], float ysmooth[]);
-
-
-/// converts field positions to map
-void posConvert(int npos, float *x, float *y, float *cxy);
-/// converts field positions to map
-void posConvert(int npos, float *x, float *y,
-                int nx, int ny, const float* xz, const float* yz);
-/// joins contour parts (also along undefined areas) to closed contours
-void joinContours(std::vector<ContourLine*>& contourlines, int idraw,
-		  bool drawBorders, int iconv);
-/// find points where a horizontal line crosses a closed contour
-std::vector<float> findCrossing(float ycross, int n, float *x, float *y);
-
-/// uses OpenGL tesselation (triangulation) to shade between isolines
-void fillContours(DiGLPainter* gl, std::vector<ContourLine*>& contourlines,
-                  int nx, int ny, float z[],
-                  int iconv, float *cxy, const float* xz, const float* yz, int idraw,
-                  const PlotOptions& poptions, bool drawBorders,
-                  const Area& fieldArea,
-                  float zrange[], float zstep, float zoff,
-                  const float& fieldUndef);
-
-/// replaces undefined values with relatively sensible values
-void replaceUndefinedValues(int nx, int ny, float *f, bool fillAll,
-			    const float& fieldUndef);
-
-/// draw part of contour line
-void drawLine(DiPainter* gl, int start, int stop, float* x, float* y);
-/// write shapefile
-void writeShapefile(std::vector<ContourLine*>& contourlines,
-                    int nx, int ny,
-                    int iconv, float *cxy,
-                    const float* xz, const float* yz,
-                    int idraw,
-                    const PlotOptions& poptions,
-                    bool drawBorders,
-                    const Area& fieldArea,
-                    float zrange[],
-                    float zstep,
-                    float zoff,
-                    const float& fieldUndef,
-                    const std::string& modelName,
-                    const std::string& paramName,
-                    const int& fhour);
-
-/// get CL index
-void getCLindex(std::vector<ContourLine*>& contourlines, std::vector< std::vector<int> >& clind,
-		const PlotOptions& poptions, bool drawBorders, const float& fieldUndef);
 
 #endif
