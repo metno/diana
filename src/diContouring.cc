@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -46,8 +46,6 @@
 #include <QPolygonF>
 #include <QString>
 
-#include <shapefil.h>
-
 #include <cmath>
 #include <fstream>
 #include <set>
@@ -75,9 +73,7 @@ bool contour(int nx, int ny, float z[], const float xz[], const float yz[],
     int ibmap, int lbmap, int kbmap[],
     int nxbmap, int nybmap, float rbmap[],
     DiGLPainter* gl, const PlotOptions& poptions,
-    const Area& fieldArea, const float& fieldUndef,
-    const std::string& modelName, const std::string& paramName,
-    const int& fhour)
+    const Area& fieldArea, const float& fieldUndef)
 {
   //  NAME:
   //     contour
@@ -304,7 +300,6 @@ bool contour(int nx, int ny, float z[], const float xz[], const float yz[],
 
   bool drawBorders= poptions.discontinuous!=0;
   bool shading=     poptions.contourShading!=0;
-  bool shape=       poptions.contourShape!=0;
 
   if (drawBorders) {
     if (idraw==1 || idraw==2) {
@@ -3015,7 +3010,7 @@ bool contour(int nx, int ny, float z[], const float xz[], const float yz[],
   horAttach.clear();
   verAttach.clear();
 
-  if (shading && contourlines.size()>0 && !poptions.shapefilename.size() ) {
+  if (shading && !contourlines.empty()) {
 
     int nclfirst= contourlines.size();
 
@@ -3064,16 +3059,6 @@ bool contour(int nx, int ny, float z[], const float xz[], const float yz[],
     fillContours(gl, contourlines, nx, ny, z,
         iconv, cxy, xz, yz, idraw, poptions, drawBorders,
         fieldArea,zrange,zstep,zoff,fieldUndef);
-  }
-
-  if (shape && contourlines.size()>0) {
-
-	  if (poptions.shapefilename.size())
-		  joinContours(contourlines,idraw,drawBorders,iconv);
-
-	  writeShapefile(contourlines, nx, ny, iconv, cxy, xz, yz,
-			  idraw, poptions, drawBorders, fieldArea, zrange,
-			  zstep,zoff, fieldUndef, modelName, paramName, fhour);
   }
 
   if (contourlines.size()>0) {
@@ -4184,183 +4169,6 @@ void fillContours(DiGLPainter* gl, vector<ContourLine*>& contourlines,
   gl->ShadeModel(DiGLPainter::gl_FLAT);
   gl->EdgeFlag(DiGLPainter::gl_TRUE);
 }
-
-void writeShapefile(vector<ContourLine*>& contourlines,
-		  int nx, int ny,
-		  int iconv, float *cxy,
-                  const float *xz, const float *yz,
-		  int idraw,
-		  const PlotOptions& poptions,
-		  bool drawBorders,
-		  const Area& fieldArea,
-		  float zrange[],
-		  float zstep,
-		  float zoff,
-		  const float& fieldUndef,
-		  const std::string& modelName,
-		  const std::string& paramName,
-		  const int& fhour)
-{
-
-  int ncl= contourlines.size();
-  if (ncl<1) return;
-
-  ContourLine *cl;
-  ContourLine *cl2;
-  int i,j,jc,ncontours;
-
-  vector< vector<int> > clindex(ncl);
-  // NEW function for countourline indexes to use, separated from the other code,
-  // to be used in other methods, such as writing shape files
-  getCLindex(contourlines, clindex, poptions, drawBorders, fieldUndef);
-
-  vector<float> classValues;
-  vector<std::string> classNames;
-  unsigned int maxlen;
-  diutil::parseClasses(poptions, classValues, classNames, maxlen);
-  int nclass= classValues.size();
-
-  if (iconv==1) {
-    for (jc=0; jc<ncl; jc++) {
-      cl= contourlines[jc];
-      if (cl->closed) posConvert(cl->npos,cl->xpos,cl->ypos,cxy);
-    }
-  } else if (iconv==2) {
-    for (jc=0; jc<ncl; jc++) {
-      cl= contourlines[jc];
-      if (cl->closed) posConvert(cl->npos,cl->xpos,cl->ypos,nx,ny,xz,yz);
-    }
-  }
-
-  std::string shapefileName;
-  if (poptions.shapefilename.size()>0 && !miutil::contains(poptions.shapefilename, "tmp_diana") )
-	  shapefileName=poptions.shapefilename;
-  else
-    shapefileName= modelName + "_" + paramName + "_" + miutil::from_number(fhour) + ".shp";
-
-  // Projection -- DIANA uses sperical earth....
-  std::string projStr = "GEOGCS[\"unnamed ellipse\",DATUM[\"D_unknown\",SPHEROID[\"Unknown\",6371000,0]],PRIMEM[\"Greenwich\",0],UNIT[\"Degree\",0.017453292519943295]]";
-  std::string projFileName;
-  projFileName = shapefileName;
-  miutil::replace(projFileName, ".shp","");
-  projFileName+=".prj";
-
-  // open filestream and write .prj file
-  ofstream projfile(projFileName.c_str());
-  if (!projfile){
-    METLIBS_LOG_ERROR("ERROR OPEN (WRITE) " << projFileName);
-    return;
-  }
-  projfile << projStr << endl;
-  projfile.close();
-
-  int nSHPType= SHPT_POLYGON;
-  int iShape= 0;
-  SHPObject *psShape;
-  SHPHandle hSHP= SHPCreate( shapefileName.c_str(), nSHPType );
-
-  DBFHandle hDBF= DBFCreate( shapefileName.c_str() );
-  int iField;
-  if (nclass>0) {
-    iField= DBFAddField( hDBF, "Value_str", FTString, maxlen, 0);
-  } else {
-    iField= DBFAddField( hDBF, "Value_dbl", FTDouble, 8, 2);
-  }
-
-  for (jc=0; jc<ncl; jc++) {
-    cl= contourlines[jc];
-    if (cl->outer && cl->closed && cl->ivalue!=-300 &&
-    		(!cl->undefLine || (!cl->highInside && cl->joined.size()<2))) {
-    	// colour index - shape line index...
-		int ivalue= cl->ivalue;
-		if (cl->isoLine && !cl->highInside) ivalue--;
-		// If idraw=2, zero.line=0, and no zero line shall be drawn.... uncertain how this works with shape...
-		if (ivalue>=0 && idraw==2) ivalue++;
-		if( (idraw >2 || zrange[0]>zrange[1] ||
-		   ( ivalue<(zrange[1]-zoff)/zstep
-			 && ivalue>((zrange[0]-zoff)/zstep)-1) ) ) {
-
-		  ncontours= clindex[jc].size();
-		  int nposis=0;
-		  for (i=0; i<ncontours; i++) {
-			  cl2= contourlines[clindex[jc][i]];
-			  nposis+= cl2->npos;
-		  }
-
-		  if (nposis>2) {
-
-		  float *fxshape= new float[nposis];
-		  float *fyshape= new float[nposis];
-		  int *partStart= new int[ncontours];
-		  int *partType = new int[ncontours];
-		  int n= 0;
-
-		  for (i=0; i<ncontours; i++) {
-			partStart[i]= n;
-			if (i==0) partType[i]= SHPP_RING;
-			else      partType[i]= SHPP_INNERRING;
-			cl= contourlines[clindex[jc][i]];
-			int np= cl->npos;
-			if ((i==0 && cl->direction==-1) ||
-				(i>0  && cl->direction==1)) {
-			  for (j=0; j<np; j++) {
-				fxshape[n]  = cl->xpos[j];
-				fyshape[n++]= cl->ypos[j];
-			  }
-			} else {
-			  for (j=np-1; j>=0; j--) {
-				fxshape[n]  = cl->xpos[j];
-				fyshape[n++]= cl->ypos[j];
-			  }
-			}
-		  }
-
-                  fieldArea.P().convertToGeographic(nposis, fxshape, fyshape);
-
-		  double *xshape= new double[nposis];
-		  double *yshape= new double[nposis];
-
-		  for (n=0; n<nposis; n++) {
-			xshape[n]= fxshape[n];
-			yshape[n]= fyshape[n];
-		  }
-
-		  delete[] fxshape;
-		  delete[] fyshape;
-
-		  psShape= SHPCreateObject( nSHPType, -1, ncontours, partStart, partType,
-				  nposis, xshape, yshape, NULL, NULL );
-		  SHPWriteObject( hSHP, -1, psShape );
-		  SHPDestroyObject( psShape );
-
-		  delete[] xshape;
-		  delete[] yshape;
-		  delete[] partStart;
-		  delete[] partType;
-
-		  int ii;
-		  if (nclass>0) {
-			ii=0;
-			while (ii<nclass && classValues[ii]!=ivalue) ii++;
-			if (ii<nclass) {
-				DBFWriteStringAttribute( hDBF, iShape, iField, classNames[ii].c_str() );
-			} else {
-				DBFWriteDoubleAttribute( hDBF, iShape, iField, cl->value );
-			}
-		  } else {
-			  DBFWriteDoubleAttribute( hDBF, iShape, iField, cl->value );
-		  }
-
-		  iShape++;
-		}
-	  }
-    }
-  }
-  SHPClose( hSHP );
-  DBFClose( hDBF );
-
-}
-
 
 void getCLindex(vector<ContourLine*>& contourlines, vector< vector<int> >& clind,
 		  const PlotOptions& poptions, bool drawBorders, const float& fieldUndef)

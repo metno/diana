@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -97,9 +97,7 @@ bool contour(int nx, int ny, float z[], const float xz[], const float yz[],
              int ibmap, int lbmap, int kbmap[],
              int nxbmap, int nybmap, float rbmap[],
              DiGLPainter* gl, const PlotOptions& poptions,
-             const Area& fieldArea, const float& fieldUndef,
-             const std::string& modelName = "", const std::string& paramName = "",
-             const int& fhour = 0);
+             const Area& fieldArea, const float& fieldUndef);
 
 // functions called from contour
 

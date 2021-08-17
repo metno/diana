@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -237,10 +237,6 @@ public:
   static const std::string key_enabled;
   //field names used for plotting
   static const std::string key_fname;
-  //contour shape
-  static const std::string key_contourShape;
-  //Shape filename for output
-  static const std::string key_shapefilename;
   //legend units
   static const std::string key_legendunits;
   //legend title
@@ -341,8 +337,6 @@ public:
   std::string  fname;
   static std::vector< std::vector<std::string> > plottypes;
   static std::map<std::string, unsigned int> enabledOptions; //enabledoptions[plotmethod]="OR of EnabledOptions values"
-  bool      contourShape;
-  std::string  shapefilename;
   std::string legendunits; //used in legends
   std::string legendtitle; //used in legends
   bool      tableHeader; // whether each table is drawn with a header

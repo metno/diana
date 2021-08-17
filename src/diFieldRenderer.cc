@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2020 met.no
+ Copyright (C) 2006-2021 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -1542,8 +1542,7 @@ bool FieldRenderer::plotContour(DiGLPainter* gl)
     METLIBS_LOG_TIME("contour");
     res = contour(rnx, rny, data, x, y, ipart, 2, NULL, xylim, idraw, zrange, zstep, zoff, nlines, rlines, ncol, icol, ntyp, ityp, nwid, iwid, nlim, rlim,
                   idraw2, zrange2, zstep2, zoff2, nlines2, rlines2, ncol2, icol2, ntyp2, ityp2, nwid2, iwid2, nlim2, rlim2, ismooth, labfmt, chxlab, chylab,
-                  ibcol, ibmap, lbmap, kbmap, nxbmap, nybmap, rbmap, gl, poptions_, fields_[0]->area, fieldUndef,
-                  "diana" /*only used for writing shape files */, fields_[0]->name, ftime_.hour());
+                  ibcol, ibmap, lbmap, kbmap, nxbmap, nybmap, rbmap, gl, poptions_, fields_[0]->area, fieldUndef);
 
     if (poptions_.antialiasing)
       gl->Enable(DiGLPainter::gl_MULTISAMPLE);
@@ -1646,8 +1645,7 @@ bool FieldRenderer::plotContour(DiGLPainter* gl)
 
     res = contour(rnx, rny, data, x, y, ipart, 2, NULL, xylim, idraw, zrange, zstep, zoff, nlines, rlines, ncol, icol, ntyp, ityp, nwid, iwid, nlim, rlim,
                   idraw2, zrange2, zstep2, zoff2, nlines2, rlines2, ncol2, icol2, ntyp2, ityp2, nwid2, iwid2, nlim2, rlim2, ismooth, labfmt, chxlab, chylab,
-                  ibcol, ibmap, lbmap, kbmap, nxbmap, nybmap, rbmap, gl, poptions_, fields_[0]->area, fieldUndef,
-                  "diana" /* only used for writing shape files */, fields_[0]->name, ftime_.hour());
+                  ibcol, ibmap, lbmap, kbmap, nxbmap, nybmap, rbmap, gl, poptions_, fields_[0]->area, fieldUndef);
 
     // restore contour shading
     poptions_.contourShading = contourShading;
