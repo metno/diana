@@ -1845,15 +1845,15 @@ int diana_init(int _argc, char** _argv)
     printExample(std::cout);
   }
 
-  do {
+  {
     std::string logfilename;
     if (char* ctmp = getenv("BDIANA_LOGGER")) {
       logfilename = ctmp;
-    } else if (!diutil::value_if_set(vm, op_logger, logfilename)) {
-      break;
+    } else {
+      diutil::value_if_set(vm, op_logger, logfilename);
     }
     milogger::system::selectedSystem()->configure(logfilename);
-  } while (false);
+  }
 
   METLIBS_LOG_INFO(executable << " : DIANA batch version " << VERSION << LOGVAL(argv.size()));
 
