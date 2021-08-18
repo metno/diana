@@ -434,8 +434,8 @@ bool ObsBufr::BUFRdecode(int* ibuff, int ilen)
     return true;
   }
 
-  const int kelem = 80000; //length of subsection
-  const int kvals = 440000;
+  const int kelem = 160000; //length of subsection
+  const int kvals = 4096000;
 
   std::unique_ptr<char[]> cnames(new char[kelem * len_cnames]);
   std::unique_ptr<char[]> cunits(new char[kelem * len_cunits]);
@@ -1315,7 +1315,7 @@ void StationBufr::get_station_info(int ktdexl, const int *ktdexp, const double* 
       if (values[j] < bufrMissing)
         wmoBlock = int(values[j]);
       else
-        METLIBS_LOG_WARN("1001 WMO block number == missing!");
+        METLIBS_LOG_DEBUG("1001 WMO block number == missing!");
       break;
 
       //   1002  WMO STATION NUMBER
@@ -1324,7 +1324,7 @@ void StationBufr::get_station_info(int ktdexl, const int *ktdexp, const double* 
         wmoStation = int(values[j]);
         wmoNumber = true;
       } else
-        METLIBS_LOG_WARN("1002 WMO station number == missing!");
+        METLIBS_LOG_DEBUG("1002 WMO station number == missing!");
       break;
 
       //  1011  SHIP OR MOBILE LAND STATION IDENTIFIER, CCITTIA5 (ascii chars)
