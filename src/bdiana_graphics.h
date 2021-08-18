@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017 met.no
+  Copyright (C) 2017-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -45,16 +45,6 @@
 
 #include <memory>
 
-enum image_type_t {
-  image_auto,
-  image_raster,
-  image_pdf,
-  image_ps,  // PostScript
-  image_eps, // EncapsulatedPostScript
-  image_movie,
-  image_svg,
-};
-
 class BdianaGraphics
 {
 public:
@@ -65,9 +55,7 @@ public:
   bool enableMultiPlot(int rows, int columns, float spacing, float margin);
   void disableMultiPlot();
   bool setPlotCell(int row, int col);
-  void setImageType(image_type_t it);
   void setOutputFile(const std::string& filename);
-  void setMovieFormat(const std::string& mf);
   bool render(BdianaSource& src);
   void endOutput();
 
@@ -81,7 +69,6 @@ private:
   void beginMultiplePage();
   void endMultiplePage();
 
-  image_type_t image_type;
   std::string outputfilename_;
   std::string movieFormat;
 
