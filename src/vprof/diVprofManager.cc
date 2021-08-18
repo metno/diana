@@ -623,7 +623,7 @@ void VprofManager::initStations()
           stationList.push_back(si);
 
           if (miutil::trimmed(si.name).empty())
-            METLIBS_LOG_WARN("empty vpdata name @ " << LOGVAL(si.lat) << LOGVAL(si.lon));
+            METLIBS_LOG_DEBUG("empty vpdata name @ " << LOGVAL(si.lat) << LOGVAL(si.lon));
         }
       }
     }
