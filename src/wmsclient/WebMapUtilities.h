@@ -64,6 +64,8 @@ double metersPerUnit(const Projection& proj);
 
 Projection projectionForCRS(const std::string& crs);
 
+float distortion(const Projection& cp, const Projection& vp, const Rectangle& vr);
+
 // ========================================================================
 
 struct WmsTime {

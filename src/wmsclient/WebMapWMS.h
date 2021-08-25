@@ -58,9 +58,8 @@ public:
   WebMapRequest_x createRequest(const std::string& layer,
       const Rectangle& viewRect, const Projection& viewProj, double viewScale, int w, int h) override;
 
-  QNetworkReply* submitRequest(WebMapWMSLayer_cx layer,
-      const std::map<std::string, std::string>& dimensionValues,
-      const std::string& crs, WebMapTile* tile);
+  QNetworkReply* submitRequest(WebMapWMSLayer_cx layer, const std::map<std::string, std::string>& dimensionValues, const std::string& style,
+                               const std::string& crs, WebMapTile* tile);
 
   void refresh() override;
 
@@ -72,9 +71,10 @@ private:
   enum WmsVersion { WMS_111, WMS_130 };
 
   bool parseReply();
-  bool parseLayer(QDomElement& eLayer, std::string style, std::string legendUrl, QStringList lCRS, crs_bbox_m crs_bboxes, WebMapDimension_v dimensions);
+  bool parseLayer(QDomElement& eLayer, std::vector<std::string> styles, std::vector<std::string> legendUrls, QStringList lCRS, crs_bbox_m crs_bboxes,
+                  WebMapDimension_v dimensions);
   void parseDimensionValues(WebMapDimension& dim, const QString& text, const QString& defaultValue);
-  WebMapWmsCrsBoundingBox_cx findBestCRS(WebMapWMSLayer_cx layer, const Rectangle& viewRect, const Projection& viewProj) const;
+  WebMapWmsCrsBoundingBox_cx findBestCRS(WebMapWMSLayer_cx layer, const Rectangle& viewRect, const Projection& viewProj, double viewScale) const;
 
 private Q_SLOTS:
   void refreshReplyFinished();

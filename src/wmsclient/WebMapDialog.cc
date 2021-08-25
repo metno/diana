@@ -34,6 +34,10 @@
 #include "WebMapPlot.h"
 #include "WebMapService.h"
 
+#include "util/qtComboBoxItemDelegate.h"
+
+#include <puTools/miStringFunctions.h>
+
 #include <QAction>
 #include <QSortFilterProxyModel>
 #include <QStringList>
@@ -57,22 +61,53 @@ const size_t IDX_INVALID = size_t(-1);
 const std::string STYLE_ALPHA_SCALE = "style.alpha_scale";
 const std::string STYLE_ALPHA_OFFSET = "style.alpha_offset";
 const std::string STYLE_GREY = "style.grey";
+const std::string STYLE_NAME = "style.name";
 
 // this must match ui->comboPlotOrder
-const std::string plotorder_lines = "lines";
 const std::string plotorders[] = {
   "background",
   "shade_background",
   "shade",
   "lines_background",
-  plotorder_lines
+  "lines"
 };
-const int plotorder_lines_idx = 3;
+const int plotorder_default_idx = 1;
 const size_t N_PLOTORDERS = sizeof(plotorders)/sizeof(plotorders[0]);
+
+class DimensionValuesItemDelegate : public ComboBoxItemDelegate
+{
+public:
+  DimensionValuesItemDelegate(WebMapLayer_cx layer, QAbstractItemModel* model, QWidget* parent);
+  void configureEditor(QComboBox* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
+
+private:
+  WebMapLayer_cx layer_;
+};
+
+DimensionValuesItemDelegate::DimensionValuesItemDelegate(WebMapLayer_cx layer, QAbstractItemModel* model, QWidget* parent)
+    : ComboBoxItemDelegate(model, parent)
+    , layer_(layer)
+{
+}
+
+void DimensionValuesItemDelegate::configureEditor(QComboBox* editor, QAbstractItemModel* model, const QModelIndex& index) const
+{
+  if (!layer_)
+    return;
+  const int dimIdx = model->data(index, Qt::UserRole).toInt();
+  if (dimIdx >= (int)layer_->countDimensions())
+    return;
+  const auto& dim = layer_->dimension(dimIdx);
+  for (const auto& v : dim.values()) {
+    editor->addItem(QString::fromStdString(v));
+  }
+}
+
 } // namespace
 
 const std::string WEBMAP_SERVICE = "webmap.service";
 const std::string WEBMAP_LAYER = "webmap.layer";
+const std::string WEBMAP_DIM = "webmap.dim";
 const std::string WEBMAP_ZORDER = "webmap.zorder";
 const std::string WEBMAP_TIME_TOLERANCE = "webmap.time_tolerance";
 const std::string WEBMAP_TIME_OFFSET = "webmap.time_offset";
@@ -139,6 +174,8 @@ void WebMapDialog::setupUi()
 
   ui->comboStyleLayer->setModel(new WebMapPlotListModel(this));
   ui->buttonLayerRemove->setIcon(QPixmap(kill_xpm));
+
+  connect(ui->tableOtherDims, &QTableWidget::itemChanged, this, &WebMapDialog::onModifyDimensionValuesChanged);
 }
 
 void WebMapDialog::initializeAddServicePage(bool forward)
@@ -241,6 +278,7 @@ void WebMapDialog::onServiceRefreshFinished()
   ui->labelPending->setVisible(false);
   ui->listAddLayers->setEnabled(true);
   updateAddLayers();
+  onModifyLayerSelected();
 }
 
 void WebMapDialog::updateAddLayers()
@@ -344,12 +382,60 @@ void WebMapDialog::onModifyReset()
 {
 }
 
+namespace {
+WebMapService* findService(const std::string& id)
+{
+  if (WebMapManager* wmm = WebMapManager::instance()) {
+    for (int i = 0; i < wmm->getServiceCount(); ++i) {
+      WebMapService* ws = wmm->getService(i);
+      if (ws->identifier() == id)
+        return ws;
+    }
+  }
+  return nullptr;
+}
+
+WebMapLayer_cx getLayerForCommand(KVListPlotCommand_cp cmd)
+{
+  const size_t idx_service = cmd->find(WEBMAP_SERVICE);
+  const size_t idx_layer = cmd->find(WEBMAP_LAYER);
+  if (idx_service == IDX_INVALID || idx_layer == IDX_INVALID)
+    return nullptr;
+
+  WebMapService* ws = findService(cmd->get(idx_service).value());
+  if (!ws)
+    return nullptr;
+
+  return ws->findLayerByIdentifier(cmd->get(idx_layer).value());
+}
+} // namespace
+
 void WebMapDialog::onModifyLayerSelected()
 {
   bool enable = false;
   if (KVListPlotCommand_cp pc = plotCommand(ui->comboStyleLayer->currentIndex())) {
     enable = true;
 
+    WebMapLayer_cx wl = getLayerForCommand(pc);
+    {
+      ui->comboStyle->clear();
+      const int nStyles = wl ? wl->countStyles() : 0;
+      ui->comboStyle->setEnabled(nStyles > 1);
+      if (nStyles > 0) {
+        for (int i = 0; i < nStyles; ++i) {
+          ui->comboStyle->addItem(QString::fromStdString(wl->style(i)));
+        }
+      }
+    }
+    {
+      const size_t idx_name = pc->find(STYLE_NAME);
+      int c_idx = 0;
+      if (idx_name != IDX_INVALID) {
+        const std::string stylename = pc->get(idx_name).value();
+        c_idx = std::max(ui->comboStyle->findText(QString::fromStdString(stylename)), 0); // findText returns -1 if not found
+      }
+      ui->comboStyle->setCurrentIndex(c_idx);
+    }
     { const size_t idx_grey = pc->find(STYLE_GREY);
       bool grey = (idx_grey != IDX_INVALID) ? pc->get(idx_grey).toBool() : false;
       ui->checkGrey->setChecked(grey);
@@ -371,8 +457,8 @@ void WebMapDialog::onModifyLayerSelected()
       ui->spinTimeOffset->setValue(time_offset_sec);
     }
     { const size_t idx_po = pc->find(WEBMAP_ZORDER);
-      const std::string& pot = (idx_po != IDX_INVALID) ? pc->get(idx_po).value() : plotorder_lines;
-      int po = plotorder_lines_idx;
+      int po = plotorder_default_idx;
+      const std::string& pot = (idx_po != IDX_INVALID) ? pc->get(idx_po).value() : plotorders[po];
       for (size_t i=0; i < N_PLOTORDERS; ++i) {
         if (plotorders[i] == pot) {
           po = i;
@@ -380,6 +466,46 @@ void WebMapDialog::onModifyLayerSelected()
         }
       }
       ui->comboPlotOrder->setCurrentIndex(po);
+    }
+    {
+      ui->tableOtherDims->setEditTriggers(QAbstractItemView::AllEditTriggers);
+      ui->tableOtherDims->clear();
+      const int nDimensions = wl ? wl->countDimensions() : 0;
+      ui->tableOtherDims->setEnabled(nDimensions > 0);
+      if (wl) {
+        std::map<std::string, std::string> dimValues;
+        for (const auto& kv : pc->all()) {
+          if (kv.key() == WEBMAP_DIM) {
+            const std::vector<std::string> dnv = miutil::split(kv.value(), 1, "=");
+            if (dnv.size() == 2)
+              dimValues[dnv[0]] = dnv[1];
+          }
+        }
+
+        ui->tableOtherDims->setRowCount(0);
+        ui->tableOtherDims->setColumnCount(2);
+        for (int i = 0; i < nDimensions; ++i) {
+          const auto& wd = wl->dimension(i);
+          if (wd.isTime() || wd.values().empty())
+            continue;
+
+          const std::string& dim = !wd.title().empty() ? wd.identifier() : wd.identifier();
+          const auto itV = dimValues.find(dim);
+          const std::string& val = (itV != dimValues.end()) ? itV->second : wd.defaultValue();
+
+          QTableWidgetItem* itemDim = new QTableWidgetItem(QString::fromStdString(dim));
+          itemDim->setFlags(Qt::ItemIsEnabled);
+          QTableWidgetItem* itemVal = new QTableWidgetItem(QString::fromStdString(val));
+          itemVal->setData(Qt::UserRole, i);
+          itemVal->setData(Qt::UserRole + 1, QString::fromStdString(wd.identifier()));
+
+          const int r = ui->tableOtherDims->rowCount();
+          ui->tableOtherDims->setRowCount(r + 1);
+          ui->tableOtherDims->setItem(r, 0, itemDim);
+          ui->tableOtherDims->setItem(r, 1, itemVal);
+        }
+        ui->tableOtherDims->setItemDelegateForColumn(1, new DimensionValuesItemDelegate(wl, ui->tableOtherDims->model(), ui->tableOtherDims));
+      }
     }
   }
 
@@ -403,6 +529,12 @@ void WebMapDialog::onModifyLayerRemove()
   m->onPlotsRemoveEnd();
 
   Q_EMIT applyData();
+}
+
+void WebMapDialog::onModifyStyleChanged()
+{
+  METLIBS_LOG_SCOPE();
+  replaceCommandKV(miutil::kv(STYLE_NAME, ui->comboStyle->currentText().toStdString()));
 }
 
 void WebMapDialog::onModifyGreyToggled()
@@ -439,6 +571,32 @@ void WebMapDialog::onModifyTimeOffsetChanged()
 {
   METLIBS_LOG_SCOPE();
   replaceCommandKV(miutil::kv(WEBMAP_TIME_OFFSET, ui->spinTimeOffset->value()));
+}
+
+void WebMapDialog::onModifyDimensionValuesChanged()
+{
+  METLIBS_LOG_SCOPE();
+  const int idx = ui->comboStyleLayer->currentIndex();
+  if (KVListPlotCommand_cp pc = plotCommand(idx)) {
+    WebMapLayer_cx wl = getLayerForCommand(pc);
+
+    KVListPlotCommand_p pcm = std::make_shared<KVListPlotCommand>(WEBMAP);
+    for (const miutil::KeyValue& kv : pc->all()) {
+      if (kv.key() != WEBMAP_DIM) {
+        pcm->add(kv);
+      }
+    }
+    // time dimension is not in ui->tableOtherDims
+    const auto mdl = ui->tableOtherDims->model();
+    for (int r = 0; r < ui->tableOtherDims->rowCount(); ++r) {
+      const QModelIndex midx = mdl->index(r, 1);
+      const int didx = mdl->data(midx, Qt::UserRole).toInt();                             // dimension index
+      const std::string dval = mdl->data(midx, Qt::DisplayRole).toString().toStdString(); // dimension value
+      const std::string val = wl->dimension(didx).identifier() + "=" + dval;
+      pcm->add(miutil::kv(WEBMAP_DIM, val));
+    }
+    mOk[idx] = pcm;
+  }
 }
 
 void WebMapDialog::replaceCommandKV(const miutil::KeyValue& kv)

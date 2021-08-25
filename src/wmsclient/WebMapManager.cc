@@ -120,6 +120,7 @@ bool WebMapManager::parseSetup()
     METLIBS_LOG_DEBUG(LOGVAL(lines[l]));
     std::string service_id, service_type, service_url, service_basicauth;
     std::vector< std::pair< std::string,std::string > > service_extra_query_items;
+    bool service_exclude_layers_with_children = false;
 
     const std::vector<std::string> kvpairs = miutil::split(lines[l]);
     for (size_t i=0; i<kvpairs.size(); i++) {
@@ -136,6 +137,8 @@ bool WebMapManager::parseSetup()
         service_url = value;
       else if (key == "service.basicauth")
         service_basicauth = value;
+      else if (key == "service.exclude_layers_with_children")
+        service_exclude_layers_with_children = miutil::kv(key, value).toBool();
       else if (key == "service.extra_query_item") {
         const std::vector<std::string> qkv = miutil::split(value, 1, "=");
         service_extra_query_items.push_back(std::make_pair(qkv[0], qkv.size() > 1 ? qkv[1] : ""));
@@ -156,6 +159,7 @@ bool WebMapManager::parseSetup()
           s->setBasicAuth(service_basicauth);
         for (auto&& kv : service_extra_query_items)
           s->addExtraQueryItem(kv.first, kv.second);
+        s->setExcludeLayersWithChildren(service_exclude_layers_with_children);
         connect(s, &WebMapService::refreshFinished, this, &WebMapManager::serviceRefreshFinished);
         webmapservices.push_back(s);
       }
@@ -203,7 +207,7 @@ WebMapPlot* WebMapManager::createPlot(KVListPlotCommand_cp qmstring)
   std::unique_ptr<WebMapPlot> plot(new WebMapPlot(service, wm_layer));
 
   std::map<std::string, std::string> wm_dims; // optional
-  std::string wm_crs, wm_time_tolerance, wm_time_offset; // optional
+  std::string wm_crs, wm_time_tolerance, wm_time_offset, wm_style_name; // optional
   float style_alpha_offset = 0, style_alpha_scale = 1;
   bool style_grey = false;
   PlotOrder plotorder = PO_LINES;
@@ -231,6 +235,8 @@ WebMapPlot* WebMapManager::createPlot(KVListPlotCommand_cp qmstring)
         plotorder = PO_LINES_BACKGROUND;
       else
         plotorder = PO_LINES;
+    } else if (key == "style.name") {
+      plot->setStyleName(value);
     } else if (key == "style.alpha_scale") {
       style_alpha_scale = miutil::to_float(value);
     } else if (key == "style.alpha_offset") {

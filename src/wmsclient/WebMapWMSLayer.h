@@ -40,7 +40,7 @@ struct WebMapWmsCrsBoundingBox
   Projection projection;
   double metersPerUnit;
   Rectangle boundingbox;
-  WebMapWmsCrsBoundingBox(const std::string& c, const Rectangle& bb);
+  WebMapWmsCrsBoundingBox(const std::string& c, const Projection& p, const Rectangle& bb);
 };
 
 typedef std::vector<WebMapWmsCrsBoundingBox> WebMapWmsCrsBoundingBox_v;
@@ -55,17 +55,15 @@ public:
 
   void setDimensions(const WebMapDimension_v& dimensions) { mDimensions = dimensions; }
 
-  void setDefaultStyle(const std::string& styleId, const std::string& legendUrl = std::string())
-    { mDefaultStyle = styleId; mLegendUrl = legendUrl; }
+  void setStyles(const std::vector<std::string>& styles, const std::vector<std::string>& legendUrls)
+    { mStyles = styles; mLegendUrls = legendUrls; }
 
   void setZoomRange(int minZoom, int maxZoom)
     { mMinZoom = minZoom; mMaxZoom = maxZoom; }
 
-  void addCRS(const std::string& crs, const Rectangle& bbox) { mCRS.push_back(WebMapWmsCrsBoundingBox(crs, bbox)); }
+  void addCRS(const std::string& crs, const Projection& proj, const Rectangle& bbox) { mCRS.push_back(WebMapWmsCrsBoundingBox(crs, proj, bbox)); }
 
   size_t countCRS() const { return mCRS.size(); }
-
-  const std::string& CRS(size_t idx) const { return crsBoundingBox(idx).crs; }
 
   const WebMapWmsCrsBoundingBox& crsBoundingBox(size_t idx) const { return mCRS.at(idx); }
 
@@ -73,16 +71,15 @@ public:
 
   int maxZoom() const { return mMaxZoom; }
 
-  const std::string& defaultStyle() const { return mDefaultStyle; }
-
-  const std::string& legendUrl() const { return mLegendUrl; }
+  const std::string& findLegendUrl(const std::string& stylename) const;
+  const std::string& legendUrl(size_t idx) const { return mLegendUrls.at(idx); }
 
 private:
   WebMapWmsCrsBoundingBox_v mCRS;
   int mMinZoom;
   int mMaxZoom;
-  std::string mDefaultStyle;
-  std::string mLegendUrl;
+
+  std::vector<std::string> mLegendUrls;
 };
 
 typedef WebMapWMSLayer* WebMapWMSLayer_x;

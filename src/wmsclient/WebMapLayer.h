@@ -57,14 +57,14 @@ public:
   /*! number of CRS available */
   virtual size_t countCRS() const = 0;
 
-  /*! access CRS for this layer */
-  virtual const std::string& CRS(size_t idx) const = 0;
-
   /*! number of extra dimensions */
   size_t countDimensions() const { return mDimensions.size(); }
 
   /*! access to an extra dimension */
   const WebMapDimension& dimension(size_t idx) const { return mDimensions.at(idx); }
+
+  size_t countStyles() const { return mStyles.size(); }
+  const std::string& style(size_t idx) const { return mStyles.at(idx); }
 
   int findDimensionByIdentifier(const std::string& dimId) const;
 
@@ -74,6 +74,7 @@ private:
   std::string mAttribution;
 
 protected:
+  std::vector<std::string> mStyles;
   WebMapDimension_v mDimensions;
 };
 

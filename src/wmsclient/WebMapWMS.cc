@@ -34,8 +34,6 @@
 
 #include <puTools/miStringFunctions.h>
 
-#include "mi_fieldcalc/math_util.h"
-
 #include <QDomDocument>
 #include <QDomElement>
 #include <QNetworkReply>
@@ -65,6 +63,13 @@ int findZoomForScale(float z0denominator, float denominator)
     return 0;
 
   return std::max(0, (int) round(log(z0denominator / denominator) / log(2)) - 1);
+}
+
+int findZoom(WebMapWmsCrsBoundingBox_cx cb, double viewScale)
+{
+  const Rectangle& bb = cb->boundingbox;
+  const float z0denominator = bb.width() * cb->metersPerUnit / TILESIZE / diutil::WMTS_M_PER_PIXEL;
+  return findZoomForScale(z0denominator, viewScale);
 }
 
 bool hasAttributeValue(const QDomElement& e, const QString& a, const QStringList& values)
@@ -101,16 +106,6 @@ inline QString toQString(float number)
   return QString::number(number, 'f', -1);
 }
 
-float sqdist(const float* x, const float* y, int i0, int i1)
-{
-  return miutil::square(x[i0] - x[i1]) + miutil::square(y[i0] - y[i1]);
-}
-
-float distortion(const float* x, const float* y, int ia0, int ia1, int ib0, int ib1)
-{
-  return std::abs(sqdist(x, y, ia0, ia1) / sqdist(x, y, ib0, ib1) - 1);
-}
-
 } // anonymous namespace
 
 WebMapWMS::WebMapWMS(const std::string& identifier, const QUrl& url, QNetworkAccessManager* network)
@@ -133,32 +128,22 @@ int WebMapWMS::refreshInterval() const
   return 3600;
 }
 
-WebMapWmsCrsBoundingBox_cx WebMapWMS::findBestCRS(WebMapWMSLayer_cx layer, const Rectangle& viewRect, const Projection& viewProj) const
+WebMapWmsCrsBoundingBox_cx WebMapWMS::findBestCRS(WebMapWMSLayer_cx layer, const Rectangle& viewRect, const Projection& viewProj, double viewScale) const
 {
   METLIBS_LOG_SCOPE(LOGVAL(viewRect) << LOGVAL(viewProj));
   const size_t n_crs = layer->countCRS();
-  if (n_crs == 1234) {
-    return &layer->crsBoundingBox(0);
-  }
-
   float best_distortion = -1;
   WebMapWmsCrsBoundingBox_cx best_cb = nullptr;
   for (size_t ci = 0; ci < n_crs; ++ci) {
     const WebMapWmsCrsBoundingBox& cb = layer->crsBoundingBox(ci);
-    const Rectangle& vr = viewRect;
-    const size_t P = 6, D = 2;
-    float xpos[P] { vr.x1, vr.x2, vr.x2, vr.x1, vr.x1/3 + vr.x2*2/3.0f, vr.x1*2/3 + vr.x2/3.0f };
-    float ypos[P] { vr.y1, vr.y1, vr.y2, vr.y2, (vr.y1 + vr.y2)/2, (vr.y1 + vr.y2)/2 };
-    cb.projection.convertPoints(viewProj, P, xpos, ypos);
-    const float d[D] = {
-      distortion(xpos, ypos, 0, 4, 3, 4),
-      distortion(xpos, ypos, 1, 5, 2, 5),
-    };
-    const float crs_distortion = std::accumulate(d, d + D, 0.0f);
-    METLIBS_LOG_SCOPE(LOGVAL(cb.crs) << LOGVAL(d[0]) << LOGVAL(d[1]) << LOGVAL(crs_distortion));
-    if (best_distortion < 0 || crs_distortion < best_distortion) {
-      best_distortion = crs_distortion;
-      best_cb = &cb;
+    const int zoom = findZoom(&cb, viewScale);
+    if (zoom >= layer->minZoom() && zoom <= layer->maxZoom()) {
+      const float crs_distortion = diutil::distortion(cb.projection, viewProj, viewRect);
+      if (best_distortion < 0 || crs_distortion < best_distortion) {
+        best_distortion = crs_distortion;
+        best_cb = &cb;
+        METLIBS_LOG_DEBUG(LOGVAL(best_cb->crs));
+      }
     }
   }
   return best_cb;
@@ -174,25 +159,16 @@ WebMapRequest_x WebMapWMS::createRequest(const std::string& layerIdentifier,
     return 0;
   }
 
-  const WebMapWmsCrsBoundingBox_cx cb = findBestCRS(layer, viewRect, viewProj);
+  const WebMapWmsCrsBoundingBox_cx cb = findBestCRS(layer, viewRect, viewProj, viewScale);
   if (!cb) {
     METLIBS_LOG_DEBUG("no CRS for for layer '" << layer->identifier() << "'");
-    return 0;
+    return nullptr;
   }
 
-  const Rectangle& bb = cb->boundingbox;
-  METLIBS_LOG_DEBUG(LOGVAL(cb->crs) << LOGVAL(bb) << LOGVAL(cb->projection.getProj4DefinitionExpanded()) << LOGVAL(cb->metersPerUnit));
-
-  const float z0denominator = bb.width() * cb->metersPerUnit / TILESIZE / diutil::WMTS_M_PER_PIXEL;
-  const int zoom = findZoomForScale(z0denominator, viewScale);
-  METLIBS_LOG_DEBUG(LOGVAL(z0denominator) << LOGVAL(viewScale) << LOGVAL(zoom));
-  if (zoom < layer->minZoom() || zoom > layer->maxZoom()) {
-    METLIBS_LOG_DEBUG(LOGVAL(zoom) << LOGVAL(layer->minZoom()) << LOGVAL(layer->maxZoom()));
-    return 0;
-  }
-
+  const int zoom = findZoom(cb, viewScale);
   std::unique_ptr<WebMapWMSRequest> request(new WebMapWMSRequest(this, layer, cb, zoom));
   const int nx = (1<<zoom);
+  const Rectangle& bb = cb->boundingbox;
   request->x0 = bb.x1;
   request->dx = bb.width() / nx;
   request->y0 = bb.y2;
@@ -213,9 +189,8 @@ WebMapRequest_x WebMapWMS::createRequest(const std::string& layerIdentifier,
   return request.release();
 }
 
-QNetworkReply* WebMapWMS::submitRequest(WebMapWMSLayer_cx layer,
-    const std::map<std::string, std::string>& dimensionValues,
-    const std::string& crs, WebMapTile* tile)
+QNetworkReply* WebMapWMS::submitRequest(WebMapWMSLayer_cx layer, const std::map<std::string, std::string>& dimensionValues, const std::string& style,
+                                        const std::string& crs, WebMapTile* tile)
 {
   QUrl qurl = mServiceURL;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
@@ -228,8 +203,9 @@ QNetworkReply* WebMapWMS::submitRequest(WebMapWMSLayer_cx layer,
   urlq.addQueryItem("VERSION", (mVersion == WMS_130) ? "1.3.0" : "1.1.1");
   urlq.addQueryItem("TRANSPARENT", "TRUE");
   urlq.addQueryItem("LAYERS", diutil::sq(layer->identifier()));
-  urlq.addQueryItem("STYLES", diutil::sq(layer->defaultStyle()));
   urlq.addQueryItem("FORMAT", diutil::sq(tileFormat()));
+  urlq.addQueryItem("WIDTH", QString::number(TILESIZE));
+  urlq.addQueryItem("HEIGHT", QString::number(TILESIZE));
 
   for (size_t d = 0; d<layer->countDimensions(); ++d) {
     const WebMapDimension& dim = layer->dimension(d);
@@ -245,8 +221,9 @@ QNetworkReply* WebMapWMS::submitRequest(WebMapWMSLayer_cx layer,
     }
     urlq.addQueryItem(diutil::sq(dimKey), dimValue);
   }
-  urlq.addQueryItem("WIDTH", QString::number(TILESIZE));
-  urlq.addQueryItem("HEIGHT", QString::number(TILESIZE));
+
+  if (!style.empty())
+    urlq.addQueryItem("STYLES", diutil::sq(style));
 
   const QString aCRS = ((mVersion == WMS_111) ? "SRS" : "CRS");
   urlq.addQueryItem(aCRS, QString::fromStdString(crs));
@@ -373,18 +350,18 @@ bool WebMapWMS::parseReply()
     mServiceURL = eOnlineResource.attribute("xlink:href");
   }
 
-  const std::string top_style, top_legendUrl;
+  const std::vector<std::string> top_styles, top_legendUrls;
   const crs_bbox_m top_crs_bboxes;
   const WebMapDimension_v top_dimensions;
   QDOM_FOREACH_CHILD(eLayer, eCapability, "Layer") {
-    if (!parseLayer(eLayer, top_style, top_legendUrl, QStringList(), top_crs_bboxes, top_dimensions))
+    if (!parseLayer(eLayer, top_styles, top_legendUrls, QStringList(), top_crs_bboxes, top_dimensions))
       return false;
   }
 
   return true;
 }
 
-bool WebMapWMS::parseLayer(QDomElement& eLayer, std::string style, std::string legendUrl, QStringList lCRS, crs_bbox_m crs_bboxes,
+bool WebMapWMS::parseLayer(QDomElement& eLayer, std::vector<std::string> styles, std::vector<std::string> legendUrls, QStringList lCRS, crs_bbox_m crs_bboxes,
                            std::vector<WebMapDimension> dimensions)
 {
   METLIBS_LOG_SCOPE();
@@ -526,13 +503,23 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::string style, std::string l
     }
   }
 
-  QDomElement eStyle1 = eLayer.firstChildElement("Style");
-  QDomElement eStyle1Name = eStyle1.firstChildElement("Name");
-  if (!eStyle1Name.isNull()) {
-    style = qs(eStyle1Name.text());
-    QDomElement eStyle1LegendUrl = eStyle1.firstChildElement("LegendURL").firstChildElement("OnlineResource");
-    if (!eStyle1LegendUrl.isNull())
-      legendUrl = qs(eStyle1LegendUrl.attribute("xlink:href"));
+  if (!eLayer.firstChildElement("Style").isNull()) {
+    styles.clear();
+    legendUrls.clear();
+    QDOM_FOREACH_CHILD(eStyle, eLayer, "Style")
+    {
+      QDomElement eStyleName = eStyle.firstChildElement("Name");
+      if (!eStyleName.isNull()) {
+        std::string style = qs(eStyleName.text());
+        std::string legendUrl;
+        QDomElement eStyleLegendUrl = eStyle.firstChildElement("LegendURL").firstChildElement("OnlineResource");
+        if (!eStyleLegendUrl.isNull())
+          legendUrl = qs(eStyleLegendUrl.attribute("xlink:href"));
+
+        styles.push_back(style);
+        legendUrls.push_back(legendUrl);
+      }
+    }
   }
 
   const bool goodName = !sLayerName.empty();
@@ -542,20 +529,27 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::string style, std::string l
       && !hasAttributeValue(eLayer, "fixedWidth", (QStringList() << "0"))
       && !hasAttributeValue(eLayer, "fixedHeight", (QStringList() << "0"));
   const bool hasCRS = !crs_bboxes.empty();
+  const bool hasChildrenExcluded = excludeLayersWithChildren() && (!eLayer.firstChildElement("Layer").isNull());
 
   METLIBS_LOG_DEBUG(LOGVAL(hasContent) << LOGVAL(goodName) << LOGVAL(unusedName) << LOGVAL(tileable) << LOGVAL(hasCRS));
 
-  if (hasContent && goodName && unusedName && tileable && hasCRS) {
+  if (hasContent && goodName && unusedName && tileable && hasCRS && !hasChildrenExcluded) {
     METLIBS_LOG_DEBUG("adding layer '" << sLayerName << "'");
     std::unique_ptr<WebMapWMSLayer> layer(new WebMapWMSLayer(sLayerName));
     layer->setTitle(qs(eLayer.firstChildElement("Title").text()));
     for (const QString& crs : lCRS) {
       const std::string sCRS = qs(crs);
       crs_bbox_m::iterator it = crs_bboxes.find(sCRS);
-      if (it != crs_bboxes.end())
-        layer->addCRS(it->first, it->second);
+      if (it != crs_bboxes.end()) {
+        const Projection proj = diutil::projectionForCRS(it->first);
+        if (proj.isDefined()) {
+          layer->addCRS(it->first, proj, it->second);
+        } else {
+          METLIBS_LOG_DEBUG("unable to create Projection for CRS '" << it->first << "'");
+        }
+      }
     }
-    layer->setDefaultStyle(style, legendUrl);
+    layer->setStyles(styles, legendUrls);
     layer->setDimensions(dimensions);
     mLayers.push_back(layer.release());
   } else {
@@ -563,7 +557,7 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::string style, std::string l
   }
 
   QDOM_FOREACH_CHILD(eChildLayer, eLayer, "Layer") {
-    if (!parseLayer(eChildLayer, style, legendUrl, lCRS, crs_bboxes, dimensions))
+    if (!parseLayer(eChildLayer, styles, legendUrls, lCRS, crs_bboxes, dimensions))
       return false;
   }
 

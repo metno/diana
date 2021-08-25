@@ -35,3 +35,9 @@ WebMapWMTSLayer::WebMapWMTSLayer(const std::string& identifier)
 }
 
 WebMapWMTSLayer::~WebMapWMTSLayer() {}
+
+void WebMapWMTSLayer::setStyles(const std::vector<std::string>& styles, const std::string& defaultStyle)
+{
+  mStyles = styles;
+  mDefaultStyle = defaultStyle;
+}

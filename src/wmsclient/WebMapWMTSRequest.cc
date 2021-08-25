@@ -62,5 +62,9 @@ void WebMapWMTSRequest::setDimensionValue(const std::string& dimIdentifier, cons
 
 QNetworkReply* WebMapWMTSRequest::submitRequest(WebMapTile* tile)
 {
-  return static_cast<WebMapWMTS_x>(mService)->submitRequest(mLayer, mDimensionValues, mMatrixSet, mMatrix, tile->column(), tile->row());
+  std::string style = styleName();
+  if (style.empty() && mLayer->countStyles() > 0) {
+    style = mLayer->style(0);
+  }
+  return static_cast<WebMapWMTS_x>(mService)->submitRequest(mLayer, mDimensionValues, style, mMatrixSet, mMatrix, tile->column(), tile->row());
 }

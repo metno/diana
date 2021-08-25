@@ -43,6 +43,8 @@
 #include "diField/diProjection.h"
 #include "diField/diRectangle.h"
 
+#include "mi_fieldcalc/math_util.h"
+
 #include <puTools/miStringFunctions.h>
 
 #include <QNetworkReply>
@@ -130,19 +132,63 @@ double metersPerUnit(const Projection& proj)
 
 Projection projectionForCRS(const std::string& crs)
 {
+  if (crs == "CRS:84")
+    return Projection("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs");
+
   static const char PREFIX_EPSG[] = "EPSG:";
   static const char PREFIX_URN_EPSG[] = "urn:ogc:def:crs:EPSG::";
 
-  if (crs == "EPSG:900913")
-    return Projection("+init=epsg:3857");
-  else if (diutil::startswith(crs, PREFIX_EPSG))
-    return Projection("+init=epsg:" + crs.substr(sizeof(PREFIX_EPSG)-1));
-  else if (diutil::startswith(crs, PREFIX_URN_EPSG))
-    return Projection("+init=epsg:" + crs.substr(sizeof(PREFIX_URN_EPSG)-1));
-  else if (crs == "CRS:84")
-    return Projection("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs");
-  else
-    return Projection();
+  // clang-format off
+  static std::map<std::string, std::string> EPSG_EXTRA = { // EPSG code -> proj4 init
+    { "900913", "+init=epsg:3857"},
+
+    // DWD, see https://epsg.io/4839
+    { "4389", "+proj=lcc +lat_1=48.66666666666666 +lat_2=53.66666666666666 +lat_0=51 +lon_0=10.5 +x_0=0 +y_0=0"
+              " +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"},
+  };
+  // clang-format on
+
+  const bool prefix_epsg = diutil::startswith(crs, PREFIX_EPSG);
+  const bool prefix_urn_epsg = diutil::startswith(crs, PREFIX_URN_EPSG);
+  if (prefix_epsg || prefix_urn_epsg) {
+    const std::string code = crs.substr((prefix_epsg ? sizeof(PREFIX_EPSG) : sizeof(PREFIX_URN_EPSG)) - 1);
+    const auto it = EPSG_EXTRA.find(code);
+    if (it != EPSG_EXTRA.end())
+      return Projection(it->second);
+    else
+      return Projection("+init=epsg:" + code);
+  }
+  return Projection();
+}
+
+// ========================================================================
+
+float dist(const float* x, const float* y, int i0, int i1)
+{
+  return std::sqrt(miutil::square(x[i0] - x[i1]) + miutil::square(y[i0] - y[i1]));
+}
+
+float distortion(const float* x, const float* y, int ia0, int ia1, int ib0, int ib1)
+{
+  return std::abs(dist(x, y, ia0, ia1) / dist(x, y, ib0, ib1) - 1);
+}
+
+float distortion(const Projection& cp, const Projection& vp, const Rectangle& vr)
+{
+  const size_t P = 6;
+  float xpos[P]{vr.x1, vr.x2, vr.x2, vr.x1, vr.x1 / 3 + vr.x2 * 2 / 3.0f, vr.x1 * 2 / 3.0f + vr.x2 / 3};
+  float ypos[P]{vr.y1, vr.y1, vr.y2, vr.y2, (vr.y1 + vr.y2) / 2, (vr.y1 + vr.y2) / 2};
+  cp.convertPoints(vp, P, xpos, ypos);
+  const float d[] = {
+    distortion(xpos, ypos, 0, 4, 3, 4),
+    distortion(xpos, ypos, 1, 5, 2, 5),
+#if 0
+    distortion(xpos, ypos, 0, 5, 1, 4),
+    distortion(xpos, ypos, 3, 5, 2, 4),
+    distortion(xpos, ypos, 0, 2, 1, 3),
+#endif
+  };
+  return std::accumulate(std::begin(d), std::end(d), 0.0f);
 }
 
 // ========================================================================

@@ -47,11 +47,9 @@ public:
 
   void setTileFormat(const std::string& mime) { mTileFormat = mime; }
 
-  void setDefaultStyle(const std::string& styleId) { mDefaultStyle = styleId; }
+  void setStyles(const std::vector<std::string>& styles, const std::string& defaultStyle);
 
   size_t countCRS() const { return mMatrixSets.size(); }
-
-  const std::string& CRS(size_t idx) const { return matrixSet(idx)->CRS(); }
 
   const WebMapWMTSTileMatrixSet_cx& matrixSet(size_t idx) const { return mMatrixSets.at(idx); }
 

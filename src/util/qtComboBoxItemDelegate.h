@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2021 met.no
+  Copyright (C) 2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -25,14 +25,30 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- */
+*/
 
-#include "WebMapSlippyOSMLayer.h"
+#ifndef COMBOBOXITEMDELEGATE_H
+#define COMBOBOXITEMDELEGATE_H
 
-#define MILOGGER_CATEGORY "diana.WebMapSlippyOSMLayer"
-#include <miLogger/miLogging.h>
+#include <QStyledItemDelegate>
 
-WebMapSlippyOSMLayer::WebMapSlippyOSMLayer(const std::string& identifier)
-    : WebMapLayer(identifier)
+class QComboBox;
+
+class ComboBoxItemDelegate : public QStyledItemDelegate
 {
-}
+  Q_OBJECT
+public:
+  ComboBoxItemDelegate(QAbstractItemModel* model, QObject* parent = nullptr);
+  ~ComboBoxItemDelegate();
+
+  QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+  void setEditorData(QWidget* editor, const QModelIndex& index) const override;
+  void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
+
+  virtual void configureEditor(QComboBox* editor, QAbstractItemModel* model, const QModelIndex& index) const = 0;
+
+protected:
+  QAbstractItemModel* model_;
+};
+
+#endif // COMBOBOXITEMDELEGATE_H

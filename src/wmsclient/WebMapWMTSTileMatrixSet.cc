@@ -34,10 +34,9 @@
 #define MILOGGER_CATEGORY "diana.WebMapWMTSTileMatrixSet"
 #include <miLogger/miLogging.h>
 
-WebMapWMTSTileMatrixSet::WebMapWMTSTileMatrixSet(const std::string& id, const std::string& crs)
+WebMapWMTSTileMatrixSet::WebMapWMTSTileMatrixSet(const std::string& id, const Projection& proj)
     : mIdentifier(id)
-    , mCRS(crs)
-    , mProjection(diutil::projectionForCRS(crs))
+    , mProjection(proj)
     , mMetersPerUnit(diutil::metersPerUnit(mProjection))
 {
 }

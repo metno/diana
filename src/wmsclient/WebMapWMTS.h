@@ -58,10 +58,8 @@ public:
   WebMapRequest_x createRequest(const std::string& layer,
       const Rectangle& viewRect, const Projection& viewProj, double viewScale, int w, int h) override;
 
-  QNetworkReply* submitRequest(WebMapWMTSLayer_cx layer,
-      const std::map<std::string, std::string>& dimensionValues,
-      WebMapWMTSTileMatrixSet_cx matrixSet, WebMapWMTSTileMatrix_cx matrix,
-      int tileX, int tileY);
+  QNetworkReply* submitRequest(WebMapWMTSLayer_cx layer, const std::map<std::string, std::string>& dimensionValues, const std::string& style,
+                               WebMapWMTSTileMatrixSet_cx matrixSet, WebMapWMTSTileMatrix_cx matrix, int tileX, int tileY);
 
   void refresh() override;
 

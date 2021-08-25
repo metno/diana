@@ -160,6 +160,7 @@ void WebMapPlot::createRequest()
     METLIBS_LOG_DEBUG("no request object created in webmap service");
     setRequestStatus(R_FAILED);
   } else {
+    mRequest->setStyleName(mStyleName);
     for (auto& dv : mDimensionValues)
       mRequest->setDimensionValue(dv.first, dv.second);
     connect(mRequest, &WebMapRequest::completed, this, &WebMapPlot::requestCompleted);
@@ -365,7 +366,7 @@ void WebMapPlot::requestCompleted(bool success)
   /*Q_EMIT*/ update();
 }
 
-void WebMapPlot::changeProjection(const Area& mapArea, const Rectangle& /*plotSize*/, const diutil::PointI& /*physSize*/)
+void WebMapPlot::changeProjection(const Area& /*mapArea*/, const Rectangle& /*plotSize*/, const diutil::PointI& /*physSize*/)
 {
   METLIBS_LOG_SCOPE(LOGVAL(mLayerId));
   dropRequest();

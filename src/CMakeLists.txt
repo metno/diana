@@ -241,6 +241,7 @@ SET (LIBDIANA_SOURCES
   util/subprocess.cc
   util/time_util.cc
   util/was_enabled.cc
+  util/qtComboBoxItemDelegate.cc
 
   vcross_v2/VcrossCollector.cc
   vcross_v2/VcrossComputer.cc

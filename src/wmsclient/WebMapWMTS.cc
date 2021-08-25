@@ -126,14 +126,13 @@ WebMapRequest_x WebMapWMTS::createRequest(const std::string& layerIdentifier,
   return request.release();
 }
 
-QNetworkReply* WebMapWMTS::submitRequest(WebMapWMTSLayer_cx layer,
-    const std::map<std::string, std::string>& dimensionValues,
-    WebMapWMTSTileMatrixSet_cx matrixSet, WebMapWMTSTileMatrix_cx matrix,
-    int tileX, int tileY)
+QNetworkReply* WebMapWMTS::submitRequest(WebMapWMTSLayer_cx layer, const std::map<std::string, std::string>& dimensionValues, const std::string& style,
+                                         WebMapWMTSTileMatrixSet_cx matrixSet, WebMapWMTSTileMatrix_cx matrix, int tileX, int tileY)
 {
   METLIBS_LOG_SCOPE();
   QUrl qurl;
 
+  const std::string& style_ = style.empty() ? layer->defaultStyle() : style;
   if (!layer->urlTemplate().empty()) {
     std::string url = layer->urlTemplate();
     for (size_t d = 0; d<layer->countDimensions(); ++d) {
@@ -146,7 +145,7 @@ QNetworkReply* WebMapWMTS::submitRequest(WebMapWMTSLayer_cx layer,
       else
         miutil::replace(url, templateKey, dim.defaultValue());
     }
-    miutil::replace(url, "{style}", layer->defaultStyle());
+    miutil::replace(url, "{style}", style_);
     miutil::replace(url, "{TileMatrixSet}", matrixSet->identifier());
     miutil::replace(url, "{TileMatrix}", matrix->identifier());
     miutil::replace(url, "{TileCol}", miutil::from_number(tileX));
@@ -164,7 +163,7 @@ QNetworkReply* WebMapWMTS::submitRequest(WebMapWMTSLayer_cx layer,
     urlq.addQueryItem("Request", "GetTile");
     urlq.addQueryItem("Version", "1.0.0");
     urlq.addQueryItem("Layer", diutil::sq(layer->identifier()));
-    urlq.addQueryItem("Style", diutil::sq(layer->defaultStyle()));
+    urlq.addQueryItem("Style", diutil::sq(style_));
     urlq.addQueryItem("Format", diutil::sq(layer->tileFormat()));
 
     // the WMTS standard is not very clear about how to specify sample dimensions
@@ -281,8 +280,13 @@ bool WebMapWMTS::parseReply()
   QDOM_FOREACH_CHILD(eTileMatrixSet, eContents, "TileMatrixSet") {
     QDomElement eId = eTileMatrixSet.firstChildElement("ows:Identifier");
     QDomElement eCRS = eTileMatrixSet.firstChildElement("ows:SupportedCRS");
-    std::unique_ptr<WebMapWMTSTileMatrixSet> ms
-        (new WebMapWMTSTileMatrixSet(qs(eId.text()), qs(eCRS.text())));
+    const std::string crs = qs(eCRS.text());
+    const Projection proj = diutil::projectionForCRS(crs);
+    if (!proj.isDefined()) {
+      METLIBS_LOG_DEBUG("unable to create Projection for CRS '" << crs << "'");
+      continue;
+    }
+    std::unique_ptr<WebMapWMTSTileMatrixSet> ms(new WebMapWMTSTileMatrixSet(qs(eId.text()), proj));
     QDOM_FOREACH_CHILD(eTileMatrix, eTileMatrixSet, "TileMatrix") {
       QDomElement eMId = eTileMatrix.firstChildElement("ows:Identifier");
       QDomElement eScale = eTileMatrix.firstChildElement("ScaleDenominator");
@@ -308,21 +312,19 @@ bool WebMapWMTS::parseReply()
 
     layer->setTitle(qs(eLayer.firstChildElement("ows:Title").text()));
 
-    std::string defaultStyle, anyStyle;
+    std::string defaultStyle;
+    std::vector<std::string> styles;
     QDOM_FOREACH_CHILD(eStyle, eLayer, "Style") {
-      const bool isDefault = (eStyle.attribute("isDefault") == "true");
-      if (!isDefault && !anyStyle.empty())
-        continue;
       const std::string styleId = qs(eStyle.text());
+      styles.push_back(styleId);
+      const bool isDefault = (eStyle.attribute("isDefault") == "true");
       if (isDefault) {
         defaultStyle = styleId;
-        break;
-      } else {
-        anyStyle = styleId;
       }
     }
-    METLIBS_LOG_DEBUG(LOGVAL(defaultStyle) << LOGVAL(anyStyle));
-    layer->setDefaultStyle((!defaultStyle.empty()) ? defaultStyle : anyStyle);
+    if (defaultStyle.empty() && !styles.empty())
+      defaultStyle = styles.front();
+    layer->setStyles(styles, defaultStyle);
 
     QDOM_FOREACH_CHILD(eDimension, eLayer, "Dimension") {
       QDomElement eDId = eDimension.firstChildElement("ows:Identifier");

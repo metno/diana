@@ -28,6 +28,10 @@
 */
 
 #include <wmsclient/WebMapUtilities.h>
+
+#include "diField/diProjection.h"
+#include "diField/diRectangle.h"
+
 #include <QStringList>
 #include <gtest/gtest.h>
 
@@ -327,4 +331,14 @@ TEST(WebMapUtilities, ExpandWmsValues)
     for (int i=0; i<N; ++i)
       EXPECT_EQ(expected[i], actual[i].toStdString()) << "i=" << i;
   }
+}
+
+TEST(WebMapUtilities, Distortion)
+{
+  const Projection epsg3413 = diutil::projectionForCRS("EPSG:3413");
+  //  +proj=stere +lat_ts=70 +lat_0=90  +lon_0=-45 +k=1 +x_0=0 +y_0=0 +ellps=WGS84 +datum=WGS84 +units=m +no_defs +towgs84=0,0,0
+  const Projection viewProj("+proj=stere +lat_ts=60 +lat_0=90.0 +lon_0=0 +x_0=5.71849e+06 +y_0=7.37385e+06 +ellps=WGS84 +towgs84=0,0,0 +no_defs");
+  const Rectangle viewRect(4.9213e+06, 7.0173e+06, 3.8123e+06, 5.8188e+06);
+  const auto distortion = diutil::distortion(epsg3413, viewProj, viewRect);
+  EXPECT_LE(distortion, 1e-6);
 }

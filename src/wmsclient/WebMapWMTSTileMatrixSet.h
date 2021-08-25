@@ -40,14 +40,12 @@
 class WebMapWMTSTileMatrixSet
 {
 public:
-  WebMapWMTSTileMatrixSet(const std::string& id, const std::string& crs);
+  WebMapWMTSTileMatrixSet(const std::string& id, const Projection& proj);
 
   void addMatrix(const WebMapWMTSTileMatrix& m) { mMatrices.push_back(m); }
 
   /*! TileMatrixSet identifier */
   const std::string& identifier() const { return mIdentifier; }
-
-  const std::string& CRS() const { return mCRS; }
 
   const Projection& projection() const { return mProjection; }
 
@@ -64,7 +62,6 @@ public:
 
 private:
   std::string mIdentifier;
-  std::string mCRS;
   Projection mProjection;
   double mMetersPerUnit;
   std::vector<WebMapWMTSTileMatrix> mMatrices;
