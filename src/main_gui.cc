@@ -62,11 +62,11 @@ namespace {
 
 namespace po = miutil::program_options;
 
-const po::option op_version = po::option("version", "show version info").set_narg(0);
-const po::option op_lang = po::option("lang", "select language used in dialogs").set_shortkey("l");
-const po::option op_instancename = po::option("instancename", "instance name for coserver ('?' to choose at startup)").set_shortkey("I");
-const po::option op_quickmenu = po::option("quickmenu", "apply a quickmenu at start; has two arguments, menu name and item, like \"my menu\" \"my item\"")
-                                    .set_shortkey("qm").set_narg(2);
+const po::option op_version = std::move(po::option("version", "show version info").set_narg(0));
+const po::option op_lang = std::move(po::option("lang", "select language used in dialogs").set_shortkey("l").set_overwriting());
+const po::option op_instancename = std::move(po::option("instancename", "instance name for coserver ('?' to choose at startup)").set_shortkey("I"));
+const po::option op_quickmenu = std::move(
+    po::option("quickmenu", "apply a quickmenu at start; has two arguments, menu name and item, like \"my menu\" \"my item\"").set_shortkey("qm").set_narg(2));
 
 class LanguageInstaller {
 public:

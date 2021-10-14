@@ -1725,10 +1725,11 @@ int diana_parseAndProcessString(const char* string)
 
 namespace po = miutil::program_options;
 
-const po::option op_example = po::option("example", "list example input-file and exit").add_shortkey("example").set_narg(0);
-const po::option op_input = po::option("input", "job-control file (see --" + op_example.key() + ")").add_shortkey("input").add_shortkey("i");
-const po::option op_verbose = po::option("", "for more job-output").set_shortkey("v").set_narg(0);
-const po::option op_nowtime = po::option("use_nowtime", "use current time").add_shortkey("use_nowtime").set_narg(0);
+const po::option op_example = std::move(po::option("example", "list example input-file and exit").add_shortkey("example").set_narg(0));
+const po::option op_input =
+    std::move(po::option("input", "job-control file (see --" + op_example.key() + ")").add_shortkey("input").add_shortkey("i").set_overwriting());
+const po::option op_verbose = std::move(po::option("", "for more job-output").set_shortkey("v").set_narg(0));
+const po::option op_nowtime = std::move(po::option("use_nowtime", "use current time").add_shortkey("use_nowtime").set_narg(0));
 
 /*
  =================================================================
