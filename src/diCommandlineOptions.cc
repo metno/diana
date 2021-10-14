@@ -13,13 +13,15 @@
 
 namespace diutil {
 
-const po::option op_help = po::option("help", "show help message").set_shortkey("h").set_narg(0);
-const po::option op_setup = po::option("setup", "name of setupfile (default diana.setup)")
-                                .set_shortkey("s") //
-                                .set_default_value("diana.setup");
-const po::option op_logger = po::option("logger", "logging configuration file")
-                                 .set_shortkey("L") //
-                                 .set_default_value(SYSCONFDIR "/" PACKAGE_NAME "/" PVERSION "/log4cpp.properties");
+const po::option op_help = std::move(po::option("help", "show help message").set_shortkey("h").set_narg(0));
+const po::option op_setup = std::move(po::option("setup", "name of setupfile (default diana.setup)")
+                                          .set_shortkey("s") //
+                                          .set_default_value("diana.setup")
+                                          .set_overwriting());
+const po::option op_logger = std::move(po::option("logger", "logging configuration file")
+                                           .set_shortkey("L") //
+                                           .set_default_value(SYSCONFDIR "/" PACKAGE_NAME "/" PVERSION "/log4cpp.properties")
+                                           .set_overwriting());
 
 std::map<std::string, std::string> parse_user_variables(const std::vector<std::string>& positional)
 {
