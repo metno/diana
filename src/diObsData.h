@@ -68,6 +68,9 @@ public:
   void put_rotated_float(const std::string& key, float f) { fdata_rotated[key] = f; }
 
 private:
+#ifdef ROADOBS
+  friend class ObsRoad;
+#endif
   typedef std::map<std::string,float> fdata_t;
   typedef std::map<std::string,std::string> stringdata_t;
 
