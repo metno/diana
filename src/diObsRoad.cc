@@ -56,6 +56,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <math.h>
 
 #define MILOGGER_CATEGORY "diana.ObsRoad"
 #include <miLogger/miLogging.h>
@@ -1443,6 +1444,7 @@ void ObsRoad::decodeOneLine(ObsData * obsData, std::vector<std::string> & pstr, 
 	} else if (getParameterColumnValue("a", pstr, value)) {
 		obsData->put_float("a",value);
 	} else if (getParameterColumnValue("ppp", pstr, value)) {
+		value = round(value);
 		obsData->put_float("ppp",value);
 	} else if (getParameterColumnValue("Cl", pstr, value) || getParameterColumnValue("Cm", pstr, value) || getParameterColumnValue("Ch", pstr, value)) {
           // Convert to the symbol dataspace
@@ -1456,6 +1458,8 @@ void ObsRoad::decodeOneLine(ObsData * obsData, std::vector<std::string> & pstr, 
 	} else if (getParameterColumnValue("vs", pstr, value)) {
           // Convert to vs dataspace
           obsData->put_float("vs", ms2code4451(value));
+	}  else if (getParameterColumnValue("ds", pstr, value)) {
+          obsData->put_float("ds", value);
 	} else if (getParameterColumnValue("ww", pstr, value)) {
 		  // Convert to malual synop dataspace
           obsData->put_float("ww", convertWW(value));
@@ -1520,21 +1524,40 @@ void ObsRoad::decodeOneLine(ObsData * obsData, std::vector<std::string> & pstr, 
 		   obsData->put_float("CC3", value);
 	} else if (getParameterColumnValue("CC4",pstr,value)) {
 		   obsData->put_float("CC4", value);
-    }else if (getParameterColumnValue("fmfmk", pstr, value) || getParameterColumnValue("fmfm", pstr, value)){
+    } else if (getParameterColumnValue("fmfmk", pstr, value) || getParameterColumnValue("fmfm", pstr, value)){
         // Backward compatibility
         obsData->put_float("fmfm", value);
     } else if (getParameterColumnValue("911ff", pstr, value)) {
 		obsData->put_float("911ff", value);
     } else if (getParameterColumnValue("ff", pstr, value)) {
-		obsData->put_float("ff", knots ? miutil::knots2ms(value) : value);
+	    // Wind speed always m/s from database.
+		obsData->put_float("ff", value);
     } else if (getParameterColumnValue("dd", pstr, value)) {
         obsData->put_float("dd", value);
 	} else if (getParameterColumnValue("dxdxdx", pstr, value)) {
         obsData->put_float("dxdxdx", value);
 	} else if (getParameterColumnValue("dndndn", pstr, value)) {
         obsData->put_float("dndndn", value);
-	}else if (getParameterColumnValue("image", pstr, text)) {
+	} else if (getParameterColumnValue("image", pstr, text)) {
 		obsData->put_string("image", text);
+	} 
+	// This must be done for every parameter
+	if (getColumnValue("Quality", pstr, text)) {
+	  // decode and set the total quality of observation
+	  float quality_value = 0;
+	  if (text == "G")
+		quality_value = 4;
+	  else if (text == "Y")
+	    quality_value = 2;
+	  const float * pVal = 0;
+	  pVal = obsData->get_float("quality");
+	  if (pVal != 0) {
+		if (quality_value < *pVal) {
+			obsData->put_float("quality",quality_value);
+		}
+	  } else {
+		obsData->put_float("quality",quality_value);
+	  }
 	}
 }
 
