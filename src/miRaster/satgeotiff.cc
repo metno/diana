@@ -168,14 +168,21 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char* image[]
   // TIFFTAG_GDAL_METADATA 42112 defined in some projets
   // see https://www.awaresystems.be/imaging/tiff/tifftags/geo_metadata.html
   if (samplesperpixel == 1 && TIFFGetField(in.get(), 42112, &count, &data)) {
-    //    printf("Tag %d: %s, count %d0 \n", 42112, (char *)data, count);
-    char* t = strstr((char *)data, "scale");
+    std::string sdata = std::string((const char *)data);
+	METLIBS_LOG_DEBUG("42112" << LOGVAL(count) << LOGVAL(sdata));
+	//printf("Tag %d: %s, count %d0 \n", 42112, (char *)data, count);
+	// The formula is val = scale * pixelval + offset
+	if (miutil::contains(sdata,"["))
+		miutil::remove(sdata,'[');
+	if (miutil::contains(sdata,"]"))
+		miutil::remove(sdata,']');	
+    char* t = strstr((char*)sdata.c_str(), "scale");
     if (t) {
       t += 7;
       ginfo.AIr = atof(t);
     }
 
-    t = strstr((char *)data, "offset");
+    t = strstr((char*)sdata.c_str(), "offset");
     if (t) {
       t += 8;
       ginfo.BIr = atof(t);
@@ -185,6 +192,45 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char* image[]
     std::ostringstream oss;
     oss << "T=(" << ginfo.BIr << ")+(" << ginfo.AIr << ")*C";
     ginfo.cal_ir = oss.str();
+	METLIBS_LOG_DEBUG("42112" << LOGVAL(ginfo.cal_ir));
+	
+	image[1] = (unsigned char *) malloc(ginfo.ysize*ginfo.xsize);
+    int nStrips = TIFFNumberOfStrips(in.get());
+    int s = 0;
+    int tiles = TIFFNumberOfTiles(in.get());
+
+    if (tiles > nStrips) {
+      uint32 imageWidth,imageLength;
+      uint32 x, y;
+      tdata_t buf;
+
+      imageWidth  = ginfo.xsize;
+      imageLength = ginfo.ysize;
+      int tileSize = TIFFTileSize(in.get());
+
+      buf = _TIFFmalloc(tileSize);
+
+      for (y = 0; y < imageLength; y += tileLength) {
+        for (x = 0; x < imageWidth; x += tileWidth) {
+          tsize_t res = TIFFReadTile(in.get(), buf, x, y, 0, -1);
+          if (res > 0) {
+            // place tile buf in the larger image buffer in the right place
+            // t = to, f = from
+            for (int t=y*imageWidth + x, f=0;  f < tileSize; t += imageWidth, f += tileWidth) {
+              memcpy(&image[1][t], (unsigned char *)buf + f, tileWidth);
+            }
+          } else {
+            METLIBS_LOG_ERROR("TIFFReadTile Failed at tile: " << x << "," << y << " result: " << res);
+          }
+        }
+      }
+      _TIFFfree(buf);
+    }
+    else {
+      for (int i=0; i < nStrips; ++i) {
+        s += TIFFReadEncodedStrip(in.get(), i, image[1] + s, size/nStrips);
+      }
+    }
   }
   METLIBS_LOG_DEBUG(LOGVAL(ginfo.projection.getProj4Definition()) << LOGVAL(size)
                     << LOGVAL(ginfo.xsize) << LOGVAL(ginfo.ysize) << LOGVAL(ginfo.zsize)
@@ -493,7 +539,22 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
               << " +lat_2=" << ProjStdParallel2     // latitude of second standard parallel
               << " +lat_0=" << ProjFalseOriginLat   // latitude of false origin
               << " +lon_0=" << ProjFalseOriginLong; // longitude of false origin
-      } else {
+      } else if (ProjCoordTrans == CT_HotineObliqueMercatorAzimuthCenter) {
+        // see http://geotiff.maptools.org/proj_list/oblique_mercator.html
+        double ProjCenterLat = 63, ProjCenterLong = 63, ProjAzimutAngle = 63, ProjRectifiedGridAngle = 15, 
+		ProjScaleAtCenter = 1;
+        GTIFKeyGet(gtifin.get(), ProjCenterLatGeoKey, &ProjCenterLat, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjCenterLongGeoKey, &ProjCenterLong, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjAzimuthAngleGeoKey, &ProjAzimutAngle, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjRectifiedGridAngleGeoKey, &ProjRectifiedGridAngle, 0, 1);
+		GTIFKeyGet(gtifin.get(), ProjScaleAtCenterGeoKey, &ProjScaleAtCenter, 0, 1);
+		proj4 <<"+proj=omerc"
+			  <<" +lat_0=" << ProjCenterLat //Latitude of projection center 
+              <<" +lonc=" << ProjCenterLong //Longitude of projection center
+              <<" +alpha=" << ProjAzimutAngle //Azimuth of initial line
+			  <<" +gamma=" << ProjRectifiedGridAngle //Angle from Rectified to Skew Grid
+              <<" +k_0=" << ProjScaleAtCenter; //Scale factor on initial line
+	  } else {
         METLIBS_LOG_ERROR("Projection CT " << ProjCoordTrans << " not yet supported");
         return -1;
       }

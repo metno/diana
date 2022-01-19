@@ -116,6 +116,8 @@ public:
 
   /// parse setup
   bool parseSetup();
+  /// clear caches no longer needed
+  void clearCaches(const PlotCommand_cpv&);  
   /// set new plotcommands
   void plotCommands(const PlotCommand_cpv&);
   /// call PlotModule.plot()

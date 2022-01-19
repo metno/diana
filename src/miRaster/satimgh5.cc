@@ -1920,7 +1920,8 @@ herr_t metno::satimgh5::fill_head_diana(string inputStr, int chan)
 
     for (unsigned int i = 0; i < proj.size(); i++) {
       vector<string> projParts = split(proj[i], "=", true);
-      hdf5map[projParts[0]] = projParts[1];
+	  if (projParts.size() == 2)
+		hdf5map[projParts[0]] = projParts[1];
     }
   }
 

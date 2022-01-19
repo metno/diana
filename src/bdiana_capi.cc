@@ -222,6 +222,8 @@ struct Bdiana
   bool commandline_time_enabled = false; //!< true iff time specified on commandline
   miTime commandline_time;               //!< fixed TIME from commandline
   int addhour, addminute;
+  bool plot_empty_maps;
+  miTime first_reference_time; //!< bdiana uses always the first reference time
 
   map<std::string, map<std::string, std::string>> outputTextMaps; // output text for cases where output data is XML/JSON
   vector<std::string> outputTextMapOrder;                         // order of legends in output text
@@ -286,7 +288,12 @@ Bdiana::Bdiana()
     , time_format("$time")
     , addhour(0)
     , addminute(0)
+	, plot_empty_maps(false)
 {
+	// get the PLOT_EMPTY_MAPS variable
+   if (char* ctmp = getenv("PLOT_EMPTY_MAPS")) {
+     plot_empty_maps = (bool)miutil::to_int(ctmp);
+   }
 }
 
 Bdiana::~Bdiana()
@@ -893,7 +900,17 @@ bool Bdiana::set_ptime(BdianaSource& src)
     fixedtime = commandline_time;
   }
   if (fixedtime.undef()) {
-    fixedtime = src.getTime();
+    if (getTimeChoice() == BdianaSource::USE_REFERENCETIME)
+	{
+	  if (first_reference_time.undef())
+	  {
+		fixedtime=first_reference_time=src.getTime(); 
+	  } else {
+		fixedtime=first_reference_time;
+	  }
+	} else {
+		fixedtime = src.getTime();
+	}
     if (verbose)
       METLIBS_LOG_INFO("using default time:" << format_time(fixedtime));
   }
@@ -1101,8 +1118,23 @@ command_result Bdiana::handlePlotCommand(int& k)
   if (!ensureSetup())
     return cmd_abort;
   std::vector<std::string> pcom = FIND_END_COMMAND(k, com_endplot, com_plotend);
-
-  if (getTimeChoice() != BdianaSource::USE_FIXEDTIME)
+  if (output_format == output_shape) {
+    for (std::string& line : pcom) {
+      if (diutil::startswith(line, "FIELD ")) {
+        std::string shapeFileName = outputfilename;
+        line += " shapefilename=" + shapeFileName;
+        if (miutil::contains(line, "shapefile=0"))
+          miutil::replace(line, "shapefile=0", "shapefile=1");
+        else if (not miutil::contains(line, "shapefile="))
+          line += " shapefile=1";
+      } else {
+        METLIBS_LOG_ERROR("Error, Shape option cannot be used for OBS/OBJECTS/SAT/TRAJECTORY/EDITFIELD.. exiting");
+        return cmd_abort;
+      }
+    }
+  }
+  
+   if (getTimeChoice() != BdianaSource::USE_FIXEDTIME
     fixedtime = ptime = miutil::miTime();
 
   if (plottype == plot_standard) {
@@ -1128,9 +1160,10 @@ command_result Bdiana::handlePlotCommand(int& k)
 
     main.commands(pcom);
 
-    if (!set_ptime(main))
-      return cmd_fail;
-
+	if (!set_ptime(main))
+		if (!plot_empty_maps)
+			return cmd_fail;
+	
     if (verbose)
       METLIBS_LOG_INFO("- updatePlots");
     if (failOnDataError && main.controller->hasError()) {
@@ -1186,7 +1219,8 @@ command_result Bdiana::handlePlotCommand(int& k)
     vc.commands(pcom);
 
     if (!set_ptime(vc))
-      return cmd_fail;
+      if (!plot_empty_maps)
+			return cmd_fail;
 
     expandTime(outputfilename, ptime);
     go.setOutputFile(outputfilename);
@@ -1204,7 +1238,8 @@ command_result Bdiana::handlePlotCommand(int& k)
     vprof.commands(pcom);
 
     if (!set_ptime(vprof))
-      return cmd_fail;
+      if (!plot_empty_maps)
+			return cmd_fail;
 
     expandTime(outputfilename, ptime);
     go.setOutputFile(outputfilename);
@@ -1864,7 +1899,13 @@ int diana_init(int _argc, char** _argv)
 
 int diana_dealloc()
 {
+  if (verbose)
+	std::cerr << "diana_dealloc()" << std::endl;
   bdiana_instance.reset(0);
   milogger::system::selectSystem(milogger::system::SystemPtr());
+  if (application)
+    delete application;
+  if (verbose)
+	std::cerr << "diana_dealloc() DONE" << std::endl;
   return DIANA_OK;
 }

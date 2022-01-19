@@ -59,6 +59,10 @@
 #include "diField/diArea.h"
 #include "diField/diRectangle.h"
 
+#ifdef ROADOBS
+#include "diObsRoad.h"	
+#endif	
+
 #include <puTools/miStringFunctions.h>
 
 #include <QKeyEvent>
@@ -155,6 +159,20 @@ bool Controller::parseSetup()
 
   return true;
 }
+void Controller::clearCaches(const PlotCommand_cpv& inp)
+{
+   // For now, check for obs cache.
+   bool plotObs = false;
+   for (size_t q = 0; q < inp.size(); q++)
+      if (miutil::contains(inp[q]->toString(), "OBS"))
+		plotObs = true;
+   if (!plotObs)
+   {
+#ifdef ROADOBS
+	  ObsRoad::clearCaches();
+#endif		
+   }
+}
 
 void Controller::plotCommands(const PlotCommand_cpv& inp)
 {
@@ -163,7 +181,8 @@ void Controller::plotCommands(const PlotCommand_cpv& inp)
     for (size_t q = 0; q < inp.size(); q++)
       METLIBS_LOG_DEBUG("inp['" << q << "]='" << inp[q]->toString() << "'");
   }
-
+  // empty chaches that is no longer neede, for now only for observations from mora 
+  clearCaches(inp);
   plotm->processInput(inp);
 }
 

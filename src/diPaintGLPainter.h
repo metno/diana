@@ -36,6 +36,7 @@
 #include <QHash>
 #include <QList>
 #include <QPainter>
+#include <QPainterPath>
 #include <QPair>
 #include <QPen>
 #include <QPointF>

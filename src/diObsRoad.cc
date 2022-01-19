@@ -52,6 +52,11 @@
 #include <algorithm>
 #include <fstream>
 #include <vector>
+#include <iostream>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <math.h>
 
 #define MILOGGER_CATEGORY "diana.ObsRoad"
 #include <miLogger/miLogging.h>
@@ -60,6 +65,11 @@
 //#define DEBUG_OBSDATA 1
 
 #define _undef -32767.0
+// headerfilename, dianaparameter name, headerfile items corresponding to lines
+// first line in map is the header
+std::map<std::string, std::map<std::string, std::vector<std::string>>> ObsRoad::parameterMap;
+std::map<std::string, std::vector<ObsData>> ObsRoad::obsDataCache;
+std::map<std::string, time_t> ObsRoad::obsDataTimeStamp;
 
 using namespace road;
 using namespace miutil;
@@ -101,8 +111,14 @@ void ObsRoad::readHeader(ObsDataRequest_cp request)
     timeDiff = request->timeDiff;
   }
   fileTime = filetime_;
-  // Dont tamper with the plot object...
-  if (true) {
+  // Check if old format
+  bool old_format = true;
+  std::vector<std::string> filename_part = miutil::split(headerfile_, ".");
+  if (filename_part.size() >= 2)
+	if (filename_part[filename_part.size()-1] == "csv"){
+		old_format = false;
+	}
+  if (old_format) {
     int theresult = diParam::initParameters(headerfile_);
     if (theresult) {
       // take a local copy
@@ -135,7 +151,7 @@ void ObsRoad::readHeader(ObsDataRequest_cp request)
       line = "[COLUMNS";
       lines.push_back(line);
       // The fixed part..
-      line = "Name:id: Date:d: Time:t: Lat:lat: Lon:lon: ";
+      line = "StationName:s: Name:id: Date:d: Time:t: Lat:lat: Lon:lon: ";
       // the dynamic part
       // the data value parameters
       for (i = 0; i < params->size(); i++) {
@@ -155,6 +171,52 @@ void ObsRoad::readHeader(ObsDataRequest_cp request)
       decodeHeader();
     } // end if theresult
   }   // end if true
+  else {
+    // Check if headerfile has been read before.
+	// std::map<std::string, std::map<std::string, std::vector<std::string>>> ObsRoad::parameterMap;
+	std::map<std::string, std::map<std::string, std::vector<std::string>>>::iterator its=ObsRoad::parameterMap.begin();
+	// search
+	its = ObsRoad::parameterMap.find(headerfile_);
+	if (its == ObsRoad::parameterMap.end()) {
+	  size_t i = 0;
+	  size_t heading_size = 0;
+	  ifstream ifs(headerfile_.c_str(), ios::in);
+	  char buf[1024];
+	  if (ifs.is_open()) {
+		while (ifs.good()) {
+		  ifs.getline(buf, 1024);
+		  string str(buf);
+		  //miutil::trim(str);
+		  // Append every non empty line to lines
+		  // Empty lines allowed
+		  if (!str.empty()) {
+		    // decode the headerfile and put it in map
+			vector<string> pstr = miutil::split(str, ";");
+			if (i == 0)
+				heading_size=pstr.size();
+			// Check if format is incorrect
+			// Each lite must be equal in length
+			if (pstr.size() != heading_size) {
+				METLIBS_LOG_ERROR(" ObsRoad::readHeader() error in parameterfile: " << headerfile_ << " line: " << str);
+				return;
+			}
+			// Remove '"'
+			for (size_t i = 0; i < pstr.size(); i++)
+			{
+				miutil::remove(pstr[i], '"');
+			}
+			// The diana name is always column 0
+			parameterlines[pstr[0]] = pstr;
+			i++;
+		  }
+		}
+		ifs.close();
+	  }
+	  ObsRoad::parameterMap[headerfile_]=parameterlines;
+	 } else {
+	   parameterlines=ObsRoad::parameterMap[headerfile_];	
+	 }
+  }
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("++ ObsRoad::readHeader()  done ++");
 #endif
@@ -297,9 +359,40 @@ void ObsRoad::readData(std::vector<ObsData>& obsdata, ObsDataRequest_cp request)
                                  << " filetime= " << filetime_.isoTime());
 #endif
   // read the headerfile if needed
-  readHeader(request);
-  readRoadData(request);
-  obsdata=vObsData;
+  struct stat buf;
+  if (obsDataTimeStamp.count(filename_) == 0) {
+	readHeader(request);
+	readRoadData(request);
+	obsDataCache[filename_] = vObsData;
+	if(!stat(filename_.c_str(), &buf))
+	{
+		obsDataTimeStamp[filename_] = buf.st_mtime;
+	} else {
+		// Something went wrong, set to zero...
+		obsDataTimeStamp[filename_] = 0;
+	}
+	obsdata=vObsData;
+  } else {
+	if(!stat(filename_.c_str(), &buf))
+	{
+		// file have changed on disk
+		if (buf.st_mtime > obsDataTimeStamp[filename_])
+		{
+			readHeader(request);
+			readRoadData(request);
+			obsDataCache[filename_] = vObsData;
+			obsDataTimeStamp[filename_] = buf.st_mtime;
+			obsdata=vObsData;
+		} else {
+			obsdata = obsDataCache[filename_];
+		}
+	} else {
+		// file removed from disk, remove from both caches
+		obsDataTimeStamp.erase(filename_);
+		obsDataCache.erase(filename_);
+		obsdata.clear();
+	}
+  }
 }
 
 void ObsRoad::readRoadData(ObsDataRequest_cp request)
@@ -313,7 +406,22 @@ void ObsRoad::readRoadData(ObsDataRequest_cp request)
   oplot->setLabels(labels);
   oplot->columnName = m_columnName;
 #endif
-
+  bool new_format = false;
+  datatype_ = "";
+  std::vector<std::string> filename_part = miutil::split(filename_, ".");
+  if (filename_part.size() >= 2)
+	if (filename_part[filename_part.size()-1] == "csv") {
+		new_format = true;
+		std::vector<std::string> filename_base_part = miutil::split(filename_, "/");
+		if (filename_base_part.size() >= 1) {
+			std::string tmp_datatype=filename_base_part[filename_base_part.size()-1];
+			std::vector<std::string> filename_datatype = miutil::split(tmp_datatype, "_");
+			// There must always be one _ in filename
+			if (filename_datatype.size() >=2) {
+				datatype_ = filename_datatype[0];
+			}
+		}
+	}
   plotTime = filetime_;
   timeDiff = 60;
   if (request) {
@@ -325,11 +433,13 @@ void ObsRoad::readRoadData(ObsDataRequest_cp request)
   lines.clear();
   ifstream ifs(filename_.c_str(), ios::in);
   char buf[1024];
+  buf[0] = '\0';
   if (ifs.is_open()) {
     while (ifs.good()) {
       ifs.getline(buf, 1024);
       string str(buf);
-      miutil::trim(str);
+	  if (!new_format)
+		miutil::trim(str);
       // Append every non empty line to lines
       if (!str.empty())
         lines.push_back(str);
@@ -337,17 +447,28 @@ void ObsRoad::readRoadData(ObsDataRequest_cp request)
     ifs.close();
   }
   // decode the header part and data...
-
-  decodeHeader();
-
-  separator = "|";
-
-  // remove the fake data....
-  vObsData.clear();
-  mObsData.clear();
-
-  decodeData();
+  if (new_format) {
   
+	decodeNewHeader();
+
+	separator = ";";
+
+	// remove the fake data....
+	vObsData.clear();
+	mObsData.clear();
+
+	decodeNewData();
+  } else {
+	decodeHeader();
+
+	separator = "|";
+
+	// remove the fake data....
+	vObsData.clear();
+	mObsData.clear();
+
+	decodeData();
+  }
   // Dont set data here, the obsReaderRoad will do that...
   // HERE, we should be finished!
 #if 0
@@ -447,6 +568,26 @@ void ObsRoad::parseHeaderBrackets(const std::string& str)
   }
 }
 
+void ObsRoad::parseNewHeaderFormat(const std::string& str)
+{
+  METLIBS_LOG_SCOPE(LOGVAL(str));
+  vector<string> pstr = miutil::split(str, ";");
+  // Check if format is incorrect
+  if (pstr.size() <= 1)
+    return;
+  
+  for (size_t j = 0; j < pstr.size(); j++)
+  {
+	  m_columnName.push_back(pstr[j]);
+	  // Make index to headeer items and save this.
+	  asciiColumn[pstr[j]] = j;
+	  // For now, this will be enough
+	  // Specify this in setup file
+	  m_columnType.push_back("");
+	  m_columnTooltip.push_back("");
+  }
+}
+
 void ObsRoad::decodeHeader()
 {
   METLIBS_LOG_SCOPE();
@@ -536,11 +677,66 @@ void ObsRoad::decodeHeader()
       asciiColumn["image"] = i;
     else if (cn_lower == "name" || ct == "id")
       asciiColumn["Name"] = i;
+	else if (cn_lower == "stationname" && ct == "s")
+      asciiColumn["StationName"] = i;
 
     if (ct_lower == "ffk" || cn_lower == "ffk")
       knots = true;
   }
 
+  fileOK = true;
+  return;
+}
+
+void ObsRoad::decodeNewHeader()
+{
+  METLIBS_LOG_SCOPE();
+  
+  // New header format: Time;Offset;StationId;StationName;StationType;Parameter;StatisticsFormula;SamplingTime;Longitud;Latitud;Height;Presentation Value;Database Value;Quality;Nordklim;Restriction;Value Origin;Level Parameter;Level from;Level to;ClimateStationId;ClimateCtationName;NationalStationId;NationalStationName;WmoStationId;WmoStationName;IcaoStationId;IcaoStationName;OperatingMode;
+  // Always the same 
+
+  vector<string> vstr;
+  for (size_t i = 0; i < lines.size(); ++i) {
+    std::string& line = lines[i]; // must be reference here, used later in decodeData
+	// Check for invalid format in data file.
+    if (line.empty())
+      return;
+    // In the new format, heading is always line no 0.
+    if (i == 1)
+      // end of header, start data
+      break;
+    METLIBS_LOG_DEBUG(LOGVAL(line));
+    vstr.push_back(line);
+  }
+
+  asciiColumn.clear();
+  asciiSkipDataLines = 0;
+  parameterColumn.clear();
+
+  m_columnType.clear();
+  m_columnName.clear();
+  m_columnTooltip.clear();
+  asciiColumnUndefined.clear();
+  
+  m_parameterColumnName.clear();
+
+  // parse header
+  // Makes column index for asciiColumn
+ 
+  for (size_t i = 0; i < vstr.size(); ++i)
+    parseNewHeaderFormat(vstr[i]);
+
+  METLIBS_LOG_DEBUG("#columns: " << m_columnName.size() << LOGVAL(asciiSkipDataLines));
+  
+  // std::map<std::string, std::vector<std::string>> parameterlines;
+  // get the heading and index it!  
+  std::vector<std::string> pstr = parameterlines["DianaParameter"];
+  for (size_t j = 0; j < pstr.size(); j++)
+  {
+	  m_parameterColumnName.push_back(pstr[j]);
+	  // Make index to headeer items and save this.
+	  parameterColumn[pstr[j]] = j;
+  }
   fileOK = true;
   return;
 }
@@ -581,6 +777,73 @@ bool ObsRoad::getColumnValue(const std::string& cn, const diutil::string_v& cv, 
     return false;
 
   value = cv[it->second];
+  return true;
+}
+
+std::string ObsRoad::getParameterColumn(const std::string& cn, const std::vector<std::string>& cv)
+{
+  // Get parameter description from parameterline map
+  std::string result;
+  std::map<std::string, std::vector<std::string>>::const_iterator it = parameterlines.find(cn);
+  if (it == parameterlines.end()) {
+    return result;
+  }
+  std::vector<std::string> pstr = it->second;
+  // Map the parameter description with the current data line (cv)
+  // Check for Parameter;StatisticsFormula;SamplingTime;LevelParameter;LevelFrom;LevelTo;
+  if (pstr[parameterColumn["Parameter"]] != cv[asciiColumn["Parameter"]]) {
+	return result;
+  }
+  if (pstr[parameterColumn["StatisticsFormula"]] != cv[asciiColumn["StatisticsFormula"]]) {
+	return result;
+  }
+  // Check for wildcard
+  if (pstr[parameterColumn["SamplingTime"]] != "*")
+	if (pstr[parameterColumn["SamplingTime"]] != cv[asciiColumn["SamplingTime"]]) {
+	  return result;
+	}	  
+  if (pstr[parameterColumn["Level Parameter"]] != cv[asciiColumn["Level Parameter"]])
+	return result;
+  // Check for wildcard
+  if (pstr[parameterColumn["Level from"]] != "*")
+	if (pstr[parameterColumn["Level from"]] != cv[asciiColumn["Level from"]])
+	  return result;
+  // Check for wildcard
+  if (pstr[parameterColumn["Level to"]] != "*")
+	if (pstr[parameterColumn["Level to"]] != cv[asciiColumn["Level to"]])
+	  return result; 	  
+  // Now, we have the parameter and the value is in Presentation Value
+  result = cv[asciiColumn["Presentation Value"]];
+  return result;
+}
+
+bool ObsRoad::getParameterColumnValue(const std::string& cn, const diutil::string_v& cv, float& value)
+{
+  std::string result = getParameterColumn(cn, cv);
+  if (result.empty())
+    return false;
+  //std::cerr << cn << ", " << result << std::endl;
+  value = miutil::to_float(result);
+  return true;
+}
+
+bool ObsRoad::getParameterColumnValue(const std::string& cn, const diutil::string_v& cv, int& value)
+{
+  std::string result = getParameterColumn(cn, cv);
+  if (result.empty())
+    return false;
+  //std::cerr << cn << ", " << result << std::endl;
+  value = miutil::to_int(result);
+  return true;
+}
+
+bool ObsRoad::getParameterColumnValue(const std::string& cn, const diutil::string_v& cv, std::string& value)
+{
+  std::string result = getParameterColumn(cn, cv);
+  if (result.empty())
+    return false;
+  //std::cerr << cn << ", " << result << std::endl;
+  value = result;
   return true;
 }
 
@@ -767,6 +1030,20 @@ bool ObsRoad::isAuto(const ObsData& obs)
   return pauto && (*pauto == 0);
 }
 
+void ObsRoad::decodeMetarCloudAmount(const int & Nsx, QString & ost)
+{
+  if (Nsx == 8)
+	ost = "O";
+  else if ((Nsx <=4) && (Nsx>=3))
+	ost = "S";
+  else if ((Nsx <= 7) && (Nsx >=5))
+	ost = "B";
+  else if ((Nsx <= 2) && (Nsx >=1))
+	ost = "F";
+  else
+	ost.setNum(Nsx);
+}
+
 
 void ObsRoad::amountOfClouds_1_4(ObsData& dta, bool metar)
 {
@@ -782,7 +1059,7 @@ void ObsRoad::amountOfClouds_1_4(ObsData& dta, bool metar)
   int hs4 = _undef;
   const float * ppar = nullptr;
   // manned / automated station
-    if (isAuto(dta)) {
+    if (isAuto(dta)&&!metar) {
       // automated station
       if ((ppar = dta.get_unrotated_float("NS_A1")) != nullptr)
           Ns1 = *ppar;
@@ -793,16 +1070,16 @@ void ObsRoad::amountOfClouds_1_4(ObsData& dta, bool metar)
       if ((ppar = dta.get_unrotated_float("NS_A4")) != nullptr)
           Ns4 = *ppar;
       if ((ppar = dta.get_unrotated_float("HS_A1")) != nullptr)
-          hs1 = *ppar;
+          hs1 = (int)(*ppar+.5);
       if ((ppar = dta.get_unrotated_float("HS_A2")) != nullptr)
-          hs2 = *ppar;
+          hs2 =(int)(*ppar+.5);
       if ((ppar = dta.get_unrotated_float("HS_A3")) != nullptr)
-          hs3 = *ppar;
+          hs3 = (int)(*ppar+.5);
       if ((ppar = dta.get_unrotated_float("HS_A4")) != nullptr)
-          hs4 = *ppar;
+          hs4 = (int)(*ppar+.5);
         
   } else {
-      // manual station
+      // manual station or metar
       if ((ppar = dta.get_unrotated_float("NS1")) != nullptr)
           Ns1 = *ppar;
       if ((ppar = dta.get_unrotated_float("NS2")) != nullptr)
@@ -812,96 +1089,60 @@ void ObsRoad::amountOfClouds_1_4(ObsData& dta, bool metar)
       if ((ppar = dta.get_unrotated_float("NS4")) != nullptr)
           Ns4 = *ppar;
       if ((ppar = dta.get_unrotated_float("HS1")) != nullptr)
-          hs1 = *ppar;
+          hs1 = (int)(*ppar+.5);
       if ((ppar = dta.get_unrotated_float("HS2")) != nullptr)
-          hs2 = *ppar;
+          hs2 = (int)(*ppar+.5);
       if ((ppar = dta.get_unrotated_float("HS3")) != nullptr)
-          hs3 = *ppar;
+          hs3 = (int)(*ppar+.5);
       if ((ppar = dta.get_unrotated_float("HS4")) != nullptr)
-          hs4 = *ppar;
+          hs4 = (int)(*ppar+.5);
   }
   // if metar station do not report Ns1 ... Ns4 and hs1 .. hs4 try Nh and h
   if (metar) {
     if (Ns1 == _undef && hs1 == _undef && Ns2 == _undef && hs2 == _undef && Ns3 == _undef && hs3 == _undef && Ns4 == _undef && hs4 == _undef) {
-      amountOfClouds_1(dta, metar);
-      return;
+      // Nothing to do.
+	  return;
     }
   }
 
   if (Ns4 != _undef && Ns4 > 0 && hs4 != _undef && hs4 > 0) {
     QString ost;
     if (metar) {
-      if (Ns4 == 8)
-        ost = "O";
-      else if (Ns4 == 11)
-        ost = "S";
-      else if (Ns4 == 12)
-        ost = "B";
-      else if (Ns4 == 13)
-        ost = "F";
-      else
-        ost.setNum(Ns4);
+	  decodeMetarCloudAmount(Ns4,ost);
     } else
       ost.setNum(Ns4);
     ost += "-";
-    ost += QString::number(hs4);
+    ost += QString::asprintf("%02i",hs4);
     dta.cloud.push_back(ost.toStdString());
   }
   if (Ns3 != _undef && Ns3 > 0 && hs3 != _undef && hs3 > 0) {
     QString ost;
     if (metar) {
-      if (Ns3 == 8)
-        ost = "O";
-      else if (Ns3 == 11)
-        ost = "S";
-      else if (Ns3 == 12)
-        ost = "B";
-      else if (Ns3 == 13)
-        ost = "F";
-      else
-        ost.setNum(Ns3);
+      decodeMetarCloudAmount(Ns3,ost);
     } else
       ost.setNum(Ns3);
     ost += "-";
-    ost += QString::number(hs3);
+    ost += QString::asprintf("%02i",hs3);
     dta.cloud.push_back(ost.toStdString());
   }
   if (Ns2 != _undef && Ns2 > 0 && hs2 != _undef && hs2 > 0) {
     QString ost;
     if (metar) {
-      if (Ns2 == 8)
-        ost = "O";
-      else if (Ns2 == 11)
-        ost = "S";
-      else if (Ns2 == 12)
-        ost = "B";
-      else if (Ns2 == 13)
-        ost = "F";
-      else
-        ost.setNum(Ns2);
+      decodeMetarCloudAmount(Ns2,ost);
     } else
       ost.setNum(Ns2);
     ost += "-";
-    ost += QString::number(hs2);
+    ost += QString::asprintf("%02i",hs2);
     dta.cloud.push_back(ost.toStdString());
   }
   if (Ns1 != _undef && Ns1 > 0 && hs1 != _undef && hs1 > 0) {
     QString ost;
     if (metar) {
-      if (Ns1 == 8)
-        ost = "O";
-      else if (Ns1 == 11)
-        ost = "S";
-      else if (Ns1 == 12)
-        ost = "B";
-      else if (Ns1 == 13)
-        ost = "F";
-      else
-        ost.setNum(Ns1);
+      decodeMetarCloudAmount(Ns1,ost);
     } else
       ost.setNum(Ns1);
     ost += "-";
-    ost += QString::number(hs1);
+    ost += QString::asprintf("%02i",hs1);
     dta.cloud.push_back(ost.toStdString());
   }
 }
@@ -955,6 +1196,7 @@ void ObsRoad::decodeData()
     int obshour = 0;
     float value;
     std::string text;
+	obsData.CAVOK=false;
     if (getColumnValue("time", pstr, text)) {
       METLIBS_LOG_DEBUG("time: " << text);
       vector<std::string> tpart = miutil::split(text, ":");
@@ -988,6 +1230,9 @@ void ObsRoad::decodeData()
             value = miutil::to_float(pstr[i]);
             if (value == 2.) {
               obsData.put_string(m_columnName[i], "OK");
+			  // Fixme, needed ?
+			  //obsData.CAVOK=true;
+			  obsData.CAVOK=false;
             } else if (value == 1.) { // Clouds
               obsData.put_string(m_columnName[i], "NSC");
             } else if (value == 3.) { // Clouds
@@ -1059,8 +1304,13 @@ void ObsRoad::decodeData()
     if (getColumnValue("y", pstr, value) || getColumnValue("Lat", pstr, value))
       if (value != _undef)
         obsData.ypos = value;
-    if (getColumnValue("Name", pstr, text))
+    if (getColumnValue("Name", pstr, text)) {
       obsData.id = text;
+	  obsData.metarId = text;
+	  obsData.put_string("Name", text);
+	}
+	if (getColumnValue("StationName", pstr, text))
+      obsData.put_string("StationName", text);
     if (getColumnValue("ff", pstr, value))
       if (value != _undef)
         obsData.put_float("ff", knots ? miutil::knots2ms(value) : value);
@@ -1142,14 +1392,620 @@ void ObsRoad::decodeData()
                      << ", " << obsData.xpos);
     METLIBS_LOG_INFO("obsData.ypos: "
                      << ", " << obsData.ypos);
-    std::map<std::string, float>::iterator itf = obsData.fdata.begin();
     METLIBS_LOG_INFO("fdata");
-    for (; itf != obsData.fdata.end(); itf++) {
-      METLIBS_LOG_INFO(itf->first << ", " << itf->second);
-    }
+	std::map<std::string, float>::iterator itf = obsData->fdata.begin();
+	for (; itf != obsData->fdata.end(); itf++) {
+		METLIBS_LOG_INFO(itf->first << ", " << itf->second);
+	}
 #endif
     vObsData.push_back(obsData);
     mObsData[obsData.id] = obsData;
+  }
+}
+
+void ObsRoad::decodeOneLine(ObsData * obsData, std::vector<std::string> & pstr, const int & obshour)
+{
+	METLIBS_LOG_SCOPE();
+	// In the new format, there are only one parameter at each line
+	float value;
+	std::string text;
+	if (getParameterColumnValue("TTT", pstr, value)) {
+	    obsData->put_float("TTT",value);
+	} else if (getParameterColumnValue("TxTxTx", pstr, value)) {
+		obsData->put_float("TxTxTx",value);
+		if (obshour == 18)
+            obsData->put_float("TxTn",value);
+	} else if (getParameterColumnValue("TnTnTn", pstr, value)) {
+	    obsData->put_float("TnTnTn",value);
+		if (obshour == 6)
+            obsData->put_float("TxTn",value);	
+	} else if (getParameterColumnValue("TdTdTd", pstr, value)) {
+		obsData->put_float("TdTdTd",value);
+	} else if (getParameterColumnValue("UU", pstr, value)) {
+		obsData->put_float("UU",value);
+	} else if (getParameterColumnValue("RRR_1", pstr, value)) {
+		obsData->put_float("RRR_1",value);
+	} else if (getParameterColumnValue("RRR_3", pstr, value)) {
+		obsData->put_float("RRR_3",value);
+	} else if (getParameterColumnValue("RRR_6", pstr, value)) {
+		obsData->put_float("RRR_6",value);
+	} else if (getParameterColumnValue("RRR_12", pstr, value)) {
+		obsData->put_float("RRR_12",value);
+	} else if (getParameterColumnValue("RRR_24", pstr, value)) {
+		obsData->put_float("RRR_24",value);
+	} else if (getParameterColumnValue("sss", pstr, value)) {
+		// Convert to cm from m.
+		obsData->put_float("sss",100.0*value);
+	} else if (getParameterColumnValue("PPPP", pstr, value)) {
+		obsData->put_float("PPPP",value);
+	} else if (getParameterColumnValue("PHPHPHPH", pstr, value)) {
+		// convert to hPa
+		obsData->put_float("PHPHPHPH",value/100.0);
+	} else if (getParameterColumnValue("a", pstr, value)) {
+		obsData->put_float("a",value);
+	} else if (getParameterColumnValue("ppp", pstr, value)) {
+		value = round(value);
+		obsData->put_float("ppp",value);
+	} else if (getParameterColumnValue("Cl", pstr, value) || getParameterColumnValue("Cm", pstr, value) || getParameterColumnValue("Ch", pstr, value)) {
+          // Convert to the symbol dataspace
+          cloud_type(*obsData, value);
+	} else if (getParameterColumnValue("h", pstr, value)) {
+          // Convert to clouds dataspace
+          obsData->put_float("h", height_of_clouds(value));
+	} else if (getParameterColumnValue("N", pstr, value)) {
+          // Convert to clouds dataspace
+          obsData->put_float("N", percent2oktas(value));
+	} else if (getParameterColumnValue("vs", pstr, value)) {
+          // Convert to vs dataspace
+          obsData->put_float("vs", ms2code4451(value));
+	}  else if (getParameterColumnValue("ds", pstr, value)) {
+          obsData->put_float("ds", value);
+	} else if (getParameterColumnValue("ww", pstr, value)) {
+		  // Convert to malual synop dataspace
+          obsData->put_float("ww", convertWW(value));
+	} else if (getParameterColumnValue("W1", pstr, value)) {
+		  // Convert to malual synop dataspace ?
+          obsData->put_float("W1", value);
+	} else if (getParameterColumnValue("W2", pstr, value)) {
+		  // Convert to malual synop dataspace ?
+          obsData->put_float("W2", value);
+	} else if (getParameterColumnValue("VV", pstr, value)) {
+		  // Convert to malual synop dataspace ?
+          obsData->put_float("VV", value);
+	} else if (getParameterColumnValue("GWI", pstr, value)) {
+		if (value == 2.) {
+		  obsData->put_string("GWI", "OK");
+		  obsData->CAVOK=false;
+		} else if (value == 1.) { // Clouds
+		  obsData->put_string("GWI", "NSC");
+		} else if (value == 3.) { // Clouds
+		  obsData->put_string("GWI", "SKC");
+		} else { // FIXME, translate to string if needed.
+		  getParameterColumnValue("GWI", pstr, text);
+		  obsData->put_string("GWI", text);
+		}
+    } else if (getParameterColumnValue("HS_A1",pstr,value)) {
+		   obsData->put_float("HS_A1", convert2hft(value));
+	} else if (getParameterColumnValue("HS_A2",pstr,value)) {
+		   obsData->put_float("HS_A2", convert2hft(value));
+	} else if (getParameterColumnValue("HS_A3",pstr,value)) {
+		   obsData->put_float("HS_A3", convert2hft(value));
+	} else if (getParameterColumnValue("HS_A4",pstr,value)) {
+		   obsData->put_float("HS_A4", convert2hft(value));
+	} else if (getParameterColumnValue("NS_A1",pstr,value)) {
+		   obsData->put_float("NS_A1", value);
+	} else if (getParameterColumnValue("NS_A2",pstr,value)) {
+		   obsData->put_float("NS_A2", value);
+	} else if (getParameterColumnValue("NS_A3",pstr,value)) {
+		   obsData->put_float("NS_A3", value);
+	} else if (getParameterColumnValue("NS_A4",pstr,value)) {
+		   obsData->put_float("NS_A4", value);
+	} else if (getParameterColumnValue("HS1",pstr,value)) {
+		   obsData->put_float("HS1", convert2hft(value));
+	} else if (getParameterColumnValue("HS2",pstr,value)) {
+		   obsData->put_float("HS2", convert2hft(value));
+	} else if (getParameterColumnValue("HS3",pstr,value)) {
+		   obsData->put_float("HS3", convert2hft(value));
+	} else if (getParameterColumnValue("HS4",pstr,value)) {
+		   obsData->put_float("HS4", convert2hft(value));
+    } else if (getParameterColumnValue("NS1",pstr,value)) {
+		   obsData->put_float("NS1", value);
+	} else if (getParameterColumnValue("NS2",pstr,value)) {
+		   obsData->put_float("NS2", value);
+	} else if (getParameterColumnValue("NS3",pstr,value)) {
+		   obsData->put_float("NS3", value);
+	} else if (getParameterColumnValue("NS4",pstr,value)) {
+		   obsData->put_float("NS4", value);
+    }else if (getParameterColumnValue("CC1",pstr,value)) {
+		   obsData->put_float("CC1", value);
+	} else if (getParameterColumnValue("CC2",pstr,value)) {
+		   obsData->put_float("CC2", value);
+	} else if (getParameterColumnValue("CC3",pstr,value)) {
+		   obsData->put_float("CC3", value);
+	} else if (getParameterColumnValue("CC4",pstr,value)) {
+		   obsData->put_float("CC4", value);
+    } else if (getParameterColumnValue("fmfmk", pstr, value) || getParameterColumnValue("fmfm", pstr, value)){
+        // Backward compatibility
+        obsData->put_float("fmfm", value);
+    } else if (getParameterColumnValue("911ff", pstr, value)) {
+		obsData->put_float("911ff", value);
+    } else if (getParameterColumnValue("ff", pstr, value)) {
+	    // Wind speed always m/s from database.
+		obsData->put_float("ff", value);
+    } else if (getParameterColumnValue("dd", pstr, value)) {
+        obsData->put_float("dd", value);
+	} else if (getParameterColumnValue("dxdxdx", pstr, value)) {
+        obsData->put_float("dxdxdx", value);
+	} else if (getParameterColumnValue("dndndn", pstr, value)) {
+        obsData->put_float("dndndn", value);
+	} else if (getParameterColumnValue("image", pstr, text)) {
+		obsData->put_string("image", text);
+	} 
+	// This must be done for every parameter
+	if (getColumnValue("Quality", pstr, text)) {
+	  // decode and set the total quality of observation
+	  float quality_value = 0;
+	  if (text == "G")
+		quality_value = 4;
+	  else if (text == "Y")
+	    quality_value = 2;
+	  const float * pVal = 0;
+	  pVal = obsData->get_float("quality");
+	  if (pVal != 0) {
+		if (quality_value < *pVal) {
+			obsData->put_float("quality",quality_value);
+		}
+	  } else {
+		obsData->put_float("quality",quality_value);
+	  }
+	}
+}
+
+std::string ObsRoad::convertWmoStationId(std::string & text)
+{
+	//station id 426,0,2
+	std::string result;
+	std::vector<std::string> wmo_parts = miutil::split(text, ",");
+	if (wmo_parts.size() == 3)
+	{ 
+		result = wmo_parts[1] + wmo_parts[2] + wmo_parts[0];
+	} else {
+		// Nothing to do, just return text
+		result=text;
+	}
+	return result;
+}
+
+float ObsRoad::convertOperatingMode(std::string & text)
+{
+	// default auto ?
+	if (text.empty()) return 0.0;
+	// CODE TABLE 2001
+	if (text == "Automatic") {
+		return 0.0;
+	} else if (text == "Manned") {
+		return 1.0;
+	} else if (text == "Hybrid") {
+		return 2.0;
+	} else {
+		// Missing ?
+		return 3.0;
+	}
+}
+
+int ObsRoad::decodeOffset(std::string & text)
+{
+	if (text == "PT0S")
+		return 0;
+	miutil::trim(text, true, true, "PTM");
+	return -miutil::to_int(text);
+}
+
+
+void ObsRoad::decodeNewData()
+{
+  METLIBS_LOG_SCOPE();
+  
+  const bool isoTime = 1;/*asciiColumn.count("Time")*/;
+  const bool useTime = isoTime || asciiColumn.count("hour");
+  const bool date_ymd = asciiColumn.count("year") && asciiColumn.count("month") && asciiColumn.count("day");
+  const bool date_column = asciiColumn.count("date");
+  const bool allTime = useTime && (date_column || date_ymd);
+  const bool isoDate = useTime && date_column;
+  
+
+  miTime obstime;
+
+  miDate filedate = fileTime.date();
+  // we must parese the file two times, first to construct a station list and second to fill
+  // the stations with data.
+  // skip header; header is always line number 0.
+  size_t ii = 1;
+  
+  size_t index = -1;
+  
+  ObsData * obsData = 0;
+  bool new_object = true;
+  for (; ii < lines.size(); ++ii) {
+    //METLIBS_LOG_DEBUG("read '" << lines[ii] << "'");
+    // This should not happen
+    if (lines[ii].empty() or lines[ii][0] == '#')
+      continue;
+
+    vector<string> pstr;
+    if (not separator.empty())
+      pstr = miutil::split(lines[ii], separator, false);
+    else
+      pstr = miutil::split_protected(lines[ii], '"', '"');
+	// Remove '"'
+	for (size_t i = 0; i < pstr.size(); i++)
+	{
+		miutil::remove(pstr[i], '"');
+	}
+	// The data file contaions data from all station types, we must select the correct type of station
+	//ClimateStationId;ClimateStationName;NationalStationId;NationalStationName;WmoStationId;WmoStationName;IcaoStationId;IcaoStationName;OperatingMode;
+	// Check all types...
+    // We must get obshour for TxTn and RRR.
+    int obshour = 0;
+	int offset = 0;
+    float value;
+    std::string text;
+	// New Time format, 2021-11-16 06:00
+	// An ugly fix
+	text = pstr[0];
+	if (!text.empty()) {
+    //if (getColumnValue("Time", pstr, text)) {
+      METLIBS_LOG_DEBUG("time: " << text);
+	  miutil::miTime time = miutil::miTime(text);
+	  if (getColumnValue("Offset", pstr, text)) {
+		//decode offset, offset is always negative and for now, in minutes.
+		offset=decodeOffset(text);
+		if (offset != 0)
+			time.addMin(offset);
+	  }
+	  obshour=time.hour();
+    }
+	// Get station meta data
+	//ClimateStationId;ClimateStationName;NationalStationId;NationalStationName;WmoStationId;WmoStationName;IcaoStationId;IcaoStationName;OperatingMode;
+	if (datatype_ == "wmo") {
+		if (pstr[asciiColumn["WmoStationId"]].empty()) {
+			continue;
+		}
+		if (getColumnValue("WmoStationId", pstr, text)) {
+			text = convertWmoStationId(text);
+			if (mObsData.count(text)) {
+				new_object = false;
+				decodeOneLine(obsData, pstr, obshour);
+			} else {
+				if (obsData != 0) {
+					 // Format the cloud vector
+					bool metar = false;
+					amountOfClouds_1_4(*obsData, metar);
+					vObsData.push_back(*obsData);
+					mObsData[obsData->id] = *obsData;
+#ifdef DEBUG_OBSDATA
+					// Produces a lot of output...
+					METLIBS_LOG_INFO("obsData.id: "
+						 << ", " << obsData->id);
+					METLIBS_LOG_INFO("obsData.xpos: "
+						 << ", " << obsData->xpos);
+					METLIBS_LOG_INFO("obsData.ypos: "
+						 << ", " << obsData->ypos);
+						 
+					METLIBS_LOG_INFO("fdata");
+					std::map<std::string, float>::iterator itf = obsData->fdata.begin();
+					for (; itf != obsData->fdata.end(); itf++) {
+						METLIBS_LOG_INFO(itf->first << ", " << itf->second);
+					}
+#endif
+					delete obsData;
+					obsData = 0;
+				}
+				new_object = true;
+				obsData = new ObsData();
+				obsData->clear_data();
+				obsData->id = text;
+				obsData->metarId = text;
+				obsData->ship_buoy = false;
+				obsData->put_string("Name", text);
+				text.clear();
+				// Take care or station without StationName, should not happen
+				getColumnValue("WmoStationName", pstr, text);
+				obsData->put_string("StationName", text);
+				obsData->put_float("isdata", 1.0);
+				obsData->put_string("data_type", datatype_);
+				obsData->CAVOK=false;
+				if (getColumnValue("Longitud", pstr, value))
+					if (value != _undef)
+						obsData->xpos = value;
+				if (getColumnValue("Latitud", pstr, value))
+					if (value != _undef)
+						obsData->ypos = value;
+				getColumnValue("OperatingMode", pstr, text);
+				value = convertOperatingMode(text);
+				obsData->put_float("auto", value);
+				decodeOneLine(obsData, pstr, obshour);
+				mObsData[obsData->id] = *obsData;
+			}			
+		}
+	}
+	if (datatype_ == "icao") {
+		if (pstr[asciiColumn["IcaoStationId"]].empty()) {
+			continue;
+		}
+		if (getColumnValue("IcaoStationId", pstr, text)) {
+			if (mObsData.count(text)) {
+				new_object = false;
+				decodeOneLine(obsData, pstr, obshour);
+			} else {
+				if (obsData != 0) {
+					 // Format the cloud vector
+					bool metar = true;
+					amountOfClouds_1_4(*obsData, metar);
+					vObsData.push_back(*obsData);
+					mObsData[obsData->id] = *obsData;
+#ifdef DEBUG_OBSDATA
+					// Produces a lot of output...
+					METLIBS_LOG_INFO("obsData.id: "
+						 << ", " << obsData->id);
+					METLIBS_LOG_INFO("obsData.xpos: "
+						 << ", " << obsData->xpos);
+					METLIBS_LOG_INFO("obsData.ypos: "
+						 << ", " << obsData->ypos);
+						 
+					METLIBS_LOG_INFO("fdata");
+					std::map<std::string, float>::iterator itf = obsData->fdata.begin();
+					for (; itf != obsData->fdata.end(); itf++) {
+						METLIBS_LOG_INFO(itf->first << ", " << itf->second);
+					}
+#endif
+					delete obsData;
+					obsData = 0;
+				}
+				new_object = true;
+				obsData = new ObsData();
+				obsData->clear_data();
+				obsData->id = text;
+				obsData->metarId = text;
+				obsData->ship_buoy = false;
+				obsData->put_string("Name", text);
+				text.clear();
+				// Take care or station without StationName, should not happen
+				getColumnValue("IcaoStationName", pstr, text);
+				obsData->put_string("StationName", text);
+				obsData->put_float("isdata", 1.0);
+				obsData->put_string("data_type", datatype_);
+				obsData->CAVOK=false;
+				if (getColumnValue("Longitud", pstr, value))
+					if (value != _undef)
+						obsData->xpos = value;
+				if (getColumnValue("Latitud", pstr, value))
+					if (value != _undef)
+						obsData->ypos = value;
+				getColumnValue("OperatingMode", pstr, text);
+				value = convertOperatingMode(text);
+				obsData->put_float("auto", value);
+				decodeOneLine(obsData, pstr, obshour);
+				mObsData[obsData->id] = *obsData;
+			}			
+		}
+	}
+	if (datatype_ == "nat") {
+		if (pstr[asciiColumn["NationalStationId"]].empty()) {
+			continue;
+		}
+		if (getColumnValue("NationalStationId", pstr, text)) {
+			if (mObsData.count(text)) {
+				new_object = false;
+				decodeOneLine(obsData, pstr, obshour);
+			} else {
+				if (obsData != 0) {
+					 // Format the cloud vector
+					bool metar = false;
+					amountOfClouds_1_4(*obsData, metar);
+					vObsData.push_back(*obsData);
+					mObsData[obsData->id] = *obsData;
+#ifdef DEBUG_OBSDATA
+					// Produces a lot of output...
+					METLIBS_LOG_INFO("obsData.id: "
+						 << ", " << obsData->id);
+					METLIBS_LOG_INFO("obsData.xpos: "
+						 << ", " << obsData->xpos);
+					METLIBS_LOG_INFO("obsData.ypos: "
+						 << ", " << obsData->ypos);
+						 
+					METLIBS_LOG_INFO("fdata");
+					std::map<std::string, float>::iterator itf = obsData->fdata.begin();
+					for (; itf != obsData->fdata.end(); itf++) {
+						METLIBS_LOG_INFO(itf->first << ", " << itf->second);
+					}
+#endif
+					delete obsData;
+					obsData = 0;
+				}
+				new_object = true;
+				obsData = new ObsData();
+				obsData->clear_data();
+				obsData->id = text;
+				obsData->metarId = text;
+				obsData->ship_buoy = false;
+				obsData->put_string("Name", text);
+				text.clear();
+				// Take care or station without StationName, should not happen
+				getColumnValue("NationalStationName", pstr, text);
+				obsData->put_string("StationName", text);
+				obsData->put_float("isdata", 1.0);
+				obsData->put_string("data_type", datatype_);
+				obsData->CAVOK=false;
+				if (getColumnValue("Longitud", pstr, value))
+					if (value != _undef)
+						obsData->xpos = value;
+				if (getColumnValue("Latitud", pstr, value))
+					if (value != _undef)
+						obsData->ypos = value;
+				getColumnValue("OperatingMode", pstr, text);
+				value = convertOperatingMode(text);
+				obsData->put_float("auto", value);
+				decodeOneLine(obsData, pstr, obshour);
+				mObsData[obsData->id] = *obsData;
+			}			
+		}
+	}
+	if (datatype_ == "clim") {
+		if (pstr[asciiColumn["ClimateStationId"]].empty()) {
+			continue;
+		}
+		if (getColumnValue("ClimateStationId", pstr, text)) {
+			if (mObsData.count(text)) {
+				new_object = false;
+				decodeOneLine(obsData, pstr, obshour);
+			} else {
+				if (obsData != 0) {
+					 // Format the cloud vector
+					bool metar = false;
+					amountOfClouds_1_4(*obsData, metar);
+					vObsData.push_back(*obsData);
+					mObsData[obsData->id] = *obsData;
+#ifdef DEBUG_OBSDATA
+					// Produces a lot of output...
+					METLIBS_LOG_INFO("obsData.id: "
+						 << ", " << obsData->id);
+					METLIBS_LOG_INFO("obsData.xpos: "
+						 << ", " << obsData->xpos);
+					METLIBS_LOG_INFO("obsData.ypos: "
+						 << ", " << obsData->ypos);
+						 
+					METLIBS_LOG_INFO("fdata");
+					std::map<std::string, float>::iterator itf = obsData->fdata.begin();
+					for (; itf != obsData->fdata.end(); itf++) {
+						METLIBS_LOG_INFO(itf->first << ", " << itf->second);
+					}
+#endif
+					delete obsData;
+					obsData = 0;
+				}
+				new_object = true;
+				obsData = new ObsData();
+				obsData->clear_data();
+				obsData->id = text;
+				obsData->metarId = text;
+				obsData->ship_buoy = false;
+				obsData->put_string("Name", text);
+				text.clear();
+				// Take care or station without StationName, should not happen
+				getColumnValue("ClimateStationName", pstr, text);
+				obsData->put_string("StationName", text);
+				obsData->put_float("isdata", 1.0);
+				obsData->put_string("data_type", datatype_);
+				obsData->CAVOK=false;
+				if (getColumnValue("Longitud", pstr, value))
+					if (value != _undef)
+						obsData->xpos = value;
+				if (getColumnValue("Latitud", pstr, value))
+					if (value != _undef)
+						obsData->ypos = value;
+				getColumnValue("OperatingMode", pstr, text);
+				value = convertOperatingMode(text);
+				obsData->put_float("auto", value);
+				decodeOneLine(obsData, pstr, obshour);
+				mObsData[obsData->id] = *obsData;
+			}			
+		}
+	}
+
+    if (useTime && new_object) {
+      miClock clock;
+      miDate date;
+      int hour = 0, min = 0, sec = 0;
+      if (isoTime) {
+		text=pstr[0];
+		if (!text.empty()) {
+        //if (getColumnValue("Time", pstr, text)) {
+          METLIBS_LOG_DEBUG("time: " << text);
+		  miutil::miTime time = miutil::miTime(text);
+		  if (getColumnValue("Offset", pstr, text)) {
+			//decode offset, offset is always negative and for now, in minutes.
+			offset=decodeOffset(text);
+			if (offset != 0)
+				time.addMin(offset);
+		  }
+          hour = time.hour();
+          min = time.min();
+          sec = time.sec();
+          clock = miClock(hour, min, sec);
+        } else {
+          METLIBS_LOG_WARN("time column missing");
+          continue;
+        }
+      } else {
+        if (getColumnValue("hour", pstr, hour)) {
+          getColumnValue("min", pstr, min); // no problem if missing, assume min = sec = 00
+          getColumnValue("sec", pstr, sec);
+          clock = miClock(hour, min, sec);
+        } else {
+          METLIBS_LOG_WARN("hour column missing");
+          continue;
+        }
+      }
+
+      if (isoDate) {
+        if (getColumnValue("date", pstr, text)) {
+          METLIBS_LOG_DEBUG("date: " << text);
+          date = miDate(text);
+        } else {
+          METLIBS_LOG_WARN("date column missing");
+          continue;
+        }
+      } else if (allTime) {
+        int year = 0, month = 0, day = 0;
+        if (getColumnValue("year", pstr, year) and getColumnValue("month", pstr, month) and getColumnValue("day", pstr, day)) {
+          date = miDate(year, month, day);
+        } else {
+          METLIBS_LOG_WARN("year/month/day column missing");
+          continue;
+        }
+      } else {
+        date = filedate;
+      }
+      obstime = miTime(date, clock);
+
+      if (not allTime) {
+        int mdiff = miTime::minDiff(obstime, fileTime);
+        if (mdiff < -12 * 60)
+          obstime.addHour(24);
+        else if (mdiff > 12 * 60)
+          obstime.addHour(-24);
+      }
+
+      METLIBS_LOG_DEBUG(LOGVAL(obstime) << LOGVAL(plotTime) << LOGVAL(timeDiff));
+      if (timeDiff < 0 || abs(miTime::minDiff(obstime, plotTime)) < timeDiff)
+		if (obsData != 0) {
+			obsData->obsTime = obstime;
+		}
+      else
+        continue;
+    }
+  }
+  // save the last object after loop is done
+  if (obsData != 0) {
+	  vObsData.push_back(*obsData);
+	  mObsData[obsData->id] = *obsData;
+#ifdef DEBUG_OBSDATA
+		// Produces a lot of output...
+		METLIBS_LOG_INFO("obsData.id: "
+						 << ", " << obsData->id);
+		METLIBS_LOG_INFO("obsData.xpos: "
+						 << ", " << obsData->xpos);
+		METLIBS_LOG_INFO("obsData.ypos: "
+						 << ", " << obsData->ypos);
+		METLIBS_LOG_INFO("fdata");
+		std::map<std::string, float>::iterator itf = obsData->fdata.begin();
+		for (; itf != obsData->fdata.end(); itf++) {
+			METLIBS_LOG_INFO(itf->first << ", " << itf->second);
+		}
+#endif
+	  delete obsData;
+	  obsData = 0;
   }
 }
 
@@ -1224,7 +2080,7 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
   stations_to_plot.push_back(station_n);
   /* get the data */
   map<int, vector<RDKCOMBINEDROW_2>> raw_data_map;
-  road.getData(stations_to_plot, raw_data_map);
+  road.getRadiosondeData(stations_to_plot, raw_data_map);
 
   road.close();
   vector<RDKCOMBINEDROW_2> raw_data;
@@ -1236,6 +2092,7 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
 #ifdef DEBUGPRINT
   METLIBS_LOG_DEBUG("Lines returned from road.getData(): " << raw_data.size());
 #endif
+  
   // For now, we dont use the surface data!
   vector<diParam>* params = 0;
   map<std::string, vector<diParam>*>::iterator itp = diParam::params_map.find(headerfile_);
@@ -1252,7 +2109,7 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
   for (size_t k = 0; k < params->size(); k++) {
     map<float, RDKCOMBINEDROW_2> tmpresult;
     for (int i = 0; i < no_of_data_rows; i++) {
-      if ((*params)[k].isMapped(raw_data[i])) {
+      if ((*params)[k].parameter()==raw_data[i].parameter && (*params)[k].srid()==raw_data[i].srid) {
         // Data must be keyed with pressure
         if (raw_data[i].srid - 1000 == 4)
           tmpresult[raw_data[i].altitudefrom] = raw_data[i];
@@ -1284,65 +2141,8 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
   map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator itsig_13 = data_map.begin();
   map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator itsig_14 = data_map.begin();
 
-  /* the surface values */
-  map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator ittts = data_map.begin();
-  map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator ittds = data_map.begin();
-  map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator itdds = data_map.begin();
-  map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator itffs = data_map.begin();
-  /* the ground pressure */
-  map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator itpps = data_map.begin();
-
   map<float, RDKCOMBINEDROW_2>::iterator ittp;
 
-  ittts = data_map.find("TTTs");
-  float TTTs_value = -32767.0;
-  if (ittts != data_map.end()) {
-    ittp = ittts->second.begin();
-    for (; ittp != ittts->second.end(); ittp++) {
-      TTTs_value = ittp->second.floatvalue;
-    }
-  }
-
-  ittds = data_map.find("TdTdTds");
-  float TdTdTds_value = -32767.0;
-
-  if (ittds != data_map.end()) {
-    ittp = ittds->second.begin();
-    for (; ittp != ittds->second.end(); ittp++) {
-      TdTdTds_value = ittp->second.floatvalue;
-    }
-  }
-
-  itdds = data_map.find("dds");
-  float dds_value = -32767.0;
-  if (itdds != data_map.end()) {
-    ittp = itdds->second.begin();
-    for (; ittp != itdds->second.end(); ittp++) {
-      dds_value = ittp->second.floatvalue;
-    }
-  }
-
-  itffs = data_map.find("ffs");
-  float ffs_value = -32767.0;
-  if (itffs != data_map.end()) {
-    ittp = itffs->second.begin();
-    for (; ittp != itffs->second.end(); ittp++) {
-      ffs_value = ittp->second.floatvalue;
-    }
-  }
-
-  itpps = data_map.find("PPPP");
-  float PPPPs_value = -32767.0;
-  if (itpps != data_map.end()) {
-    ittp = itpps->second.begin();
-    for (; ittp != itpps->second.end(); ittp++) {
-      PPPPs_value = ittp->second.floatvalue;
-    }
-  }
-#ifdef DEBUGPRINT
-  METLIBS_LOG_DEBUG("surface data TTTs: " << TTTs_value << " TdTdTds: " << TdTdTds_value << " dds: " << dds_value << " ffs: " << ffs_value
-                                          << " PPPP: " << PPPPs_value);
-#endif
 
   ittt = data_map.find("TTT");
   /* Only surface observations */
@@ -1413,71 +2213,65 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
   ittp = ittt->second.begin();
   // Here should we sort!
   std::set<float> keys;
-  /* Check if PPPP is in telegram */
-  if (PPPPs_value != -32767.0)
-    keys.insert(PPPPs_value * 100.0);
   for (; ittp != ittt->second.end(); ittp++) {
     // insert altitudefrom in the set
     keys.insert(ittp->second.altitudefrom);
   }
-  int siglevels = sig_1.size() + sig_4.size() + sig_7.size() + sig_12.size() + sig_13.size() + sig_14.size();
-  // Iterate over the sorted set */
-  int d = 0;
   std::set<float>::iterator it = keys.begin();
+  // First, the temperatures
   for (; it != keys.end(); it++) {
     float key = *it;
     p = key * 0.01;
-    // check with ground level pressure !
-    if ((p > PPPPs_value) && (PPPPs_value != -32767.0))
-      continue;
     if (p > 0. && p < 1300.) {
-      if (key == (PPPPs_value * 100.0)) {
-        tt = TTTs_value;
-        td = TdTdTds_value;
-      } else {
-        tt = -30000.;
-        if (ittt->second.count(key))
-          tt = ittt->second[key].floatvalue;
-        td = -30000.;
-        if (ittd->second.count(key))
-          td = ittd->second[key].floatvalue;
-      }
-      if (tt > -30000.) {
-        temperature->add(p, tt);
-        if (td > -30000.) {
-          dewpoint_temperature->add(p, td);
-        }
-      }
-      if (key == (PPPPs_value * 100.0)) {
-        dd = dds_value;
-        ff = ffs_value;
-      } else {
-        dd = -1;
+		tt = -30000.;
+		if (ittt->second.count(key))
+		  tt = ittt->second[key].floatvalue;
+		td = -30000.;
+		if (ittd->second.count(key))
+		  td = ittd->second[key].floatvalue;
+		if (tt > -30000.) {
+			temperature->add(p, tt);
+			if (td > -30000.) {
+				dewpoint_temperature->add(p, td);
+			}
+		}
+	}
+  } // End temperature loop
+  
+  ittp = itdd->second.begin();
+  keys.clear();
+  for (; ittp != itdd->second.end(); ittp++) {
+    // insert altitudefrom in the set
+    keys.insert(ittp->second.altitudefrom);
+  }
+  it = keys.begin();
+  for (; it != keys.end(); it++) {
+    float key = *it;
+    p = key * 0.01;
+    if (p > 0. && p < 1300.) {
+		dd = -1;
         if (itdd->second.count(key))
           dd = int(itdd->second[key].floatvalue);
         ff = -1;
         if (itff->second.count(key))
           ff = int(itff->second[key].floatvalue);
-      }
-      if (dd >= 0 && dd <= 360 && ff >= 0) {
-        // Only plot the significant winds
-        bpart = 0;
-        // SHOULD it always be 1 ?
-        if (sig_1.count(key) || sig_4.count(key) || sig_7.count(key) || sig_12.count(key) || sig_13.count(key) || sig_14.count(key))
-          bpart = 1;
-        // Plot winds at significant levels and at standard pressure levels.
-        if (bpart > 0 || p == 1000 || p == 925 || p == 850 || p == 800 || p == 700 || p == 500 || p == 400 || p == 300 || p == 200 || p == 100 || p == 50) {
-          wind_dd->add(p, dd);
-          wind_ff->add(p, ff);
-          wind_sig->add(p, bpart);
-          if (ff > ffmax) {
-            ffmax = ff;
-            kmax = wind_sig->length() - 1;
-          }
-        }
-      }
-    }
-  } /* End for */
+		if (dd >= 0 && dd <= 360 && ff >= 0) {
+			// Mark the significant winds
+			bpart = 0;
+			if (sig_1.count(key) || sig_4.count(key) || sig_7.count(key) || sig_12.count(key) || sig_13.count(key) || sig_14.count(key))
+			   bpart = 1;
+			
+			wind_dd->add(p, dd);
+			wind_ff->add(p, ff);
+			wind_sig->add(p, bpart);
+			if (ff > ffmax) {
+				ffmax = ff;
+				kmax = wind_sig->length() - 1;
+			}
+		}
+	}
+  } // End wind loop
+
   if (kmax >= 0)
     wind_sig->setX(kmax, 3);
   vp->prognostic = false;

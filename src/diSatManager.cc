@@ -699,7 +699,7 @@ void SatManager::readHeader(SatFileInfo& file, const std::vector<std::string>& c
       std::ifstream inFile(name.c_str(), std::ios::in);
       if (inFile)
         file.channel.push_back("IR+V");
-    } else if (ch == "day_night" || ch == "RGB" || ch == "IR") {
+    } else if (ch == "day_night" || ch == "RGB" || ch == "IR" || ch == "CTTH" || ch == "CTTH_HFT") {
       file.channel.push_back(ch);
     } else if (miutil::contains(ch, "+")) {
       bool found = false;
