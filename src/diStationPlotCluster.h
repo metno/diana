@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2019 met.no
+  Copyright (C) 2019-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -46,8 +46,6 @@ class StationPlotCluster : public PlotCluster
 public:
   StationPlotCluster(StationManager* stam);
   ~StationPlotCluster();
-
-  bool hasData() override { return false; }
 
   /// put StationPlot in list of StationPlots
   void putStations(StationPlot*);

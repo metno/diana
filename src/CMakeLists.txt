@@ -1,6 +1,6 @@
 #  Diana - A Free Meteorological Visualisation Tool
 #
-#  Copyright (C) 2017-2020 met.no
+#  Copyright (C) 2017-2021 met.no
 #
 #  Contact information:
 #  Norwegian Meteorological Institute
@@ -162,9 +162,11 @@ SET (LIBDIANA_SOURCES
   diPlotCluster.cc
   diPlotCommand.cc
   diPlotCommandFactory.cc
+  diPlotElement.cc
   diPlotModule.cc
   diPlotOptions.cc
   diPlotOptionsPlot.cc
+  diPlotStatus.cc
   diPolyContouring.cc
   diPrintOptions.cc
   diQuickMenues.cc
@@ -239,6 +241,7 @@ SET (LIBDIANA_SOURCES
   util/subprocess.cc
   util/time_util.cc
   util/was_enabled.cc
+  util/qtComboBoxItemDelegate.cc
 
   vcross_v2/VcrossCollector.cc
   vcross_v2/VcrossComputer.cc
@@ -307,13 +310,28 @@ SET(LIBDIANA_QTSOURCES
   vcross_v2/VcrossQtManager.cc
   vcross_v2/VcrossQuickmenues.cc
 
+  wmsclient/WebMapDimension.cc
+  wmsclient/WebMapImage.cc
+  wmsclient/WebMapLayer.cc
   wmsclient/WebMapManager.cc
   wmsclient/WebMapPlot.cc
+  wmsclient/WebMapRequest.cc
   wmsclient/WebMapService.cc
   wmsclient/WebMapSlippyOSM.cc
+  wmsclient/WebMapSlippyOSMLayer.cc
+  wmsclient/WebMapSlippyOSMRequest.cc
   wmsclient/WebMapTile.cc
+  wmsclient/WebMapTilesRequest.cc
+
   wmsclient/WebMapWMS.cc
+  wmsclient/WebMapWMSLayer.cc
+  wmsclient/WebMapWMSRequest.cc
+
   wmsclient/WebMapWMTS.cc
+  wmsclient/WebMapWMTSLayer.cc
+  wmsclient/WebMapWMTSRequest.cc
+  wmsclient/WebMapWMTSTileMatrix.cc
+  wmsclient/WebMapWMTSTileMatrixSet.cc
 )
 
 SET(LIBBDIANA_SOURCES
@@ -324,13 +342,8 @@ SET(LIBBDIANA_SOURCES
   bdiana_spectrum.cc
   bdiana_vcross.cc
   bdiana_vprof.cc
-  signalhelper.cc
 
-  diOrderBook.cc
-  diOrderClient.cc
-  diOrderListener.cc
-  diOrderQueue.cc
-  diWorkOrder.cc
+  diCommandlineOptions.cc
 )
 
 SET (LIBDIANAUI_SOURCES
@@ -446,6 +459,7 @@ SET(LIBDIANAUI_QTSOURCES
   vprof/qtVprofWindow.cc
 
   wmsclient/WebMapDialog.cc
+  wmsclient/WebMapPlotListModel.cc
 )
 
 IF (ENABLE_GEOTIFF)
@@ -481,7 +495,6 @@ LIST (APPEND LIBDIANA_HEADERS
   diEditTypes.h
   diEventResult.h
   diObjTypes.h
-  diPlotElement.h
   diPlotOrder.h
   diQuickMenuTypes.h
   diSatDialogInfo.h
@@ -661,9 +674,8 @@ SET (LIBDIANAUI_XPM
 )
 
 QT5_WRAP_UI(LIBDIANAUI_UIS ${LIBDIANAUI_QTFORMS})
-QT5_WRAP_UI(DIANA_UIS      ${DIANA_QTFORMS})
 
-SET_PROPERTY(SOURCE ${LIBDIANAUI_UIS} ${DIANA_UIS} diBuild.cc PROPERTY SKIP_AUTOMOC ON)
+SET_PROPERTY(SOURCE ${LIBDIANAUI_UIS} diBuild.cc PROPERTY SKIP_AUTOMOC ON)
 
 SET(TS_DIR "${CMAKE_SOURCE_DIR}/share/diana/lang")
 METNO_QT_CREATE_TRANSLATION(LIBDIANAUI_QM
@@ -683,7 +695,6 @@ METNO_QT_CREATE_TRANSLATION(LIBDIANAUI_QM
    ${DIANA_SOURCES}
 
    ${LIBDIANAUI_QTFORMS}
-   ${DIANA_QTFORMS}
 
   UPDATE_OPTIONS
    -locations relative
@@ -693,16 +704,12 @@ METNO_QT_CREATE_TRANSLATION(LIBDIANAUI_QM
    lupdate
 )
 
-LINK_DIRECTORIES(${PC_LIBRARY_DIRS} ${PCUI_LIBRARY_DIRS} ${Boost_LIBRARY_DIRS})
-
 ADD_LIBRARY(libdiana_core SHARED
   ${LIBDIANA_SOURCES}
   ${LIBDIANA_HEADERS}
 
   ${LIBDIANA_QTHEADERS}
   ${LIBDIANA_QTSOURCES}
-
-  ${LIBDIANA_MOC_SRCS}
 
   ${MIRASTER_SOURCES}
   ${MIRASTER_HEADERS}
@@ -748,10 +755,8 @@ SET_TARGET_PROPERTIES(libdiana_batch PROPERTIES
 )
 
 ADD_EXECUTABLE(diana_ui
+  diCommandlineOptions.cc
   main_gui.cc
-
-  ${DIANA_MOC_SRCS}
-  ${DIANA_UIS}
 )
 SET_TARGET_PROPERTIES(diana_ui PROPERTIES
   OUTPUT_NAME "diana.bin-${PVERSION}"
@@ -790,55 +795,24 @@ INSTALL(
 
 ########################################################################
 
-INCLUDE_DIRECTORIES(
-  ${PC_INCLUDE_DIRS}
-  ${PCUI_INCLUDE_DIRS}
-  diField
-)
-
 TARGET_LINK_LIBRARIES(libdiana_core
-  ${PC_LIBRARIES}
-  ${geotiff_LIB}
-  ${hdf5_LIB}
-  ${proj_LIB}
-  ${shp_LIB}
-  ${udunits2_LIB}
-  ${QT_LIBRARIES} # includes Qt5::Gui :-(
-  ${Boost_LIBRARIES}
-  mi-fieldcalc
-  libfimex
+  ${PKGS_CORE}
 )
-TARGET_LINK_LIBRARIES(libdiana_ui libdiana_core ${PCUI_LIBRARIES})
-TARGET_LINK_LIBRARIES(libdiana_batch libdiana_core)
+TARGET_LINK_LIBRARIES(libdiana_ui
+  libdiana_core
+  ${PKGS_UI}
+)
+TARGET_LINK_LIBRARIES(libdiana_batch
+  libdiana_core
+  mi-programoptions
+)
 
-TARGET_LINK_LIBRARIES(diana_batch libdiana_batch)
-TARGET_LINK_LIBRARIES(diana_ui libdiana_ui)
-
-IF(ENABLE_SMHI)
-  SET(SMHI TRUE)
-ENDIF()
-
-IF (ENABLE_NEWARKOBS)
-  SET(ROADOBS TRUE)
-  SET(NEWARK_INC TRUE)
-ENDIF ()
-
-IF (ENABLE_GEOTIFF)
-  SET(GEOTIFF TRUE)
-  TARGET_INCLUDE_DIRECTORIES(libdiana_core PUBLIC "${geotiff_INC_DIR}")
-  TARGET_COMPILE_OPTIONS(libdiana_core PUBLIC "${geotiff_CFLAGS_OTHER}")
-  TARGET_LINK_LIBRARIES(libdiana_core ${geotiff_LIB})
-ENDIF ()
-
-IF (ENABLE_HDF5)
-  SET(HDF5FILE TRUE)
-  TARGET_INCLUDE_DIRECTORIES(libdiana_core PUBLIC "${hdf5_INC_DIR}")
-  TARGET_COMPILE_OPTIONS(libdiana_core PUBLIC "${hdf5_CFLAGS_OTHER}")
-  TARGET_LINK_LIBRARIES(libdiana_core ${hdf5_LIB})
-ENDIF ()
-
-if (ENABLE_OBS_BUFR)
-  SET(BUFROBS TRUE)
-ENDIF ()
+TARGET_LINK_LIBRARIES(diana_batch
+  libdiana_batch
+)
+TARGET_LINK_LIBRARIES(diana_ui
+  libdiana_ui
+  mi-programoptions
+)
 
 CONFIGURE_FILE(diana_config.h.in diana_config.h)

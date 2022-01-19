@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -30,23 +30,19 @@
 // Diana main program
 //
 
-#include "diana_config.h"
-
 #include "qtDianaApplication.h"
 #include <QTranslator>
 #include <QMessageBox>
 
-#include "diBuild.h"
-#include "diLocalSetupParser.h"
-#include "diPrintOptions.h"
+#include "diCommandlineOptions.h"
 #include "diController.h"
 #include "diEditItemManager.h"
+#include "diLocalSetupParser.h"
+#include "diPrintOptions.h"
 #include "miSetupParser.h"
 #include "util/fimex_logging.h"
 
 #include "qtMainWindow.h"
-
-#include <puTools/miStringFunctions.h>
 
 #include <QDir>
 #include <QInputDialog>
@@ -64,27 +60,13 @@ using namespace miutil;
 
 namespace {
 
-void printUsage()
-{
-  cout << "----------------------------------------------------------"    << endl
-       << "Diana - a 2D presentation system for meteorological data,"     << endl
-       << "including fields, observations, satellite- and radarimages,"   << endl
-       << "vertical profiles and cross sections. Diana has tools for"     << endl
-       << "on-screen fieldediting and drawing of objects (fronts, areas," << endl
-       << "symbols etc." << endl
-       << "Copyright (C) 2006-2018 met.no" << endl
-       << "----------------------------------------------------------" << endl
-       << "Command line arguments:"                                    << endl
-       << "  -h            :  Show help"                               << endl
-       << "  -v            :  Version"                                 << endl
-       << "  -s <filename> :  name of setupfile (def. diana.setup)"    << endl
-       << "  -qm <menu> <item> : apply a quickmenu at start"           << endl
-       << "  -l <language> :  language used in dialogs"                << endl
-       << "  -L <logger>   :  loggerFile for debugging"                << endl
-       << "  -I <name>     :  change name of instance for coserver"    << endl
-       << "                   (use ? to choose at startup)"            << endl
-       << "----------------------------------------------------------" << endl;
-}
+namespace po = miutil::program_options;
+
+const po::option op_version = std::move(po::option("version", "show version info").set_narg(0));
+const po::option op_lang = std::move(po::option("lang", "select language used in dialogs").set_shortkey("l").set_overwriting());
+const po::option op_instancename = std::move(po::option("instancename", "instance name for coserver ('?' to choose at startup)").set_shortkey("I"));
+const po::option op_quickmenu = std::move(
+    po::option("quickmenu", "apply a quickmenu at start; has two arguments, menu name and item, like \"my menu\" \"my item\"").set_shortkey("qm").set_narg(2));
 
 class LanguageInstaller {
 public:
@@ -151,16 +133,20 @@ void setupLanguage(QCoreApplication* app, QString lang)
   setupQtLanguage(app, lang);
 }
 
+int criticalStartupError(const QString& message)
+{
+  METLIBS_LOG_ERROR(message.toStdString());
+  QMessageBox::critical(0, diutil::titleDianaVersion, message);
+  return 1;
+}
+
 } // namespace
 
 // ========================================================================
 
 int main(int argc, char **argv)
 {
-  cout << argv[0] << " : DIANA version: " << VERSION
-       << "  build: " << diana_build_string
-       << "  commit: " << diana_build_commit
-       << endl;
+  diutil::printVersion(std::cout, argv[0]);
 
   // if LC_NUMERIC this is not "C" or something with '.' as decimal
   // separator, udunits will not be able to read unit specifications, which
@@ -185,109 +171,52 @@ int main(int argc, char **argv)
   setlocale(LC_NUMERIC, "C");
   setenv("LC_NUMERIC", "C", 1);
 
-  string logfilename = SYSCONFDIR "/" PACKAGE_NAME "/" PVERSION "/log4cpp.properties";
-  QString lang;
-  bool have_diana_title = false;
-  QString diana_instancename, qm_menu, qm_item;
-  string setupfile;
-  map<std::string, std::string> user_variables;
+  po::option_set cmdline_options;
+  cmdline_options
+      << diutil::op_help
+      << diutil::op_setup
+      << diutil::op_logger
+      << op_lang
+      << op_version
+      << op_instancename
+      << op_quickmenu;
 
-  user_variables["PVERSION"]= PVERSION;
-  user_variables["SYSCONFDIR"]= SYSCONFDIR;
-    // parsing command line arguments
-  int ac= 1;
-  while (ac < argc){
-    const string sarg = argv[ac];
-
-    if (sarg == "-h" || sarg == "--help"){
-      printUsage();
-      return 0;
-
-    } else if (sarg=="-s" || sarg=="--setup") {
-      ac++;
-      if (ac >= argc) {
-        printUsage();
-        return 0;
-      }
-      setupfile= argv[ac];
-
-    } else if (sarg=="-l" || sarg=="--lang") {
-      ac++;
-      if (ac >= argc) {
-        printUsage();
-        return 0;
-      }
-      lang = argv[ac];
-
-    } else if (sarg=="-L" || sarg=="--logger") {
-      ac++;
-      if (ac >= argc) {
-        printUsage();
-        return 0;
-      }
-      logfilename= argv[ac];
-
-    } else if (sarg=="-v" || sarg=="--version") {
-      return 0;
-
-    } else if (sarg=="-T" || sarg=="--title") {
-      ac++;
-      if (ac >= argc) {
-        printUsage();
-        return 0;
-      }
-      have_diana_title = true;
-
-    } else if (sarg=="-I" || sarg=="--instancename") {
-      ac++;
-      if (ac >= argc) {
-        printUsage();
-        return 0;
-      }
-      diana_instancename = argv[ac];
-
-    } else if (sarg=="-qm") {
-      if (ac+2 >= argc) {
-        printUsage();
-        return 0;
-      }
-      qm_menu = argv[++ac];
-      qm_item = argv[++ac];
-
-    } else {
-      vector<string> ks= miutil::split(sarg, "=");
-      if (ks.size()==2) {
-        user_variables[miutil::to_upper(ks[0])] = ks[1];
-      } else {
-        METLIBS_LOG_WARN("WARNING, unknown argument on commandline:" << sarg);
-      }
-    }
-    ac++;
-  } // command line parameters
-
-  FimexLoggingAdapter fla;
-  milogger::LoggingConfig log4cpp(logfilename);
-
-  if (have_diana_title) {
-    METLIBS_LOG_INFO("the -T/--title option is ignored");
+  std::vector<std::string> positional;
+  po::value_set vm;
+  try {
+    vm = parse_command_line(argc, argv, cmdline_options, positional);
+  } catch (po::option_error& e) {
+    std::cerr << "ERROR while parsing commandline options: " << e.what() << std::endl;
+    diutil::printUsage(std::cout, cmdline_options);
+    return 1;
   }
 
-  SetupParser::setUserVariables(user_variables);
-  if (!LocalSetupParser::parse(setupfile)){
-    if (setupfile.empty()) {
-      METLIBS_LOG_ERROR("No setup file specified.");
-      QMessageBox::critical(0, QString("Diana %1").arg(VERSION),
-        QString("No setup file specified."));
-    } else {
-      METLIBS_LOG_ERROR("An error occurred while reading setup: " << setupfile);
-      QMessageBox::critical(0, QString("Diana %1").arg(VERSION),
-        QString("An error occurred while reading setup: %1").arg(QString::fromStdString(setupfile)));
-    }
+  if (vm.is_set(op_version)) {
+    return 0;
+  } else if (vm.is_set(diutil::op_help)) {
+    diutil::printUsage(std::cout, cmdline_options);
     return 0;
   }
 
+  FimexLoggingAdapter fla;
+  milogger::LoggingConfig log4cpp(vm.value(diutil::op_logger));
+
+  const std::map<std::string, std::string> user_variables = diutil::parse_user_variables(positional);
+  SetupParser::setUserVariables(user_variables);
+  string setupfile = vm.value(diutil::op_setup);
+  if (!LocalSetupParser::parse(setupfile)){
+    const QString message = setupfile.empty()
+                          ? ("No setup file specified.")
+                          : QString("An error occurred while reading setup: %1").arg(QString::fromStdString(setupfile));
+    return criticalStartupError(message);
+  }
+
+  QString lang;
+  diutil::value_if_set(vm, op_lang, lang);
   setupLanguage(&a, lang);
 
+  QString diana_instancename;
+  diutil::value_if_set(vm, op_instancename, diana_instancename);
   if (diana_instancename == "?") {
     QDir logdir(QString::fromStdString(DianaMainWindow::getLogFileDir()));
     const QString ext = QString::fromStdString(DianaMainWindow::getLogFileExt());
@@ -321,10 +250,7 @@ int main(int argc, char **argv)
 
   printerManager printman;
   if (!printman.parseSetup()) {
-    METLIBS_LOG_ERROR("An error occurred while reading print setup: " << setupfile);
-    QMessageBox::critical(0, QString("Diana %1").arg(VERSION),
-      QString("An error occurred while reading print setup: %1").arg(QString::fromStdString(setupfile)));
-    return 0;
+    return criticalStartupError(QString("An error occurred while reading print setup: %1").arg(QString::fromStdString(setupfile)));
   }
 
   Controller contr;
@@ -332,16 +258,12 @@ int main(int argc, char **argv)
 
   // read setup
   if (!contr.parseSetup()){
-    METLIBS_LOG_ERROR("An error occurred while reading setup: " << setupfile);
-    QMessageBox::critical(0, QString("Diana %1").arg(VERSION),
-      QString("An error occurred while reading setup: %1").arg(QString::fromStdString(setupfile)));
-    return 0;
+    return criticalStartupError(QString("An error occurred while applying setup: %1").arg(QString::fromStdString(setupfile)));
   }
 
   DianaMainWindow * mw = new DianaMainWindow(&contr, diana_instancename);
   mw->start();
 
-//  a.setMainWidget(mw);
 #if defined(Q_WS_QWS)
   mw->showFullScreen();
 #else
@@ -353,8 +275,14 @@ int main(int argc, char **argv)
   // news ?
   mw->checkNews();
 
-  if (!qm_menu.isEmpty() && !qm_item.isEmpty()) {
-    mw->applyQuickMenu(qm_menu, qm_item);
+  if (vm.is_set(op_quickmenu)) {
+    const auto& qm_values = vm.values(op_quickmenu);
+    if (qm_values.size() == 2) {
+      const QString qm_menu = QString::fromStdString(qm_values[0]);
+      const QString qm_item = QString::fromStdString(qm_values[1]);
+      if (!qm_menu.isEmpty() && !qm_item.isEmpty())
+        mw->applyQuickMenu(qm_menu, qm_item);
+    }
   }
 
   return a.exec();

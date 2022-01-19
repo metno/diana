@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2013-2020 met.no
+ Copyright (C) 2013-2021 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -46,9 +46,6 @@
 #include <mi_fieldcalc/math_util.h>
 
 #include <puTools/miStringFunctions.h>
-
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/split.hpp>
 
 #include <cmath>
 #include <iomanip>

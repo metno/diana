@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2020 met.no
+  Copyright (C) 2017-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -138,7 +138,7 @@ void AreaObjectsCluster::areaObjectsCommand(const std::string& command, const st
   }
 }
 
-bool AreaObjectsCluster::hasData()
+PlotStatus AreaObjectsCluster::getStatus()
 {
-  return !vareaobjects.empty();
+  return PlotStatus(vareaobjects.empty() ? P_OK_EMPTY : P_OK_DATA);
 }

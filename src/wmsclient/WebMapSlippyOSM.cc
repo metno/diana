@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015 MET Norway
+  Copyright (C) 2015-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,15 +31,15 @@
 
 #include "diUtilities.h"
 #include "WebMapUtilities.h"
+#include "WebMapSlippyOSMLayer.h"
+#include "WebMapSlippyOSMRequest.h"
 
 #include <diField/diArea.h>
 #include <puTools/miStringFunctions.h>
 
 #include <QDomDocument>
 #include <QDomElement>
-#include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include <QNetworkRequest>
 #include <QStringList>
 
 #include <sys/time.h>
@@ -48,8 +48,6 @@
 #include <miLogger/miLogging.h>
 
 namespace /* anonymous */ {
-
-const std::string EPSG_3857 = "EPSG:3857";
 
 const int TILESIZE = 256;
 
@@ -72,94 +70,6 @@ int findZoomForScale(float denominator)
 }
 
 } // anonymous namespace
-
-// ========================================================================
-
-WebMapSlippyOSMRequest::WebMapSlippyOSMRequest(WebMapSlippyOSM_x service,
-    WebMapSlippyOSMLayer_cx layer, int zoom)
-  : mService(service)
-  , mLayer(layer)
-  , mZoom(zoom)
-{
-}
-
-WebMapSlippyOSMRequest::~WebMapSlippyOSMRequest()
-{
-  diutil::delete_all_and_clear(mTiles);
-}
-
-void WebMapSlippyOSMRequest::addTile(int tileX, int tileY)
-{
-  METLIBS_LOG_SCOPE();
-  if (mTiles.size() >= 256)
-    return;
-  const int nxy = (1<<mZoom);
-  const double x0 = -EARTH_CICRUMFERENCE_M/2,
-      dx = EARTH_CICRUMFERENCE_M / nxy,
-      y0 = -x0,
-      dy = -dx;
-  const double tx0 = x0 + dx*tileX,
-      ty1 = y0 + dy*tileY;
-  const Rectangle rect(tx0, ty1+dy, tx0+dx, ty1);
-  mTiles.push_back(new WebMapTile(tileX, tileY, rect));
-}
-
-void WebMapSlippyOSMRequest::submit()
-{
-  METLIBS_LOG_SCOPE();
-  mUnfinished = mTiles.size();
-  for (size_t i=0; i<mTiles.size(); ++i) {
-    WebMapTile* tile = mTiles[i];
-    connect(tile, SIGNAL(finished(WebMapTile*)),
-        this, SLOT(tileFinished(WebMapTile*)));
-    QNetworkReply* reply = mService->submitRequest(mLayer, mZoom,
-        tile->column(), tile->row());
-    tile->submit(reply);
-  }
-}
-
-void WebMapSlippyOSMRequest::abort()
-{
-  METLIBS_LOG_SCOPE();
-  for (size_t i=0; i<mTiles.size(); ++i)
-    mTiles[i]->abort();
-}
-
-void WebMapSlippyOSMRequest::tileFinished(WebMapTile* tile)
-{
-  METLIBS_LOG_SCOPE();
-  if (diutil::checkRedirect(mService, tile))
-    return;
-  const bool ok = tile->loadImage(mLayer->tileFormat());
-  mUnfinished -= 1;
-  METLIBS_LOG_DEBUG(LOGVAL(mUnfinished) << LOGVAL(ok));
-  if (mUnfinished == 0)
-    Q_EMIT completed();
-}
-
-const Rectangle& WebMapSlippyOSMRequest::tileRect(size_t idx) const
-{
-  return mTiles.at(idx)->rect();
-}
-
-const QImage& WebMapSlippyOSMRequest::tileImage(size_t idx) const
-{
-  return mTiles.at(idx)->image();
-}
-
-const Projection& WebMapSlippyOSMRequest::tileProjection() const
-{
-  return mService->projection();
-}
-
-// ========================================================================
-
-const std::string& WebMapSlippyOSMLayer::CRS(size_t) const
-{
-  return EPSG_3857;
-}
-
-// ========================================================================
 
 WebMapSlippyOSM::WebMapSlippyOSM(const std::string& identifier, const QUrl& url, QNetworkAccessManager* network)
   : WebMapService(identifier, network)

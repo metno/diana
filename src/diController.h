@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2019 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -165,6 +165,9 @@ public:
 
   /// check if any plot has data
   bool hasData();
+
+  /// check if any plot has an error
+  bool hasError();
 
   /// toggle area conservatism
   void keepCurrentArea(bool);

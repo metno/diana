@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013-2020 met.no
+  Copyright (C) 2013-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -70,7 +70,7 @@ public:
   virtual void changeProjection(const Area& mapArea, const Rectangle& plotSize, const diutil::PointI& physSize) override;
   virtual QString loadDrawing(const QString &name, const QString &fileName);
   void changeTime(const miutil::miTime& time) override;
-  bool hasData() override;
+  PlotStatus getStatus() override;
   virtual void setCanvas(DiCanvas* canvas) override;
   virtual void plot(DiGLPainter* gl, bool under, bool over) override;
   virtual bool processInput(const PlotCommand_cpv& inp) override;

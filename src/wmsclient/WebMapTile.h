@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015 MET Norway
+  Copyright (C) 2015-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -30,51 +30,9 @@
 #ifndef WebMapTile_h
 #define WebMapTile_h 1
 
+#include "WebMapImage.h"
+
 #include <diField/diRectangle.h>
-
-#include <QImage>
-#include <QObject>
-
-class QNetworkReply;
-
-
-class WebMapImage : public QObject {
-  Q_OBJECT;
-
-public:
-  WebMapImage();
-
-  ~WebMapImage();
-
-  const QImage& image() const
-    { return mImage; }
-
-  void submit(QNetworkReply* reply);
-
-  void abort();
-
-  bool loadImage(const char* format);
-  bool loadImage(const std::string& format)
-    { return loadImage(format.c_str()); }
-
-  const QNetworkReply* reply() const
-    { return mReply; }
-
-protected Q_SLOTS:
-  virtual void replyFinished();
-
-Q_SIGNALS:
-  void finishedImage(WebMapImage* self);
-
-private:
-  void dropRequest();
-
-protected:
-  QImage mImage;
-  QNetworkReply* mReply;
-};
-
-// ========================================================================
 
 class WebMapTile : public WebMapImage {
   Q_OBJECT;

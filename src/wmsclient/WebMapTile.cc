@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015 MET Norway
+  Copyright (C) 2015-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,97 +29,11 @@
 
 #include "WebMapTile.h"
 
-#include "WebMapUtilities.h"
-
-#include <QNetworkReply>
-
 #include <QFont>
 #include <QPainter>
-#include <QTimer>
 
 #define MILOGGER_CATEGORY "diana.WebMapTile"
 #include <miLogger/miLogging.h>
-
-WebMapImage::WebMapImage()
-  : mReply(0)
-{
-}
-
-WebMapImage::~WebMapImage()
-{
-  dropRequest();
-}
-
-void WebMapImage::submit(QNetworkReply* r)
-{
-  METLIBS_LOG_SCOPE();
-  dropRequest();
-  mReply = r;
-  if (mReply) {
-    METLIBS_LOG_DEBUG("waiting for " << mReply->url().toString().toStdString() << "'");
-    connect(mReply, SIGNAL(finished()), this, SLOT(replyFinished()));
-  } else {
-    METLIBS_LOG_DEBUG("no QNetworkReply");
-#if 0
-    QTimer::singleShot(10, this, SLOT(replyFinished()));
-#else
-    replyFinished();
-#endif
-  }
-}
-
-void WebMapImage::abort()
-{
-  dropRequest();
-}
-
-void WebMapImage::dropRequest()
-{
-  if (mReply) {
-    disconnect(mReply, SIGNAL(finished()), this, SLOT(replyFinished()));
-    mReply->abort();
-    mReply->deleteLater();
-  }
-  mReply = 0;
-}
-
-bool WebMapImage::loadImage(const char* format)
-{
-  METLIBS_LOG_SCOPE();
-  if (mReply) {
-    METLIBS_LOG_DEBUG(LOGVAL(mReply->isFinished()) << LOGVAL(mReply->error()));
-
-    const QString ct = mReply->header(QNetworkRequest::ContentTypeHeader).toString();
-    METLIBS_LOG_DEBUG("url='" << mReply->url().toString().toStdString() << "' Content-Type='" << ct.toStdString() << "'");
-    bool ok = false;
-    const char* fmt = 0;
-    if (ct == "image/png")
-      fmt = "PNG";
-    else if (ct == "image/jpeg")
-      fmt = "JPEG";
-    else if (ct.startsWith("text")) {
-      QString text = QString::fromUtf8(mReply->readAll().constData());
-      METLIBS_LOG_ERROR(LOGVAL(diutil::qs(text)));
-    }
-    if (fmt != 0) {
-#if 0
-      ok = mImage.load(mReply, fmt);
-#else
-      const QByteArray data = mReply->readAll();
-      ok = mImage.loadFromData(data, fmt);
-#endif
-    }
-    METLIBS_LOG_DEBUG(LOGVAL(mImage.width()) << LOGVAL(mImage.height()) << LOGVAL(ok));
-  }
-  return !mImage.isNull();
-}
-
-void WebMapImage::replyFinished()
-{
-  Q_EMIT finishedImage(this);
-}
-
-//========================================================================
 
 WebMapTile::WebMapTile(int column, int row, const Rectangle& rect)
   : mColumn(column)
@@ -163,4 +77,3 @@ void WebMapTile::replyFinished()
   WebMapImage::replyFinished();
   Q_EMIT finished(this);
 }
-

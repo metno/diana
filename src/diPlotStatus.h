@@ -1,8 +1,7 @@
-/*-*- c++ -*-
-
+/*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -28,42 +27,34 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef DIORDERLISTENER_H_INCLUDED
-#define DIORDERLISTENER_H_INCLUDED
+#ifndef PLOTSTATUS_H
+#define PLOTSTATUS_H
 
-#include <QMutex>
-#include <QTcpServer>
-
-#include <diOrderClient.h>
-
-class diOrderListener: public QObject {
-	Q_OBJECT;
-public:
-	diOrderListener(QObject *parent = NULL);
-	~diOrderListener();
-
-	bool listen(const QHostAddress &addr, quint16 port = DEFAULT_PORT);
-
-	static const int DEFAULT_PORT;
-
-	bool hasQueuedOrders();
-	uint numQueuedOrders();
-	diWorkOrder *getNextOrder();
-	diWorkOrder *getNextOrderWait(uint msec = 0);
-
-signals:
-	void newOrder();
-
-private slots:
-	void clientConnectionClosed();
-	void newClientConnection();
-	void clientHasNewOrder();
-
-private:
-	QMutex mutex;
-	QTcpServer server;
-	QSet<diOrderClient *> clients;
-	diOrderQueue orders;
+enum PlotStatusValue {
+  P_UNKNOWN,  //! unknown or irrelevant status
+  P_WAITING,  //!< waiting for data
+  P_OK_EMPTY, //!< plot is good but has no data
+  P_OK_DATA,  //!< plot is good and has data
+  P_ERROR,    //!< error in plot
+  P_STATUS_MAX = P_ERROR
 };
 
-#endif
+class PlotStatus
+{
+public:
+  PlotStatus();
+  explicit PlotStatus(PlotStatusValue ps, int n = 1);
+
+  bool operator==(const PlotStatus& other) const;
+  bool operator!=(const PlotStatus& other) const { return !(*this == other); }
+
+  void add(PlotStatusValue ps, int n = 1) { statuscounts_[ps] += n; }
+  void add(const PlotStatus& pcs);
+  int get(PlotStatusValue ps) const { return statuscounts_[ps]; }
+  int count() const;
+
+private:
+  int statuscounts_[P_STATUS_MAX + 1];
+};
+
+#endif // PLOTSTATUS_H

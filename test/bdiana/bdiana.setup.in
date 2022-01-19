@@ -1,0 +1,218 @@
+# -*- coding: utf-8 -*-
+
+ishare_diana_dir = @CMAKE_BINARY_DIR@/share/diana
+share_diana_dir = @CMAKE_SOURCE_DIR@/share/diana
+
+
+<BASIC>
+fontpath=$(share_diana_dir)/fonts
+docpath=$(ishare_dir)/doc/diana
+setenv=BUFR_TABLES,/usr/local/lib/bufrtables/,1
+</BASIC>
+
+
+<FONTS>
+font=Symbol type=scaleable face=NORMAL name=metsymbols.ttf
+
+# text
+font=VeraPolygon  type=scaleable face=NORMAL name=Vera.ttf
+font=VeraPolygon  type=scaleable face=BOLD name=VeraBd.ttf
+font=VeraPolygon  type=scaleable face=ITALIC name=VeraIt.ttf
+font=VeraPolygon  type=scaleable face=BOLD_ITALIC name=VeraBI.ttf
+font=VeraBitmap  type=tt_bitmap face=NORMAL name=Vera.ttf
+font=VeraBitmap  type=tt_bitmap face=BOLD name=VeraBd.ttf
+font=VeraBitmap  type=tt_bitmap face=ITALIC name=VeraIt.ttf
+font=VeraBitmap  type=tt_bitmap face=BOLD_ITALIC name=VeraBI.ttf
+
+BITMAPFONT=VeraBitmap
+SCALEFONT=VeraPolygon
+METSYMBOLFONT=Symbol
+</FONTS>
+
+
+<IMAGE_GALLERY>
+basicpath=$(ishare_diana_dir)/images
+
+markerpath=$(ishare_diana_dir)/images/markers
+marker=$(ishare_diana_dir)/images/vprof_normal.xpm
+marker=$(ishare_diana_dir)/images/vprof_selected.xpm
+
+patternpath=$(ishare_diana_dir)/images/patterns
+</IMAGE_GALLERY>
+
+
+<COLOURS>
+white=        255,255,255
+grayWhite=    224,224,224
+lightGray=    192,192,192
+gray=         160,160,164
+darkGray=     128,128,128
+black=        0,0,0
+
+blue=         0,0,255
+red=          255,0,0
+green=        0,255,0
+cyan=         0,255,255
+magenta=      255,0,255
+yellow=       255,255,0
+</COLOURS>
+
+
+<PALETTES>
+lightblue= 245:245:255,235:235:255,225:225:255,215:215:255,200:200:255,175:175:255,150:150:255,125:125:255,100:100:255,75:75:255,50:50:255,25:25:255,0:0:255
+lightblue_rev= 0:0:255,25:25:255,50:50:255,75:75:255,100:100:255,125:125:255,150:150:255,175:175:255,200:200:255,215:215:255,225:225:255,235:235:255,245:245:255
+lightred= 255:245:245,255:235:235,255:225:225,255:215:215,255:200:200,255:175:175,255:150:150,255:125:125,255:100:100,255:75:75,255:50:50,255:25:25,255:0:0
+lightred_rev= 255:25:25,255:50:50,255:75:75,255:100:100,255:125:125,255:150:150,255:175:175,255:200:200,255:215:215,255:225:225,255:235:235,255:245:245
+</PALETTES>
+
+
+<FILLPATTERNS>
+ice=empty,empty,diag,squares,horizontal,vertical_broken,circles,dots,diag,solid,empty
+lines=diag,horizontal,vertical
+</FILLPATTERNS>
+
+
+<LINETYPES>
+solid=   1111111111111111
+dash=    1111000011110000
+dot=     1100110011001100
+dashdot= 1111000011001100
+longdash=1111100011111000
+empty=0000000000000000
+</LINETYPES>
+
+
+<QUICKMENUS>
+</QUICKMENUS>
+
+
+<FIELD_COMPUTE>
+</FIELD_COMPUTE>
+
+
+<FIELD_PLOT>
+</FIELD_PLOT>
+
+
+<FIELD_VERTICAL_COORDINATES>
+name=atmosphere_hybrid_sigma_pressure_coordinate_1 vc_type=hybrid levelprefix=E.
+name=atmosphere_hybrid_sigma_pressure_coordinate_2 vc_type=hybrid levelprefix=E.
+name=atmosphere_sigma_coordinate vc_type=atmospheric
+name=pressure vc_type=pressure levelsuffix=hPa
+name=flightlevel vc_type=pressure levelprefix=FL
+name=depth vc_type=oceandepth levelsuffix=m
+</FIELD_VERTICAL_COORDINATES>
+
+
+<FIELD_GROUPS>
+name=Surface group=height
+name=Surface group=altitude
+</FIELD_GROUPS>
+
+
+<FIELD_FILES>
+</FIELD_FILES>
+
+
+
+<OBSERVATION_PLOTTYPES>
+type=synop \
+ parameters=Wind,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Id,st.no,Time \
+ misc=dev_field_button,tempPrecision,unit_ms,criteria
+
+type=metar \
+ parameters=Wind,dndx,fmfm,TTT,TdTdTd,ww,REww,VVVV/Dv,VxVxVxVx/Dvx,Clouds,PHPHPHPH,Id \
+ misc=tempPrecision,criteria
+
+type=list \
+ parameters=Pos,dd,ff,TTT,TdTdTd,PPPP,ppp,a,h,VV,N,RRR,ww,W1,W2,Nh,Cl,Cm,Ch,vs,ds,TwTwTw,PwaHwa,dw1dw1,Pw1Hw1,TxTn,sss,911ff,s,fxfx,Id,Date,Time,Height,Zone,Name,RRR_6,RRR_12,RRR_24,quality \
+ misc=dev_field_button,tempPrecision,unit_ms,markerboxVisible,orientation,criteria,qualityflag,wmoflag,parameterName
+
+type=pressure \
+ parameters=Pos,dd,ff,TTT,TdTdTd,PPPP,Id,Date,Time,HHH,QI,QI_NM,QI_RFF \
+ misc=markerboxVisible,asFieldButton,orientation,parameterName,criteria \
+ vertical_levels=10,30,50,70,100,150,200,250,300,400,500,700,850,925,1000
+
+type=tide \
+ parameters=Pos,Date,Time,Name,TE \
+ misc=markerboxVisible,orientation,criteria
+
+type=ocean \
+ parameters=Pos,Id,Date,Time,depth,TTTT,SSSS \
+ vertical_levels=0,10,20,30,50,75,100,125,150,200,250,300,400,500,600,700,800,900,1000,1200,1500,2000,3000,4000 \
+ misc=markerboxVisible,asFieldButton,orientation,parameterName,criteria
+</OBSERVATION_PLOTTYPES>
+
+
+<OBSERVATION_FILES>
+</OBSERVATION_FILES>
+
+
+<IMAGE>
+</IMAGE>
+
+
+<MAP_AREA>
+name=model/sat-area   proj4string=""  rectangle=0:0:0:0
+name=Europa  proj4string="+proj=stere +lat_ts=60 +lat_0=90.0 +lon_0=0 +x_0=5.71849e+06 +y_0=7.37385e+06 +R=6.371e+06"  rectangle=2.50e+06:9.02e+06:2.20e+06:6.67e+06
+</MAP_AREA>
+
+
+<OBJECTS>
+</OBJECTS>
+
+
+<EDIT>
+</EDIT>
+
+
+<VERTICAL_PROFILE_FILES>
+</VERTICAL_PROFILE_FILES>
+
+
+<VERTICAL_PROFILE_COMPUTATIONS>
+</VERTICAL_PROFILE_COMPUTATIONS>
+
+
+
+<VERTICAL_CROSSECTION_FILES>
+</VERTICAL_CROSSECTION_FILES>
+
+
+<VERTICAL_CROSSECTION_COMPUTATIONS>
+# not sure which model uses "altitude" for "surface_altitude"; old simra models did
+vc_surface_altitude  = convert_unit(altitude,m)
+vc_surface_altitude  = convert_unit(surface_altitude,m)
+vc_surface_altitude  = height_above_msl_from_surface_geopotential(surface_geopotential)
+vc_surface_pressure  = convert_unit(surface_air_pressure,hPa)
+
+vc_inflight_altitude = identity(altitude_inflight)
+vc_inflight_pressure = identity(air_pressure_inflight)
+
+# vc...height had been used in old version of diana
+vc_inflight_height   = identity(vc_inflight_altitude)
+vc_surface_height    = identity(vc_surface_altitude)
+</VERTICAL_CROSSECTION_COMPUTATIONS>
+
+
+<VERTICAL_CROSSECTION_PLOTS>
+name=Temp(K)    plot=CONTOUR(tk)  colour=red  line.interval=1.
+</VERTICAL_CROSSECTION_PLOTS>
+
+
+<SPECTRUM_FILES>
+</SPECTRUM_FILES>
+
+
+<DRAWING>
+# Symbol styles
+symbol="Arrow" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_Right_Arrow.svg
+symbol="Cold" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Cold.svg
+symbol="Diagonal Cross" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_Diagonal_Cross.svg
+symbol="Drizzle" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Drizzle.svg
+symbol="Freezing Drizzle" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Freezing_Drizzle.svg
+symbol="Freezing Precipitation" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_FreezingPrecipitation.svg
+symbol="High Pressure" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_High_Pressure.svg
+symbol="Hail" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_ICAO_Hail_Filled.svg
+symbol="Low Pressure" section="Forecast" file=$(share_diana_dir)/images/symbols/WeatherSymbol_WMO_Low_Pressure.svg
+</DRAWING>

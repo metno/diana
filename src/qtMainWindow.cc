@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -606,6 +606,7 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
   statusBar()->addWidget(statusbuttons);
   if (!showelem) statusbuttons->hide();
 
+  connect(contr, &Controller::repaintNeeded, this, &DianaMainWindow::updatePlotElements);
 
   showsatval = new ShowSatValues();
   statusBar()->addPermanentWidget(showsatval);

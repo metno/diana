@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -180,6 +180,7 @@ private:
 };
 
 inline QColor QC(const Colour& c) { return QColor(c.R(), c.G(), c.B(), c.A()); }
+inline Colour fromQColor(const QColor& c, bool alpha=true) { return Colour::fromF(c.redF(), c.greenF(), c.blueF(), alpha ? c.alphaF() : 1); }
 
 } // namespace diutil
 

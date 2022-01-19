@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -802,7 +802,7 @@ void WeatherFront::drawStationary(DiGLPainter* gl)
         xm= (xstart+xend)*0.5;
         ym= (ystart+yend)*0.5;
 
-        gl->Color3f(1.,0.,0.);
+        gl->setColour(Colour::RED);
         drawHalfCircle(gl, true, QPointF(xm, ym), atan2(dys,dxs)*RAD_TO_DEG, r);
 
       } else {
@@ -812,7 +812,7 @@ void WeatherFront::drawStationary(DiGLPainter* gl)
         xtop= (xstart+xend)*0.5 + dys*0.6;
         ytop= (ystart+yend)*0.5 - dxs*0.6;
 
-        gl->Color3f(0.,0.,1.);
+        gl->setColour(Colour::BLUE);
         gl->drawTriangle(true, QPointF(xstart, ystart), QPointF(xend,yend), QPointF(xtop,ytop));
 
         ndrawflag=0;

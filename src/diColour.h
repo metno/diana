@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -84,6 +84,14 @@ public:
 
   Colour& operator=(const Colour &rhs);
   bool operator==(const Colour &rhs) const;
+
+  static Colour BLACK;
+  static Colour WHITE;
+  static Colour RED;
+  static Colour GREEN;
+  static Colour BLUE;
+  static Colour YELLOW;
+  static Colour CYAN;
 
   // static functions for static colour-map
   static void define(const std::string&, const unsigned char, const unsigned char,

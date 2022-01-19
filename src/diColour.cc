@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2014 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -45,6 +45,13 @@ using namespace miutil;
 map<std::string,Colour> Colour::cmap;
 vector<Colour::ColourInfo> Colour::colours;
 
+Colour Colour::BLACK(0, 0, 0, maxv);
+Colour Colour::WHITE(maxv, maxv, maxv, maxv);
+Colour Colour::RED(maxv, 0, 0, maxv);
+Colour Colour::GREEN(0, maxv, 0, maxv);
+Colour Colour::BLUE(0, 0, maxv, maxv);
+Colour Colour::YELLOW(maxv, maxv, 0, maxv);
+Colour Colour::CYAN(0, maxv, maxv, maxv);
 
 Colour::Colour(const values& va) : v(va){
 }

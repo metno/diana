@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,49 +27,36 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "diana_config.h"
+#include "diPlotStatus.h"
 
-#include <sstream>
+#include <numeric>
 
-#include <diWorkOrder.h>
-
-diWorkOrder::diWorkOrder(QObject *parent, int serial, const char *text):
-	QObject(parent), serial(serial), text(text), complete(false)
+PlotStatus::PlotStatus()
+    : statuscounts_{} // init with zeroes
 {
 }
 
-diWorkOrder::diWorkOrder(int serial, const char *text):
-	QObject(), serial(serial), text(text), complete(false)
+PlotStatus::PlotStatus(PlotStatusValue ps, int n)
+    : PlotStatus()
 {
+  add(ps, n);
 }
 
-diWorkOrder::~diWorkOrder()
+bool PlotStatus::operator==(const PlotStatus& other) const
 {
+  for (int i = 0; i <= P_STATUS_MAX; ++i)
+    if (statuscounts_[i] != other.statuscounts_[i])
+      return false;
+  return true;
 }
 
-int
-diWorkOrder::getSerial() const
+void PlotStatus::add(const PlotStatus& pcs)
 {
-	return serial;
+  for (int i = 0; i <= P_STATUS_MAX; ++i)
+    statuscounts_[i] += pcs.statuscounts_[i];
 }
 
-const char *
-diWorkOrder::getText() const
+int PlotStatus::count() const
 {
-	return text.c_str();
-}
-
-bool
-diWorkOrder::isComplete() const
-{
-	return complete;
-}
-
-void
-diWorkOrder::signalCompletion()
-{
-	if (!complete) {
-		emit workComplete();
-		complete = true;
-	}
+  return std::accumulate(statuscounts_, statuscounts_ + P_STATUS_MAX + 1, 0);
 }

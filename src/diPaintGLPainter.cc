@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2011-2018 met.no
+ Copyright (C) 2011-2021 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -625,76 +625,6 @@ void DiPaintGLPainter::ClearStencil(GLint s)
     this->stencil.clear = s;
 }
 
-void DiPaintGLPainter::Color3d(GLdouble red, GLdouble green, GLdouble blue)
-{
-    this->attributes.color = qRgba(red * 255, green * 255, blue * 255, 255);
-    if (this->painter && !this->blend)
-        this->renderPrimitive();
-}
-
-void DiPaintGLPainter::Color3f(GLfloat red, GLfloat green, GLfloat blue)
-{
-    this->attributes.color = qRgba(red * 255, green * 255, blue * 255, 255);
-    if (this->painter && !this->blend)
-        this->renderPrimitive();
-}
-
-void DiPaintGLPainter::Color3fv(const GLfloat *v)
-{
-    this->attributes.color = qRgba(v[0] * 255, v[1] * 255, v[2] * 255, 255);
-    if (this->painter && !this->blend)
-        this->renderPrimitive();
-}
-
-void DiPaintGLPainter::Color3ub(GLubyte red, GLubyte green, GLubyte blue)
-{
-    this->attributes.color = qRgba(red, green, blue, 255);
-    if (this->painter && !this->blend)
-        this->renderPrimitive();
-}
-
-void DiPaintGLPainter::Color3ubv(const GLubyte *v)
-{
-    this->attributes.color = qRgba(v[0], v[1], v[2], 255);
-    if (this->painter && !this->blend)
-        this->renderPrimitive();
-}
-
-void DiPaintGLPainter::Color4d(GLdouble red, GLdouble green, GLdouble blue, GLdouble alpha)
-{
-    this->attributes.color = qRgba(red * 255, green * 255, blue * 255, alpha * 255);
-    if (this->painter && !this->blend)
-        this->renderPrimitive();
-}
-
-void DiPaintGLPainter::Color4f(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
-{
-    this->attributes.color = qRgba(red * 255, green * 255, blue * 255, alpha * 255);
-    if (this->painter && !this->blend)
-        this->renderPrimitive();
-}
-
-void DiPaintGLPainter::Color4ub(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha)
-{
-    this->attributes.color = qRgba(red, green, blue, alpha);
-    if (this->painter && !this->blend)
-        this->renderPrimitive();
-}
-
-void DiPaintGLPainter::Color4fv(const GLfloat *v)
-{
-    this->attributes.color = qRgba(v[0] * 255, v[1] * 255, v[2] * 255, v[3] * 255);
-    if (this->painter && !this->blend)
-        this->renderPrimitive();
-}
-
-void DiPaintGLPainter::Color4ubv(const GLubyte *v)
-{
-    this->attributes.color = qRgba(v[0], v[1], v[2], v[3]);
-    if (this->painter && !this->blend)
-        this->renderPrimitive();
-}
-
 void DiPaintGLPainter::ColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
 {
     // These are only enabled or disabled together in Diana.
@@ -834,26 +764,6 @@ void DiPaintGLPainter::Flush()
 {
     ENSURE_CTX_AND_PAINTER
     this->renderPrimitive();
-}
-
-void DiPaintGLPainter::GetFloatv(GLenum pname, GLfloat *params)
-{
-    switch (pname) {
-    case gl_CURRENT_COLOR:
-    {
-        QRgb c = this->attributes.color;
-        params[0] = qRed(c)/255.0;
-        params[1] = qGreen(c)/255.0;
-        params[2] = qBlue(c)/255.0;
-        params[3] = qAlpha(c)/255.0;
-        break;
-    }
-    case gl_LINE_WIDTH:
-        params[0] = this->attributes.width;
-        break;
-    default:
-        break;
-    }
 }
 
 DiGLPainter::GLboolean DiPaintGLPainter::IsEnabled(GLenum cap)
@@ -1047,16 +957,6 @@ void DiPaintGLPainter::ReadPixels(GLint x, GLint y, GLsizei width, GLsizei heigh
      this OpenGL wrapper is in use. */
 }
 
-void DiPaintGLPainter::Rectf(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
-{
-  Begin(gl_POLYGON);
-  Vertex2f(x1, y1);
-  Vertex2f(x2, y1);
-  Vertex2f(x2, y2);
-  Vertex2f(x1, y2);
-  End();
-}
-
 void DiPaintGLPainter::Rotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloat z)
 {
   // Diana only rotates about the z axis.
@@ -1124,14 +1024,6 @@ void DiPaintGLPainter::Translatef(GLfloat x, GLfloat y, GLfloat z)
   this->transform.translate(x, y);
 }
 
-void DiPaintGLPainter::Vertex2dv(const GLdouble *v)
-{
-  QPointF p = this->transform * QPointF(v[0], v[1]);
-  this->points.append(p);
-  this->validPoints.append(!std::isnan(p.x()) && !std::isnan(p.y()));
-  this->colors.append(this->attributes.color);
-}
-
 void DiPaintGLPainter::Vertex2f(GLfloat x, GLfloat y)
 {
   QPointF p = this->transform * QPointF(x, y);
@@ -1140,18 +1032,10 @@ void DiPaintGLPainter::Vertex2f(GLfloat x, GLfloat y)
   this->colors.append(this->attributes.color);
 }
 
-void DiPaintGLPainter::Vertex2i(GLint x, GLint y)
-{
-  Vertex2f(x, y);
-}
-
 void DiPaintGLPainter::Vertex3f(GLfloat x, GLfloat y, GLfloat z)
 {
   Q_UNUSED(z);
-  QPointF p = this->transform * QPointF(x, y);
-  this->points.append(p);
-  this->validPoints.append(!std::isnan(p.x()) && !std::isnan(p.y()));
-  this->colors.append(this->attributes.color);
+  Vertex2f(x, y);
 }
 
 void DiPaintGLPainter::Vertex3i(GLint x, GLint y, GLint z)
@@ -1292,6 +1176,21 @@ void DiPaintGLPainter::drawScreenImage(const QPointF& point, const QImage& image
 }
 
 // ========================================================================
+
+Colour DiPaintGLPainter::getColour()
+{
+  const QRgb c = this->attributes.color;
+  return Colour(qRed(c), qGreen(c), qBlue(c), qAlpha(c));
+}
+
+// ========================================================================
+
+void DiPaintGLPainter::setColour(const Colour& c, bool alpha)
+{
+  this->attributes.color = qRgba(c.R(), c.G(), c.B(), alpha ? c.A() : 255);
+  if (this->painter && !this->blend)
+    this->renderPrimitive();
+}
 
 bool DiPaintGLPainter::drawText(const QString& str,
     const QPointF& xy, const float a)

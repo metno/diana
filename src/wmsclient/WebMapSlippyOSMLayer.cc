@@ -1,8 +1,7 @@
-/*-*- c++ -*-
-
+/*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2015-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -26,38 +25,14 @@
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
-#ifndef DIORDERQUEUE_H_INCLUDED
-#define DIORDERQUEUE_H_INCLUDED
+#include "WebMapSlippyOSMLayer.h"
 
-#include <QMutex>
-#include <QQueue>
-#include <QSet>
-#include <QThread>
-#include <QWaitCondition>
+#define MILOGGER_CATEGORY "diana.WebMapSlippyOSMLayer"
+#include <miLogger/miLogging.h>
 
-#include "diWorkOrder.h"
-
-class diOrderQueue: public QObject {
-	Q_OBJECT;
-public:
-	diOrderQueue(QObject *parent = NULL);
-	~diOrderQueue();
-
-	bool hasQueuedOrders();
-	uint numQueuedOrders();
-	bool insertOrder(diWorkOrder *);
-	diWorkOrder *getNextOrder();
-	diWorkOrder *getNextOrderWait(uint msec = 0);
-
-signals:
-	void newOrderAvailable();
-
-private:
-	QMutex mutex;
-	QWaitCondition condvar;
-	QQueue<diWorkOrder *> orders;
-};
-
-#endif
+WebMapSlippyOSMLayer::WebMapSlippyOSMLayer(const std::string& identifier)
+    : WebMapLayer(identifier)
+{
+}

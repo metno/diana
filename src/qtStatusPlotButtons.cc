@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2015 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -47,12 +47,17 @@
 
 static bool oktoemit;
 
-
-PlotButton::PlotButton(QWidget * parent,
-    PlotElement& pe)
-: QToolButton(parent)
+namespace {
+QString makeCSS(QString rgb)
 {
+  QString tmpl = "QToolButton:checked { background-color:#COLOR; color:black; } QToolButton:!checked { color:#COLOR; }";
+  return tmpl.replace("COLOR", rgb);
+}
+} // namespace
 
+PlotButton::PlotButton(QWidget* parent, PlotElement& pe)
+    : QToolButton(parent)
+{
   setMinimumWidth(30);
   setPlotElement(pe);
   setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
@@ -62,7 +67,6 @@ PlotButton::PlotButton(QWidget * parent,
 void PlotButton::setPlotElement(const PlotElement& pe)
 {
   QtImageGallery ig;
-  std::string str= pe.str;
   if (not pe.icon.empty()) {
     if (plotelement_.icon!=pe.icon ){
       QImage image;
@@ -78,9 +82,42 @@ void PlotButton::setPlotElement(const PlotElement& pe)
 
   plotelement_= pe;
 
-  tipstr_= QString(str.c_str());
+  tipstr_ = QString::fromStdString(pe.str);
+  QString text = tipstr_.right(1);
+
+  QString statusTip, statusStyle;
+  switch (pe.status) {
+  case P_UNKNOWN:
+    break; // no palette change
+  case P_WAITING:
+    text += ":";
+    statusTip += "WAITING";
+    statusStyle = makeCSS("ffb000");
+    break;
+  case P_OK_EMPTY:
+    text += "-";
+    statusTip += "OK/EMPTY";
+    statusStyle = makeCSS("00ff00");
+    break;
+  case P_OK_DATA:
+    text += "+";
+    statusTip += "OK/DATA";
+    statusStyle = makeCSS("006400");
+    break;
+  case P_ERROR:
+    text += "!";
+    statusTip += "ERROR";
+    statusStyle = makeCSS("ff0000");
+  }
+  if (!statusStyle.isEmpty()) {
+    setStyleSheet(statusStyle);
+  }
+  if (!statusTip.isEmpty()) {
+    tipstr_ += QString("\nStatus: %1").arg(statusTip);
+  }
+
   setToolTip(tipstr_);
-  setText(tipstr_.right(1));
+  setText(text);
   setCheckable(true);
   setChecked(plotelement_.enabled);
 }

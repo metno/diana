@@ -1,3 +1,43 @@
+diana-3.56 (3.56.2-1) unstable; urgency=low
+
+  * bugfix trajectories
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Mon, 05 Jul 2021 08:00:08 +0200
+
+diana-3.56 (3.56.1-1) unstable; urgency=low
+
+  * avoid segfault when <OBSERVATION_FILES> is empty
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Thu, 01 Jul 2021 08:00:08 +0200
+
+diana-3.56 (3.56.0-1) unstable; urgency=low
+
+  * Operational version
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Mon, 21 Jun 2021 08:30:38 +0200
+
+diana-3.56 (3.56.0~rc3-1) unstable; urgency=low
+
+  * always use scrollbar in map area and field reference time combo boxes
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Fri, 11 Jun 2021 08:00:08 +0200
+
+diana-3.56 (3.56.0~rc2-1) unstable; urgency=low
+
+  * status buttons: colour depends on checked state
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Wed, 09 Jun 2021 08:00:08 +0200
+
+diana-3.56 (3.56.0~rc1-1) unstable; urgency=low
+
+  * - plot status: coloured buttons in GUI, bdiana has fail_on_data_error
+  * - errors from reading observations propagate to OBS plot
+  * - wmsclient: select WMS CRS by distortion
+  * - wmsclient: handle malformed time intervals
+  * - bugfixes
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Mon, 07 Jun 2021 08:00:08 +0200
+
 diana-3.53 (3.55.0-1) unstable; urgency=low
 
   * Operational version

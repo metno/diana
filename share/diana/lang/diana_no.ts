@@ -5553,8 +5553,8 @@ Type: %3</translation>
     </message>
     <message>
         <location line="+18"/>
-        <source>Style</source>
-        <translation>Stil</translation>
+        <source>Style name:</source>
+        <translation>Stilnavn:</translation>
     </message>
     <message>
         <location line="+24"/>
@@ -5568,8 +5568,8 @@ Type: %3</translation>
     </message>
     <message>
         <location line="+3"/>
-        <source>Grey</source>
-        <translation>Grå</translation>
+        <source>Make grey:</source>
+        <translation>Gråtone:</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -5593,8 +5593,8 @@ Type: %3</translation>
     </message>
     <message>
         <location line="+10"/>
-        <source>Choose</source>
-        <translation>Velg</translation>
+        <source>Choose Z order for this layer.</source>
+        <translation>Velg rekkefølge for plott.</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -5628,13 +5628,13 @@ Type: %3</translation>
     </message>
     <message>
         <location line="+21"/>
-        <source>Time tolerance:</source>
-        <translation>Tidstoleranse:</translation>
+        <source>Tolerance:</source>
+        <translation>Toleranse:</translation>
     </message>
     <message>
         <location line="+10"/>
         <source>Time matching tolerance</source>
-        <translation type="unfinished"></translation>
+        <translation>Toleranse for valg av tid</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -5648,8 +5648,8 @@ Type: %3</translation>
     </message>
     <message>
         <location line="+3"/>
-        <source>Fixed time:</source>
-        <translation>Fast tid:</translation>
+        <source>Fixed:</source>
+        <translation>Fast:</translation>
     </message>
     <message>
         <location line="+7"/>
@@ -5658,13 +5658,13 @@ Type: %3</translation>
     </message>
     <message>
         <location line="+13"/>
-        <source>Time offset:</source>
-        <translation>Tidsoffset:</translation>
+        <source>Offset:</source>
+        <translation>Offset:</translation>
     </message>
     <message>
         <location line="+13"/>
         <source>Fixed time value</source>
-        <translation>Fast tid:</translation>
+        <translation>Fast tid</translation>
     </message>
     <message>
         <location line="+13"/>

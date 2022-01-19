@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2020 met.no
+ Copyright (C) 2006-2021 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -229,6 +229,7 @@ void FieldPlot::setData(const Field_pv& vf, const miutil::miTime& t)
   }
 
   renderer_->setData(fields, t);
+  setStatus(hasData() ? P_OK_DATA : P_OK_EMPTY);
 }
 
 namespace {

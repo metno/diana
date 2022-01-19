@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2019 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -291,6 +291,11 @@ void Controller::keepCurrentArea(bool b)
 bool Controller::hasData()
 {
   return plotm->hasData();
+}
+
+bool Controller::hasError()
+{
+  return plotm->hasError();
 }
 
 // reload obsevations

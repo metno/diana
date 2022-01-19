@@ -1,0 +1,17 @@
+# -*- coding: utf-8 -*-
+
+%include @CMAKE_CURRENT_BINARY_DIR@/bdiana.setup
+
+<FIELD_FILES>
+CLEAR
+filegroup=test
+m=test t=netcdf f=@CMAKE_CURRENT_SOURCE_DIR@/../arome.nc
+</FIELD_FILES>
+
+
+<FIELD_PLOT>
+field=T
+      colour=red linetype=solid linewidth=1 line.interval=3.
+      plot=CONTOUR(air_temperature_pl)
+end.field
+</FIELD_PLOT>

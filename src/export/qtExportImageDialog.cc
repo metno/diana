@@ -321,6 +321,7 @@ void ExportImageDialog::setSource(ImageSource* source)
   } else {
     // TODO disable
   }
+  enableStartButton();
 }
 
 void ExportImageDialog::onProductChanged(int)

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017 met.no
+  Copyright (C) 2017-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -39,7 +39,7 @@
 class RasterFileSink : public ImageSink
 {
 public:
-  RasterFileSink(const QSize& size, const QString& filename = QString());
+  RasterFileSink(const QSize& size, const QString& filename = QString(), const QString format = QString());
 
   bool isPrinting() override;
 
@@ -55,6 +55,7 @@ public:
 private:
   QImage image_;
   QString filename_;
+  QString format_;
   QPainter painter_;
 };
 

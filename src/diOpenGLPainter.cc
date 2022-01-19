@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2019 met.no
+  Copyright (C) 2015-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -39,8 +39,6 @@
 #include <QImage>
 #include <QPolygonF>
 #include <QVector2D>
-
-#include <boost/shared_array.hpp>
 
 #include <cassert>
 
@@ -152,53 +150,14 @@ DiOpenGLPainter::DiOpenGLPainter(DiOpenGLCanvas* canvas)
 void DiOpenGLPainter::Begin(GLenum mode)
 { glBegin(mode); }
 
-void DiOpenGLPainter::Color3d(GLdouble red, GLdouble green, GLdouble blue)
-{ glColor3d(red, green, blue); }
-
-void DiOpenGLPainter::Color3f(GLfloat red, GLfloat green, GLfloat blue)
-{ glColor3f(red, green, blue); }
-
-void DiOpenGLPainter::Color3fv(const GLfloat *v)
-{ glColor3fv(v); }
-
-void DiOpenGLPainter::Color3ub(GLubyte red, GLubyte green, GLubyte blue)
-{ glColor3ub(red, green, blue); }
-
-void DiOpenGLPainter::Color3ubv(const GLubyte *v)
-{ glColor3ubv(v); }
-
-void DiOpenGLPainter::Color4d(GLdouble red, GLdouble green, GLdouble blue, GLdouble alpha)
-{ glColor4d(red, green, blue, alpha); }
-
-void DiOpenGLPainter::Color4f(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
-{ glColor4f(red, green, blue, alpha); }
-
-void DiOpenGLPainter::Color4ub(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha)
-{ glColor4ub(red, green, blue, alpha); }
-
-void DiOpenGLPainter::Color4fv(const GLfloat *v)
-{ glColor4fv(v); }
-
-void DiOpenGLPainter::Color4ubv(const GLubyte *v)
-{ glColor4ubv(v); }
-
 void DiOpenGLPainter::End()
 { glEnd(); }
 
 void DiOpenGLPainter::RasterPos2f(GLfloat x, GLfloat y)
 { glRasterPos2f(x, y); }
 
-void DiOpenGLPainter::Rectf(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2)
-{ glRectf(x1, y1, x2, y2); }
-
-void DiOpenGLPainter::Vertex2dv(const GLdouble *v)
-{ glVertex2dv(v); }
-
 void DiOpenGLPainter::Vertex2f(GLfloat x, GLfloat y)
 { glVertex2f(x, y); }
-
-void DiOpenGLPainter::Vertex2i(GLint x, GLint y)
-{ glVertex2i(x, y); }
 
 void DiOpenGLPainter::Vertex3f(GLfloat x, GLfloat y, GLfloat z)
 { glVertex3f(x, y, z); }
@@ -229,9 +188,6 @@ void DiOpenGLPainter::Enable(GLenum cap)
 
 void DiOpenGLPainter::Flush()
 { glFlush(); }
-
-void DiOpenGLPainter::GetFloatv(GLenum pname, GLfloat *params)
-{ glGetFloatv(pname, params); }
 
 GLboolean DiOpenGLPainter::IsEnabled(GLenum cap)
 { return glIsEnabled(cap); }
@@ -320,6 +276,20 @@ void DiOpenGLPainter::StencilOp(GLenum fail, GLenum zfail, GLenum zpass)
 { glStencilOp(fail, zfail, zpass); }
 
 // ========================================================================
+
+Colour DiOpenGLPainter::getColour()
+{
+  DiGLPainter::GLfloat c[4];
+  glGetFloatv(gl_CURRENT_COLOR, c);
+  return Colour::fromF(c[0], c[1], c[2], c[3]);
+}
+
+// ========================================================================
+
+void DiOpenGLPainter::setColour(const Colour& c, bool alpha)
+{
+  glColor4ub(c.R(), c.G(), c.B(), alpha ? c.A() : 255);
+}
 
 bool DiOpenGLPainter::drawText(const QString& text, const QPointF& xy, float angle)
 {

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015 MET Norway
+  Copyright (C) 2015-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -30,192 +30,19 @@
 #ifndef WebMapService_h
 #define WebMapService_h 1
 
-#include "diField/diRectangle.h"
+#include "WebMapLayer.h"
+#include "WebMapRequest.h"
 
 #include <QObject>
-
-#include <boost/shared_ptr.hpp>
 
 #include <string>
 #include <vector>
 
-class Area;
 class Projection;
+class Rectangle;
 
-class QImage;
 class QNetworkAccessManager;
 class QNetworkReply;
-
-class WebMapDimension {
-public:
-  explicit WebMapDimension(const std::string& identifier);
-
-  void setTitle(const std::string& title)
-    { mTitle = title; }
-
-  void setUnits(const std::string& units)
-    { mUnits = units; }
-
-  void addValue(const std::string& value, bool isDefault);
-
-  void clearValues();
-
-  /*! dimension identifier, for machine identification of the layer */
-  const std::string& identifier() const
-    { return mIdentifier; }
-
-  /*! human-readable title */
-  const std::string& title(/*language*/) const
-    { return mTitle; }
-
-  /*! units */
-  const std::string& units() const
-    { return mUnits; }
-
-  /*! number of values available */
-  size_t count() const
-    { return mValues.size(); }
-
-  /*! access a value */
-  const std::string& value(size_t idx) const
-    { return mValues.at(idx); }
-
-  /*! access all values */
-  const std::vector<std::string>& values() const
-    { return mValues; }
-
-  /*! access default values */
-  const std::string& defaultValue() const;
-
-  /*! true iff this is the time dimension */
-  bool isTime() const;
-
-  /*! true iff this is the elevation dimension */
-  bool isElevation() const;
-
-  /*! true iff this is a dimension with ISO8601 time values*/
-  bool isTimeDimension() const;
-
-private:
-  std::string mIdentifier;
-  std::string mTitle;
-  std::string mUnits;
-  std::vector<std::string> mValues;
-  size_t mDefaultIndex;
-};
-
-typedef std::vector<WebMapDimension> WebMapDimension_v;
-
-// ========================================================================
-
-class WebMapLayer {
-public:
-  WebMapLayer(const std::string& identifier);
-
-  virtual ~WebMapLayer();
-
-  void addDimension(const WebMapDimension& d)
-    { mDimensions.push_back(d); }
-
-  /*! Layer identifier */
-  const std::string& identifier() const
-    { return mIdentifier; }
-
-  void setTitle(const std::string& title)
-    { mTitle = title; }
-
-  /*! human-readable title */
-  const std::string& title(/*language*/) const
-    { return mTitle; }
-
-  void setAttribution(const std::string& a)
-    { mAttribution = a; }
-
-  /*! layer attribution */
-  const std::string& attribution(/*language*/) const
-    { return mAttribution; }
-
-  /*! number of CRS available */
-  virtual size_t countCRS() const = 0;
-
-  /*! access CRS for this layer */
-  virtual const std::string& CRS(size_t idx) const = 0;
-
-  /*! number of extra dimensions */
-  size_t countDimensions() const
-    { return mDimensions.size(); }
-
-  /*! access to an extra dimension */
-  const WebMapDimension& dimension(size_t idx) const
-    { return mDimensions.at(idx); }
-
-  int findDimensionByIdentifier(const std::string& dimId) const;
-
-private:
-  std::string mIdentifier;
-  std::string mTitle;
-  std::string mAttribution;
-
-protected:
-  WebMapDimension_v mDimensions;
-};
-
-typedef WebMapLayer* WebMapLayer_x;
-typedef const WebMapLayer* WebMapLayer_cx;
-
-// ========================================================================
-
-class WebMapRequest : public QObject {
-  Q_OBJECT;
-
-public:
-  WebMapRequest();
-  virtual ~WebMapRequest();
-
-  /*! set dimension value; ignores non-existent dimensions; dimensions
-   *  without explicitly specified value are set to a default value */
-  virtual void setDimensionValue(const std::string& dimIdentifier,
-      const std::string& dimValue) = 0;
-
-  /*! start fetching data */
-  virtual void submit() = 0;
-
-  /*! stop fetching data */
-  virtual void abort() = 0;
-
-  /*! number of tiles */
-  virtual size_t countTiles() const = 0;
-
-  /*! rectangle of one tile, in tileProjection coordinates */
-  virtual const Rectangle& tileRect(size_t idx) const = 0;
-
-  /*! image data of one tile; might have isNull() == true */
-  virtual const QImage& tileImage(size_t idx) const = 0;
-
-  /*! tile index of the tile containing one point; might be == -1 if no such tile */
-  virtual size_t tileIndex(float x, float y);
-
-  /*! projection of all tiles */
-  virtual const Projection& tileProjection() const = 0;
-
-  /*! legend image; might have isNull() == true */
-  virtual QImage legendImage() const;
-
-public:
-  Rectangle tilebbx;
-  float x0, dx, y0, dy;
-
-private:
-  size_t lastTileIndex; //! cache for "tileIndex"
-
-Q_SIGNALS:
-  /*! the request is complete, ready for rendering, or aborted */
-  void completed();
-};
-
-typedef WebMapRequest* WebMapRequest_x;
-
-// ========================================================================
 
 class WebMapService : public QObject {
   Q_OBJECT;
@@ -231,6 +58,10 @@ public:
 
   void addExtraQueryItem(const std::string& k, const std::string& v)
     { mExtraQueryItems.push_back(std::make_pair(k, v)); }
+
+  void setExcludeLayersWithChildren(bool exclude) { mExcludeLayersWithChildren = exclude; }
+
+  bool excludeLayersWithChildren() const { return mExcludeLayersWithChildren; }
 
   const std::string& identifier() const
     { return mIdentifier; }
@@ -278,10 +109,12 @@ protected:
   std::string mTitle;
   std::string mBasicAuth;
   std::vector< std::pair< std::string,std::string > > mExtraQueryItems;
+  bool mExcludeLayersWithChildren;
+
   std::vector<WebMapLayer_cx> mLayers;
 
 private:
   QNetworkAccessManager* mNetworkAccess;
 };
 
-#endif
+#endif // WebMapService_h

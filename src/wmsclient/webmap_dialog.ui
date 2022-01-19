@@ -265,7 +265,7 @@
          <property name="title">
           <string>Style</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_2">
+         <layout class="QGridLayout" name="gridLayoutStyle" columnstretch="0,1,1,1">
           <property name="leftMargin">
            <number>2</number>
           </property>
@@ -281,7 +281,15 @@
           <property name="spacing">
            <number>2</number>
           </property>
+
           <item row="0" column="0">
+           <widget class="QLabel" name="labelStyle">
+            <property name="text">
+             <string>Style name:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" colspan="3">
            <widget class="QComboBox" name="comboStyle">
             <property name="enabled">
              <bool>false</bool>
@@ -289,43 +297,17 @@
             <property name="toolTip">
              <string>Choose a style provided by the webmap service</string>
             </property>
-            <property name="sizeAdjustPolicy">
-             <enum>QComboBox::AdjustToMinimumContentsLength</enum>
-            </property>
            </widget>
           </item>
-          <item row="0" column="1" rowspan="2" colspan="5">
-           <widget class="QPlainTextEdit" name="textStyleDescription">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>75</height>
-             </size>
-            </property>
-            <property name="tabChangesFocus">
-             <bool>true</bool>
-            </property>
-            <property name="undoRedoEnabled">
-             <bool>false</bool>
-            </property>
-            <property name="lineWrapMode">
-             <enum>QPlainTextEdit::NoWrap</enum>
-            </property>
-            <property name="readOnly">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
+
           <item row="1" column="0">
+           <widget class="QLabel" name="labelGrey">
+            <property name="text">
+             <string>Make grey:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
            <widget class="QCheckBox" name="checkGrey">
             <property name="enabled">
              <bool>false</bool>
@@ -333,19 +315,17 @@
             <property name="toolTip">
              <string>Transform webmap to greyscale</string>
             </property>
-            <property name="text">
-             <string>Grey</string>
-            </property>
            </widget>
           </item>
-          <item row="2" column="0" colspan="2">
+
+          <item row="2" column="0">
            <widget class="QLabel" name="labelAlpha">
             <property name="text">
              <string>Change transparency:</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="2">
+          <item row="2" column="1">
            <widget class="QDoubleSpinBox" name="spinAlphaScale">
             <property name="enabled">
              <bool>false</bool>
@@ -367,7 +347,7 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="3">
+          <item row="2" column="2">
            <widget class="QDoubleSpinBox" name="spinAlphaOffset">
             <property name="enabled">
              <bool>false</bool>
@@ -386,8 +366,8 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="4" colspan="2">
-           <spacer name="horizontalSpacer_2">
+          <item row="2" column="3">
+           <spacer name="horizontalSpacerAlpha">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -399,20 +379,21 @@
             </property>
            </spacer>
           </item>
-          <item row="3" column="0" colspan="2">
-           <widget class="QLabel" name="labelAlpha_2">
+
+          <item row="3" column="0">
+           <widget class="QLabel" name="labelPlotOrder">
             <property name="text">
              <string>Drawing order:</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="2" colspan="3">
+          <item row="3" column="1" colspan="3">
            <widget class="QComboBox" name="comboPlotOrder">
             <property name="enabled">
              <bool>false</bool>
             </property>
             <property name="toolTip">
-             <string>Choose</string>
+             <string>Choose Z order for this layer.</string>
             </property>
             <item>
              <property name="text">
@@ -441,22 +422,10 @@
             </item>
            </widget>
           </item>
-          <item row="3" column="5">
-           <spacer name="horizontalSpacer_3">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>124</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
          </layout>
         </widget>
        </item>
+
        <item>
         <widget class="QGroupBox" name="groupTime">
          <property name="title">
@@ -478,10 +447,35 @@
           <property name="spacing">
            <number>2</number>
           </property>
+
+          <item row="0" column="0">
+           <widget class="QLabel" name="labelTimeOffset">
+            <property name="text">
+             <string>Offset:</string>
+            </property>
+            <property name="buddy">
+             <cstring>spinTimeOffset</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="spinTimeOffset">
+            <property name="toolTip">
+             <string>Time offset relative to plot time</string>
+            </property>
+            <property name="suffix">
+             <string notr="true">s</string>
+            </property>
+            <property name="maximum">
+             <number>1000000</number>
+            </property>
+           </widget>
+          </item>
+
           <item row="1" column="0">
            <widget class="QLabel" name="labelTimeTolerance">
             <property name="text">
-             <string>Time tolerance:</string>
+             <string>Tolerance:</string>
             </property>
             <property name="buddy">
              <cstring>spinTimeTolerance</cstring>
@@ -510,6 +504,7 @@
             </property>
            </widget>
           </item>
+
           <item row="2" column="0">
            <widget class="QCheckBox" name="checkTimeFixed">
             <property name="enabled">
@@ -519,30 +514,7 @@
              <string>Check to fix time to a specific value</string>
             </property>
             <property name="text">
-             <string>Fixed time:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QSpinBox" name="spinTimeOffset">
-            <property name="toolTip">
-             <string>Time offset relative to plot time</string>
-            </property>
-            <property name="suffix">
-             <string notr="true">s</string>
-            </property>
-            <property name="maximum">
-             <number>1000000</number>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="labelTimeOffset">
-            <property name="text">
-             <string>Time offset:</string>
-            </property>
-            <property name="buddy">
-             <cstring>spinTimeOffset</cstring>
+             <string>Fixed:</string>
             </property>
            </widget>
           </item>
@@ -561,9 +533,6 @@
        </item>
        <item>
         <widget class="QGroupBox" name="groupStyleOtherDims">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
          <property name="title">
           <string>Other dimensions</string>
          </property>
@@ -584,23 +553,25 @@
            <number>2</number>
           </property>
           <item>
-           <widget class="QScrollArea" name="scrollOtherDims">
+           <widget class="QTableWidget" name="tableOtherDims">
             <property name="frameShape">
              <enum>QFrame::NoFrame</enum>
             </property>
-            <property name="widgetResizable">
+            <property name="alternatingRowColors">
              <bool>true</bool>
             </property>
-            <widget class="QWidget" name="scrollAreaWidgetContents">
-             <property name="geometry">
-              <rect>
-               <x>0</x>
-               <y>0</y>
-               <width>390</width>
-               <height>92</height>
-              </rect>
-             </property>
-            </widget>
+            <property name="selectionMode">
+             <enum>QAbstractItemView::NoSelection</enum>
+            </property>
+            <attribute name="horizontalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
+            <attribute name="horizontalHeaderStretchLastSection">
+             <bool>true</bool>
+            </attribute>
+            <attribute name="verticalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
            </widget>
           </item>
          </layout>
@@ -664,9 +635,6 @@
   <tabstop>buttonBack</tabstop>
   <tabstop>buttonRestart</tabstop>
   <tabstop>comboStyleLayer</tabstop>
-  <tabstop>comboStyle</tabstop>
-  <tabstop>textStyleDescription</tabstop>
-  <tabstop>checkGrey</tabstop>
   <tabstop>spinAlphaScale</tabstop>
   <tabstop>spinAlphaOffset</tabstop>
   <tabstop>spinTimeOffset</tabstop>
@@ -838,6 +806,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>comboStyle</sender>
+   <signal>currentTextChanged(QString)</signal>
+   <receiver>WebMapDialog</receiver>
+   <slot>onModifyStyleChanged()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>24</x>
+     <y>99</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-4</x>
+     <y>211</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>onModifyGreyToggled()</slot>
@@ -850,5 +834,6 @@
   <slot>onModifyLayerRemove()</slot>
   <slot>onModifyTimeToleranceChanged()</slot>
   <slot>onModifyTimeOffsetChanged()</slot>
+  <slot>onModifyStyleChanged()</slot>
  </slots>
 </ui>

@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2020 met.no
+ Copyright (C) 2006-2021 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -41,6 +41,7 @@
 #include "util/misc_util.h"
 #include "util/qstring_util.h"
 #include "util/string_util.h"
+#include "util/time_util.h"
 
 #include <mi_fieldcalc/MetConstants.h>
 #include <mi_fieldcalc/math_util.h>
@@ -189,7 +190,8 @@ bool ObsPlotCollider::collision(const Box& box) const
 // ========================================================================
 
 ObsPlot::ObsPlot(const std::string& dn, ObsPlotType plottype)
-    : m_plottype(plottype)
+    : visible_positions_count_(0)
+    , m_plottype(plottype)
     , dialogname(dn)
 {
   METLIBS_LOG_SCOPE();
@@ -241,39 +243,49 @@ ObsPlot::~ObsPlot()
 void ObsPlot::getAnnotation(string& str, Colour& col) const
 {
   METLIBS_LOG_SCOPE();
-  str = makeAnnotationString();
+  str = annotation;
   col = origcolour;
 }
 
-std::string ObsPlot::makeAnnotationString() const
+std::string ObsPlot::getEnabledStateKey() const
 {
-  std::string str;
-  if (!readernames.empty()) {
+  return getPlotName();
+}
 
-    for (const string& rn : readernames) {
-      diutil::appendText(str, rn);
-    }
+void ObsPlot::updatePlotNameAndAnnotation()
+{
+  bool first = true;
+  std::ostringstream ost;
+  for (const string& rn : readernames) {
+    if (!first)
+      ost << ' ';
+    first = false;
+    ost << rn;
+  }
 
-    if (level != -10) {
-      str += " ";
-      str += miutil::from_number(level);
-      str += levelsuffix;
-    }
+  if (!first && level != -10)
+    ost << ' ' << level << levelsuffix;
 
+  setPlotName(ost.str());
+
+  if (getStatus() == P_WAITING) {
+    ost << " ...";
+  } else if (getStatus() == P_ERROR) {
+    ost << " ERROR";
+  } else {
     if (!obsTime.undef()) {
-      str += obsTime.isoTime();
+      ost << ' ' << obsTime.isoTime();
       if (getTimeDiff() > 0) {
-        miutil::miTime minTime = getStaticPlot()->getTime();
-        miutil::miTime maxTime = getStaticPlot()->getTime();
-        minTime.addMin(-getTimeDiff());
-        maxTime.addMin(getTimeDiff());
-        str += " (" + minTime.format("%H:%M", "", true) + " - " + maxTime.format("%H:%M", "", true) + " ) ";
+        const miutil::miTime& mapTime_ = getStaticPlot()->getTime();
+        const miutil::miTime minTime = miutil::addMin(mapTime_, -getTimeDiff());
+        const miutil::miTime maxTime = miutil::addMin(mapTime_, +getTimeDiff());
+        ost << " (" << minTime.format("%H:%M", "", true) << " - " << maxTime.format("%H:%M", "", true) << ')';
       }
     }
-
-    str += (" ( " + miutil::from_number(numVisiblePositions()) + " / " + miutil::from_number(getObsCount()) + " )");
+    ost << " (" << numVisiblePositions() << " / " << getObsCount() << ')';
   }
-  return str;
+
+  annotation = ost.str();
 }
 
 void ObsPlot::getDataAnnotations(vector<string>& anno) const
@@ -339,20 +351,26 @@ void ObsPlot::setObsTime(const miutil::miTime& t)
   obsTime = t;
 }
 
-int ObsPlot::numVisiblePositions() const
+size_t ObsPlot::numVisiblePositions() const
+{
+  return visible_positions_count_;
+}
+
+void ObsPlot::updateVisiblePositionCount()
 {
   METLIBS_LOG_SCOPE();
 
-  int npos = getObsCount();
-  int count = 0;
-  for (int i = 0; i < npos; i++) {
-    if (getStaticPlot()->getMapSize().isinside(x[i], y[i]))
-      count++;
+  visible_positions_count_ = 0;
+  if (x && y) {
+    const size_t npos = getObsCount();
+    for (size_t i = 0; i < npos; i++) {
+      if (getStaticPlot()->getMapSize().isinside(x[i], y[i]))
+        visible_positions_count_++;
+    }
   }
-  return count;
 }
 
-int ObsPlot::getObsCount() const
+size_t ObsPlot::getObsCount() const
 {
   return obsp.size();
 }
@@ -539,6 +557,8 @@ void ObsPlot::setPlotInfo(const miutil::KeyValue_v& pin)
     itab = &itabMetar;
     iptab = &iptabMetar;
   }
+
+  updatePlotNameAndAnnotation();
 }
 
 static int normalize_angle(float dd)
@@ -627,23 +647,35 @@ void ObsPlot::reprojectData()
   updateObsPositions();
 }
 
-bool ObsPlot::setData()
+void ObsPlot::setData(bool success)
 {
-  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_SCOPE(LOGVAL(success));
 
   firstplot = true;
   nextplot.clear();
   notplot.clear();
   list_plotnr.clear();
 
-  const int numObs = getObsCount();
+  if (!success) {
+    obsp.clear();
+  }
 
-  if (numObs < 1) {
+  const bool empty = (getObsCount() == 0);
+  if (!success) {
+    METLIBS_LOG_INFO("failed");
+    setStatus(P_ERROR);
+  } else if (empty) {
     METLIBS_LOG_INFO("no data");
-    return false;
+    setStatus(P_OK_EMPTY);
+  } else {
+    setStatus(P_OK_DATA);
   }
 
   reprojectData();
+  updateVisiblePositionCount();
+  updatePlotNameAndAnnotation();
+  if (getStatus() != P_OK_DATA)
+    return;
 
   updateDeltaTimes();
 
@@ -661,10 +693,6 @@ bool ObsPlot::setData()
 
   if (plottype() == OPT_METAR && metarMap.empty())
     initMetarMap();
-
-  setPlotName(makeAnnotationString());
-
-  return true;
 }
 
 void ObsPlot::getObsLonLat(int obsidx, float& x, float& y)
@@ -734,8 +762,7 @@ void ObsPlot::clear()
   nextplot.clear();
   notplot.clear();
   obsp.clear();
-  annotation.clear();
-  setPlotName("");
+  visible_positions_count_ = 0;
   extraAnnotations.clear();
 }
 
@@ -1223,6 +1250,8 @@ void ObsPlot::changeProjection(const Area& /*mapArea*/, const Rectangle& /*plotS
 {
   recalculate_densities_ = true;
   reprojectData();
+  updateVisiblePositionCount();
+  updatePlotNameAndAnnotation();
 }
 
 void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
@@ -1238,9 +1267,10 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     return;
   }
 
-  int numObs = getObsCount();
-  if (numObs == 0)
+  if (getStatus() != P_OK_DATA)
     return;
+
+  const size_t numObs = getObsCount();
 
   // Update observation delta time before checkPlotCriteria
   if (updateDeltaTimes())
@@ -2847,14 +2877,13 @@ void ObsPlot::printNumber(DiGLPainter* gl, float f, QPointF xy, const std::strin
     gl->getTextSize(str, cw, ch);
 
   if (mark) {
-    Colour col("white");
-    if (!(colour == col))
-      gl->setColour(col); //white
+    if (!(colour == Colour::WHITE))
+      gl->setColour(Colour::WHITE);
     else
-      gl->Color3ub(0, 0, 0); //black
+      gl->setColour(Colour::BLACK);
     gl->drawRect(true, x, y - 0.2 * ch, x + cw, y + 0.8 * ch);
 
-    gl->Color3ub(0, 0, 0); //black
+    gl->setColour(Colour::BLACK);
     gl->drawRect(false, x, y - 0.2 * ch, x + cw, y + 0.8 * ch);
     gl->setColour(colour);
   }

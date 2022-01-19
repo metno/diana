@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017 met.no
+  Copyright (C) 2017-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -35,7 +35,6 @@
 #include <QPageSize>
 #include <QPdfWriter>
 #include <QPicture>
-#include <QPrinter>
 
 #define MILOGGER_CATEGORY "diana.bdiana" // FIXME
 #include <miLogger/miLogging.h>
@@ -128,7 +127,8 @@ bool PdfSink::endPage()
 
 bool PdfSink::finish()
 {
-  painter_.end();
+  if (painter_.isActive())
+    painter_.end();
   pdfwriter_.reset(0);
   const bool ps = isPS(), eps = isEPS();
   if (ps || eps) {

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2020 met.no
+  Copyright (C) 2015-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -30,18 +30,13 @@
 #include "WebMapWMTS.h"
 
 #include "diUtilities.h"
-#include "WebMapTile.h"
 #include "WebMapUtilities.h"
 
-#include <diField/diArea.h>
 #include <puTools/miStringFunctions.h>
 
 #include <QDomDocument>
 #include <QDomElement>
-#include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include <QNetworkRequest>
-#include <QStringList>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QUrlQuery>
 #endif
@@ -50,157 +45,6 @@
 
 #define MILOGGER_CATEGORY "diana.WebMapWMTS"
 #include <miLogger/miLogging.h>
-
-namespace /* anonymous */ {
-
-double pixelSpan(WebMapWMTSTileMatrixSet_cx matrixSet, WebMapWMTSTileMatrix_cx matrix)
-{
-  return matrix->scaleDenominator()
-      * diutil::WMTS_M_PER_PIXEL
-      / matrixSet->metersPerUnit();
-}
-
-WebMapWMTSTileMatrix_cx findMatrixForScale(WebMapWMTSTileMatrixSet_cx matrixSet, float denominator)
-{
-  METLIBS_LOG_SCOPE(LOGVAL(denominator));
-  if (denominator <= 0)
-    return 0;
-
-  const double MAX_RATIO = 2.5;
-  int bestIndex = -1;
-  double bestRatio = 1;
-  for (size_t i=0; i<matrixSet->countMatrices(); ++i) {
-    const WebMapWMTSTileMatrix& matrix = matrixSet->matrix(i);
-    double ratio = 0.5 * matrix.scaleDenominator() / denominator;
-    METLIBS_LOG_DEBUG(LOGVAL(i) << LOGVAL(matrix.identifier())
-        << LOGVAL(matrix.scaleDenominator()) << LOGVAL(ratio));
-    if (ratio < 1/MAX_RATIO)
-      continue;
-    if (ratio < 1)
-      ratio = 1 / ratio;
-    if (ratio < MAX_RATIO && (bestIndex < 0 || ratio < bestRatio)) {
-      bestRatio = ratio;
-      bestIndex = i;
-      METLIBS_LOG_DEBUG(LOGVAL(bestRatio));
-    }
-  }
-  METLIBS_LOG_DEBUG(LOGVAL(bestIndex));
-  if (bestIndex < 0)
-    return 0;
-  else
-    return &matrixSet->matrix(bestIndex);
-}
-
-} // anonymous namespace
-
-// ========================================================================
-
-WebMapWMTSTileMatrix::WebMapWMTSTileMatrix(const std::string& id,
-    double sd, double tmx, double tmy,
-    size_t mw, size_t mh, size_t tw, size_t th)
-  : mIdentifier(id)
-  , mDenominator(sd)
-  , mTileMinX(tmx)
-  , mTileMaxY(tmy)
-  , mMatrixWidth(mw)
-  , mMatrixHeight(mh)
-  , mTileWidth(tw)
-  , mTileHeight(th)
-{
-}
-
-// ========================================================================
-
-WebMapWMTSTileMatrixSet::WebMapWMTSTileMatrixSet(const std::string& id,
-    const std::string& crs)
-  : mIdentifier(id)
-  , mCRS(crs)
-  , mProjection(diutil::projectionForCRS(crs))
-  , mMetersPerUnit(diutil::metersPerUnit(mProjection))
-{
-}
-
-// ========================================================================
-
-WebMapWMTSRequest::WebMapWMTSRequest(WebMapWMTS_x service,
-    WebMapWMTSLayer_cx layer,
-    WebMapWMTSTileMatrixSet_cx matrixSet,
-    WebMapWMTSTileMatrix_cx matrix)
-  : mService(service)
-  , mLayer(layer)
-  , mMatrixSet(matrixSet)
-  , mMatrix(matrix)
-{
-}
-
-WebMapWMTSRequest::~WebMapWMTSRequest()
-{
-  diutil::delete_all_and_clear(mTiles);
-}
-
-void WebMapWMTSRequest::addTile(int tileX, int tileY)
-{
-  if (mTiles.size() >= 256)
-    return;
-  const double ps = pixelSpan(mMatrixSet, mMatrix),
-      tileSpanX = mMatrix->tileWidth()  * ps,
-      tileSpanY = mMatrix->tileHeight() * ps;
-  const double tx0 = mMatrix->tileMinX() + tileSpanX * tileX,
-      ty1 = mMatrix->tileMaxY() - tileSpanY * tileY;
-  const Rectangle rect(tx0, ty1 - tileSpanY, tx0+tileSpanX, ty1);
-  mTiles.push_back(new WebMapTile(tileX, tileY, rect));
-}
-
-void WebMapWMTSRequest::setDimensionValue(const std::string& dimIdentifier,
-    const std::string& dimValue)
-{
-  mDimensionValues[dimIdentifier] = dimValue;
-}
-
-void WebMapWMTSRequest::submit()
-{
-  METLIBS_LOG_SCOPE();
-  mUnfinished = mTiles.size();
-  for (size_t i=0; i<mTiles.size(); ++i) {
-    WebMapTile* tile = mTiles[i];
-    connect(tile, SIGNAL(finished(WebMapTile*)),
-        this, SLOT(tileFinished(WebMapTile*)));
-    QNetworkReply* reply = mService->submitRequest(mLayer, mDimensionValues,
-        mMatrixSet, mMatrix, tile->column(), tile->row());
-    tile->submit(reply);
-  }
-}
-
-void WebMapWMTSRequest::abort()
-{
-  METLIBS_LOG_SCOPE();
-  for (size_t i=0; i<mTiles.size(); ++i)
-    mTiles[i]->abort();
-}
-
-const Rectangle& WebMapWMTSRequest::tileRect(size_t idx) const
-{
-  return mTiles.at(idx)->rect();
-}
-
-const QImage& WebMapWMTSRequest::tileImage(size_t idx) const
-{
-  return mTiles.at(idx)->image();
-}
-
-void WebMapWMTSRequest::tileFinished(WebMapTile* tile)
-{
-  METLIBS_LOG_SCOPE();
-  if (diutil::checkRedirect(mService, tile))
-    return;
-  tile->loadImage(mLayer->tileFormat());
-  mUnfinished -= 1;
-  METLIBS_LOG_DEBUG(LOGVAL(mUnfinished));
-  if (mUnfinished == 0)
-    Q_EMIT completed();
-}
-
-// ========================================================================
 
 WebMapWMTS::WebMapWMTS(const std::string& identifier, const QUrl& url, QNetworkAccessManager* network)
   : WebMapService(identifier, network)
@@ -247,7 +91,7 @@ WebMapRequest_x WebMapWMTS::createRequest(const std::string& layerIdentifier,
   }
   METLIBS_LOG_DEBUG(LOGVAL(matrixSet->identifier()) << LOGVAL(p_tiles.getProj4DefinitionExpanded()));
 
-  WebMapWMTSTileMatrix_cx matrix = findMatrixForScale(matrixSet, viewScale);
+  WebMapWMTSTileMatrix_cx matrix = matrixSet->findMatrixForScale(viewScale);
   if (!matrix) {
     METLIBS_LOG_DEBUG("no matrix");
     return 0;
@@ -255,7 +99,7 @@ WebMapRequest_x WebMapWMTS::createRequest(const std::string& layerIdentifier,
   METLIBS_LOG_DEBUG(LOGVAL(matrix->identifier()));
 
   std::unique_ptr<WebMapWMTSRequest> request(new WebMapWMTSRequest(this, layer, matrixSet, matrix));
-  const float ps = pixelSpan(matrixSet, matrix),
+  const float ps = matrixSet->pixelSpan(matrix),
       tileSpanX = matrix->tileWidth()  * ps,
       tileSpanY = matrix->tileHeight() * ps,
       // see OGC WMTS spec pdf page 23f (http://portal.opengeospatial.org/files/?artifact_id=35326)
@@ -282,14 +126,13 @@ WebMapRequest_x WebMapWMTS::createRequest(const std::string& layerIdentifier,
   return request.release();
 }
 
-QNetworkReply* WebMapWMTS::submitRequest(WebMapWMTSLayer_cx layer,
-    const std::map<std::string, std::string>& dimensionValues,
-    WebMapWMTSTileMatrixSet_cx matrixSet, WebMapWMTSTileMatrix_cx matrix,
-    int tileX, int tileY)
+QNetworkReply* WebMapWMTS::submitRequest(WebMapWMTSLayer_cx layer, const std::map<std::string, std::string>& dimensionValues, const std::string& style,
+                                         WebMapWMTSTileMatrixSet_cx matrixSet, WebMapWMTSTileMatrix_cx matrix, int tileX, int tileY)
 {
   METLIBS_LOG_SCOPE();
   QUrl qurl;
 
+  const std::string& style_ = style.empty() ? layer->defaultStyle() : style;
   if (!layer->urlTemplate().empty()) {
     std::string url = layer->urlTemplate();
     for (size_t d = 0; d<layer->countDimensions(); ++d) {
@@ -302,7 +145,7 @@ QNetworkReply* WebMapWMTS::submitRequest(WebMapWMTSLayer_cx layer,
       else
         miutil::replace(url, templateKey, dim.defaultValue());
     }
-    miutil::replace(url, "{style}", layer->defaultStyle());
+    miutil::replace(url, "{style}", style_);
     miutil::replace(url, "{TileMatrixSet}", matrixSet->identifier());
     miutil::replace(url, "{TileMatrix}", matrix->identifier());
     miutil::replace(url, "{TileCol}", miutil::from_number(tileX));
@@ -320,7 +163,7 @@ QNetworkReply* WebMapWMTS::submitRequest(WebMapWMTSLayer_cx layer,
     urlq.addQueryItem("Request", "GetTile");
     urlq.addQueryItem("Version", "1.0.0");
     urlq.addQueryItem("Layer", diutil::sq(layer->identifier()));
-    urlq.addQueryItem("Style", diutil::sq(layer->defaultStyle()));
+    urlq.addQueryItem("Style", diutil::sq(style_));
     urlq.addQueryItem("Format", diutil::sq(layer->tileFormat()));
 
     // the WMTS standard is not very clear about how to specify sample dimensions
@@ -437,8 +280,13 @@ bool WebMapWMTS::parseReply()
   QDOM_FOREACH_CHILD(eTileMatrixSet, eContents, "TileMatrixSet") {
     QDomElement eId = eTileMatrixSet.firstChildElement("ows:Identifier");
     QDomElement eCRS = eTileMatrixSet.firstChildElement("ows:SupportedCRS");
-    std::unique_ptr<WebMapWMTSTileMatrixSet> ms
-        (new WebMapWMTSTileMatrixSet(qs(eId.text()), qs(eCRS.text())));
+    const std::string crs = qs(eCRS.text());
+    const Projection proj = diutil::projectionForCRS(crs);
+    if (!proj.isDefined()) {
+      METLIBS_LOG_DEBUG("unable to create Projection for CRS '" << crs << "'");
+      continue;
+    }
+    std::unique_ptr<WebMapWMTSTileMatrixSet> ms(new WebMapWMTSTileMatrixSet(qs(eId.text()), proj));
     QDOM_FOREACH_CHILD(eTileMatrix, eTileMatrixSet, "TileMatrix") {
       QDomElement eMId = eTileMatrix.firstChildElement("ows:Identifier");
       QDomElement eScale = eTileMatrix.firstChildElement("ScaleDenominator");
@@ -464,21 +312,19 @@ bool WebMapWMTS::parseReply()
 
     layer->setTitle(qs(eLayer.firstChildElement("ows:Title").text()));
 
-    std::string defaultStyle, anyStyle;
+    std::string defaultStyle;
+    std::vector<std::string> styles;
     QDOM_FOREACH_CHILD(eStyle, eLayer, "Style") {
-      const bool isDefault = (eStyle.attribute("isDefault") == "true");
-      if (!isDefault && !anyStyle.empty())
-        continue;
       const std::string styleId = qs(eStyle.text());
+      styles.push_back(styleId);
+      const bool isDefault = (eStyle.attribute("isDefault") == "true");
       if (isDefault) {
         defaultStyle = styleId;
-        break;
-      } else {
-        anyStyle = styleId;
       }
     }
-    METLIBS_LOG_DEBUG(LOGVAL(defaultStyle) << LOGVAL(anyStyle));
-    layer->setDefaultStyle((!defaultStyle.empty()) ? defaultStyle : anyStyle);
+    if (defaultStyle.empty() && !styles.empty())
+      defaultStyle = styles.front();
+    layer->setStyles(styles, defaultStyle);
 
     QDOM_FOREACH_CHILD(eDimension, eLayer, "Dimension") {
       QDomElement eDId = eDimension.firstChildElement("ows:Identifier");

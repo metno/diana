@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2020 met.no
+ Copyright (C) 2006-2021 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -78,6 +78,7 @@ class ObsPlot : public PlotOptionsPlot
 
 protected:
   std::vector<ObsData> obsp;
+  size_t visible_positions_count_;
 
   // obs positions in getStaticPlot()->getMapArea().P() coordinates; updated in setData
   float *x, *y;
@@ -347,8 +348,9 @@ protected:
   void priority_sort();
   void time_sort();
 
-  int getObsCount() const;
-  int numVisiblePositions() const; // slow!
+  size_t getObsCount() const;
+  size_t numVisiblePositions() const;
+  void updateVisiblePositionCount(); // slow!
 
 public:
   ObsPlot(const std::string& dialogname, ObsPlotType plottype);
@@ -361,6 +363,7 @@ public:
   void changeProjection(const Area& mapArea, const Rectangle& plotSize, const diutil::PointI& physSize) override;
 
   bool operator==(const ObsPlot &rhs) const;
+  std::string getEnabledStateKey() const override;
 
   ObsPlotType plottype() const { return m_plottype; }
 
@@ -372,12 +375,11 @@ public:
   void plot(DiGLPainter* gl, PlotOrder zorder) override;
 
   void setParameters(const std::vector<ObsDialogInfo::Par>& vp);
-  bool setData();
+  void setData(bool success);
   void clear();
   void getAnnotation(std::string&, Colour&) const override;
   void getDataAnnotations(std::vector<std::string>& anno) const override;
 
-  std::string makeAnnotationString() const;
 
   void setPopupSpec(const std::vector<std::string> &txt); // from ObsManager::prepare
 
@@ -415,6 +417,8 @@ public:
   const miutil::miTime& getObsTime() const { return obsTime; }
 
 protected:
+  void updatePlotNameAndAnnotation();
+
   int calcNum() const;
   bool isSynopList() const;
   bool isSynopMetar() const;

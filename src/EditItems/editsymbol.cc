@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013 met.no
+  Copyright (C) 2013-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -30,6 +30,7 @@
 #include "editsymbol.h"
 
 #include "EditItems/drawingstylemanager.h"
+#include "diColour.h"
 #include "diGLPainter.h"
 #include "drawingsymbol.h"
 
@@ -179,7 +180,7 @@ void Symbol::draw(DiGLPainter* gl)
     // resizing process.
     const QList<QPointF> bbox = boundingSquare();
 
-    gl->Color3ub(255, 0, 0);
+    gl->setColour(Colour::RED);
     gl->PushAttrib(DiGLPainter::gl_LINE_BIT);
     gl->LineWidth(2);
     gl->Begin(DiGLPainter::gl_LINE_LOOP);

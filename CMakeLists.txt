@@ -1,6 +1,6 @@
 # Diana - A Free Meteorological Visualisation Tool
 #
-# Copyright (C) 2017-2018 met.no
+# Copyright (C) 2017-2021 met.no
 #
 # Contact information:
 # Norwegian Meteorological Institute
@@ -26,18 +26,25 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 PROJECT(diana)
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.6)
 
 SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 INCLUDE(MetnoUtils)
-INCLUDE(MetnoGTest)
 INCLUDE(MetnoQtUtils)
 INCLUDE(MetnoVersions)
+INCLUDE(MetnoFindPackage)
 
 METNO_CMAKE_SETUP()
-METNO_PVERSION(3.55.0)
+METNO_PVERSION(3.56.2)
 
 OPTION(ENABLE_DIANA_OMP "Use OpenMP" OFF)
+OPTION(ENABLE_PERL "Build perl module" OFF)
+OPTION(ENABLE_TESTS "Build and run tests" ON)
+OPTION(ENABLE_NEWARKOBS "Enable NEWARK observations" OFF)
+OPTION(ENABLE_GEOTIFF "Enable GeoTiff support" OFF)
+OPTION(ENABLE_OBS_BUFR "Enable observation from BUFR files" ON)
+OPTION(ENABLE_HDF5 "Enable HDF5 file support" OFF)
+
 IF(ENABLE_DIANA_OMP)
   FIND_PACKAGE(OpenMP)
   IF(OPENMP_FOUND)
@@ -47,35 +54,112 @@ IF(ENABLE_DIANA_OMP)
   ENDIF()
 ENDIF()
 
-OPTION(ENABLE_PERL "Build perl module" OFF)
-OPTION(ENABLE_SMHI "Build SMHI variant" OFF)
-OPTION(ENABLE_NEWARKOBS "Enable NEWARK observations" OFF)
-OPTION(ENABLE_GEOTIFF "Enable GeoTiff support" OFF)
-OPTION(ENABLE_OBS_BUFR "Enable observation from BUFR files" ON)
-OPTION(ENABLE_HDF5 "Enable HDF5 file support" OFF)
+IF (ENABLE_TESTS)
+  INCLUDE(MetnoGTest)
+ENDIF (ENABLE_TESTS)
 
+SET(THREADS_PREFER_PTHREAD_FLAG TRUE)
+FIND_PACKAGE(Threads REQUIRED)
 
-FIND_PACKAGE(Boost COMPONENTS date_time system REQUIRED)
+FIND_PACKAGE(Boost COMPONENTS date_time REQUIRED)
 
+FIND_PACKAGE(mi-programoptions "2.0.0" REQUIRED)
 FIND_PACKAGE(mi-fieldcalc "0.1.0" REQUIRED)
 FIND_PACKAGE(fimex "1.2" REQUIRED)
 
-METNO_FIND_QT(Gui Network OpenGL PrintSupport Svg Xml XmlPatterns)
-
-SET(PKGS
-  metlibs-milogger>=6.0.4
-  metlibs-putools>=8.0.0
-  metlibs-pudatatypes>=6.0.0
-
-  libtiff-4
-  libpng>=1.2
-  libcurl>=7
+FIND_PACKAGE(Qt5 REQUIRED COMPONENTS
+  Gui
+  LinguistTools
+  Network
+  OpenGL
+  PrintSupport
+  Svg
+  Xml
+  XmlPatterns
 )
+
+SET(PKGS_CORE
+  Qt5::Network
+  Qt5::PrintSupport # needed for svg export, see SvgFileSink.cc
+  Qt5::Svg
+  Qt5::Xml
+  Qt5::XmlPatterns
+
+  Boost::boost
+  Boost::date_time # only used by FimexIO.cc
+  libfimex
+  mi-fieldcalc
+)
+
+SET(PKGS_UI
+  Qt5::Gui
+  Qt5::OpenGL
+)
+
+METNO_FIND_PACKAGE(milogger
+  VERSION_MIN "6.0.4"
+  PKGCONFIG_NAME metlibs-milogger
+)
+LIST(APPEND PKGS_CORE ${milogger_PACKAGE})
+
+METNO_FIND_PACKAGE(putools
+  VERSION_MIN "8.0.0"
+  PKGCONFIG_NAME metlibs-putools
+)
+LIST(APPEND PKGS_CORE ${putools_PACKAGE})
+
+METNO_FIND_PACKAGE(pudatatypes
+  VERSION_MIN "6.0.0"
+  PKGCONFIG_NAME metlibs-pudatatypes
+)
+LIST(APPEND PKGS_CORE ${pudatatypes_PACKAGE})
+
+METNO_FIND_PACKAGE(libtiff
+  PKGCONFIG_NAME libtiff-4
+)
+LIST(APPEND PKGS_CORE ${libtiff_PACKAGE})
+
+METNO_FIND_PACKAGE(libpng
+  VERSION_MIN "1.2"
+  PKGCONFIG_NAME libpng
+)
+LIST(APPEND PKGS_CORE ${libpng_PACKAGE})
+
+METNO_FIND_PACKAGE(libcurl
+  VERSION_MIN "7"
+  PKGCONFIG_NAME libcurl
+)
+LIST(APPEND PKGS_CORE ${libcurl_PACKAGE})
+
+METNO_FIND_PACKAGE(proj
+  PKGCONFIG_NAME "proj"
+  LIBRARY_NAME "proj"
+  INCLUDE_HDR "proj_api.h"
+)
+LIST(APPEND PKGS_CORE ${proj_PACKAGE})
+
+METNO_FIND_PACKAGE(shp
+  PKGCONFIG_NAME shapelib
+  LIBRARY_NAME "shp"
+  INCLUDE_HDR "shapefil.h"
+)
+LIST(APPEND PKGS_CORE ${shp_PACKAGE})
+
+METNO_FIND_PACKAGE(udunits2
+  VERSION_MIN "2"
+  PKGCONFIG_NAME udunits
+  LIBRARY_NAME "udunits2"
+  INCLUDE_HDR "udunits2.h"
+)
+LIST(APPEND PKGS_CORE ${udunits2_PACKAGE})
 
 IF (ENABLE_GEOTIFF)
   SET (GEOTIFF_HDRS libgeotiff/geotiff.h geotiff/geotiff.h geotiff.h)
-  METNO_FIND_PACKAGE("geotiff" "" "geotiff" "${GEOTIFF_HDRS}")
-  LIST(APPEND PKGS ${geotiff_PC})
+  METNO_FIND_PACKAGE(geotiff
+    LIBRARY_NAME geotiff
+    INCLUDE_HDR ${GEOTIFF_HDRS}
+  )
+  LIST(APPEND PKGS_CORE ${geotiff_PACKAGE})
 
   UNSET (HAVE_LIBGEOTIFF_GEOTIFF_H CACHE)
   UNSET (HAVE_GEOTIFF_GEOTIFF_H CACHE)
@@ -89,38 +173,64 @@ IF (ENABLE_GEOTIFF)
   ELSE ()
     MESSAGE (FATAL_ERROR "Unsupported geotiff.h subdirectory: '${geotiff_HEADER}'")
   ENDIF ()
+
+  SET(GEOTIFF TRUE)
 ENDIF ()
 
 IF (ENABLE_HDF5)
-  METNO_FIND_PACKAGE("hdf5" "hdf5-serial" "hdf5_serial;hdf5" "hdf5.h")
-  LIST(APPEND PKGS ${hdf5_PC})
+  METNO_FIND_PACKAGE(hdf5
+    PKGCONFIG_NAME hdf5-serial
+    LIBRARY_NAME "hdf5_serial;hdf5"
+    INCLUDE_HDR "hdf5.h"
+  )
+  LIST(APPEND PKGS_CORE ${hdf5_PACKAGE})
+
+  SET(HDF5FILE TRUE)
 ENDIF ()
-
-METNO_FIND_PACKAGE("proj" "proj" "proj" "proj_api.h")
-LIST(APPEND PKGS ${proj_PC})
-
-METNO_FIND_PACKAGE("shp" "" "shp" "shapefil.h")
-LIST(APPEND PKGS ${shp_PC})
-
-METNO_FIND_PACKAGE("udunits2" "udunits>=2" "udunits2" "udunits2.h")
-LIST(APPEND PKGS ${udunits2_PC})
 
 IF (ENABLE_NEWARKOBS)
-  LIST(APPEND PKGS newarkAPI)
+  METNO_FIND_PACKAGE(newark
+    PKGCONFIG_NAME newarkAPI
+  )
+  LIST(APPEND PKGS_CORE ${newark_PACKAGE})
+
+  SET(ROADOBS TRUE)
+  SET(NEWARK_INC TRUE)
 ENDIF ()
+
 IF (ENABLE_OBS_BUFR)
-  LIST(APPEND PKGS emos)
+  METNO_FIND_PACKAGE(emos
+    CMAKE_NAME libemos
+    CMAKE_TARGETS emos_shared
+    PKGCONFIG_NAME emos
+  )
+  LIST(APPEND PKGS_CORE ${emos_PACKAGE})
+
+  SET(BUFROBS TRUE)
 ENDIF ()
 
 # these are for libdianaui only
-SET(PKGS_UI
-  metlibs-coserver-qt5>=3.0.0
-  metlibs-qutilities-qt5>=8.0.0
-  ftgl
-  glu
+METNO_FIND_PACKAGE(coserver
+  VERSION_MIN "3.0.0"
+  PKGCONFIG_NAME metlibs-coserver-qt5
 )
-PKG_CHECK_MODULES(PC   REQUIRED ${PKGS})
-PKG_CHECK_MODULES(PCUI REQUIRED ${PKGS_UI})
+LIST(APPEND PKGS_UI ${coserver_PACKAGE})
+
+METNO_FIND_PACKAGE(qutilities
+  VERSION_MIN "8.0.0"
+  PKGCONFIG_NAME metlibs-qutilities-qt5
+)
+LIST(APPEND PKGS_UI ${qutilities_PACKAGE})
+
+METNO_FIND_PACKAGE(ftgl
+  PKGCONFIG_NAME ftgl
+)
+LIST(APPEND PKGS_UI ${ftgl_PACKAGE})
+
+METNO_FIND_PACKAGE(glu
+  PKGCONFIG_NAME glu
+)
+LIST(APPEND PKGS_UI ${glu_PACKAGE})
 
 # where libdiana...*so private shared libraries are installed
 SET (LIBDIANA_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/diana/${PVERSION}")
@@ -131,11 +241,18 @@ IF(${INSTALL_LIBDIR_IS_SYSTEM_DIR} EQUAL -1)
   LIST(APPEND CMAKE_INSTALL_RPATH "${LIBDIANA_DIR}")
 ENDIF()
 
-ENABLE_TESTING()
+IF (ENABLE_TESTS)
+  ENABLE_TESTING()
+ENDIF (ENABLE_TESTS)
 
 ADD_SUBDIRECTORY(src)
-ADD_SUBDIRECTORY(perl)
-ADD_SUBDIRECTORY(test)
+IF (ENABLE_TESTS)
+  ADD_SUBDIRECTORY(test)
+ENDIF (ENABLE_TESTS)
+IF (ENABLE_PERL)
+  ADD_SUBDIRECTORY(perl)
+ENDIF (ENABLE_PERL)
 
 ADD_SUBDIRECTORY(etc)
 ADD_SUBDIRECTORY(share)
+

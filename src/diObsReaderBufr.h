@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017 met.no
+  Copyright (C) 2017-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -40,7 +40,7 @@ public:
   bool configure(const std::string& key, const std::string& value) override;
 
 protected:
-  void getDataFromFile(const FileInfo& fi, ObsDataRequest_cp request, ObsDataResult_p result) override;
+  bool getDataFromFile(const FileInfo& fi, ObsDataRequest_cp request, ObsDataResult_p result) override;
 
 protected:
   miutil::miTime getTimeFromFile(const std::string& filename) override;

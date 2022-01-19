@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -37,8 +37,6 @@
 #include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
-
-#include <boost/algorithm/string/join.hpp>
 
 #include <sstream>
 
@@ -164,8 +162,6 @@ const std::string PlotOptions::key_precision= "precision";
 const std::string PlotOptions::key_dimension= "dim";
 const std::string PlotOptions::key_enabled= "enabled";
 const std::string PlotOptions::key_fname= "fname";
-const std::string PlotOptions::key_contourShape="contourShape";
-const std::string PlotOptions::key_shapefilename="shapefilename";
 const std::string PlotOptions::key_legendunits="legendunits";
 const std::string PlotOptions::key_legendtitle="legendtitle";
 const std::string PlotOptions::key_antialiasing="antialiasing";
@@ -183,6 +179,9 @@ std::map< std::string, unsigned int> PlotOptions::enabledOptions;
 
 static const Colour WhiteC(255,255,255);
 static const Colour BlackC(0,0,0);
+
+static const std::string key_contourShape = "contourShape";
+static const std::string key_shapefilename = "shapefilename";
 
 PlotOptions::PlotOptions()
     : options_1(true)
@@ -244,7 +243,6 @@ PlotOptions::PlotOptions()
     , precision(0)
     , dimension(1)
     , enabled(true)
-    , contourShape(0)
     , tableHeader(true)
     , antialiasing(false)
     , use_stencil(false)
@@ -793,9 +791,9 @@ bool PlotOptions::parsePlotOption(const miutil::KeyValue& kv, PlotOptions& po)
   } else if (key == key_fname) {
     po.fname = value;
   } else if (key == key_contourShape) {
-    po.contourShape = (value == TRUE);
+    // ignore
   } else if (key == key_shapefilename) {
-    po.shapefilename = value.c_str();
+    // ignore
   } else if (key == key_legendunits) {
     po.legendunits = value.c_str();
   } else if (key == key_legendtitle) {

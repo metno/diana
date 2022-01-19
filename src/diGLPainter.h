@@ -1,3 +1,31 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2015-2021 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #ifndef DIGLPAINTER_H
 #define DIGLPAINTER_H 1
@@ -215,25 +243,12 @@ public:
     { return static_cast<DiGLCanvas*>(DiPainter::canvas()); }
 
   virtual void Begin(GLenum mode) = 0;
-  virtual void Color3d(GLdouble red, GLdouble green, GLdouble blue) = 0;
-  virtual void Color3f(GLfloat red, GLfloat green, GLfloat blue) = 0;
-  virtual void Color3fv(const GLfloat *v) = 0;
-  virtual void Color3ub(GLubyte red, GLubyte green, GLubyte blue) = 0;
-  virtual void Color3ubv(const GLubyte *v) = 0;
-  virtual void Color4d(GLdouble red, GLdouble green, GLdouble blue, GLdouble alpha) = 0;
-  virtual void Color4f(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha) = 0;
-  virtual void Color4ub(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha) = 0;
-  virtual void Color4fv(const GLfloat *v) = 0;
-  virtual void Color4ubv(const GLubyte *v) = 0;
   virtual void End() = 0;
   virtual void RasterPos2f(GLfloat x, GLfloat y) = 0;
-  virtual void Rectf(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) = 0;
-  virtual void Vertex2dv(const GLdouble *v) = 0;
   virtual void Vertex2f(GLfloat x, GLfloat y) = 0;
-  virtual void Vertex2i(GLint x, GLint y) = 0;
   virtual void Vertex3f(GLfloat x, GLfloat y, GLfloat z) = 0;
   virtual void Vertex3i(GLint x, GLint y, GLint z) = 0;
-  virtual void BlendFunc(GLenum sfactor, GLenum dfactor) = 0;
+  virtual void BlendFunc(GLenum sfactor, GLenum dfactor) = 0; // only called with args gl_SRC_ALPHA, gl_ONE_MINUS_SRC_ALPHA
   virtual void ClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha) = 0;
   virtual void Clear(GLbitfield mask) = 0;
   virtual void ColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha) = 0;
@@ -241,7 +256,6 @@ public:
   virtual void EdgeFlag(GLboolean flag) = 0;
   virtual void Enable(GLenum cap) = 0;
   virtual void Flush(void) = 0;
-  virtual void GetFloatv(GLenum pname, GLfloat *params) = 0;
   virtual GLboolean IsEnabled(GLenum cap) = 0;
   virtual void LineStipple(GLint factor, GLushort pattern) = 0;
   virtual void LineWidth(GLfloat width) = 0;
@@ -277,7 +291,7 @@ public:
   virtual bool supportsReadPixels() const = 0;
 
   void clear(const Colour& colour) override;
-  void setColour(const Colour& c, bool alpha = true) override;
+  virtual Colour getColour() = 0;
   void setLineStyle(const Colour& c, float lw=1, bool alpha = true) override;
   void setLineStyle(const Colour& c, float lw, const Linetype& lt, bool alpha = true) override;
 

@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2020 met.no
+ Copyright (C) 2006-2021 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -365,10 +365,8 @@ void MapPlot::plotMap(DiGLPainter* gl, int zorder)
       if (land || cont) {
         if (FilledMap* fm = fetchFilledMap(mapfile)) {
           Area fullarea(getStaticPlot()->getMapArea().P(), getStaticPlot()->getPlotSize());
-          fm->plot(gl, fullarea, getStaticPlot()->getMapSize(), getStaticPlot()->getGcd(), land, cont, !cont
-              && mapinfo.contour.ison, contopts.linetype.bmap,
-              contopts.linewidth, c.RGBA(), landopts.fillcolour.RGBA(),
-              getStaticPlot()->getBackgroundColour().RGBA());
+          fm->plot(gl, fullarea, getStaticPlot()->getMapSize(), getStaticPlot()->getGcd(), land, cont, !cont && mapinfo.contour.ison, contopts.linetype.bmap,
+                   contopts.linewidth, c, landopts.fillcolour, getStaticPlot()->getBackgroundColour());
         }
       }
 

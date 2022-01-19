@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2018 met.no
+  Copyright (C) 2017-2021 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -44,8 +44,7 @@
 #include <miLogger/miLogging.h>
 
 BdianaGraphics::BdianaGraphics()
-    : image_type(image_auto)
-    , antialias(false)
+    : antialias(false)
     , buffersize(1696, 1200)
     , multiple_plots(false)
     , multiple_beginpage(false)
@@ -105,40 +104,24 @@ bool BdianaGraphics::render(ImageSource* is, ImageSink* sink)
 
 bool BdianaGraphics::isPrinting() const
 {
-  if (image_type == image_auto) {
-    return (diutil::endswith(outputfilename_, ".pdf") || diutil::endswith(outputfilename_, ".ps") || diutil::endswith(outputfilename_, ".eps"));
-  } else {
-    return (image_type == image_pdf || image_type == image_ps || image_type == image_eps);
-  }
+  return (diutil::endswith(outputfilename_, ".pdf") || diutil::endswith(outputfilename_, ".ps") || diutil::endswith(outputfilename_, ".eps"));
 }
 
 bool BdianaGraphics::isSvg() const
 {
-  if (image_type == image_auto) {
-    return (diutil::endswith(outputfilename_, ".svg"));
-  } else {
-    return image_type == image_svg;
-  }
+  return diutil::endswith(outputfilename_, ".svg");
 }
 
 bool BdianaGraphics::isRaster() const
 {
-  if (image_type == image_auto) {
-    return (diutil::endswith(outputfilename_, ".png") || diutil::endswith(outputfilename_, ".jpeg") || diutil::endswith(outputfilename_, ".jpg") ||
-            diutil::endswith(outputfilename_, ".bmp"));
-  } else {
-    return image_type == image_raster;
-  }
+  return (diutil::endswith(outputfilename_, ".png") || diutil::endswith(outputfilename_, ".jpeg") || diutil::endswith(outputfilename_, ".jpg") ||
+          diutil::endswith(outputfilename_, ".bmp"));
 }
 
 bool BdianaGraphics::isAnimation() const
 {
-  if (image_type == image_auto) {
-    return (diutil::endswith(outputfilename_, ".mp4") || diutil::endswith(outputfilename_, ".mpg") || diutil::endswith(outputfilename_, ".avi") ||
-            diutil::endswith(outputfilename_, ".gif"));
-  } else {
-    return image_type == image_movie;
-  }
+  return (diutil::endswith(outputfilename_, ".mp4") || diutil::endswith(outputfilename_, ".mpg") || diutil::endswith(outputfilename_, ".avi") ||
+          diutil::endswith(outputfilename_, ".gif"));
 }
 
 void BdianaGraphics::createSink(const QSize& size)
@@ -155,16 +138,14 @@ void BdianaGraphics::createSink(const QSize& size)
     sink.reset(new RasterFileSink(size, filename));
   } else if (isAnimation()) {
     QString fmt = "AVI";
-    if (image_type == image_auto) {
-      if (diutil::endswith(outputfilename_, ".mp4"))
-        fmt = "MP4";
-      else if (diutil::endswith(outputfilename_, ".mpg"))
-        fmt = "MPG";
-      else if (diutil::endswith(outputfilename_, ".gif"))
-        fmt = MovieMaker::format_animated;
-    } else if (image_type == image_movie) {
-      fmt = QString::fromStdString(movieFormat);
-    }
+    if (diutil::endswith(outputfilename_, ".mp4"))
+      fmt = "MP4";
+    else if (diutil::endswith(outputfilename_, ".mpg"))
+      fmt = "MPG";
+    else if (diutil::endswith(outputfilename_, ".gif"))
+      fmt = MovieMaker::format_animated;
+    else
+      fmt = "AVI";
     const float framerate = 0.2f;
     sink.reset(new MovieMaker(filename, fmt, framerate, size));
   } else {
@@ -242,28 +223,11 @@ bool BdianaGraphics::setPlotCell(int row, int col)
   return true;
 }
 
-void BdianaGraphics::setImageType(image_type_t it)
-{
-  if (it != image_type) {
-    endOutput();
-    image_type = it;
-  }
-}
-
 void BdianaGraphics::setOutputFile(const std::string& filename)
 {
   if (filename != outputfilename_) {
     endOutput();
     outputfilename_ = filename;
-  }
-}
-
-void BdianaGraphics::setMovieFormat(const std::string& fmt)
-{
-  if (image_type != image_movie || movieFormat != fmt) {
-    endOutput();
-    image_type = image_movie;
-    movieFormat = fmt;
   }
 }
 
