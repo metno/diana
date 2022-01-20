@@ -1118,7 +1118,7 @@ command_result Bdiana::handlePlotCommand(int& k)
   if (!ensureSetup())
     return cmd_abort;
   std::vector<std::string> pcom = FIND_END_COMMAND(k, com_endplot, com_plotend);
-  if (output_format == output_shape) {
+  if (output_format == output_graphics) {
     for (std::string& line : pcom) {
       if (diutil::startswith(line, "FIELD ")) {
         std::string shapeFileName = outputfilename;
@@ -1134,7 +1134,7 @@ command_result Bdiana::handlePlotCommand(int& k)
     }
   }
   
-   if (getTimeChoice() != BdianaSource::USE_FIXEDTIME
+   if (getTimeChoice() != BdianaSource::USE_FIXEDTIME)
     fixedtime = ptime = miutil::miTime();
 
   if (plottype == plot_standard) {

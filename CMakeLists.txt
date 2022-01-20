@@ -179,8 +179,8 @@ ENDIF ()
 
 IF (ENABLE_HDF5)
   METNO_FIND_PACKAGE(hdf5
-    PKGCONFIG_NAME hdf5-serial
-    LIBRARY_NAME "hdf5_serial;hdf5"
+    PKGCONFIG_NAME hdf5
+    LIBRARY_NAME "hdf5"
     INCLUDE_HDR "hdf5.h"
   )
   LIST(APPEND PKGS_CORE ${hdf5_PACKAGE})
