@@ -1118,21 +1118,21 @@ command_result Bdiana::handlePlotCommand(int& k)
   if (!ensureSetup())
     return cmd_abort;
   std::vector<std::string> pcom = FIND_END_COMMAND(k, com_endplot, com_plotend);
-  if (output_format == output_graphics) {
-    for (std::string& line : pcom) {
-      if (diutil::startswith(line, "FIELD ")) {
-        std::string shapeFileName = outputfilename;
-        line += " shapefilename=" + shapeFileName;
-        if (miutil::contains(line, "shapefile=0"))
-          miutil::replace(line, "shapefile=0", "shapefile=1");
-        else if (not miutil::contains(line, "shapefile="))
-          line += " shapefile=1";
-      } else {
-        METLIBS_LOG_ERROR("Error, Shape option cannot be used for OBS/OBJECTS/SAT/TRAJECTORY/EDITFIELD.. exiting");
-        return cmd_abort;
-      }
-    }
-  }
+  // if (output_format == output_graphics) {
+    // for (std::string& line : pcom) {
+      // if (diutil::startswith(line, "FIELD ")) {
+        // std::string shapeFileName = outputfilename;
+        // line += " shapefilename=" + shapeFileName;
+        // if (miutil::contains(line, "shapefile=0"))
+          // miutil::replace(line, "shapefile=0", "shapefile=1");
+        // else if (not miutil::contains(line, "shapefile="))
+          // line += " shapefile=1";
+      // } else {
+        // METLIBS_LOG_ERROR("Error, Shape option cannot be used for OBS/OBJECTS/SAT/TRAJECTORY/EDITFIELD.. exiting");
+        // return cmd_abort;
+      // }
+    // }
+  // }
   
    if (getTimeChoice() != BdianaSource::USE_FIXEDTIME)
     fixedtime = ptime = miutil::miTime();
