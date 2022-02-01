@@ -1411,6 +1411,8 @@ void ObsRoad::decodeOneLine(ObsData * obsData, std::vector<std::string> & pstr, 
 	std::string text;
 	if (getParameterColumnValue("TTT", pstr, value)) {
 	    obsData->put_float("TTT",value);
+	} else if (getParameterColumnValue("RoadSurfaceTemperature", pstr, value)) {
+		obsData->put_float("RoadSurfaceTemperature",value);
 	} else if (getParameterColumnValue("TxTxTx", pstr, value)) {
 		obsData->put_float("TxTxTx",value);
 		if (obshour == 18)
