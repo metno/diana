@@ -40,6 +40,7 @@ SET (MIRASTER_SOURCES
 IF (ENABLE_HDF5)
   LIST (APPEND MIRASTER_SOURCES
     miRaster/satimgh5.cc
+    miRaster/ImageCache.cpp
   )
 ENDIF ()
 
@@ -463,7 +464,7 @@ SET(LIBDIANAUI_QTSOURCES
 )
 
 IF (ENABLE_GEOTIFF)
-  LIST (APPEND MIRASTER_SOURCES miRaster/satgeotiff.cc miRaster/ImageCache.cpp)
+  LIST (APPEND MIRASTER_SOURCES miRaster/satgeotiff.cc)
   LIST (APPEND LIBDIANA_SOURCES diGEOtiff.cc)
 ENDIF ()
 
