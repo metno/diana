@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2021 met.no
+ Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -84,7 +84,7 @@ void ObsManager::setPlotDefaults(ObsPlot* oplot)
 
 void ObsManager::prepare(ObsPlot* oplot, const miutil::miTime& time)
 {
-  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_TIME();
 
   bool success = true;
   miutil::miTime obsTime;

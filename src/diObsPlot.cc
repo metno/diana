@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2021 met.no
+ Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -1256,7 +1256,7 @@ void ObsPlot::changeProjection(const Area& /*mapArea*/, const Rectangle& /*plotS
 
 void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 {
-  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_TIME();
 
   if (zorder != PO_LINES && zorder != PO_OVERLAY)
     return;
