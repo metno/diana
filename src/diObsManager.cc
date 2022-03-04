@@ -308,13 +308,12 @@ bool ObsManager::parseFilesSetup()
       pip->name = plottype;
       pip->plottypes.insert(obsPlotTypeFromText(plottype));
     } else if (pip) {
-      ObsReader_p& reader = pip->reader;
-      if (!reader) {
-        reader = makeObsReader(key);
+      if (!pip->reader) {
+        pip->reader = makeObsReader(key);
       }
-      if (!reader) {
+      if (!pip->reader) {
         METLIBS_LOG_WARN("could not create reader for '" << key << "'");
-      } else if (!reader->configure(key, token[1])) {
+      } else if (!pip->reader->configure(key, token[1])) {
         METLIBS_LOG_WARN("unrecognized config '" << sect_obs[i] << "'");
         SetupParser::errorMsg(obs_name, i, "unrecognized config");
       }

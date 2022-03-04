@@ -1,0 +1,136 @@
+// -*- protobuf -*-
+
+syntax = "proto3";
+
+package diana_obs_v0;
+
+// option go_package = "...";
+// we prefer to pass the go package name to protoc as commandline argument
+
+message Status {
+  enum Code {
+    OK = 0;
+    ERROR = 1;
+    UNCHANGED = 2;
+  }
+  Code code = 1;
+  string what = 2;
+}
+
+message Time {
+  uint32 year = 1;
+  uint32 month = 2;
+  uint32 day = 3;
+  uint32 hour = 4;
+  uint32 minute = 5;
+  uint32 second = 6;
+  float sub_second = 7;
+}
+
+message TimeSpan {
+  Time begin = 1; //! inclusive
+  Time end = 2; //! inclusive, missing == single time
+  float step = 3; //! seconds, 0 == continuous
+}
+
+message TimeDelta {
+  int32 seconds = 1;
+  float sub_seconds = 2;
+}
+
+message FloatKV {
+  uint32 key_index = 1;
+  float value = 2;
+}
+
+message StringKV {
+  uint32 key_index = 1;
+  string value = 2;
+}
+
+message ObsDataBasic {
+  string id = 1;
+  TimeDelta obs_time_delta = 2;
+  float xpos = 3;
+  float ypos = 4;
+}
+
+message ObsDataMetar {
+  bool ship_buoy = 1;
+  string metarId = 2;
+  bool CAVOK = 3;
+  repeated string REww = 4;  //! Recent weather
+  repeated string ww = 5;    //! Significant weather
+  repeated string cloud = 6; //! Clouds
+}
+
+message ObsData {
+  ObsDataBasic basic = 1;
+  ObsDataMetar metar = 2;
+
+  repeated FloatKV fdata = 11;
+  repeated StringKV sdata = 12;
+}
+
+message Par { // see ObsDialogInfo::Par
+  enum Type {
+    pt_std = 0;
+    pt_knot = 1;
+    pt_temp = 2;
+    pt_rrr = 3;
+  };
+
+  string name = 1;
+  Type type = 2;
+  int32 symbol = 3;
+  int32 precision = 4;
+  string description = 5; // used as tooltip in obs dialog
+  int32 criteria_min = 6; // minimum for criteria slider, if different from criteria_max
+  int32 criteria_max = 7; // maximum for criteria slider, if different from criteria_min
+}
+
+message TimesRequest {
+  string provider = 1;
+  uint64 ifUpdatedSince = 2;
+
+  bool useArchive = 3;
+}
+
+message TimesResult {
+  Status status = 1;
+  uint64 lastUpdate = 2;
+
+  repeated TimeSpan timespans = 3;
+}
+
+message ParametersRequest {
+  string provider = 1;
+  uint64 ifUpdatedSince = 2;
+}
+
+message ParametersResult {
+  Status status = 1;
+  uint64 lastUpdate = 2;
+
+  repeated Par parameters = 3;
+}
+
+message DataRequest {
+  string provider = 1;
+  uint64 ifUpdatedSince = 2;
+
+  Time obsTime = 3;
+  uint32 timeDiff = 4; //! seconds
+  int32 level = 5;
+  bool useArchive = 6;
+}
+
+message DataResult {
+  Status status = 1;
+  uint64 lastUpdate = 2;
+
+  Time time = 10;
+  repeated ObsData data = 11;
+  repeated string data_keys = 20;
+  string data_type = 21;
+}
