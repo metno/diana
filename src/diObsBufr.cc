@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2018 met.no
+ Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -539,6 +539,7 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
   // which means 'Time of last known position', used for buoys.
   // The date/time descriptors following this will be skipped.
 
+  std::string d_name;
   d.CAVOK = false;
   d.xpos = -32767;
   d.ypos = -32767;
@@ -622,7 +623,7 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
     case 1015:
     {
       int index = int(values[j]) / 1000 - 1;
-      add_substr(d.name, cvals, index, 10);
+      add_substr(d_name, cvals, index, 10);
     }
     break;
 
@@ -630,7 +631,7 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
     case 1019:
     {
       int index = int(values[j]) / 1000 - 1;
-      add_substr(d.name, cvals, index, 10);
+      add_substr(d_name, cvals, index, 10);
     }
     break;
 
@@ -1266,8 +1267,8 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
   }
   if ( !d.id.empty())
     d.put_string("Id", d.id);
-  if ( !d.name.empty())
-    d.put_string("Name", d.name);
+  if (!d_name.empty())
+    d.put_string("Name", d_name);
 
   //TIME
   if ( miTime::isValid(year, month, day, hour, minute, 0) ) {
@@ -1403,6 +1404,7 @@ bool ObsDataBufr::get_diana_data_level(int ktdexl, const int *ktdexp, const doub
 
   d.clear_data();
   d.id.clear();
+  std::string d_name;
   d.ship_buoy = 0;
 
   int wmoBlock = 0;
@@ -1697,8 +1699,8 @@ bool ObsDataBufr::get_diana_data_level(int ktdexl, const int *ktdexp, const doub
 
   if (!d.id.empty())
     d.put_string("Id", d.id);
-  if (!d.name.empty())
-    d.put_string("Name", d.name);
+  if (!d_name.empty())
+    d.put_string("Name", d_name);
   //TIME
   d.obsTime = miTime(year, month, day, hour, minute, 0);
   put_date_time(d, month, day, hour, minute);

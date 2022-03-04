@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,10 +29,10 @@
 #ifndef diObsData_h
 #define diObsData_h
 
-#include "diColour.h"
-
 #include <puTools/miTime.h>
+
 #include <string>
+#include <vector>
 
 /**
   \brief Observation data
@@ -40,16 +40,15 @@
 class ObsData
 {
 public:
-  //desc
   std::string dataType;
   std::string id;
-  std::string name;
   float xpos;
   float ypos;
-  bool ship_buoy;
   miutil::miTime obsTime;
 
-  //metar
+  // metar
+  // all these are: write: BUFR; read: ObsPlot
+  bool ship_buoy;
   std::string metarId;
   bool CAVOK;
   std::vector<std::string> REww;   ///< Recent weather
@@ -65,6 +64,8 @@ public:
   void put_float(const std::string& key, float f) { fdata[key] = f; }
 
   const float* get_unrotated_float(const std::string& key) const;
+
+  // only from ObsPlot
   void put_rotated_float(const std::string& key, float f) { fdata_rotated[key] = f; }
 
 private:
