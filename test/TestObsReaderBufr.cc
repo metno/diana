@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2018 met.no
+  Copyright (C) 2017-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -78,8 +78,8 @@ TEST(TestObsReaderBufr, GetDataNotSynoptic)
 {
   ObsReaderBufr_p bufr = std::make_shared<ObsReaderBufr>();
   EXPECT_TRUE(bufr->configure("bufr", BUFR_SYNO));
+  EXPECT_TRUE(bufr->configure("synoptic", "0"));
   bufr->setTimeRange(-120, 120);
-  bufr->setSynoptic(false);
 
   ObsDataRequest_p req = std::make_shared<ObsDataRequest>();
   req->obstime = t_11_00;

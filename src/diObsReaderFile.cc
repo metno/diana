@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2021 met.no
+  Copyright (C) 2017-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -58,6 +58,7 @@ long modificationtime(const std::string& filename)
 ObsReaderFile::ObsReaderFile()
     : timeRangeMin_(-60)
     , timeRangeMax_(60)
+    , is_synoptic_(true)
 {
 }
 
@@ -68,6 +69,8 @@ bool ObsReaderFile::configure(const std::string& key, const std::string& value)
     if (time.size() != 2)
       return false;
     setTimeRange(miutil::to_int(time[0]), miutil::to_int(time[1]));
+  } else if (key == "synoptic") {
+    setSynoptic(miutil::KeyValue(key, value).toBool());
   } else {
     return ObsReader::configure(key, value);
   }

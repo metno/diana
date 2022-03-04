@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2021 met.no
+  Copyright (C) 2017-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -82,6 +82,9 @@ public:
   void getData(ObsDataRequest_cp request, ObsDataResult_p result) override;
 
 protected:
+  void setSynoptic(bool synoptic) { is_synoptic_ = synoptic; }
+  bool isSynoptic() const { return is_synoptic_; }
+
   void addPattern(const std::string& pattern, bool archive);
 
   virtual miutil::miTime getTimeFromFile(const std::string& filename);
@@ -94,6 +97,7 @@ protected:
   std::vector<FileInfo> fileInfo;
   int timeRangeMin_;
   int timeRangeMax_;
+  bool is_synoptic_;
 };
 
 #endif // DIOBSREADERFILE_H

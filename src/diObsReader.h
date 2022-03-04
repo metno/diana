@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2021 met.no
+  Copyright (C) 2017-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -86,9 +86,7 @@ public:
 
   virtual bool configure(const std::string& key, const std::string& value);
 
-  void setSynoptic(bool synoptic) { is_synoptic_ = synoptic; }
-  bool isSynoptic() const { return is_synoptic_; }
-
+public:
   void setDataType(const std::string& datatype) { datatype_ = datatype; }
   const std::string& dataType() const { return datatype_; }
 
@@ -130,7 +128,6 @@ public:
   virtual void getData(ObsDataRequest_cp request, ObsDataResult_p result) = 0;
 
 private:
-  bool is_synoptic_;
   std::string datatype_;
 };
 

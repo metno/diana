@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2021 met.no
+  Copyright (C) 2017-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -62,7 +62,6 @@ void ObsDataResult::setComplete(bool success)
 }
 
 ObsReader::ObsReader()
-    : is_synoptic_(true)
 {
 }
 
@@ -72,9 +71,7 @@ ObsReader::~ObsReader()
 
 bool ObsReader::configure(const std::string& key, const std::string& value)
 {
-  if (key == "synoptic") {
-    setSynoptic(miutil::KeyValue(key, value).toBool());
-  } else if (key == "datatype") {
+  if (key == "datatype") {
     setDataType(value);
   } else {
     return false;
