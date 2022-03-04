@@ -1,6 +1,6 @@
 #  Diana - A Free Meteorological Visualisation Tool
 #
-#  Copyright (C) 2017-2021 met.no
+#  Copyright (C) 2017-2022 met.no
 #
 #  Contact information:
 #  Norwegian Meteorological Institute
@@ -100,6 +100,8 @@ SET (dianaUnitTests_SOURCES
   TestGridIO.cc
   TestImageIO.cc
   TestLogFileIO.cc
+  TestObsDataRotated.cc
+  TestObsDataUnion.cc
   TestObsReaderAscii.cc
   TestObsReaderFile.cc
   TestObsReaderTimeInterval.cc

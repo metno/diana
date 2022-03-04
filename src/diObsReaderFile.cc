@@ -115,8 +115,6 @@ void ObsReaderFile::getData(ObsDataRequest_cp request, ObsDataResult_p result)
   if (fileInfo.empty())
     checkForUpdates(request->useArchive);
 
-  std::vector<ObsData> obsdata;
-
   // actual timespan for request
   miutil::miTime req_min = request->obstime, req_max = request->obstime;
   if (request->timeDiff >= 0) {

@@ -83,8 +83,84 @@ const double bufrMissing = 1.6e+38;
 // constants for changing to met.no units
 const double pa2hpa = 0.01;
 
+// clang-format off
+const char* BUFR_KEY_NAMES[ObsDataBufr::BUFR_KEYS_END] {
+  "911ff",
+  "911ff_10",
+  "911ff_180",
+  "911ff_360",
+  "911ff_60",
+  "a",
+  "auto",
+  "Ch",
+  "Cl",
+  "Cm",
+  "Date",
+  "dd",
+  "depth",
+  "dndndn",
+  "ds",
+  "Dv",
+  "dw1dw1",
+  "dxdxdx",
+  "ff",
+  "fmfm",
+  "fxfx",
+  "fxfx_180",
+  "fxfx_360",
+  "fxfx_60",
+  "h",
+  "Height",
+  "HHH",
+  "Hw1Hw1",
+  "HwaHwa",
+  "HwHw",
+  "Id",
+  "lat",
+  "lon",
+  "N",
+  "Name",
+  "Nh",
+  "PHPHPHPH",
+  "ppp",
+  "PPPP",
+  "Pw1Pw1",
+  "PwaPwa",
+  "PwPw",
+  "QI",
+  "QI_NM",
+  "QI_RFF",
+  "quality",
+  "RRR",
+  "RRR_1",
+  "RRR_12",
+  "RRR_24",
+  "RRR_3",
+  "RRR_6",
+  "RRR_accum",
+  "s",
+  "sss",
+  "SSSS",
+  "SWH",
+  "TdTdTd",
+  "TE",
+  "Time",
+  "TTT",
+  "TTTT",
+  "TwTwTw",
+  "TxTn",
+  "vs",
+  "VV",
+  "VVVV",
+  "W1",
+  "W2",
+  "wmonumber",
+  "ww"
+};
+// clang-format on
 
 const int len_cnames = 64, len_cunits = 24, len_cvals = 80;
+
 const std::string substr(const char* cvals, int index, int len)
 {
   cvals += index * len_cvals;
@@ -98,20 +174,20 @@ void add_substr(std::string& s, const char* cvals, int index, int len)
   }
 }
 
-void put_date_time(ObsData& d, int month, int day, int hour, int minute)
+void put_date_time(ObsDataBufr::ObsDataB& odb, int month, int day, int hour, int minute)
 {
   std::string out = "MM-DD";
   diutil::format_int(month, out, 0, 2);
   diutil::format_int(day,   out, 3, 2);
-  d.put_string("Date", out);
+  odb.put_string(ObsDataBufr::k_Date, out);
 
   out[2] = '.';
   diutil::format_int(hour,   out, 0, 2);
   diutil::format_int(minute, out, 3, 2);
-  d.put_string("Time", out);
+  odb.put_string(ObsDataBufr::k_Time, out);
 }
 
-  void format_wmo(std::string& out, int wmoBlock, int wmoSubarea, int wmoStation)
+void format_wmo(std::string& out, int wmoBlock, int wmoSubarea, int wmoStation)
 {
   if ( wmoSubarea > 0 ) {
     out.resize(7, '0');
@@ -190,7 +266,7 @@ float height_of_clouds(double height)
   return 9.0;
 }
 
-void cloud_type(ObsData& d, double v)
+void cloud_type(ObsDataBufr::ObsDataB& odb, double v)
 {
   int type = int(v) / 10;
   float value = float(int(v) % 10);
@@ -199,11 +275,11 @@ void cloud_type(ObsData& d, double v)
     return;
 
   if (type == 1)
-    d.put_float("Ch", value);
+    odb.put_float(ObsDataBufr::k_Ch, value);
   if (type == 2)
-    d.put_float("Cm", value);
+    odb.put_float(ObsDataBufr::k_Cm, value);
   if (type == 3)
-    d.put_float("Cl", value);
+    odb.put_float(ObsDataBufr::k_Cl, value);
 }
 
 float ms2code4451(float v)
@@ -237,6 +313,38 @@ ObsBufr::ObsBufr()
 {
 }
 
+struct ObsBufr::BUFRDecodeData
+{
+  const int kelem = 80000; // length of subsection
+  const int kvals = 4096000;
+
+  int ksup[9];
+  int ksec0[3];
+  int ksec1[40];
+  int ksec2[4096];
+  int ksec3[4];
+  int ksec4[2];
+
+  std::unique_ptr<char[]> cnames;
+  std::unique_ptr<char[]> cunits;
+  std::unique_ptr<char[]> cvals;
+  std::unique_ptr<double[]> values;
+
+  std::unique_ptr<int[]> ktdlst, ktdexp;
+
+  BUFRDecodeData();
+};
+
+ObsBufr::BUFRDecodeData::BUFRDecodeData()
+    : cnames(new char[kelem * len_cnames])
+    , cunits(new char[kelem * len_cunits])
+    , cvals(new char[kvals * len_cvals])
+    , values(new double[kvals])
+    , ktdlst(new int[kelem])
+    , ktdexp(new int[kelem])
+{
+}
+
 // ########################################################################
 
 ObsDataBufr::ObsDataBufr(int l, const miutil::miTime& t, int td)
@@ -246,12 +354,23 @@ ObsDataBufr::ObsDataBufr(int l, const miutil::miTime& t, int td)
 {
 }
 
-bool ObsDataBufr::getObsData(std::vector<ObsData>& obsp, const std::string& filename)
+ObsDataBufr::ObsDataB::ObsDataB()
 {
-  const bool ok = init(filename);
-  if (ok)
-    std::swap(obsdata, obsp);
-  return ok;
+  obsdata = std::make_shared<ObsDataVector>();
+  for (int i = 0; i < BUFR_KEYS_END; ++i) {
+    ki_BUFR[i] = obsdata->add_key(BUFR_KEY_NAMES[i]);
+  }
+}
+
+ObsDataBufr::ObsDataB::~ObsDataB() {}
+
+ObsDataVector_p ObsDataBufr::getObsData(const std::string& filename)
+{
+  odb = ObsDataB();
+  if (init(filename))
+    return odb.obsdata;
+  else
+    return ObsDataVector_p();
 }
 
 // ########################################################################
@@ -268,6 +387,7 @@ bool ObsBufr::init(const std::string& bufr_file)
   }
 
   int ibuff[50000];
+  std::unique_ptr<BUFRDecodeData> bdd(new BUFRDecodeData);
 
   bool ok = true, next = true;
   while (next) { // get the next BUFR product
@@ -289,7 +409,7 @@ bool ObsBufr::init(const std::string& bufr_file)
       break;
     }
 
-    next = BUFRdecode(ibuff, buf_len);
+    next = BUFRdecode(ibuff, buf_len, *bdd.get());
   }
 
   fclose(file_bufr);
@@ -415,46 +535,30 @@ VprofValues_p VprofBufr::getVprofPlot(const vector<std::string>& bufr_file, cons
 
 // ########################################################################
 
-bool ObsBufr::BUFRdecode(int* ibuff, int ilen)
+bool ObsBufr::BUFRdecode(int* ibuff, int ilen, BUFRDecodeData& b)
 {
   // Decode BUFR message into fully decoded form
   METLIBS_LOG_SCOPE();
 
   int kerr;
-
-  int ksup[9];
-  int ksec0[3];
-  int ksec1[40];
-  int ksec2[4096];
-  int ksec3[4];
-  int ksec4[2];
-  bus012_(&ilen, ibuff, ksup, ksec0, ksec1, ksec2, &kerr);
+  bus012_(&ilen, ibuff, b.ksup, b.ksec0, b.ksec1, b.ksec2, &kerr);
   if (kerr > 0) {
     METLIBS_LOG_ERROR("Error in BUS012: KERR=" << kerr);
     return true;
   }
 
-  const int kelem = 160000; //length of subsection
-  const int kvals = 4096000;
-
-  std::unique_ptr<char[]> cnames(new char[kelem * len_cnames]);
-  std::unique_ptr<char[]> cunits(new char[kelem * len_cunits]);
-  std::unique_ptr<char[]> cvals (new char[kvals * len_cvals]);
-  std::unique_ptr<double[]> values(new double[kvals]);
-
-  int kkvals = kvals;
-  int kxelem = std::min(kvals / ksup[5], kelem);
+  int kkvals = b.kvals;
+  int kxelem = std::min(b.kvals / b.ksup[5], b.kelem);
   int ktdlen, ktdexl;
 
-  bufrex_(&ilen, ibuff, ksup, ksec0, ksec1, ksec2, ksec3, ksec4, &kxelem,
-      cnames.get(), cunits.get(), &kkvals, values.get(), cvals.get(), &kerr,
-      len_cnames, len_cunits, len_cvals);
+  bufrex_(&ilen, ibuff, b.ksup, b.ksec0, b.ksec1, b.ksec2, b.ksec3, b.ksec4, &kxelem, b.cnames.get(), b.cunits.get(), &kkvals, b.values.get(), b.cvals.get(),
+          &kerr, len_cnames, len_cunits, len_cvals);
   if (kerr > 0) {
     METLIBS_LOG_ERROR("Error in BUFREX: KERR=" << kerr);
     return true;
   }
 
-  int nsubset = ksup[5];
+  const int nsubset = b.ksup[5];
 
   //  Convert messages with data category (BUFR table A) 0 and 1 only.
   //  0 = Surface data - land, 1 = Surface data - sea
@@ -466,15 +570,14 @@ bool ObsBufr::BUFRdecode(int* ibuff, int ilen)
   // Return list of Data Descriptors from Section 3 of Bufr message, and
   // total/requested list of elements. BUFREX must have been called before BUSEL.
 
-  std::unique_ptr<int[]> ktdlst(new int[kelem]), ktdexp(new int[kelem]);
   for (int i = 1; i < nsubset + 1; i++) {
-    busel2_(&i, &kxelem, &ktdlen, ktdlst.get(), &ktdexl, ktdexp.get(), cnames.get(), cunits.get(), &kerr);
+    busel2_(&i, &kxelem, &ktdlen, b.ktdlst.get(), &ktdexl, b.ktdexp.get(), b.cnames.get(), b.cunits.get(), &kerr);
     if (kerr > 0) {
       METLIBS_LOG_ERROR("Error in BUSEL: KERR=" << kerr);
       continue;
     }
 
-    const SubsetResult sr = handleBufrSubset(ktdexl, ktdexp.get(), values.get(), cvals.get(), i - 1, kxelem);
+    const SubsetResult sr = handleBufrSubset(ktdexl, b.ktdexp.get(), b.values.get(), b.cvals.get(), i - 1, kxelem);
     if (sr == BUFR_OK)
       return true;
     else if (sr == BUFR_ERROR)
@@ -489,16 +592,16 @@ bool ObsBufr::BUFRdecode(int* ibuff, int ilen)
 ObsBufr::SubsetResult ObsDataBufr::handleBufrSubset(int ktdexl, const int *ktdexp, const double* values,
                                                     const char* cvals, int subset, int kelem)
 {
-  ObsData obs;
   bool ok;
+  odb.push();
   if (level < -1)
-    ok = get_diana_data(ktdexl, ktdexp, values, cvals, subset, kelem, obs);
+    ok = get_diana_data(ktdexl, ktdexp, values, cvals, subset, kelem);
   else
-    ok = get_diana_data_level(ktdexl, ktdexp, values, cvals, subset, kelem, obs);
+    ok = get_diana_data_level(ktdexl, ktdexp, values, cvals, subset, kelem);
   if (ok)
-    ok = timeOK(obs.obsTime);
-  if (ok) {
-    obsdata.push_back(obs);
+    ok = timeOK(odb.basic().obsTime);
+  if (!ok) {
+    odb.pop();
   }
   return BUFR_CONTINUE;
 }
@@ -508,12 +611,9 @@ bool ObsDataBufr::timeOK(const miutil::miTime& t) const
   return (timeDiff < 0 || abs(miTime::minDiff(t, time)) <= timeDiff);
 }
 
-bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* values,
-                                 const char* cvals, int subset, int kelem, ObsData &d)
+bool ObsDataBufr::get_diana_data(int ktdexl, const int* ktdexp, const double* values, const char* cvals, int subset, int kelem)
 {
   using miutil::constants::t0;
-
-  d.clear_data();
 
   int wmoBlock = 0;
   int wmoSubarea = 0;
@@ -540,10 +640,10 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
   // The date/time descriptors following this will be skipped.
 
   std::string d_name;
-  d.CAVOK = false;
-  d.xpos = -32767;
-  d.ypos = -32767;
-  d.ship_buoy = 0;
+  odb.metar().CAVOK = false;
+  odb.basic().xpos = -32767;
+  odb.basic().ypos = -32767;
+  odb.metar().ship_buoy = 0;
 
   for (int i = 0, j = kelem * subset; i < ktdexl; i++, j++) {
     //METLIBS_LOG_DEBUG(ktdexp[i]<<" : "<<values[j]);
@@ -564,7 +664,7 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
     case 1003:
       if (values[j] < bufrMissing) {
         wmoBlock = int(values[j]);
-        d.ship_buoy = true;
+        odb.metar().ship_buoy = true;
       }
       break;
 
@@ -579,7 +679,7 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
     case 1002:
       if (values[j] < bufrMissing) {
         wmoStation = int(values[j]);
-        d.put_float("wmonumber", float(wmoStation));
+        odb.put_float(k_wmonumber, float(wmoStation));
         wmoNumber = true;
       }
       break;
@@ -589,12 +689,12 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
       if (values[j] < bufrMissing) {
         if ( wmoBlock > 0 ) {
           wmoStation = int(values[j]);
-          d.put_float("wmonumber", float(wmoStation));
+          odb.put_float(k_wmonumber, float(wmoStation));
           wmoNumber = true;
         } else {
-          d.id = miutil::from_number(values[j]);
+          odb.basic().id = miutil::from_number(values[j]);
         }
-        d.ship_buoy = true;
+        odb.metar().ship_buoy = true;
       }
       break;
 
@@ -603,7 +703,7 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
     {
       if (! wmoNumber) {
         int index = int(values[j]) / 1000 - 1;
-        add_substr(d.id, cvals, index, 6);
+        add_substr(odb.basic().id, cvals, index, 6);
       }
     }
     break;
@@ -613,8 +713,8 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
     {
       if ( !wmoNumber ) {
         int index = int(values[j]) / 1000 - 1;
-        add_substr(d.id, cvals, index, 7);
-        d.ship_buoy = true;
+        add_substr(odb.basic().id, cvals, index, 7);
+        odb.metar().ship_buoy = true;
       }
     }
     break;
@@ -639,22 +739,22 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
     case 1063:
     {
       int index = int(values[j]) / 1000 - 1;
-      add_substr(d.metarId, cvals, index, 4);
+      add_substr(odb.metar().metarId, cvals, index, 4);
     }
     break;
 
     //001087 WMO MARINE OBSERVING PLATFORM EXTENDED IDENTIFIER
     case 1087:
     {
-        d.id = miutil::from_number(int(values[j]));
-        d.ship_buoy = true;
+      odb.basic().id = miutil::from_number(int(values[j]));
+      odb.metar().ship_buoy = true;
     }
     break;
 
     //001102 NATIONAL STATION NUMBER
     case 1102:
       if ( !wmoNumber ) {
-        d.id = miutil::from_number(int(values[j]));
+        odb.basic().id = miutil::from_number(int(values[j]));
       }
       break;
 
@@ -663,7 +763,7 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
     {
       if ( !wmoNumber ) {
         int index = int(values[j]) / 1000 - 1;
-        add_substr(d.id, cvals, index, 5);
+        add_substr(odb.basic().id, cvals, index, 5);
       }
     }
     break;
@@ -671,19 +771,19 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
     //   1012  DIRECTION OF MOTION OF MOVING OBSERVING PLATFORM, DEGREE TRUE
     case 1012:
       if (values[j] > 0 && values[j] < bufrMissing)
-        d.put_float("ds", values[j]);
+        odb.put_float(k_ds, values[j]);
       break;
 
       //   1013  SPEED OF MOTION OF MOVING OBSERVING PLATFORM, M/S
     case 1013:
       if (values[j] < bufrMissing)
-        d.put_float("vs", ms2code4451(values[j]));
+        odb.put_float(k_vs, ms2code4451(values[j]));
       break;
 
       //   2001 TYPE OF STATION
     case 2001:
       if (values[j] < bufrMissing)
-        d.put_float("auto", values[j]);
+        odb.put_float(k_auto, values[j]);
       break;
 
       //   4001  YEAR
@@ -721,7 +821,7 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
     case 5001:
     case 5002:
       if (values[j]<bufrMissing ) {
-        d.ypos = values[j];
+        odb.basic().ypos = values[j];
       }
       break;
 
@@ -730,14 +830,14 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
     case 6001:
     case 6002:
       if (values[j] < bufrMissing) {
-        d.xpos = values[j];
+        odb.basic().xpos = values[j];
       }
       break;
 
       //   7001  HEIGHT OF STATION, M
     case 7030:
       if (values[j] < bufrMissing)
-        d.put_float("Height", values[j]);
+        odb.put_float(k_Height, values[j]);
       break;
 
       //   7032  HEIGHT OF SENSOR, M
@@ -786,38 +886,38 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
     case 10008:
     case 10003:
       if (values[j] < bufrMissing) {
-        d.put_float("HHH", values[j] / miutil::constants::g);
+        odb.put_float(k_HHH, values[j] / miutil::constants::g);
       }
       break;
       // 010009 GEOPOTENTIAL HEIGHT
     case 10009:
       if (values[j] < bufrMissing)
-        d.put_float("HHH", values[j]);
+        odb.put_float(k_HHH, values[j]);
       break;
 
       //   10051  PRESSURE REDUCED TO MEAN SEA LEVEL, Pa->hPa
     case 10051:
     case 7004:
       if (values[j] < bufrMissing)
-        d.put_float("PPPP", values[j] * pa2hpa);
+        odb.put_float(k_PPPP, values[j] * pa2hpa);
       break;
 
       //010052 ALTIMETER SETTING (QNH), Pa->hPa
     case 10052:
       if (values[j] < bufrMissing)
-        d.put_float("PHPHPHPH", values[j] * pa2hpa);
+        odb.put_float(k_PHPHPHPH, values[j] * pa2hpa);
       break;
 
       //   10061  3 HOUR PRESSURE CHANGE, Pa->hpa
     case 10061:
       if (values[j] < bufrMissing)
-        d.put_float("ppp", values[j] * pa2hpa);
+        odb.put_float(k_ppp, values[j] * pa2hpa);
       break;
 
       //   10063  CHARACTERISTIC OF PRESSURE TENDENCY
     case 10063:
       if (values[j] < bufrMissing)
-        d.put_float("a", values[j]);
+        odb.put_float(k_a, values[j]);
       break;
 
       //   11011  WIND DIRECTION AT 10 M, DEGREE TRUE
@@ -825,20 +925,20 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
       if (values[j] < bufrMissing) {
         if ( selected_wind_vector_ambiguities ) {
           if ( selected_wind_vector_ambiguities == wind_dir_selection_count ) {
-            d.put_float("dd", values[j]);
+            odb.put_float(k_dd, values[j]);
             //METLIBS_LOG_DEBUG("dd:"<<values[j]);
           }
           wind_dir_selection_count++;
         } else {
-          d.put_float("dd", values[j]);
+          odb.put_float(k_dd, values[j]);
         }
       }
       break;
 
       // 011001 WIND DIRECTION
     case 11001:
-      if (!d.get_float("dd") && values[j] < bufrMissing) {
-        d.put_float("dd", values[j]);
+      if (values[j] < bufrMissing) {
+        odb.put_new_float(k_dd, values[j]);
       }
       break;
 
@@ -848,47 +948,47 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
         if ( selected_wind_vector_ambiguities ) {
           //METLIBS_LOG_DEBUG("wind_speed_selection_count:"<<wind_speed_selection_count);
           if ( selected_wind_vector_ambiguities == wind_speed_selection_count ) {
-            d.put_float("ff", values[j]);
+            odb.put_float(k_ff, values[j]);
             //  METLIBS_LOG_DEBUG("ff:"<<values[j]);
           }
           wind_speed_selection_count++;
         } else {
-          d.put_float("ff", values[j]);
+          odb.put_float(k_ff, values[j]);
         }
       }
       break;
 
       // 011002 WIND SPEED
     case 11002:
-      if (!d.get_float("ff") && values[j] < bufrMissing)
-        d.put_float("ff", values[j]);
+      if (values[j] < bufrMissing)
+        odb.put_new_float(k_ff, values[j]);
       break;
 
       // 011016 EXTREME COUNTERCLOCKWISE WIND DIRECTION OF A VARIABLE WIND
     case 11016:
       if (values[j] < bufrMissing)
-        d.put_float("dndndn", values[j]);
+        odb.put_float(k_dndndn, values[j]);
       break;
 
       // 011017 EXTREME CLOCKWISE WIND DIRECTIONOF A VARIABLE WIND
     case 11017:
       if (values[j] < bufrMissing)
-        d.put_float("dxdxdx", values[j]);
+        odb.put_float(k_dxdxdx, values[j]);
       break;
 
       // 011041 MAXIMUM WIND SPEED (GUSTS), m/s
     case 11041:
       if (values[j] < bufrMissing) {
-        //        d.put_float("911ff", values[j]);
-        d.put_float("fmfm", values[j]); // metar;
+        //        odb.put_float(k_911ff, values[j]);
+        odb.put_float(k_fmfm, values[j]); // metar;
         if (timePeriodMinute == -10) {
-          d.put_float("911ff_10", values[j]);
+          odb.put_float(k_911ff_10, values[j]);
         } else if (timePeriodMinute == -60) {
-          d.put_float("911ff_60", values[j]);
+          odb.put_float(k_911ff_60, values[j]);
         } else if (timePeriodMinute == -180) {
-          d.put_float("911ff_180", values[j]);
+          odb.put_float(k_911ff_180, values[j]);
         } else if (timePeriodMinute == -360) {
-          d.put_float("911ff_360", values[j]);
+          odb.put_float(k_911ff_360, values[j]);
         }
       }
       break;
@@ -896,13 +996,13 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
       // 011042 MAXIMUM WIND SPEED (10 MIN MEAN WIND), m/s
     case 11042:
       if (values[j] < bufrMissing) {
-        //        d.put_float("fxfx", values[j]);
+        //        odb.put_float(k_fxfx, values[j]);
         if (timePeriodMinute == -60) {
-          d.put_float("fxfx_60", values[j]);
+          odb.put_float(k_fxfx_60, values[j]);
         } else if (timePeriodMinute == -180) {
-          d.put_float("fxfx_180", values[j]);
+          odb.put_float(k_fxfx_180, values[j]);
         } else if (timePeriodMinute == -360) {
-          d.put_float("fxfx_360", values[j]);
+          odb.put_float(k_fxfx_360, values[j]);
         }
       }
       break;
@@ -912,14 +1012,14 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
     case 12104:
     case 12004:
       if (values[j] < bufrMissing)
-        d.put_float("TTT", values[j] - t0);
+        odb.put_float(k_TTT, values[j] - t0);
       break;
       //   12101  TEMPERATURE/DRY BULB TEMPERATURE (16 bits), K->Celsius
       //   12001  TEMPERATURE/DRY BULB TEMPERATURE (12 bits), K->Celsius
     case 12101:
     case 12001:
-      if (!d.get_float("TTT") && values[j] < bufrMissing) {
-        d.put_float("TTT", values[j] - t0);
+      if (values[j] < bufrMissing) {
+        odb.put_new_float(k_TTT, values[j] - t0);
       }
       break;
 
@@ -928,41 +1028,41 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
     case 12106:
     case 12006:
       if (values[j] < bufrMissing)
-        d.put_float("TdTdTd", values[j] - t0);
+        odb.put_float(k_TdTdTd, values[j] - t0);
       break;
       //   12103  DEW POINT TEMPERATURE (16 bits), K->Celsius
       //   12003  DEW POINT TEMPERATURE (12 bits), K->Celsius
     case 12103:
     case 12003:
-      if (!d.get_float("TdTdTd") && values[j] < bufrMissing)
-        d.put_float("TdTdTd", values[j] - t0);
+      if (values[j] < bufrMissing)
+        odb.put_new_float(k_TdTdTd, values[j] - t0);
       break;
 
       //   12014  MAX TEMPERATURE AT 2M, K->Celsius
     case 12014:
       if (values[j] < bufrMissing && hour == 18)
-        d.put_float("TxTn", values[j] - t0);
+        odb.put_float(k_TxTn, values[j] - t0);
       break;
       //   12111  MAX TEMPERATURE AT HEIGHT AND OVER PERIOD SPECIFIED (16 bits), K->Celsius
       //   12011  MAX TEMPERATURE AT HEIGHT AND OVER PERIOD SPECIFIED (12 bits), K->Celsius
     case 12111:
     case 12011:
-      if (!d.get_float("TxTn") && values[j] < bufrMissing && hour == 18 && timePeriodHour == -12 && timeDisplacement == 0)
-        d.put_float("TxTn", values[j] - t0);
+      if (values[j] < bufrMissing && hour == 18 && timePeriodHour == -12 && timeDisplacement == 0)
+        odb.put_new_float(k_TxTn, values[j] - t0);
       break;
 
       //   12015  MIN TEMPERATURE AT 2M, K->Celsius
     case 12015:
       if (values[j] < bufrMissing && hour == 6)
-        d.put_float("TxTn", values[j] - t0);
+        odb.put_float(k_TxTn, values[j] - t0);
       break;
 
       //   12112  MIN TEMPERATURE AT HEIGHT AND OVER PERIOD SPECIFIED (16 bits), K->Celsius
       //   12012  MIN TEMPERATURE AT HEIGHT AND OVER PERIOD SPECIFIED (12 bits), K->Celsius
     case 12112:
     case 12012:
-      if (!d.get_float("TxTn") && values[j] < bufrMissing && hour == 6 && timePeriodHour == -12 && timeDisplacement == 0)
-        d.put_float("TxTn", values[j] - t0);
+      if (values[j] < bufrMissing && hour == 6 && timePeriodHour == -12 && timeDisplacement == 0)
+        odb.put_new_float(k_TxTn, values[j] - t0);
       break;
 
       //   13013  Snow depth
@@ -971,16 +1071,16 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
         // note: -0.01 means a little (less than 0.005 m) snow
         //       -0.02 means snow cover not continuous
         if (values[j] < 0) {
-          d.put_float("sss", 0.);
+          odb.put_float(k_sss, 0.);
         } else {
-          d.put_float("sss", values[j] * 100);
+          odb.put_float(k_sss, values[j] * 100);
         }
       }
       break;
       //   20062 State of the ground (with or without snow)
     case 20062:
-      if (!d.get_float("sss") && values[j] < 13) // Indicates no snow or partially snow cover
-        d.put_float("sss", 0.);
+      if (values[j] < 13) // Indicates no snow or partially snow cover
+        odb.put_new_float(k_sss, 0.);
       break;
       //   13218 Ind. for snow-depth-measurement - DNMI
     case 13218: //   0 -> MEASURED IN METRES
@@ -988,60 +1088,60 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
       //   2 -> 998     (partially snow cover)
       //   3 -> 999     (measurement inaccurate or impossible)
       //   4 -> MISSING
-      if (!d.get_float("sss") && (int(values[j]) == 1 || int(values[j]) == 2))
-        d.put_float("sss", 0.);
+      if (int(values[j]) == 1 || int(values[j]) == 2)
+        odb.put_new_float(k_sss, 0.);
       break;
 
       //13019 Total precipitation past 1 hour
     case 13019:
       if (values[j] < bufrMissing) {
-        d.put_float("RRR_1", values[j]);
+        odb.put_float(k_RRR_1, values[j]);
       }
       break;
 
       //13020 Total precipitation past 3 hour
     case 13020:
       if (values[j] < bufrMissing) {
-        d.put_float("RRR_3", values[j]);
+        odb.put_float(k_RRR_3, values[j]);
       }
       break;
 
       //13021 Total precipitation past 6 hour
     case 13021:
       if (values[j] < bufrMissing) {
-        d.put_float("RRR_6", values[j]);
+        odb.put_float(k_RRR_6, values[j]);
       }
       break;
 
       //13022 Total precipitation past 12 hour
     case 13022:
       if (values[j] < bufrMissing) {
-        d.put_float("RRR_12", values[j]);
+        odb.put_float(k_RRR_12, values[j]);
       }
       break;
 
       //13023 Total precipitation past 24 hour
     case 13023:
       if (values[j] < bufrMissing) {
-        d.put_float("RRR_24", values[j]);
+        odb.put_float(k_RRR_24, values[j]);
       }
       break;
 
       // 13011 Total precipitation / total water equivalent of snow
     case 13011:
       if (values[j] < bufrMissing) {
-        //        d.put_float("RRR_accum", -1 * timePeriodHour);
-        //        d.put_float("RRR", values[j]);
+        //        odb.put_float(k_RRR_accum, -1 * timePeriodHour);
+        //        odb.put_float(k_RRR, values[j]);
         if (timePeriodHour == -24 ) {
-          d.put_float("RRR_24", values[j]);
+          odb.put_float(k_RRR_24, values[j]);
         } else if (timePeriodHour == -12 ) {
-          d.put_float("RRR_12", values[j]);
+          odb.put_float(k_RRR_12, values[j]);
         } else if (timePeriodHour == -6 ) {
-          d.put_float("RRR_6", values[j]);
+          odb.put_float(k_RRR_6, values[j]);
         } else if (timePeriodHour == -3 ) {
-          d.put_float("RRR_3", values[j]);
+          odb.put_float(k_RRR_3, values[j]);
         } else if (timePeriodHour == -1 ) {
-          d.put_float("RRR_1", values[j]);
+          odb.put_float(k_RRR_1, values[j]);
         }
       }
       break;
@@ -1049,37 +1149,37 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
       //   20001  HORIZONTAL VISIBILITY M
     case 20001:
       if (values[j] > 0 && values[j] < bufrMissing) {
-        d.put_float("VV", values[j]);
+        odb.put_float(k_VV, values[j]);
         //Metar
         if (values[j] > 9999) //remove VVVV=0
-          d.put_float("VVVV", 9999);
+          odb.put_float(k_VVVV, 9999);
         else
-          d.put_float("VVVV", values[j]);
+          odb.put_float(k_VVVV, values[j]);
       }
       break;
 
       // 5021 BEARING OR AZIMUTH, DEGREE
     case 5021: //Metar
       if (values[j] < bufrMissing)
-        d.put_float("Dv", values[j]);
+        odb.put_float(k_Dv, values[j]);
       break;
 
       //  20003  PRESENT WEATHER, CODE TABLE  20003
     case 20003:
       if (values[j] < 200) //values>200 -> w1w1, ignored here
-        d.put_float("ww", values[j]);
+        odb.put_float(k_ww, values[j]);
       break;
 
       //  20004 PAST WEATHER (1),  CODE TABLE  20004
     case 20004:
       if (values[j] > 2 && values[j] < 20 && values[j] != 10)
-        d.put_float("W1", values[j]);
+        odb.put_float(k_W1, values[j]);
       break;
 
       //  20005  PAST WEATHER (2),  CODE TABLE  20005
     case 20005:
       if (values[j] > 2 && values[j] < 20 && values[j] != 10)
-        d.put_float("W2", values[j]);
+        odb.put_float(k_W2, values[j]);
       break;
 
       //   Clouds
@@ -1087,15 +1187,13 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
       // 020009 GENERAL WEATHER INDICATOR (TAF/METAR)
     case 20009:
       if (values[j] < bufrMissing)
-        d.CAVOK = (int(values[j]) == 2);
+        odb.metar().CAVOK = (int(values[j]) == 2);
       break;
 
       // 20013 HEIGHT OF BASE OF CLOUD (M)
     case 20013:
       if (values[j] < bufrMissing) {
-        if (!d.get_float("h")) {
-          d.put_float("h", height_of_clouds(values[j]));
-        }
+        odb.put_new_float(k_h, height_of_clouds(values[j]));
         cloudStr += cloudHeight(int(values[j]));
       }
       break;
@@ -1107,9 +1205,9 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
     case 20010:
       if (values[j] < bufrMissing) {
         if (values[j] == 109 || values[j] == 113) {
-          d.put_float("N", 9);
+          odb.put_float(k_N, 9);
         } else {
-          d.put_float("N", values[j] / 12.5); //% -> oktas;
+          odb.put_float(k_N, values[j] / 12.5); //% -> oktas;
         }
       }
       break;
@@ -1118,9 +1216,9 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
     case 20011:
       if (values[j] < bufrMissing) {
         if (i < 32)
-          d.put_float("Nh", values[j]);
+          odb.put_float(k_Nh, values[j]);
         if (not cloudStr.empty()) {
-          d.cloud.push_back(cloudStr);
+          odb.metar().cloud.push_back(cloudStr);
           cloudStr.clear();
         }
         cloudStr = cloudAmount(int(values[j]));
@@ -1130,7 +1228,7 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
       // 20012 CLOUD TYPE, CODE TABLE  20012
     case 20012:
       if (values[j] < bufrMissing) {
-        cloud_type(d, values[j]);
+        cloud_type(odb, values[j]);
         cloudStr += cloud_TCU_CB(int(values[j]));
       }
       break;
@@ -1141,7 +1239,7 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
       std::string ww = substr(cvals, index, 9);
       miutil::trim(ww);
       if (not ww.empty())
-        d.ww.push_back(ww);
+        odb.metar().ww.push_back(ww);
     }
     break;
 
@@ -1151,7 +1249,7 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
       std::string REww = substr(cvals, index, 4);
       miutil::trim(REww);
       if (not REww.empty())
-        d.REww.push_back(REww);
+        odb.metar().REww.push_back(REww);
     }
     break;
 
@@ -1165,119 +1263,119 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int *ktdexp, const double* va
       // 022011 PERIOD OF WAVES, s
     case 22011:
       if (values[j] < bufrMissing)
-        d.put_float("PwaPwa", values[j]);
+        odb.put_float(k_PwaPwa, values[j]);
       break;
 
       // 022021 HEIGHT OF WAVES, m
     case 22021:
       if (values[j] < bufrMissing)
-        d.put_float("HwaHwa", values[j]);
+        odb.put_float(k_HwaHwa, values[j]);
       break;
 
     // 022012 PERIOD OF WIND WAVES, s
     case 22012:
       if (values[j] < bufrMissing)
-        d.put_float("PwPw", values[j]);
+        odb.put_float(k_PwPw, values[j]);
       break;
 
     // 022022 HEIGHT OF WIND WAVES, m
     case 22022:
       if (values[j] < bufrMissing)
-        d.put_float("HwHw", values[j]);
+        odb.put_float(k_HwHw, values[j]);
       break;
 
     // 022013 PERIOD OF SWELL WAVES, s (first system of swell)
     case 22013:
-      if (!d.get_float("Pw1Pw1") && values[j] < bufrMissing)
-        d.put_float("Pw1Pw1", values[j]);
+      if (values[j] < bufrMissing)
+        odb.put_new_float(k_Pw1Pw1, values[j]);
       break;
 
       // 022023 HEIGHT OF SWELL WAVES, m
     case 22023:
-      if (!d.get_float("Hw1Hw1") && values[j] < bufrMissing)
-        d.put_float("Hw1Hw1", values[j]);
+      if (values[j] < bufrMissing)
+        odb.put_new_float(k_Hw1Hw1, values[j]);
       break;
 
     // 022070 SIGNIFICANT WAVE HEIGHT, m
     case 22070:
-      if (!d.get_float("SWH") && values[j] < bufrMissing)
-        d.put_float("SWH", values[j]);
+      if (values[j] < bufrMissing)
+        odb.put_new_float(k_SWH, values[j]);
       break;
 
     // 022003 DIRECTION OF SWELL WAVES, DEGREE
     case 22003:
-      if (!d.get_float("dw1dw1") && values[j] > 0 && values[j] < bufrMissing)
-        d.put_float("dw1dw1", values[j]);
+      if (values[j] > 0 && values[j] < bufrMissing)
+        odb.put_new_float(k_dw1dw1, values[j]);
       break;
 
       //   22042  SEA/WATER TEMPERATURE, K->Celsius
     case 22042:
     case 22049:
       if (values[j] < bufrMissing)
-        d.put_float("TwTwTw", values[j] - t0);
+        odb.put_float(k_TwTwTw, values[j] - t0);
       break;
 
       //   22043  SEA/WATER TEMPERATURE, K->Celsius
     case 22043:
-      if (!d.get_float("TwTwTw") && values[j] < bufrMissing && depth < 1) //??
-        d.put_float("TwTwTw", values[j] - t0);
+      if (values[j] < bufrMissing && depth < 1) //??
+        odb.put_new_float(k_TwTwTw, values[j] - t0);
       break;
 
       // 022061 STATE OF THE SEA, CODE TABLE  22061
     case 22061:
       if (values[j] < bufrMissing)
-        d.put_float("s", values[j]);
+        odb.put_float(k_s, values[j]);
       break;
 
       // 022038 TIDE
     case 22038:
       if (values[j] < bufrMissing)
-        d.put_float("TE", values[j]);
+        odb.put_float(k_TE, values[j]);
       break;
 
     case 25053:
       if (values[j] < bufrMissing)
-        d.put_float("quality", values[j]);
+        odb.put_float(k_quality, values[j]);
       break;
     }
   }
 
 
   if (wmoNumber) {
-    format_wmo(d.id, wmoBlock, wmoSubarea, wmoStation);
+    format_wmo(odb.basic().id, wmoBlock, wmoSubarea, wmoStation);
   }
 
   //Metar cloud
   if (not cloudStr.empty()) {
-    d.cloud.push_back(cloudStr);
+    odb.metar().cloud.push_back(cloudStr);
     cloudStr.clear();
   }
 
   //PRESSURE TENDENCY - ppp may or may not include sign, if a>4 then ppp<0
   const float *p_ppp, *p_a;
-  if ((p_ppp = d.get_float("ppp")) && (p_a = d.get_float("a")) && (*p_a > 4) && (*p_ppp > 0)) {
-    d.put_float("ppp", *p_ppp * -1);
+  if ((p_ppp = odb.get_float(k_ppp)) && (p_a = odb.get_float(k_a)) && (*p_a > 4) && (*p_ppp > 0)) {
+    odb.put_float(k_ppp, *p_ppp * -1);
   }
 
   // when there are no clouds, height might be reported as 0m,
   // but this should be category 9, not 0
   const float *p_N, *p_h;
-  if ((p_N = d.get_float("N")) && (p_h = d.get_float("h")) && (*p_N == 0) && (p_h == 0)) {
-    d.put_float("h", 9);
+  if ((p_N = odb.get_float(k_N)) && (p_h = odb.get_float(k_h)) && (*p_N == 0) && (p_h == 0)) {
+    odb.put_float(k_h, 9);
   }
-  if ( !d.id.empty())
-    d.put_string("Id", d.id);
+  if (!odb.basic().id.empty())
+    odb.put_string(k_Id, odb.basic().id);
   if (!d_name.empty())
-    d.put_string("Name", d_name);
+    odb.put_string(k_Name, d_name);
 
   //TIME
   if ( miTime::isValid(year, month, day, hour, minute, 0) ) {
-    d.obsTime = miTime(year, month, day, hour, minute, 0);
-    put_date_time(d, month, day, hour, minute);
+    odb.basic().obsTime = miTime(year, month, day, hour, minute, 0);
+    put_date_time(odb, month, day, hour, minute);
   }
 
   //skip obs if xpos or ypos  or obsTime not ok
-  if ( d.xpos > -32767 && d.ypos > -32767 && !d.obsTime.undef()) {
+  if (odb.basic().xpos > -32767 && odb.basic().ypos > -32767 && !odb.basic().obsTime.undef()) {
     return true;
   }
   return false;
@@ -1397,15 +1495,11 @@ void StationBufr::get_station_info(int ktdexl, const int *ktdexp, const double* 
 
 // ########################################################################
 
-bool ObsDataBufr::get_diana_data_level(int ktdexl, const int *ktdexp, const double* values,
-                                       const char* cvals, int subset, int kelem, ObsData &d)
+bool ObsDataBufr::get_diana_data_level(int ktdexl, const int* ktdexp, const double* values, const char* cvals, int subset, int kelem)
 {
   using miutil::constants::t0;
 
-  d.clear_data();
-  d.id.clear();
   std::string d_name;
-  d.ship_buoy = 0;
 
   int wmoBlock = 0;
   int wmoSubarea = 0;
@@ -1460,8 +1554,8 @@ bool ObsDataBufr::get_diana_data_level(int ktdexl, const int *ktdexp, const doub
         //   1005 BUOY/PLATFORM IDENTIFIER [NUMERIC]
       case 1005:
         if (values[j] < bufrMissing) {
-          d.id = miutil::from_number(int(values[j]));
-          d.ship_buoy = true;
+          odb.basic().id = miutil::from_number(int(values[j]));
+          odb.metar().ship_buoy = true;
         }
         break;
 
@@ -1470,7 +1564,7 @@ bool ObsDataBufr::get_diana_data_level(int ktdexl, const int *ktdexp, const doub
       {
         if ( !wmoNumber ) {
           int index = int(values[j]) / 1000 - 1;
-          add_substr(d.id, cvals, index, 4);
+          add_substr(odb.basic().id, cvals, index, 4);
         }
       }
       break;
@@ -1480,8 +1574,8 @@ bool ObsDataBufr::get_diana_data_level(int ktdexl, const int *ktdexp, const doub
       {
         if ( !wmoNumber ) {
           int index = int(values[j]) / 1000 - 1;
-          add_substr(d.id, cvals, index, 4);
-          d.ship_buoy = true;
+          add_substr(odb.basic().id, cvals, index, 4);
+          odb.metar().ship_buoy = true;
         }
       }
       break;
@@ -1528,16 +1622,16 @@ bool ObsDataBufr::get_diana_data_level(int ktdexl, const int *ktdexp, const doub
         //   5002  LATITUDE (COARSE ACCURACY), DEGREE
       case 5001:
       case 5002:
-        d.ypos = values[j];
-        d.put_float("lat", d.ypos);
+        odb.basic().ypos = values[j];
+        odb.put_float(k_lat, odb.basic().ypos);
         break;
 
         //   6001  LONGITUDE (HIGH ACCURACY),   DEGREE
         //   6002  LONGITUDE (COARSE ACCURACY), DEGREE
       case 6001:
       case 6002:
-        d.xpos = values[j];
-        d.put_float("lon", d.xpos);
+        odb.basic().xpos = values[j];
+        odb.put_float(k_lon, odb.basic().xpos);
         break;
 
       case 2023:
@@ -1549,7 +1643,7 @@ bool ObsDataBufr::get_diana_data_level(int ktdexl, const int *ktdexp, const doub
         //   7001  HEIGHT OF STATION, M
       case 7001:
         if (values[j] < bufrMissing)
-          d.put_float("Height", values[j]);
+          odb.put_float(k_Height, values[j]);
         break;
 
         //   007004  PRESSURE, Pa->hPa
@@ -1560,7 +1654,7 @@ bool ObsDataBufr::get_diana_data_level(int ktdexl, const int *ktdexp, const doub
           if (values[j] < bufrMissing && (!is_amv || (is_amv && !checked_amv_pppp))) {
             const float pppp_hPa = values[j] * pa2hpa;
             if (int(pppp_hPa) > levelmin && int(pppp_hPa) < levelmax) {
-              d.put_float("PPPP", pppp_hPa);
+              odb.put_float(k_PPPP, pppp_hPa);
               found = true;
             }
           }
@@ -1577,7 +1671,7 @@ bool ObsDataBufr::get_diana_data_level(int ktdexl, const int *ktdexp, const doub
           if (values[j] < bufrMissing) {
             if (int(values[j]) > levelmin && int(values[j]) < levelmax) {
               found = true;
-              d.put_float("depth", values[j]);
+              odb.put_float(k_depth, values[j]);
             }
           }
         }
@@ -1590,12 +1684,12 @@ bool ObsDataBufr::get_diana_data_level(int ktdexl, const int *ktdexp, const doub
           {
             if ( not found_amv_direction )
             {
-              d.put_float("dd", values[j]);
+              odb.put_float(k_dd, values[j]);
               found_amv_direction = true;
             }
           }
           else
-            d.put_float("dd", values[j]);
+            odb.put_float(k_dd, values[j]);
         }
         break;
 
@@ -1606,12 +1700,12 @@ bool ObsDataBufr::get_diana_data_level(int ktdexl, const int *ktdexp, const doub
           {
             if ( not found_amv_speed )
             {
-              d.put_float("ff", values[j]);
+              odb.put_float(k_ff, values[j]);
               found_amv_speed = true;
             }
           }
           else
-            d.put_float("ff", values[j]);
+            odb.put_float(k_ff, values[j]);
         }
         break;
 
@@ -1620,7 +1714,7 @@ bool ObsDataBufr::get_diana_data_level(int ktdexl, const int *ktdexp, const doub
       case 12101:
       case 12001:
         if (values[j] < bufrMissing){
-          d.put_float("TTT", values[j] - t0);
+          odb.put_float(k_TTT, values[j] - t0);
         }
         break;
 
@@ -1629,7 +1723,7 @@ bool ObsDataBufr::get_diana_data_level(int ktdexl, const int *ktdexp, const doub
       case 12103:
       case 12003:
         if (values[j] < bufrMissing)
-          d.put_float("TdTdTd", values[j] - t0);
+          odb.put_float(k_TdTdTd, values[j] - t0);
         break;
 
         //   10008 GEOPOTENTIAL (20 bits), M**2/S**2
@@ -1637,47 +1731,47 @@ bool ObsDataBufr::get_diana_data_level(int ktdexl, const int *ktdexp, const doub
       case 10008:
       case 10003:
         if (values[j] < bufrMissing)
-          d.put_float("HHH", values[j] / miutil::constants::g);
+          odb.put_float(k_HHH, values[j] / miutil::constants::g);
         break;
         //   10009 GEOPOTENTIAL HEIGHT
       case 10009:
         if (values[j] < bufrMissing)
-          d.put_float("HHH", values[j]);
+          odb.put_float(k_HHH, values[j]);
         break;
 
         // 022011  PERIOD OF WAVES [S]
       case 22011:
         if (values[j] < bufrMissing)
-          d.put_float("PwaPwa", values[j]);
+          odb.put_float(k_PwaPwa, values[j]);
         break;
 
         // 022021  HEIGHT OF WAVES [M]
       case 22021:
         if (values[j] < bufrMissing)
-          d.put_float("HwaHwa", values[j]);
+          odb.put_float(k_HwaHwa, values[j]);
         break;
 
         // 22043 SEA/WATER TEMPERATURE [K]
       case 22043:
         if (values[j] < bufrMissing)
-          d.put_float("TTTT", values[j] - t0);
+          odb.put_float(k_TTTT, values[j] - t0);
         break;
 
         // 22062 SALINITY [PART PER THOUSAND]
       case 22062:
         if (values[j] < bufrMissing)
-          d.put_float("SSSS", values[j]);
+          odb.put_float(k_SSSS, values[j]);
         break;
 
       case 33007:
         if ( values[j] < bufrMissing)
         {
           if ( found_amv_conf == 0 )
-            d.put_float("QI", values[j]);
+            odb.put_float(k_QI, values[j]);
           else if ( found_amv_conf == 4 )
-            d.put_float("QI_NM", values[j]);
+            odb.put_float(k_QI_NM, values[j]);
           else if ( found_amv_conf == 8 )
-            d.put_float("QI_RFF", values[j]);
+            odb.put_float(k_QI_RFF, values[j]);
         }
         found_amv_conf++;
         break;
@@ -1694,16 +1788,16 @@ bool ObsDataBufr::get_diana_data_level(int ktdexl, const int *ktdexp, const doub
     return false;
   }
   if (wmoNumber) {
-    format_wmo(d.id, wmoBlock, wmoSubarea, wmoStation);
+    format_wmo(odb.basic().id, wmoBlock, wmoSubarea, wmoStation);
   }
 
-  if (!d.id.empty())
-    d.put_string("Id", d.id);
+  if (!odb.basic().id.empty())
+    odb.put_string(k_Id, odb.basic().id);
   if (!d_name.empty())
-    d.put_string("Name", d_name);
+    odb.put_string(k_Name, d_name);
   //TIME
-  d.obsTime = miTime(year, month, day, hour, minute, 0);
-  put_date_time(d, month, day, hour, minute);
+  odb.basic().obsTime = miTime(year, month, day, hour, minute, 0);
+  put_date_time(odb, month, day, hour, minute);
 
   return true;
 }

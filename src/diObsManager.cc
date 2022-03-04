@@ -27,11 +27,10 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "diana_config.h"
-
 #include "diObsManager.h"
 
 #include "diKVListPlotCommand.h"
+#include "diObsDataUnion.h"
 #include "diObsPlot.h"
 #include "diObsReaderFactory.h"
 
@@ -90,6 +89,7 @@ void ObsManager::prepare(ObsPlot* oplot, const miutil::miTime& time)
   miutil::miTime obsTime;
   oplot->clear();
   oplot->setPopupSpec(popupSpec);
+  auto obsData = std::make_shared<ObsDataUnion>();
   for (ObsReader_p reader : readers(oplot)) {
     ObsDataRequest_p req = std::make_shared<ObsDataRequest>();
     req->obstime = time;
@@ -100,7 +100,7 @@ void ObsManager::prepare(ObsPlot* oplot, const miutil::miTime& time)
     reader->getData(req, res);
     if (!res->success())
       success = false;
-    oplot->addObsData(res->data());
+    obsData->add(res->data());
 
     const miutil::miTime& rtime = res->time();
     if (!rtime.undef()) {
@@ -111,6 +111,8 @@ void ObsManager::prepare(ObsPlot* oplot, const miutil::miTime& time)
     oplot->setObsExtraAnnotations(reader->getExtraAnnotations());
   }
 
+  auto singleObsData = obsData->single();
+  oplot->setObsData(singleObsData ? singleObsData : obsData);
   oplot->setObsTime(obsTime);
   oplot->setData(success);
 }

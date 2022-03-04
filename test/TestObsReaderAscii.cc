@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2021 met.no
+  Copyright (C) 2017-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -65,7 +65,7 @@ TEST(TestObsReaderAscii, GetData)
   ObsDataResult_p res = std::make_shared<ObsDataResult>();
   ascii->getData(req, res);
   EXPECT_TRUE(res->success());
-  EXPECT_EQ(7, res->data().size());
+  EXPECT_EQ(7, res->data()->size());
 }
 
 TEST(TestObsReaderAscii, GetParameters)
@@ -94,7 +94,7 @@ TEST(TestObsReaderAscii, GetDataError)
   req->timeDiff = 10;
   ObsDataResult_p res = std::make_shared<ObsDataResult>();
   ascii->getData(req, res);
-  EXPECT_TRUE(res->data().empty());
+  EXPECT_TRUE(res->data()->empty());
   EXPECT_FALSE(res->success());
 }
 

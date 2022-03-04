@@ -139,6 +139,10 @@ SET (LIBDIANA_SOURCES
   diObjectPoint.cc
   diObsAscii.cc
   diObsData.cc
+  diObsDataContainer.cc
+  diObsDataRotated.cc
+  diObsDataUnion.cc
+  diObsDataVector.cc
   diObsDialogInfo.cc
   diObsManager.cc
   diObsPlot.cc
