@@ -362,18 +362,6 @@ public:
   static bool parsePlotOption(const miutil::KeyValue_v&, PlotOptions&);
   static bool parsePlotOption(const miutil::KeyValue& kv, PlotOptions& po);
 
-  static const std::vector< std::vector<std::string> >& getPlotTypes();
-  enum EnabledOptions {
-    POE_CONTOUR = 1<<0,
-    POE_EXTREME = 1<<1,
-    POE_SHADING = 1<<2,
-    POE_LINE    = 1<<3,
-    POE_FONT    = 1<<4,
-    POE_DENSITY = 1<<5,
-    POE_UNIT    = 1<<6
-  };
-  static const std::map<std::string, unsigned int>& getEnabledOptions();
-
   static const std::string& defaultFontName();
   static diutil::FontFace defaultFontFace();
   static float defaultFontSize();
