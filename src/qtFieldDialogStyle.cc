@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -68,6 +68,79 @@ vector<std::string> numberList(QComboBox* cBox, float number, bool onoff)
   return diutil::numberList(cBox, number, enormal, onoff);
 }
 
+const std::vector<std::string>& getPlotTypesForDim(int dim)
+{
+  // clang-format off
+  static const std::vector<std::string> plottypes_all{
+    fpt_contour,
+    fpt_contour1,
+    fpt_contour2,
+    fpt_value,
+    fpt_symbol,
+    fpt_alpha_shade,
+    fpt_rgb,
+    fpt_alarm_box,
+    fpt_fill_cell,
+    fpt_direction,
+    fpt_wind,
+    fpt_vector,
+    fpt_wind_temp_fl,
+    fpt_wind_value,
+    fpt_streamlines,
+    fpt_frame
+  };
+
+  static const std::vector<std::string> plottypes_dim_1{
+    fpt_contour,
+    fpt_contour1,
+    fpt_contour2,
+    fpt_value,
+    fpt_symbol,
+    fpt_alpha_shade,
+    fpt_alarm_box,
+    fpt_fill_cell,
+    fpt_direction,
+    fpt_frame
+  };
+
+  static const std::vector<std::string> plottypes_dim_2{
+    fpt_wind,
+    fpt_vector,
+    fpt_direction,
+    fpt_streamlines,
+    fpt_value,
+    fpt_frame
+  };
+
+  static const std::vector<std::string> plottypes_dim_3{
+    fpt_wind,
+    fpt_vector,
+    fpt_value,
+    fpt_rgb,
+    fpt_wind_temp_fl,
+    fpt_wind_value,
+    fpt_frame
+  };
+
+  static const std::vector<std::string> plottypes_dim_4{
+    fpt_value,
+    fpt_frame
+  };
+  // clang-format on
+
+  switch (std::min(dim, 4)) {
+  case 1:
+    return plottypes_dim_1;
+  case 2:
+    return plottypes_dim_2;
+  case 3:
+    return plottypes_dim_3;
+  case 4:
+    return plottypes_dim_4;
+  }
+  return plottypes_all;
+}
+
 } // anonymous namespace
 
 FieldDialogStyle::FieldDialogStyle(const fieldoptions_m& sfo, QWidget* parent)
@@ -81,25 +154,8 @@ FieldDialogStyle::FieldDialogStyle(const fieldoptions_m& sfo, QWidget* parent)
   // Colours
   csInfo = ColourShading::getColourShadingInfo();
   patternInfo = Pattern::getAllPatternInfo();
-  const map<std::string, unsigned int>& enabledOptions = PlotOptions::getEnabledOptions();
-  const std::vector<std::vector<std::string>>& plottypes_dim = PlotOptions::getPlotTypes();
-  if (plottypes_dim.size() > 1) {
-    plottypes = plottypes_dim[1];
-    for (size_t i = 0; i < plottypes_dim[0].size(); i++) {
-      const std::string& ptd0i = plottypes_dim[0][i];
-      const map<std::string, unsigned int>::const_iterator iptd0i = enabledOptions.find(ptd0i);
-      if (iptd0i != enabledOptions.end()) {
-        const unsigned int op = iptd0i->second;
-        enableMap[ptd0i].contourWidgets = op & PlotOptions::POE_CONTOUR;
-        enableMap[ptd0i].extremeWidgets = op & PlotOptions::POE_EXTREME;
-        enableMap[ptd0i].shadingWidgets = op & PlotOptions::POE_SHADING;
-        enableMap[ptd0i].lineWidgets = op & PlotOptions::POE_LINE;
-        enableMap[ptd0i].fontWidgets = op & PlotOptions::POE_FONT;
-        enableMap[ptd0i].densityWidgets = op & PlotOptions::POE_DENSITY;
-        enableMap[ptd0i].unitWidgets = op & PlotOptions::POE_UNIT;
-      }
-    }
-  }
+
+  plottypes = getPlotTypesForDim(1);
 
   // linetypes
   linetypes = Linetype::getLinetypeNames();
@@ -698,20 +754,18 @@ void FieldDialogStyle::enableFieldOptions(SelectedField* sf)
   }
 
   // dimension (1dim = contour,..., 2dim=wind,...)
-  const std::vector<std::vector<std::string>>& plottypes_dim = PlotOptions::getPlotTypes();
-  size_t idx = 0;
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_dimension)) != npos) {
-    if (CommandParser::isInt(vpcopt[nc].value())) {
-      size_t vi = size_t(vpcopt[nc].toInt());
-      if (vi < plottypes_dim.size())
-        idx = vi;
+  {
+    size_t dimension = 0;
+    if ((nc = miutil::find(vpcopt, PlotOptions::key_dimension)) != npos) {
+      if (CommandParser::isInt(vpcopt[nc].value())) {
+        dimension = size_t(vpcopt[nc].toInt());
+      }
     }
+    plottypes = getPlotTypesForDim(dimension);
+    plottypeComboBox->clear();
+    for (const std::string& pt : plottypes)
+      plottypeComboBox->addItem(QString::fromStdString(pt));
   }
-  if (idx < plottypes_dim.size())
-    plottypes = plottypes_dim[idx];
-  plottypeComboBox->clear();
-  for (const std::string& pt : plottypes)
-    plottypeComboBox->addItem(QString::fromStdString(pt));
 
   // plottype
   if ((nc = miutil::find(vpcopt, PlotOptions::key_plottype)) != npos) {
@@ -1274,78 +1328,94 @@ void FieldDialogStyle::enableWidgets(const std::string& plottype)
 {
   METLIBS_LOG_SCOPE("plottype=" << plottype);
 
-  bool enable = (plottype != "none");
+  const bool pt_contour = plottype == fpt_contour || plottype == fpt_contour2 || plottype == fpt_contour2;
+  const bool pt_value_symbol = plottype == fpt_value || plottype == fpt_symbol;
+  const bool pt_wind_temp_value = plottype == fpt_wind_temp_fl || plottype == fpt_wind_value;
+  const bool pt_wind_vector_direction = plottype == fpt_wind || plottype == fpt_vector || plottype == fpt_direction;
+  const bool pt_alpha_rgb = plottype == fpt_alpha_shade || plottype == fpt_rgb;
+  const bool pt_streamlines = plottype == fpt_streamlines;
+  const bool pt_fill_cell = plottype == fpt_fill_cell;
 
-  // used for all plottypes
-  unitLineEdit->setEnabled(enable);
-  plottypeComboBox->setEnabled(enable);
-  colorCbox->setEnabled(enable);
-  fieldSmoothSpinBox->setEnabled(enable);
-  gridValueCheckBox->setEnabled(enable);
-  gridLinesSpinBox->setEnabled(enable);
-  hourOffsetSpinBox->setEnabled(enable);
-  hourDiffSpinBox->setEnabled(enable);
-  undefMaskingCbox->setEnabled(enable);
-  undefColourCbox->setEnabled(enable);
-  undefLinewidthCbox->setEnabled(enable);
-  undefLinetypeCbox->setEnabled(enable);
-  frameCheckBox->setEnabled(enable);
-  zero1ComboBox->setEnabled(enable);
-  min1ComboBox->setEnabled(enable);
-  max1ComboBox->setEnabled(enable);
-  for (int i = 0; i < 3; i++) {
-    threeColourBox[i]->setEnabled(enable);
+  {
+    // used for all plottypes
+    const bool enable = (plottype != "none");
+    unitLineEdit->setEnabled(enable);
+    plottypeComboBox->setEnabled(enable);
+    colorCbox->setEnabled(enable);
+    fieldSmoothSpinBox->setEnabled(enable);
+    gridValueCheckBox->setEnabled(enable);
+    gridLinesSpinBox->setEnabled(enable);
+    hourOffsetSpinBox->setEnabled(enable);
+    hourDiffSpinBox->setEnabled(enable);
+    frameCheckBox->setEnabled(enable);
+    zero1ComboBox->setEnabled(enable);
+
+    const bool e_nostream = enable && !pt_streamlines;
+    undefMaskingCbox->setEnabled(e_nostream);
+    undefColourCbox->setEnabled(e_nostream);
+    undefLinewidthCbox->setEnabled(e_nostream);
+    undefLinetypeCbox->setEnabled(e_nostream);
+
+    min1ComboBox->setEnabled(e_nostream);
+    max1ComboBox->setEnabled(e_nostream);
+    for (int i = 0; i < 3; i++) {
+      threeColourBox[i]->setEnabled(e_nostream);
+    }
   }
+  {
+    const bool e_contour = pt_contour;
+    lineTypeCbox->setEnabled(e_contour);
+    lineSmoothSpinBox->setEnabled(e_contour);
+    zeroLineCheckBox->setEnabled(e_contour);
+    colour2ComboBox->setEnabled(e_contour);
+    interval2ComboBox->setEnabled(e_contour);
+    zero2ComboBox->setEnabled(e_contour);
+    min2ComboBox->setEnabled(e_contour);
+    max2ComboBox->setEnabled(e_contour);
+    linewidth2ComboBox->setEnabled(e_contour);
+    linetype2ComboBox->setEnabled(e_contour);
+    valueLabelCheckBox->setEnabled(e_contour);
+  }
+  {
+    const bool e_extreme = pt_contour || pt_alpha_rgb;
+    extremeTypeCbox->setEnabled(e_extreme);
+    extremeSizeSpinBox->setEnabled(e_extreme);
+    extremeRadiusSpinBox->setEnabled(e_extreme);
+  }
+  {
+    const bool e_shading = pt_contour || pt_fill_cell;
+    lineintervalCbox->setEnabled(e_shading || pt_streamlines);
+    tableCheckBox->setEnabled(e_shading);
+    repeatCheckBox->setEnabled(e_shading);
+    shadingComboBox->setEnabled(e_shading || pt_streamlines);
+    shadingSpinBox->setEnabled(e_shading || pt_streamlines);
+    shadingcoldComboBox->setEnabled(e_shading);
+    shadingcoldSpinBox->setEnabled(e_shading);
+    patternComboBox->setEnabled(e_shading);
+    patternColourBox->setEnabled(e_shading);
+    alphaSpinBox->setEnabled(e_shading);
 
-  const std::map<std::string, EnableWidget>::const_iterator itEM = enableMap.find(plottype);
-  const bool knownPlotType = (itEM != enableMap.end());
-
-  enable = knownPlotType && itEM->second.contourWidgets;
-  lineTypeCbox->setEnabled(enable);
-  lineSmoothSpinBox->setEnabled(enable);
-  zeroLineCheckBox->setEnabled(enable);
-  colour2ComboBox->setEnabled(enable);
-  interval2ComboBox->setEnabled(enable);
-  zero2ComboBox->setEnabled(enable);
-  min2ComboBox->setEnabled(enable);
-  max2ComboBox->setEnabled(enable);
-  linewidth2ComboBox->setEnabled(enable);
-  linetype2ComboBox->setEnabled(enable);
-  valueLabelCheckBox->setEnabled(enable);
-
-  enable = knownPlotType && itEM->second.extremeWidgets;
-  extremeTypeCbox->setEnabled(enable);
-  extremeSizeSpinBox->setEnabled(enable);
-  extremeRadiusSpinBox->setEnabled(enable);
-
-  enable = knownPlotType && itEM->second.shadingWidgets;
-  lineintervalCbox->setEnabled(enable);
-  tableCheckBox->setEnabled(enable);
-  repeatCheckBox->setEnabled(enable);
-  shadingComboBox->setEnabled(enable);
-  shadingcoldComboBox->setEnabled(enable);
-  shadingSpinBox->setEnabled(enable);
-  shadingcoldSpinBox->setEnabled(enable);
-  patternComboBox->setEnabled(enable);
-  patternColourBox->setEnabled(enable);
-  alphaSpinBox->setEnabled(enable);
-
-  enable = enable && lineintervalCbox->currentIndex() == 0;
-  linevaluesField->setEnabled(enable);
-  linevaluesLogCheckBox->setEnabled(enable);
-
-  enable = knownPlotType && itEM->second.lineWidgets;
-  lineWidthCbox->setEnabled(enable);
-
-  enable = knownPlotType && itEM->second.fontWidgets;
-  labelSizeSpinBox->setEnabled(enable);
-  valuePrecisionBox->setEnabled(enable);
-
-  enable = knownPlotType && itEM->second.densityWidgets;
-  densityCbox->setEnabled(enable);
-
-  enable = knownPlotType && itEM->second.unitWidgets;
-  vectorunitCbox->setEnabled(enable);
+    const bool e_linevalues = e_shading && (lineintervalCbox->currentIndex() == 0);
+    linevaluesField->setEnabled(e_linevalues);
+    linevaluesLogCheckBox->setEnabled(e_linevalues);
+  }
+  {
+    const bool e_line = pt_contour || pt_wind_temp_value || pt_wind_vector_direction || pt_streamlines;
+    lineWidthCbox->setEnabled(e_line);
+  }
+  {
+    const bool e_font = pt_contour || pt_wind_temp_value || pt_value_symbol;
+    labelSizeSpinBox->setEnabled(e_font);
+    valuePrecisionBox->setEnabled(e_font);
+  }
+  {
+    const bool e_density = pt_value_symbol || pt_fill_cell || pt_wind_vector_direction || pt_wind_temp_value;
+    densityCbox->setEnabled(e_density);
+  }
+  {
+    const bool e_vectorunit = pt_wind_vector_direction || pt_wind_temp_value;
+    vectorunitCbox->setEnabled(e_vectorunit);
+  }
 }
 
 void FieldDialogStyle::baseList(QComboBox* cBox, float base, bool onoff)

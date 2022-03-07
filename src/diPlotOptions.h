@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2021 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -73,10 +73,8 @@ enum Alignment {
 /**
    \brief string constants, field plot types
 */
-extern const std::string fpt_contour, fpt_contour1, fpt_contour2,
-  fpt_value, fpt_symbol, fpt_alpha_shade, fpt_rgb, fpt_alarm_box,
-  fpt_fill_cell, fpt_wind, fpt_wind_temp_fl, fpt_wind_value,
-  fpt_vector, fpt_frame, fpt_direction;
+extern const std::string fpt_contour, fpt_contour1, fpt_contour2, fpt_value, fpt_symbol, fpt_alpha_shade, fpt_rgb, fpt_alarm_box, fpt_fill_cell, fpt_wind,
+    fpt_wind_temp_fl, fpt_wind_value, fpt_vector, fpt_frame, fpt_direction, fpt_streamlines;
 
 /**
    \brief Options for one data plot
@@ -361,18 +359,6 @@ public:
   static bool parsePlotOption(const miutil::KeyValue_v&, PlotOptions&, miutil::KeyValue_v& unusedOptions);
   static bool parsePlotOption(const miutil::KeyValue_v&, PlotOptions&);
   static bool parsePlotOption(const miutil::KeyValue& kv, PlotOptions& po);
-
-  static const std::vector< std::vector<std::string> >& getPlotTypes();
-  enum EnabledOptions {
-    POE_CONTOUR = 1<<0,
-    POE_EXTREME = 1<<1,
-    POE_SHADING = 1<<2,
-    POE_LINE    = 1<<3,
-    POE_FONT    = 1<<4,
-    POE_DENSITY = 1<<5,
-    POE_UNIT    = 1<<6
-  };
-  static const std::map<std::string, unsigned int>& getEnabledOptions();
 
   static const std::string& defaultFontName();
   static diutil::FontFace defaultFontFace();

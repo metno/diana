@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -59,18 +59,6 @@ class FieldDialogStyle : public QObject
 public:
   // map<fieldName,fieldOptions>
   typedef std::map<std::string, miutil::KeyValue_v> fieldoptions_m;
-
-private:
-  struct EnableWidget
-  {
-    bool contourWidgets;
-    bool extremeWidgets;
-    bool shadingWidgets;
-    bool lineWidgets;
-    bool fontWidgets;
-    bool densityWidgets;
-    bool unitWidgets;
-  };
 
 public:
   FieldDialogStyle(const fieldoptions_m& setupFieldOptions, QWidget* parent);
@@ -167,7 +155,6 @@ private:
 
   std::vector<std::string> plottypes;
 
-  std::map<std::string, EnableWidget> enableMap;
   std::vector<ColourShading::ColourShadingInfo> csInfo;
   std::vector<Pattern::PatternInfo> patternInfo;
 

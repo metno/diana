@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2021 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -79,7 +79,7 @@ const std::string fpt_wind_value   = "wind_value";
 const std::string fpt_vector       = "vector";
 const std::string fpt_frame        = "frame";
 const std::string fpt_direction    = "direction";
-
+const std::string fpt_streamlines  = "streamlines";
 
 const std::string PlotOptions::key_options_1 = "options.1";
 const std::string PlotOptions::key_options_2 = "options.2";
@@ -574,7 +574,7 @@ bool PlotOptions::parsePlotOption(const miutil::KeyValue& kv, PlotOptions& po)
     value = miutil::to_lower(value);
     if (value == fpt_contour1 || value == fpt_value || value == fpt_contour2 || value == fpt_contour || value == fpt_rgb || value == fpt_alpha_shade ||
         value == fpt_symbol || value == fpt_alarm_box || value == fpt_fill_cell || value == fpt_wind || value == fpt_vector || value == fpt_wind_temp_fl ||
-        value == fpt_wind_value || value == fpt_direction || value == fpt_frame) {
+        value == fpt_wind_value || value == fpt_direction || value == fpt_frame || value == fpt_streamlines) {
       po.plottype = value;
     } else if (value == "wind_colour") {
       po.plottype = fpt_wind;
@@ -1098,88 +1098,6 @@ miutil::KeyValue_v PlotOptions::toKeyValueList()
     miutil::add(ostr, key_enabled, enabled);
 
   return ostr;
-}
-
-// static
-const std::vector< std::vector<std::string> >& PlotOptions::getPlotTypes()
-{
-  if (plottypes.empty()) {
-    //init plottypes
-    vector< std::string> plottypes_all;
-    plottypes_all.push_back(fpt_contour);
-    plottypes_all.push_back(fpt_contour1);
-    plottypes_all.push_back(fpt_contour2);
-    plottypes_all.push_back(fpt_value);
-    plottypes_all.push_back(fpt_symbol);
-    plottypes_all.push_back(fpt_alpha_shade);
-    plottypes_all.push_back(fpt_rgb);
-    plottypes_all.push_back(fpt_alarm_box);
-    plottypes_all.push_back(fpt_fill_cell);
-    plottypes_all.push_back(fpt_direction);
-    plottypes_all.push_back(fpt_wind);
-    plottypes_all.push_back(fpt_vector);
-    plottypes_all.push_back(fpt_wind_temp_fl);
-    plottypes_all.push_back(fpt_wind_value);
-    plottypes_all.push_back(fpt_frame);
-    plottypes.push_back(plottypes_all);
-
-    vector< std::string> plottypes_1dim;
-    plottypes_1dim.push_back(fpt_contour);
-    plottypes_1dim.push_back(fpt_contour1);
-    plottypes_1dim.push_back(fpt_contour2);
-    plottypes_1dim.push_back(fpt_value);
-    plottypes_1dim.push_back(fpt_symbol);
-    plottypes_1dim.push_back(fpt_alpha_shade);
-    plottypes_1dim.push_back(fpt_alarm_box);
-    plottypes_1dim.push_back(fpt_fill_cell);
-    plottypes_1dim.push_back(fpt_direction);
-    plottypes_1dim.push_back(fpt_frame);
-    plottypes.push_back(plottypes_1dim);
-
-    vector< std::string> plottypes_2dim;
-    plottypes_2dim.push_back(fpt_wind);
-    plottypes_2dim.push_back(fpt_vector);
-    plottypes_2dim.push_back(fpt_value);
-    plottypes_2dim.push_back(fpt_frame);
-    plottypes.push_back(plottypes_2dim);
-
-    vector< std::string> plottypes_3dim;
-    plottypes_3dim.push_back(fpt_wind);
-    plottypes_3dim.push_back(fpt_vector);
-    plottypes_3dim.push_back(fpt_value);
-    plottypes_3dim.push_back(fpt_rgb);
-    plottypes_3dim.push_back(fpt_wind_temp_fl);
-    plottypes_3dim.push_back(fpt_wind_value);
-    plottypes_3dim.push_back(fpt_frame);
-    plottypes.push_back(plottypes_3dim);
-
-    vector< std::string> plottypes_4dim;
-    plottypes_4dim.push_back(fpt_value);
-    plottypes_4dim.push_back(fpt_frame);
-    plottypes.push_back(plottypes_4dim);
-  }
-  return plottypes;
-}
-
-// static
-const std::map< std::string, unsigned int>& PlotOptions::getEnabledOptions()
-{
-  if (enabledOptions.empty()) {
-    enabledOptions[fpt_contour]  = POE_EXTREME | POE_LINE | POE_SHADING | POE_CONTOUR | POE_FONT;
-    enabledOptions[fpt_contour1] = enabledOptions[fpt_contour];
-    enabledOptions[fpt_contour2] = enabledOptions[fpt_contour];
-    enabledOptions[fpt_value] = POE_FONT | POE_DENSITY;
-    enabledOptions[fpt_symbol] = POE_FONT | POE_DENSITY;
-    enabledOptions[fpt_alpha_shade] = POE_EXTREME;
-    enabledOptions[fpt_rgb] = POE_EXTREME;
-    enabledOptions[fpt_fill_cell] = POE_LINE | POE_SHADING | POE_DENSITY; // originally line_interval, but this was never used
-    enabledOptions[fpt_wind] = POE_DENSITY | POE_LINE | POE_UNIT;
-    enabledOptions[fpt_vector] = POE_DENSITY | POE_LINE | POE_UNIT;
-    enabledOptions[fpt_direction] = POE_DENSITY | POE_LINE | POE_UNIT;
-    enabledOptions[fpt_wind_temp_fl] = POE_DENSITY | POE_LINE | POE_UNIT | POE_FONT;
-    enabledOptions[fpt_wind_value] = POE_DENSITY | POE_LINE | POE_UNIT | POE_FONT;
-  }
-  return enabledOptions;
 }
 
 // static
