@@ -20,6 +20,9 @@ Build-Depends: debhelper (>= 9),
  metlibs-milogger-dev (>= 6.0.0),
  metlibs-pudatatypes-dev (>= 6.0.0),
  libfimex-dev (>= 1.2.1),
+ libeccodes-dev,
+ libeccodes-tools,
+ libopenjp2-7-dev,
  libboost-dev,
  libboost-date-time-dev,
  libcurl4-gnutls-dev | libcurl-dev,
@@ -30,6 +33,11 @@ Build-Depends: debhelper (>= 9),
  libshp-dev,
  libemos-dev,
  libemos-bin,
+ libyaml-cpp-dev,
+ libgrpc++-dev,
+ libprotobuf-dev,
+ protobuf-compiler,
+ protobuf-compiler-grpc,
  libgtest-dev,
  poppler-utils
 Standards-Version: 3.9.2
@@ -37,6 +45,7 @@ Standards-Version: 3.9.2
 Package: diana-@METNO_VERSION@
 Architecture: any
 Depends: ${shlibs:Depends},
+ libgrpc++1 (>= 1.3.2-1.1+met1),
  ${misc:Depends}
 Recommends: libav-tools, gdal-bin, imagemagick, poppler-utils
 Conflicts: diana-3.33 (<< 3.33.1), diana-3.32, diana-3.31, diana-3.30

@@ -1,0 +1,16 @@
+// -*- protobuf -*-
+
+syntax = "proto3";
+
+package diana_obs_v0;
+
+import public "diana_obs_v0.proto";
+
+// option go_package = "...";
+// we prefer to pass the go package name to protoc as commandline argument
+
+service ObservationsService {
+  rpc GetTimes(TimesRequest) returns (TimesResult);
+  rpc GetParameters(ParametersRequest) returns (ParametersResult);
+  rpc GetData(DataRequest) returns (DataResult);
+}

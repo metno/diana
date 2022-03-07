@@ -139,6 +139,10 @@ SET (LIBDIANA_SOURCES
   diObjectPoint.cc
   diObsAscii.cc
   diObsData.cc
+  diObsDataContainer.cc
+  diObsDataRotated.cc
+  diObsDataUnion.cc
+  diObsDataVector.cc
   diObsDialogInfo.cc
   diObsManager.cc
   diObsPlot.cc
@@ -151,6 +155,7 @@ SET (LIBDIANA_SOURCES
   diObsReaderFactory.cc
   diObsReaderFile.cc
   diObsReaderMetnoUrl.cc
+  diObsReaderMutex.cc
   diObsReaderRoad.cc
   diObsReaderTimeInterval.cc
   diPaintGLPainter.cc
@@ -719,6 +724,92 @@ METNO_QT_CREATE_TRANSLATION(LIBDIANAUI_QM
    lupdate
 )
 
+########################################################################
+
+IF(ENABLE_GRPC)
+  SET (diana_protos_dir "${CMAKE_CURRENT_SOURCE_DIR}/service")
+
+  FUNCTION (protoc_generated out bindir)
+    SET (_out ${${out}})
+    FOREACH (f IN LISTS ARGN)
+      LIST (APPEND _out "${bindir}/${f}.pb.cc" "${bindir}/${f}.pb.h")
+      SET_PROPERTY(SOURCE "${bindir}/${f}.pb.cc" "${bindir}/${f}.pb.h" PROPERTY SKIP_AUTOGEN ON)
+    ENDFOREACH()
+    SET("${out}" "${_out}" PARENT_SCOPE)
+  ENDFUNCTION ()
+
+  FUNCTION (list_prepend_dir lst dir)
+    SET (_lst ${${lst}})
+    FOREACH (p IN LISTS ARGN)
+      LIST (APPEND _lst "${dir}/${p}")
+    ENDFOREACH ()
+    SET("${lst}" "${_lst}" PARENT_SCOPE)
+  ENDFUNCTION ()
+
+  FUNCTION (protoc_generate gen protos)
+    list_prepend_dir(protos_with_dir "${diana_protos_dir}" ${protos})
+    ADD_CUSTOM_COMMAND(
+      OUTPUT ${gen}
+      COMMAND "${_PROTOBUF_PROTOC}"
+      ARGS --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
+           ${protos}
+      DEPENDS ${protos_with_dir}
+      WORKING_DIRECTORY "${diana_protos_dir}"
+    )
+  ENDFUNCTION()
+
+  FUNCTION (grpc_generate gen protos)
+    list_prepend_dir(protos_with_dir "${diana_protos_dir}" ${protos})
+    ADD_CUSTOM_COMMAND(
+      OUTPUT ${gen}
+      COMMAND "${_PROTOBUF_PROTOC}"
+      ARGS --cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
+           --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
+           --plugin=protoc-gen-grpc=${_GRPC_CPP_PLUGIN_EXECUTABLE}
+           ${protos}
+      DEPENDS ${protos_with_dir}
+      WORKING_DIRECTORY "${diana_protos_dir}"
+    )
+  ENDFUNCTION()
+
+
+  SET (diana_obs_protos diana_obs_v0.proto diana_obs_v0_svc.proto)
+  protoc_generated(diana_obs_proto_gen "${CMAKE_CURRENT_BINARY_DIR}" diana_obs_v0)
+  protoc_generate("${diana_obs_proto_gen}" diana_obs_v0.proto)
+  protoc_generated(diana_obs_grpc_gen "${CMAKE_CURRENT_BINARY_DIR}" diana_obs_v0_svc diana_obs_v0_svc.grpc)
+  grpc_generate("${diana_obs_grpc_gen}" diana_obs_v0_svc.proto)
+
+  SET (DIANA_OBS_SOURCES
+    diCommandlineOptions.cc
+
+    service/diObsService.cc
+  )
+  METNO_HEADERS(DIANA_OBS_HEADERS "cc" "h" ${DIANA_OBS_SOURCES})
+  list_prepend_dir(LIBDIANA_SOURCES "${diana_protos_dir}" ${diana_obs_protos})
+
+  SET (DIANA_OBS_GRPC_EXECUTABLE diana_obs_grpc)
+  ADD_EXECUTABLE(${DIANA_OBS_GRPC_EXECUTABLE}
+    ${DIANA_OBS_SOURCES}
+    ${DIANA_OBS_HEADERS}
+    service/main_obs.cc
+  )
+  SET_TARGET_PROPERTIES(diana_obs_grpc PROPERTIES
+    OUTPUT_NAME "diana-obs-grpc-${PVERSION}"
+  )
+  TARGET_LINK_LIBRARIES(diana_obs_grpc
+    libdiana_core
+    mi-programoptions
+  )
+
+  LIST (APPEND LIBDIANA_SOURCES
+    ${diana_obs_proto_gen}
+    ${diana_obs_grpc_gen}
+    diObsReaderGRPC.cc
+  )
+ENDIF (ENABLE_GRPC)
+
+########################################################################
+
 ADD_LIBRARY(libdiana_core SHARED
   ${LIBDIANA_SOURCES}
   ${LIBDIANA_HEADERS}
@@ -738,6 +829,12 @@ SET_TARGET_PROPERTIES(libdiana_core PROPERTIES
   OUTPUT_NAME "diana-core-${PVERSION}"
 )
 ADD_DEPENDENCIES(libdiana_core buildinfo)
+
+IF(ENABLE_GRPC)
+  TARGET_LINK_LIBRARIES(libdiana_core
+    ${GRPC_LIBRARIES}
+  )
+ENDIF (ENABLE_GRPC)
 
 ADD_LIBRARY(libdiana_ui SHARED
   ${LIBDIANAUI_SOURCES}
@@ -798,6 +895,7 @@ INSTALL(
   TARGETS
     diana_ui
     diana_batch
+    ${DIANA_OBS_GRPC_EXECUTABLE}
   DESTINATION
     ${CMAKE_INSTALL_FULL_BINDIR}
 )

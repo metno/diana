@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2021 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -30,7 +30,7 @@
 #ifndef diObsAscii_h
 #define diObsAscii_h
 
-#include "diObsData.h"
+#include "diObsDataVector.h"
 #include "diPlotCommand.h"
 
 #include <puTools/miTime.h>
@@ -60,7 +60,7 @@ private:
   std::string m_filename;
 
   std::vector<std::string> lines;
-  std::vector<ObsData> vObsData;
+  ObsDataVector_p vObsData;
   std::string separator;
   bool knots;
   miutil::miTime plotTime;
@@ -116,7 +116,7 @@ public:
   const std::vector<Column>& getColumns() const
     { return column; }
 
-  const std::vector<ObsData>& getObsData(const miutil::miTime& filetime, const miutil::miTime& time, int timeDiff);
+  ObsDataVector_p getObsData(const miutil::miTime& filetime, const miutil::miTime& time, int timeDiff);
   bool hasError() const { return m_error; }
 
 public:

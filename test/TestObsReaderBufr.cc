@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2018 met.no
+  Copyright (C) 2017-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -69,17 +69,19 @@ TEST(TestObsReaderBufr, GetData)
   ObsDataResult_p res = std::make_shared<ObsDataResult>();
   bufr->getData(req, res);
 
-  EXPECT_EQ(15, res->data().size());
-  for (const ObsData& obs : res->data())
-    EXPECT_EQ(t_11_00, obs.obsTime);
+  EXPECT_EQ(15, res->data()->size());
+  for (size_t oi = 0; oi < res->data()->size(); ++oi) {
+    const auto& obasic = res->data()->basic(oi);
+    EXPECT_EQ(t_11_00, obasic.obsTime);
+  }
 }
 
 TEST(TestObsReaderBufr, GetDataNotSynoptic)
 {
   ObsReaderBufr_p bufr = std::make_shared<ObsReaderBufr>();
   EXPECT_TRUE(bufr->configure("bufr", BUFR_SYNO));
+  EXPECT_TRUE(bufr->configure("synoptic", "0"));
   bufr->setTimeRange(-120, 120);
-  bufr->setSynoptic(false);
 
   ObsDataRequest_p req = std::make_shared<ObsDataRequest>();
   req->obstime = t_11_00;
@@ -88,12 +90,13 @@ TEST(TestObsReaderBufr, GetDataNotSynoptic)
   ObsDataResult_p res = std::make_shared<ObsDataResult>();
   bufr->getData(req, res);
 
-  EXPECT_EQ(47, res->data().size());
+  EXPECT_EQ(47, res->data()->size());
 
   const miutil::miTime t0 = miutil::addMin(t_11_00, -req->timeDiff);
   const miutil::miTime t1 = miutil::addMin(t_11_00, +req->timeDiff);
-  for (const ObsData& obs : res->data()) {
-    EXPECT_LE(t0, obs.obsTime);
-    EXPECT_GE(t1, obs.obsTime);
+  for (size_t oi = 0; oi < res->data()->size(); ++oi) {
+    const auto& obasic = res->data()->basic(oi);
+    EXPECT_LE(t0, obasic.obsTime);
+    EXPECT_GE(t1, obasic.obsTime);
   }
 }

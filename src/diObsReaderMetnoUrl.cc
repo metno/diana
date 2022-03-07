@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2021 met.no
+  Copyright (C) 2017-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -75,9 +75,9 @@ void ObsReaderMetnoUrl::getData(ObsDataRequest_cp request, ObsDataResult_p resul
   url.setQuery(qurlq);
 
   ObsAscii obsAscii(std::string(url.toEncoded()), NO_HEADERFILE, headerinfo_);
-  std::vector<ObsData> obsdata = obsAscii.getObsData(request->obstime, request->obstime, request->timeDiff);
-  for (ObsData& obs : obsdata)
-    obs.dataType = dataType();
+  auto obsdata = obsAscii.getObsData(request->obstime, request->obstime, request->timeDiff);
+  for (size_t i = 0; i < obsdata->size(); ++i)
+    obsdata->basic(i).dataType = dataType();
 
 #if 0
   oplot->setLabels(obsAscii.getLabels());

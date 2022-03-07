@@ -1,11 +1,44 @@
-#include "diana_config.h"
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2018-2022 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #include "diObsReaderFactory.h"
+
+#include "diana_config.h"
 
 #include "diObsReaderAscii.h"
 #include "diObsReaderBufr.h"
 #include "diObsReaderMetnoUrl.h"
 #include "diObsReaderRoad.h"
+
+#ifdef ENABLE_GRPC
+#include "diObsReaderGRPC.h"
+#endif
 
 #include <puTools/miStringFunctions.h> // string split
 
@@ -112,6 +145,14 @@ ObsReader_p makeObsReader(const std::string& key)
     return std::make_shared<ObsReaderBufr>();
   if (key == "file" || key == "archivefile" || key == "ascii" || key == "archive_ascii")
     return std::make_shared<ObsReaderAscii>();
+  if (key == "grpc") {
+#ifdef ENABLE_GRPC
+    return std::make_shared<ObsReaderGRPC>();
+#else
+    METLIBS_LOG_WARN("grpc reader disabled");
+    return ObsReader_p();
+#endif
+  }
   if (key == "url")
     return std::make_shared<ObsReaderMetnoUrl>();
   if (key == "roadobs" || key == "archive_roadobs")

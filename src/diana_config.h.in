@@ -10,6 +10,9 @@
 
 #cmakedefine HAVE_OPENMP
 
+#cmakedefine ENABLE_GRPC
+#cmakedefine DIANA_GRPC_INCLUDES_IN_GRPCPP // if defined, gprc++ include files are under "grpcpp" (since 1.10), else under "grpc++" (before 1.10)
+
 #cmakedefine HDF5FILE 1
 #cmakedefine ROADOBS 1
 #cmakedefine NEWARK_INC 1
