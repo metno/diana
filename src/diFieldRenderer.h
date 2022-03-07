@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -91,6 +91,8 @@ private:
   bool plotContour2(DiGLPainter* gl, PlotOrder zorder);
 
   bool plotRaster(DiGLPainter* gl);
+
+  bool plotStreamlines(DiGLPainter* gl);
 
   void plotUndefined(DiGLPainter* gl);
 

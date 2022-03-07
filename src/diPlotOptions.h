@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2021 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -73,10 +73,8 @@ enum Alignment {
 /**
    \brief string constants, field plot types
 */
-extern const std::string fpt_contour, fpt_contour1, fpt_contour2,
-  fpt_value, fpt_symbol, fpt_alpha_shade, fpt_rgb, fpt_alarm_box,
-  fpt_fill_cell, fpt_wind, fpt_wind_temp_fl, fpt_wind_value,
-  fpt_vector, fpt_frame, fpt_direction;
+extern const std::string fpt_contour, fpt_contour1, fpt_contour2, fpt_value, fpt_symbol, fpt_alpha_shade, fpt_rgb, fpt_alarm_box, fpt_fill_cell, fpt_wind,
+    fpt_wind_temp_fl, fpt_wind_value, fpt_vector, fpt_frame, fpt_direction, fpt_streamlines;
 
 /**
    \brief Options for one data plot

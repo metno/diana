@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2021 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -79,7 +79,7 @@ const std::string fpt_wind_value   = "wind_value";
 const std::string fpt_vector       = "vector";
 const std::string fpt_frame        = "frame";
 const std::string fpt_direction    = "direction";
-
+const std::string fpt_streamlines  = "streamlines";
 
 const std::string PlotOptions::key_options_1 = "options.1";
 const std::string PlotOptions::key_options_2 = "options.2";
@@ -574,7 +574,7 @@ bool PlotOptions::parsePlotOption(const miutil::KeyValue& kv, PlotOptions& po)
     value = miutil::to_lower(value);
     if (value == fpt_contour1 || value == fpt_value || value == fpt_contour2 || value == fpt_contour || value == fpt_rgb || value == fpt_alpha_shade ||
         value == fpt_symbol || value == fpt_alarm_box || value == fpt_fill_cell || value == fpt_wind || value == fpt_vector || value == fpt_wind_temp_fl ||
-        value == fpt_wind_value || value == fpt_direction || value == fpt_frame) {
+        value == fpt_wind_value || value == fpt_direction || value == fpt_frame || value == fpt_streamlines) {
       po.plottype = value;
     } else if (value == "wind_colour") {
       po.plottype = fpt_wind;

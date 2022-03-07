@@ -86,6 +86,7 @@ const std::vector<std::string>& getPlotTypesForDim(int dim)
     fpt_vector,
     fpt_wind_temp_fl,
     fpt_wind_value,
+    fpt_streamlines,
     fpt_frame
   };
 
@@ -106,6 +107,7 @@ const std::vector<std::string>& getPlotTypesForDim(int dim)
     fpt_wind,
     fpt_vector,
     fpt_direction,
+    fpt_streamlines,
     fpt_value,
     fpt_frame
   };
@@ -1331,6 +1333,7 @@ void FieldDialogStyle::enableWidgets(const std::string& plottype)
   const bool pt_wind_temp_value = plottype == fpt_wind_temp_fl || plottype == fpt_wind_value;
   const bool pt_wind_vector_direction = plottype == fpt_wind || plottype == fpt_vector || plottype == fpt_direction;
   const bool pt_alpha_rgb = plottype == fpt_alpha_shade || plottype == fpt_rgb;
+  const bool pt_streamlines = plottype == fpt_streamlines;
   const bool pt_fill_cell = plottype == fpt_fill_cell;
 
   {
@@ -1347,15 +1350,16 @@ void FieldDialogStyle::enableWidgets(const std::string& plottype)
     frameCheckBox->setEnabled(enable);
     zero1ComboBox->setEnabled(enable);
 
-    undefMaskingCbox->setEnabled(enable);
-    undefColourCbox->setEnabled(enable);
-    undefLinewidthCbox->setEnabled(enable);
-    undefLinetypeCbox->setEnabled(enable);
+    const bool e_nostream = enable && !pt_streamlines;
+    undefMaskingCbox->setEnabled(e_nostream);
+    undefColourCbox->setEnabled(e_nostream);
+    undefLinewidthCbox->setEnabled(e_nostream);
+    undefLinetypeCbox->setEnabled(e_nostream);
 
-    min1ComboBox->setEnabled(enable);
-    max1ComboBox->setEnabled(enable);
+    min1ComboBox->setEnabled(e_nostream);
+    max1ComboBox->setEnabled(e_nostream);
     for (int i = 0; i < 3; i++) {
-      threeColourBox[i]->setEnabled(enable);
+      threeColourBox[i]->setEnabled(e_nostream);
     }
   }
   {
@@ -1380,11 +1384,11 @@ void FieldDialogStyle::enableWidgets(const std::string& plottype)
   }
   {
     const bool e_shading = pt_contour || pt_fill_cell;
-    lineintervalCbox->setEnabled(e_shading);
+    lineintervalCbox->setEnabled(e_shading || pt_streamlines);
     tableCheckBox->setEnabled(e_shading);
     repeatCheckBox->setEnabled(e_shading);
-    shadingComboBox->setEnabled(e_shading);
-    shadingSpinBox->setEnabled(e_shading);
+    shadingComboBox->setEnabled(e_shading || pt_streamlines);
+    shadingSpinBox->setEnabled(e_shading || pt_streamlines);
     shadingcoldComboBox->setEnabled(e_shading);
     shadingcoldSpinBox->setEnabled(e_shading);
     patternComboBox->setEnabled(e_shading);
@@ -1396,7 +1400,7 @@ void FieldDialogStyle::enableWidgets(const std::string& plottype)
     linevaluesLogCheckBox->setEnabled(e_linevalues);
   }
   {
-    const bool e_line = pt_contour || pt_wind_temp_value || pt_wind_vector_direction;
+    const bool e_line = pt_contour || pt_wind_temp_value || pt_wind_vector_direction || pt_streamlines;
     lineWidthCbox->setEnabled(e_line);
   }
   {

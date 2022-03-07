@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2021 met.no
+ Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -250,8 +250,7 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
   if (!isEnabled())
     return;
 
-  if (!(plottype() == fpt_fill_cell || plottype() == fpt_contour
-        || plottype() == fpt_contour1 || plottype() == fpt_contour2))
+  if (!(plottype() == fpt_fill_cell || plottype() == fpt_contour || plottype() == fpt_contour1 || plottype() == fpt_contour2 || plottype() == fpt_streamlines))
     return;
 
   if (poptions.table == 0 || (poptions.palettecolours.empty() && poptions.patterns.empty()) || poptions.minvalue > poptions.maxvalue)
