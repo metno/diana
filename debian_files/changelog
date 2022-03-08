@@ -1,3 +1,10 @@
+diana-3.57 (3.57.0~rc1-1) unstable; urgency=low
+
+  * grpc obs reader and obs service
+  * streamlines
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 08 Mar 2022 08:00:08 +0100
+
 diana-3.57 (3.57.0~a1-1) unstable; urgency=low
 
   * start diana 3.57
