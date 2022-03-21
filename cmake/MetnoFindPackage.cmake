@@ -18,6 +18,7 @@ FUNCTION(METNO_FIND_PACKAGE ffp)
   )
   set(ARGS1
     # arguments with one value
+    PACKAGE
     VERSION_MIN
     CMAKE_NAME
     PKGCONFIG_NAME
@@ -34,6 +35,7 @@ FUNCTION(METNO_FIND_PACKAGE ffp)
   IF (_ffp_CMAKE_NAME)
     FIND_PACKAGE(${_ffp_CMAKE_NAME} ${_ffp_VERSION_MIN} QUIET)
     IF(${_ffp_CMAKE_NAME}_FOUND)
+      SET(${ffp}_PACKAGE_VERSION "${${_ffp_CMAKE_NAME}_VERSION}" PARENT_SCOPE)
       IF (NOT(DEFINED _ffp_CMAKE_TARGETS))
         SET(_ffp_CMAKE_TARGET ${_ffp_CMAKE_NAME})
       ENDIF()
@@ -70,6 +72,7 @@ FUNCTION(METNO_FIND_PACKAGE ffp)
     UNSET(${_ffp_pc}_FOUND CACHE)
     PKG_CHECK_MODULES(${_ffp_pc} IMPORTED_TARGET QUIET "${_ffp_pc_version}")
     IF(${_ffp_pc}_FOUND)
+      SET(${ffp}_PACKAGE_VERSION "${${_ffp_pc}_VERSION}" PARENT_SCOPE)
       SET(${ffp}_PACKAGE "PkgConfig::${_ffp_pc}" PARENT_SCOPE)
       MESSAGE(STATUS "Found ${ffp} via pkg-config '${_ffp_pc_version}'")
       RETURN()
@@ -91,8 +94,8 @@ FUNCTION(METNO_FIND_PACKAGE ffp)
   IF (NOT _ffp_inc_dir)
     MESSAGE(FATAL_ERROR "Cannot find ${ffp}, include header '${_ffp_INCLUDE_HDR}' not found")
   ENDIF()
+  UNSET(_ffp_lib CACHE)
   IF (_ffp_LIBRARY_NAME)
-    UNSET(_ffp_lib CACHE)
     FIND_LIBRARY(_ffp_lib
       NAMES ${_ffp_LIBRARY_NAME}
       HINTS "${${ffp}_LIB_DIR}" "${${ffp}_DIR}/lib"
@@ -103,5 +106,6 @@ FUNCTION(METNO_FIND_PACKAGE ffp)
   ENDIF()
   METNO_ADD_IMPORTED_LIBRARY(${ffp}_LIB_INC "${_ffp_lib}" "${_ffp_inc_dir}" "")
   SET(${ffp}_PACKAGE "${ffp}_LIB_INC" PARENT_SCOPE)
+  SET(${ffp}_PACKAGE_VERSION "" PARENT_SCOPE)
   MESSAGE(STATUS "Found ${ffp} via find_package/find_path, lib='${_ffp_lib}', include='${_ffp_inc_dir}'")
 ENDFUNCTION()

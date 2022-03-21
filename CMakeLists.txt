@@ -1,6 +1,6 @@
 # Diana - A Free Meteorological Visualisation Tool
 #
-# Copyright (C) 2017-2021 met.no
+# Copyright (C) 2017-2022 met.no
 #
 # Contact information:
 # Norwegian Meteorological Institute
@@ -134,8 +134,30 @@ LIST(APPEND PKGS_CORE ${libcurl_PACKAGE})
 METNO_FIND_PACKAGE(proj
   PKGCONFIG_NAME "proj"
   LIBRARY_NAME "proj"
-  INCLUDE_HDR "proj_api.h"
+  INCLUDE_HDR "proj.h" "proj_api.h"
 )
+MESSAGE (STATUS "proj version='${proj_PACKAGE_VERSION}'")
+IF (proj_PACKAGE_VERSION STREQUAL "")
+  # unknown version
+  IF ("${proj_HEADER}" STREQUAL "proj.h")
+    SET(HAVE_PROJ_H 1)
+  ENDIF()
+ELSEIF (proj_PACKAGE_VERSION VERSION_LESS "4.6.0")
+  # <4.6
+  MESSAGE(SEND_ERROR "proj version '${proj_PACKAGE_VERSION}' is too old")
+ELSEIF (${proj_PACKAGE_VERSION} VERSION_LESS "5.0.0")
+  # >=4.6,<5.0
+  # proj_api.h
+ELSEIF (${proj_PACKAGE_VERSION} VERSION_LESS "6.2.0")
+  # >=5.0,<6.2
+  MESSAGE(SEND_ERROR "proj version '${proj_PACKAGE_VERSION}' not supported")
+ELSEIF (${proj_PACKAGE_VERSION} VERSION_LESS "8.0.0")
+  # >=6.2,<8.0
+  # ok, proj_api.h
+ELSE ()
+  # >=8.0
+  SET(HAVE_PROJ_H 1)
+ENDIF()
 LIST(APPEND PKGS_CORE ${proj_PACKAGE})
 
 METNO_FIND_PACKAGE(shp

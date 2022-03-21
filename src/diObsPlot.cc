@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2021 met.no
+ Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -79,6 +79,8 @@ vector<short> ObsPlot::iptabMetar;
 static const int undef = -32767; //should be defined elsewhere
 
 namespace /*anonymous*/ {
+const float DEG_TO_RAD = M_PI / 180;
+
 class PushPopTranslateScale : public diutil::GlMatrixPushPop {
 public:
   PushPopTranslateScale(DiGLPainter* gl, float scale)

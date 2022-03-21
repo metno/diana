@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2019 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -117,11 +117,6 @@ public:
 
   /// convert from map xy to geographic coordinates in lon-lat degrees
   XY MapToGeo(const XY& map) const;
-
-  bool ProjToMap(const Projection& srcProj, int n, float* x, float* y) const;
-
-  bool MapToProj(const Projection& targetProj, int n, float* x, float* y) const;
-  bool MapToProj(const Projection& targetProj, int n, diutil::PointD* xy) const;
 
   /// this is the area we really want
   void setRequestedarea(const Area& a) { requestedarea = a; }

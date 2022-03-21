@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2010-2020 met.no
+  Copyright (C) 2010-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,6 +33,7 @@
 
 #include "diField.h"
 #include "util/misc_util.h"
+#include "util/string_util.h"
 
 #include <puCtools/stat.h>
 #include <puTools/miStringFunctions.h>
@@ -234,6 +235,7 @@ FimexIO::FimexIO(const std::string & modelname, const std::string & sourcename,
     std::string value = options[i].substr(pos+1);
     if (key == "proj4string") {
       projDef = value;
+      diutil::remove_quote(projDef);
     } else if (key == "singletimestep") {
       singleTimeStep = true;
     } else if (key == "writeable") {
@@ -384,7 +386,7 @@ void FimexIO::inventoryExtractGridProjection(MetNoFimex::Projection_cp projectio
   grid.y_0 = 0;
 
   const float axis_scale = 1.0; // X/Y-axes are scaled by this
-  const std::string xyUnit = projection->isDegree() ? "radian" : METER;
+  const std::string xyUnit = projection->isDegree() ? "degree" : METER;
   DataPtr xdata = feltReader->getScaledDataInUnit(xAxis->getName(), xyUnit);
   DataPtr ydata = feltReader->getScaledDataInUnit(yAxis->getName(), xyUnit);
   if (xdata) {
@@ -419,13 +421,12 @@ void FimexIO::inventoryExtractGridProjection(MetNoFimex::Projection_cp projectio
       METLIBS_LOG_DEBUG(" y_resolution:" << grid.y_resolution << " y_0:" << grid.y_0);
     }
   }
-  
-  grid.projection = projection->getProj4String();
 
-  // if defined, use projDefinition from setup
-  if (not projDef.empty()) {
+  if (!projDef.empty()) {
     grid.projection = projDef;
-    METLIBS_LOG_DEBUG(" using projection from setup: "<<grid.projection);
+    METLIBS_LOG_DEBUG("using projection from setup: '" << grid.projection << "'");
+  } else {
+    grid.projection = projection->getProj4String();
   }
 }
 

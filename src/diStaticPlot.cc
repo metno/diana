@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -190,19 +190,4 @@ bool StaticPlot::GeoToPhys(float lat, float lon, float& x, float& y) const
     MapToPhys(lon, lat, x, y);
   }
   return ret;
-}
-
-bool StaticPlot::ProjToMap(const Projection& srcProj, int n, float* x, float* y) const
-{
-  return getMapProjection().convertPoints(srcProj, n, x, y);
-}
-
-bool StaticPlot::MapToProj(const Projection& targetProj, int n, float* x, float* y) const
-{
-  return targetProj.convertPoints(getMapProjection(), n, x, y);
-}
-
-bool StaticPlot::MapToProj(const Projection& targetProj, int n, diutil::PointD* xy) const
-{
-  return targetProj.convertPoints(getMapProjection(), n, xy);
 }

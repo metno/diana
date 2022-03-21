@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2021 met.no
+ Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -403,11 +403,7 @@ bool FilledMap::plot(DiGLPainter* gl,
   float geomin = gcd / 20000000;
   geomin = geomin * geomin;
 
-  //Projection srcProj = Projection::geographic();
-  //Projection srcProj("+proj=lonlat +ellps=WGS84 +datum=WGS84", DEG_TO_RAD, DEG_TO_RAD);
-  //Projection srcProj("+proj=lonlat +a=6371000.0 +b=6371000.0",DEG_TO_RAD,DEG_TO_RAD);
-  //Projection srcProj("+proj=lonlat +ellps=WGS84 ",DEG_TO_RAD,DEG_TO_RAD);
-  //+to_meter=.0174532925199432958
+  const auto tf = area.P().transformationFrom(Projection::geographic());
 
   if (startfresh || area.P() != proj) {
     const bool cutsouth = !area.P().isLegal(0.0, -90.0);
@@ -442,7 +438,7 @@ bool FilledMap::plot(DiGLPainter* gl,
         cty[num4 + m] = groups[i].midlat[m];
       }
 
-      area.P().convertFromGeographic(num5, ctx, cty);
+      tf->forward(num5, ctx, cty);
 
       float minx = bignum, maxx = -bignum, miny = bignum, maxy = -bignum;
       // find min-max corners
@@ -756,7 +752,7 @@ bool FilledMap::plot(DiGLPainter* gl,
           gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_FILL);
 
           // convert vertices
-          area.P().convertFromGeographic(tidx, triverx, trivery);
+          tf->forward(tidx, triverx, trivery);
 
           clipTriangles(gl, 0, tidx, triverx, trivery, xylim, jumplimit);
           /*
@@ -774,8 +770,7 @@ bool FilledMap::plot(DiGLPainter* gl,
       if (numpo > 0 && (cont || keepcont)) {
 
         // convert vertices
-        area.P().convertFromGeographic(polydata[psize].np,
-            polydata[psize].polyverx, polydata[psize].polyvery);
+        tf->forward(polydata[psize].np, polydata[psize].polyverx, polydata[psize].polyvery);
 
         if (cont) {
           gl->setColour(lcolour);

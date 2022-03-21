@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2021 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -47,6 +47,8 @@ using namespace::miutil;
 using namespace std;
 
 namespace /* anonymous */ {
+const float RAD_TO_DEG = 180 / M_PI;
+
 void drawHalfCircle(DiGLPainter* gl, bool fill, const QPointF& pos, float angle_deg, float radius)
 {
   const int nflag= 19;

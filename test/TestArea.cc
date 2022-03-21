@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2020 met.no
+  Copyright (C) 2020-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -58,4 +58,38 @@ TEST(GridArea, EqOperator)
   const GridArea ga3(Area(Projection("+proj=longlat +a=6367470 +e=0 +no_defs"), Rectangle(0.0472, -0.4764, 0.5708, 0.5708)), 751, 301, 0.00349069, 0.00349069);
   ASSERT_FALSE(ga1 == ga3);
   ASSERT_TRUE(ga1 != ga3);
+}
+
+static const float DEG2RAD = M_PI / 180.0;
+
+TEST(Area, FromString)
+{
+  const Rectangle r_deg(-5, -10, 5, 10);
+  const Rectangle r_rad(r_deg.x1 * DEG2RAD, r_deg.y1 * DEG2RAD, r_deg.x2 * DEG2RAD, r_deg.y2 * DEG2RAD);
+  Area a_rad;
+  a_rad.setAreaFromString("name=a proj4string=\"+proj=longlat +R=6.371e+06 +no_defs\" rectangle=" + r_rad.toString());
+
+  Area a_deg;
+  a_deg.setAreaFromString("name=a proj4string=\"+proj=longlat +R=6.371e+06 +no_defs\" rect=" + r_deg.toString());
+
+  EXPECT_NEAR(a_rad.R().x1, a_deg.R().x1, 1e-3);
+  EXPECT_NEAR(a_rad.R().y1, a_deg.R().y1, 1e-3);
+  EXPECT_NEAR(a_rad.R().x2, a_deg.R().x2, 1e-3);
+  EXPECT_NEAR(a_rad.R().y2, a_deg.R().y2, 1e-3);
+}
+
+TEST(Area, ToString)
+{
+  const Rectangle r_deg(-5, -10, 5, 10);
+  const Rectangle r_rad(r_deg.x1 * DEG2RAD, r_deg.y1 * DEG2RAD, r_deg.x2 * DEG2RAD, r_deg.y2 * DEG2RAD);
+  Area a_rad;
+  a_rad.setAreaFromString("name=a proj4string=\"+proj=longlat +R=6.371e+06 +no_defs\" rectangle=" + r_rad.toString());
+
+  Area a_deg;
+  a_deg.setAreaFromString("name=a " + a_rad.getAreaString());
+
+  EXPECT_NEAR(r_deg.x1, a_deg.R().x1, 1e-3);
+  EXPECT_NEAR(r_deg.y1, a_deg.R().y1, 1e-3);
+  EXPECT_NEAR(r_deg.x2, a_deg.R().x2, 1e-3);
+  EXPECT_NEAR(r_deg.y2, a_deg.R().y2, 1e-3);
 }

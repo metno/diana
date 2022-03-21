@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2021 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -60,6 +60,7 @@ using namespace std; using namespace miutil;
 const int maxLines=1000000;
 
 namespace {
+const float RAD_TO_DEG = 180 / M_PI;
 
 /// temporary field contouring info
 struct LinePart {

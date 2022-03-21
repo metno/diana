@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -48,6 +48,8 @@
 #include <miLogger/miLogging.h>
 
 using namespace std;
+
+static const float RAD_TO_DEG = 180 / M_PI;
 
 MeasurementsDialog::MeasurementsDialog( QWidget* parent, Controller* llctrl)
   : QDialog(parent), contr(llctrl)

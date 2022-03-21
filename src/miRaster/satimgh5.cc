@@ -1,7 +1,7 @@
 /*!
  libmiRaster - met.no hdf5 interface
 
- Copyright (C) 2006-2020 met.no
+ Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -52,33 +52,13 @@
  * AUTHOR: SMHI, 2008-2009
  */
 
-#include "diana_config.h"
-
 #include "satimgh5.h"
 
 #include "ImageCache.h"
 
-#include <puCtools/stat.h>
 #include <puTools/miStringFunctions.h>
-#include <puTools/miTime.h>
 
-#include <tiffio.h>
-
-#ifndef ACCEPT_USE_OF_DEPRECATED_PROJ_API_H
-#define ACCEPT_USE_OF_DEPRECATED_PROJ_API_H
-#endif
-#include <proj_api.h>
-
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
-#include <fstream>
 #include <sstream>
-
-#include <dirent.h>
-#include <errno.h>
-#include <sys/time.h>
-#include <time.h>
 
 using namespace miutil;
 using namespace satimg;
@@ -96,10 +76,6 @@ vector<int> metno::satimgh5::GPalette;
 vector<int> metno::satimgh5::BPalette;
 map<string, string> metno::satimgh5::metadataMap;
 map<int, string> metno::satimgh5::paletteStringMap;
-
-#if !defined(PROJECTS_H)
-typedef void PJ;
-#endif
 
 /*!
  TODO: Should check the metadata string and verify the format.
@@ -2041,7 +2017,6 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead& ginfo)
 
   METLIBS_LOG_DEBUG("ginfo.channel: " << ginfo.channel);
 
-  projUV data;
   // Map from gHead to gInfo.
   if (hdf5map.count("place"))
     ginfo.satellite = hdf5map["place"];
@@ -2208,62 +2183,38 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead& ginfo)
   }
 
   if (ginfo.hdf5type == radar) {
-    PJ* ref;
-
-    if (!(ref = pj_init_plus(ginfo.projection.getProj4Definition().c_str()))) {
-      METLIBS_LOG_ERROR("Bad projection '" << ginfo.projection.getProj4Definition() << "'");
+    if (!ginfo.projection.isDefined()) {
+      METLIBS_LOG_ERROR("Bad projection '" << ginfo.projection << "'");
       return -1;
     }
 
+    float lon_x = 0;
+    float lat_y = 0;
     if (hdf5map.count("LL_lat"))
-      data.v = to_float(hdf5map["LL_lat"]);
-    else
-      data.v = 0;
+      lat_y = to_float(hdf5map["LL_lat"]);
     if (hdf5map.count("LL_lon"))
-      data.u = to_float(hdf5map["LL_lon"]);
-    else
-      data.u = 0;
-    data.u *= DEG_TO_RAD;
-    data.v *= DEG_TO_RAD;
-    data = pj_fwd(data, ref);
-
-    if (data.u == HUGE_VAL) {
+      lon_x = to_float(hdf5map["LL_lon"]);
+    if (!ginfo.projection.convertFromGeographic(1, &lon_x, &lat_y)) {
       METLIBS_LOG_ERROR("data conversion error");
     }
-    ginfo.Bx = data.u / denominator;
-    ginfo.By = data.v / denominator + ginfo.ysize * ginfo.Ay;
-
-    pj_free(ref);
+    ginfo.Bx = lon_x / denominator;
+    ginfo.By = lat_y / denominator + ginfo.ysize * ginfo.Ay;
 
   } else if (ginfo.hdf5type == msg) {
-    if (hdf5map.count("projdef"))
-      METLIBS_LOG_DEBUG("projdef:" << hdf5map["projdef"]);
-    PJ* ref;
-    // Projection must be defined..
-    if (!hdf5map.count("projdef"))
-      return -1;
-    if (!(ref = pj_init_plus(hdf5map["projdef"].c_str()))) {
+    if (!ginfo.projection.isDefined()) {
       return -1;
     }
+    float lon_x = 0;
+    float lat_y = 0;
     if (hdf5map.count("center_lon"))
-      data.u = to_float(hdf5map["center_lon"], 0.0);
-    else
-      data.u = 0;
+      lon_x = to_float(hdf5map["center_lon"], 0.0);
     if (hdf5map.count("center_lat"))
-      data.v = to_float(hdf5map["center_lat"], 0.0);
-    else
-      data.v = 0;
-    data.u *= DEG_TO_RAD;
-    data.v *= DEG_TO_RAD;
-    data = pj_fwd(data, ref);
-
-    if (data.u == HUGE_VAL) {
+      lat_y = to_float(hdf5map["center_lat"], 0.0);
+    if (!ginfo.projection.convertFromGeographic(1, &lon_x, &lat_y)) {
       METLIBS_LOG_ERROR("data conversion error");
     }
-    ginfo.Bx = data.u - (ginfo.Ax * ginfo.xsize / 2.0);
-    ginfo.By = data.v - (ginfo.Ay * ginfo.ysize / 2.0) + ginfo.ysize * ginfo.Ay;
-
-    pj_free(ref);
+    ginfo.Bx = lon_x - (ginfo.Ax * ginfo.xsize / 2.0);
+    ginfo.By = lat_y - (ginfo.Ay * ginfo.ysize / 2.0) + ginfo.ysize * ginfo.Ay;
   } else {
     if (hdf5map.count("LL_lon"))
       ginfo.Bx = to_float(hdf5map["LL_lon"]) / denominator;
@@ -2416,7 +2367,7 @@ bool metno::satimgh5::makePalette(dihead& ginfo, string unit, int backcolour, ve
         ginfo.cmap[1][i] = green[i * (255 / ginfo.noofcl)];
         ginfo.cmap[2][i] = blue[i * (255 / ginfo.noofcl)];
       }
-      METLIBS_LOG_DEBUG("-----nice values for radar pallete");
+      METLIBS_LOG_DEBUG("-----nice values for radar palette");
       METLIBS_LOG_DEBUG("i =" << i << "   k =  " << k << "   red = " << ginfo.cmap[0][i] << "   green = " << ginfo.cmap[1][i]
                               << "    blue = " << ginfo.cmap[2][i]);
     }

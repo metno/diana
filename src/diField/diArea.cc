@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013-2020 met.no
+  Copyright (C) 2013-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,13 +27,12 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "diana_config.h"
-
 #include "diArea.h"
+#include "util/geo_util.h"
+#include "util/string_util.h"
 
 #include <puTools/miString.h>
 #include <puDatatypes/miCoordinates.h>
-#include <sstream>
 
 #define MILOGGER_CATEGORY "diField.Area"
 #include "miLogger/miLogging.h"
@@ -88,15 +87,20 @@ void Area::memberCopy(const Area& rhs)
 
 bool Area::setAreaFromString(const std::string& areaString)
 {
+  // FIXME: this is VERY similar to PlotModule::prepareArea, the difference
+  // is that this version does not look up name in MapAreaSetup
+
   if (areaString.empty())
     return false;
 
   const char key_name[] = "name";
   const char key_proj[] = "proj4string";
   const char key_rectangle[] = "rectangle";
+  const char key_rect[] = "rect";
 
   std::string rectangleStr;
   std::string projStr;
+  bool angles_deg = false;
 
   // split on blank, preserve ""
   const std::vector<std::string> tokens= miutil::split_protected(areaString, '"','"'," ",true);
@@ -110,30 +114,40 @@ bool Area::setAreaFromString(const std::string& areaString)
         name = stokens[1];
       } else if (key==key_proj){
         projStr = stokens[1];
+        diutil::remove_quote(projStr);
       } else if (key==key_rectangle){
         rectangleStr = stokens[1];
+        angles_deg = false;
+      } else if (key == key_rect) {
+        rectangleStr = stokens[1];
+        angles_deg = true;
       }
     }
   }
 
-  if (projStr.empty() || projStr == "\"\"") {
+  if (projStr.empty()) {
     //Undefined projections (used in model/sat area)
     return true;
   }
 
-  if (proj.setProj4Definition(projStr) && rect.setRectangle(rectangleStr)) {
-    return true;
+  if (!proj.setFromString(projStr))
+    return false;
+
+  if (!rect.setRectangle(rectangleStr))
+    return false;
+
+  if (!angles_deg && proj.isDegree()) {
+    // backward compatibility: when using proj4, rectangles were in radians; keep it like that for now
+    diutil::convertRectToDegrees(rect);
   }
-
-  return false;
+  return true;
 }
-
 
 std::string Area::getAreaString() const
 {
   std::ostringstream ost;
-  ost << " proj4string=\"" << proj.getProj4Definition() << "\""
-      << " rectangle=" << rect.toString();
+  ost << "proj4string=\"" << proj.getProj4Definition() << "\""
+      << " rect=" << rect.toString();
   return ost.str();
 }
 

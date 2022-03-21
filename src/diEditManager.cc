@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2021 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -2773,7 +2773,8 @@ void EditManager::plot(DiGLPainter* gl, PlotOrder zorder)
           }
         }
       }
-      if (plotm->getStaticPlot()->MapToProj(fedits[0]->editfield->area.P(), npos, x.get(), y.get())) {
+      const auto tf = fedits[0]->editfield->area.P().transformationFrom(plotm->getStaticPlot()->getMapProjection());
+      if (tf->forward(npos, x.get(), y.get())) {
         float s= 0.;
         for (int j=0; j<npos; j+=2) {
           float dx= x[j] - x[j+1];

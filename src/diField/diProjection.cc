@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2021 met.no
+ Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -31,6 +31,9 @@
 
 #include "diProjection.h"
 #include "util/geo_util.h"
+#include "util/lru_cache.h"
+#include "util/pair_hash.h"
+#include "util/string_util.h"
 #include "util/subprocess.h"
 
 #include <mi_fieldcalc/math_util.h>
@@ -41,12 +44,26 @@
 
 #include <QRegExp>
 
+#include "diana_config.h"
+#ifdef HAVE_PROJ_H
+#include "proj.h"
+#else //! HAVE_PROJ_H
+#ifndef ACCEPT_USE_OF_DEPRECATED_PROJ_API_H
+#define ACCEPT_USE_OF_DEPRECATED_PROJ_API_H
+#endif
+#include <proj_api.h>
+#if !defined(PROJECTS_H)
+typedef void PJ;
+#endif
+#endif //! HAVE_PROJ_H
+
 #include <cassert>
 #include <cfloat>
 #include <cmath>
 #include <functional>
 #include <map>
 #include <memory>
+#include <regex>
 #include <stdexcept>
 
 #define MILOGGER_CATEGORY "diField.Projection"
@@ -55,6 +72,39 @@
 using namespace miutil;
 
 namespace {
+#ifdef HAVE_PROJ_H
+const float DEG_TO_RAD = M_PI / 180;
+const float RAD_TO_DEG = 180 / M_PI;
+
+PJ_CONTEXT* ctx = nullptr;
+void milogger_log_func(void*, int level, const char* msg)
+{
+#if 0
+  milogger::Severity severity;
+  switch (level) {
+  case PJ_LOG_ERROR:
+    severity = milogger::ERROR;
+    break;
+  case PJ_LOG_DEBUG:
+    severity = milogger::DEBUG;
+    break;
+  case PJ_LOG_TRACE:
+    severity = milogger::VERBOSE;
+    break;
+  default:
+    return;
+  }
+
+  if (milogger::RecordPtr MILOGGER_record = MILOGGER_logger.createRecord(severity)) {
+    MILOGGER_record->stream() << msg;
+    MILOGGER_logger.submitRecord(MILOGGER_record);
+  }
+#else
+  METLIBS_LOG_DEBUG("proj log message (" << level << "): " << msg);
+#endif
+}
+#endif // HAVE_PROJ_H
+
 bool extractParameterFromWKT(const QString& wkt, const QString& key, double& value)
 {
   QRegExp r_parameter("PARAMETER\\[\"" + key + "\", *([0-9.Ee+-]+)\\]");
@@ -163,78 +213,178 @@ bool guessProjectionFromWKT(Projection& p, const QString& wkt)
   return false;
 }
 
-} // namespace
+lru_cache<std::pair<std::string, std::string>, Transformation_cp, diutil::pair_hash<std::string, std::string>> transformations(20);
 
-// static
-std::shared_ptr<Projection> Projection::sGeographic;
+typedef std::shared_ptr<PJ> PJ_p;
 
-Projection::Projection()
+#ifdef HAVE_PROJ_H
+
+PJ_p make_PJ(const std::string& def)
+{
+  return PJ_p(proj_create(ctx, def.c_str()), proj_destroy);
+}
+
+PJ_p make_PJ(const std::string& src, const std::string& dst)
+{
+  return PJ_p(proj_create_crs_to_crs(ctx, src.c_str(), dst.c_str(), nullptr), proj_destroy);
+}
+
+class Proj6Transformation : public Transformation
+{
+public:
+  Proj6Transformation(const std::string& src_def, const std::string& dst_def);
+
+protected:
+  bool defined() const override;
+  bool transformAndCheck(bool fwd, size_t npos, size_t offset, double* x, double* y) const override;
+
+private:
+  PJ_p tf;
+};
+
+Proj6Transformation::Proj6Transformation(const std::string& src_def, const std::string& dst_def)
+    : tf(make_PJ(src_def, dst_def))
 {
 }
 
-Projection::Projection(const std::string& projStr)
+bool Proj6Transformation::defined() const
 {
-  if (miutil::contains(projStr, "PROJCS[") || miutil::contains(projStr, "GEOGCS[")) {
-    setFromWKT(projStr);
-  } else if (!projStr.empty()) {
-    setProj4Definition(projStr);
+  return tf != nullptr;
+}
+
+bool Proj6Transformation::transformAndCheck(bool fwd, size_t npos, size_t offset, double* x, double* y) const
+{
+  if (!defined())
+    return false;
+
+  // actual transformation -- here we spend most of the time when large matrixes.
+  const size_t stride = offset * sizeof(double);
+  if (npos != proj_trans_generic(tf.get(), fwd ? PJ_FWD : PJ_INV, x, stride, npos, y, stride, npos, nullptr, 0, 0, nullptr, 0, 0)) {
+    METLIBS_LOG_ERROR("error in proj_trans = " << proj_errno_string(proj_context_errno(ctx)));
+    return false;
+  } else {
+    return true;
   }
 }
 
-bool Projection::setProj4Definition(const std::string& proj4str)
+#else  // !HAVE_PROJ_H
+
+class Proj4Transformation : public Transformation
 {
-  proj4Definition = proj4str;
+public:
+  Proj4Transformation(PJ_p src, PJ_p dst, bool src_degree, bool dst_degree);
 
-  miutil::replace(proj4Definition, "\"", "");
-  proj4PJ = std::shared_ptr<PJ>(pj_init_plus(proj4Definition.c_str()), pj_free);
-  if (!proj4PJ)
-    METLIBS_LOG_WARN("proj4 init error for '" << proj4Definition << "': " << pj_strerrno(pj_errno));
+protected:
+  bool defined() const override;
+  bool transformAndCheck(bool fwd, size_t npos, size_t offset, double* x, double* y) const override;
 
-  return (proj4PJ != 0);
-}
+private:
+  PJ_p src;
+  PJ_p dst;
+  bool src_degree;
+  bool dst_degree;
+};
 
-bool Projection::setFromWKT(const std::string& wkt)
-{
-  const QString qwkt = QString::fromStdString(wkt);
-  if (setProjectionViaGdalSRSInfo(*this, qwkt))
-    return true;
-  if (guessProjectionFromWKT(*this, qwkt))
-    return true;
-  return false;
-}
-
-std::string Projection::getProj4DefinitionExpanded() const
-{
-  static const std::string EMPTY;
-  if (!proj4PJ)
-    return EMPTY;
-  // get expanded definition, ie values from "+init=..." are included
-  return pj_get_def(proj4PJ.get(), 0);
-}
-
-Projection::~Projection()
+Proj4Transformation::Proj4Transformation(PJ_p src__, PJ_p dst_, bool src_degree_, bool dst_degree_)
+    : src(src__)
+    , dst(dst_)
+    , src_degree(src_degree_)
+    , dst_degree(dst_degree_)
 {
 }
 
-bool Projection::operator==(const Projection &rhs) const
+bool Proj4Transformation::defined() const
 {
-  return (proj4Definition == rhs.proj4Definition);
+  return src && dst;
 }
 
-bool Projection::operator!=(const Projection &rhs) const
+bool Proj4Transformation::transformAndCheck(bool fwd, size_t npos, size_t offset, double* x, double* y) const
 {
-  return !(*this == rhs);
+  if (!defined())
+    return false;
+
+  // actual transformation -- here we spend most of the time when large matrixes.
+  if ((fwd && src_degree) || (!fwd && dst_degree)) {
+    const int onpos = offset * npos;
+    MIUTIL_OPENMP_PARALLEL(npos, for)
+    for (int i = 0; i < onpos; i += offset) {
+      x[i] *= DEG_TO_RAD;
+      y[i] *= DEG_TO_RAD;
+    }
+  }
+
+  double* z = nullptr;
+  const int ret = pj_transform(fwd ? src.get() : dst.get(), fwd ? dst.get() : src.get(), npos, offset, x, y, z);
+  if (ret != 0 && ret != -20) {
+    // ret=-20 :"tolerance condition error"
+    // ret=-14 : "latitude or longitude exceeded limits"
+    if (ret != -14) {
+      METLIBS_LOG_ERROR("error in pj_transform = " << pj_strerrno(ret) << "  " << ret);
+    }
+    return false;
+  }
+
+  if ((fwd && dst_degree) || (!fwd && src_degree)) {
+    const int onpos = offset * npos;
+    MIUTIL_OPENMP_PARALLEL(npos, for)
+    for (int i = 0; i < onpos; i += offset) {
+      if (x[i] != HUGE_VAL)
+        x[i] *= RAD_TO_DEG;
+      if (y[i] != HUGE_VAL)
+        y[i] *= RAD_TO_DEG;
+    }
+  }
+  return true;
+}
+#endif // !HAVE_PROJ_H
+
+} // namespace
+
+Transformation::~Transformation() {}
+
+bool Transformation::forward(size_t npos, float* x, float* y) const
+{
+  return transform(true, npos, x, y);
 }
 
-std::ostream& operator<<(std::ostream& output, const Projection& p)
+bool Transformation::forward(size_t npos, double* x, double* y) const
 {
-  output << " proj4string=\"" << p.proj4Definition<<"\"";
-  return output;
+  return transform(true, npos, x, y);
 }
 
-bool Projection::convertPoints(const Projection& srcProj, size_t npos, float* x, float* y) const
+bool Transformation::forward(size_t npos, diutil::PointF* xy) const
 {
-  if (!areDefined(srcProj, *this))
+  return transform(true, npos, xy);
+}
+
+bool Transformation::forward(size_t npos, diutil::PointD* xy) const
+{
+  return transform(true, npos, xy);
+}
+
+bool Transformation::inverse(size_t npos, float* x, float* y) const
+{
+  return transform(false, npos, x, y);
+}
+
+bool Transformation::inverse(size_t npos, double* x, double* y) const
+{
+  return transform(false, npos, x, y);
+}
+
+bool Transformation::inverse(size_t npos, diutil::PointF* xy) const
+{
+  return transform(false, npos, xy);
+}
+
+bool Transformation::inverse(size_t npos, diutil::PointD* xy) const
+{
+  return transform(false, npos, xy);
+}
+
+bool Transformation::transform(bool fwd, size_t npos, float* x, float* y) const
+{
+  if (!defined())
     return false;
 
   // use stack when converting a small number of points
@@ -258,7 +408,7 @@ bool Projection::convertPoints(const Projection& srcProj, size_t npos, float* x,
     yd[i] = y[i];
   }
 
-  if (!transformAndCheck(srcProj, npos, 1, xd, yd))
+  if (!transformAndCheck(fwd, npos, 1, xd, yd))
     return false;
 
   MIUTIL_OPENMP_PARALLEL(npos, for)
@@ -270,17 +420,14 @@ bool Projection::convertPoints(const Projection& srcProj, size_t npos, float* x,
   return true;
 }
 
-bool Projection::convertPoints(const Projection& srcProj, size_t npos, double* xd, double* yd) const
+bool Transformation::transform(bool fwd, size_t npos, double* xd, double* yd) const
 {
-  if (!areDefined(srcProj, *this))
-    return false;
-
-  return transformAndCheck(srcProj, npos, 1, xd, yd);
+  return transformAndCheck(fwd, npos, 1, xd, yd);
 }
 
-bool Projection::convertPoints(const Projection& srcProj, size_t npos, diutil::PointF* xy) const
+bool Transformation::transform(bool fwd, size_t npos, diutil::PointF* xy) const
 {
-  if (!areDefined(srcProj, *this))
+  if (!defined())
     return false;
 
   // use stack when converting a small number of points
@@ -304,7 +451,7 @@ bool Projection::convertPoints(const Projection& srcProj, size_t npos, diutil::P
     yd[i] = xy[i].y();
   }
 
-  if (!transformAndCheck(srcProj, npos, 1, xd, yd))
+  if (!transformAndCheck(fwd, npos, 1, xd, yd))
     return false;
 
   MIUTIL_OPENMP_PARALLEL(npos, for)
@@ -315,33 +462,243 @@ bool Projection::convertPoints(const Projection& srcProj, size_t npos, diutil::P
   return true;
 }
 
-bool Projection::convertPoints(const Projection& srcProj, size_t npos, diutil::PointD* xy) const
+bool Transformation::transform(bool fwd, size_t npos, diutil::PointD* xy) const
 {
-  if (!areDefined(srcProj, *this))
-    return false;
-
   static_assert(sizeof(diutil::PointD) == 2*sizeof(double), "sizeof PointD");
   double* xd = reinterpret_cast<double*>(xy);
   double* yd = xd + 1;
   assert(reinterpret_cast<double*>(&xy[1]) == (xd + 2));
   assert(yd[0] == xy[0].y());
-  return transformAndCheck(srcProj, npos, 2, xd, yd);
+
+  return transformAndCheck(fwd, npos, 2, xd, yd);
 }
 
-bool Projection::transformAndCheck(const Projection& src, size_t npos, size_t offset, double* x, double* y) const
+// static
+std::shared_ptr<Projection> Projection::sGeographic;
+
+struct Projection::P
 {
-  // actual transformation -- here we spend most of the time when large matrixes.
-  double* z = 0;
-  const int ret = pj_transform(src.proj4PJ.get(), proj4PJ.get(), npos, offset, x, y, z);
-  if (ret != 0 && ret !=-20) {
-    //ret=-20 :"tolerance condition error"
-    //ret=-14 : "latitude or longitude exceeded limits"
-    if (ret != -14) {
-      METLIBS_LOG_ERROR("error in pj_transform = " << pj_strerrno(ret) << "  " << ret);
-    }
-    return false;
+  std::string proj4Definition;
+#ifndef HAVE_PROJ_H
+  PJ_p proj4PJ;
+#endif // !HAVE_PROJ_H
+};
+
+Projection::Projection()
+    : p_(new P)
+{
+#ifdef HAVE_PROJ_H
+  if (!ctx) {
+    ctx = proj_context_create();
+    proj_log_func(ctx, nullptr, milogger_log_func);
   }
-  return true;
+#endif // HAVE_PROJ_H
+}
+
+Projection::Projection(const Projection& o)
+    : Projection()
+{
+  setFromString(o.getProj4Definition());
+}
+
+Projection& Projection::operator=(const Projection& o)
+{
+  setFromString(o.getProj4Definition());
+  return *this;
+}
+
+Projection::Projection(const std::string& projStr)
+    : Projection()
+{
+  setFromString(projStr);
+}
+
+bool Projection::setFromString(const std::string& crsdef)
+{
+  if (crsdef.empty()) {
+    p_->proj4Definition.clear();
+#ifndef HAVE_PROJ_H
+    p_->proj4PJ = nullptr;
+#endif // !HAVE_PROJ_H
+    return true;
+  }
+
+  if (miutil::contains(crsdef, "PROJCS[") || miutil::contains(crsdef, "GEOGCS[")) {
+    return setFromWKT(crsdef);
+  }
+
+  static const std::regex RE_EPSG(" *(\\+init=)?([eE][pP][sS][gG]:)([1-9][0-9]+) *");
+  std::smatch match_epsg;
+  if (std::regex_search(crsdef, match_epsg, RE_EPSG)) {
+    return setFromEPSG(match_epsg.str(3));
+  }
+
+  return setProj4Definition(crsdef);
+}
+
+bool Projection::setFromEPSG(const std::string& epsg)
+{
+  std::string code = epsg;
+
+  // clang-format off
+  static std::map<std::string, std::string> EPSG_REPLACE = { // EPSG code replacement
+    { "900913", "3857"},
+  };
+  {
+    const auto it = EPSG_REPLACE.find(code);
+    if (it != EPSG_REPLACE.end())
+      code = it->second;
+  }
+
+#ifndef HAVE_PROJ_H
+  static std::map<std::string, std::string> EPSG_PROJ = { // EPSG code -> proj init
+    // DWD, see https://epsg.io/4839
+    { "4389", "+proj=lcc +lat_1=48.66666666666666 +lat_2=53.66666666666666 +lat_0=51 +lon_0=10.5 +x_0=0 +y_0=0"
+              " +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"},
+  };
+  // clang-format on
+
+  const auto it = EPSG_PROJ.find(code);
+  if (it != EPSG_PROJ.end()) {
+    return setProj4Definition(it->second);
+  }
+#endif // !HAVE_PROJ_H
+
+#ifdef HAVE_PROJ_H
+  return setProj4Definition("EPSG:" + code);
+#else  // !HAVE_PROJ_H
+  return setProj4Definition("+init=epsg:" + code);
+#endif // !HAVE_PROJ_H
+}
+
+bool Projection::setProj4Definition(const std::string& proj4str)
+{
+  p_->proj4Definition = proj4str;
+
+#ifdef HAVE_PROJ_H
+  const auto pj = make_PJ(p_->proj4Definition);
+  if (!pj) {
+    METLIBS_LOG_WARN("proj init error for '" << p_->proj4Definition << "': " << proj_errno_string(proj_context_errno(ctx)));
+    p_->proj4Definition.clear();
+  }
+#else  // !HAVE_PROJ_H
+  p_->proj4PJ = std::shared_ptr<PJ>(pj_init_plus(p_->proj4Definition.c_str()), pj_free);
+  if (!p_->proj4PJ)
+    METLIBS_LOG_WARN("proj4 init error for '" << p_->proj4Definition << "': " << pj_strerrno(pj_errno));
+#endif // !HAVE_PROJ_H
+  return isDefined();
+}
+
+bool Projection::setFromWKT(const std::string& wkt)
+{
+#ifdef HAVE_PROJ_H
+  return setProj4Definition(wkt);
+#else  // !HAVE_PROJ_H
+  const QString qwkt = QString::fromStdString(wkt);
+  if (setProjectionViaGdalSRSInfo(*this, qwkt))
+    return true;
+  if (guessProjectionFromWKT(*this, qwkt))
+    return true;
+  return false;
+#endif // !HAVE_PROJ_H
+}
+
+const std::string& Projection::getProj4Definition() const
+{
+  return p_->proj4Definition;
+}
+
+std::string Projection::getProj4DefinitionExpanded() const
+{
+#ifdef HAVE_PROJ_H
+  return getProj4Definition(); // no expansion
+#else  // !HAVE_PROJ_H
+  static const std::string EMPTY;
+  if (!p_->proj4PJ)
+    return EMPTY;
+  // get expanded definition, ie values from "+init=..." are included
+  return pj_get_def(p_->proj4PJ.get(), 0);
+#endif  // !HAVE_PROJ_H
+}
+
+/// return true if projection is defined
+bool Projection::isDefined() const
+{
+#ifdef HAVE_PROJ_H
+  return !p_->proj4Definition.empty();
+#else  // !HAVE_PROJ_H
+  return p_->proj4PJ != 0;
+#endif // !HAVE_PROJ_H
+}
+
+Projection::~Projection() {}
+
+bool Projection::operator==(const Projection& rhs) const
+{
+  return (p_->proj4Definition == rhs.p_->proj4Definition);
+}
+
+bool Projection::operator!=(const Projection& rhs) const
+{
+  return !(*this == rhs);
+}
+
+std::ostream& operator<<(std::ostream& output, const Projection& p)
+{
+  output << " proj4string=\"" << p.p_->proj4Definition << "\"";
+  return output;
+}
+
+Transformation_cp Projection::transformationFrom(const Projection& src) const
+{
+#if 0
+  std::unique_lock<std::mutex> lock(mutex_);
+#endif
+  const auto key = std::make_pair(src.getProj4Definition(), getProj4Definition());
+  if (transformations.has(key)) {
+    return transformations.get(key);
+  }
+
+  METLIBS_LOG_DEBUG("transformations cache miss '" << src.getProj4Definition() << "' => '" << getProj4Definition() << "'");
+#ifdef PROJ_H
+  Transformation_cp tf = std::make_shared<Proj6Transformation>(src.getProj4Definition(), getProj4Definition());
+#else
+  Transformation_cp tf = std::make_shared<Proj4Transformation>(src.p_->proj4PJ, p_->proj4PJ, src.isDegree(), isDegree());
+#endif
+  transformations.put(key, tf);
+  return tf;
+}
+
+bool Projection::convertPoints(const Projection& srcProj, size_t npos, float* x, float* y) const
+{
+  if (!areDefined(srcProj, *this))
+    return false;
+
+  return transformationFrom(srcProj)->forward(npos, x, y);
+}
+
+bool Projection::convertPoints(const Projection& srcProj, size_t npos, double* xd, double* yd) const
+{
+  if (!areDefined(srcProj, *this))
+    return false;
+
+  return transformationFrom(srcProj)->forward(npos, xd, yd);
+}
+
+bool Projection::convertPoints(const Projection& srcProj, size_t npos, diutil::PointF* xy) const
+{
+  if (!areDefined(srcProj, *this))
+    return false;
+
+  return transformationFrom(srcProj)->forward(npos, xy);
+}
+
+bool Projection::convertPoints(const Projection& srcProj, size_t npos, diutil::PointD* xy) const
+{
+  if (!areDefined(srcProj, *this))
+    return false;
+
+  return transformationFrom(srcProj)->forward(npos, xy);
 }
 
 // static
@@ -372,11 +729,17 @@ struct uv {
   {
   }
 
+  /*!
+   * \param angle in degrees
+   */
   explicit uv(float angle) :
     u(std::sin(angle * DEG_TO_RAD)), v(std::cos(angle * DEG_TO_RAD))
   {
   }
 
+  /*!
+   * \return angle in degrees
+   */
   float angle() const
   {
     if (0 == u and 0 == v) {
@@ -403,14 +766,17 @@ struct uv {
   }
 };
 
-/// Get the direction to north from point x, y
-float * north(Projection p, size_t nvec, const float * x, const float * y)
+/*! Get the direction to north from point x, y
+ * \return rotation angles in degrees
+ */
+float* north(const Projection& p, size_t nvec, const float* x, const float* y)
 {
   std::unique_ptr<float[]> north_x(new float[nvec]), north_y(new float[nvec]);
   std::copy(x, x + nvec, north_x.get());
   std::copy(y, y + nvec, north_y.get());
 
-  p.convertToGeographic(nvec, north_x.get(), north_y.get());
+  const auto tf = p.transformationFrom(Projection::geographic());
+  tf->inverse(nvec, north_x.get(), north_y.get());
 
   // convert to geographical, go a little north (lat += 0.1 deg), convert back
   const float deltaLat = 0.1f;
@@ -419,7 +785,7 @@ float * north(Projection p, size_t nvec, const float * x, const float * y)
   for (size_t i = 0; i < nvec; i++) {
     north_y[i] = std::min<float>(north_y[i] + deltaLat, 90);
   }
-  p.convertFromGeographic(nvec, north_x.get(), north_y.get());
+  tf->forward(nvec, north_x.get(), north_y.get());
 
   std::unique_ptr<float[]> ret(new float[nvec]);
   MIUTIL_OPENMP_PARALLEL(nvec, for)
@@ -429,6 +795,7 @@ float * north(Projection p, size_t nvec, const float * x, const float * y)
   return ret.release();
 }
 
+//! All angles in degrees
 float turn(float angle_a, float angle_b)
 {
   float angle = angle_a + angle_b;
@@ -536,7 +903,7 @@ bool Projection::isLegal(float lon, float lat) const
 
 bool Projection::isAlmostEqual(const Projection& p) const
 {
-  std::vector<std::string> thisProjectionParts = miutil::split(proj4Definition, 0, " ");
+  std::vector<std::string> thisProjectionParts = miutil::split(p_->proj4Definition, 0, " ");
   std::vector<std::string> pProjectionParts = miutil::split(p.getProj4Definition(), 0, " ");
 
   std::map<std::string, std::string> partMap;
@@ -574,7 +941,7 @@ float Projection::getMapLinesJumpLimit() const
 {
   float jumplimit = 100000000;
   // some projections do not benefit from using jumplimits
-  if (miutil::contains(proj4Definition, "+proj=stere"))
+  if (miutil::contains(p_->proj4Definition, "+proj=stere"))
     return jumplimit;
 
   // find position of two geographic positions
@@ -591,16 +958,7 @@ float Projection::getMapLinesJumpLimit() const
 
 bool Projection::convertToGeographic(int n, float* x, float* y) const
 {
-  const bool ok = geographic().convertPoints(*this, n, x, y);
-
-  MIUTIL_OPENMP_PARALLEL(n, for)
-  for (int i = 0; i < n; i++) {
-    if (x[i] != HUGE_VAL)
-      x[i] *= RAD_TO_DEG;
-    if (y[i] != HUGE_VAL)
-      y[i] *= RAD_TO_DEG;
-  }
-  return ok ;
+  return geographic().convertPoints(*this, n, x, y);
 }
 
 bool Projection::convertFromGeographic(int npos, float* x, float* y) const
@@ -609,8 +967,6 @@ bool Projection::convertFromGeographic(int npos, float* x, float* y) const
   for (int i = 0; i < npos; i++) {
     if (x[i] == 0)
       x[i] = 0.01f; //todo: Bug:  x[i]=0 converts to x[i]=nx-1 when transforming between geo-projections
-    x[i] *=  DEG_TO_RAD;
-    y[i] *=  DEG_TO_RAD;
   }
   return convertPoints(geographic(), npos, x, y);
 }
@@ -645,14 +1001,8 @@ bool Projection::calculateLatLonBoundingBox(const Rectangle & maprect,
   }
 
   for (size_t i = 0; i < ntnt; i++) {
-    if (lonmin > tx[i])
-      lonmin = tx[i];
-    if (lonmax < tx[i])
-      lonmax = tx[i];
-    if (latmin > ty[i])
-      latmin = ty[i];
-    if (latmax < ty[i])
-      latmax = ty[i];
+    miutil::minimaximize(lonmin, lonmax, tx[i]);
+    miutil::minimaximize(latmin, latmax, ty[i]);
   }
 
   return true;
@@ -662,7 +1012,7 @@ bool Projection::adjustedLatLonBoundingBox(const Rectangle & maprect,
     float & lonmin, float & lonmax, float & latmin, float & latmax) const
 {
   // when UTM: keep inside a strict lat/lon-rectangle
-  if (miutil::contains(proj4Definition, "+proj=utm")) {
+  if (miutil::contains(p_->proj4Definition, "+proj=utm")) {
     if (!calculateLatLonBoundingBox(maprect, lonmin, lonmax, latmin, latmax)) {
       return false;
     }
@@ -739,10 +1089,33 @@ bool Projection::getMapRatios(int nx, int ny, float x0, float y0, float gridReso
 
 bool Projection::isGeographic() const
 {
-  return (miutil::contains(proj4Definition, "+proj=eqc")
-      || miutil::contains(proj4Definition, "+proj=longlat")
-      || miutil::contains(proj4Definition, "+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=90")
-      || pj_is_latlong(proj4PJ.get()));
+  if (miutil::contains(p_->proj4Definition, "+proj=eqc")
+      || miutil::contains(p_->proj4Definition, "+proj=longlat")
+      || miutil::contains(p_->proj4Definition, "+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=90"))
+  {
+    return true;
+  }
+#ifndef HAVE_PROJ_H
+  if (pj_is_latlong(p_->proj4PJ.get()))
+    return true;
+#endif // !HAVE_PROJ_H
+  return false;
+}
+
+bool Projection::isDegree() const
+{
+  if (isGeographic())
+    return true;
+  const std::string& p = p_->proj4Definition;
+  if (miutil::contains(p, "+proj=ob_tran") && miutil::contains(p, "+o_proj=longlat"))
+    return true;
+
+#if 0 && defined(HAVE_PROJ_H) && ((1000 * PROJ_VERSION_MAJOR + PROJ_VERSION_MINOR) >= 7002)
+  if (proj_degree_input(p_->proj4PJ.get(), PJ_FWD))
+    return true;
+#endif // HAVE_PROJ_H
+
+  return false;
 }
 
 // static

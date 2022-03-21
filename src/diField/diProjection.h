@@ -2,7 +2,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013-2021 met.no
+  Copyright (C) 2013-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,14 +33,36 @@
 #include "diPoint.h"
 #include "diRectangle.h"
 
-#ifndef ACCEPT_USE_OF_DEPRECATED_PROJ_API_H
-#define ACCEPT_USE_OF_DEPRECATED_PROJ_API_H
-#endif
-#include <proj_api.h>
-
 #include <iosfwd>
 #include <memory>
 #include <string>
+
+class Transformation
+{
+public:
+  virtual ~Transformation();
+
+  bool forward(size_t npos, float* x, float* y) const;
+  bool forward(size_t npos, double* x, double* y) const;
+  bool forward(size_t npos, diutil::PointF* xy) const;
+  bool forward(size_t npos, diutil::PointD* xy) const;
+
+  bool inverse(size_t npos, float* x, float* y) const;
+  bool inverse(size_t npos, double* x, double* y) const;
+  bool inverse(size_t npos, diutil::PointF* xy) const;
+  bool inverse(size_t npos, diutil::PointD* xy) const;
+
+protected:
+  bool transform(bool fwd, size_t npos, float* x, float* y) const;
+  bool transform(bool fwd, size_t npos, double* x, double* y) const;
+  bool transform(bool fwd, size_t npos, diutil::PointF* xy) const;
+  bool transform(bool fwd, size_t npos, diutil::PointD* xy) const;
+
+  virtual bool defined() const = 0;
+  virtual bool transformAndCheck(bool fwd, size_t npos, size_t offset, double* x, double* y) const = 0;
+};
+
+typedef std::shared_ptr<const Transformation> Transformation_cp;
 
 /**
   \brief Map Projection
@@ -57,6 +79,8 @@ public:
    * Else is is assumed to be a proj4 init string.
    */
   explicit Projection(const std::string& projStr);
+  Projection(const Projection& o);
+  Projection& operator=(const Projection& o);
 
   ~Projection();
 
@@ -65,26 +89,40 @@ public:
 
   friend std::ostream& operator<<(std::ostream& output, const Projection& p);
 
-  /// set proj4 definitions
+  /*! Define from string.
+   * \return false iff the string is not understood.
+   */
+  bool setFromString(const std::string& projStr);
+
+  //! Set from EPSG code (only number)
+  bool setFromEPSG(const std::string& epsg);
+
+  /*! Set from proj init string.
+   * Might fail if the proj version used does not understand the init string.
+   */
   bool setProj4Definition(const std::string& proj4str);
 
   /*! Set projection from WKT.
-   * This uses `gdalsrsinfo` if available, so it is rather slow.
+   * With proj 4, this uses `gdalsrsinfo` if available, so it is rather slow.
    */
   bool setFromWKT(const std::string& wkt);
 
-  const std::string& getProj4Definition() const { return proj4Definition; }
+  const std::string& getProj4Definition() const;
 
   std::string getProj4DefinitionExpanded() const;
 
   /// return true if projection is defined
-  bool isDefined() const
-    { return proj4PJ != 0; }
+  bool isDefined() const;
 
   /**
    * Return true if geographic projection
    */
   bool isGeographic() const;
+
+  //! \return true if projection uses degrees
+  bool isDegree() const;
+
+  Transformation_cp transformationFrom(const Projection& src) const;
 
   /// Convert Points to this projection
   bool convertPoints(const Projection& srcProj, size_t npos, float* x, float* y) const;
@@ -117,6 +155,9 @@ public:
 
   /**
    * Check if position (geographic) is legal/non-singular in this projection
+   * \param lon geographic longitude in degrees
+   * \param lat geographic latitude in degrees
+   * \return true if lon-lat can be represented in this projection
    */
   bool isLegal(float lon, float lat) const;
 
@@ -127,11 +168,17 @@ public:
 
   /*
    * Convert point data to geographic values
+   * \param x input is in this projection's units; output is geographic longitude degrees
+   * \param y input is in this projection's units; output is geographic latitude degrees
+   * \return true if reprojection succeeded
    */
   bool convertToGeographic(int n, float* x, float* y) const;
 
   /*
    * Convert geographic points to this projection
+   * \param x input is geographic longitude degrees; output is in this projection's units
+   * \param y input is geographic latitude degrees; output is in this projection's units
+   * \return true if reprojection succeeded
    */
   bool convertFromGeographic(int n, float* x, float* y) const;
 
@@ -160,18 +207,11 @@ public:
 
   static const Projection& geographic();
 
-private:
-  bool transformAndCheck(const Projection& src, size_t npos, size_t offset, double* x, double* y) const;
-
   static bool areDefined(const Projection& srcProj, const Projection& tgtProj);
 
 private:
-  std::string proj4Definition;
-
-#if !defined(PROJECTS_H)
-  typedef void PJ;
-#endif
-  std::shared_ptr<PJ> proj4PJ;
+  struct P;
+  std::unique_ptr<P> p_;
 
   static std::shared_ptr<Projection> sGeographic;
 };

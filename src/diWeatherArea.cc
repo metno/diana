@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2018 met.no
+ Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -49,6 +49,8 @@
 
 using namespace ::miutil;
 using namespace std;
+
+static const float RAD_TO_DEG = 180 / M_PI;
 
 vector<editToolInfo> WeatherArea::allAreas; //info about areas
 map<std::string, int> WeatherArea::areaTypes; //finds area type number from name

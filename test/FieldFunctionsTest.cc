@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2020 met.no
+  Copyright (C) 2015-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -160,7 +160,7 @@ TEST(FieldFunctionsTest, MapRatios)
     -0.0014989537
   };
   for (int i=0; i<nx*ny; ++i)
-    EXPECT_FLOAT_EQ(ex_relvort[i], fout0[i]) << "i=" << i;
+    EXPECT_NEAR(ex_relvort[i], fout0[i], 1e-7) << "i=" << i;
 
   EXPECT_TRUE(miutil::fieldcalc::absvort(nx, ny, finp0, finp1, mf->xmapr, mf->ymapr, mf->coriolis, fout0, fDefined, UNDEF));
   const float ex_absvort[nx*ny] = {
@@ -175,7 +175,7 @@ TEST(FieldFunctionsTest, MapRatios)
     -0.0014989307
   };
   for (int i=0; i<nx*ny; ++i)
-    EXPECT_FLOAT_EQ(ex_absvort[i], fout0[i]) << "i=" << i;
+    EXPECT_NEAR(ex_absvort[i], fout0[i], 1e-7) << "i=" << i;
 
   EXPECT_TRUE(miutil::fieldcalc::divergence(nx, ny, finp0, finp1, mf->xmapr, mf->ymapr, fout0, fDefined, UNDEF));
   const float ex_divergence[nx*ny] = {
@@ -250,7 +250,7 @@ TEST(FieldFunctionsTest, MapRatios)
     -0
   };
   for (int i=0; i<nx*ny; ++i)
-    EXPECT_FLOAT_EQ(ex_thermalFrontParameter[i], fout0[i]) << "i=" << i;
+    EXPECT_NEAR(ex_thermalFrontParameter[i], fout0[i], 1e-9) << "i=" << i;
 
   EXPECT_TRUE(miutil::fieldcalc::momentumXcoordinate(nx, ny, finp0, mf->xmapr, mf->coriolis, 1e-4, fout0, fDefined, UNDEF));
   const float ex_momentumXcoordinate[nx*ny] = {
@@ -265,7 +265,7 @@ TEST(FieldFunctionsTest, MapRatios)
     32.115192
   };
   for (int i=0; i<nx*ny; ++i)
-    EXPECT_FLOAT_EQ(ex_momentumXcoordinate[i], fout0[i]) << "i=" << i;
+    EXPECT_NEAR(ex_momentumXcoordinate[i], fout0[i], 5e-3) << "i=" << i;
 
   EXPECT_TRUE(miutil::fieldcalc::jacobian(nx, ny, finp0, finp1, mf->xmapr, mf->ymapr, fout0, fDefined, UNDEF));
   const float ex_jacobian[nx*ny] = {
@@ -280,5 +280,5 @@ TEST(FieldFunctionsTest, MapRatios)
     5.0040461e-07
   };
   for (int i=0; i<nx*ny; ++i)
-    EXPECT_FLOAT_EQ(ex_jacobian[i], fout0[i]) << "i=" << i;
+    EXPECT_NEAR(ex_jacobian[i], fout0[i], 1e-10) << "i=" << i;
 }

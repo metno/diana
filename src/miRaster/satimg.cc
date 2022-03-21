@@ -1,7 +1,7 @@
 /*
   libmiRaster - met.no tiff interface
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -68,6 +68,9 @@
 #include "miLogger/miLogging.h"
 
 using namespace miutil;
+
+static const float DEG_TO_RAD = M_PI / 180;
+static const float RAD_TO_DEG = 180 / M_PI;
 
 bool satimg::proj4_value(std::string& proj4, const std::string& key, double& value, bool remove_key)
 {

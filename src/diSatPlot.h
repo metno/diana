@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2021 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -47,6 +47,7 @@ public:
   ~SatPlot();
 
   void changeTime(const miutil::miTime& mapTime) override;
+  void changeProjection(const Area& mapArea, const Rectangle& plotSize, const diutil::PointI& physSize) override;
   void plot(DiGLPainter* gl, PlotOrder zorder) override;
   void getAnnotation(std::string&, Colour&) const override;
   void getDataAnnotations(std::vector<std::string>& anno) const override;
@@ -66,6 +67,8 @@ private:
 private:
   SatManager* satm_;
   std::unique_ptr<Sat> satdata;
+  Projection mapP_;
+  Transformation_cp mapT_;
 };
 
 #endif

@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2021 met.no
+ Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -57,6 +57,7 @@
 #include "diTrajectoryPlotCluster.h"
 #include "diUtilities.h"
 
+#include "util/geo_util.h"
 #include "util/misc_util.h"
 #include "util/nearest_element.h"
 #include "util/string_util.h"
@@ -211,6 +212,7 @@ void PlotModule::prepareArea(const PlotCommand_cpv& inp)
   const std::string key_name=  "name";
   const std::string key_proj=  "proj4string";
   const std::string key_rectangle=  "rectangle";
+  const std::string key_rect = "rect";
 
   Area requestedarea = staticPlot_->getRequestedarea();
   Projection proj;
@@ -224,13 +226,17 @@ void PlotModule::prepareArea(const PlotCommand_cpv& inp)
         }
 
       } else if (kv.key() == key_proj) {
-        if (proj.setProj4Definition(kv.value())) {
+        if (proj.setFromString(kv.value())) {
           requestedarea.setP(proj);
         } else {
           METLIBS_LOG_WARN("Unknown proj definition '" << kv.value());
         }
-      } else if (kv.key() == key_rectangle) {
+      } else if (kv.key() == key_rectangle || kv.key() == key_rect) {
         if (rect.setRectangle(kv.value())) {
+          if (kv.key() == key_rectangle && requestedarea.P().isDegree()) {
+            // backward compatibility: when using proj4, rectangles were in radians; keep it like that for now
+            diutil::convertRectToDegrees(rect);
+          }
           requestedarea.setR(rect);
         } else {
           METLIBS_LOG_WARN("Unknown rectangle definition '"<< kv.value() << "'");
@@ -449,7 +455,7 @@ void PlotModule::defineMapArea()
 
   if (!mapdefined) {
     newMapArea.setP(Projection("+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=25 +x_0=0.811578 +y_0=0.637045 +ellps=WGS84 +towgs84=0,0,0 +no_defs"));
-    newMapArea.setR(Rectangle(0, 0, 1.63188, 1.31772));
+    newMapArea.setR(Rectangle(0, 0, 93.5, 75.5));
     mapDefinedByView = true;
   }
 

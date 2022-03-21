@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2021 met.no
+ Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -53,6 +53,8 @@ using namespace::miutil;
 using namespace std;
 
 static std::string ddString[16]; // norwegian directions North, NorthNorthEast, NorthEast, EastNorthEast, etc.
+
+static const float RAD_TO_DEG = 180 / M_PI;
 
 //! distance in km
 static double distance(const miCoordinates& pos, const Station* s)
@@ -554,10 +556,11 @@ vector<Station*> StationPlot::stationsAt(int phys_x, int phys_y, float radius, b
       found = stationAreas[0].findStations(geo_y, geo_x, radius);
     }
 
+    const auto tf = getStaticPlot()->getMapProjection().transformationFrom(Projection::geographic());
     for (unsigned int i = 0; i < found.size(); ++i) {
       if (found[i]->isVisible) {
         float sx = found[i]->lon(), sy = found[i]->lat();
-        if (getStaticPlot()->GeoToMap(1, &sx, &sy)) {
+        if (tf->forward(1, &sx, &sy)) {
           float r = miutil::absval2(pos.x() - sx, pos.y() - sy);
           if (r < min_r) {
             within.push_back(found[i]);

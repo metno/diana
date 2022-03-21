@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2021 met.no
+  Copyright (C) 2015-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -9,7 +9,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -340,5 +340,5 @@ TEST(WebMapUtilities, Distortion)
   const Projection viewProj("+proj=stere +lat_ts=60 +lat_0=90.0 +lon_0=0 +x_0=5.71849e+06 +y_0=7.37385e+06 +ellps=WGS84 +towgs84=0,0,0 +no_defs");
   const Rectangle viewRect(4.9213e+06, 7.0173e+06, 3.8123e+06, 5.8188e+06);
   const auto distortion = diutil::distortion(epsg3413, viewProj, viewRect);
-  EXPECT_LE(distortion, 1e-6);
+  EXPECT_LE(distortion, 1.5e-5);
 }

@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2020 met.no
+ Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -56,7 +56,6 @@ using namespace std;
 using namespace miutil;
 
 namespace /* anonymous */ {
-
 inline XY fromQ(const QPointF& p) { return XY(p.x(), p.y()); }
 
 inline bool encloses(const Rectangle& outer, const Rectangle& inner)
@@ -103,6 +102,7 @@ bool ShapeObject::changeProj()
   int npoints = 0;
   float *tx = 0, *ty = 0;
 
+  const auto tf = getStaticPlot()->getMapProjection().transformationFrom(projection);
   bool success = true;
   for (ShpData_v::iterator s = shapes.begin(); s != shapes.end(); ++s) {
     if (npoints < s->nvertices()) {
@@ -124,11 +124,9 @@ bool ShapeObject::changeProj()
           tx[j] = -DEG_LIM;
         else if (tx[j] > DEG_LIM)
           tx[j] = DEG_LIM;
-        tx[j] *= DEG_TO_RAD;
-        ty[j] *= DEG_TO_RAD;
       }
     }
-    success &= getStaticPlot()->ProjToMap(projection, s->nvertices(), tx, ty);
+    tf->forward(s->nvertices(), tx, ty);
 
     s->contours.clear();
     s->rect = Rectangle(FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX);

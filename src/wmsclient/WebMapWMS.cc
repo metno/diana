@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2021 met.no
+  Copyright (C) 2015-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -49,6 +49,8 @@
 #include <miLogger/miLogging.h>
 
 namespace /* anonymous */ {
+const float DEG_TO_RAD = M_PI / 180;
+const float RAD_TO_DEG = 180 / M_PI;
 
 const int TILESIZE = 512;
 

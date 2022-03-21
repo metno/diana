@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -47,6 +47,8 @@
 #endif
 
 static const float undef = +1.e+35;
+
+static const float DEG_TO_RAD = M_PI / 180;
 
 MapFields::MapFields()
   : xmapr(0)

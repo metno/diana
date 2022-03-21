@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2019-2022 met.no
+  Copyright (C) 2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,25 +27,20 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef DIANA_UTIL_GEO_UTIL_H
-#define DIANA_UTIL_GEO_UTIL_H 1
+#ifndef DIANA_UTIL_PAIR_HASH
+#define DIANA_UTIL_PAIR_HASH 1
 
-class Area;
-class Rectangle;
+#include <functional>
+#include <utility>
 
 namespace diutil {
 
-float GreatCircleDistance(float lat1_deg, float lat2_deg, float lon1_deg, float lon2_deg);
+template <class T1, class T2>
+struct pair_hash
+{
+  std::size_t operator()(const std::pair<T1, T2>& p) const { return std::hash<T1>()(p.first) ^ std::hash<T2>()(p.second); }
+};
 
-/*! Convert area from rad to deg if projection is in degrees
- *
- * Used for backward compatibility after transition from proj 4 (radians) to proj >= 6 (degrees)
- */
-void convertAreaRectToDegrees(Area& area);
+} // namespace  diutil
 
-//! Convert rect from rad to deg.
-void convertRectToDegrees(Rectangle& rect);
-
-} // namespace diutil
-
-#endif // DIANA_UTIL_GEO_UTIL_H
+#endif // DIANA_UTIL_PAIR_HASH

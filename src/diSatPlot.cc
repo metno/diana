@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2021 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -63,6 +63,15 @@ void SatPlot::changeTime(const miutil::miTime& mapTime)
   setStatus(hasData() ? P_OK_DATA : P_OK_EMPTY);
 }
 
+void SatPlot::changeProjection(const Area& mapArea, const Rectangle& plotSize, const diutil::PointI& physSize)
+{
+  SatPlotBase::changeProjection(mapArea, plotSize, physSize);
+  if (mapArea.P() != mapP_) {
+    mapP_ = mapArea.P();
+    mapT_ = mapP_.transformationFrom(mapArea.P());
+  }
+}
+
 const GridArea& SatPlot::getSatArea()
 {
   return satdata->area;
@@ -84,12 +93,14 @@ void SatPlot::getCalibChannels(std::vector<std::string>& channels) const
 
 void SatPlot::values(float x, float y, std::vector<SatValues>& satval) const
 {
-  if (!isEnabled() || !hasData())
+  if (!isEnabled() || !hasData() || !mapT_)
     return;
 
-  //x, y in map coordinates
-  //Convert to satellite proj coordiantes
-  getStaticPlot()->MapToProj(satdata->area.P(), 1, &x, &y);
+  // x, y in map coordinates
+
+  // convert to satellite proj coordinates
+  mapT_->forward(1, &x, &y);
+
   // convert to satellite pixel
   int xpos = satdata->area.toGridX(x);
   int ypos = satdata->area.toGridY(y);
