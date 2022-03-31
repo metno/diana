@@ -32,7 +32,7 @@
 #include "diColour.h"
 #include "diFont.h"
 #include "diLinetype.h"
-#include "miSetupParser.h"
+#include "util/diKeyValue.h"
 
 #include <vector>
 

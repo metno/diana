@@ -35,6 +35,7 @@
 #include "diFieldPlot.h"
 #include "diFieldPlotCommand.h"
 #include "diFieldUtil.h"
+#include "miSetupParser.h"
 #include "util/misc_util.h"
 #include "util/string_util.h"
 

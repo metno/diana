@@ -27,13 +27,11 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "diana_config.h"
-
 #include "diPlotOptions.h"
-#include "diColourShading.h"
-#include "diPattern.h"
 
-#include <diField/diField.h>
+#include "diColourShading.h"
+#include "diField/diField.h"
+#include "diPattern.h"
 #include "util/string_util.h"
 
 #include <puTools/miStringFunctions.h>
