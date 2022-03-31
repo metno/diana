@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2021 met.no
+ Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -81,13 +81,40 @@ FieldPlotManager::~FieldPlotManager()
 {
 }
 
+void FieldPlotManager::applySetupOptionsToCommand(FieldPlotCommand_cp& fpc)
+{
+  applySetupOptionsToCommand(fpc->field.plot, fpc);
+}
+
+void FieldPlotManager::applySetupOptionsToCommand(const std::string& pn, FieldPlotCommand_cp& fpc)
+{
+  // fetch options from setup file
+  PlotOptions setupoptions;
+  miutil::KeyValue_v setupopts;
+  getFieldPlotOptions(pn, setupoptions, setupopts);
+
+  // merge options from setup and command into one kv list
+  miutil::KeyValue_v opts = setupopts;
+  opts << setupoptions.toKeyValueList();
+  if (!opts.empty()) {
+    opts << fpc->options(); // FIXME why to use "toKV" and "fromKV"?
+
+    // build a new FieldPlotCommand with this list
+    FieldPlotCommand_p nc = std::make_shared<FieldPlotCommand>(*fpc);
+    nc->clearOptions();
+    nc->addOptions(opts);
+
+    fpc = nc;
+  }
+}
+
 FieldPlot* FieldPlotManager::createPlot(const PlotCommand_cp& pc)
 {
   FieldPlotCommand_cp cmd = std::dynamic_pointer_cast<const FieldPlotCommand>(pc);
   if (!cmd)
     return 0;
   std::unique_ptr<FieldPlot> fp(new FieldPlot(this));
-  if (fp->prepare(cmd->field.plot, cmd))
+  if (fp->prepare(cmd))
     return fp.release();
   else
     return 0;

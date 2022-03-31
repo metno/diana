@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2020 met.no
+ Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -55,6 +55,9 @@ public:
   FieldPlotManager();
   FieldPlotManager(FieldManager_p fm);
   ~FieldPlotManager();
+
+  void applySetupOptionsToCommand(FieldPlotCommand_cp& pc);
+  void applySetupOptionsToCommand(const std::string& pn, FieldPlotCommand_cp& pc);
 
   FieldPlot* createPlot(const PlotCommand_cp& cmd);
 

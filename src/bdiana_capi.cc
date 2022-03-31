@@ -2,7 +2,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2021 met.no
+ Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -38,19 +38,11 @@
 #include "bdiana_vprof.h"
 
 #include "diCommandlineOptions.h"
-#include "diQuickMenues.h"
 #include <diAnnotationPlot.h>
-#include <diController.h>
-#include <diFieldPlot.h>
-#include <diObsManager.h>
-#include <diPlotModule.h>
 
 #include "diLocalSetupParser.h"
-#include "diPlotCommandFactory.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
-
-#include "diField/diRectangle.h"
 
 #include "util/charsets.h"
 #include "util/diLineMerger.h"
@@ -1281,8 +1273,10 @@ command_result Bdiana::handleTimeCommand(int& k)
     METLIBS_LOG_INFO("- finding times");
 
   std::vector<std::string> pcom = FIND_END_COMMAND(k, com_endtime);
+  auto pcs = main.makeCommands(pcom);
+
   set<miTime> okTimes;
-  main.controller->getCapabilitiesTime(okTimes, makeCommands(pcom), time_union);
+  main.controller->getCapabilitiesTime(okTimes, pcs, time_union);
 
   ofstream file(outputfilename.c_str());
   if (!file) {
@@ -1305,7 +1299,8 @@ command_result Bdiana::handleLevelCommand(int& k)
   if (verbose)
     METLIBS_LOG_INFO("- finding levels");
 
-  const vector<std::string> pcom = FIND_END_COMMAND(k, com_endlevel);
+  vector<std::string> pcom = FIND_END_COMMAND(k, com_endlevel);
+  auto pcs = main.makeCommands(pcom);
 
   ofstream file(outputfilename.c_str());
   if (!file) {
@@ -1313,8 +1308,8 @@ command_result Bdiana::handleLevelCommand(int& k)
     return cmd_abort;
   }
 
-  for (const std::string& pcs : pcom) {
-    for (const std::string& level : main.controller->getFieldLevels(makeCommand(pcs)))
+  for (const auto& pc : pcs) {
+    for (const std::string& level : main.controller->getFieldLevels(pc))
       file << level << endl;
     file << endl;
   }

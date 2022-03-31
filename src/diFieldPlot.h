@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2021 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -62,11 +62,7 @@ public:
 
   int getLevel() const;
 
-  //! Extract plotting-parameters from plot command
-  //* Also fetches some default options from FieldPlotManager. */
-  bool prepare(const std::string& fname, const FieldPlotCommand_cp&);
-
-  bool prepare(const PlotOptions& setupoptions, const miutil::KeyValue_v& setupopts, const FieldPlotCommand_cp& cmd);
+  bool prepare(const FieldPlotCommand_cp& cmd);
 
   //  set list of field-pointers, update datatime
   void setData(const Field_pv&, const miutil::miTime&);

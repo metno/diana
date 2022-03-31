@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2020-2021 met.no
+  Copyright (C) 2020-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -59,7 +59,7 @@ TEST(FieldPlot, GetAnnotations)
   std::unique_ptr<PlotModule> plotmodule(new PlotModule); // required in FieldPlot ctor
 
   std::unique_ptr<FieldPlot> fp(new FieldPlot(nullptr));
-  fp->prepare({}, {}, FieldPlotCommand::fromKV({{PlotOptions::key_plottype, fpt_fill_cell},{PlotOptions::key_table, "1"},{PlotOptions::key_palettecolours, palettename}}, false));
+  fp->prepare(FieldPlotCommand::fromKV({{PlotOptions::key_plottype, fpt_fill_cell},{PlotOptions::key_table, "1"},{PlotOptions::key_palettecolours, palettename}}, false));
 
   Field_p field = std::make_shared<Field>();
   field->reserve(2, 2);

@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2021 met.no
+ Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -131,31 +131,11 @@ void FieldPlot::getAnnotation(std::string& s, Colour& c) const
   s = getPlotName();
 }
 
-bool FieldPlot::prepare(const std::string& fname, const FieldPlotCommand_cp& cmd)
-{
-  METLIBS_LOG_SCOPE(LOGVAL(fname));
-  PlotOptions setupoptions;
-  miutil::KeyValue_v setupopts;
-  fieldplotm_->getFieldPlotOptions(fname, setupoptions, setupopts);
-  return prepare(setupoptions, setupopts, cmd);
-}
-
-bool FieldPlot::prepare(const PlotOptions& setupoptions, const miutil::KeyValue_v& setupopts, const FieldPlotCommand_cp& cmd)
+bool FieldPlot::prepare(const FieldPlotCommand_cp& cmd)
 {
   METLIBS_LOG_SCOPE(LOGVAL(cmd->toString()));
-  poptions = setupoptions;
-  miutil::KeyValue_v opts = setupopts;
-  METLIBS_LOG_DEBUG(LOGVAL(poptions.toKeyValueList()) << LOGVAL(opts) << LOGVAL(cmd->options()));
-  diutil::insert_all(opts, cmd->options());
-  setPlotInfo(opts);
-
-  // FIXME merging options should be done earlier, we should no longer modify the plot command here
-  FieldPlotCommand_p cmd_opts = std::make_shared<FieldPlotCommand>(*cmd);
-  cmd_opts->clearOptions();
-  cmd_opts->addOptions(ooptions);
-  ooptions = cmd->options();
-  METLIBS_LOG_DEBUG(LOGVAL(cmd_opts->toString()) << LOGVAL(ooptions));
-  cmd_ = cmd_opts;
+  cmd_ = cmd;
+  setPlotInfo(cmd_->options());
 
   renderer_->setPlotOptions(poptions); // required for arrow annotations
 

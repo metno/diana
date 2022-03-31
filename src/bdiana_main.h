@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017 met.no
+  Copyright (C) 2017-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -46,6 +46,7 @@ struct BdianaMain : public BdianaSource
   ~BdianaMain();
 
   bool MAKE_CONTROLLER();
+  PlotCommand_cpv makeCommands(std::vector<std::string>& pcom);
   void commands(std::vector<std::string>& pcom);
   ImageSource* imageSource() override;
 
