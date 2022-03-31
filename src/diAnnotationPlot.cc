@@ -158,7 +158,7 @@ bool AnnotationPlot::prepare(const PlotCommand_cp& pc)
     return false;
 
   poptions.fontname = diutil::BITMAPFONT;
-  poptions.textcolour = Colour("black");
+  poptions.textcolour = Colour::BLACK;
   setPlotInfo(cmd->all());
   if (cmd->size() < 2)
     return false;
