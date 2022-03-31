@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2018 met.no
+  Copyright (C) 2018-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,7 +27,6 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-
 #include <diPlotOptions.h>
 #include <diPolyContouring.h>
 
@@ -41,9 +40,7 @@ using namespace std;
 
 TEST(TestDianaLevels, Log)
 {
-  const float a_loglinevalues[] = { 1, 3 };
-  const std::vector<float> v_loglinevalues(a_loglinevalues, boost::end(a_loglinevalues));
-  const DianaLevelLog ll(v_loglinevalues);
+  const DianaLevelLog ll({1.0, 3.0});
   const int UNDEF = DianaLevels::UNDEF_LEVEL;
 
   EXPECT_EQ(-10, ll.level_for_value(0.9e-5));
@@ -74,9 +71,7 @@ TEST(TestDianaLevels, Log)
 
 TEST(TestDianaLevels, List10)
 {
-  const float a_loglinevalues[] = { 1, 3 };
-  const std::vector<float> v_loglinevalues(a_loglinevalues, boost::end(a_loglinevalues));
-  const DianaLevelList10 ll(v_loglinevalues, 10);
+  const DianaLevelList10 ll({1.0, 3.0}, 10);
 
   EXPECT_EQ(0, ll.level_for_value(0.1));
   EXPECT_EQ(1, ll.level_for_value(2));
@@ -90,9 +85,7 @@ TEST(TestDianaLevels, List10)
 
 TEST(TestDianaLevels, List)
 {
-  const float a_linevalues[] = { 8,10.8,13.9,17.2,20.8,24.5,28.5,32.7 };
-  const std::vector<float> v_linevalues(a_linevalues, boost::end(a_linevalues));
-  const DianaLevelList ll(v_linevalues);
+  const DianaLevelList ll({8, 10.8, 13.9, 17.2, 20.8, 24.5, 28.5, 32.7});
 
   EXPECT_EQ(0, ll.level_for_value(5));
   EXPECT_EQ(1, ll.level_for_value(9));
