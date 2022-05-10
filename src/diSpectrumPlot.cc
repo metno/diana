@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -451,7 +451,7 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt, DiGLPainter* gl)
 
     if (spopt->pSpectrumLines) {
 
-      poptions.contourShading= 0;
+      poptions.contourShading = false;
 
       gl->setFont(diutil::SCALEFONT);
       gl->setFontSize(fontSizeLabel);

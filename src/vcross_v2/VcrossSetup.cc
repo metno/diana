@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2014-2020 met.no
+  Copyright (C) 2014-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -277,29 +277,11 @@ miutil::KeyValue_v Setup::getPlotOptions(ConfiguredPlot_cp cp) const
         ostr << "," << po.colours[j].Name();
       miutil::add(opts, PlotOptions::key_colours, ostr.str());
     }
-    if (po.linetypes.size() < 2 || po.linetypes.size() > 3) {
-      miutil::add(opts, PlotOptions::key_linetype, po.linetype.name);
-    } else {
-      std::ostringstream ostr;
-      ostr << po.linetypes[0].name;
-      for (unsigned int j = 1; j < po.linetypes.size(); j++)
-        ostr << "," << po.linetypes[j].name;
-      ostr << ' ' << PlotOptions::key_linetypes << '=' << po.linetypes[0].name;
-    }
-    if (po.linewidths.size() < 2 || po.linewidths.size() > 3) {
-      miutil::add(opts, PlotOptions::key_linewidth, po.linewidth);
-    } else {
-      std::ostringstream ostr;
-      ostr << po.linewidths[0];
-      for (unsigned int j = 1; j < po.linewidths.size(); j++)
-        ostr << "," << po.linewidths[j];
-      miutil::add(opts, PlotOptions::key_linewidths, ostr.str());
-    }
-    if (po.linevalues.size() == 0 && po.loglinevalues.size() == 0) {
-      miutil::add(opts, PlotOptions::key_lineinterval, po.lineinterval);
-      if (po.zeroLine >= 0)
-        miutil::add(opts, PlotOptions::key_zeroLine, po.zeroLine);
-    }
+    miutil::add(opts, PlotOptions::key_linetype, po.linetype.name);
+    miutil::add(opts, PlotOptions::key_linewidth, po.linewidth);
+    miutil::add(opts, PlotOptions::key_lineinterval, po.lineinterval);
+    if (po.zeroLine)
+      miutil::add(opts, PlotOptions::key_zeroLine, po.zeroLine);
     miutil::add(opts, PlotOptions::key_lineSmooth, po.lineSmooth);
     miutil::add(opts, PlotOptions::key_valueLabel, po.valueLabel);
     miutil::add(opts, PlotOptions::key_labelSize, po.labelSize);

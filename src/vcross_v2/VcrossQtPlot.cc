@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2021 met.no
+ Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -1238,6 +1238,8 @@ void QtPlot::plotDataContour(QPainter& painter, OptionPlot_cp plot)
       QPoint(mAxisX->getPaintMax(), mAxisY->getPaintMin()));
 
   DianaLevels_p levels = dianaLevelsForPlotOptions(plot->poptions, detail::UNDEF_VALUE);
+  if (!levels)
+    return;
   const detail::VCAxisPositions positions(mAxisX, mAxisY, distances, plot->evaluated->z_values, isTimeGraph());
   vcross::detail::VCContourField con_field(plot->evaluated->values(0), *levels, positions, isTimeGraph());
   vcross::detail::VCLines con_lines(plot->poptions, *levels, painter, area);

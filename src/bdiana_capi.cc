@@ -1140,6 +1140,11 @@ command_result Bdiana::handlePlotCommand(int& k)
       go.render(main);
     }
 
+    if (failOnDataError && main.controller->hasError()) {
+      METLIBS_LOG_WARN("Failed rendering.");
+      return cmd_abort;
+    }
+
     if (main.plot_trajectory && !main.trajectory_started) {
       vector<string> vstr;
       vstr.push_back("clear");

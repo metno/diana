@@ -82,6 +82,8 @@ public:
 
   std::map<std::string, std::string> getFieldGlobalAttributes(const std::string& modelName, const std::string& refTime);
 
+  int getFieldPlotDimension(const std::vector<std::string>& plotOrParamNames, bool predefinedPlot);
+
   plottimes_t getFieldTime(std::vector<FieldRequest>& request);
 
   /// return all field groups for one model/file (to FieldDialog)

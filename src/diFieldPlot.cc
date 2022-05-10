@@ -123,11 +123,7 @@ void FieldPlot::changeProjection(const Area& mapArea, const Rectangle& /*plotSiz
 
 void FieldPlot::getAnnotation(std::string& s, Colour& c) const
 {
-  if (poptions.options_1)
-    c = poptions.linecolour;
-  else
-    c = poptions.fillcolour;
-
+  c = poptions.linecolour;
   s = getPlotName();
 }
 
@@ -234,7 +230,7 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
         || plottype() == fpt_contour1 || plottype() == fpt_contour2))
     return;
 
-  if (poptions.table == 0 || (poptions.palettecolours.empty() && poptions.patterns.empty()) || poptions.minvalue > poptions.maxvalue)
+  if (!poptions.table || (poptions.palettecolours.empty() && poptions.patterns.empty()) || poptions.minvalue > poptions.maxvalue)
     return;
 
   std::vector<std::string> annos_new;
@@ -266,20 +262,20 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
       size_t ncolours = poptions.palettecolours.size();
       size_t ncold = poptions.palettecolours_cold.size();
       size_t npatterns = poptions.patterns.size();
-      size_t nlines = poptions.linevalues.size();
-      size_t nloglines = poptions.loglinevalues.size();
+      const size_t nlinevalues = poptions.linevalues().size();
+      const size_t nloglinevalues = poptions.loglinevalues().size();
       size_t ncodes = std::max(ncolours, npatterns);
-      bool nolinevalues = (nlines == 0 && nloglines == 0);
+      const bool nolinevalues = !(poptions.use_linevalues() || poptions.use_loglinevalues());
 
       const std::vector<std::string> classSpec = miutil::split(poptions.classSpecifications, ",");
 
       // if class specification is given, do not plot more entries than class specifications
-      if (!nolinevalues && classSpec.size() && ncodes > classSpec.size()) {
+      if (!nolinevalues && !classSpec.empty() && ncodes > classSpec.size()) {
         ncodes = classSpec.size();
       }
 
-      if (nlines > 0 && nlines <= ncodes)
-        ncodes = nlines;
+      if (nlinevalues > 0 && nlinevalues <= ncodes)
+        ncodes = nlinevalues;
 
       // initialize colour table
       // cold palette makes no sense when using (log)line values
@@ -299,7 +295,7 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
           int ii = i % ncolours;
           table.colour = poptions.palettecolours[ii].Name();
         } else {
-          table.colour = poptions.fillcolour.Name();
+          table.colour = poptions.linecolour.Name();
         }
         if (npatterns > 0) {
           int ii = i % npatterns;
@@ -310,8 +306,7 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
 
       const std::string unit = poptions.legendunits.empty() ? std::string() : (" " + poptions.legendunits);
 
-      if (poptions.discontinuous == 1 && classSpec.size()
-          && poptions.lineinterval > 0.99 && poptions.lineinterval < 1.01) {
+      if (poptions.discontinuous && classSpec.size() && poptions.lineinterval > 0.99 && poptions.lineinterval < 1.01) {
         // use discontinuous
         for (size_t i = 0; i < ncodes; i++) {
           const std::vector<std::string> tstr = miutil::split(classSpec[i], ":");
@@ -322,17 +317,16 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
           }
         }
 
-      } else if (nlines > 0) {
-        // use line values
+      } else if (poptions.use_linevalues()) {
         if (!classSpec.size()) {
           for (size_t i = 0; i < ncodes - 1; i++) {
-            float min = poptions.linevalues[i];
-            float max = poptions.linevalues[i + 1];
+            float min = poptions.linevalues()[i];
+            float max = poptions.linevalues()[i + 1];
             std::ostringstream ostr;
             ostr << min << " - " << max << unit;
             vtable[i].text = ostr.str();
           }
-          float min = poptions.linevalues[ncodes - 1];
+          float min = poptions.linevalues()[ncodes - 1];
           std::ostringstream ostr;
           ostr << "> " << min << unit;
           vtable[ncodes - 1].text = ostr.str();
@@ -344,14 +338,13 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
           }
         }
 
-      } else if (nloglines > 0) {
-        // use logline values
+      } else if (poptions.use_loglinevalues()) {
         if (!classSpec.size()) {
           std::vector<float> vlog;
           for (size_t n = 0; n < ncodes; n++) {
             float slog = powf(10.0, n);
-            for (size_t i = 0; i < nloglines; i++) {
-              vlog.push_back(slog * poptions.loglinevalues[i]);
+            for (size_t i = 0; i < nloglinevalues; i++) {
+              vlog.push_back(slog * poptions.loglinevalues()[i]);
             }
           }
           for (size_t i = 0; i < ncodes - 1; i++) {
@@ -373,8 +366,7 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
           }
         }
 
-      } else {
-        // use line interval
+      } else if (poptions.use_lineinterval()) {
         int base_index = 0;
         int bottom_index = 0;
         float minvalue = poptions.base;
@@ -542,7 +534,6 @@ void FieldPlot::plot(DiGLPainter* gl, PlotOrder zorder)
   }
 
   // avoid background colour
-  poptions.bordercolour = getStaticPlot()->notBackgroundColour(poptions.bordercolour);
   poptions.linecolour   = getStaticPlot()->notBackgroundColour(poptions.linecolour);
   for (Colour& c : poptions.colours)
     c = getStaticPlot()->notBackgroundColour(c);
@@ -554,7 +545,10 @@ void FieldPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 
   renderer_->setPlotOptions(poptions);
   renderer_->setBackgroundColour(getStaticPlot()->getBackgroundColour());
-  renderer_->plot(gl, zorder);
+  if (!renderer_->plot(gl, zorder)) {
+    METLIBS_LOG_WARN("field rendering problem");
+    setStatus(P_ERROR); // FIXME this does not show as the gui does not check status at this point
+  }
 }
 
 bool FieldPlot::centerOnGridpoint() const

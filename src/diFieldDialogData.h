@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -52,6 +52,8 @@ public:
 
   /// return GlobalAttributes for one model
   virtual attributes_t getFieldGlobalAttributes(const std::string& modelName, const std::string& refTime) = 0;
+
+  virtual int getFieldPlotDimension(const std::vector<std::string>& plotOrParamNames, bool predefinedPlot) = 0;
 
   /// return the reference time given by refOffset and refhour or the last reference time for the given model
   virtual std::string getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour) = 0;

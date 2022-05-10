@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -38,15 +38,7 @@
 
 struct FieldRequest;
 
-/*! Merge field options from command (e.g. quick menu) and setup/logfile.
- * \param fieldopts options from command, will be updated
- * \param defaultopts options from setup/logfile
- */
-void mergeFieldOptions(miutil::KeyValue_v& fieldopts, miutil::KeyValue_v defaultopts);
-
 bool splitDifferenceCommandString(const miutil::KeyValue_v& pin, miutil::KeyValue_v& fspec1, miutil::KeyValue_v& fspec2);
-
-void cleanupFieldOptions(miutil::KeyValue_v& vpopt);
 
 void makeFieldText(Field_p fout, const std::string& plotName, bool flightlevel);
 

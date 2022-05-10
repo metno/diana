@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2018 met.no
+  Copyright (C) 2018-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,9 +29,10 @@
 
 #include "diFieldPlotCommand.h"
 
-#include "diCommandParser.h"
 #include "diFieldUtil.h"
 #include "util/misc_util.h"
+
+#include <puTools/miStringFunctions.h>
 
 #include <sstream>
 
@@ -49,10 +50,10 @@ void extractFieldSpec(const miutil::KeyValue_v& kvs, FieldPlotCommand::FieldSpec
     } else if (kv.key() == "reftime") {
       fs.reftime = kv.value();
     } else if (kv.key() == "refoffset") {
-      if (CommandParser::isInt(kv.value()))
+      if (miutil::is_int(kv.value()))
         fs.refoffset = kv.toInt();
     } else if (kv.key() == "refhour") {
-      if (CommandParser::isInt(kv.value()))
+      if (miutil::is_int(kv.value()))
         fs.refhour = kv.toInt();
     } else if (kv.key() == "plot") {
       fs.plot = kv.value();
@@ -69,10 +70,10 @@ void extractFieldSpec(const miutil::KeyValue_v& kvs, FieldPlotCommand::FieldSpec
     } else if (kv.key() == "alltimesteps") {
       fs.allTimeSteps = kv.toBool();
     } else if (kv.key() == "hour.offset") {
-      if (CommandParser::isInt(kv.value()))
+      if (miutil::is_int(kv.value()))
         fs.hourOffset = kv.toInt();
     } else if (kv.key() == "hour.diff") {
-      if (CommandParser::isInt(kv.value()))
+      if (miutil::is_int(kv.value()))
         fs.hourDiff = kv.toInt();
     } else if (kv.key() != "unknown") {
       options << kv;

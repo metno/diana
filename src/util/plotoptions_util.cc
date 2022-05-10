@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2018 met.no
+  Copyright (C) 2018-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -46,7 +46,7 @@ void parseClasses(const PlotOptions& poptions, std::vector<float>& classValues, 
 {
   maxlen = 0;
 
-  if (poptions.discontinuous == 1 && !poptions.classSpecifications.empty()) {
+  if (poptions.discontinuous && !poptions.classSpecifications.empty()) {
     // discontinuous (classes)
     const std::vector<std::string> classSpec = miutil::split(poptions.classSpecifications, ",");
     const int nc = classSpec.size();
@@ -72,6 +72,12 @@ std::vector<float> parseClassValues(const PlotOptions& poptions)
   unsigned int maxlen;
   parseClasses(poptions, classValues, classNames, maxlen);
   return classValues;
+}
+
+void maybeSetDefaults(PlotOptions& po)
+{
+  if (!(po.use_lineinterval() || po.use_linevalues() || po.use_loglinevalues()))
+    po.set_lineinterval(10);
 }
 
 } // namespace diutil

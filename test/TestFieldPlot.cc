@@ -59,7 +59,11 @@ TEST(FieldPlot, GetAnnotations)
   std::unique_ptr<PlotModule> plotmodule(new PlotModule); // required in FieldPlot ctor
 
   std::unique_ptr<FieldPlot> fp(new FieldPlot(nullptr));
-  fp->prepare(FieldPlotCommand::fromKV({{PlotOptions::key_plottype, fpt_fill_cell},{PlotOptions::key_table, "1"},{PlotOptions::key_palettecolours, palettename}}, false));
+  fp->prepare(FieldPlotCommand::fromKV({{PlotOptions::key_plottype, fpt_fill_cell},
+                                        {PlotOptions::key_table, "1"},
+                                        {PlotOptions::key_palettecolours, palettename},
+                                        {PlotOptions::key_lineinterval, "10"}},
+                                       false));
 
   Field_p field = std::make_shared<Field>();
   field->reserve(2, 2);
@@ -75,4 +79,35 @@ TEST(FieldPlot, GetAnnotations)
   EXPECT_EQ(anno1, annotations[1]);
 
   EXPECT_EQ("table=\"" + field->fieldText + ";0:0:128:255;;> 20;0:128:0:255;;10 - 20;128:0:0:255;;< 10\",colour=blue", annotations[2]);
+}
+
+TEST(FieldPlot, CommandWithDuplicateUnknownPlotOptions)
+{
+  const auto fpc = FieldPlotCommand::fromString(
+    " ( model=AROME-MetCoOp refhour=6 plot=T.2M vcoord=height vlevel=2m"
+    " - model=AROME-MetCoOp refhour=0 plot=T.2M vcoord=height vlevel=2m )"
+    " colour=red plottype=fill_cell linetype=solid linewidth=1 base=0 frame=0 line.interval=0.1"
+    " units=celsius text=\"\"hei\"\" units=kelvin dog=cat units=celsius text=\"\"ok\"\"", false);
+  PlotOptions fpo;
+  miutil::KeyValue_v unused;
+  PlotOptions::parsePlotOption(fpc->options(), fpo, unused);
+
+  ASSERT_LE(2, unused.size());
+  EXPECT_EQ("units", unused[0].key());
+  EXPECT_EQ("celsius", unused[0].value());
+  EXPECT_EQ("text", unused[1].key());
+  EXPECT_EQ("\"ok\"", unused[1].value());
+}
+
+TEST(FieldPlot, CommandWithSharedFieldOptions)
+{
+  const auto fpc = FieldPlotCommand::fromString("model=AROME-MetCoOp "
+    " ( refhour=6 - refhour=0 )"
+    " plot=T.2M vcoord=height vlevel=2m "
+    " colour=red", false);
+  EXPECT_TRUE(fpc->hasMinusField());
+  EXPECT_EQ(fpc->field.vcoord, "height");
+  EXPECT_EQ(fpc->minus.vcoord, "height");
+  EXPECT_EQ(fpc->field.vlevel, "2m");
+  EXPECT_EQ(fpc->minus.vlevel, "2m");
 }

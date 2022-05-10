@@ -544,6 +544,15 @@ std::map<std::string, std::string> FieldPlotManager::getFieldGlobalAttributes(co
   return fieldManager->getGlobalAttributes(modelName, refTime);
 }
 
+int FieldPlotManager::getFieldPlotDimension(const std::vector<std::string>& plotOrParamNames, bool predefinedPlot)
+{
+  if (predefinedPlot && plotOrParamNames.size() == 1) {
+    return getParamNames(plotOrParamNames.front(), FieldRequest()).size();
+  } else {
+    return plotOrParamNames.size();
+  }
+}
+
 bool FieldPlotManager::makeFields(FieldPlotCommand_cp cmd, const miTime& const_ptime, Field_pv& vfout)
 {
   METLIBS_LOG_SCOPE();

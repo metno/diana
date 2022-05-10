@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013-2021 met.no
+  Copyright (C) 2013-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -51,23 +51,66 @@ inline bool isUndefined(float v)
   return std::isnan(v) or v >= UNDEF_VALUE or v < -UNDEF_VALUE;
 }
 
-static inline int rounded_div(float value, float unit)
-{
-    const int i = int(value / unit);
-    if (value >= 0)
-        return i+1;
-    else
-        return i;
-}
-
 inline bool skip_level_below0(const PlotOptions& po)
 {
-  return po.zeroLine==0 || !po.linevalues.empty() || !po.loglinevalues.empty();
+  return !po.zeroLine || po.use_linevalues() || po.use_loglinevalues();
 }
 
 inline bool skip_level_above0(const PlotOptions& po)
 {
-  return po.zeroLine==0 && po.linevalues.empty() && po.loglinevalues.empty();
+  return !po.zeroLine && !po.use_linevalues() && !po.use_loglinevalues();
+}
+
+// ########################################################################
+
+DianaLevelSelector::DianaLevelSelector(const PlotOptions& po, const DianaLevels& levels, int paintMode)
+{
+  no_lines = (paintMode & DianaLines::LINES_LABELS) == 0;
+  no_fill = (paintMode & DianaLines::FILL) == 0;
+  skip_undef_line = (paintMode & DianaLines::UNDEFINED) == 0 || po.undefMasking == 0;
+  skip_undef_fill = (paintMode & DianaLines::UNDEFINED) == 0 || po.undefMasking != 1;
+  skip_level_0 = skip_level_below0(po);
+  skip_level_1 = skip_level_above0(po);
+  level_min = levels.level_for_value(po.minvalue);
+  level_max = levels.level_for_value(po.maxvalue);
+  have_min = level_min != DianaLevels::UNDEF_LEVEL;
+  have_max = level_max != DianaLevels::UNDEF_LEVEL;
+}
+
+bool DianaLevelSelector::fill(contouring::level_t li) const
+{
+  if (li == DianaLevels::UNDEF_LEVEL)
+    return !skip_undef_fill;
+
+  if (no_fill)
+    return false;
+  if ((have_min && li <= level_min) || (have_max && li > level_max))
+    return false;
+  if ((skip_level_0 && li == 0) || (skip_level_1 && li == 1))
+    return false;
+  return true;
+}
+
+bool DianaLevelSelector::line(contouring::level_t li) const
+{
+  if (li == DianaLevels::UNDEF_LEVEL)
+    return !skip_undef_line;
+
+  if (no_lines)
+    return false;
+  if ((have_min && li < level_min) || (have_max && li > level_max))
+    return false;
+  if (skip_level_1 && li == 0)
+    return false;
+  return true;
+}
+
+bool DianaLevelSelector::label(contouring::level_t li) const
+{
+  if (li == DianaLevels::UNDEF_LEVEL)
+    return false;
+
+  return line(li);
 }
 
 // ########################################################################
@@ -236,38 +279,21 @@ float DianaLevelLog::value_for_level(contouring::level_t l) const
 DianaLevelStep::DianaLevelStep(float step, float off)
   : mStep(step)
   , mOff(off)
-  , mMin(1)
-  , mMax(0)
-  , mHaveMin(false)
-  , mHaveMax(false)
 {
-}
-
-void DianaLevelStep::set_limits(float mini, float maxi)
-{
-  mMin = mini;
-  mMax = maxi;
-  mHaveMin = not isUndefined(mMin);
-  mHaveMax = not isUndefined(mMax);
-  if (mHaveMin and mHaveMax and mMin > mMax)
-    mHaveMin = mHaveMax = false;
 }
 
 contouring::level_t DianaLevelStep::level_for_value(float value) const
 {
   if (isUndefined(value))
     return UNDEF_LEVEL;
-  // invalid combinations of mMin and mMax are caught in set_limits
-  if (mHaveMin and value < mMin)
-    value = mMin - 0.5*mStep;
-  if (mHaveMax and value > mMax)
-    value = mMax + 0.5*mStep;
-  return rounded_div(value - mOff, mStep);
+  return int(std::ceil((value - mOff) / mStep));
 }
 
-float DianaLevelStep::value_for_level(contouring::level_t l) const
+float DianaLevelStep::value_for_level(contouring::level_t level) const
 {
-  return l != UNDEF_LEVEL ? l*mStep + mOff : UNDEF_VALUE;
+  if (level == UNDEF_LEVEL)
+    return UNDEF_VALUE;
+  return level * mStep + mOff;
 }
 
 // ########################################################################
@@ -369,36 +395,25 @@ void DianaLines::setLineForLevel(contouring::level_t li)
 
 void DianaLines::paint_polygons()
 {
-  METLIBS_LOG_TIME(LOGVAL(mPlotOptions.undefMasking));
   const PlotOptions& po = mPlotOptions;
+  DianaLevelSelector dls(mPlotOptions, mLevels, mPaintMode);
 
   const int nclasses = mClassValues.size();
   const int ncolours = po.palettecolours.size();
   const int ncolours_cold = po.palettecolours_cold.size();
   const int npatterns = po.patterns.size();
-  const bool no_fill = (mPaintMode & FILL) == 0;
-  const bool skip_level_0 = skip_level_below0(po);
-  const bool skip_level_1 = skip_level_above0(po);
-  const bool skip_undef = (mPaintMode & UNDEFINED) == 0 || po.undefMasking != 1;
-  const contouring::level_t level_min = mLevels.level_for_value(po.minvalue),
-      level_max = mLevels.level_for_value(po.maxvalue);
-  const bool skip_min = level_min != DianaLevels::UNDEF_LEVEL;
-  const bool skip_max = level_max != DianaLevels::UNDEF_LEVEL;
   const std::string NOPATTERN;
 
   for (level_points_m::const_iterator it = m_polygons.begin(); it != m_polygons.end(); ++it) {
     const contouring::level_t li = it->first;
-    METLIBS_LOG_TIME(LOGVAL(li));
+
+    if (!dls.fill(li))
+      continue;
 
     if (li == DianaLevels::UNDEF_LEVEL) {
-      if (skip_undef)
-        continue;
       setFillColour(mPlotOptions.undefColour);
     } else {
-      if (no_fill || (skip_min && li < level_min) || (skip_max && li >= level_max)
-          || (skip_level_0 && li == 0) || (skip_level_1 && li == 1))
-        continue;
-      if (mPlotOptions.discontinuous == 1) {
+      if (mPlotOptions.discontinuous) {
         int cidx;
         if (nclasses) {
           cidx = 0;
@@ -422,7 +437,7 @@ void DianaLines::paint_polygons()
           const int idx = diutil::find_index(mPlotOptions.repeat, ncolours_cold, -li);
           setFillColour(mPlotOptions.palettecolours_cold[idx]);
         } else if (ncolours) {
-          if (li <= 0 and not mPlotOptions.loglinevalues.empty())
+          if (li <= 0 and not mPlotOptions.loglinevalues().empty())
             continue;
           const int idx = diutil::find_index(mPlotOptions.repeat, ncolours, li - 1);
           setFillColour(mPlotOptions.palettecolours[idx]);
@@ -444,19 +459,12 @@ void DianaLines::paint_polygons()
 
 void DianaLines::paint_lines()
 {
-  const PlotOptions& po = mPlotOptions;
-  const bool no_lines = (mPaintMode & LINES_LABELS) == 0;
-  const bool skip_undef = (mPaintMode & UNDEFINED) == 0 || !po.undefMasking;
-  const bool skip_level_0 = skip_level_above0(po);
+  DianaLevelSelector dls(mPlotOptions, mLevels, mPaintMode);
   for (level_points_m::const_iterator it = m_lines.begin(); it != m_lines.end(); ++it) {
     const contouring::level_t li = it->first;
-    if (li == DianaLevels::UNDEF_LEVEL) {
-      if (skip_undef)
-        continue;
-    } else {
-      if (no_lines || (skip_level_0 && li == 0))
-        continue;
-    }
+    if (!dls.line(li))
+      continue;
+
     setLineForLevel(li);
     for (const auto& p : it->second)
       drawLine(p);
@@ -465,11 +473,12 @@ void DianaLines::paint_lines()
 
 void DianaLines::paint_labels()
 {
-  const bool skip_level_0 = skip_level_above0(mPlotOptions);
+  DianaLevelSelector dls(mPlotOptions, mLevels, mPaintMode);
   for (level_points_m::const_iterator it = m_lines.begin(); it != m_lines.end(); ++it) {
     const contouring::level_t li = it->first;
-    if (li == DianaLevels::UNDEF_LEVEL || (skip_level_0 && li == 0))
+    if (!dls.label(li))
       continue;
+
     setLineForLevel(li);
     for (const auto& p : it->second)
       drawLabels(p, li);
@@ -478,10 +487,14 @@ void DianaLines::paint_labels()
 
 void DianaLines::add_contour_line(contouring::level_t li, const contouring::points_t& cpoints, bool closed)
 {
-  if (li == DianaLevels::UNDEF_LEVEL && (mPlotOptions.undefMasking != 2 || (mPaintMode & UNDEFINED) == 0))
-    return;
-  if (li != DianaLevels::UNDEF_LEVEL && (!mPlotOptions.options_1 || (mPaintMode & LINES_LABELS) == 0))
-    return;
+  const PlotOptions& po = mPlotOptions;
+  if (li == DianaLevels::UNDEF_LEVEL) {
+    if (po.undefMasking != 2 || (mPaintMode & UNDEFINED) == 0)
+      return;
+  } else {
+    if (!po.options_1 || (mPaintMode & LINES_LABELS) == 0)
+      return;
+  }
 
   point_vv& m_lines_li = m_lines[li];
   m_lines_li.push_back(QPolygonF());
@@ -496,20 +509,20 @@ void DianaLines::add_contour_line(contouring::level_t li, const contouring::poin
   }
 }
 
-void DianaLines::add_contour_polygon(contouring::level_t level, const contouring::points_t& cpoints)
+void DianaLines::add_contour_polygon(contouring::level_t li, const contouring::points_t& cpoints)
 {
   const PlotOptions& po = mPlotOptions;
-  if (level == DianaLevels::UNDEF_LEVEL) {
+  if (li == DianaLevels::UNDEF_LEVEL) {
     if (po.undefMasking != 1 || (mPaintMode & UNDEFINED) == 0)
       return;
   } else {
-    if ((mPaintMode & FILL) == 0 || (po.alpha == 0))
+    if (po.alpha == 0 || (mPaintMode & FILL) == 0)
       return;
     if (po.palettecolours.empty() && po.palettecolours_cold.empty() && mClassValues.empty() && po.patterns.empty())
       return;
   }
 
-  point_vv& m_polygons_li = m_polygons[level];
+  point_vv& m_polygons_li = m_polygons[li];
   m_polygons_li.push_back(QPolygonF());
   QPolygonF& poly = m_polygons_li.back();
   poly.reserve(cpoints.size());
@@ -668,38 +681,34 @@ void DianaGLLines::drawLabels(const QPolygonF& points, contouring::level_t li)
 
 std::shared_ptr<DianaLevels> dianaLevelsForPlotOptions(const PlotOptions& poptions, float fieldUndef)
 {
-  if (not poptions.linevalues.empty()) {
-    return std::make_shared<DianaLevelList>(poptions.linevalues);
-  } else if (not poptions.loglinevalues.empty()) {
+  if (poptions.use_linevalues()) {
+    return std::make_shared<DianaLevelList>(poptions.linevalues());
+  } else if (poptions.use_loglinevalues()) {
     // selected line values (the first values in rlines)
     // are drawn, the following vales drawn are the
     // previous multiplied by 10 and so on
     // (nlines=2 rlines=0.1,0.3 => 0.1,0.3,1,3,10,30,...)
     // (or the line at value=zoff)
-    return std::make_shared<DianaLevelList10>(poptions.loglinevalues, poptions.palettecolours.size());
-  } else {
+    return std::make_shared<DianaLevelList10>(poptions.loglinevalues(), poptions.palettecolours.size());
+  } else if (poptions.use_lineinterval()) {
     // equally spaced lines (value)
-    std::shared_ptr<DianaLevelStep> ls
-        = std::make_shared<DianaLevelStep>(poptions.lineinterval, poptions.base);
-    if (poptions.minvalue > -fieldUndef or poptions.maxvalue < fieldUndef)
-      ls->set_limits(poptions.minvalue, poptions.maxvalue);
-    return ls;
+    return std::make_shared<DianaLevelStep>(poptions.lineinterval, poptions.base);
+  } else {
+    return nullptr;
   }
 }
 
 //! same as dianaLevelsForPlotOptions except that it uses options with "_2" at the end of the name
 std::shared_ptr<DianaLevels> dianaLevelsForPlotOptions_2(const PlotOptions& poptions, float fieldUndef)
 {
-  if (not poptions.linevalues_2.empty()) {
-    return std::make_shared<DianaLevelList>(poptions.linevalues_2);
-  } else if (not poptions.loglinevalues_2.empty()) {
-    return std::make_shared<DianaLevelList10>(poptions.loglinevalues_2, poptions.loglinevalues_2.size());
+  if (poptions.use_linevalues_2()) {
+    return std::make_shared<DianaLevelList>(poptions.linevalues_2());
+  } else if (poptions.use_loglinevalues_2()) {
+    return std::make_shared<DianaLevelList10>(poptions.loglinevalues_2(), poptions.loglinevalues_2().size());
+  } else if (poptions.use_lineinterval_2()) {
+    return std::make_shared<DianaLevelStep>(poptions.lineinterval_2, poptions.base_2);
   } else {
-    std::shared_ptr<DianaLevelStep> ls
-        = std::make_shared<DianaLevelStep>(poptions.lineinterval_2, poptions.base_2);
-    if (poptions.minvalue_2 > -fieldUndef or poptions.maxvalue_2 < fieldUndef)
-      ls->set_limits(poptions.minvalue_2, poptions.maxvalue_2);
-    return ls;
+    return nullptr;
   }
 }
 
@@ -719,6 +728,8 @@ bool poly_contour(int nx, int ny, int ix0, int iy0, int ix1, int iy1,
   } else {
     levels = dianaLevelsForPlotOptions  (poptions, fieldUndef);
   }
+  if (!levels)
+    return false;
 
   const int blockPaintMode = (paintMode & DianaLines::FILL);
   if (!gl->isPrinting() && blockPaintMode) {
