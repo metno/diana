@@ -236,9 +236,9 @@ FieldDialog::FieldDialog(QWidget* parent, FieldDialogData* data)
   // layout
   QVBoxLayout* v1layout = new QVBoxLayout();
   v1layout->setSpacing(1);
-  v1layout->addWidget(fieldAdd);
+  v1layout->addWidget(fieldAdd, 1);
   v1layout->addWidget(selectedFieldlabel);
-  v1layout->addWidget(selectedFieldbox, 2);
+  v1layout->addWidget(selectedFieldbox);
 
   QHBoxLayout* v1h4layout = new QHBoxLayout();
   v1h4layout->addWidget(upFieldButton);
@@ -255,10 +255,6 @@ FieldDialog::FieldDialog(QWidget* parent, FieldDialogData* data)
   QVBoxLayout* v3layout = new QVBoxLayout();
   v3layout->addLayout(v1h4layout);
   v3layout->addLayout(vxh4layout);
-
-  QHBoxLayout* h3layout = new QHBoxLayout();
-  h3layout->addLayout(v3layout);
-  //  h3layout->addLayout(v4layout);
 
   QHBoxLayout* levelsliderlayout = new QHBoxLayout();
   levelsliderlayout->setAlignment(Qt::AlignHCenter);
@@ -287,7 +283,6 @@ FieldDialog::FieldDialog(QWidget* parent, FieldDialogData* data)
   idnumlayout->addLayout(idnumsliderlabellayout);
 
   QHBoxLayout* h4layout = new QHBoxLayout();
-  //h4layout->addLayout(h2layout);
   h4layout->addWidget(fieldStyle->standardWidget());
   h4layout->addLayout(levellayout);
   h4layout->addLayout(idnumlayout);
@@ -298,15 +293,12 @@ FieldDialog::FieldDialog(QWidget* parent, FieldDialogData* data)
 
   QLayout* h6layout = createStandardButtons(false);
 
-  QVBoxLayout* v6layout = new QVBoxLayout();
-  v6layout->addLayout(h5layout);
-  v6layout->addLayout(h6layout);
-
   QVBoxLayout* vlayout = new QVBoxLayout();
-  vlayout->addLayout(v1layout);
-  vlayout->addLayout(h3layout);
+  vlayout->addLayout(v1layout, 1);
+  vlayout->addLayout(v3layout);
   vlayout->addLayout(h4layout);
-  vlayout->addLayout(v6layout);
+  vlayout->addLayout(h5layout);
+  vlayout->addLayout(h6layout);
 
   QGridLayout *mainLayout = new QGridLayout;
   mainLayout->addLayout(vlayout, 0, 0);

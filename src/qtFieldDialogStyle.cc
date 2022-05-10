@@ -60,6 +60,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <qlayoutitem.h>
 #include <qspinbox.h>
 
 #define MILOGGER_CATEGORY "diana.FieldDialogStyle"
@@ -689,6 +690,8 @@ void FieldDialogStyle::CreateAdvanced()
   advLayout->addWidget(threeColourBox[0], line, 0);
   advLayout->addWidget(threeColourBox[1], line, 1);
   advLayout->addWidget(threeColourBox[2], line, 2);
+  line++;
+  advLayout->addItem(new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding), line, 0);
 
   // a separator
   QFrame* advSep = new QFrame(widgetAdv);
