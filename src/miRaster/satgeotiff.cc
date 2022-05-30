@@ -2,7 +2,7 @@
 /*
   libmiRaster - met.no tiff interface
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -391,7 +391,7 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
     }
     unsigned short GeogAngularUnits, GeogEllipsoid, GeographicType;
     if (!GTIFKeyGet(gtifin.get(), GeogAngularUnitsGeoKey, &GeogAngularUnits, 0, 1)) {
-      GeogAngularUnits = 0;
+      GeogAngularUnits = Angular_Degree;
     }
     if (!GTIFKeyGet(gtifin.get(), GeogEllipsoidGeoKey, &GeogEllipsoid, 0, 1)) {
       GeogEllipsoid = 32767;
@@ -416,7 +416,25 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
     }
 
     ginfo.projection = Projection("+proj=lonlat +ellps=WGS84 +towgs84=0,0,0 +no_defs");
-    unit_scale_factor = M_PI / 180; // convert from degree to radian
+    switch (GeogAngularUnits) { // see http://geotiff.maptools.org/spec/geotiff6.html#6.3.1.4
+    case Angular_Degree:
+      unit_scale_factor = 1;
+      break;
+    case Angular_Radian:
+      unit_scale_factor = 180 / M_PI;
+      break;
+    case Angular_Arc_Minute:
+      unit_scale_factor = 1 / 60;
+      break;
+    case Angular_Arc_Second:
+      unit_scale_factor = 1 / 3600;
+      break;
+    case Angular_Gon:
+      unit_scale_factor = 0.9;
+      break;
+    default:
+      METLIBS_LOG_WARN("GeogAngularUnits = " << GeogAngularUnits << " are not supported");
+    }
 
     if (METLIBS_LOG_DEBUG_ENABLED()) {
       METLIBS_LOG_DEBUG("GTIFKeyGet: GTModelTypeGeoKey = " << modeltype);
