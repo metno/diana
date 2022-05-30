@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2020 met.no
+ Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -311,20 +311,33 @@ bool SatManager::readSatFile(Sat* satdata, const miutil::miTime& t)
       return false;
   }
 
+  else if (satdata->formatType == "hdf5") {
 #ifdef HDF5FILE
-  if (satdata->formatType == "hdf5") {
     if(!HDF5::readHDF5(satdata->actualfile,*satdata)) {
       return false;
     }
+#else  // !HDF5FILE
+    METLIBS_LOG_WARN("Compiled without HDF5 support.");
+    return false;
+#endif // !HDF5FILE
   }
-#endif
+
+  else if (satdata->formatType == "geotiff") {
 #ifdef GEOTIFF
-  if (satdata->formatType == "geotiff") {
     if(!GEOtiff::readGEOtiff(satdata->actualfile,*satdata)) {
       return false;
     }
+#else  // !GEOTIFF
+    METLIBS_LOG_WARN("Compiled without geotiff support.");
+    return false;
+#endif // !GEOTIFF
   }
-#endif
+
+  else {
+    METLIBS_LOG_ERROR("Unknown formattype '" << satdata->formatType << "'.");
+    return false;
+  }
+
   if (!satdata->palette) {
 
     if (satdata->plotChannels == "IR+V")
