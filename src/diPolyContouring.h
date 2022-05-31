@@ -78,16 +78,6 @@ public:
   enum { BASE = 10 };
 };
 
-// ------------------------------------------------------------------------
-
-class DianaLevelLog : public DianaLevelList {
-public:
-  DianaLevelLog(const std::vector<float>& levels);
-  virtual contouring::level_t level_for_value(float value) const override;
-  virtual float value_for_level(contouring::level_t l) const override;
-  enum { BASE = 10 };
-};
-
 //------------------------------------------------------------------------
 
 class DianaLevelStep : public DianaLevels {
