@@ -240,6 +240,7 @@ bool FieldRenderer::plotMe(DiGLPainter* gl, PlotOrder zorder)
   return ok;
 }
 
+// x and y must be in in map projection
 std::vector<float*> FieldRenderer::doPrepareVectors(const float* x, const float* y, bool direction)
 {
   METLIBS_LOG_SCOPE();
@@ -269,11 +270,15 @@ std::vector<float*> FieldRenderer::doPrepareVectors(const float* x, const float*
     int npos = fields_[0]->area.gridSize();
     bool ok = false;
     if (direction) {
+      // u is the only data field, containing a true north direction in degrees
+      // v is the length of the vector, either 1 or -1
       const bool turn = fields_[0]->turnWaveDirection;
       const float length = turn ? -1 : 1;
       std::fill(v, v + npos, length);
       ok = gc_->getDirectionVectors(pa_.getMapArea(), npos, x, y, u, v);
     } else {
+      // u and v are components of the vector field, assumed to be in the
+      // same projection as the x-y grid
       ok = gc_->getVectors(tmpfields_[0]->area, pa_.getMapProjection(), npos, x, y, u, v);
     }
     if (!ok)
@@ -467,13 +472,13 @@ bool FieldRenderer::plotWind(DiGLPainter* gl)
   if (not checkFields(2))
     return false;
 
-  // convert gridpoints to correct projection
+  // convert gridpoints to map projection
   GridPoints gp;
   if (!getGridPoints(gp))
     return false;
   const float *x = gp.x(), *y = gp.y();
 
-  // convert windvectors to correct projection
+  // convert windvectors to map projection
   const std::vector<float*> uv = prepareVectors(x, y);
   if (uv.size() != 2)
     return false;
@@ -1290,13 +1295,13 @@ bool FieldRenderer::plotArrows(DiGLPainter* gl, prepare_vectors_t pre_vec, const
 {
   METLIBS_LOG_SCOPE(LOGVAL(fields_.size()));
 
-  // convert gridpoints to correct projection
+  // convert gridpoints to map projection
   GridPoints gp;
   if (!getGridPoints(gp))
     return false;
   const float *x = gp.x(), *y = gp.y();
 
-  // convert vectors to correct projection
+  // convert vectors to map projection
   std::vector<float*> uv = (this->*pre_vec)(x, y);
   if (uv.size() != 2)
     return false;
