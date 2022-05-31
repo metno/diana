@@ -244,15 +244,13 @@ std::vector<float*> FieldRenderer::doPrepareVectors(const float* x, const float*
 {
   METLIBS_LOG_SCOPE();
 
-  const bool rotateVectors = poptions_.rotateVectors;
-
   std::vector<float*> uv;
   float *u = 0, *v = 0;
 
   int nf = tmpfields_.size();
 
   const Projection& mapP = pa_.getMapProjection();
-  if (!direction && (!rotateVectors || fields_[0]->area.P() == mapP)) {
+  if (!direction && (fields_[0]->area.P() == mapP)) {
     u = fields_[0]->data;
     v = fields_[1]->data;
     tmpfields_.clear();

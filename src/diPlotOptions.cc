@@ -300,7 +300,7 @@ const std::string PlotOptions::key_gridValue= "grid.value";
 const std::string PlotOptions::key_gridLines= "grid.lines";
 const std::string PlotOptions::key_gridLinesMax= "grid.lines.max";
 const std::string PlotOptions::key_plottype= "plottype";
-const std::string PlotOptions::key_rotatevectors= "rotate.vectors";
+const std::string /*PlotOptions::*/key_rotatevectors= "rotate.vectors";
 const std::string PlotOptions::key_discontinuous= "discontinuous";
 const std::string PlotOptions::key_table= "table";
 const std::string PlotOptions::key_alpha= "alpha";
@@ -399,7 +399,6 @@ PlotOptions::PlotOptions()
     , undefColour(Colour::WHITE)
     , undefLinewidth(1)
     , plottype(fpt_contour)
-    , rotateVectors(true)
     , discontinuous(false)
     , contourShading(false)
     , polystyle(poly_fill)
@@ -487,7 +486,6 @@ bool PlotOptions::operator==(const PlotOptions& o) const
     && (undefLinewidth == o.undefLinewidth)
     && (undefLinetype == o.undefLinetype)
     && (plottype == o.plottype)
-    && (rotateVectors == o.rotateVectors)
     && (discontinuous == o.discontinuous)
     && (contourShading == o.contourShading)
     && (classSpecifications == o.classSpecifications)
@@ -681,7 +679,7 @@ bool PlotOptions::parsePlotOption(const miutil::KeyValue& kv, PlotOptions& po)
     }
 
   } else if (key == key_rotatevectors) {
-    po.rotateVectors = to_bool(kv);
+    // ignored
 
   } else if (key == key_discontinuous) {
     po.discontinuous = to_bool(kv);
@@ -1312,7 +1310,6 @@ miutil::KeyValue_v PlotOptions::diff(const PlotOptions& from, const PlotOptions&
 
   add_diff(ostr, key_plottype, from.plottype, to.plottype);
 
-  add_diff(ostr, key_rotatevectors, from.rotateVectors, to.rotateVectors);
   add_diff(ostr, key_discontinuous, from.discontinuous, to.discontinuous);
   add_diff(ostr, key_table, from.table, to.table);
   add_diff(ostr, key_alpha, from.alpha, to.alpha);

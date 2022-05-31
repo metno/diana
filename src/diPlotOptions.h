@@ -171,8 +171,6 @@ public:
   // field plottype:
   static const std::string key_plottype;
   // discontinuous field
-  static const std::string key_rotatevectors;
-  // discontinuous field
   static const std::string key_discontinuous;
   // table
   static const std::string key_table;
@@ -307,7 +305,6 @@ public:
   int      undefLinewidth;
   Linetype undefLinetype;
   std::string plottype;
-  bool     rotateVectors;
   bool     discontinuous;
   bool     contourShading;
   std::string classSpecifications; // "value:name,value:name,....." split when used
