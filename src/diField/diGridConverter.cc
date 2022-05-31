@@ -296,6 +296,7 @@ void GridConverter::findGridLimits(const GridArea& area, const Rectangle& maprec
 }
 
 // get arrays of vector rotation elements
+// x and y are in map_proj coordinates
 Points_p GridConverter::getVectorRotationElements(const Area& data_area, const Projection& map_proj, int nvec, const float* x, const float* y)
 {
   std::lock_guard<std::mutex> lock(angle_mutex);

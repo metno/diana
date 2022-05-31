@@ -101,6 +101,7 @@ private:
   int noOfClimateTimes;
   bool writeable;
   bool turnWaveDirection;
+  bool vectorProjectionLonLat;
   MetNoFimex::CDMReader_p feltReader;
 
   FimexIOsetup* setup;

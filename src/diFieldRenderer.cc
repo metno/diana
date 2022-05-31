@@ -240,6 +240,16 @@ bool FieldRenderer::plotMe(DiGLPainter* gl, PlotOrder zorder)
   return ok;
 }
 
+namespace  {
+const Projection& getVectorProjection(Field_cp f)
+{
+   if (f->vectorProjectionLonLat)
+    return Projection::geographic();
+  else
+    return f->area.P();
+}
+} // namespace
+
 // x and y must be in in map projection
 std::vector<float*> FieldRenderer::doPrepareVectors(const float* x, const float* y, bool direction)
 {
@@ -251,7 +261,7 @@ std::vector<float*> FieldRenderer::doPrepareVectors(const float* x, const float*
   int nf = tmpfields_.size();
 
   const Projection& mapP = pa_.getMapProjection();
-  if (!direction && (fields_[0]->area.P() == mapP)) {
+  if (!direction && getVectorProjection(fields_[0]) == mapP) {
     u = fields_[0]->data;
     v = fields_[1]->data;
     tmpfields_.clear();
@@ -279,7 +289,12 @@ std::vector<float*> FieldRenderer::doPrepareVectors(const float* x, const float*
     } else {
       // u and v are components of the vector field, assumed to be in the
       // same projection as the x-y grid
-      ok = gc_->getVectors(tmpfields_[0]->area, pa_.getMapProjection(), npos, x, y, u, v);
+
+      // construct an area with the correct projection but wrong rectangle; the rectangle
+      // is used for caching in gc's anglebuffer, so we need to pass something "unique"
+      const Area tmpVecA(getVectorProjection(tmpfields_[0]), tmpfields_[0]->area.R());
+
+      ok = gc_->getVectors(tmpVecA, pa_.getMapProjection(), npos, x, y, u, v);
     }
     if (!ok)
       return uv;

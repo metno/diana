@@ -841,6 +841,8 @@ bool Projection::convertVectors(const Projection& srcProj, size_t nvec,
   }
 }
 
+// from_x and from_y are in srcProj's coordinates
+// to_x and to_y are in this projection's coordinates
 void Projection::calculateVectorRotationElements(const Projection& srcProj, int nvec,
     const float * from_x, const float * from_y,
     const float * to_x, const float * to_y,
@@ -875,6 +877,7 @@ bool Projection::convertVectors(const Projection& srcProj, int nvec,
   return convertVectors(srcProj, nvec, from_x.get(), from_y.get(), to_x, to_y, u, v);
 }
 
+// x and y are in this projection's coordinates
 bool Projection::calculateVectorRotationElements(const Projection& srcProj, int nvec,
     const float * to_x, const float * to_y,
     float * cosa, float * sina) const
@@ -883,11 +886,10 @@ bool Projection::calculateVectorRotationElements(const Projection& srcProj, int 
   std::copy(to_x, to_x + nvec, from_x.get());
   std::copy(to_y, to_y + nvec, from_y.get());
 
-  if (!srcProj.convertPoints(*this, nvec, from_x.get(), from_y.get())) // convert back to old projection
+  if (!srcProj.convertPoints(*this, nvec, from_x.get(), from_y.get())) // convert back to srcProj
     return false;
 
-  calculateVectorRotationElements(srcProj, nvec,
-        from_x.get(), from_y.get(), to_x, to_y, cosa, sina);
+  calculateVectorRotationElements(srcProj, nvec, from_x.get(), from_y.get(), to_x, to_y, cosa, sina);
   return true;
 }
 
