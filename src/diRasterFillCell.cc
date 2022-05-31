@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2020 met.no
+ Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -84,9 +84,7 @@ const Colour* RasterFillCell::colourForValue(float value) const
 
   const int npalettecolours = poptions.palettecolours.size(), npalettecolours_cold = poptions.palettecolours_cold.size();
 
-  if (poptions.linevalues.empty()) {
-    if (poptions.lineinterval <= 0)
-      return 0;
+  if (poptions.use_lineinterval()) {
     int index = int((value - poptions.base) / poptions.lineinterval);
     if (value > poptions.base) {
       if (npalettecolours == 0)
@@ -102,13 +100,13 @@ const Colour* RasterFillCell::colourForValue(float value) const
       // Use index 0...
       return &poptions.palettecolours[0];
     }
-  } else {
+  } else if (poptions.use_linevalues()) {
     if (npalettecolours == 0)
       return 0;
-    std::vector<float>::const_iterator it = std::lower_bound(poptions.linevalues.begin(), poptions.linevalues.end(), value);
-    if (it == poptions.linevalues.begin())
+    std::vector<float>::const_iterator it = std::lower_bound(poptions.linevalues().begin(), poptions.linevalues().end(), value);
+    if (it == poptions.linevalues().begin())
       return 0;
-    int index = std::min(int(it - poptions.linevalues.begin()), npalettecolours) - 1;
+    int index = std::min(int(it - poptions.linevalues().begin()), npalettecolours) - 1;
     return &poptions.palettecolours[index];
   }
   return 0;

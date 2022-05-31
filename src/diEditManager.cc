@@ -2625,8 +2625,10 @@ void EditManager::prepareEditFields(const PlotCommand_cpv& inp)
 
   const size_t npif = std::min(inp.size(), fedits.size());
   for (size_t i=0; i<npif; i++) {
-    if (FieldPlotCommand_cp cmdi = std::dynamic_pointer_cast<const FieldPlotCommand>(inp[i]))
-      fedits[i]->editfieldplot->prepare(plotName, cmdi);
+    if (FieldPlotCommand_cp cmdi = std::dynamic_pointer_cast<const FieldPlotCommand>(inp[i])) {
+      fieldPlotManager->applySetupOptionsToCommand(plotName, cmdi);
+      fedits[i]->editfieldplot->prepare(cmdi);
+    }
   }
 
   // for showing single region during and after combine
@@ -2634,8 +2636,10 @@ void EditManager::prepareEditFields(const PlotCommand_cpv& inp)
   for (size_t i=0; i<npic; i++) {
     size_t nreg = combinefields[i].size();
     for (size_t r=0; r<nreg; r++) {
-      if (FieldPlotCommand_cp cmdi = std::dynamic_pointer_cast<const FieldPlotCommand>(inp[i]))
-        combinefields[i][r]->editfieldplot->prepare(plotName, cmdi);
+      if (FieldPlotCommand_cp cmdi = std::dynamic_pointer_cast<const FieldPlotCommand>(inp[i])) {
+        fieldPlotManager->applySetupOptionsToCommand(plotName, cmdi);
+        combinefields[i][r]->editfieldplot->prepare(cmdi);
+      }
     }
   }
 }

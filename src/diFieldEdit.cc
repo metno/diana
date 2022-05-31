@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -634,7 +634,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       if (fv!=fieldUndef) {
         //####################################################
         const PlotOptions& poptions= editfieldplot->getPlotOptions();
-        discontinuous= poptions.discontinuous!=0;
+        discontinuous = poptions.discontinuous;
         //####################################################
         nx= editfield->area.nx;
         ny= editfield->area.ny;
@@ -827,7 +827,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
 
       const PlotOptions& poptions= editfieldplot->getPlotOptions();
       lineinterval= poptions.lineinterval;
-      discontinuous= poptions.discontinuous!=0;
+      discontinuous = poptions.discontinuous;
 
       if (discontinuous && workfield!=editfield) {
         // could not prevent making workfield earlier (?)

@@ -394,8 +394,8 @@ bool contour(int nx, int ny, float z[], const float xz[], const float yz[],
   bool highLeft;
   bool closed;
 
-  bool drawBorders= poptions.discontinuous!=0;
-  bool shading=     poptions.contourShading!=0;
+  bool drawBorders = poptions.discontinuous;
+  bool shading = poptions.contourShading;
 
   if (drawBorders) {
     if (idraw==1 || idraw==2) {
@@ -977,9 +977,9 @@ bool contour(int nx, int ny, float z[], const float xz[], const float yz[],
       // line type
       if (ltypx != linetype[lev]) {
         ltypx = linetype[lev];
-        if (poptions.linetypes[ltypx].stipple) {
-          gl->LineStipple(poptions.linetypes[ltypx].factor,
-              poptions.linetypes[ltypx].bmap);
+        const auto& lt = ltypx == 1 ? poptions.linetype_2 : poptions.linetype;
+        if (lt.stipple) {
+          gl->LineStipple(lt.factor, lt.bmap);
           gl->Enable(DiGLPainter::gl_LINE_STIPPLE);
         } else {
           gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
@@ -989,13 +989,24 @@ bool contour(int nx, int ny, float z[], const float xz[], const float yz[],
       // line width
       if (iwidx != linewidth[lev]) {
         iwidx = linewidth[lev];
-        gl->LineWidth(poptions.linewidths[iwidx]);
+        const auto& lw = iwidx == 1 ? poptions.linewidth_2 : poptions.linewidth;
+        gl->LineWidth(lw);
       }
 
       // line and text (label) colour
       if (icolx != icolour[lev]) {
         icolx = icolour[lev];
-        if (icolx>=0) gl->setColour(poptions.colours[icolx], false);
+        const Colour* lc = nullptr;
+        if (poptions.colours.size() > 2) {
+          if (icolx >= 0 && icolx < poptions.colours.size())
+            lc = &poptions.colours[icolx];
+        } else if (icolx == 1) {
+          lc = &poptions.linecolour_2;
+        } else {
+          lc = &poptions.linecolour;
+        }
+        if (lc)
+          gl->setColour(*lc, false);
       }
 
       // label format for each label
@@ -4164,7 +4175,7 @@ void fillContours(DiGLPainter* gl, vector<ContourLine*>& contourlines,
             ( ivalue<(zrange[1]-zoff)/zstep
                 && ivalue>((zrange[0]-zoff)/zstep)-1)) {
 
-          if (poptions.discontinuous == 1) {
+          if (poptions.discontinuous) {
 
             //discontinuous (classes)
             int ii;
@@ -4196,7 +4207,7 @@ void fillContours(DiGLPainter* gl, vector<ContourLine*>& contourlines,
 
             //continuous
             if(ncolours_cold>0 && ivalue<0) {
-              if(poptions.repeat==0 && ivalue<-1*(ncolours_cold)){
+              if (!poptions.repeat && ivalue < -1 * (ncolours_cold)) {
                 i=ncolours_cold-1;
               } else {
                 i= (ncolours_cold-ivalue-1)%ncolours_cold;
@@ -4204,7 +4215,7 @@ void fillContours(DiGLPainter* gl, vector<ContourLine*>& contourlines,
               }
               gl->setColour(colours_cold[i]);
             } else if(ncolours>0) {
-              if(poptions.repeat==0){
+              if (!poptions.repeat) {
                 if(ivalue>ncolours-1){
                   i=ncolours-1;
                 } else if(ivalue<0){

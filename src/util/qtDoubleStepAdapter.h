@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -26,18 +26,24 @@
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-#ifndef diCommandParser_h
-#define diCommandParser_h
 
-#include <string>
-#include <vector>
+#ifndef DIANA_DOUBLESTEPADAPTER_H
+#define DIANA_DOUBLESTEPADAPTER_H 1
 
-class CommandParser {
+#include <QDoubleSpinBox>
+
+namespace diutil {
+
+class DoubleStepAdapter : public QObject
+{
 public:
-  // static string parsing functions
-  static bool isInt(const std::string& s);
-  static bool isFloat(const std::string& s);
-  static std::vector<std::string> parseString(const std::string& str);
+  DoubleStepAdapter(QDoubleSpinBox* parent);
+  ~DoubleStepAdapter();
+
+public Q_SLOTS:
+  void adaptValue(double v);
 };
 
-#endif
+} // namespace diutil
+
+#endif // DIANA_DOUBLESTEPADAPTER_H

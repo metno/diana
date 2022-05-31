@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2021 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,10 +29,10 @@
 #ifndef _fielddialog_h
 #define _fielddialog_h
 
+#include "diPlotOptions.h"
 #include "qtDataDialog.h"
 
 #include "diColourShading.h"
-#include "diCommandParser.h"
 #include "diField/diCommonFieldTypes.h"
 #include "diFieldPlotCommand.h"
 #include "diPattern.h"
@@ -78,7 +78,12 @@ struct SelectedField
   std::string idnum;
   int hourOffset;
   int hourDiff;
-  miutil::KeyValue_v fieldOpts;
+  std::string units;
+  PlotOptions po;
+  miutil::KeyValue_v oo; // other options, not part of PlotOptions
+
+  int dimension; // cached value
+
   std::vector<std::string> levelOptions;
   std::vector<std::string> idnumOptions;
   bool minus;
@@ -91,17 +96,22 @@ struct SelectedField
   bool predefinedPlot;
   bool levelmove;
   bool idnummove;
+
   SelectedField()
       : inEdit(false)
       , external(false)
       , hourOffset(0)
       , hourDiff(0)
+      , dimension(1)
       , minus(false)
       , predefinedPlot(true)
       , levelmove(true)
       , idnummove(true)
   {
   }
+
+  void setFieldPlotOptions(const miutil::KeyValue_v& kv);
+  miutil::KeyValue_v getFieldPlotOptions() const;
 };
 
 /**
@@ -185,6 +195,7 @@ private Q_SLOTS:
   void idnumChanged(const std::string& value);
 
   void allTimeStepToggled(bool on);
+  void resetFieldOptionsClicked();
 
   void updateTime();
 
@@ -193,6 +204,7 @@ private:
   void deleteSelectedField(int index);
   std::vector<SelectedField>::iterator findSelectedField(const std::string& model, const std::string& reftime, bool predefined, const std::string& field);
 
+  void updateFieldOptions();
   void enableFieldOptions();
 
   void moveField(int delta);
@@ -229,6 +241,7 @@ private:
 
   std::vector<SelectedField> selectedFields;
   bool hasEditFields;
+  int currentSelectedFieldIndex;
 
   QPushButton* resetOptionsButton;
 

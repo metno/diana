@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2018 met.no
+  Copyright (C) 2017-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,6 +29,8 @@
 
 #include "bdiana_main.h"
 
+#include "diFieldPlotCommand.h"
+#include "diFieldPlotManager.h"
 #include "diMainPaintable.h"
 #include "diPlotCommandFactory.h"
 #include "diQuickMenues.h"
@@ -62,14 +64,24 @@ bool BdianaMain::MAKE_CONTROLLER()
   }
 }
 
-void BdianaMain::commands(std::vector<std::string>& pcom)
+PlotCommand_cpv BdianaMain::makeCommands(std::vector<std::string>& pcom)
 {
   if (updateCommandSyntax(pcom))
     METLIBS_LOG_WARN("The plot commands are outdated, please update!");
 
-  //  if (verbose)
-  //    METLIBS_LOG_INFO("- sending plotCommands");
-  controller->plotCommands(makeCommands(pcom));
+  auto pcs = ::makeCommands(pcom);
+  for (auto& pc : pcs) {
+    if (FieldPlotCommand_cp fpc = std::dynamic_pointer_cast<const FieldPlotCommand>(pc)) {
+      controller->getFieldPlotManager()->applySetupOptionsToCommand(fpc);
+      pc = fpc;
+    }
+  }
+  return pcs;
+}
+
+void BdianaMain::commands(std::vector<std::string>& pcom)
+{
+  controller->plotCommands(this->makeCommands(pcom));
 }
 
 ImageSource* BdianaMain::imageSource()

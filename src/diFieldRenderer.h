@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -58,7 +58,7 @@ public:
   void setPlotOptions(const PlotOptions& po) override;
 
   std::set<PlotOrder> plotLayers() override;
-  void plot(DiGLPainter* gl, PlotOrder zorder) override;
+  bool plot(DiGLPainter* gl, PlotOrder zorder) override;
   bool plotNumbers(DiGLPainter* gl) override;
 
   bool hasVectorAnnotation() override;
@@ -92,7 +92,7 @@ private:
 
   bool plotRaster(DiGLPainter* gl);
 
-  void plotUndefined(DiGLPainter* gl);
+  bool plotUndefined(DiGLPainter* gl);
 
   bool plotFrameOnly(DiGLPainter* gl);
   void plotFrame(DiGLPainter* gl, int nx, int ny, const float* x, const float* y);

@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2021 met.no
+ Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -127,7 +127,7 @@ void FieldRenderer::setPlotOptions(const PlotOptions& po)
 
   const std::string& pt = plottype();
   is_raster_ = (pt == fpt_alpha_shade || pt == fpt_rgb || pt == fpt_alarm_box || pt == fpt_fill_cell);
-  is_shade_ = is_raster_ || (poptions_.contourShading > 0 && (pt == fpt_contour || pt == fpt_contour1 || pt == fpt_contour2));
+  is_shade_ = is_raster_ || (poptions_.contourShading && (pt == fpt_contour || pt == fpt_contour1 || pt == fpt_contour2));
 }
 
 bool FieldRenderer::isShadePlot() const
@@ -143,7 +143,7 @@ void FieldRenderer::setMap(const PlotArea& pa)
 std::set<PlotOrder> FieldRenderer::plotLayers()
 {
   std::set<PlotOrder> layers;
-  if (poptions_.gridLines > 0 || poptions_.gridValue > 0 || (poptions_.undefMasking > 0 && checkFields(1) && !fields_[0]->allDefined()))
+  if (poptions_.gridLines > 0 || poptions_.gridValue || (poptions_.undefMasking > 0 && checkFields(1) && !fields_[0]->allDefined()))
     layers.insert(PO_SHADE_BACKGROUND);
   if (isShadePlot())
     layers.insert(PO_SHADE);
@@ -152,11 +152,11 @@ std::set<PlotOrder> FieldRenderer::plotLayers()
   return layers;
 }
 
-void FieldRenderer::plot(DiGLPainter* gl, PlotOrder zorder)
+bool FieldRenderer::plot(DiGLPainter* gl, PlotOrder zorder)
 {
   METLIBS_LOG_TIME();
   if (fields_.empty())
-    return;
+    return true;
 
   if (poptions_.antialiasing)
     gl->Enable(DiGLPainter::gl_MULTISAMPLE);
@@ -166,20 +166,28 @@ void FieldRenderer::plot(DiGLPainter* gl, PlotOrder zorder)
   if (zorder == PO_SHADE_BACKGROUND) {
     // should be below all real fields
     if (poptions_.gridLines > 0)
-      plotGridLines(gl);
-    if (poptions_.gridValue > 0)
-      plotNumbers(gl);
+      if (!plotGridLines(gl))
+        return false;
+    if (poptions_.gridValue) {
+      if (!plotNumbers(gl))
+        return false;
+    }
 
-    plotUndefined(gl);
+    if (!plotUndefined(gl)) {
+      return false;
+    }
   } else if (zorder == PO_SHADE) {
-    if (isShadePlot())
-      plotMe(gl, zorder);
+    if (isShadePlot()) {
+      return plotMe(gl, zorder);
+    }
   } else if (zorder == PO_LINES) {
-    if (!isShadePlot())
-      plotMe(gl, zorder);
+    if (!isShadePlot()) {
+      return plotMe(gl, zorder);
+    }
   } else if (zorder == PO_OVERLAY) {
-    plotMe(gl, zorder);
+    return plotMe(gl, zorder);
   }
+  return true;
 }
 
 bool FieldRenderer::plotMe(DiGLPainter* gl, PlotOrder zorder)
@@ -1175,7 +1183,7 @@ bool FieldRenderer::plotValues(DiGLPainter* gl)
     if (poptions_.colours.size() > i) {
       col[i] = poptions_.colours[i];
     } else {
-      col[i] = poptions_.textcolour;
+      col[i] = poptions_.linecolour;
     }
   }
 
@@ -1383,7 +1391,7 @@ bool FieldRenderer::plotContour(DiGLPainter* gl)
   int idraw, nlines, nlim;
   int ncol, icol[mmmUsed], ntyp, ityp[mmmUsed], nwid, iwid[mmmUsed];
   float zrange[2], zstep, zoff, rlim[mmm];
-  float rlines[poptions_.linevalues.size()];
+  float rlines[poptions_.linevalues().size()];
   int idraw2, nlines2, nlim2;
   int ncol2, icol2[mmmUsed], ntyp2, ityp2[mmmUsed], nwid2, iwid2[mmmUsed];
   float zrange2[2], zstep2 = 0, zoff2 = 0, rlines2[mmmUsed], rlim2[mmm];
@@ -1442,7 +1450,7 @@ bool FieldRenderer::plotContour(DiGLPainter* gl)
   xylim[2] = pa_.getMapSize().y1;
   xylim[3] = pa_.getMapSize().y2;
 
-  if (poptions_.valueLabel == 0)
+  if (!poptions_.valueLabel)
     labfmt[0] = 0;
   else
     labfmt[0] = -1;
@@ -1465,28 +1473,26 @@ bool FieldRenderer::plotContour(DiGLPainter* gl)
   zstep = poptions_.lineinterval;
   zoff = poptions_.base;
 
-  if (poptions_.linevalues.size() > 0) {
-    nlines = poptions_.linevalues.size();
-    if (nlines > mmmUsed)
-      nlines = mmmUsed;
+  if (poptions_.use_linevalues()) {
+    nlines = std::min((int)poptions_.linevalues().size(), mmmUsed);
     for (int ii = 0; ii < nlines; ii++) {
-      rlines[ii] = poptions_.linevalues[ii];
+      rlines[ii] = poptions_.linevalues()[ii];
     }
     idraw = 3;
-  } else if (poptions_.loglinevalues.size() > 0) {
-    nlines = poptions_.loglinevalues.size();
-    if (nlines > mmmUsed)
-      nlines = mmmUsed;
+  } else if (poptions_.use_loglinevalues()) {
+    nlines = std::min((int)poptions_.loglinevalues().size(), mmmUsed);
     for (int ii = 0; ii < nlines; ii++) {
-      rlines[ii] = poptions_.loglinevalues[ii];
+      rlines[ii] = poptions_.loglinevalues()[ii];
     }
     idraw = 4;
-  } else {
+  } else if (poptions_.use_lineinterval()) {
     nlines = 0;
     idraw = 1;
-    if (poptions_.zeroLine == 0) {
+    if (!poptions_.zeroLine) {
       idraw = 2;
     }
+  } else {
+    return false;
   }
 
   zrange[0] = +1.;
@@ -1528,11 +1534,11 @@ bool FieldRenderer::plotContour(DiGLPainter* gl)
   nxbmap = 0;
   nybmap = 0;
 
-  if (poptions_.contourShading == 0 && !poptions_.options_1)
+  if (!poptions_.contourShading && !poptions_.options_1)
     idraw = 0;
 
   // Plot colour shading
-  if (poptions_.contourShading != 0) {
+  if (poptions_.contourShading) {
 
     int idraw2 = 0;
 
@@ -1557,25 +1563,25 @@ bool FieldRenderer::plotContour(DiGLPainter* gl)
   } else {
     zstep2 = poptions_.lineinterval_2;
     zoff2 = poptions_.base_2;
-    if (poptions_.linevalues_2.size() > 0) {
-      nlines2 = poptions_.linevalues_2.size();
+    if (!poptions_.linevalues_2().empty()) {
+      nlines2 = poptions_.linevalues_2().size();
       if (nlines2 > mmmUsed)
         nlines2 = mmmUsed;
       for (int ii = 0; ii < nlines2; ii++) {
-        rlines2[ii] = poptions_.linevalues_2[ii];
+        rlines2[ii] = poptions_.linevalues_2()[ii];
       }
       idraw2 = 3;
-    } else if (poptions_.loglinevalues_2.size() > 0) {
-      nlines2 = poptions_.loglinevalues_2.size();
+    } else if (!poptions_.loglinevalues_2().empty()) {
+      nlines2 = poptions_.loglinevalues_2().size();
       if (nlines2 > mmmUsed)
         nlines2 = mmmUsed;
       for (int ii = 0; ii < nlines2; ii++) {
-        rlines2[ii] = poptions_.loglinevalues_2[ii];
+        rlines2[ii] = poptions_.loglinevalues_2()[ii];
       }
       idraw2 = 4;
     } else {
       idraw2 = 1;
-      if (poptions_.zeroLine == 0) {
+      if (!poptions_.zeroLine) {
         idraw2 = 2;
       }
     }
@@ -1583,20 +1589,18 @@ bool FieldRenderer::plotContour(DiGLPainter* gl)
 
   if (idraw > 0 || idraw2 > 0) {
 
-    if (poptions_.colours.size() > 1) {
-      if (idraw > 0 && idraw2 > 0) {
-        icol[0] = 0;
-        icol2[0] = 1;
-      } else {
-        ncol = poptions_.colours.size();
-        if (ncol > mmmUsed)
-          ncol = mmmUsed;
-        for (int i = 0; i < ncol; ++i)
-          icol[i] = i;
-      }
+    if (poptions_.colours.size() > 2) {
+      ncol = poptions_.colours.size();
+      if (ncol > mmmUsed)
+        ncol = mmmUsed;
+      for (int i = 0; i < ncol; ++i)
+        icol[i] = i;
+    } else if (idraw > 0 && idraw2 > 0) {
+      icol[0] = 0;
+      icol2[0] = 1;
     } else if (idraw > 0) {
       gl->setColour(poptions_.linecolour, false);
-    } else {
+    } else /*if (idraw2 > 0) -- true because outer "if" condition */ {
       gl->setColour(poptions_.linecolour_2, false);
     }
 
@@ -1605,43 +1609,27 @@ bool FieldRenderer::plotContour(DiGLPainter* gl)
       zrange2[1] = poptions_.maxvalue_2;
     }
 
-    if (poptions_.linewidths.size() == 1) {
+    if (poptions_.options_1 && !poptions_.options_2) {
       gl->LineWidth(poptions_.linewidth);
-    } else {
-      if (idraw2 > 0) { // two set of plot options
-        iwid[0] = 0;
-        iwid2[0] = 1;
-      } else { // one set of plot options, different lines
-        nwid = poptions_.linewidths.size();
-        if (nwid > mmmUsed)
-          nwid = mmmUsed;
-        for (int i = 0; i < nwid; ++i)
-          iwid[i] = i;
-      }
+    } else if (idraw2 > 0) { // two set of plot options
+      iwid[0] = 0;
+      iwid2[0] = 1;
     }
 
-    if (poptions_.linetypes.size() == 1 && poptions_.linetype.stipple) {
+    if (poptions_.options_1 && !poptions_.options_2 && poptions_.linetype.stipple) {
       gl->LineStipple(poptions_.linetype.factor, poptions_.linetype.bmap);
       gl->Enable(DiGLPainter::gl_LINE_STIPPLE);
-    } else {
-      if (idraw2 > 0) { // two set of plot options
-        ityp[0] = 0;
-        ityp2[0] = 1;
-      } else { // one set of plot options, different lines
-        ntyp = poptions_.linetypes.size();
-        if (ntyp > mmmUsed)
-          ntyp = mmmUsed;
-        for (int i = 0; i < ntyp; ++i)
-          ityp[i] = i;
-      }
+    } else if (idraw2 > 0) { // two set of plot options
+      ityp[0] = 0;
+      ityp2[0] = 1;
     }
 
     if (!poptions_.options_1)
       idraw = 0;
 
     // turn off contour shading
-    bool contourShading = poptions_.contourShading;
-    poptions_.contourShading = 0;
+    const bool contourShading = poptions_.contourShading;
+    poptions_.contourShading = false;
 
     res = contour(rnx, rny, data, x, y, ipart, 2, NULL, xylim, idraw, zrange, zstep, zoff, nlines, rlines, ncol, icol, ntyp, ityp, nwid, iwid, nlim, rlim,
                   idraw2, zrange2, zstep2, zoff2, nlines2, rlines2, ncol2, icol2, ntyp2, ityp2, nwid2, iwid2, nlim2, rlim2, ismooth, labfmt, chxlab, chylab,
@@ -1693,7 +1681,7 @@ bool FieldRenderer::plotContour2(DiGLPainter* gl, PlotOrder zorder)
     return true;
   }
 
-  if (not checkFields(1)) {
+  if (!checkFields(1)) {
     METLIBS_LOG_ERROR("no fields or no field data");
     return false;
   }
@@ -1711,7 +1699,7 @@ bool FieldRenderer::plotContour2(DiGLPainter* gl, PlotOrder zorder)
   const int nx = fields_[0]->area.nx;
   const int ny = fields_[0]->area.ny;
   if (gp.ix1 >= nx || gp.ix2 < 0 || gp.iy1 >= ny || gp.iy2 < 0)
-    return false;
+    return true;
 
   if (poptions_.frame)
     plotFrame(gl, nx, ny, x, y);
@@ -1720,12 +1708,16 @@ bool FieldRenderer::plotContour2(DiGLPainter* gl, PlotOrder zorder)
     gl->setFont(poptions_.fontname, poptions_.fontface, 10 * poptions_.labelSize);
 
   {
-    if (not poly_contour(nx, ny, gp.ix1, gp.iy1, gp.ix2, gp.iy2, fields_[0]->data, x, y, gl, poptions_, fieldUndef, paintMode))
+    if (!poly_contour(nx, ny, gp.ix1, gp.iy1, gp.ix2, gp.iy2, fields_[0]->data, x, y, gl, poptions_, fieldUndef, paintMode)) {
       METLIBS_LOG_ERROR("contour2 error");
+      return false;
+    }
   }
   if (poptions_.options_2) {
-    if (not poly_contour(nx, ny, gp.ix1, gp.iy1, gp.ix2, gp.iy2, fields_[0]->data, x, y, gl, poptions_, fieldUndef, paintMode, true))
+    if (!poly_contour(nx, ny, gp.ix1, gp.iy1, gp.ix2, gp.iy2, fields_[0]->data, x, y, gl, poptions_, fieldUndef, paintMode, true)) {
       METLIBS_LOG_ERROR("contour2 options_2 error");
+      return false;
+    }
   }
   if (poptions_.extremeType != "None" && poptions_.extremeType != "Ingen" && !poptions_.extremeType.empty())
     markExtreme(gl);
@@ -1755,7 +1747,7 @@ bool FieldRenderer::plotRaster(DiGLPainter* gl)
     }
   }
   if (x && y && poptions_.frame) {
-    gl->setLineStyle(poptions_.bordercolour, poptions_.linewidth, false);
+    gl->setLineStyle(poptions_.linecolour, poptions_.linewidth, false);
     plotFrame(gl, nx, ny, x, y);
   }
 
@@ -1848,7 +1840,7 @@ void FieldRenderer::plotFrame(DiGLPainter* gl, int nx, int ny, const float* x, c
     gl->drawPolygon(frame);
   }
   if ((poptions_.frame & 1) != 0) {
-    gl->setLineStyle(poptions_.bordercolour, poptions_.linewidth, true);
+    gl->setLineStyle(poptions_.linecolour, poptions_.linewidth, true);
     gl->PolygonMode(DiGLPainter::gl_FRONT_AND_BACK, DiGLPainter::gl_LINE);
     gl->drawPolyline(frame);
   }
@@ -2155,7 +2147,7 @@ bool FieldRenderer::plotGridLines(DiGLPainter* gl)
     return false;
   }
 
-  Colour bc = poptions_.bordercolour;
+  Colour bc = poptions_.linecolour;
   bc.setF(Colour::alpha, 0.5);
   gl->setLineStyle(bc, 1);
 
@@ -2181,30 +2173,30 @@ bool FieldRenderer::plotGridLines(DiGLPainter* gl)
 }
 
 // show areas with undefined field values
-void FieldRenderer::plotUndefined(DiGLPainter* gl)
+bool FieldRenderer::plotUndefined(DiGLPainter* gl)
 {
   METLIBS_LOG_SCOPE();
 
   if (poptions_.undefMasking <= 0)
-    return;
+    return true;
 
-  if (not checkFields(1)) // FIXME wrong, if NONE_DEFINED, field[0]->data may be nullptr
-    return;
+  if (!checkFields(1)) // FIXME wrong, if NONE_DEFINED, field[0]->data may be nullptr
+    return false;
 
   if (fields_[0]->allDefined())
-    return;
+    return true;
 
   if (plottype() == fpt_contour || plottype() == fpt_contour2) {
-    plotContour2(gl, PO_SHADE_BACKGROUND);
-    return;
+    return plotContour2(gl, PO_SHADE_BACKGROUND);
   }
 
   if (is_raster_ && !fields_[0]->allDefined()) {
     RasterUndef raster(pa_, fields_, poptions_);
     QImage target = raster.rasterPaint();
-    if (!target.isNull())
-      gl->drawScreenImage(QPointF(0, 0), target);
-    return;
+    if (target.isNull())
+      return false;
+    gl->drawScreenImage(QPointF(0, 0), target);
+    return true;
   }
 
   const int nx_fld = fields_[0]->area.nx, ny_fld = fields_[0]->area.ny;
@@ -2213,9 +2205,9 @@ void FieldRenderer::plotUndefined(DiGLPainter* gl)
   // convert gridpoints to correct projection
   GridPoints gp;
   if (!getGridPoints(gp, 1, true))
-    return;
+    return false;
   if (gp.ix1 >= nx_fld || gp.ix2 < 0 || gp.iy1 >= ny_fld || gp.iy2 < 0)
-    return;
+    return true;
   const float *x = gp.x(), *y = gp.y();
 
   const diutil::is_undef undef_f0(fields_[0]->data, nx_fld);
@@ -2301,6 +2293,7 @@ void FieldRenderer::plotUndefined(DiGLPainter* gl)
   }
 
   gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
+  return true;
 }
 
 /*

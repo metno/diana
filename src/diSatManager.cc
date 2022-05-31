@@ -32,6 +32,7 @@
 #include "diSatPlot.h"
 #include "diSatPlotCommand.h"
 #include "diUtilities.h"
+#include "miSetupParser.h"
 #include "util/time_util.h"
 
 #include <mi_fieldcalc/math_util.h>

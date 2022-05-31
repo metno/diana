@@ -1,6 +1,6 @@
 #  Diana - A Free Meteorological Visualisation Tool
 #
-#  Copyright (C) 2017-2021 met.no
+#  Copyright (C) 2017-2022 met.no
 #
 #  Contact information:
 #  Norwegian Meteorological Institute
@@ -93,7 +93,6 @@ SET (LIBDIANA_SOURCES
   diAreaObjectsCluster.cc
   diColour.cc
   diColourShading.cc
-  diCommandParser.cc
   diComplexSymbolPlot.cc
   diContouring.cc
   diDisplayObjects.cc
@@ -242,6 +241,7 @@ SET (LIBDIANA_SOURCES
   util/time_util.cc
   util/was_enabled.cc
   util/qtComboBoxItemDelegate.cc
+  util/qtDoubleStepAdapter.cc
 
   vcross_v2/VcrossCollector.cc
   vcross_v2/VcrossComputer.cc

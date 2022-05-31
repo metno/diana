@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2018-2020 met.no
+  Copyright (C) 2018-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -49,6 +49,11 @@ void DianaFieldDialogData::getFieldPlotGroups(const std::string& modelName, cons
 FieldDialogData::attributes_t DianaFieldDialogData::getFieldGlobalAttributes(const std::string& modelName, const std::string& refTime)
 {
   return fpm_->getFieldGlobalAttributes(modelName, refTime);
+}
+
+int DianaFieldDialogData::getFieldPlotDimension(const std::vector<std::string>& plotOrParamNames, bool predefinedPlot)
+{
+  return fpm_->getFieldPlotDimension(plotOrParamNames, predefinedPlot);
 }
 
 std::string DianaFieldDialogData::getBestFieldReferenceTime(const std::string& model, int refOffset, int refHour)

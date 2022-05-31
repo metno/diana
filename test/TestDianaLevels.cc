@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2018 met.no
+  Copyright (C) 2018-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,9 +27,11 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-
+#include "diColour.h"
 #include <diPlotOptions.h>
 #include <diPolyContouring.h>
+
+#include <mi_fieldcalc/FieldDefined.h>
 
 #include <boost/range/end.hpp>
 #include <vector>
@@ -41,9 +43,7 @@ using namespace std;
 
 TEST(TestDianaLevels, Log)
 {
-  const float a_loglinevalues[] = { 1, 3 };
-  const std::vector<float> v_loglinevalues(a_loglinevalues, boost::end(a_loglinevalues));
-  const DianaLevelLog ll(v_loglinevalues);
+  const DianaLevelLog ll({1.0, 3.0});
   const int UNDEF = DianaLevels::UNDEF_LEVEL;
 
   EXPECT_EQ(-10, ll.level_for_value(0.9e-5));
@@ -59,6 +59,7 @@ TEST(TestDianaLevels, Log)
   EXPECT_FLOAT_EQ(3e-36, ll.value_for_level(-71));
 
   EXPECT_EQ(-72, ll.level_for_value(0.7e-36));
+  EXPECT_EQ(-72, ll.level_for_value(1e-36));
   EXPECT_FLOAT_EQ(1e-36, ll.value_for_level(-72));
 
   EXPECT_EQ(-85, ll.level_for_value(3.0e-43));
@@ -74,9 +75,7 @@ TEST(TestDianaLevels, Log)
 
 TEST(TestDianaLevels, List10)
 {
-  const float a_loglinevalues[] = { 1, 3 };
-  const std::vector<float> v_loglinevalues(a_loglinevalues, boost::end(a_loglinevalues));
-  const DianaLevelList10 ll(v_loglinevalues, 10);
+  const DianaLevelList10 ll({1.0, 3.0}, 10);
 
   EXPECT_EQ(0, ll.level_for_value(0.1));
   EXPECT_EQ(1, ll.level_for_value(2));
@@ -90,11 +89,142 @@ TEST(TestDianaLevels, List10)
 
 TEST(TestDianaLevels, List)
 {
-  const float a_linevalues[] = { 8,10.8,13.9,17.2,20.8,24.5,28.5,32.7 };
-  const std::vector<float> v_linevalues(a_linevalues, boost::end(a_linevalues));
-  const DianaLevelList ll(v_linevalues);
+  const DianaLevelList ll({8, 10.8, 13.9, 17.2, 20.8, 24.5, 28.5, 32.7});
 
   EXPECT_EQ(0, ll.level_for_value(5));
   EXPECT_EQ(1, ll.level_for_value(9));
   EXPECT_EQ(2, ll.level_for_value(11));
+
+  EXPECT_FLOAT_EQ(8, ll.value_for_level(0));
+  EXPECT_FLOAT_EQ(10.8, ll.value_for_level(1));
+}
+
+TEST(TestDianaLevels, StepInterval2Base0)
+{
+  DianaLevelStep step(2, 0);
+
+  EXPECT_EQ(step.level_for_value(0), 0);
+  EXPECT_EQ(step.level_for_value(-3), -1);
+
+  EXPECT_EQ(step.level_for_value(-0.4), 0);
+  EXPECT_EQ(step.level_for_value(8.4), 5);
+
+  EXPECT_EQ(step.value_for_level(0), 0);
+}
+
+TEST(TestDianaLevels, StepInterval2Base2)
+{
+  DianaLevelStep step(2, 2);
+
+  EXPECT_EQ(step.level_for_value(2), 0);
+  EXPECT_EQ(step.level_for_value(0), -1);
+  EXPECT_EQ(step.level_for_value(-3), -2);
+
+  EXPECT_EQ(step.level_for_value(-0.4), -1);
+  EXPECT_EQ(step.level_for_value(8.4), 4);
+
+  EXPECT_EQ(step.value_for_level(0), 2);
+  EXPECT_EQ(step.value_for_level(-1), 0);
+  EXPECT_EQ(step.value_for_level(4), 10);
+}
+
+TEST(TestDianaLevels, StepInterval2Base3)
+{
+  DianaLevelStep step(2, 3);
+
+  EXPECT_EQ(step.level_for_value(3), 0);
+  EXPECT_EQ(step.level_for_value(-3), -3);
+  EXPECT_EQ(step.level_for_value(0), -1);
+
+  EXPECT_EQ(step.level_for_value(-0.4), -1);
+  EXPECT_EQ(step.level_for_value(8.4), 3);
+
+  EXPECT_EQ(step.value_for_level(0), 3);
+  EXPECT_EQ(step.value_for_level(-2), -1); // minimum is not an integer multiple
+}
+
+TEST(TestDianaLevelSelect, StepInterval2)
+{
+  PlotOptions po;
+  po.lineinterval = 2;
+  po.minvalue = 0;
+  po.maxvalue = 8;
+  po.base = 0;
+  DianaLevels_p levels = dianaLevelsForPlotOptions(po, fieldUndef);
+  ASSERT_TRUE(levels);
+  DianaLevelSelector dls(po, *levels, DianaLines::LINES_LABELS | DianaLines::FILL);
+
+  EXPECT_FALSE(dls.line(levels->level_for_value(-2)));
+  EXPECT_TRUE(dls.line(levels->level_for_value(0)));
+  EXPECT_TRUE(dls.line(levels->level_for_value(8)));
+  EXPECT_FALSE(dls.line(levels->level_for_value(9)));
+
+  EXPECT_FALSE(dls.fill(levels->level_for_value(-2)));
+  EXPECT_FALSE(dls.fill(levels->level_for_value(0))); // line yes, fill no
+  EXPECT_TRUE(dls.fill(levels->level_for_value(8)));
+  EXPECT_FALSE(dls.fill(levels->level_for_value(9)));
+}
+
+TEST(TestDianaLevelSelect, StepInterval2NoZero)
+{
+  PlotOptions po;
+  po.lineinterval = 2;
+  po.minvalue = -8;
+  po.maxvalue = 8;
+  po.base = 0;
+  po.zeroLine = false;
+  DianaLevels_p levels = dianaLevelsForPlotOptions(po, fieldUndef);
+  ASSERT_TRUE(levels);
+  DianaLevelSelector dls(po, *levels, DianaLines::LINES_LABELS | DianaLines::FILL);
+
+  EXPECT_FALSE(dls.line(levels->level_for_value(-10)));
+  EXPECT_TRUE(dls.line(levels->level_for_value(-2)));
+  EXPECT_FALSE(dls.line(levels->level_for_value(0)));
+  EXPECT_TRUE(dls.line(levels->level_for_value(+2)));
+  EXPECT_FALSE(dls.line(levels->level_for_value(+10)));
+
+  EXPECT_FALSE(dls.fill(levels->level_for_value(-10)));
+  EXPECT_FALSE(dls.fill(levels->level_for_value(-8)));
+  EXPECT_TRUE(dls.fill(levels->level_for_value(-2)));
+  EXPECT_FALSE(dls.fill(levels->level_for_value(0)));
+  EXPECT_FALSE(dls.fill(levels->level_for_value(+2)));
+  EXPECT_TRUE(dls.fill(levels->level_for_value(+4)));
+  EXPECT_FALSE(dls.fill(levels->level_for_value(+10)));
+}
+
+TEST(TestDianaLevelSelect, LineValues)
+{
+  PlotOptions po;
+  po.set_lineinterval(0);
+  po.set_linevalues("0.2,0.5,1,2,4,6,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80");
+  DianaLevels_p levels = dianaLevelsForPlotOptions(po, fieldUndef);
+  ASSERT_TRUE(levels);
+  DianaLevelSelector dls(po, *levels, DianaLines::LINES_LABELS | DianaLines::FILL);
+
+  EXPECT_EQ(0, levels->level_for_value(0.2));
+
+  EXPECT_TRUE(dls.line(levels->level_for_value(0)));
+  EXPECT_TRUE(dls.line(levels->level_for_value(0.2)));
+  EXPECT_TRUE(dls.line(levels->level_for_value(0.5)));
+
+  EXPECT_FALSE(dls.fill(levels->level_for_value(0)));
+  EXPECT_FALSE(dls.fill(levels->level_for_value(0.2)));
+  EXPECT_TRUE(dls.fill(levels->level_for_value(0.5)));
+}
+
+TEST(TestDianaLevelSelect, Undef)
+{
+  PlotOptions po;
+  po.set_lineinterval(0);
+  po.set_linevalues("2,3,4");
+  po.undefMasking = 1;
+  po.undefColour = Colour::BLACK;
+  DianaLevels_p levels = dianaLevelsForPlotOptions(po, fieldUndef);
+  ASSERT_TRUE(levels);
+  DianaLevelSelector dls(po, *levels, DianaLines::LINES_LABELS | DianaLines::FILL | DianaLines::UNDEFINED);
+
+  EXPECT_EQ(DianaLevels::UNDEF_LEVEL, levels->level_for_value(fieldUndef));
+  EXPECT_NE(DianaLevels::UNDEF_LEVEL, levels->level_for_value(3));
+
+  EXPECT_TRUE(dls.fill(DianaLevels::UNDEF_LEVEL));
 }

@@ -453,7 +453,7 @@ bool SpectrumPlot::plot(SpectrumOptions *spopt, DiGLPainter* gl)
 
     if (spopt->pSpectrumLines) {
 
-      poptions.contourShading= 0;
+      poptions.contourShading = false;
 
       gl->setFont(diutil::SCALEFONT);
       gl->setFontSize(fontSizeLabel);

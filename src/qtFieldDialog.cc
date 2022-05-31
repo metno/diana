@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2021 met.no
+  Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -31,12 +31,14 @@
 
 #include "diFieldDialogData.h"
 #include "diFieldUtil.h"
+#include "diPlotOptions.h"
 #include "qtFieldDialogAdd.h"
 #include "qtFieldDialogStyle.h"
 #include "qtStringSliderControl.h"
 #include "qtToggleButton.h"
 #include "qtUtility.h"
 #include "util/misc_util.h"
+#include "util/plotoptions_util.h"
 #include "util/string_util.h"
 
 #include <QAction>
@@ -85,9 +87,43 @@ QString fieldBoxText(const SelectedField& sf)
 
 } // anonymous namespace
 
+void SelectedField::setFieldPlotOptions(const miutil::KeyValue_v& kv)
+{
+  oo.clear();
+  po = PlotOptions();
+  PlotOptions::parsePlotOption(kv, po, oo);
+  diutil::maybeSetDefaults(po);
+
+  {
+    // units are set in this dialog, but are not part of PlotOptions
+    size_t idx = miutil::rfind(oo, UNITS);
+    if (idx == size_t(-1))
+      idx = miutil::rfind(oo, UNIT);
+    if (idx == size_t(-1))
+      units.clear();
+    else {
+      units = oo[idx].value();
+      oo.erase(oo.begin() + idx);
+    }
+  }
+}
+
+miutil::KeyValue_v SelectedField::getFieldPlotOptions() const
+{
+  miutil::KeyValue_v kv = po.toKeyValueList();
+  kv << oo;
+  if (!units.empty())
+    kv << miutil::kv(UNITS, units);
+  return kv;
+}
+
+// ========================================================================
+
 FieldDialog::FieldDialog(QWidget* parent, FieldDialogData* data)
     : DataDialog(parent, 0)
     , m_data(data)
+    , currentSelectedFieldIndex(-1)
+    , hasEditFields(false)
 {
   METLIBS_LOG_SCOPE();
 
@@ -97,8 +133,6 @@ FieldDialog::FieldDialog(QWidget* parent, FieldDialogData* data)
   m_action->setShortcut(Qt::ALT + Qt::Key_F);
   m_action->setIconVisibleInMenu(true);
   helpFileName = "ug_fielddialogue.html";
-
-  hasEditFields = false;
 
   editName = tr("EDIT").toStdString();
 
@@ -140,7 +174,7 @@ FieldDialog::FieldDialog(QWidget* parent, FieldDialogData* data)
   idnumLabel->setMinimumSize(idnumLabel->sizeHint().width() + 10,
                              idnumLabel->sizeHint().height() + 10);
   idnumLabel->setMaximumSize(idnumLabel->sizeHint().width() + 10,
-      idnumLabel->sizeHint().height() + 10);
+                             idnumLabel->sizeHint().height() + 10);
 
   idnumLabel->setFrameStyle(QFrame::Box | QFrame::Plain);
   idnumLabel->setLineWidth(2);
@@ -182,7 +216,7 @@ FieldDialog::FieldDialog(QWidget* parent, FieldDialogData* data)
 
   // resetOptions
   resetOptionsButton = new QPushButton(tr("Default"), this);
-  connect(resetOptionsButton, &QPushButton::clicked, fieldStyle, &FieldDialogStyle::resetOptions);
+  connect(resetOptionsButton, &QPushButton::clicked, this, &FieldDialog::resetFieldOptionsClicked);
 
   // minus
   minusButton = new ToggleButton(this, tr("Minus"));
@@ -202,9 +236,9 @@ FieldDialog::FieldDialog(QWidget* parent, FieldDialogData* data)
   // layout
   QVBoxLayout* v1layout = new QVBoxLayout();
   v1layout->setSpacing(1);
-  v1layout->addWidget(fieldAdd);
+  v1layout->addWidget(fieldAdd, 1);
   v1layout->addWidget(selectedFieldlabel);
-  v1layout->addWidget(selectedFieldbox, 2);
+  v1layout->addWidget(selectedFieldbox);
 
   QHBoxLayout* v1h4layout = new QHBoxLayout();
   v1h4layout->addWidget(upFieldButton);
@@ -221,10 +255,6 @@ FieldDialog::FieldDialog(QWidget* parent, FieldDialogData* data)
   QVBoxLayout* v3layout = new QVBoxLayout();
   v3layout->addLayout(v1h4layout);
   v3layout->addLayout(vxh4layout);
-
-  QHBoxLayout* h3layout = new QHBoxLayout();
-  h3layout->addLayout(v3layout);
-  //  h3layout->addLayout(v4layout);
 
   QHBoxLayout* levelsliderlayout = new QHBoxLayout();
   levelsliderlayout->setAlignment(Qt::AlignHCenter);
@@ -253,7 +283,6 @@ FieldDialog::FieldDialog(QWidget* parent, FieldDialogData* data)
   idnumlayout->addLayout(idnumsliderlabellayout);
 
   QHBoxLayout* h4layout = new QHBoxLayout();
-  //h4layout->addLayout(h2layout);
   h4layout->addWidget(fieldStyle->standardWidget());
   h4layout->addLayout(levellayout);
   h4layout->addLayout(idnumlayout);
@@ -264,15 +293,12 @@ FieldDialog::FieldDialog(QWidget* parent, FieldDialogData* data)
 
   QLayout* h6layout = createStandardButtons(false);
 
-  QVBoxLayout* v6layout = new QVBoxLayout();
-  v6layout->addLayout(h5layout);
-  v6layout->addLayout(h6layout);
-
   QVBoxLayout* vlayout = new QVBoxLayout();
-  vlayout->addLayout(v1layout);
-  vlayout->addLayout(h3layout);
+  vlayout->addLayout(v1layout, 1);
+  vlayout->addLayout(v3layout);
   vlayout->addLayout(h4layout);
-  vlayout->addLayout(v6layout);
+  vlayout->addLayout(h5layout);
+  vlayout->addLayout(h6layout);
 
   QGridLayout *mainLayout = new QGridLayout;
   mainLayout->addLayout(vlayout, 0, 0);
@@ -535,8 +561,9 @@ void FieldDialog::addPlot(const std::string& model, const std::string& reftime, 
   }
   sf.hourOffset = 0;
   sf.hourDiff = 0;
+  sf.dimension = m_data->getFieldPlotDimension({sf.fieldName}, sf.predefinedPlot);
 
-  sf.fieldOpts = fieldStyle->getFieldOptions(sf.fieldName, false);
+  sf.setFieldPlotOptions(fieldStyle->getFieldOptions(sf.fieldName, false));
 
   addSelectedField(sf);
 
@@ -553,13 +580,23 @@ void FieldDialog::removePlot(const std::string& model, const std::string& reftim
     deleteSelectedField(std::distance(selectedFields.begin(), it));
 }
 
+void FieldDialog::updateFieldOptions()
+{
+  if (currentSelectedFieldIndex >= 0 && currentSelectedFieldIndex < selectedFields.size()) {
+    fieldStyle->updateFieldOptions(&selectedFields[currentSelectedFieldIndex]);
+  }
+}
+
 void FieldDialog::enableFieldOptions()
 {
   METLIBS_LOG_SCOPE();
 
-  int index = selectedFieldbox->currentRow();
-  int lastindex = selectedFields.size() - 1;
+  const int index = selectedFieldbox->currentRow();
+  if (index != currentSelectedFieldIndex)
+    updateFieldOptions();
+  currentSelectedFieldIndex = index;
 
+  const int lastindex = selectedFields.size() - 1;
   if (index < 0 || index > lastindex) {
     fieldStyle->enableFieldOptions(nullptr);
     return;
@@ -594,6 +631,8 @@ PlotCommand_cpv FieldDialog::getOKString()
 {
   METLIBS_LOG_SCOPE();
 
+  updateFieldOptions();
+
   PlotCommand_cpv vstr;
   if (selectedFields.empty())
     return vstr;
@@ -617,7 +656,7 @@ PlotCommand_cpv FieldDialog::getOKString()
     if (minus)
       getParamString(selectedFields[i + 1], cmd->minus);
 
-    cmd->addOptions(sf.fieldOpts);
+    cmd->addOptions(sf.getFieldPlotOptions());
     cmd->time = selectedFields[i].time;
 
     vstr.push_back(cmd);
@@ -885,14 +924,15 @@ bool FieldDialog::decodeCommand(FieldPlotCommand_cp cmd, const FieldPlotCommand:
 
   sf.hourOffset = fs.hourOffset;
   sf.hourDiff = fs.hourDiff;
-
-  sf.fieldOpts = cmd->options();
+  sf.dimension = m_data->getFieldPlotDimension({sf.fieldName}, sf.predefinedPlot);
 
   if (!fs.allTimeSteps)
-      allTimeStepButton->setChecked(false);
+    allTimeStepButton->setChecked(false);
 
   // merge with options from setup/logfile for this fieldname
-  mergeFieldOptions(sf.fieldOpts, fieldStyle->getFieldOptions(fs.name(), true));
+  miutil::KeyValue_v kv;
+  kv << fieldStyle->getFieldOptions(fs.name(), true) << cmd->options();
+  sf.setFieldPlotOptions(kv);
 
   METLIBS_LOG_DEBUG(LOGVAL(sf.modelName) << LOGVAL(sf.fieldName) << LOGVAL(sf.level) << LOGVAL(sf.idnum));
 
@@ -1112,6 +1152,9 @@ void FieldDialog::minusField(bool on)
 void FieldDialog::updateTime()
 {
   METLIBS_LOG_SCOPE();
+
+  updateFieldOptions();
+
   plottimes_t fieldtime;
 
   std::vector<FieldRequest> request;
@@ -1169,7 +1212,7 @@ void FieldDialog::fieldEditUpdate(const string& str)
       // str=fieldName if the field is not already read
       sf.inEdit = true;
       sf.fieldName = vstr[0];
-      sf.fieldOpts = fieldStyle->getFieldOptions(sf.fieldName, false);
+      sf.setFieldPlotOptions(fieldStyle->getFieldOptions(sf.fieldName, false));
       selectedFields.push_back(sf);
       std::string text = editName + " " + sf.fieldName;
       selectedFieldbox->addItem(QString::fromStdString(text));
@@ -1210,4 +1253,11 @@ void FieldDialog::fieldEditUpdate(const string& str)
 void FieldDialog::allTimeStepToggled(bool)
 {
   updateTime();
+}
+
+void FieldDialog::resetFieldOptionsClicked()
+{
+  if (currentSelectedFieldIndex >= 0 && currentSelectedFieldIndex < selectedFields.size()) {
+    fieldStyle->resetFieldOptions(&selectedFields[currentSelectedFieldIndex]);
+  }
 }

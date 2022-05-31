@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2018-2022 met.no
+  Copyright (C) 2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,28 +27,37 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef DIANA_UTIL_PLOTOPTION_UTIL_H
-#define DIANA_UTIL_PLOTOPTION_UTIL_H 1
+#include "qtDoubleStepAdapter.h"
 
-#include <map>
-#include <string>
-#include <vector>
-
-class PlotOptions;
+#include <cmath>
 
 namespace diutil {
 
-void parseClasses(const PlotOptions& poptions, std::vector<float>& classValues, std::vector<std::string>& classNames, std::map<float, std::string>& classImages,
-                  unsigned int& maxlen);
-void parseClasses(const PlotOptions& poptions, std::vector<float>& classValues, std::vector<std::string>& classNames, unsigned int& maxlen);
+inline double mag10(double v)
+{
+  return std::floor(std::log10(v));
+}
 
-std::vector<float> parseClassValues(const PlotOptions& poptions);
+double adaptedStep(double value, int sb_decimals)
+{
+  const double valua = std::abs(value);
+  const double factor = std::pow(10, 1 - mag10(valua));
+  const double valur = std::round(valua * factor) / factor;
+  return std::pow(10, std::max(-1.0 * sb_decimals, mag10(valur) - 1));
+}
 
-//! Apply some defaults if "po" is not configured to plot anything.
-/*! Detection of "not plot anything" is currently rudimentary.
- */
-void maybeSetDefaults(PlotOptions& po);
+DoubleStepAdapter::DoubleStepAdapter(QDoubleSpinBox* parent)
+    : QObject(parent)
+{
+  connect(parent, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &DoubleStepAdapter::adaptValue);
+}
+
+DoubleStepAdapter::~DoubleStepAdapter() {}
+
+void DoubleStepAdapter::adaptValue(double value)
+{
+  QDoubleSpinBox* sb = static_cast<QDoubleSpinBox*>(parent());
+  sb->setSingleStep(adaptedStep(value, sb->decimals()));
+}
 
 } // namespace diutil
-
-#endif // DIANA_UTIL_PLOTOPTION_UTIL_H

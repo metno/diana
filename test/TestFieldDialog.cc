@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2018-2021 met.no
+  Copyright (C) 2018-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -53,6 +53,7 @@ public:
 
   FieldModelGroupInfo_v getFieldModelGroups() override { return fieldModelGroups; }
   attributes_t getFieldGlobalAttributes(const std::string& /*model*/, const std::string& /*refTime*/) override { return attributes_t(); }
+  int getFieldPlotDimension(const std::vector<std::string>& plotOrParamNames, bool predefinedPlot) override { return 1; }
   void updateFieldReferenceTimes(const std::string& model) override { if (model == MODEL1) fieldReferenceTimeUpdates += 1; }
   std::set<std::string> getFieldReferenceTimes(const std::string& m) override { return fieldReferenceTimes[m]; }
   std::string getBestFieldReferenceTime(const std::string& m, int ro, int rh) override { return ::getBestReferenceTime(getFieldReferenceTimes(m), ro, rh); }
@@ -138,7 +139,7 @@ TEST(TestFieldDialog, PutGetOKStringRaw)
   TestFieldDialogData* data = new TestFieldDialogData;
   std::unique_ptr<FieldDialog> dialog(new FieldDialog(0, data));
 
-  const PlotCommand_cpv cmds_put = makeCommands({"FIELD model=" + MODEL1 + " refhour=0 parameter=" + PARAM1 + " plottype=contour"});
+  const PlotCommand_cpv cmds_put = makeCommands({"FIELD model=" + MODEL1 + " refhour=0 parameter=" + PARAM1});
   dialog->putOKString(cmds_put);
   EXPECT_EQ(data->fieldReferenceTimeUpdates, 1);
 
@@ -146,8 +147,7 @@ TEST(TestFieldDialog, PutGetOKStringRaw)
   ASSERT_EQ(cmds_get.size(), 1);
 
   std::ostringstream expect;
-  expect << "FIELD model=" << MODEL1 << " reftime=" << *(data->getFieldReferenceTimes(MODEL1).begin()) << " parameter=" << PARAM1;
-  expect << ' ' << PlotOptions().toKeyValueList();
+  expect << "FIELD model=" << MODEL1 << " reftime=" << *(data->getFieldReferenceTimes(MODEL1).begin()) << " parameter=" << PARAM1 << " line.interval=10";
   EXPECT_EQ(expect.str(), cmds_get[0]->toString());
 }
 
@@ -160,7 +160,7 @@ TEST(TestFieldDialog, PutGetOKStringMinus)
   // clang-format off
   const PlotCommand_cpv cmds_put = makeCommands({"FIELD ( model=" + MODEL1 + " parameter=" + PARAM1
                                                     + " - model=" + MODEL1 + " parameter=" + PARAM1
-                                                    + " ) refhour=0 plottype=contour"});
+                                                    + " ) refhour=0"});
   // clang-format on
   dialog->putOKString(cmds_put);
   EXPECT_EQ(data->fieldReferenceTimeUpdates, 1); // same model, should update only once
@@ -174,7 +174,8 @@ TEST(TestFieldDialog, PutGetOKStringMinus)
          << "model=" << MODEL1 << " reftime=" << *(data->getFieldReferenceTimes(MODEL1).begin()) << " parameter=" << PARAM1
          << " - "
          << "model=" << MODEL1 << " reftime=" << *(data->getFieldReferenceTimes(MODEL1).begin()) << " parameter=" << PARAM1
-         << " ) " << PlotOptions().toKeyValueList();
+         << " )"
+         << " line.interval=10";
   // clang-format on
   EXPECT_EQ(expect.str(), cmds_get[0]->toString());
 }
@@ -185,14 +186,13 @@ TEST(TestFieldDialog, PutGetOKStringLog)
   TestFieldDialogData* data = new TestFieldDialogData;
   std::unique_ptr<FieldDialog> dialog(new FieldDialog(0, data));
 
-  PlotOptions po;
-  po.plottype = fpt_fill_cell;
-  po.base = 2;
-  po.frame = 0;
-
-  std::ostringstream log;
-  log << PARAM1 << " colour=red plottype=" << po.plottype << " base=" << po.base << " frame=" << po.frame;
-  dialog->readLog({log.str()}, "none", "none");
+  const miutil::KeyValue_v log {
+    miutil::kv(PlotOptions::key_colour, "red"),
+    miutil::kv(PlotOptions::key_plottype, fpt_fill_cell),
+    miutil::kv(PlotOptions::key_basevalue, 2),
+    miutil::kv(PlotOptions::key_frame, 0)
+  };
+  dialog->readLog({PARAM1 + " " + miutil::mergeKeyValue(log)}, "none", "none");
 
   const PlotCommand_cpv cmds_put = makeCommands({"FIELD model=" + MODEL1 + " refhour=0 parameter=" + PARAM1});
   dialog->putOKString(cmds_put);
@@ -202,35 +202,47 @@ TEST(TestFieldDialog, PutGetOKStringLog)
 
   // log options should be ignored by putOKString
   std::ostringstream expect;
-  expect << "FIELD model=" << MODEL1 << " reftime=" << *(data->getFieldReferenceTimes(MODEL1).begin()) << " parameter=" << PARAM1;
-  expect << ' ' << PlotOptions().toKeyValueList();
+  expect << "FIELD model=" << MODEL1 << " reftime=" << *(data->getFieldReferenceTimes(MODEL1).begin()) << " parameter=" << PARAM1 << " line.interval=10";
   EXPECT_EQ(expect.str(), cmds_get[0]->toString());
 }
 
 TEST(TestFieldDialog, PutGetOKStringSetup)
 {
   initLinesAndColours();
+  const miutil::KeyValue_v setup = {
+    miutil::kv("plottype", fpt_fill_cell),
+    miutil::kv("base", 7),
+    miutil::kv("frame", 2),
+    miutil::kv("colour", "red"),
+    miutil::kv(PlotOptions::key_limits, "1,2,3"),
+    miutil::kv("apples", "pears")
+  };
+
+  const miutil::KeyValue_v log = {
+    miutil::kv("plottype", fpt_alpha_shade),
+    miutil::kv("base", 5),
+    miutil::kv("frame", 1),
+    miutil::kv("colour", "blue")
+  };
+
   TestFieldDialogData* data = new TestFieldDialogData;
-  miutil::KeyValue_v setup_2;
-  setup_2 << miutil::kv("plottype", fpt_fill_cell) << miutil::kv("base", 5) << miutil::kv("frame", 0);
-  data->setupFieldOptions[PARAM1] << miutil::kv("colour", "red");
-  diutil::insert_all(data->setupFieldOptions[PARAM1], setup_2);
+  data->setupFieldOptions[PARAM1] = setup;
+  std::unique_ptr<FieldDialog> dialog(new FieldDialog(nullptr, data));
+  dialog->readLog({PARAM1 + " " + miutil::mergeKeyValue(log)}, "none", "none");
 
-  std::unique_ptr<FieldDialog> dialog(new FieldDialog(0, data));
+  const miutil::KeyValue_v cmd = {
+    miutil::kv("colour", "green")
+  };
 
-  std::ostringstream log;
-  log << PARAM1 << " colour=blue plottype=" << fpt_alpha_shade << " base=5 frame=1";
-  dialog->readLog({log.str()}, "none", "none");
-
-  const PlotCommand_cpv cmds_put = makeCommands({"FIELD model=" + MODEL1 + " refhour=0 parameter=" + PARAM1 + " colour=green"});
+  const PlotCommand_cpv cmds_put = makeCommands({"FIELD model=" + MODEL1 + " refhour=0 parameter=" + PARAM1 + " " + miutil::mergeKeyValue(cmd)});
   dialog->putOKString(cmds_put);
 
   const PlotCommand_cpv cmds_get = dialog->getOKString();
   ASSERT_EQ(cmds_get.size(), 1);
 
   std::ostringstream expect;
-  expect << "FIELD model=" << MODEL1 << " reftime=" << *(data->getFieldReferenceTimes(MODEL1).begin()) << " parameter=" << PARAM1;
-  expect << " colour=green " << setup_2;
+  expect << "FIELD model=" << MODEL1 << " reftime=" << *(data->getFieldReferenceTimes(MODEL1).begin()) << " parameter=" << PARAM1
+         << " colour=green line.interval=10 limits=1,2,3 frame=2 plottype=fill_cell base=7 apples=pears";
   EXPECT_EQ(expect.str(), cmds_get[0]->toString());
 }
 

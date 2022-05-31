@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2018-2020 met.no
+  Copyright (C) 2018-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -61,7 +61,7 @@ public:
   //! identify which layers will actually be filled
   virtual std::set<PlotOrder> plotLayers() = 0;
 
-  virtual void plot(DiGLPainter* gl, PlotOrder zorder) = 0;
+  virtual bool plot(DiGLPainter* gl, PlotOrder zorder) = 0;
   virtual bool plotNumbers(DiGLPainter* gl) = 0;
 
   virtual bool hasVectorAnnotation() = 0;

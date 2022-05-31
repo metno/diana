@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013-2018 met.no
+  Copyright (C) 2013-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -93,12 +93,10 @@ public:
 class DianaLevelStep : public DianaLevels {
 public:
   DianaLevelStep(float step, float off);
-  void set_limits(float mini, float maxi);
   virtual contouring::level_t level_for_value(float value) const override;
   virtual float value_for_level(contouring::level_t l) const override;
 protected:
-  float mStep, mOff, mMin, mMax;
-  bool mHaveMin, mHaveMax;
+  float mStep, mOff;
 };
 
 // ########################################################################
@@ -139,6 +137,25 @@ protected:
 private:
   const DianaLevels& mLevels;
   const DianaPositions& mPositions;
+};
+
+// ########################################################################
+
+class DianaLevelSelector
+{
+public:
+  DianaLevelSelector(const PlotOptions& po, const DianaLevels& levels, int paintMode);
+  bool fill(contouring::level_t level) const;
+  bool line(contouring::level_t level) const;
+  bool label(contouring::level_t level) const;
+
+private:
+  bool no_lines, no_fill;
+  bool skip_undef_line, skip_undef_fill;
+  bool skip_level_0, skip_level_1;
+  contouring::level_t level_min, level_max;
+  bool have_min;
+  bool have_max;
 };
 
 // ########################################################################

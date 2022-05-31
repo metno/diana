@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -29,13 +29,24 @@
 
 #include "qtFieldDialogStyle.h"
 
+#include "diColourShading.h"
 #include "diFieldUtil.h"
+#include "diLinetype.h"
+#include "diPattern.h"
 #include "diPlotOptions.h"
 #include "qtFieldDialog.h" // for struct SelectedField
 #include "qtUtility.h"
+#include "util/diKeyValue.h"
+#include "util/qtDoubleStepAdapter.h"
+
+#include <mi_fieldcalc/FieldDefined.h>
+#include <mi_fieldcalc/math_util.h>
+
+#include <puTools/miStringFunctions.h>
 
 #include <QCheckBox>
 #include <QComboBox>
+#include <QDoubleSpinBox>
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -47,7 +58,10 @@
 #include <QToolTip>
 #include <QVBoxLayout>
 
-#include <puTools/miStringFunctions.h>
+#include <algorithm>
+#include <iterator>
+#include <qlayoutitem.h>
+#include <qspinbox.h>
 
 #define MILOGGER_CATEGORY "diana.FieldDialogStyle"
 #include <miLogger/miLogging.h>
@@ -56,11 +70,7 @@ using namespace std;
 
 namespace { // anonymous
 
-const size_t npos = size_t(-1);
-
-const std::string REMOVE = "remove";
-const std::string UNITS = "units";
-const std::string UNIT = "unit";
+const std::string OFF = "off";
 
 vector<std::string> numberList(QComboBox* cBox, float number, bool onoff)
 {
@@ -68,12 +78,146 @@ vector<std::string> numberList(QComboBox* cBox, float number, bool onoff)
   return diutil::numberList(cBox, number, enormal, onoff);
 }
 
+void setListCombo(QComboBox* box, const std::vector<std::string>& available, const std::string& value)
+{
+  const auto it = std::find(available.begin(), available.end(), value);
+  size_t i = 0;
+  if (it != available.end())
+    i = std::distance(available.begin(), it);
+  box->setCurrentIndex(i);
+}
+
+const std::string& getListCombo(QComboBox* box, const std::vector<std::string>& available)
+{
+  if (available.empty())
+    throw std::runtime_error("empty list of available values");
+  const int index = miutil::constrain_value(box->currentIndex(), 0, (int)available.size() - 1);
+  return available[index];
+}
+
+std::string getMinMaxOption(QCheckBox* onOff, QDoubleSpinBox* spin)
+{
+  if (onOff->isChecked())
+    return spin->text().toStdString();
+  else
+    return "off";
+}
+
+void setMinMaxBoxes(QCheckBox* onOff, QDoubleSpinBox* spin, float value)
+{
+  const bool on = (value != -fieldUndef && value != +fieldUndef);
+  onOff->setChecked(on);
+  spin->setEnabled(on);
+  spin->setValue(on ? value : 0);
+}
+
+QString formatDensity(int density, float densityFactor)
+{
+  if (density != 0)
+    return QString::number(density);
+  else if (densityFactor == 1)
+    return "Auto";
+  else
+    return QString("auto(%1)").arg(densityFactor);
+}
+
+int fractionToPercent(float fraction)
+{
+  return (int(fraction * 100. + 0.5)) / 5 * 5;
+}
+
+QDoubleSpinBox* newDoubleSpinBox(QWidget* parent)
+{
+  QDoubleSpinBox* sb = new QDoubleSpinBox(parent);
+  sb->setValue(0);
+  sb->setWrapping(false);
+  sb->setRange(-0.75 * fieldUndef, +0.75 * fieldUndef);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+  sb->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
+#else
+  new diutil::DoubleStepAdapter(sb);
+  sb->setSingleStep(5);
+#endif
+  return sb;
+}
+
+const std::vector<std::string>& getPlotTypesForDim(int dim)
+{
+  // clang-format off
+  static const std::vector<std::string> plottypes_all{
+    fpt_contour,
+    fpt_contour1,
+    fpt_contour2,
+    fpt_value,
+    fpt_symbol,
+    fpt_alpha_shade,
+    fpt_rgb,
+    fpt_alarm_box,
+    fpt_fill_cell,
+    fpt_direction,
+    fpt_wind,
+    fpt_vector,
+    fpt_wind_temp_fl,
+    fpt_wind_value,
+    fpt_frame
+  };
+
+  static const std::vector<std::string> plottypes_dim_1{
+    fpt_contour,
+    fpt_contour1,
+    fpt_contour2,
+    fpt_value,
+    fpt_symbol,
+    fpt_alpha_shade,
+    fpt_alarm_box,
+    fpt_fill_cell,
+    fpt_direction,
+    fpt_frame
+  };
+
+  static const std::vector<std::string> plottypes_dim_2{
+    fpt_wind,
+    fpt_vector,
+    fpt_direction,
+    fpt_value,
+    fpt_frame
+  };
+
+  static const std::vector<std::string> plottypes_dim_3{
+    fpt_wind,
+    fpt_vector,
+    fpt_value,
+    fpt_rgb,
+    fpt_wind_temp_fl,
+    fpt_wind_value,
+    fpt_frame
+  };
+
+  static const std::vector<std::string> plottypes_dim_4{
+    fpt_value,
+    fpt_frame
+  };
+  // clang-format on
+
+  switch (std::min(dim, 4)) {
+  case 1:
+    return plottypes_dim_1;
+  case 2:
+    return plottypes_dim_2;
+  case 3:
+    return plottypes_dim_3;
+  case 4:
+    return plottypes_dim_4;
+  }
+  return plottypes_all;
+}
+
 } // anonymous namespace
 
 FieldDialogStyle::FieldDialogStyle(const fieldoptions_m& sfo, QWidget* parent)
     : widgetStd(new QWidget(parent))
     , widgetAdv(new QWidget(parent))
-    , selectedField(0)
+    , selectedFieldInEdit(false)
     , setupFieldOptions(sfo)
 {
   METLIBS_LOG_SCOPE();
@@ -81,56 +225,34 @@ FieldDialogStyle::FieldDialogStyle(const fieldoptions_m& sfo, QWidget* parent)
   // Colours
   csInfo = ColourShading::getColourShadingInfo();
   patternInfo = Pattern::getAllPatternInfo();
-  const map<std::string, unsigned int>& enabledOptions = PlotOptions::getEnabledOptions();
-  const std::vector<std::vector<std::string>>& plottypes_dim = PlotOptions::getPlotTypes();
-  if (plottypes_dim.size() > 1) {
-    plottypes = plottypes_dim[1];
-    for (size_t i = 0; i < plottypes_dim[0].size(); i++) {
-      const std::string& ptd0i = plottypes_dim[0][i];
-      const map<std::string, unsigned int>::const_iterator iptd0i = enabledOptions.find(ptd0i);
-      if (iptd0i != enabledOptions.end()) {
-        const unsigned int op = iptd0i->second;
-        enableMap[ptd0i].contourWidgets = op & PlotOptions::POE_CONTOUR;
-        enableMap[ptd0i].extremeWidgets = op & PlotOptions::POE_EXTREME;
-        enableMap[ptd0i].shadingWidgets = op & PlotOptions::POE_SHADING;
-        enableMap[ptd0i].lineWidgets = op & PlotOptions::POE_LINE;
-        enableMap[ptd0i].fontWidgets = op & PlotOptions::POE_FONT;
-        enableMap[ptd0i].densityWidgets = op & PlotOptions::POE_DENSITY;
-        enableMap[ptd0i].unitWidgets = op & PlotOptions::POE_UNIT;
-      }
-    }
-  }
+
+  plottypes = getPlotTypesForDim(1);
 
   // linetypes
   linetypes = Linetype::getLinetypeNames();
 
   // density (of arrows etc, 0=automatic)
-  QString qs;
   densityStringList << "Auto";
-  for (int i = 1; i < 10; i++) {
-    densityStringList << qs.setNum(i);
-  }
-  for (int i = 10; i < 30; i += 5) {
-    densityStringList << qs.setNum(i);
-  }
-  for (int i = 30; i < 60; i += 10) {
-    densityStringList << qs.setNum(i);
-  }
-  densityStringList << qs.setNum(100);
-  densityStringList << "auto(0.5)";
-  densityStringList << "auto(0.6)";
-  densityStringList << "auto(0.7)";
-  densityStringList << "auto(0.8)";
-  densityStringList << "auto(0.9)";
-  densityStringList << "auto(2)";
-  densityStringList << "auto(3)";
-  densityStringList << "auto(4)";
+  for (int i = 1; i < 10; i++)
+    densityStringList << formatDensity(i, 1);
+  for (int i = 10; i < 30; i += 5)
+    densityStringList << formatDensity(i, 1);
+  for (int i = 30; i < 60; i += 10)
+    densityStringList << formatDensity(i, 1);
+  densityStringList << formatDensity(100, 1);
+  densityStringList << formatDensity(0, 0.5);
+  densityStringList << formatDensity(0, 0.6);
+  densityStringList << formatDensity(0, 0.7);
+  densityStringList << formatDensity(0, 0.8);
+  densityStringList << formatDensity(0, 0.9);
+  densityStringList << formatDensity(0, 2);
+  densityStringList << formatDensity(0, 3);
+  densityStringList << formatDensity(0, 4);
   densityStringList << "-1";
 
   CreateStandard();
   CreateAdvanced();
   toolTips();
-  setDefaultFieldOptions();
 }
 
 FieldDialogStyle::~FieldDialogStyle() {}
@@ -139,7 +261,6 @@ void FieldDialogStyle::CreateStandard()
 {
   QLabel* unitlabel = new QLabel(tr("Unit"), widgetStd);
   unitLineEdit = new QLineEdit(widgetStd);
-  connect(unitLineEdit, &QLineEdit::editingFinished, this, &FieldDialogStyle::unitEditingFinished);
 
   // plottype
   QLabel* plottypelabel = new QLabel(tr("Plot type"), widgetStd);
@@ -150,28 +271,26 @@ void FieldDialogStyle::CreateStandard()
   QLabel* colorlabel = new QLabel(tr("Line colour"), widgetStd);
   colorCbox = ColourBox(widgetStd, false, 0, tr("off").toStdString(), true);
   colorCbox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
-  connect(colorCbox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &FieldDialogStyle::colorCboxActivated);
 
   // linewidthcbox
   QLabel* linewidthlabel = new QLabel(tr("Line width"), widgetStd);
   lineWidthCbox = LinewidthBox(widgetStd, false);
-  connect(lineWidthCbox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &FieldDialogStyle::lineWidthCboxActivated);
 
   // linetypecbox
   QLabel* linetypelabel = new QLabel(tr("Line type"), widgetStd);
   lineTypeCbox = LinetypeBox(widgetStd, false);
-  connect(lineTypeCbox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &FieldDialogStyle::lineTypeCboxActivated);
 
   // lineinterval
   QLabel* lineintervallabel = new QLabel(tr("Line interval"), widgetStd);
-  lineintervalCbox = new QComboBox(widgetStd);
-  connect(lineintervalCbox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &FieldDialogStyle::lineintervalCboxActivated);
+  spinLineInterval = newDoubleSpinBox(widgetStd);
+  spinLineInterval->setMinimum(0);
+  spinLineInterval->setSpecialValueText(tr("Off"));
+  connect(spinLineInterval, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &FieldDialogStyle::lineIntervalChanged);
 
   // density
   QLabel* densitylabel = new QLabel(tr("Density"), widgetStd);
   densityCbox = new QComboBox(widgetStd);
   densityCbox->addItems(densityStringList);
-  connect(densityCbox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &FieldDialogStyle::densityCboxActivated);
 
   // vectorunit
   QLabel* vectorunitlabel = new QLabel(tr("Unit"), widgetStd);
@@ -193,7 +312,7 @@ void FieldDialogStyle::CreateStandard()
   optlayout->addWidget(linetypelabel, 4, 0);
   optlayout->addWidget(lineTypeCbox, 4, 1);
   optlayout->addWidget(lineintervallabel, 5, 0);
-  optlayout->addWidget(lineintervalCbox, 5, 1);
+  optlayout->addWidget(spinLineInterval, 5, 1);
   optlayout->addWidget(densitylabel, 6, 0);
   optlayout->addWidget(densityCbox, 6, 1);
   optlayout->addWidget(vectorunitlabel, 7, 0);
@@ -215,7 +334,6 @@ void FieldDialogStyle::CreateAdvanced()
   extremeType.push_back("Minvalue");
   extremeType.push_back("Maxvalue");
   extremeTypeCbox = ComboBox(widgetAdv, extremeType);
-  connect(extremeTypeCbox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &FieldDialogStyle::extremeTypeActivated);
 
   QLabel* extremeSizeLabel = new QLabel(tr("Size"), widgetAdv);
   extremeSizeSpinBox = new QSpinBox(widgetAdv);
@@ -225,7 +343,6 @@ void FieldDialogStyle::CreateAdvanced()
   extremeSizeSpinBox->setWrapping(true);
   extremeSizeSpinBox->setSuffix("%");
   extremeSizeSpinBox->setValue(100);
-  connect(extremeSizeSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &FieldDialogStyle::extremeSizeChanged);
 
   QLabel* extremeRadiusLabel = new QLabel(tr("Radius"), widgetAdv);
   extremeRadiusSpinBox = new QSpinBox(widgetAdv);
@@ -235,7 +352,6 @@ void FieldDialogStyle::CreateAdvanced()
   extremeRadiusSpinBox->setWrapping(true);
   extremeRadiusSpinBox->setSuffix("%");
   extremeRadiusSpinBox->setValue(100);
-  connect(extremeRadiusSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &FieldDialogStyle::extremeRadiusChanged);
 
   // line smoothing
   QLabel* lineSmoothLabel = new QLabel(tr("Smooth lines"), widgetAdv);
@@ -245,7 +361,6 @@ void FieldDialogStyle::CreateAdvanced()
   lineSmoothSpinBox->setSingleStep(2);
   lineSmoothSpinBox->setSpecialValueText(tr("Off"));
   lineSmoothSpinBox->setValue(0);
-  connect(lineSmoothSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &FieldDialogStyle::lineSmoothChanged);
 
   // field smoothing
   QLabel* fieldSmoothLabel = new QLabel(tr("Smooth fields"), widgetAdv);
@@ -255,7 +370,6 @@ void FieldDialogStyle::CreateAdvanced()
   fieldSmoothSpinBox->setSingleStep(1);
   fieldSmoothSpinBox->setSpecialValueText(tr("Off"));
   fieldSmoothSpinBox->setValue(0);
-  connect(fieldSmoothSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &FieldDialogStyle::fieldSmoothChanged);
 
   labelSizeSpinBox = new QSpinBox(widgetAdv);
   labelSizeSpinBox->setMinimum(5);
@@ -264,19 +378,16 @@ void FieldDialogStyle::CreateAdvanced()
   labelSizeSpinBox->setWrapping(true);
   labelSizeSpinBox->setSuffix("%");
   labelSizeSpinBox->setValue(100);
-  connect(labelSizeSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &FieldDialogStyle::labelSizeChanged);
 
   valuePrecisionBox = new QComboBox(widgetAdv);
   valuePrecisionBox->addItem("0");
   valuePrecisionBox->addItem("1");
   valuePrecisionBox->addItem("2");
   valuePrecisionBox->addItem("3");
-  connect(valuePrecisionBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &FieldDialogStyle::valuePrecisionBoxActivated);
 
   // grid values
   gridValueCheckBox = new QCheckBox(QString(tr("Grid value")), widgetAdv);
   gridValueCheckBox->setChecked(false);
-  connect(gridValueCheckBox, &QCheckBox::toggled, this, &FieldDialogStyle::gridValueCheckBoxToggled);
 
   // grid lines
   QLabel* gridLinesLabel = new QLabel(tr("Grid lines"), widgetAdv);
@@ -286,7 +397,6 @@ void FieldDialogStyle::CreateAdvanced()
   gridLinesSpinBox->setSingleStep(1);
   gridLinesSpinBox->setSpecialValueText(tr("Off"));
   gridLinesSpinBox->setValue(0);
-  connect(gridLinesSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &FieldDialogStyle::gridLinesChanged);
 
   QLabel* hourOffsetLabel = new QLabel(tr("Time offset"), widgetAdv);
   hourOffsetSpinBox = new QSpinBox(widgetAdv);
@@ -317,20 +427,16 @@ void FieldDialogStyle::CreateAdvanced()
 
   // Undefined masking colour
   undefColourCbox = ColourBox(widgetAdv, false, 0, "", true);
-  connect(undefColourCbox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &FieldDialogStyle::undefColourActivated);
 
   // Undefined masking linewidth
   undefLinewidthCbox = LinewidthBox(widgetAdv, false);
-  connect(undefLinewidthCbox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &FieldDialogStyle::undefLinewidthActivated);
 
   // Undefined masking linetype
   undefLinetypeCbox = LinetypeBox(widgetAdv, false);
-  connect(undefLinetypeCbox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &FieldDialogStyle::undefLinetypeActivated);
 
   // enable/disable numbers on isolines
   valueLabelCheckBox = new QCheckBox(QString(tr("Numbers")), widgetAdv);
   valueLabelCheckBox->setChecked(true);
-  connect(valueLabelCheckBox, &QCheckBox::toggled, this, &FieldDialogStyle::valueLabelCheckBoxToggled);
 
   // Options
   QLabel* shadingLabel = new QLabel(tr("Palette"), widgetAdv);
@@ -341,20 +447,14 @@ void FieldDialogStyle::CreateAdvanced()
   QLabel* colourLabel = new QLabel(tr("Line colour"), widgetAdv);
   QLabel* intervalLabel = new QLabel(tr("Line interval"), widgetAdv);
   QLabel* baseLabel = new QLabel(tr("Basis value"), widgetAdv);
-  QLabel* minLabel = new QLabel(tr("Min"), widgetAdv);
-  QLabel* maxLabel = new QLabel(tr("Max"), widgetAdv);
   QLabel* base2Label = new QLabel(tr("Basis value"), widgetAdv);
-  QLabel* min2Label = new QLabel(tr("Min"), widgetAdv);
-  QLabel* max2Label = new QLabel(tr("Max"), widgetAdv);
   QLabel* linewidthLabel = new QLabel(tr("Line width"), widgetAdv);
   QLabel* linetypeLabel = new QLabel(tr("Line type"), widgetAdv);
   QLabel* threeColourLabel = TitleLabel(tr("Three colours"), widgetAdv);
 
   tableCheckBox = new QCheckBox(tr("Table"), widgetAdv);
-  connect(tableCheckBox, &QCheckBox::toggled, this, &FieldDialogStyle::tableCheckBoxToggled);
 
   repeatCheckBox = new QCheckBox(tr("Repeat"), widgetAdv);
-  connect(repeatCheckBox, &QCheckBox::toggled, this, &FieldDialogStyle::repeatCheckBoxToggled);
 
   // 3 colours
   for (size_t i = 0; i < 3; i++) {
@@ -365,34 +465,28 @@ void FieldDialogStyle::CreateAdvanced()
   // shading
   shadingComboBox = PaletteBox(widgetAdv, csInfo, false, 0, tr("Off").toStdString(), true);
   shadingComboBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
-  connect(shadingComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &FieldDialogStyle::shadingChanged);
 
   shadingSpinBox = new QSpinBox(widgetAdv);
   shadingSpinBox->setMinimum(0);
   shadingSpinBox->setMaximum(255);
   shadingSpinBox->setSingleStep(1);
   shadingSpinBox->setSpecialValueText(tr("Auto"));
-  connect(shadingSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &FieldDialogStyle::shadingChanged);
 
   shadingcoldComboBox = PaletteBox(widgetAdv, csInfo, false, 0, tr("Off").toStdString(), true);
   shadingcoldComboBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
-  connect(shadingcoldComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &FieldDialogStyle::shadingChanged);
 
   shadingcoldSpinBox = new QSpinBox(widgetAdv);
   shadingcoldSpinBox->setMinimum(0);
   shadingcoldSpinBox->setMaximum(255);
   shadingcoldSpinBox->setSingleStep(1);
   shadingcoldSpinBox->setSpecialValueText(tr("Auto"));
-  connect(shadingcoldSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &FieldDialogStyle::shadingChanged);
 
   // pattern
   patternComboBox = PatternBox(widgetAdv, patternInfo, false, 0, tr("Off").toStdString(), true);
   patternComboBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLength);
-  connect(patternComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &FieldDialogStyle::patternComboBoxToggled);
 
   // pattern colour
   patternColourBox = ColourBox(widgetAdv, false, 0, tr("Auto").toStdString(), true);
-  connect(patternColourBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &FieldDialogStyle::patternColourBoxToggled);
 
   // alpha blending
   alphaSpinBox = new QSpinBox(widgetAdv);
@@ -400,49 +494,48 @@ void FieldDialogStyle::CreateAdvanced()
   alphaSpinBox->setMaximum(255);
   alphaSpinBox->setSingleStep(5);
   alphaSpinBox->setValue(255);
-  connect(alphaSpinBox, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &FieldDialogStyle::alphaChanged);
 
   // colour
   colour2ComboBox = ColourBox(widgetAdv, false, 0, tr("Off").toStdString(), true);
   connect(colour2ComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &FieldDialogStyle::colour2ComboBoxToggled);
 
   // line interval
-  interval2ComboBox = new QComboBox(widgetAdv);
-  connect(interval2ComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &FieldDialogStyle::interval2ComboBoxToggled);
+  spinLineInterval2 = newDoubleSpinBox(widgetAdv);
+  spinLineInterval2->setMinimum(0);
+  spinLineInterval2->setSpecialValueText(tr("Off"));
 
   // zero value
-  zero1ComboBox = new QComboBox(widgetAdv);
-  zero2ComboBox = new QComboBox(widgetAdv);
-  connect(zero1ComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &FieldDialogStyle::zero1ComboBoxToggled);
-  connect(zero2ComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &FieldDialogStyle::zero2ComboBoxToggled);
+  spinBaseValue1 = newDoubleSpinBox(widgetAdv);
+  spinBaseValue2 = newDoubleSpinBox(widgetAdv);
 
-  // min
-  min1ComboBox = new QComboBox(widgetAdv);
-  min2ComboBox = new QComboBox(widgetAdv);
+  // min/max
+  min1OnOff = new QCheckBox(tr("Min"), widgetAdv);
+  max1OnOff = new QCheckBox(tr("Max"), widgetAdv);
+  min2OnOff = new QCheckBox(tr("Min"), widgetAdv);
+  max2OnOff = new QCheckBox(tr("Max"), widgetAdv);
 
-  // max
-  max1ComboBox = new QComboBox(widgetAdv);
-  max2ComboBox = new QComboBox(widgetAdv);
+  min1SpinBox = newDoubleSpinBox(widgetAdv);
+  max1SpinBox = newDoubleSpinBox(widgetAdv);
+  min2SpinBox = newDoubleSpinBox(widgetAdv);
+  max2SpinBox = newDoubleSpinBox(widgetAdv);
+
+  connect(min1OnOff, &QCheckBox::toggled, min1SpinBox, &QComboBox::setEnabled);
+  connect(max1OnOff, &QCheckBox::toggled, max1SpinBox, &QComboBox::setEnabled);
+  connect(min2OnOff, &QCheckBox::toggled, min2SpinBox, &QComboBox::setEnabled);
+  connect(max2OnOff, &QCheckBox::toggled, max2SpinBox, &QComboBox::setEnabled);
 
   // line values
   linevaluesField = new QLineEdit(widgetAdv);
-  connect(linevaluesField, &QLineEdit::editingFinished, this, &FieldDialogStyle::linevaluesFieldEdited);
+
   // log line values
   linevaluesLogCheckBox = new QCheckBox(QString(tr("Log")), widgetAdv);
   linevaluesLogCheckBox->setChecked(false);
-  connect(linevaluesLogCheckBox, &QCheckBox::toggled, this, &FieldDialogStyle::linevaluesLogCheckBoxToggled);
-
-  connect(min1ComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &FieldDialogStyle::min1ComboBoxToggled);
-  connect(max1ComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &FieldDialogStyle::max1ComboBoxToggled);
-  connect(min2ComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &FieldDialogStyle::min2ComboBoxToggled);
-  connect(max2ComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &FieldDialogStyle::max2ComboBoxToggled);
 
   // linewidth
   linewidth2ComboBox = LinewidthBox(widgetAdv);
-  connect(linewidth2ComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &FieldDialogStyle::linewidth2ComboBoxToggled);
+
   // linetype
   linetype2ComboBox = LinetypeBox(widgetAdv, false);
-  connect(linetype2ComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &FieldDialogStyle::linetype2ComboBoxToggled);
 
   // Plot frame
   frameCheckBox = new QCheckBox(QString(tr("Frame")), widgetAdv);
@@ -451,10 +544,7 @@ void FieldDialogStyle::CreateAdvanced()
 
   // enable/disable zero line (isoline with value=0)
   zeroLineCheckBox = new QCheckBox(QString(tr("Zero line")), widgetAdv);
-  //  zeroLineColourCBox= new QComboBox(advFrame);
   zeroLineCheckBox->setChecked(true);
-
-  connect(zeroLineCheckBox, &QCheckBox::toggled, this, &FieldDialogStyle::zeroLineCheckBoxToggled);
 
   // Create horizontal frame lines
   QFrame* line0 = new QFrame(widgetAdv);
@@ -506,7 +596,6 @@ void FieldDialogStyle::CreateAdvanced()
   advLayout->addWidget(hourDiffSpinBox, line, 1);
   line++;
   advLayout->setRowStretch(line, 5);
-  ;
   advLayout->addWidget(line4, line, 0, 1, 3);
   line++;
   advLayout->addWidget(undefMaskingLabel, line, 0);
@@ -517,7 +606,6 @@ void FieldDialogStyle::CreateAdvanced()
   advLayout->addWidget(undefLinetypeCbox, line, 2);
   line++;
   advLayout->setRowStretch(line, 5);
-  ;
   advLayout->addWidget(line1, line, 0, 1, 4);
 
   line++;
@@ -529,7 +617,6 @@ void FieldDialogStyle::CreateAdvanced()
   advLayout->addWidget(valuePrecisionBox, line, 2);
   line++;
   advLayout->setRowStretch(line, 5);
-  ;
   advLayout->addWidget(line2, line, 0, 1, 3);
 
   line++;
@@ -552,24 +639,22 @@ void FieldDialogStyle::CreateAdvanced()
   advLayout->addWidget(alphaSpinBox, line, 1);
   line++;
   advLayout->setRowStretch(line, 5);
-  ;
   advLayout->addWidget(line6, line, 0, 1, 3);
 
   line++;
   advLayout->addWidget(baseLabel, line, 0);
-  advLayout->addWidget(minLabel, line, 1);
-  advLayout->addWidget(maxLabel, line, 2);
+  advLayout->addWidget(min1OnOff, line, 1);
+  advLayout->addWidget(max1OnOff, line, 2);
   line++;
-  advLayout->addWidget(zero1ComboBox, line, 0);
-  advLayout->addWidget(min1ComboBox, line, 1);
-  advLayout->addWidget(max1ComboBox, line, 2);
+  advLayout->addWidget(spinBaseValue1, line, 0);
+  advLayout->addWidget(min1SpinBox, line, 1);
+  advLayout->addWidget(max1SpinBox, line, 2);
   line++;
   advLayout->addWidget(new QLabel(tr("Values"), widgetAdv), line, 0);
   advLayout->addWidget(linevaluesField, line, 1);
   advLayout->addWidget(linevaluesLogCheckBox, line, 2);
   line++;
   advLayout->setRowStretch(line, 5);
-  ;
   advLayout->addWidget(line3, line, 0, 1, 3);
 
   line++;
@@ -579,7 +664,7 @@ void FieldDialogStyle::CreateAdvanced()
   advLayout->addWidget(colour2ComboBox, line, 1);
   line++;
   advLayout->addWidget(intervalLabel, line, 0);
-  advLayout->addWidget(interval2ComboBox, line, 1);
+  advLayout->addWidget(spinLineInterval2, line, 1);
   line++;
   advLayout->addWidget(linewidthLabel, line, 0);
   advLayout->addWidget(linewidth2ComboBox, line, 1);
@@ -588,16 +673,15 @@ void FieldDialogStyle::CreateAdvanced()
   advLayout->addWidget(linetype2ComboBox, line, 1);
   line++;
   advLayout->addWidget(base2Label, line, 0);
-  advLayout->addWidget(min2Label, line, 1);
-  advLayout->addWidget(max2Label, line, 2);
+  advLayout->addWidget(min2OnOff, line, 1);
+  advLayout->addWidget(max2OnOff, line, 2);
   line++;
-  advLayout->addWidget(zero2ComboBox, line, 0);
-  advLayout->addWidget(min2ComboBox, line, 1);
-  advLayout->addWidget(max2ComboBox, line, 2);
+  advLayout->addWidget(spinBaseValue2, line, 0);
+  advLayout->addWidget(min2SpinBox, line, 1);
+  advLayout->addWidget(max2SpinBox, line, 2);
 
   line++;
   advLayout->setRowStretch(line, 5);
-  ;
   advLayout->addWidget(line5, line, 0, 1, 3);
   line++;
   advLayout->addWidget(threeColourLabel, line, 0);
@@ -606,6 +690,8 @@ void FieldDialogStyle::CreateAdvanced()
   advLayout->addWidget(threeColourBox[0], line, 0);
   advLayout->addWidget(threeColourBox[1], line, 1);
   advLayout->addWidget(threeColourBox[2], line, 2);
+  line++;
+  advLayout->addItem(new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding), line, 0);
 
   // a separator
   QFrame* advSep = new QFrame(widgetAdv);
@@ -628,952 +714,546 @@ void FieldDialogStyle::toolTips()
   undefColourCbox->setToolTip(tr("Undef colour"));
   undefLinewidthCbox->setToolTip(tr("Undef linewidth"));
   undefLinetypeCbox->setToolTip(tr("Undef linetype"));
+  frameCheckBox->setToolTip(tr("Draw a frame around the domain"));
   shadingSpinBox->setToolTip(tr("number of colours in the palette"));
   shadingcoldComboBox->setToolTip(tr("Palette for values below basis"));
   shadingcoldSpinBox->setToolTip(tr("number of colours in the palette"));
   patternColourBox->setToolTip(tr("Colour of pattern"));
 }
 
-void FieldDialogStyle::enableFieldOptions(SelectedField* sf)
+void FieldDialogStyle::enableFieldOptions(const SelectedField* selectedField)
 {
   METLIBS_LOG_SCOPE();
-  selectedField = sf;
+
   if (!selectedField) {
     enableWidgets("none");
     return;
   }
 
-  setDefaultFieldOptions();
+  selectedFieldInEdit = selectedField->inEdit;
 
-  size_t nc;
-  int i, n;
+  hourOffsetSpinBox->setValue(selectedFieldInEdit ? 0 : selectedField->hourOffset);
+  hourOffsetSpinBox->setEnabled(!selectedFieldInEdit);
 
-  if (selectedField->fieldOpts == currentFieldOpts && selectedField->inEdit == currentFieldOptsInEdit && !selectedField->minus)
+  hourDiffSpinBox->setValue(selectedFieldInEdit ? 0 : selectedField->hourDiff);
+  hourDiffSpinBox->setEnabled(!selectedFieldInEdit);
+
+  if (selectedField->minus) {
+    enableWidgets("none");
     return;
-
-  currentFieldOpts = selectedField->fieldOpts;
-
-  currentFieldOptsInEdit = selectedField->inEdit;
-
-  // hourOffset
-  if (currentFieldOptsInEdit) {
-    hourOffsetSpinBox->setValue(0);
-    hourOffsetSpinBox->setEnabled(false);
-  } else {
-    i = selectedField->hourOffset;
-    hourOffsetSpinBox->setValue(i);
-    hourOffsetSpinBox->setEnabled(true);
   }
 
-  // hourDiff
-  if (currentFieldOptsInEdit) {
-    hourDiffSpinBox->setValue(0);
-    hourDiffSpinBox->setEnabled(false);
-  } else {
-    i = selectedField->hourDiff;
-    hourDiffSpinBox->setValue(i);
-    hourDiffSpinBox->setEnabled(true);
-  }
+  // unit -- not in PlotOptions
+  unitLineEdit->setText(QString::fromStdString(selectedField->units));
 
-  if (selectedField->minus)
-    return;
+  setFromPlotOptions(selectedField->po, selectedField->dimension);
+}
 
-  vpcopt = selectedField->fieldOpts;
-
-  int nr_linetypes = linetypes.size();
-  enableWidgets("contour");
-
-  // unit
-  nc = miutil::find(vpcopt, UNITS);
-  if (nc == npos)
-    nc = miutil::find(vpcopt, UNIT);
-  if (nc != npos) {
-    updateFieldOptions(UNITS, vpcopt[nc].value());
-    updateFieldOptions(UNIT, REMOVE);
-    unitLineEdit->setText(QString::fromStdString(vpcopt[nc].value()));
-  } else {
-    updateFieldOptions(UNITS, REMOVE);
-    updateFieldOptions(UNIT, REMOVE);
-    unitLineEdit->clear();
-  }
-
+void FieldDialogStyle::setFromPlotOptions(const PlotOptions& po, int dimension)
+{
   // dimension (1dim = contour,..., 2dim=wind,...)
-  const std::vector<std::vector<std::string>>& plottypes_dim = PlotOptions::getPlotTypes();
-  size_t idx = 0;
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_dimension)) != npos) {
-    if (CommandParser::isInt(vpcopt[nc].value())) {
-      size_t vi = size_t(vpcopt[nc].toInt());
-      if (vi < plottypes_dim.size())
-        idx = vi;
-    }
+  {
+    plottypes = getPlotTypesForDim(dimension);
+    plottypeComboBox->clear();
+    for (const std::string& pt : plottypes)
+      plottypeComboBox->addItem(QString::fromStdString(pt));
   }
-  if (idx < plottypes_dim.size())
-    plottypes = plottypes_dim[idx];
-  plottypeComboBox->clear();
-  for (const std::string& pt : plottypes)
-    plottypeComboBox->addItem(QString::fromStdString(pt));
 
   // plottype
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_plottype)) != npos) {
-    const std::string& value = vpcopt[nc].value();
+  {
+    const auto itPT = std::find(plottypes.begin(), plottypes.end(), po.plottype);
     size_t i = 0;
-    while (i < plottypes.size() && value != plottypes[i])
-      i++;
-    if (i == plottypes.size())
-      i = 0;
+    if (itPT != plottypes.end())
+      i = std::distance(plottypes.begin(), itPT);
+
     plottypeComboBox->setCurrentIndex(i);
-    updateFieldOptions(PlotOptions::key_plottype, value);
     enableWidgets(plottypes[i]);
-  } else {
-    updateFieldOptions(PlotOptions::key_plottype, plottypes[0]);
-    plottypeComboBox->setCurrentIndex(0);
-    enableWidgets(plottypes[0]);
   }
 
   // colour(s)
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_colour_2)) != npos) {
-    if (miutil::to_lower(vpcopt[nc].value()) == "off") {
-      updateFieldOptions(PlotOptions::key_colour_2, "off");
-      colour2ComboBox->setCurrentIndex(0);
-    } else {
-      SetCurrentItemColourBox(colour2ComboBox, vpcopt[nc].value());
-      updateFieldOptions(PlotOptions::key_colour_2, vpcopt[nc].value());
-    }
+  if (po.options_1) {
+    SetCurrentItemColourBox(colorCbox, po.linecolour.Name());
+  } else {
+    colorCbox->setCurrentIndex(0);
   }
-
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_colour)) != npos) {
-    //  int nr_colours = colorCbox->count();
-    if (miutil::to_lower(vpcopt[nc].value()) == "off") {
-      updateFieldOptions(PlotOptions::key_colour, "off");
-      colorCbox->setCurrentIndex(0);
-    } else {
-      SetCurrentItemColourBox(colorCbox, vpcopt[nc].value());
-      updateFieldOptions(PlotOptions::key_colour, vpcopt[nc].value());
-    }
+  if (po.options_2) {
+    SetCurrentItemColourBox(colour2ComboBox, po.linecolour_2.Name());
+  } else {
+    colour2ComboBox->setCurrentIndex(0);
   }
 
   // 3 colours
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_colours)) != npos) {
-    vector<std::string> colours = miutil::split(vpcopt[nc].value(), ",");
-    if (colours.size() == 3) {
-      for (size_t j = 0; j < 3; j++) {
-        SetCurrentItemColourBox(threeColourBox[j], colours[j]);
-      }
-      threeColoursChanged();
-    }
+  if (po.colours.size() == 3) {
+    for (size_t j = 0; j < 3; j++)
+      SetCurrentItemColourBox(threeColourBox[j], po.colours[j].Name());
+  } else {
+    for (size_t j = 0; j < 3; j++)
+      threeColourBox[j]->setCurrentIndex(0);
   }
+  threeColoursChanged();
 
   // contour shading updating FieldOptions
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_palettecolours)) != npos) {
-    if (miutil::to_lower(vpcopt[nc].value()) == "off") {
-      updateFieldOptions(PlotOptions::key_palettecolours, "off");
-      shadingComboBox->setCurrentIndex(0);
+  if (po.palettename.empty()) {
+    shadingComboBox->setCurrentIndex(0);
+    shadingcoldComboBox->setCurrentIndex(0);
+  } else {
+    const auto hc = miutil::split(po.palettename, ",");
+    const auto vh = miutil::split(hc.front(), ";");
+
+    const std::string& nh = vh.front();
+
+    const auto itH = std::find_if(csInfo.begin(), csInfo.end(), [&](const ColourShading::ColourShadingInfo& ci) { return ci.name == nh; });
+    if (itH == csInfo.end()) {
+      ColourShading::defineColourShadingFromString(nh);
+      const ColourShading csh(nh);
+      ExpandPaletteBox(shadingComboBox, csh);
+      ExpandPaletteBox(shadingcoldComboBox, csh);
+      ColourShading::ColourShadingInfo info;
+      info.name = nh;
+      info.colour = ColourShading::getColourShading(nh);
+      csInfo.push_back(info);
+    } else {
+      shadingComboBox->setCurrentIndex(1 + std::distance(csInfo.begin(), itH)); // first is "off"
+    }
+    if (vh.size() == 2)
+      shadingSpinBox->setValue(miutil::to_int(vh[1]));
+    else
+      shadingSpinBox->setValue(0);
+
+    if (hc.size() < 2) {
       shadingcoldComboBox->setCurrentIndex(0);
     } else {
-      const vector<std::string> strValue = CommandParser::parseString(vpcopt[nc].value());
-      vector<std::string> stokens = miutil::split(strValue[0], ";");
-
-      size_t nr_cs = csInfo.size();
-      std::string str;
-
-      bool updateClodshading = false;
-      vector<std::string> coldStokens;
-
-      size_t i = 0, j = 0;
-      while (i < nr_cs && stokens[0] != csInfo[i].name) {
-        i++;
-      }
-
-      if (i == nr_cs) {
-        ColourShading::defineColourShadingFromString(vpcopt[nc].value());
-        ExpandPaletteBox(shadingComboBox, ColourShading(vpcopt[nc].value()));
-        ExpandPaletteBox(shadingcoldComboBox, ColourShading(vpcopt[nc].value())); // MC
+      const auto vc = miutil::split(hc.back(), ";");
+      const std::string& nc = vc.front();
+      const auto itC = std::find_if(csInfo.begin(), csInfo.end(), [&](const ColourShading::ColourShadingInfo& ci) { return ci.name == nc; });
+      if (itC == csInfo.end()) {
+        ColourShading::defineColourShadingFromString(nc);
+        const ColourShading csc(nc);
+        ExpandPaletteBox(shadingComboBox, csc);
+        ExpandPaletteBox(shadingcoldComboBox, csc);
         ColourShading::ColourShadingInfo info;
-        info.name = vpcopt[nc].value();
-        info.colour = ColourShading::getColourShading(vpcopt[nc].value());
+        info.name = nc;
+        info.colour = ColourShading::getColourShading(nc);
         csInfo.push_back(info);
-      } else if (strValue.size() == 2) {
-        coldStokens = miutil::split(strValue[1], ";");
-
-        while (j < nr_cs && coldStokens[0] != csInfo[j].name) {
-          j++;
-        }
-
-        if (j < nr_cs)
-          updateClodshading = true;
+      } else {
+        shadingcoldComboBox->setCurrentIndex(1 + std::distance(csInfo.begin(), itC)); // first is "off"
       }
-
-      str = vpcopt[nc].value(); // tokens[0];
-      shadingComboBox->setCurrentIndex(i + 1);
-      updateFieldOptions(PlotOptions::key_palettecolours, str);
-      // Need to set this here otherwise the signal is changing
-      // the vpcopt[nc].value() variable to off
-      if (stokens.size() == 2)
-        shadingSpinBox->setValue(miutil::to_int(stokens[1]));
+      if (vc.size() == 2)
+        shadingcoldSpinBox->setValue(miutil::to_int(vc[1]));
       else
-        shadingSpinBox->setValue(0);
-
-      if (updateClodshading) {
-        shadingcoldComboBox->setCurrentIndex(j + 1);
-
-        if (coldStokens.size() == 2)
-          shadingcoldSpinBox->setValue(miutil::to_int(coldStokens[1]));
-        else
-          shadingcoldSpinBox->setValue(0);
-      }
+        shadingcoldSpinBox->setValue(0);
     }
   }
+
   // pattern
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_patterns)) != npos) {
-    const std::string& value = vpcopt[nc].value();
-    size_t nr_p = patternInfo.size(), i = 0;
-    std::string str;
-    while (i < nr_p && value != patternInfo[i].name)
-      i++;
-    if (i == nr_p) {
-      str = "off";
-      patternComboBox->setCurrentIndex(0);
-    } else {
-      str = patternInfo[i].name;
-      patternComboBox->setCurrentIndex(i + 1);
+  {
+    int idx = 0;
+    if (!po.patternname.empty()) {
+      const auto itP = std::find_if(patternInfo.begin(), patternInfo.end(), [&](Pattern::PatternInfo& pi) { return pi.name == po.patternname; });
+      if (itP != patternInfo.end())
+        idx = std::distance(patternInfo.begin(), itP) + 1;
     }
-    updateFieldOptions(PlotOptions::key_patterns, str);
-  } else {
-    patternComboBox->setCurrentIndex(0);
+    patternComboBox->setCurrentIndex(idx);
   }
 
   // pattern colour
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_pcolour)) != npos) {
-    SetCurrentItemColourBox(patternColourBox, vpcopt[nc].value());
-    updateFieldOptions(PlotOptions::key_pcolour, vpcopt[nc].value());
+  if (!po.patternname.empty()) {
+    SetCurrentItemColourBox(patternColourBox, po.fillcolour.Name());
+  } else {
+    patternColourBox->setCurrentIndex(0);
   }
 
   // table
-  nc = miutil::find(vpcopt, PlotOptions::key_table);
-  if (nc != npos) {
-    bool on = vpcopt[nc].value() == "1";
-    tableCheckBox->setChecked(on);
-    tableCheckBoxToggled(on);
-  }
+  tableCheckBox->setChecked(po.table);
 
   // repeat
-  nc = miutil::find(vpcopt, PlotOptions::key_repeat);
-  if (nc != npos) {
-    bool on = vpcopt[nc].value() == "1";
-    repeatCheckBox->setChecked(on);
-    repeatCheckBoxToggled(on);
-  }
+  repeatCheckBox->setChecked(po.repeat);
 
   // alpha shading
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_alpha)) != npos) {
-    if (CommandParser::isInt(vpcopt[nc].value()))
-      i = vpcopt[nc].toInt();
-    else
-      i = 255;
-    alphaSpinBox->setValue(i);
-    alphaSpinBox->setEnabled(true);
-  }
+  alphaSpinBox->setValue(po.alpha);
 
   // linetype
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_linetype)) != npos) {
-    i = 0;
-    while (i < nr_linetypes && vpcopt[nc].value() != linetypes[i])
-      i++;
-    if (i == nr_linetypes)
-      i = 0;
-    updateFieldOptions(PlotOptions::key_linetype, linetypes[i]);
-    lineTypeCbox->setCurrentIndex(i);
-    if ((nc = miutil::find(vpcopt, PlotOptions::key_linetype_2)) != npos) {
-      i = 0;
-      while (i < nr_linetypes && vpcopt[nc].value() != linetypes[i])
-        i++;
-      if (i == nr_linetypes)
-        i = 0;
-      updateFieldOptions(PlotOptions::key_linetype_2, linetypes[i]);
-      linetype2ComboBox->setCurrentIndex(i);
-    } else {
-      linetype2ComboBox->setCurrentIndex(0);
-    }
-  }
+  setListCombo(lineTypeCbox, linetypes, po.linetype.name);
+  setListCombo(linetype2ComboBox, linetypes, po.linetype_2.name);
 
   // linewidth
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_linewidth)) != npos && CommandParser::isInt(vpcopt[nc].value())) {
-    i = vpcopt[nc].toInt();
-    ;
-    int nr_linewidths = lineWidthCbox->count();
-    if (i > nr_linewidths) {
-      ExpandLinewidthBox(lineWidthCbox, i);
-    }
-    updateFieldOptions(PlotOptions::key_linewidth, miutil::from_number(i));
-    lineWidthCbox->setCurrentIndex(i - 1);
-  }
-
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_linewidth_2)) != npos && CommandParser::isInt(vpcopt[nc].value())) {
-    int nr_linewidths = linewidth2ComboBox->count();
-    i = vpcopt[nc].toInt();
-    ;
-    if (i > nr_linewidths) {
-      ExpandLinewidthBox(linewidth2ComboBox, i);
-    }
-    updateFieldOptions(PlotOptions::key_linewidth_2, miutil::from_number(i));
-    linewidth2ComboBox->setCurrentIndex(i - 1);
-  }
-
-  // line interval (isoline contouring)
   {
-    const size_t nci = miutil::find(vpcopt, PlotOptions::key_lineinterval), ncv = miutil::find(vpcopt, PlotOptions::key_linevalues),
-                 nclv = miutil::find(vpcopt, PlotOptions::key_loglinevalues);
-    if (nci != npos or ncv != npos or nclv != npos) {
-      bool enable_values = true;
-      if (nci != npos && CommandParser::isFloat(vpcopt[nci].value())) {
-        float ekv = vpcopt[nci].toFloat();
-        lineintervals = numberList(lineintervalCbox, ekv, true);
-        lineintervals2 = numberList(interval2ComboBox, ekv, true);
-        enable_values = false;
-      } else {
-        lineintervalCbox->setCurrentIndex(0);
-      }
-      if (ncv != npos) {
-        linevaluesField->setText(QString::fromStdString(vpcopt[ncv].value()));
-        linevaluesLogCheckBox->setChecked(false);
-      } else if (nclv != npos) {
-        linevaluesField->setText(QString::fromStdString(vpcopt[nclv].value()));
-        linevaluesLogCheckBox->setChecked(true);
-      }
-      linevaluesField->setEnabled(enable_values);
-      linevaluesLogCheckBox->setEnabled(enable_values);
-    }
-    if ((nc = miutil::find(vpcopt, PlotOptions::key_lineinterval_2)) != npos && (CommandParser::isFloat(vpcopt[nc].value()))) {
-      float ekv = vpcopt[nc].toFloat();
-      ;
-      lineintervals2 = numberList(interval2ComboBox, ekv, true);
-    }
+    const int lw = po.linewidth;
+    if (lw > lineWidthCbox->count())
+      ExpandLinewidthBox(lineWidthCbox, lw);
+    lineWidthCbox->setCurrentIndex(lw - 1);
   }
+  {
+    const int lw2 = po.linewidth_2;
+    if (lw2 > linewidth2ComboBox->count())
+      ExpandLinewidthBox(linewidth2ComboBox, lw2);
+    linewidth2ComboBox->setCurrentIndex(lw2 - 1);
+  }
+
+  // line interval and line values (contour and fill_cell)
+  {
+    const bool have_log = !po.loglinevalues().empty(), have_val = !po.linevalues().empty();
+    if (have_log || have_val) {
+      const auto& lv = have_log ? po.loglinevalues() : po.linevalues();
+      const std::string lvtext = miutil::kv("dummy", lv).value();
+      linevaluesField->setText(QString::fromStdString(lvtext));
+      linevaluesLogCheckBox->setChecked(have_log);
+    } else {
+      linevaluesField->clear();
+      linevaluesLogCheckBox->setChecked(false);
+    }
+    spinLineInterval->setValue(std::max(po.lineinterval, 0.0f));
+    lineIntervalChanged(po.lineinterval);
+  }
+
+  spinLineInterval2->setValue(std::max(po.lineinterval_2, 0.0f));
 
   // wind/vector density
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_density)) != npos) {
-    std::string s;
-    if (!vpcopt[nc].value().empty()) {
-      s = vpcopt[nc].value();
-    } else {
-      s = "0";
-      updateFieldOptions(PlotOptions::key_density, s);
-    }
-    if (s == "0") {
-      i = 0;
-    } else {
-      const QString qs = QString::fromStdString(s);
-      i = densityStringList.indexOf(qs);
-      if (i == -1) {
-        densityStringList << qs;
-        densityCbox->addItem(qs);
-        i = densityCbox->count() - 1;
-      }
+  {
+    const QString s = formatDensity(po.density, po.densityFactor);
+    int i = i = densityStringList.indexOf(s);
+    if (i == -1) {
+      densityStringList << s;
+      densityCbox->addItem(s);
+      i = densityCbox->count() - 1;
     }
     densityCbox->setCurrentIndex(i);
   }
 
   // vectorunit (vector length unit)
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_vectorunit)) != npos) {
-    float e;
-    if (CommandParser::isFloat(vpcopt[nc].value()))
-      e = vpcopt[nc].toFloat();
-    else
-      e = 5;
-    vectorunit = numberList(vectorunitCbox, e, false);
-  }
+  vectorunit = numberList(vectorunitCbox, po.vectorunit, false);
 
   // extreme.type (L+H, C+W or none)
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_extremeType)) != npos) {
-    i = 0;
-    n = extremeType.size();
-    while (i < n && vpcopt[nc].value() != extremeType[i]) {
-      i++;
-    }
-    if (i == n) {
-      i = 0;
-    }
-    updateFieldOptions(PlotOptions::key_extremeType, extremeType[i]);
-    extremeTypeCbox->setCurrentIndex(i);
-  }
+  setListCombo(extremeTypeCbox, extremeType, po.extremeType);
 
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_extremeSize)) != npos) {
-    float e;
-    if (CommandParser::isFloat(vpcopt[nc].value())) {
-      e = vpcopt[nc].toFloat();
-      ;
-    } else {
-      e = 1.0;
-    }
-    i = (int(e * 100. + 0.5)) / 5 * 5;
-    extremeSizeSpinBox->setValue(i);
-  }
+  extremeSizeSpinBox->setValue(fractionToPercent(po.extremeSize));
+  extremeRadiusSpinBox->setValue(fractionToPercent(po.extremeRadius));
 
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_extremeRadius)) != npos) {
-    float e;
-    if (CommandParser::isFloat(vpcopt[nc].value())) {
-      e = vpcopt[nc].toFloat();
-      ;
-    } else {
-      e = 1.0;
-    }
-    i = (int(e * 100. + 0.5)) / 5 * 5;
-    extremeRadiusSpinBox->setValue(i);
-  }
+  lineSmoothSpinBox->setValue(po.lineSmooth);
 
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_lineSmooth)) != npos && CommandParser::isInt(vpcopt[nc].value())) {
-    i = vpcopt[nc].toInt();
-    ;
-    lineSmoothSpinBox->setValue(i);
-  } else {
-    lineSmoothSpinBox->setValue(0);
-  }
-
-  if (currentFieldOptsInEdit) {
+  if (selectedFieldInEdit) {
     fieldSmoothSpinBox->setValue(0);
     fieldSmoothSpinBox->setEnabled(false);
-  } else if ((nc = miutil::find(vpcopt, PlotOptions::key_fieldSmooth)) != npos) {
-    if (CommandParser::isInt(vpcopt[nc].value()))
-      i = vpcopt[nc].toInt();
-    else
-      i = 0;
-    fieldSmoothSpinBox->setValue(i);
-  } else if (fieldSmoothSpinBox->isEnabled()) {
-    fieldSmoothSpinBox->setValue(0);
+  } else {
+    fieldSmoothSpinBox->setValue(po.fieldSmooth);
   }
 
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_labelSize)) != npos) {
-    float e;
-    if (CommandParser::isFloat(vpcopt[nc].value()))
-      e = vpcopt[nc].toFloat();
-    else
-      e = 1.0;
-    i = (int(e * 100. + 0.5)) / 5 * 5;
-    labelSizeSpinBox->setValue(i);
-  } else if (labelSizeSpinBox->isEnabled()) {
-    labelSizeSpinBox->setValue(100);
-    labelSizeSpinBox->setEnabled(false);
-  }
+  labelSizeSpinBox->setValue(fractionToPercent(po.labelSize));
 
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_precision)) != npos) {
-    if (CommandParser::isInt(vpcopt[nc].value()) && vpcopt[nc].toInt() < valuePrecisionBox->count()) {
-      valuePrecisionBox->setCurrentIndex(vpcopt[nc].toInt());
-    } else {
-      valuePrecisionBox->setCurrentIndex(0);
-    }
-  }
+  valuePrecisionBox->setCurrentIndex(po.precision);
 
-  nc = miutil::find(vpcopt, PlotOptions::key_gridValue);
-  if (nc != npos) {
-    if (vpcopt[nc].value() == "-1") {
-      nc = npos;
-    } else {
-      bool on = vpcopt[nc].value() == "1";
-      gridValueCheckBox->setChecked(on);
-      gridValueCheckBox->setEnabled(true);
-    }
-  }
-  if (nc == npos && gridValueCheckBox->isEnabled()) {
-    gridValueCheckBox->setChecked(false);
-    gridValueCheckBox->setEnabled(false);
-  }
-
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_gridLines)) != npos) {
-    if (CommandParser::isInt(vpcopt[nc].value()))
-      i = vpcopt[nc].toInt();
-    else
-      i = 0;
-    gridLinesSpinBox->setValue(i);
-  }
+  gridValueCheckBox->setChecked(po.gridValue);
+  gridLinesSpinBox->setValue(po.gridLines);
 
   // undefined masking
-  int iumask = 0;
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_undefMasking)) != npos) {
-    if (CommandParser::isInt(vpcopt[nc].value())) {
-      iumask = vpcopt[nc].toInt();
-      ;
-      if (iumask < 0 || iumask >= int(undefMasking.size()))
-        iumask = 0;
-    } else {
-      iumask = 0;
-    }
+  {
+    const int iumask = miutil::constrain_value(po.undefMasking, 0, int(undefMasking.size()));
     undefMaskingCbox->setCurrentIndex(iumask);
     undefMaskingActivated(iumask);
   }
 
   // undefined masking colour
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_undefColour)) != npos) {
-    SetCurrentItemColourBox(undefColourCbox, vpcopt[nc].value());
-    updateFieldOptions(PlotOptions::key_undefColour, vpcopt[nc].value());
-  }
+  SetCurrentItemColourBox(undefColourCbox, po.undefColour.Name());
 
   // undefined masking linewidth
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_undefLinewidth)) != npos && CommandParser::isInt(vpcopt[nc].value())) {
-    int nr_linewidths = undefLinewidthCbox->count();
-    i = vpcopt[nc].toInt();
-    ;
-    if (i > nr_linewidths) {
-      ExpandLinewidthBox(undefLinewidthCbox, i);
-    }
-    updateFieldOptions(PlotOptions::key_undefLinewidth, miutil::from_number(i));
-    undefLinewidthCbox->setCurrentIndex(i - 1);
+  {
+    const int lw = po.undefLinewidth;
+    if (lw > undefLinewidthCbox->count())
+      ExpandLinewidthBox(undefLinewidthCbox, lw);
+    undefLinewidthCbox->setCurrentIndex(lw - 1);
   }
 
   // undefined masking linetype
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_undefLinetype)) != npos) {
-    i = 0;
-    while (i < nr_linetypes && vpcopt[nc].value() != linetypes[i])
-      i++;
-    if (i == nr_linetypes) {
-      i = 0;
-      updateFieldOptions(PlotOptions::key_undefLinetype, linetypes[i]);
-    }
-    undefLinetypeCbox->setCurrentIndex(i);
-  }
+  setListCombo(undefLinetypeCbox, linetypes, po.undefLinetype.name);
 
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_frame)) != npos) {
-    frameCheckBox->setChecked(vpcopt[nc].value() != "0");
-  }
+  frameCheckBox->setChecked((po.frame & 1) != 0);
+  frameFill = (po.frame & 2) != 0;
 
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_zeroLine)) != npos) {
-    bool on = vpcopt[nc].value() == "1";
-    zeroLineCheckBox->setChecked(on);
-  }
+  zeroLineCheckBox->setChecked(po.zeroLine);
 
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_valueLabel)) != npos) {
-    bool on = vpcopt[nc].value() == "1";
-    valueLabelCheckBox->setChecked(on);
-  }
+  valueLabelCheckBox->setChecked(po.valueLabel);
 
   // base
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_basevalue)) != npos) {
-    float e;
-    if (CommandParser::isFloat(vpcopt[nc].value())) {
-      e = vpcopt[nc].toFloat();
-      ;
-      baseList(zero1ComboBox, e);
-    }
-    if ((nc = miutil::find(vpcopt, PlotOptions::key_basevalue_2)) != npos) {
-      if (CommandParser::isFloat(vpcopt[nc].value())) {
-        e = vpcopt[nc].toFloat();
-        ;
-        baseList(zero2ComboBox, e);
-      }
-    }
-  }
+  spinBaseValue1->setValue(po.base);
+  spinBaseValue2->setValue(po.base_2);
 
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_minvalue)) != npos) {
-    if (vpcopt[nc].value() != "off") {
-      float value = vpcopt[nc].toFloat();
-      baseList(min1ComboBox, value, true);
-    }
-  }
-
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_minvalue)) != npos) {
-    if (vpcopt[nc].value() != "off") {
-      float value = vpcopt[nc].toFloat();
-      baseList(min2ComboBox, value, true);
-    }
-  }
-
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_maxvalue)) != npos) {
-    if (vpcopt[nc].value() != "off") {
-      float value = vpcopt[nc].toFloat();
-      baseList(max1ComboBox, value, true);
-    }
-  }
-
-  if ((nc = miutil::find(vpcopt, PlotOptions::key_maxvalue_2)) != npos) {
-    if (vpcopt[nc].value() != "off") {
-      float value = vpcopt[nc].toFloat();
-      baseList(max2ComboBox, value, true);
-    }
-  }
-}
-
-void FieldDialogStyle::setDefaultFieldOptions()
-{
-  METLIBS_LOG_SCOPE();
-
-  // show levels for the current field group
-  //  setLevel();
-
-  currentFieldOpts.clear();
-
-  unitLineEdit->clear();
-  plottypeComboBox->setCurrentIndex(0);
-  colorCbox->setCurrentIndex(1);
-  fieldSmoothSpinBox->setValue(0);
-  gridValueCheckBox->setChecked(false);
-  gridLinesSpinBox->setValue(0);
-  undefMaskingCbox->setCurrentIndex(0);
-  undefColourCbox->setCurrentIndex(1);
-  undefLinewidthCbox->setCurrentIndex(0);
-  undefLinetypeCbox->setCurrentIndex(0);
-  frameCheckBox->setChecked(true);
-  for (int i = 0; i < 3; i++) {
-    threeColourBox[i]->setCurrentIndex(0);
-  }
-
-  lineTypeCbox->setCurrentIndex(0);
-  lineSmoothSpinBox->setValue(0);
-  zeroLineCheckBox->setChecked(true);
-  colour2ComboBox->setCurrentIndex(0);
-  interval2ComboBox->setCurrentIndex(0);
-  linewidth2ComboBox->setCurrentIndex(0);
-  linetype2ComboBox->setCurrentIndex(0);
-  valueLabelCheckBox->setChecked(true);
-
-  extremeTypeCbox->setCurrentIndex(0);
-  extremeSizeSpinBox->setValue(100);
-  extremeRadiusSpinBox->setValue(100);
-
-  //  lineintervalCbox->setCurrentIndex(0);
-  tableCheckBox->setChecked(false);
-  repeatCheckBox->setChecked(false);
-  shadingComboBox->setCurrentIndex(0);
-  shadingcoldComboBox->setCurrentIndex(0);
-  shadingSpinBox->setValue(0);
-  shadingcoldSpinBox->setValue(0);
-  patternComboBox->setCurrentIndex(0);
-  patternColourBox->setCurrentIndex(0);
-  alphaSpinBox->setValue(255);
-
-  lineWidthCbox->setCurrentIndex(0);
-  labelSizeSpinBox->setValue(0);
-  valuePrecisionBox->setCurrentIndex(0);
-
-  densityCbox->setCurrentIndex(0);
-
-  vectorunitCbox->setCurrentIndex(0);
-
-  lineintervals = numberList(lineintervalCbox, 10, true);
-  lineintervals2 = numberList(interval2ComboBox, 10, true);
-  lineintervalCbox->setCurrentIndex(0);
-  interval2ComboBox->setCurrentIndex(0);
-  baseList(zero1ComboBox, 0);
-  baseList(zero2ComboBox, 0);
-  baseList(min2ComboBox, 0, true);
-  baseList(min1ComboBox, 0, true);
-  baseList(max1ComboBox, 0, true);
-  baseList(max2ComboBox, 0, true);
-  min1ComboBox->setCurrentIndex(0);
-  min2ComboBox->setCurrentIndex(0);
-  max1ComboBox->setCurrentIndex(0);
-  max2ComboBox->setCurrentIndex(0);
-
-  // hour.offset and hour.diff are not plotOptions and signals must be blocked
-  // in order not to change the selectedField values of hour.offset and hour.diff
-  diutil::BlockSignals blockedO(hourOffsetSpinBox);
-  hourOffsetSpinBox->setValue(0);
-  diutil::BlockSignals blockedD(hourDiffSpinBox);
-  hourDiffSpinBox->setValue(0);
+  setMinMaxBoxes(max1OnOff, max1SpinBox, po.maxvalue);
+  setMinMaxBoxes(min1OnOff, min1SpinBox, po.minvalue);
+  setMinMaxBoxes(max2OnOff, max2SpinBox, po.maxvalue_2);
+  setMinMaxBoxes(min2OnOff, min2SpinBox, po.minvalue_2);
 }
 
 void FieldDialogStyle::enableWidgets(const std::string& plottype)
 {
   METLIBS_LOG_SCOPE("plottype=" << plottype);
 
-  bool enable = (plottype != "none");
+  const bool pt_contour = plottype == fpt_contour || plottype == fpt_contour2 || plottype == fpt_contour2;
+  const bool pt_value_symbol = plottype == fpt_value || plottype == fpt_symbol;
+  const bool pt_wind_temp_value = plottype == fpt_wind_temp_fl || plottype == fpt_wind_value;
+  const bool pt_wind_vector_direction = plottype == fpt_wind || plottype == fpt_vector || plottype == fpt_direction;
+  const bool pt_alpha_rgb = plottype == fpt_alpha_shade || plottype == fpt_rgb;
+  const bool pt_fill_cell = plottype == fpt_fill_cell;
 
-  // used for all plottypes
-  unitLineEdit->setEnabled(enable);
-  plottypeComboBox->setEnabled(enable);
-  colorCbox->setEnabled(enable);
-  fieldSmoothSpinBox->setEnabled(enable);
-  gridValueCheckBox->setEnabled(enable);
-  gridLinesSpinBox->setEnabled(enable);
-  hourOffsetSpinBox->setEnabled(enable);
-  hourDiffSpinBox->setEnabled(enable);
-  undefMaskingCbox->setEnabled(enable);
-  undefColourCbox->setEnabled(enable);
-  undefLinewidthCbox->setEnabled(enable);
-  undefLinetypeCbox->setEnabled(enable);
-  frameCheckBox->setEnabled(enable);
-  zero1ComboBox->setEnabled(enable);
-  min1ComboBox->setEnabled(enable);
-  max1ComboBox->setEnabled(enable);
-  for (int i = 0; i < 3; i++) {
-    threeColourBox[i]->setEnabled(enable);
-  }
+  {
+    // used for all plottypes
+    const bool enable = (plottype != "none");
+    unitLineEdit->setEnabled(enable);
+    plottypeComboBox->setEnabled(enable);
+    colorCbox->setEnabled(enable);
+    fieldSmoothSpinBox->setEnabled(enable);
+    gridValueCheckBox->setEnabled(enable);
+    gridLinesSpinBox->setEnabled(enable);
+    hourOffsetSpinBox->setEnabled(enable);
+    hourDiffSpinBox->setEnabled(enable);
+    frameCheckBox->setEnabled(enable);
+    spinBaseValue1->setEnabled(enable);
 
-  const std::map<std::string, EnableWidget>::const_iterator itEM = enableMap.find(plottype);
-  const bool knownPlotType = (itEM != enableMap.end());
+    undefMaskingCbox->setEnabled(enable);
+    undefColourCbox->setEnabled(enable);
+    undefLinewidthCbox->setEnabled(enable);
+    undefLinetypeCbox->setEnabled(enable);
 
-  enable = knownPlotType && itEM->second.contourWidgets;
-  lineTypeCbox->setEnabled(enable);
-  lineSmoothSpinBox->setEnabled(enable);
-  zeroLineCheckBox->setEnabled(enable);
-  colour2ComboBox->setEnabled(enable);
-  interval2ComboBox->setEnabled(enable);
-  zero2ComboBox->setEnabled(enable);
-  min2ComboBox->setEnabled(enable);
-  max2ComboBox->setEnabled(enable);
-  linewidth2ComboBox->setEnabled(enable);
-  linetype2ComboBox->setEnabled(enable);
-  valueLabelCheckBox->setEnabled(enable);
-
-  enable = knownPlotType && itEM->second.extremeWidgets;
-  extremeTypeCbox->setEnabled(enable);
-  extremeSizeSpinBox->setEnabled(enable);
-  extremeRadiusSpinBox->setEnabled(enable);
-
-  enable = knownPlotType && itEM->second.shadingWidgets;
-  lineintervalCbox->setEnabled(enable);
-  tableCheckBox->setEnabled(enable);
-  repeatCheckBox->setEnabled(enable);
-  shadingComboBox->setEnabled(enable);
-  shadingcoldComboBox->setEnabled(enable);
-  shadingSpinBox->setEnabled(enable);
-  shadingcoldSpinBox->setEnabled(enable);
-  patternComboBox->setEnabled(enable);
-  patternColourBox->setEnabled(enable);
-  alphaSpinBox->setEnabled(enable);
-
-  enable = enable && lineintervalCbox->currentIndex() == 0;
-  linevaluesField->setEnabled(enable);
-  linevaluesLogCheckBox->setEnabled(enable);
-
-  enable = knownPlotType && itEM->second.lineWidgets;
-  lineWidthCbox->setEnabled(enable);
-
-  enable = knownPlotType && itEM->second.fontWidgets;
-  labelSizeSpinBox->setEnabled(enable);
-  valuePrecisionBox->setEnabled(enable);
-
-  enable = knownPlotType && itEM->second.densityWidgets;
-  densityCbox->setEnabled(enable);
-
-  enable = knownPlotType && itEM->second.unitWidgets;
-  vectorunitCbox->setEnabled(enable);
-}
-
-void FieldDialogStyle::baseList(QComboBox* cBox, float base, bool onoff)
-{
-  float ekv = 10;
-  if (lineintervalCbox->currentIndex() > 0 && !lineintervalCbox->currentText().isNull()) {
-    ekv = lineintervalCbox->currentText().toFloat();
-  }
-
-  int n;
-  if (base < 0.)
-    n = int(base / ekv - 0.5);
-  else
-    n = int(base / ekv + 0.5);
-  if (fabsf(base - ekv * float(n)) > 0.01 * ekv) {
-    base = ekv * float(n);
-  }
-  n = 21;
-  int k = n / 2;
-  int j = -k - 1;
-
-  cBox->clear();
-
-  if (onoff)
-    cBox->addItem(tr("Off"));
-
-  for (int i = 0; i < n; ++i) {
-    j++;
-    float e = base + ekv * float(j);
-    if (fabs(e) < ekv / 2)
-      cBox->addItem("0");
-    else {
-      cBox->addItem(QString::fromStdString(miutil::from_number(e)));
+    min1SpinBox->setEnabled(enable);
+    max1SpinBox->setEnabled(enable);
+    for (int i = 0; i < 3; i++) {
+      threeColourBox[i]->setEnabled(enable);
     }
   }
+  {
+    const bool e_contour = pt_contour;
+    lineTypeCbox->setEnabled(e_contour);
+    lineSmoothSpinBox->setEnabled(e_contour);
+    zeroLineCheckBox->setEnabled(e_contour);
+    colour2ComboBox->setEnabled(e_contour);
+    spinLineInterval2->setEnabled(e_contour);
+    spinBaseValue2->setEnabled(e_contour);
+    min2SpinBox->setEnabled(e_contour);
+    max2SpinBox->setEnabled(e_contour);
+    linewidth2ComboBox->setEnabled(e_contour);
+    linetype2ComboBox->setEnabled(e_contour);
+    valueLabelCheckBox->setEnabled(e_contour);
+  }
+  {
+    const bool e_extreme = pt_contour || pt_alpha_rgb;
+    extremeTypeCbox->setEnabled(e_extreme);
+    extremeSizeSpinBox->setEnabled(e_extreme);
+    extremeRadiusSpinBox->setEnabled(e_extreme);
+  }
+  {
+    const bool e_shading = pt_contour || pt_fill_cell;
+    spinLineInterval->setEnabled(e_shading);
+    tableCheckBox->setEnabled(e_shading);
+    repeatCheckBox->setEnabled(e_shading);
+    shadingComboBox->setEnabled(e_shading);
+    shadingSpinBox->setEnabled(e_shading);
+    shadingcoldComboBox->setEnabled(e_shading);
+    shadingcoldSpinBox->setEnabled(e_shading);
+    patternComboBox->setEnabled(e_shading);
+    patternColourBox->setEnabled(e_shading);
+    alphaSpinBox->setEnabled(e_shading);
 
-  if (onoff)
-    cBox->setCurrentIndex(k + 1);
-  else
-    cBox->setCurrentIndex(k);
+    lineIntervalChanged(spinLineInterval->value());
+  }
+  {
+    const bool e_line = pt_contour || pt_wind_temp_value || pt_wind_vector_direction;
+    lineWidthCbox->setEnabled(e_line);
+  }
+  {
+    const bool e_font = pt_contour || pt_wind_temp_value || pt_value_symbol;
+    labelSizeSpinBox->setEnabled(e_font);
+    valuePrecisionBox->setEnabled(e_font);
+  }
+  {
+    const bool e_density = pt_value_symbol || pt_fill_cell || pt_wind_vector_direction || pt_wind_temp_value;
+    densityCbox->setEnabled(e_density);
+  }
+  {
+    const bool e_vectorunit = pt_wind_vector_direction || pt_wind_temp_value;
+    vectorunitCbox->setEnabled(e_vectorunit);
+  }
 }
 
-void FieldDialogStyle::unitEditingFinished()
+void FieldDialogStyle::updateFieldOptions(SelectedField* selectedField)
 {
-  updateFieldOptions(UNIT, REMOVE);
-  updateFieldOptions(UNITS, unitLineEdit->text().toStdString());
+  if (!selectedField)
+    return;
+
+  selectedField->hourOffset = hourOffsetSpinBox->value();
+  selectedField->hourDiff = hourOffsetSpinBox->value();
+  selectedField->units = unitLineEdit->text().toStdString();
+  setToPlotOptions(selectedField->po);
+
+  auto& fo = fieldOptions[selectedField->fieldName];
+  fo = selectedField->po.toKeyValueList();
+  fo << selectedField->oo;
+}
+
+const std::string& FieldDialogStyle::getPlotType() const
+{
+  return plottypes[plottypeComboBox->currentIndex()];
+}
+
+void FieldDialogStyle::setToPlotOptions(PlotOptions& po)
+{
+  po.plottype = getPlotType();
+
+  if (colorCbox->currentIndex() == 0) {
+    po.options_1 = false;
+  } else {
+    po.set_colour(colorCbox->currentText().toStdString());
+  }
+  if (colour2ComboBox->currentIndex() == 0) {
+    po.options_2 = false;
+  } else {
+    po.set_colour_2(colour2ComboBox->currentText().toStdString());
+  }
+
+  po.linewidth = lineWidthCbox->currentIndex() + 1;
+  po.linewidth_2 = linewidth2ComboBox->currentIndex() + 1;
+  po.set_linetype(getListCombo(lineTypeCbox, linetypes));
+  po.set_linetype_2(getListCombo(linetype2ComboBox, linetypes));
+  {
+    std::string lvtext = linevaluesField->text().toStdString();
+    std::string llvtext;
+    if (linevaluesLogCheckBox->isChecked())
+      std::swap(lvtext, llvtext);
+    po.set_loglinevalues(llvtext);
+    po.set_linevalues(lvtext);
+  }
+  po.set_lineinterval(spinLineInterval->value());
+  po.set_lineinterval_2(spinLineInterval2->value());
+
+  if (densityCbox->currentIndex() == 0) {
+    po.density = 0;
+    po.densityFactor = 1;
+  } else {
+    po.set_density(densityCbox->currentText().toStdString());
+  }
+
+  if (vectorunitCbox->currentIndex() > 0) {
+    po.vectorunit = miutil::to_float(getListCombo(vectorunitCbox, vectorunit));
+  }
+
+  po.extremeType = extremeTypeCbox->currentText().toStdString();
+  po.extremeSize = extremeSizeSpinBox->value() * 0.01;
+  po.extremeRadius = extremeRadiusSpinBox->value() * 0.01;
+
+  po.lineSmooth = lineSmoothSpinBox->value();
+  po.fieldSmooth = fieldSmoothSpinBox->value();
+
+  po.labelSize = labelSizeSpinBox->value() * 0.01;
+  po.precision = valuePrecisionBox->currentIndex();
+  po.gridValue = gridValueCheckBox->isChecked();
+  po.gridLines = gridLinesSpinBox->value();
+
+  po.undefMasking = undefMaskingCbox->currentIndex();
+  po.undefColour = Colour(undefColourCbox->currentText().toStdString());
+  po.undefLinewidth = undefLinewidthCbox->currentIndex() + 1;
+  po.undefLinetype = undefLinetypeCbox->currentText().toStdString();
+
+  po.frame = (frameCheckBox->isChecked() ? 1 : 0) | (frameFill ? 2 : 0);
+  po.zeroLine = zeroLineCheckBox->isChecked();
+  po.valueLabel = valueLabelCheckBox->isChecked();
+  po.table = tableCheckBox->isChecked();
+  po.repeat = repeatCheckBox->isChecked();
+
+  if (patternComboBox->currentIndex() > 0) {
+    po.set_patterns(patternInfo[patternComboBox->currentIndex() - 1].name);
+  } else if (patternColourBox->currentIndex() > 0) {
+    po.fillcolour = Colour(patternColourBox->currentText().toStdString());
+  } else {
+    po.set_patterns(OFF);
+  }
+
+  if (threeColourBox[0]->currentIndex() != 0 && threeColourBox[1]->currentIndex() != 0 && threeColourBox[2]->currentIndex() != 0) {
+    po.colours.clear();
+    po.colours.push_back(Colour(threeColourBox[0]->currentText().toStdString()));
+    po.colours.push_back(Colour(threeColourBox[1]->currentText().toStdString()));
+    po.colours.push_back(Colour(threeColourBox[2]->currentText().toStdString()));
+  }
+
+  {
+    const int index1 = shadingComboBox->currentIndex();
+    const int index2 = shadingcoldComboBox->currentIndex();
+    std::string str;
+    if (index1 == 0 && index2 == 0) {
+      str = OFF;
+    } else {
+      if (index1 > 0) {
+        str = csInfo[index1 - 1].name;
+        int value1 = shadingSpinBox->value();
+        if (value1 > 0)
+          str += ";" + miutil::from_number(value1);
+        if (index2 > 0)
+          str += ",";
+      }
+      if (index2 > 0) {
+        str += csInfo[index2 - 1].name;
+        int value2 = shadingcoldSpinBox->value();
+        if (value2 > 0)
+          str += ";" + miutil::from_number(value2);
+      }
+    }
+    po.set_palettecolours(str);
+  }
+
+  po.alpha = alphaSpinBox->value();
+  po.base = spinBaseValue1->value();
+  po.base_2 = spinBaseValue2->value();
+
+  po.set_maxvalue(getMinMaxOption(max1OnOff, max1SpinBox));
+  po.set_minvalue(getMinMaxOption(min1OnOff, min1SpinBox));
+  po.set_maxvalue_2(getMinMaxOption(max2OnOff, max2SpinBox));
+  po.set_minvalue_2(getMinMaxOption(min2OnOff, min2SpinBox));
 }
 
 void FieldDialogStyle::plottypeComboBoxActivated(int index)
 {
-  updateFieldOptions(PlotOptions::key_plottype, plottypes[index]);
   enableWidgets(plottypes[index]);
-}
-
-void FieldDialogStyle::colorCboxActivated(int index)
-{
-  if (index == 0)
-    updateFieldOptions(PlotOptions::key_colour, "off");
-  else
-    updateFieldOptions(PlotOptions::key_colour, colorCbox->currentText().toStdString());
-}
-
-void FieldDialogStyle::lineWidthCboxActivated(int index)
-{
-  updateFieldOptions(PlotOptions::key_linewidth, miutil::from_number(index + 1));
-}
-
-void FieldDialogStyle::lineTypeCboxActivated(int index)
-{
-  updateFieldOptions(PlotOptions::key_linetype, linetypes[index]);
-}
-
-void FieldDialogStyle::lineintervalCboxActivated(int index)
-{
-  const bool interval_off = (index == 0);
-  linevaluesField->setEnabled(interval_off);
-  linevaluesLogCheckBox->setEnabled(interval_off);
-  if (interval_off) {
-    updateFieldOptions(PlotOptions::key_lineinterval, REMOVE);
-    linevaluesFieldEdited();
-  } else {
-    updateFieldOptions(PlotOptions::key_lineinterval, lineintervals[index]);
-    // update the list (with selected value in the middle)
-    float a = miutil::to_float(lineintervals[index]);
-    lineintervals = numberList(lineintervalCbox, a, true);
-    updateFieldOptions(PlotOptions::key_linevalues, REMOVE);
-    updateFieldOptions(PlotOptions::key_loglinevalues, REMOVE);
-  }
-}
-
-void FieldDialogStyle::densityCboxActivated(int index)
-{
-  if (index == 0)
-    updateFieldOptions(PlotOptions::key_density, "0");
-  else
-    updateFieldOptions(PlotOptions::key_density, densityCbox->currentText().toStdString());
 }
 
 void FieldDialogStyle::vectorunitCboxActivated(int index)
 {
-  updateFieldOptions(PlotOptions::key_vectorunit, vectorunit[index]);
-  // update the list (with selected value in the middle)
-  float a = miutil::to_float(vectorunit[index]);
-  vectorunit = numberList(vectorunitCbox, a, false);
+  if (index >= 0) {
+    // update the list (with selected value in the middle)
+    float a = miutil::to_float(vectorunit[index]);
+    vectorunit = numberList(vectorunitCbox, a, false);
+  }
 }
 
-void FieldDialogStyle::extremeTypeActivated(int index)
+void FieldDialogStyle::lineIntervalChanged(double interval)
 {
-  updateFieldOptions(PlotOptions::key_extremeType, extremeType[index]);
-}
+  const std::string& plottype = getPlotType();
+  const bool e_shading = plottype == fpt_contour || plottype == fpt_fill_cell;
 
-void FieldDialogStyle::extremeSizeChanged(int value)
-{
-  std::string str = miutil::from_number(float(value) * 0.01);
-  updateFieldOptions(PlotOptions::key_extremeSize, str);
-}
-
-void FieldDialogStyle::extremeRadiusChanged(int value)
-{
-  std::string str = miutil::from_number(float(value) * 0.01);
-  updateFieldOptions(PlotOptions::key_extremeRadius, str);
-}
-
-void FieldDialogStyle::lineSmoothChanged(int value)
-{
-  std::string str = miutil::from_number(value);
-  updateFieldOptions(PlotOptions::key_lineSmooth, str);
-}
-
-void FieldDialogStyle::fieldSmoothChanged(int value)
-{
-  std::string str = miutil::from_number(value);
-  updateFieldOptions(PlotOptions::key_fieldSmooth, str);
-}
-
-void FieldDialogStyle::labelSizeChanged(int value)
-{
-  std::string str = miutil::from_number(float(value) * 0.01);
-  updateFieldOptions(PlotOptions::key_labelSize, str);
-}
-
-void FieldDialogStyle::valuePrecisionBoxActivated(int index)
-{
-  std::string str = miutil::from_number(index);
-  updateFieldOptions(PlotOptions::key_precision, str);
-}
-
-void FieldDialogStyle::gridValueCheckBoxToggled(bool on)
-{
-  if (on)
-    updateFieldOptions(PlotOptions::key_gridValue, "1");
-  else
-    updateFieldOptions(PlotOptions::key_gridValue, "0");
-}
-
-void FieldDialogStyle::gridLinesChanged(int value)
-{
-  std::string str = miutil::from_number(value);
-  updateFieldOptions(PlotOptions::key_gridLines, str);
+  const bool enable_linevalues = e_shading && (interval == 0);
+  linevaluesField->setEnabled(enable_linevalues);
+  linevaluesLogCheckBox->setEnabled(enable_linevalues);
 }
 
 void FieldDialogStyle::hourOffsetChanged(int value)
 {
-  selectedField->hourOffset = value;
   /*Q_EMIT*/ updateTime();
 }
 
 void FieldDialogStyle::hourDiffChanged(int value)
 {
-  selectedField->hourDiff = value;
   /*Q_EMIT*/ updateTime();
 }
 
 void FieldDialogStyle::undefMaskingActivated(int index)
 {
-  updateFieldOptions(PlotOptions::key_undefMasking, miutil::from_number(index));
   undefColourCbox->setEnabled(index > 0);
   undefLinewidthCbox->setEnabled(index > 1);
   undefLinetypeCbox->setEnabled(index > 1);
 }
 
-void FieldDialogStyle::undefColourActivated(int /*index*/)
-{
-  updateFieldOptions(PlotOptions::key_undefColour, undefColourCbox->currentText().toStdString());
-}
-
-void FieldDialogStyle::undefLinewidthActivated(int index)
-{
-  updateFieldOptions(PlotOptions::key_undefLinewidth, miutil::from_number(index + 1));
-}
-
-void FieldDialogStyle::undefLinetypeActivated(int index)
-{
-  updateFieldOptions(PlotOptions::key_undefLinetype, linetypes[index]);
-}
-
-void FieldDialogStyle::frameCheckBoxToggled(bool on)
-{
-  if (on)
-    updateFieldOptions(PlotOptions::key_frame, "1");
-  else
-    updateFieldOptions(PlotOptions::key_frame, "0");
-}
-
-void FieldDialogStyle::zeroLineCheckBoxToggled(bool on)
-{
-  if (on)
-    updateFieldOptions(PlotOptions::key_zeroLine, "1");
-  else
-    updateFieldOptions(PlotOptions::key_zeroLine, "0");
-}
-
-void FieldDialogStyle::valueLabelCheckBoxToggled(bool on)
-{
-  if (on)
-    updateFieldOptions(PlotOptions::key_valueLabel, "1");
-  else
-    updateFieldOptions(PlotOptions::key_valueLabel, "0");
-}
-
 void FieldDialogStyle::colour2ComboBoxToggled(int index)
 {
   if (index == 0) {
-    updateFieldOptions(PlotOptions::key_colour_2, "off");
     enableType2Options(false);
     colour2ComboBox->setEnabled(true);
   } else {
-    updateFieldOptions(PlotOptions::key_colour_2, colour2ComboBox->currentText().toStdString());
     enableType2Options(true); // check if needed
     // turn of 3 colours (not possible to combine threeCols and col_2)
     for (int i = 0; i < 3; ++i)
@@ -1582,212 +1262,18 @@ void FieldDialogStyle::colour2ComboBoxToggled(int index)
   }
 }
 
-void FieldDialogStyle::tableCheckBoxToggled(bool on)
-{
-  if (on)
-    updateFieldOptions(PlotOptions::key_table, "1");
-  else
-    updateFieldOptions(PlotOptions::key_table, "0");
-}
-
-void FieldDialogStyle::patternComboBoxToggled(int index)
-{
-  if (index == 0) {
-    updateFieldOptions(PlotOptions::key_patterns, "off");
-  } else {
-    updateFieldOptions(PlotOptions::key_patterns, patternInfo[index - 1].name);
-  }
-  updatePaletteString();
-}
-
-void FieldDialogStyle::patternColourBoxToggled(int index)
-{
-  if (index == 0) {
-    updateFieldOptions(PlotOptions::key_pcolour, REMOVE);
-  } else {
-    updateFieldOptions(PlotOptions::key_pcolour, patternColourBox->currentText().toStdString());
-  }
-  updatePaletteString();
-}
-
-void FieldDialogStyle::repeatCheckBoxToggled(bool on)
-{
-  if (on)
-    updateFieldOptions(PlotOptions::key_repeat, "1");
-  else
-    updateFieldOptions(PlotOptions::key_repeat, "0");
-}
-
 void FieldDialogStyle::threeColoursChanged()
 {
-  if (threeColourBox[0]->currentIndex() == 0 || threeColourBox[1]->currentIndex() == 0 || threeColourBox[2]->currentIndex() == 0) {
-
-    updateFieldOptions(PlotOptions::key_colours, REMOVE);
-
-  } else {
-
+  if (threeColourBox[0]->currentIndex() != 0 && threeColourBox[1]->currentIndex() != 0 && threeColourBox[2]->currentIndex() != 0) {
     // turn of colour_2 (not possible to combine threeCols and col_2)
     colour2ComboBox->setCurrentIndex(0);
     colour2ComboBoxToggled(0);
-
-    std::string str = threeColourBox[0]->currentText().toStdString() + "," + threeColourBox[1]->currentText().toStdString() + "," +
-                      threeColourBox[2]->currentText().toStdString();
-
-    updateFieldOptions(PlotOptions::key_colours, REMOVE);
-    updateFieldOptions(PlotOptions::key_colours, str);
   }
 }
 
-void FieldDialogStyle::shadingChanged()
+void FieldDialogStyle::frameCheckBoxToggled(bool)
 {
-  updatePaletteString();
-}
-
-void FieldDialogStyle::updatePaletteString()
-{
-  if (patternComboBox->currentIndex() > 0 && patternColourBox->currentIndex() > 0) {
-    updateFieldOptions(PlotOptions::key_palettecolours, "off");
-    return;
-  }
-
-  int index1 = shadingComboBox->currentIndex();
-  int index2 = shadingcoldComboBox->currentIndex();
-  int value1 = shadingSpinBox->value();
-  int value2 = shadingcoldSpinBox->value();
-
-  if (index1 == 0 && index2 == 0) {
-    updateFieldOptions(PlotOptions::key_palettecolours, "off");
-    return;
-  }
-
-  std::string str;
-  if (index1 > 0) {
-    str = csInfo[index1 - 1].name;
-    if (value1 > 0)
-      str += ";" + miutil::from_number(value1);
-    if (index2 > 0)
-      str += ",";
-  }
-  if (index2 > 0) {
-    str += csInfo[index2 - 1].name;
-    if (value2 > 0)
-      str += ";" + miutil::from_number(value2);
-  }
-  updateFieldOptions(PlotOptions::key_palettecolours, str);
-}
-
-void FieldDialogStyle::alphaChanged(int index)
-{
-  updateFieldOptions(PlotOptions::key_alpha, miutil::from_number(index));
-}
-
-void FieldDialogStyle::interval2ComboBoxToggled(int index)
-{
-  if (index == 0) {
-    updateFieldOptions(PlotOptions::key_lineinterval_2, REMOVE);
-  } else {
-    updateFieldOptions(PlotOptions::key_lineinterval_2, lineintervals2[index]);
-    // update the list (with selected value in the middle)
-    float a = miutil::to_float(lineintervals2[index]);
-    lineintervals2 = numberList(interval2ComboBox, a, true);
-  }
-}
-
-void FieldDialogStyle::zero1ComboBoxToggled(int)
-{
-  if (!zero1ComboBox->currentText().isNull()) {
-    baseList(zero1ComboBox, zero1ComboBox->currentText().toFloat());
-    updateFieldOptions(PlotOptions::key_basevalue, zero1ComboBox->currentText().toStdString());
-  }
-}
-
-void FieldDialogStyle::zero2ComboBoxToggled(int)
-{
-  if (!zero2ComboBox->currentText().isNull()) {
-    const float a = zero2ComboBox->currentText().toFloat();
-    updateFieldOptions(PlotOptions::key_basevalue_2, zero2ComboBox->currentText().toStdString());
-    baseList(zero2ComboBox, a);
-  }
-}
-
-void FieldDialogStyle::min1ComboBoxToggled(int index)
-{
-  if (index == 0)
-    updateFieldOptions(PlotOptions::key_minvalue, "off");
-  else if (!min1ComboBox->currentText().isNull()) {
-    baseList(min1ComboBox, min1ComboBox->currentText().toFloat(), true);
-    updateFieldOptions(PlotOptions::key_minvalue, min1ComboBox->currentText().toStdString());
-  }
-}
-
-void FieldDialogStyle::max1ComboBoxToggled(int index)
-{
-  if (index == 0)
-    updateFieldOptions(PlotOptions::key_maxvalue, "off");
-  else if (!max1ComboBox->currentText().isNull()) {
-    baseList(max1ComboBox, max1ComboBox->currentText().toFloat(), true);
-    updateFieldOptions(PlotOptions::key_maxvalue, max1ComboBox->currentText().toStdString());
-  }
-}
-
-void FieldDialogStyle::min2ComboBoxToggled(int index)
-{
-
-  if (index == 0)
-    updateFieldOptions(PlotOptions::key_minvalue_2, REMOVE);
-  else if (!min2ComboBox->currentText().isNull()) {
-    baseList(min2ComboBox, min2ComboBox->currentText().toFloat(), true);
-    updateFieldOptions(PlotOptions::key_minvalue_2, min2ComboBox->currentText().toStdString());
-  }
-}
-
-void FieldDialogStyle::max2ComboBoxToggled(int index)
-{
-  if (index == 0)
-    updateFieldOptions(PlotOptions::key_maxvalue_2, REMOVE);
-  else if (!max2ComboBox->currentText().isNull()) {
-    baseList(max2ComboBox, max2ComboBox->currentText().toFloat(), true);
-    updateFieldOptions(PlotOptions::key_maxvalue_2, max2ComboBox->currentText().toStdString());
-  }
-}
-
-void FieldDialogStyle::linevaluesFieldEdited()
-{
-  const std::string line_values = linevaluesField->text().toStdString();
-  if (linevaluesLogCheckBox->isChecked()) {
-    updateFieldOptions(PlotOptions::key_linevalues, REMOVE);
-    updateFieldOptions(PlotOptions::key_loglinevalues, line_values);
-  } else {
-    updateFieldOptions(PlotOptions::key_loglinevalues, REMOVE);
-    updateFieldOptions(PlotOptions::key_linevalues, line_values);
-  }
-}
-
-void FieldDialogStyle::linevaluesLogCheckBoxToggled(bool)
-{
-  linevaluesFieldEdited();
-}
-
-void FieldDialogStyle::linewidth1ComboBoxToggled(int index)
-{
-  lineWidthCbox->setCurrentIndex(index);
-  updateFieldOptions(PlotOptions::key_linewidth, miutil::from_number(index + 1));
-}
-
-void FieldDialogStyle::linewidth2ComboBoxToggled(int index)
-{
-  updateFieldOptions(PlotOptions::key_linewidth_2, miutil::from_number(index + 1));
-}
-
-void FieldDialogStyle::linetype1ComboBoxToggled(int index)
-{
-  lineTypeCbox->setCurrentIndex(index);
-  updateFieldOptions(PlotOptions::key_linetype, linetypes[index]);
-}
-
-void FieldDialogStyle::linetype2ComboBoxToggled(int index)
-{
-  updateFieldOptions(PlotOptions::key_linetype_2, linetypes[index]);
+  frameFill = false;
 }
 
 void FieldDialogStyle::enableType2Options(bool on)
@@ -1797,60 +1283,14 @@ void FieldDialogStyle::enableType2Options(bool on)
   // enable the rest only if colour2 is on
   on = (colour2ComboBox->currentIndex() != 0);
 
-  interval2ComboBox->setEnabled(on);
-  zero2ComboBox->setEnabled(on);
-  min2ComboBox->setEnabled(on);
-  max2ComboBox->setEnabled(on);
+  spinLineInterval2->setEnabled(on);
+  spinBaseValue2->setEnabled(on);
+  min2OnOff->setEnabled(on);
+  max2OnOff->setEnabled(on);
+  min2SpinBox->setEnabled(on);
+  max2SpinBox->setEnabled(on);
   linewidth2ComboBox->setEnabled(on);
   linetype2ComboBox->setEnabled(on);
-
-  if (on) {
-    if (!interval2ComboBox->currentText().isNull())
-      updateFieldOptions(PlotOptions::key_lineinterval_2, interval2ComboBox->currentText().toStdString());
-    if (!zero2ComboBox->currentText().isNull())
-      updateFieldOptions(PlotOptions::key_basevalue_2, zero2ComboBox->currentText().toStdString());
-    if (!min2ComboBox->currentText().isNull() && min2ComboBox->currentIndex() > 0)
-      updateFieldOptions(PlotOptions::key_minvalue_2, min2ComboBox->currentText().toStdString());
-    if (!max2ComboBox->currentText().isNull() && max2ComboBox->currentIndex() > 0)
-      updateFieldOptions(PlotOptions::key_maxvalue_2, max2ComboBox->currentText().toStdString());
-    updateFieldOptions(PlotOptions::key_linewidth_2, miutil::from_number(linewidth2ComboBox->currentIndex() + 1));
-    updateFieldOptions(PlotOptions::key_linetype_2, linetypes[linetype2ComboBox->currentIndex()]);
-  } else {
-    colour2ComboBox->setCurrentIndex(0);
-    updateFieldOptions(PlotOptions::key_colour_2, "off");
-    updateFieldOptions(PlotOptions::key_lineinterval_2, REMOVE);
-    updateFieldOptions(PlotOptions::key_basevalue_2, REMOVE);
-    updateFieldOptions(PlotOptions::key_linewidth_2, REMOVE);
-    updateFieldOptions(PlotOptions::key_linetype_2, REMOVE);
-  }
-}
-
-void FieldDialogStyle::updateFieldOptions(const std::string& name, const std::string& value)
-{
-  METLIBS_LOG_SCOPE(LOGVAL(name) << LOGVAL(value));
-
-  if (currentFieldOpts.empty())
-    return;
-
-  const size_t pos = miutil::find(vpcopt, name);
-  if (value == REMOVE) {
-    if (pos != npos)
-      vpcopt.erase(vpcopt.begin() + pos);
-  } else {
-    const miutil::KeyValue kv(name, value);
-    if (pos != npos)
-      vpcopt[pos] = kv;
-    else
-      vpcopt.push_back(kv);
-  }
-
-  currentFieldOpts = vpcopt;
-  selectedField->fieldOpts = currentFieldOpts;
-
-  // not update private settings if external/QuickMenu command...
-  if (!selectedField->external) {
-    fieldOptions[selectedField->fieldName] = currentFieldOpts;
-  }
 }
 
 inline std::string sub(const std::string& s, std::string::size_type begin, std::string::size_type end)
@@ -1863,14 +1303,11 @@ vector<std::string> FieldDialogStyle::writeLog()
   vector<std::string> vstr;
 
   // write used field options
-
-  map<std::string, miutil::KeyValue_v>::iterator pfopt, pfend = fieldOptions.end();
-
-  for (pfopt = fieldOptions.begin(); pfopt != pfend; pfopt++) {
-    miutil::KeyValue_v sopts = getFieldOptions(pfopt->first, true);
+  for (const auto& fo : fieldOptions) {
+    miutil::KeyValue_v sopts = getFieldOptions(fo.first, true);
     // only logging options if different from setup
-    if (sopts != pfopt->second)
-      vstr.push_back(pfopt->first + " " + miutil::mergeKeyValue(pfopt->second));
+    if (sopts != fo.second)
+      vstr.push_back(fo.first + " " + miutil::mergeKeyValue(fo.second));
   }
 
   vstr.push_back("================");
@@ -1880,7 +1317,6 @@ vector<std::string> FieldDialogStyle::writeLog()
 
 void FieldDialogStyle::readLog(const std::vector<std::string>& vstr, const std::string& /*thisVersion*/, const std::string& /*logVersion*/)
 {
-
   // field options:
   // do not destroy any new options in the program
   for (const std::string& ls : vstr) {
@@ -1892,68 +1328,40 @@ void FieldDialogStyle::readLog(const std::vector<std::string>& vstr, const std::
     if (first_space > 0 && first_space != std::string::npos) {
       const std::string fieldname = ls.substr(0, first_space);
 
-      // get options from setup
-      miutil::KeyValue_v setup_opts = getFieldOptions(fieldname, true);
-      if (setup_opts.empty())
-        continue;
+      miutil::KeyValue_v other;
+      PlotOptions po;
+      // update with options from setup
+      PlotOptions::parsePlotOption(getFieldOptions(fieldname, true), po, other);
+      // update with options from logfile
+      PlotOptions::parsePlotOption(miutil::splitKeyValue(ls.substr(first_space + 1)), po, other);
 
-      // update options from setup, if necessary
-      const miutil::KeyValue_v log_opts = miutil::splitKeyValue(ls.substr(first_space + 1));
-
-      // FIXME this almost the same as mergeFieldOptions in diFieldUtil.cc
-      const size_t n_setup_opts = setup_opts.size();
-      const size_t n_log_opts = log_opts.size();
-      bool changed = false;
-      for (size_t i = 0; i < n_setup_opts; i++) {
-        size_t j = 0;
-        while (j < n_log_opts && log_opts[j].key() != setup_opts[i].key())
-          j++;
-        if (j < n_log_opts) {
-          if (log_opts[j].value() != setup_opts[i].value()) {
-            setup_opts[i] = log_opts[j];
-            changed = true;
-          }
-        }
-      }
-      for (size_t i = 0; i < n_log_opts; i++) {
-        size_t j = 0;
-        while (j < n_setup_opts && setup_opts[j].key() != log_opts[i].key())
-          j++;
-        if (j == n_setup_opts) {
-          setup_opts.push_back(log_opts[i]);
-          changed = true;
-        }
-      }
-      if (changed) {
-        cleanupFieldOptions(setup_opts);
-        fieldOptions[fieldname] = setup_opts;
-      }
+      auto& fo = fieldOptions[fieldname];
+      fo = po.toKeyValueList();
+      fo << other;
     }
   }
 }
 
-void FieldDialogStyle::resetOptions()
+void FieldDialogStyle::resetFieldOptions(SelectedField* selectedField)
 {
   if (!selectedField)
     return;
 
   const miutil::KeyValue_v fopts = getFieldOptions(selectedField->fieldName, true);
-  if (fopts.empty())
-    return;
 
-  selectedField->fieldOpts = fopts;
+  selectedField->setFieldPlotOptions(fopts);
   selectedField->hourOffset = 0;
   selectedField->hourDiff = 0;
   enableWidgets("none");
-  currentFieldOpts.clear();
+
   enableFieldOptions(selectedField);
 }
 
-const miutil::KeyValue_v& FieldDialogStyle::getFieldOptions(const std::string& fieldName, bool reset) const
+const miutil::KeyValue_v& FieldDialogStyle::getFieldOptions(const std::string& fieldName, bool ignoreUserOptions) const
 {
   fieldoptions_m::const_iterator pfopt;
 
-  if (!reset) {
+  if (!ignoreUserOptions) {
     // try private options used
     pfopt = fieldOptions.find(fieldName);
     if (pfopt != fieldOptions.end())
