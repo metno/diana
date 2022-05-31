@@ -78,6 +78,7 @@ public:
 
   int numSmoothed;
   bool turnWaveDirection; //In some fields wave direction need to be turned
+  bool vectorProjectionLonLat; // in some datasets, vectors are east-north while the grid has a different projection than lonlat
 
   std::string name;
   std::string text;

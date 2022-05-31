@@ -244,6 +244,9 @@ FimexIO::FimexIO(const std::string & modelname, const std::string & sourcename,
     } else if (key == "turnwavedirection") {
       boost::algorithm::to_lower(value);
       turnWaveDirection = (value == "true");
+    } else if (key == "vectorprojectionlonlat") {
+      boost::algorithm::to_lower(value);
+      vectorProjectionLonLat = (value == "true");
     } else if (key == "r") {
       reproj_name=value;
     } else {
@@ -978,6 +981,7 @@ Field_p FimexIO::getData(const std::string& reftime, const gridinventory::GridPa
 
     //Some data sets have defined the wave direction in the "opposite" direction (ecwam)
     field->turnWaveDirection = turnWaveDirection;
+    field->vectorProjectionLonLat = vectorProjectionLonLat;
 
     return field;
   } catch (CDMException& cdmex) {

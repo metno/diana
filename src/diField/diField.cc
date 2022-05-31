@@ -48,6 +48,7 @@ Field::Field()
     , bHybrid(-1.)
     , numSmoothed(0)
     , turnWaveDirection(false)
+    , vectorProjectionLonLat(false)
     , defined_(miutil::NONE_DEFINED)
 {
   METLIBS_LOG_SCOPE();
@@ -94,6 +95,7 @@ void Field::shallowMemberCopy(const Field& rhs)
   numSmoothed= rhs.numSmoothed;
   validFieldTime= rhs.validFieldTime;
   turnWaveDirection= rhs.turnWaveDirection;
+  vectorProjectionLonLat = rhs.vectorProjectionLonLat;
 
   name= rhs.name;
   text= rhs.text;
