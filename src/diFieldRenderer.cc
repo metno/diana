@@ -269,9 +269,10 @@ std::vector<float*> FieldRenderer::doPrepareVectors(const float* x, const float*
     int npos = fields_[0]->area.gridSize();
     bool ok = false;
     if (direction) {
-      std::fill(v, v + npos, 1.0f);
-      bool turn = fields_[0]->turnWaveDirection;
-      ok = gc_->getDirectionVectors(pa_.getMapArea(), turn, npos, x, y, u, v);
+      const bool turn = fields_[0]->turnWaveDirection;
+      const float length = turn ? -1 : 1;
+      std::fill(v, v + npos, length);
+      ok = gc_->getDirectionVectors(pa_.getMapArea(), npos, x, y, u, v);
     } else {
       ok = gc_->getVectors(tmpfields_[0]->area, pa_.getMapProjection(), npos, x, y, u, v);
     }

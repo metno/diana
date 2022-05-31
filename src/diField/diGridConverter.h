@@ -130,8 +130,7 @@ public:
       const float*, const float*, float*, float*);
 
   /// convert true north direction and velocity (dd,ff) to u,v vector coordinates for points x,y
-  bool getDirectionVectors(const Area&, const bool, int,
-      const float*, const float*, float*, float*);
+  bool getDirectionVectors(const Area& map_area, int nvec, const float* x, const float* y, float* u, float* v);
 
   /// map ratio and/or coriolis parameter fields
   MapFields_cp getMapFields(const GridArea& gridarea);

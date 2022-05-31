@@ -357,26 +357,22 @@ bool GridConverter::getVectors(const Area& data_area, const Projection& map_proj
 
 // convert true north direction and velocity (dd=u,ff=v)
 // to u,v vector coordinates for points x,y
-bool GridConverter::getDirectionVectors(const Area& map_area, const bool turn,
-    int nvec, const float *x, const float *y, float *u, float *v)
+bool GridConverter::getDirectionVectors(const Area& map_area, int nvec, const float* x, const float* y, float* u, float* v)
 {
-  Rectangle r;
-  Area geo_area(Projection::geographic(), r);
-
   // make vector-components (east/west and north/south) in geographic grid,
   // to be rotated to the map grid
   // u,v is dd,ff coming in
-  const float zturn = turn ? -1 : 1;
   MIUTIL_OPENMP_PARALLEL(nvec, for)
   for (int i=0; i<nvec; ++i) {
     if (u[i] != undef && v[i] != undef) {
-      float dd   = u[i] * DEG_TO_RAD;
-      float ff   = v[i] * zturn;
+      float dd = u[i] * DEG_TO_RAD;
+      float ff = v[i];
       u[i] = ff * sinf(dd);
       v[i] = ff * cosf(dd);
     }
   }
 
+  const Area geo_area(Projection::geographic(), Rectangle());
   return getVectors(geo_area, map_area.P(), nvec, x, y, u, v);
 }
 
