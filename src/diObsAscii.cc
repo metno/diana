@@ -100,10 +100,9 @@ void ObsAscii::readDecodeData()
 void ObsAscii::readData(const std::string& filename)
 {
   METLIBS_LOG_SCOPE();
-  METLIBS_LOG_DEBUG("Start reading '" << filename << "'");
   const bool success = diutil::getFromAny(filename, lines);
   if (success) {
-    METLIBS_LOG_DEBUG("Done reading '" << filename << "'");
+    METLIBS_LOG_INFO("Done reading '" << filename << "'");
   } else {
     m_error = true;
     METLIBS_LOG_ERROR("Error reading '" << filename << "'");
