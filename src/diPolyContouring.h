@@ -64,6 +64,8 @@ public:
   virtual float value_for_level(contouring::level_t l) const override;
   size_t nlevels() const
     { return mLevels.size(); }
+  const std::vector<float>& levels() const { return mLevels; }
+
 protected:
   DianaLevelList();
 protected:

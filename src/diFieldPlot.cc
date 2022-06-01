@@ -35,6 +35,7 @@
 #include "diFieldPlotManager.h"
 #include "diFieldRenderer.h"
 #include "diGLPainter.h"
+#include "diPolyContouring.h"
 #include "diStaticPlot.h"
 #include "util/misc_util.h"
 #include "util/string_util.h"
@@ -346,8 +347,8 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
       } else if (poptions.use_linevalues()) {
         if (!classSpec.size()) {
           const auto& lv = poptions.linevalues();
-          for (size_t i = 0; i < ncodes - 1; i++) {
-            vtable[i].text_range(lv[i], lv[i + 1], unit);
+          for (size_t i = 1; i < ncodes; i++) {
+            vtable[i - 1].text_range(lv[i - 1], lv[i], unit);
           }
           vtable[ncodes - 1].text_above(lv[ncodes - 1], unit);
         } else {
@@ -360,15 +361,10 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
 
       } else if (poptions.use_loglinevalues()) {
         if (!classSpec.size()) {
-          std::vector<float> vlog;
-          for (size_t n = 0; n < ncodes; n++) {
-            float slog = powf(10.0, n);
-            for (size_t i = 0; i < nloglinevalues; i++) {
-              vlog.push_back(slog * poptions.loglinevalues()[i]);
-            }
-          }
-          for (size_t i = 0; i < ncodes - 1; i++) {
-            vtable[i].text_range(vlog[i], vlog[i + 1], unit);
+          const auto levels = std::make_shared<DianaLevelList10>(poptions.loglinevalues(), ncodes); // FIXME different from dianaLevelsForPlotOptions
+          const auto& vlog = levels->levels();
+          for (size_t i = 1; i < vlog.size(); i++) {
+            vtable[i - 1].text_range(vlog[i - 1], vlog[i], unit);
           }
           vtable[vlog.size() - 1].text_above(vlog.back(), unit);
         } else {
