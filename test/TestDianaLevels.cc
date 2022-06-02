@@ -41,38 +41,6 @@
 
 using namespace std;
 
-TEST(TestDianaLevels, Log)
-{
-  const DianaLevelLog ll({1.0, 3.0});
-  const int UNDEF = DianaLevels::UNDEF_LEVEL;
-
-  EXPECT_EQ(-10, ll.level_for_value(0.9e-5));
-  EXPECT_EQ( -5, ll.level_for_value(2.5e-3));
-  EXPECT_EQ( -4, ll.level_for_value(3.1e-3));
-  EXPECT_EQ(UNDEF, ll.level_for_value(0));
-
-  EXPECT_FLOAT_EQ(1e-5, ll.value_for_level(-10));
-  EXPECT_FLOAT_EQ(3e-3, ll.value_for_level( -5));
-  EXPECT_FLOAT_EQ(1e-2, ll.value_for_level( -4));
-
-  EXPECT_EQ(-71, ll.level_for_value(2.7e-36));
-  EXPECT_FLOAT_EQ(3e-36, ll.value_for_level(-71));
-
-  EXPECT_EQ(-72, ll.level_for_value(0.7e-36));
-  EXPECT_EQ(-72, ll.level_for_value(1e-36));
-  EXPECT_FLOAT_EQ(1e-36, ll.value_for_level(-72));
-
-  EXPECT_EQ(-85, ll.level_for_value(3.0e-43));
-  EXPECT_EQ(-85, ll.level_for_value(2.9e-43));
-  EXPECT_EQ(-85, ll.level_for_value(1.8e-43));
-  EXPECT_EQ(-87, ll.level_for_value(2.5e-44));
-  EXPECT_EQ(-85, ll.level_for_value(1.2e-43));
-  EXPECT_EQ(-85, ll.level_for_value(1.3e-43));
-  EXPECT_FLOAT_EQ(1e-42, ll.value_for_level(-84));
-  EXPECT_FLOAT_EQ(3e-43, ll.value_for_level(-85));
-  EXPECT_FLOAT_EQ(3e-44, ll.value_for_level(-87));
-}
-
 TEST(TestDianaLevels, List10)
 {
   const DianaLevelList10 ll({1.0, 3.0}, 10);

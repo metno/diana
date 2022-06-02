@@ -64,6 +64,8 @@ public:
   virtual float value_for_level(contouring::level_t l) const override;
   size_t nlevels() const
     { return mLevels.size(); }
+  const std::vector<float>& levels() const { return mLevels; }
+
 protected:
   DianaLevelList();
 protected:
@@ -75,16 +77,6 @@ protected:
 class DianaLevelList10 : public DianaLevelList {
 public:
   DianaLevelList10(const std::vector<float>& levels, size_t count);
-  enum { BASE = 10 };
-};
-
-// ------------------------------------------------------------------------
-
-class DianaLevelLog : public DianaLevelList {
-public:
-  DianaLevelLog(const std::vector<float>& levels);
-  virtual contouring::level_t level_for_value(float value) const override;
-  virtual float value_for_level(contouring::level_t l) const override;
   enum { BASE = 10 };
 };
 

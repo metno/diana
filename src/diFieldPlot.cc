@@ -35,6 +35,7 @@
 #include "diFieldPlotManager.h"
 #include "diFieldRenderer.h"
 #include "diGLPainter.h"
+#include "diPolyContouring.h"
 #include "diStaticPlot.h"
 #include "util/misc_util.h"
 #include "util/string_util.h"
@@ -213,7 +214,33 @@ struct aTable {
   std::string colour;
   std::string pattern;
   std::string text;
+
+  void text_range(float mini, float maxi, const std::string& unit);
+  void text_above(float mini, const std::string& unit);
+  void text_below(float maxi, const std::string& unit);
 };
+
+void aTable::text_range(float mini, float maxi, const std::string& unit)
+{
+  std::ostringstream ostr;
+  ostr << mini << " - " << maxi << unit;
+  text = ostr.str();
+}
+
+void aTable::text_above(float mini, const std::string& unit)
+{
+  std::ostringstream ostr;
+  ostr << "> " << mini << unit;
+  text = ostr.str();
+}
+
+void aTable::text_below(float maxi, const std::string& unit)
+{
+  std::ostringstream ostr;
+  ostr << "< " << maxi << unit;
+  text = ostr.str();
+}
+
 } // namespace
 
 void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
@@ -319,17 +346,11 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
 
       } else if (poptions.use_linevalues()) {
         if (!classSpec.size()) {
-          for (size_t i = 0; i < ncodes - 1; i++) {
-            float min = poptions.linevalues()[i];
-            float max = poptions.linevalues()[i + 1];
-            std::ostringstream ostr;
-            ostr << min << " - " << max << unit;
-            vtable[i].text = ostr.str();
+          const auto& lv = poptions.linevalues();
+          for (size_t i = 1; i < ncodes; i++) {
+            vtable[i - 1].text_range(lv[i - 1], lv[i], unit);
           }
-          float min = poptions.linevalues()[ncodes - 1];
-          std::ostringstream ostr;
-          ostr << "> " << min << unit;
-          vtable[ncodes - 1].text = ostr.str();
+          vtable[ncodes - 1].text_above(lv[ncodes - 1], unit);
         } else {
           for (size_t i = 0; i < ncodes; i++) {
             std::ostringstream ostr;
@@ -340,24 +361,12 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
 
       } else if (poptions.use_loglinevalues()) {
         if (!classSpec.size()) {
-          std::vector<float> vlog;
-          for (size_t n = 0; n < ncodes; n++) {
-            float slog = powf(10.0, n);
-            for (size_t i = 0; i < nloglinevalues; i++) {
-              vlog.push_back(slog * poptions.loglinevalues()[i]);
-            }
+          const auto levels = std::make_shared<DianaLevelList10>(poptions.loglinevalues(), ncodes); // FIXME different from dianaLevelsForPlotOptions
+          const auto& vlog = levels->levels();
+          for (size_t i = 1; i < vlog.size(); i++) {
+            vtable[i - 1].text_range(vlog[i - 1], vlog[i], unit);
           }
-          for (size_t i = 0; i < ncodes - 1; i++) {
-            float min = vlog[i];
-            float max = vlog[i + 1];
-            std::ostringstream ostr;
-            ostr << min << " - " << max << unit;
-            vtable[i].text = ostr.str();
-          }
-          float min = vlog[ncodes - 1];
-          std::ostringstream ostr;
-          ostr << "> " << min << unit;
-          vtable[ncodes - 1].text = ostr.str();
+          vtable[vlog.size() - 1].text_above(vlog.back(), unit);
         } else {
           for (size_t i = 0; i < ncodes; i++) {
             std::ostringstream ostr;
@@ -402,10 +411,7 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
         float min = minvalue;
         float max = minvalue + poptions.lineinterval;
         for (int i = bottom_index; i < top_index; i++) {
-          std::ostringstream ostr;
-          ostr << min << " - " << max << unit;
-
-          vtable[i].text = ostr.str();
+          vtable[i].text_range(min, max, unit);
           min = max;
           max += poptions.lineinterval;
         }
@@ -413,9 +419,7 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
         // adjust the text of the last colour if the colours are not limited by maxvalue
         if (!poptions.repeat && (max_index == -1 || max_index > top_index)) {
           min -= poptions.lineinterval;
-          std::ostringstream ostr;
-          ostr << "> " << min << unit;
-          vtable[top_index - 1].text = ostr.str();
+          vtable[top_index - 1].text_above(min, unit);
         } else if (top_index < vtable.size()) { // drop unused colours
           std::vector<aTable>::iterator it = vtable.begin();
           it += top_index;
@@ -425,9 +429,7 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
         // adjust the text of the first colour if the colours are not limited by minvalue
         if (!poptions.repeat && min_index < 0) {
           float max = minvalue + poptions.lineinterval;
-          std::ostringstream ostr;
-          ostr << "< " << max << unit;
-          vtable[bottom_index].text = ostr.str();
+          vtable[bottom_index].text_below(max, unit);
         } else if (bottom_index > 0) { // drop unused colours
           std::vector<aTable>::iterator it = vtable.begin();
           it += bottom_index;

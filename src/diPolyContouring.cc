@@ -239,43 +239,6 @@ DianaLevelList10::DianaLevelList10(const std::vector<float>& levels, size_t coun
 
 //------------------------------------------------------------------------
 
-DianaLevelLog::DianaLevelLog(const std::vector<float>& levels)
-{
-  for (size_t i=0; i<levels.size(); ++i) {
-     float l = levels[i];
-    if (l > BASE or (l>0 and l<1)) {
-      const float logBl = log(l) / log(double(BASE)), flogBl = logBl - floor(logBl);
-      l = pow(BASE, flogBl);
-    }
-    if (l >= 1 and l < BASE and (mLevels.empty() or l > mLevels.back()))
-      mLevels.push_back(l);
-    else
-      METLIBS_LOG_WARN("illegal log.line.values element @" << i << '=' << levels[i]);
-  }
-}
-
-contouring::level_t DianaLevelLog::level_for_value(float value) const
-{
-  if (isUndefined(value) or value < 0 or mLevels.empty())
-    return UNDEF_LEVEL;
-  if (value == 0)
-    return UNDEF_LEVEL;
-  const double logBv = log(value)/log(double(BASE)), ilogBv = floor(logBv);
-  const double v_0_B = std::pow(BASE, logBv - ilogBv);
-  const contouring::level_t l = DianaLevelList::level_for_value(v_0_B);
-  return ilogBv*nlevels() + l;
-}
-
-float DianaLevelLog::value_for_level(contouring::level_t l) const
-{
-  if (l == UNDEF_LEVEL)
-    return UNDEF_VALUE;
-  const int ilogBv = floor(l / double(nlevels())), lvl = abs(l) % nlevels();
-  return std::pow(double(BASE), ilogBv) * mLevels[lvl];
-}
-
-//------------------------------------------------------------------------
-
 DianaLevelStep::DianaLevelStep(float step, float off)
   : mStep(step)
   , mOff(off)
