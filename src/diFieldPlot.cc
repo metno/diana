@@ -353,9 +353,7 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
           vtable[ncodes - 1].text_above(lv[ncodes - 1], unit);
         } else {
           for (size_t i = 0; i < ncodes; i++) {
-            std::ostringstream ostr;
-            ostr << classSpec[i];
-            vtable[i].text = ostr.str();
+            vtable[i].text = classSpec[i];
           }
         }
 
@@ -369,9 +367,7 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
           vtable[vlog.size() - 1].text_above(vlog.back(), unit);
         } else {
           for (size_t i = 0; i < ncodes; i++) {
-            std::ostringstream ostr;
-            ostr << classSpec[i];
-            vtable[i].text = ostr.str();
+            vtable[i].text = classSpec[i];
           }
         }
 
