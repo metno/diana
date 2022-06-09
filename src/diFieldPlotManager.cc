@@ -252,7 +252,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
                 vctype = FieldVerticalAxes::getVerticalType(vstr[j+2]);
               } else if (vstr[j + 1] == "=") {
                 // this should be a plot option
-                const miutil::KeyValue_v option1(1, miutil::KeyValue(vstr[j], vstr[j + 2]));
+                const miutil::KeyValue_v option1 = miutil::splitKeyValue(vstr[j] + "=" + vstr[j + 2]);
                 if (!updateFieldPlotOptions(name, option1)) {
                   SetupParser::errorMsg(sect_name, i, "Something wrong in plotoption specifications");
                   break;
