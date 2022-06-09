@@ -301,8 +301,8 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
         ncodes = classSpec.size();
       }
 
-      if (nlinevalues > 0 && nlinevalues <= ncodes)
-        ncodes = nlinevalues;
+      if (poptions.use_linevalues())
+        miutil::minimize(ncodes, nlinevalues);
 
       // initialize colour table
       // cold palette makes no sense when using (log)line values
