@@ -1105,11 +1105,15 @@ bool PlotOptions::parsePlotOption(const miutil::KeyValue_v& opts, PlotOptions& p
     try {
       const bool used = parsePlotOption(kv, po);
       if (!used) {
+#if 0
         const auto idx = miutil::find(unrecognized, kv.key());
         if (idx == (size_t)-1)
+#endif
           unrecognized.push_back(kv);
+#if 0
         else
           unrecognized[idx] = kv;
+#endif
       }
     } catch (std::runtime_error& e) {
       result = false; // ignore otherwise
