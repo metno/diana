@@ -244,13 +244,6 @@ bool FieldPlotManager::parseFieldPlotSetup()
                   SetupParser::errorMsg(sect_name, i, errm);
                   break;
                 }
-
-                const miutil::KeyValue_v option2(1, miutil::KeyValue("dim", miutil::from_number(int(input.size()))));
-                if (!updateFieldPlotOptions(name, option2)) {
-                  std::string errm = "|Unknown fieldplottype in plotcommand";
-                  SetupParser::errorMsg(sect_name, i, errm);
-                  break;
-                }
               } else if (key == key_fieldgroup && vstr[j + 1] == "=") {
                 fieldgroup = diutil::quote_removed(vstr[j + 2]);
               } else if (key == key_vcoord && vstr[j + 1] == "=") {

@@ -222,8 +222,6 @@ public:
   static const std::string key_fontsize;
   // value precision
   static const std::string key_precision;
-  // dinesion (scalar=1, vector=2)
-  static const std::string key_dimension;
   // plot enabled
   static const std::string key_enabled;
   //field names used for plotting
