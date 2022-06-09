@@ -84,7 +84,7 @@ bool DianaLevelSelector::fill(contouring::level_t li) const
 
   if (no_fill)
     return false;
-  if ((have_min && li <= level_min) || (have_max && li > level_max))
+  if ((have_min && li < level_min) || (have_max && li >= level_max))
     return false;
   if ((skip_level_0 && li == 0) || (skip_level_1 && li == 1))
     return false;
@@ -98,9 +98,9 @@ bool DianaLevelSelector::line(contouring::level_t li) const
 
   if (no_lines)
     return false;
-  if ((have_min && li < level_min) || (have_max && li > level_max))
+  if ((have_min && li + 1 < level_min) || (have_max && li >= level_max))
     return false;
-  if (skip_level_1 && li == 0)
+  if (skip_level_1 && li == 1)
     return false;
   return true;
 }
@@ -249,7 +249,7 @@ contouring::level_t DianaLevelStep::level_for_value(float value) const
 {
   if (isUndefined(value))
     return UNDEF_LEVEL;
-  return int(std::ceil((value - mOff) / mStep));
+  return int(std::floor((value - mOff) / mStep)) + 1;
 }
 
 float DianaLevelStep::value_for_level(contouring::level_t level) const

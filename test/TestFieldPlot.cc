@@ -78,7 +78,7 @@ TEST(FieldPlot, GetAnnotations)
   EXPECT_EQ(anno0, annotations[0]);
   EXPECT_EQ(anno1, annotations[1]);
 
-  EXPECT_EQ("table=\"" + field->fieldText + ";0:0:128:255;;> 20;0:128:0:255;;10 - 20;128:0:0:255;;< 10\",colour=blue", annotations[2]);
+  EXPECT_EQ("table=\"" + field->fieldText + ";0:0:128:255;;≥ 20;0:128:0:255;;10 - 20;128:0:0:255;;< 10\",colour=blue", annotations[2]);
 }
 
 #if 0

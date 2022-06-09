@@ -71,7 +71,7 @@ TEST(TestDianaLevels, StepInterval2Base0)
 {
   DianaLevelStep step(2, 0);
 
-  EXPECT_EQ(step.level_for_value(0), 0);
+  EXPECT_EQ(step.level_for_value(0), 1);
   EXPECT_EQ(step.level_for_value(-3), -1);
 
   EXPECT_EQ(step.level_for_value(-0.4), 0);
@@ -84,8 +84,8 @@ TEST(TestDianaLevels, StepInterval2Base2)
 {
   DianaLevelStep step(2, 2);
 
-  EXPECT_EQ(step.level_for_value(2), 0);
-  EXPECT_EQ(step.level_for_value(0), -1);
+  EXPECT_EQ(step.level_for_value(2), 1);
+  EXPECT_EQ(step.level_for_value(0), 0);
   EXPECT_EQ(step.level_for_value(-3), -2);
 
   EXPECT_EQ(step.level_for_value(-0.4), -1);
@@ -100,8 +100,8 @@ TEST(TestDianaLevels, StepInterval2Base3)
 {
   DianaLevelStep step(2, 3);
 
-  EXPECT_EQ(step.level_for_value(3), 0);
-  EXPECT_EQ(step.level_for_value(-3), -3);
+  EXPECT_EQ(step.level_for_value(3), 1);
+  EXPECT_EQ(step.level_for_value(-3), -2);
   EXPECT_EQ(step.level_for_value(0), -1);
 
   EXPECT_EQ(step.level_for_value(-0.4), -1);
@@ -122,14 +122,14 @@ TEST(TestDianaLevelSelect, StepInterval2)
   ASSERT_TRUE(levels);
   DianaLevelSelector dls(po, *levels, DianaLines::LINES_LABELS | DianaLines::FILL);
 
-  EXPECT_FALSE(dls.line(levels->level_for_value(-2)));
+  EXPECT_TRUE(dls.line(levels->level_for_value(-2)));
   EXPECT_TRUE(dls.line(levels->level_for_value(0)));
-  EXPECT_TRUE(dls.line(levels->level_for_value(8)));
+  EXPECT_FALSE(dls.line(levels->level_for_value(8)));
   EXPECT_FALSE(dls.line(levels->level_for_value(9)));
 
   EXPECT_FALSE(dls.fill(levels->level_for_value(-2)));
-  EXPECT_FALSE(dls.fill(levels->level_for_value(0))); // line yes, fill no
-  EXPECT_TRUE(dls.fill(levels->level_for_value(8)));
+  EXPECT_TRUE(dls.fill(levels->level_for_value(0))); // line no, fill yes
+  EXPECT_FALSE(dls.fill(levels->level_for_value(8)));
   EXPECT_FALSE(dls.fill(levels->level_for_value(9)));
 }
 
@@ -145,17 +145,17 @@ TEST(TestDianaLevelSelect, StepInterval2NoZero)
   ASSERT_TRUE(levels);
   DianaLevelSelector dls(po, *levels, DianaLines::LINES_LABELS | DianaLines::FILL);
 
-  EXPECT_FALSE(dls.line(levels->level_for_value(-10)));
+  EXPECT_TRUE(dls.line(levels->level_for_value(-10)));
   EXPECT_TRUE(dls.line(levels->level_for_value(-2)));
   EXPECT_FALSE(dls.line(levels->level_for_value(0)));
   EXPECT_TRUE(dls.line(levels->level_for_value(+2)));
   EXPECT_FALSE(dls.line(levels->level_for_value(+10)));
 
   EXPECT_FALSE(dls.fill(levels->level_for_value(-10)));
-  EXPECT_FALSE(dls.fill(levels->level_for_value(-8)));
-  EXPECT_TRUE(dls.fill(levels->level_for_value(-2)));
+  EXPECT_TRUE(dls.fill(levels->level_for_value(-8)));
+  EXPECT_FALSE(dls.fill(levels->level_for_value(-2)));
   EXPECT_FALSE(dls.fill(levels->level_for_value(0)));
-  EXPECT_FALSE(dls.fill(levels->level_for_value(+2)));
+  EXPECT_TRUE(dls.fill(levels->level_for_value(+2)));
   EXPECT_TRUE(dls.fill(levels->level_for_value(+4)));
   EXPECT_FALSE(dls.fill(levels->level_for_value(+10)));
 }

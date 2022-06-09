@@ -230,7 +230,7 @@ void aTable::text_range(float mini, float maxi, const std::string& unit)
 void aTable::text_above(float mini, const std::string& unit)
 {
   std::ostringstream ostr;
-  ostr << "> " << mini << unit;
+  ostr << "≥ " << mini << unit;
   text = ostr.str();
 }
 
