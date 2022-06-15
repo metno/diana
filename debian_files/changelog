@@ -1,3 +1,9 @@
+diana-3.56 (3.56.3-1) unstable; urgency=low
+
+  * bugfix - loglinevalues - TableAnnotations
+
+ -- Lisbeth Bergholt <lisbeth.bergholt@met.no>  Wed, 15 Jun 2022 09:33:25 +0200
+
 diana-3.56 (3.56.2-1) unstable; urgency=low
 
   * bugfix trajectories
