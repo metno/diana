@@ -371,6 +371,7 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
           for (size_t n = 0; n < ncodes; n++) {
             float slog = powf(10.0, n);
             for (size_t i = 0; i < nloglines; i++) {
+              if( poptions.loglinevalues[i] < 10* poptions.loglinevalues[0])
               vlog.push_back(slog * poptions.loglinevalues[i]);
             }
           }
