@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2014-2020 met.no
+  Copyright (C) 2014-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -173,7 +173,7 @@ bool FunctionData::setArguments(const string_v& arguments, const InventoryBase_c
           METLIBS_LOG_INFO("argument unit must be '" << f_unit << "', not '" << a_unit << "'");
           badArgs = true;
         }
-      } else if (arg_idx >= 1 and function() != vcf_multiply and function() != vcf_divide) {
+      } else if (nargument() >= 1 and function() != vcf_multiply and function() != vcf_divide) {
         const std::string &a0_unit = argument(0)->unit();
         if (not util::unitsIdentical(a0_unit, a_unit)) {
           METLIBS_LOG_INFO("argument units '" << a0_unit << "' and '" << a_unit << "' not identical");

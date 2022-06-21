@@ -244,13 +244,6 @@ bool FieldPlotManager::parseFieldPlotSetup()
                   SetupParser::errorMsg(sect_name, i, errm);
                   break;
                 }
-
-                const miutil::KeyValue_v option2(1, miutil::KeyValue("dim", miutil::from_number(int(input.size()))));
-                if (!updateFieldPlotOptions(name, option2)) {
-                  std::string errm = "|Unknown fieldplottype in plotcommand";
-                  SetupParser::errorMsg(sect_name, i, errm);
-                  break;
-                }
               } else if (key == key_fieldgroup && vstr[j + 1] == "=") {
                 fieldgroup = diutil::quote_removed(vstr[j + 2]);
               } else if (key == key_vcoord && vstr[j + 1] == "=") {
@@ -259,7 +252,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
                 vctype = FieldVerticalAxes::getVerticalType(vstr[j+2]);
               } else if (vstr[j + 1] == "=") {
                 // this should be a plot option
-                const miutil::KeyValue_v option1(1, miutil::KeyValue(vstr[j], vstr[j + 2]));
+                const miutil::KeyValue_v option1 = miutil::splitKeyValue(vstr[j] + "=" + vstr[j + 2]);
                 if (!updateFieldPlotOptions(name, option1)) {
                   SetupParser::errorMsg(sect_name, i, "Something wrong in plotoption specifications");
                   break;

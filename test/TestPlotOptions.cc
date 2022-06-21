@@ -104,6 +104,7 @@ TEST(TestPlotOptions, testParsePlotOptionUnused)
   EXPECT_EQ(un, unused);
 }
 
+#if 0
 TEST(TestPlotOptions, testParsePlotOptionDuplicateUnused)
 {
   const miutil::KeyValue_v un {
@@ -119,6 +120,7 @@ TEST(TestPlotOptions, testParsePlotOptionDuplicateUnused)
   EXPECT_EQ("yes", unused[0].value());
   EXPECT_EQ("17", unused[1].value());
 }
+#endif
 
 TEST(TestPlotOptions, SplitKeyValueKeepQuotes)
 {

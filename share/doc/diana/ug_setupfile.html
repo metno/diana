@@ -437,6 +437,7 @@ name=pressure_levels(members) group=pressure_ensemble
 	<tr><td>f=</td><td>filename</td><td>file name, ? and * allowed</td></tr>
 	<tr><td>proj4string=</td><td>"+proj=stere +lat_ts=60 ..."</td><td>This projection overwrites the projection in the datasource</td></tr>
 	<tr><td>turnwavedirection</td><td>true/false</td><td>Different models define wave direction different, possible to turn the direction</td></tr>
+	<tr><td>vectorprojectionlonlat</td><td>true/false</td><td>If "true", assume that vector fields are along lon-lat grid; if not specified or something else than "true", vector fields are assumed to be along the model grid.</td></tr>
 	<tr><td>r</td><td>name of reprojection</td><td>The reprojection should be defined in FIMEX_SETUP section</td></tr>
 	<tr><td>time</td><td>validtime</td><td>Timestamp in filename is validtime, not referencetime</td></tr>
 	<tr><td>CLEAR_FILES</td><td></td><td>Delete all models in current
