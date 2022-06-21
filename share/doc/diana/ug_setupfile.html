@@ -319,6 +319,84 @@ field4=multiply(field1,9.8067)
 	<tr><td>VALUE</td><td>Prints the values of the fields (max 5 fields)</td></tr>
     </table>
     <p>
+
+    In addition to the plot type, plot options may be specified for
+    each plot. These will be used as default plot options when using
+    the plot. The available plot options are numerous, and the
+    following documentation is incomplete.
+
+    <ul>
+      <li>
+        <code>line.interval</code> Specifies the interval for plot
+        types <code>contour</code> and <code>fill_cell</code>.
+      </li>
+      <li>
+        <code>line.values</code> Specifies a comma-separated list of
+        levels for plot types <code>contour</code>
+        and <code>fill_cell</code>.
+
+        <b>Note:</b> The value list is only used
+        if <code>line.interval</code> is 0 and
+        <code>log.line.values</code> is empty.
+      </li>
+      <li>
+        <code>log.line.values</code> Similar
+        to <code>line.values</code>, but specifies levels which will
+        be repeated with a factor of 10. E.g., <code>1,2.5,5</code>
+        will expand to <code>1,2.5,5,10,25,50,...</code>.
+
+        <b>Note:</b> The value list is only used
+        if <code>line.interval</code> is 0.
+      </li>
+
+      <li>
+        <code>colour</code> Specifies the line colour and turns on
+        option set 1, except if the value is <code>off</code>, in
+        which case it turns off option set 1 and keeps the line colour
+        unchanged.
+      </li>
+
+      <li>
+        <code>lcolour</code> Specifies the line colour.
+      </li>
+
+      <li>
+        <code>tcolour</code> Specifies the text colour.
+      </li>
+
+      <li>
+        <code>fcolour</code> or <code>patterncolour</code> Both
+        specify the fill colour.
+      </li>
+
+      <li>
+        <code>bcolour</code> Specifies the border colour.
+      </li>
+
+      <li>
+        <code>colours</code> Specifies a list of colours to be used in
+        a 3-colour plot. Also turns on option set 1.
+      </li>
+
+      <li>
+        <code>palettecolours</code> Specifies the name of a colour
+        palette to be used for plot types <code>contour</code>
+        or <code>fill_cell</code>.
+      </li>
+
+      <li>
+        <code>minvalue</code> Specifies the minimum value for plot
+        types <code>contour</code> or <code>fill_cell</code>. Turns
+        off the minimum value if <code>off</code>.
+      </li>
+
+      <li>
+        <code>maxvalue</code> Specifies the maximum value for plot
+        types <code>contour</code> or <code>fill_cell</code>. Turns
+        off the maximum value if <code>off</code>.
+      </li>
+    </ul>
+    <p>
  
 The plots are sorted into fieldgroups according to "fieldgroup" given in the plot definition, or vertical/ensemble-axis if no group name is given
 <p>
