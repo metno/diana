@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2021 met.no
+  Copyright (C) 2017-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -30,7 +30,7 @@
 #ifndef DIOBSREADER_H
 #define DIOBSREADER_H
 
-#include "diObsData.h"
+#include "diObsDataContainer.h"
 
 #include "diObsDialogInfo.h"
 #include "diPlotCommand.h"
@@ -40,6 +40,9 @@
 #include <memory>
 #include <set>
 #include <vector>
+
+class ObsDataUnion;
+typedef std::shared_ptr<ObsDataUnion> ObsDataUnion_p;
 
 struct ObsDataRequest
 {
@@ -59,19 +62,19 @@ public:
   ObsDataResult();
   virtual ~ObsDataResult();
 
-  virtual void add(const std::vector<ObsData>& data);
+  virtual void add(ObsDataContainer_cp data);
   virtual void setComplete(bool success);
 
   bool success() const { return success_; }
 
-  const std::vector<ObsData>& data() const { return obsdata_; }
+  ObsDataContainer_cp data() const;
 
   const miutil::miTime& time() const { return time_; }
   void setTime(const miutil::miTime& t) { time_ = t; }
 
 private:
   miutil::miTime time_;
-  std::vector<ObsData> obsdata_;
+  ObsDataUnion_p obsdata_;
   bool success_;
 };
 
@@ -86,9 +89,7 @@ public:
 
   virtual bool configure(const std::string& key, const std::string& value);
 
-  void setSynoptic(bool synoptic) { is_synoptic_ = synoptic; }
-  bool isSynoptic() const { return is_synoptic_; }
-
+public:
   void setDataType(const std::string& datatype) { datatype_ = datatype; }
   const std::string& dataType() const { return datatype_; }
 
@@ -130,7 +131,6 @@ public:
   virtual void getData(ObsDataRequest_cp request, ObsDataResult_p result) = 0;
 
 private:
-  bool is_synoptic_;
   std::string datatype_;
 };
 

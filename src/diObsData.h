@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,10 +29,36 @@
 #ifndef diObsData_h
 #define diObsData_h
 
-#include "diColour.h"
-
 #include <puTools/miTime.h>
+
 #include <string>
+#include <vector>
+
+struct ObsDataBasic
+{
+  std::string dataType;
+  std::string id;
+  float xpos;
+  float ypos;
+  miutil::miTime obsTime;
+
+  ObsDataBasic();
+  void clear();
+};
+
+struct ObsDataMetar
+{
+  // all these are: write: BUFR; read: ObsPlot
+  bool ship_buoy;
+  std::string metarId;
+  bool CAVOK;
+  std::vector<std::string> REww;   ///< Recent weather
+  std::vector<std::string> ww;     ///< Significant weather
+  std::vector<std::string> cloud;  ///< Clouds
+
+  ObsDataMetar();
+  void clear();
+};
 
 /**
   \brief Observation data
@@ -40,21 +66,11 @@
 class ObsData
 {
 public:
-  //desc
-  std::string dataType;
-  std::string id;
-  std::string name;
-  float xpos;
-  float ypos;
-  bool ship_buoy;
-  miutil::miTime obsTime;
+  const ObsDataBasic& basic() const { return basic_; }
+  ObsDataBasic& basic() { return basic_; }
 
-  //metar
-  std::string metarId;
-  bool CAVOK;
-  std::vector<std::string> REww;   ///< Recent weather
-  std::vector<std::string> ww;     ///< Significant weather
-  std::vector<std::string> cloud;  ///< Clouds
+  const ObsDataMetar& metar() const { return metar_; }
+  ObsDataMetar& metar() { return metar_; }
 
   void clear_data();
 
@@ -64,15 +80,13 @@ public:
   const float* get_float(const std::string& key) const;
   void put_float(const std::string& key, float f) { fdata[key] = f; }
 
-  const float* get_unrotated_float(const std::string& key) const;
-  void put_rotated_float(const std::string& key, float f) { fdata_rotated[key] = f; }
-
-private:
   typedef std::map<std::string,float> fdata_t;
   typedef std::map<std::string,std::string> stringdata_t;
 
+  ObsDataBasic basic_;
+  ObsDataMetar metar_;
+
   fdata_t fdata;
-  fdata_t fdata_rotated;
   stringdata_t stringdata;
 };
 

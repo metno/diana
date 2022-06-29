@@ -253,8 +253,7 @@ void FieldPlot::getTableAnnotations(std::vector<std::string>& annos) const
   if (!isEnabled())
     return;
 
-  if (!(plottype() == fpt_fill_cell || plottype() == fpt_contour
-        || plottype() == fpt_contour1 || plottype() == fpt_contour2))
+  if (!(plottype() == fpt_fill_cell || plottype() == fpt_contour || plottype() == fpt_contour1 || plottype() == fpt_contour2 || plottype() == fpt_streamlines))
     return;
 
   if (!poptions.table || (poptions.palettecolours.empty() && poptions.patterns.empty()) || poptions.minvalue > poptions.maxvalue)

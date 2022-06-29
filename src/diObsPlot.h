@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2021 met.no
+ Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -26,13 +26,15 @@
  along with Diana; if not, write to the Free Software
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
+
 #ifndef diObsPlot_h
 #define diObsPlot_h
 
 #include "diPlotOptionsPlot.h"
 
 #include "diGLPainter.h"
-#include "diObsData.h"
+#include "diObsDataContainer.h"
+#include "diObsDataRotated.h"
 #include "diObsDialogInfo.h"
 #include "diObsPlotType.h"
 #include "diPlotCommand.h"
@@ -75,9 +77,8 @@ struct ObsPlotCollider {
  */
 class ObsPlot : public PlotOptionsPlot
 {
-
 protected:
-  std::vector<ObsData> obsp;
+  ObsDataRotated obsp;
   size_t visible_positions_count_;
 
   // obs positions in getStaticPlot()->getMapArea().P() coordinates; updated in setData
@@ -246,13 +247,13 @@ protected:
   void decodeCriteria(const std::string& critStr);
   void decodeSort(const std::string& sortStr);
 
-  bool getValueForCriteria(const ObsData& dta, const std::string& param, float& value);
+  bool getValueForCriteria(const ObsDataRef& dta, const std::string& param, float& value);
   void adjustRRR(float& value);
 
-  bool checkPlotCriteria(const ObsData& dta);
-  void checkTotalColourCriteria(DiGLPainter* gl, const ObsData& dta);
-  std::string checkMarkerCriteria(const ObsData& dta);
-  float checkMarkersizeCriteria(const ObsData& dta);
+  bool checkPlotCriteria(const ObsDataRef& dta);
+  void checkTotalColourCriteria(DiGLPainter* gl, const ObsDataRef& dta);
+  std::string checkMarkerCriteria(const ObsDataRef& dta);
+  float checkMarkersizeCriteria(const ObsDataRef& dta);
   void checkColourCriteria(DiGLPainter* gl, const std::string& param, float value);
   void parameterDecode(const std::string&, bool = true);
 
@@ -262,13 +263,11 @@ protected:
   // used only from plotList
   void printList(DiGLPainter* gl, float f, QPointF& xypos, int precision,
       bool align_right = false, bool fill_2 = false);
-  void printListParameter(DiGLPainter* gl, const ObsData& dta, const ObsDialogInfo::Par& param, QPointF& xypos, float yStep, bool align_right, float xshift);
-  void printListSymbol(DiGLPainter* gl, const ObsData& dta, const ObsDialogInfo::Par& param, QPointF& xypos, float yStep, bool align_right,
+  void printListParameter(DiGLPainter* gl, const ObsDataRef& dta, const ObsDialogInfo::Par& param, QPointF& xypos, float yStep, bool align_right, float xshift);
+  void printListSymbol(DiGLPainter* gl, const ObsDataRef& dta, const ObsDialogInfo::Par& param, QPointF& xypos, float yStep, bool align_right,
                        const float& xshift);
-  void printListRRR(DiGLPainter* gl, const ObsData& dta, const std::string& param,
-      QPointF& xypos, bool align_right);
-  void printListPos(DiGLPainter* gl, const ObsData& dta,
-      QPointF& xypos, float yStep, bool align_right);
+  void printListRRR(DiGLPainter* gl, const ObsDataRef& dta, const std::string& param, QPointF& xypos, bool align_right);
+  void printListPos(DiGLPainter* gl, const ObsDataRef& dta, QPointF& xypos, float yStep, bool align_right);
 
   // used from plotSynop, plotMetar, metarWind, ROAD/plotDBMetar, ROAD/plotDBSynop
   void printNumber(DiGLPainter* gl, float, QPointF xypos,
@@ -283,8 +282,8 @@ protected:
 
   float advanceByStringWidth(DiGLPainter* gl, const std::string& txt, QPointF& xypos);
   void advanceByDD(int dd, QPointF& xypos);
-  bool checkQuality(const ObsData& dta) const;
-  bool checkWMOnumber(const ObsData& dta) const;
+  bool checkQuality(const ObsDataRef& dta) const;
+  bool checkWMOnumber(const ObsDataRef& dta) const;
 
   // from plotList, plotSynop, plotMetar, metarWind, ROAD/plotDBMetar, ROAD/plotDBSynop
   void printString(DiGLPainter* gl, const std::string&, QPointF xypos, bool align_right = false);
@@ -336,9 +335,9 @@ protected:
   // used only from plotSynop
   void amountOfClouds(DiGLPainter* gl, short int, short int, QPointF xypos);
 
-  void checkAccumulationTime(ObsData &dta); // used in ::plot when testpos == true (ie updating text/symbol layers)
-  void checkGustTime(ObsData &dta);
-  void checkMaxWindTime(ObsData &dta);
+  void checkAccumulationTime(size_t index); // used in ::plot when testpos == true (ie updating text/symbol layers)
+  void checkGustTime(size_t index);
+  void checkMaxWindTime(size_t index);
 
   virtual void plotIndex(DiGLPainter* gl, int index);
   void plotSynop(DiGLPainter* gl, int index);
@@ -413,7 +412,7 @@ public:
 
   void setObsExtraAnnotations(const PlotCommand_cpv& a) { extraAnnotations = a; }
   std::vector<std::string> columnName;
-  void addObsData(const std::vector<ObsData>& obs);
+  void setObsData(ObsDataContainer_cp obs);
   const miutil::miTime& getObsTime() const { return obsTime; }
 
 protected:
@@ -423,7 +422,7 @@ protected:
   bool isSynopList() const;
   bool isSynopMetar() const;
   bool updateDeltaTimes();
-  bool updateDeltaTime(ObsData &dta, const miutil::miTime& nowTime); // ASCII only
+  bool updateDeltaTime(size_t index, const miutil::miTime& nowTime); // ASCII only
   ObsPlot(const ObsPlot &rhs);
   ObsPlot& operator=(const ObsPlot &rhs);
 

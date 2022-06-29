@@ -29,8 +29,6 @@
 
 #include "diFieldRenderer.h"
 
-#include "diana_config.h"
-
 #include "diContouring.h"
 #include "diField/diField.h"
 #include "diGLPainter.h"
@@ -44,6 +42,7 @@
 #include "diRasterRGB.h"
 #include "diRasterUndef.h"
 #include "diRasterUtil.h"
+#include "diStreamlinePlot.h"
 #include "diUtilities.h"
 #include "util/plotoptions_util.h"
 
@@ -232,6 +231,8 @@ bool FieldRenderer::plotMe(DiGLPainter* gl, PlotOrder zorder)
     ok = plotRaster(gl);
   } else if (plottype() == fpt_frame) {
     ok = plotFrameOnly(gl);
+  } else if (plottype() == fpt_streamlines) {
+    ok = plotStreamlines(gl);
   }
 
   if (poptions_.use_stencil || poptions_.update_stencil)
@@ -1788,6 +1789,36 @@ bool FieldRenderer::plotRaster(DiGLPainter* gl)
   }
   if (!target.isNull())
     gl->drawScreenImage(QPointF(0, 0), target);
+
+  if (x && y && poptions_.update_stencil) {
+    plotFrameStencil(gl, nx, ny, x, y);
+  }
+
+  return true;
+}
+
+bool FieldRenderer::plotStreamlines(DiGLPainter* gl)
+{
+  METLIBS_LOG_TIME();
+
+  if (!checkFields(2))
+    return false;
+
+  const float *x = 0, *y = 0;
+  GridPoints gp; // put here to keep in scope while in use
+  int nx = fields_[0]->area.nx + 1, ny = fields_[0]->area.ny + 1;
+  if (poptions_.frame || poptions_.update_stencil) {
+    if (getGridPoints(gp, 1, true)) {
+      x = gp.x();
+      y = gp.y();
+    }
+  }
+  if (x && y && poptions_.frame) {
+    gl->setLineStyle(poptions_.linecolour, poptions_.linewidth, false);
+    plotFrame(gl, nx, ny, x, y);
+  }
+
+  renderStreamlines(gl, pa_, fields_[0], fields_[1], poptions_);
 
   if (x && y && poptions_.update_stencil) {
     plotFrameStencil(gl, nx, ny, x, y);

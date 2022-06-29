@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2021 met.no
+ Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -27,11 +27,10 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "diana_config.h"
-
 #include "diObsManager.h"
 
 #include "diKVListPlotCommand.h"
+#include "diObsDataUnion.h"
 #include "diObsPlot.h"
 #include "diObsReaderFactory.h"
 
@@ -84,12 +83,13 @@ void ObsManager::setPlotDefaults(ObsPlot* oplot)
 
 void ObsManager::prepare(ObsPlot* oplot, const miutil::miTime& time)
 {
-  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_TIME();
 
   bool success = true;
   miutil::miTime obsTime;
   oplot->clear();
   oplot->setPopupSpec(popupSpec);
+  auto obsData = std::make_shared<ObsDataUnion>();
   for (ObsReader_p reader : readers(oplot)) {
     ObsDataRequest_p req = std::make_shared<ObsDataRequest>();
     req->obstime = time;
@@ -100,7 +100,7 @@ void ObsManager::prepare(ObsPlot* oplot, const miutil::miTime& time)
     reader->getData(req, res);
     if (!res->success())
       success = false;
-    oplot->addObsData(res->data());
+    obsData->add(res->data());
 
     const miutil::miTime& rtime = res->time();
     if (!rtime.undef()) {
@@ -111,6 +111,8 @@ void ObsManager::prepare(ObsPlot* oplot, const miutil::miTime& time)
     oplot->setObsExtraAnnotations(reader->getExtraAnnotations());
   }
 
+  auto singleObsData = obsData->single();
+  oplot->setObsData(singleObsData ? singleObsData : obsData);
   oplot->setObsTime(obsTime);
   oplot->setData(success);
 }
@@ -306,13 +308,12 @@ bool ObsManager::parseFilesSetup()
       pip->name = plottype;
       pip->plottypes.insert(obsPlotTypeFromText(plottype));
     } else if (pip) {
-      ObsReader_p& reader = pip->reader;
-      if (!reader) {
-        reader = makeObsReader(key);
+      if (!pip->reader) {
+        pip->reader = makeObsReader(key);
       }
-      if (!reader) {
+      if (!pip->reader) {
         METLIBS_LOG_WARN("could not create reader for '" << key << "'");
-      } else if (!reader->configure(key, token[1])) {
+      } else if (!pip->reader->configure(key, token[1])) {
         METLIBS_LOG_WARN("unrecognized config '" << sect_obs[i] << "'");
         SetupParser::errorMsg(obs_name, i, "unrecognized config");
       }

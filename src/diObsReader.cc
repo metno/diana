@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2021 met.no
+  Copyright (C) 2017-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -29,8 +29,9 @@
 
 #include "diObsReader.h"
 
+#include "diObsDataUnion.h"
+
 #include "util/diKeyValue.h"
-#include "util/misc_util.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -44,25 +45,34 @@ ObsDataRequest::ObsDataRequest()
 {
 }
 
-void ObsDataResult::add(const std::vector<ObsData>& data)
-{
-  diutil::insert_all(obsdata_, data);
-}
+// ========================================================================
 
 ObsDataResult::ObsDataResult()
-    : success_(false)
+    : obsdata_(std::make_shared<ObsDataUnion>())
+    , success_(false)
 {
 }
 
 ObsDataResult::~ObsDataResult() {}
+
+void ObsDataResult::add(ObsDataContainer_cp data)
+{
+  obsdata_->add(data);
+}
 
 void ObsDataResult::setComplete(bool success)
 {
   success_ = success;
 }
 
+ObsDataContainer_cp ObsDataResult::data() const
+{
+  return obsdata_;
+}
+
+// ========================================================================
+
 ObsReader::ObsReader()
-    : is_synoptic_(true)
 {
 }
 
@@ -72,9 +82,7 @@ ObsReader::~ObsReader()
 
 bool ObsReader::configure(const std::string& key, const std::string& value)
 {
-  if (key == "synoptic") {
-    setSynoptic(miutil::KeyValue(key, value).toBool());
-  } else if (key == "datatype") {
+  if (key == "datatype") {
     setDataType(value);
   } else {
     return false;

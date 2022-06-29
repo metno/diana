@@ -252,7 +252,7 @@ const std::string fpt_wind_value   = "wind_value";
 const std::string fpt_vector       = "vector";
 const std::string fpt_frame        = "frame";
 const std::string fpt_direction    = "direction";
-
+const std::string fpt_streamlines  = "streamlines";
 
 const std::string PlotOptions::key_options_1 = "options.1";
 const std::string PlotOptions::key_options_2 = "options.2";
@@ -660,7 +660,7 @@ bool PlotOptions::parsePlotOption(const miutil::KeyValue& kv, PlotOptions& po)
     const std::string v = miutil::to_lower(value);
     if (v == fpt_contour1 || v == fpt_value || v == fpt_contour2 || v == fpt_contour || v == fpt_rgb || v == fpt_alpha_shade ||
         v == fpt_symbol || v == fpt_alarm_box || v == fpt_fill_cell || v == fpt_wind || v == fpt_vector || v == fpt_wind_temp_fl ||
-        v == fpt_wind_value || v == fpt_direction || v == fpt_frame) {
+        v == fpt_wind_value || v == fpt_direction || v == fpt_frame || v == fpt_streamlines) {
       po.plottype = v;
     } else if (v == "wind_colour") {
       po.plottype = fpt_wind;

@@ -159,6 +159,7 @@ const std::vector<std::string>& getPlotTypesForDim(int dim)
     fpt_vector,
     fpt_wind_temp_fl,
     fpt_wind_value,
+    fpt_streamlines,
     fpt_frame
   };
 
@@ -179,6 +180,7 @@ const std::vector<std::string>& getPlotTypesForDim(int dim)
     fpt_wind,
     fpt_vector,
     fpt_direction,
+    fpt_streamlines,
     fpt_value,
     fpt_frame
   };

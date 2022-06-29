@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2021 met.no
+  Copyright (C) 2017-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -64,11 +64,10 @@ bool ObsReaderBufr::getDataFromFile(const FileInfo& fi, ObsDataRequest_cp reques
   bool success = false;
 #ifdef BUFROBS
   ObsDataBufr bufr(request->level, request->obstime, request->timeDiff);
-  std::vector<ObsData> obsp;
-  if (bufr.getObsData(obsp, fi.filename)) {
+  if (auto obsp = bufr.getObsData(fi.filename)) {
     success = true;
-    for (ObsData& obs : obsp)
-      obs.dataType = dataType();
+    for (size_t i = 0; i < obsp->size(); ++i)
+      obsp->basic(i).dataType = dataType();
     result->add(obsp);
   }
 #else // !BUFROBS

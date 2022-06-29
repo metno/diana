@@ -92,6 +92,8 @@ private:
 
   bool plotRaster(DiGLPainter* gl);
 
+  bool plotStreamlines(DiGLPainter* gl);
+
   bool plotUndefined(DiGLPainter* gl);
 
   bool plotFrameOnly(DiGLPainter* gl);

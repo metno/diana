@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2021 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -50,6 +50,7 @@ static const size_t BAD = 0xFFFFFF;
 ObsAscii::ObsAscii(const string& filename, const string& headerfile, const vector<string>& headerinfo)
     : m_needDataRead(true)
     , m_error(false)
+    , vObsData(std::make_shared<ObsDataVector>())
     , knots(false)
 {
   METLIBS_LOG_SCOPE();
@@ -57,7 +58,7 @@ ObsAscii::ObsAscii(const string& filename, const string& headerfile, const vecto
   decodeHeader();
 }
 
-const std::vector<ObsData>& ObsAscii::getObsData(const miTime &filetime, const miutil::miTime& time, int td)
+ObsDataVector_p ObsAscii::getObsData(const miTime& filetime, const miutil::miTime& time, int td)
 {
   METLIBS_LOG_SCOPE();
   plotTime = time;
@@ -330,7 +331,7 @@ void ObsAscii::decodeData()
     ii += 1;
   }
 
-  vObsData.reserve(lines.size());
+  vObsData->reserve(vObsData->size() + lines.size());
   for (; ii < lines.size(); ++ii) {
     // METLIBS_LOG_DEBUG("read '" << lines[ii] << "'");
     std::string& line = lines[ii];
@@ -344,7 +345,7 @@ void ObsAscii::decodeData()
     else
       pstr = miutil::split_protected(line, '"', '"');
 
-    ObsData  obsData;
+    ObsData obsData;
 
     const size_t tmp_nColumn = std::min(pstr.size(), column.size());
     for (size_t i=0; i<tmp_nColumn; i++) {
@@ -359,11 +360,11 @@ void ObsAscii::decodeData()
     }
 
     if (checkColumn(idx_x, pstr))
-      obsData.xpos = miutil::to_float(pstr[idx_x]);
+      obsData.basic().xpos = miutil::to_float(pstr[idx_x]);
     if (checkColumn(idx_y, pstr))
-      obsData.ypos = miutil::to_float(pstr[idx_y]);
+      obsData.basic().ypos = miutil::to_float(pstr[idx_y]);
     if (checkColumn(idx_Name, pstr))
-      obsData.id = pstr[idx_Name];
+      obsData.basic().id = pstr[idx_Name];
     if (checkColumn(idx_ff, pstr)) {
       const float value = miutil::to_float(pstr[idx_ff]);
       obsData.put_float("ff", knots ? miutil::knots2ms(value) : value);
@@ -419,10 +420,10 @@ void ObsAscii::decodeData()
       
       // METLIBS_LOG_DEBUG(LOGVAL(obstime) << LOGVAL(plotTime) << LOGVAL(timeDiff));
       if (timeDiff < 0 || abs(miTime::minDiff(obstime, plotTime))< timeDiff)
-        obsData.obsTime = obstime;
+        obsData.basic().obsTime = obstime;
       else
         continue;
     }
-    vObsData.push_back(std::move(obsData));
+    vObsData->add(obsData);
   }
 }

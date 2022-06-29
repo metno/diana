@@ -94,7 +94,7 @@ public:
     { gl->Translatef(translate.x(), translate.y(), 0); gl->Scalef(scale, scale, 1); }
 };
 
-std::string get_popup_text(const ObsData& dt, const std::string& key)
+std::string get_popup_text(const ObsDataRef& dt, const std::string& key)
 {
   const std::string* s = dt.get_string(key);
   if (s && (int)miutil::to_float(*s) != undef)
@@ -107,15 +107,15 @@ std::string get_popup_text(const ObsData& dt, const std::string& key)
   return "X";
 }
 
-bool isauto(const ObsData& obs)
+bool isauto(const ObsDataRef& obs)
 {
-  const float* pauto = obs.get_unrotated_float("auto");
+  const float* pauto = obs.get_float("auto");
   return pauto && (*pauto == 0);
 }
 
-bool isdata(const ObsData& obs)
+bool isdata(const ObsDataRef& obs)
 {
-  const float* pisdata = obs.get_unrotated_float("isdata");
+  const float* pisdata = obs.get_float("isdata");
   return !pisdata || (*pisdata != 0);
 }
 
@@ -329,10 +329,10 @@ const PlotCommand_cpv ObsPlot::getObsExtraAnnotations() const
   return PlotCommand_cpv();
 }
 
-void ObsPlot::addObsData(const std::vector<ObsData>& obs)
+void ObsPlot::setObsData(ObsDataContainer_cp obs)
 {
   METLIBS_LOG_SCOPE();
-  diutil::insert_all(obsp, obs);
+  obsp = ObsDataRotated(obs);
 }
 
 int ObsPlot::getLevel()
@@ -629,21 +629,19 @@ void ObsPlot::reprojectData()
 
   for (int i = 0; i < numObs; i++) {
     const int angle = (int) (atan2f(u[i], v[i]) * 180 / M_PI);
-    ObsData& obs = obsp[i];
-
-    if (const float* pdd = obs.get_unrotated_float("dd")) {
+    if (const float* pdd = obsp.get_unrotated_float(i, "dd")) {
       float dd = *pdd;
       if (dd > 0 and dd <= 360) {
         dd = normalize_angle(dd + angle);
-        obs.put_rotated_float("dd_adjusted", dd);
+        obsp.put_rotated_float(i, "dd_adjusted", dd);
       }
     }
 
-    if (const float* pdw1dw1 = obs.get_unrotated_float("dw1dw1"))
-      obs.put_rotated_float("dw1dw1", normalize_angle(*pdw1dw1 + angle));
+    if (const float* pdw1dw1 = obsp.get_unrotated_float(i, "dw1dw1"))
+      obsp.put_rotated_float(i, "dw1dw1", normalize_angle(*pdw1dw1 + angle));
 
-    if (const float* pds = obs.get_unrotated_float("ds"))
-      obs.put_rotated_float("ds", normalize_angle(*pds + angle));
+    if (const float* pds = obsp.get_unrotated_float(i, "ds"))
+      obsp.put_rotated_float(i, "ds", normalize_angle(*pds + angle));
   }
 
   updateObsPositions();
@@ -659,7 +657,7 @@ void ObsPlot::setData(bool success)
   list_plotnr.clear();
 
   if (!success) {
-    obsp.clear();
+    obsp = ObsDataRotated();
   }
 
   const bool empty = (getObsCount() == 0);
@@ -699,8 +697,9 @@ void ObsPlot::setData(bool success)
 
 void ObsPlot::getObsLonLat(int obsidx, float& x, float& y)
 {
-  x = obsp[obsidx].xpos;
-  y = obsp[obsidx].ypos;
+  const auto& b = obsp.basic(obsidx);
+  x = b.xpos;
+  y = b.ypos;
 }
 
 void ObsPlot::logStations()
@@ -710,7 +709,7 @@ void ObsPlot::logStations()
     std::vector<std::string>& vs = visibleStations[dialogname];
     vs.clear();
     for (int n : nextplot) {
-      vs.push_back(obsp[n].id);
+      vs.push_back(obsp.basic(n).id);
     }
   }
 }
@@ -729,7 +728,7 @@ void ObsPlot::readStations()
     const int numObs = obsp.size();
     for (int k = 0; k < numObs; k++) {
       const int i = all_from_file[k];
-      if (std::find(vs.begin(), vs.end(), obsp[i].id) != vs.end()) {
+      if (std::find(vs.begin(), vs.end(), obsp.basic(i).id) != vs.end()) {
         all_stations.push_back(i);
         tmpList[i] = -1;
       }
@@ -763,7 +762,7 @@ void ObsPlot::clear()
   all_from_file.clear(); // all stations, from file or priority list
   nextplot.clear();
   notplot.clear();
-  obsp.clear();
+  obsp = ObsDataRotated();
   visible_positions_count_ = 0;
   extraAnnotations.clear();
 }
@@ -782,7 +781,7 @@ void ObsPlot::priority_sort()
   vector<int> automat;
   int n = 0;
   for (i = 0; i < numObs; i++) {
-    ObsData& obs = obsp[i];
+    const auto obs = obsp[i];
 
     if (!isauto(obs))
       all_from_file[n++] = i;
@@ -808,7 +807,7 @@ void ObsPlot::priority_sort()
       int j, n = priorityList.size();
       for (j = 0; j < n; j++) {
         i = 0;
-        while (i < numObs && obsp[i].id != priorityList[j])
+        while (i < numObs && obsp.basic(i).id != priorityList[j])
           i++;
         if (i < numObs) {
           all_from_file.push_back(i);
@@ -843,7 +842,7 @@ void ObsPlot::time_sort(void)
   // Data from obs-files or database
   // find mindiff = abs(obsTime-plotTime) for all observations
   for (int i = 0; i < numObs; i++)
-    diff[i] = abs(miTime::minDiff(obsp[i].obsTime, obsTime));
+    diff[i] = abs(miTime::minDiff(obsp.basic(i).obsTime, obsTime));
 
   //Sorting ...
   for (int i = 0; i < numObs; i++) {
@@ -1004,10 +1003,10 @@ void ObsPlot::updateFromEditField()
     // startxy is set above, in getPositions; values is interpolated editfield from EditManager::obs_mslp
     int numObs = obsp.size();
     for (int i = 0; i < numObs; i++) {
-      if (const float* pPPPP = obsp[i].get_float("PPPP")) {
+      if (const float* pPPPP = obsp.get_float(i, "PPPP")) {
         const float ief = devfield->interpolatedEditField[i];
         if (ief < 0.9e+35)
-          obsp[i].put_float("PPPP_mslp", *pPPPP - ief);
+          obsp.put_float(i, "PPPP_mslp", *pPPPP - ief);
       }
     }
   }
@@ -1122,7 +1121,7 @@ bool ObsPlot::getObsPopupText(int xx, int yy, std::string& setuptext)
     return false;
 
   bool found = false;
-  const ObsData& dt = obsp[min_i];
+  const ObsDataRef& dt = obsp[min_i];
 
   for (const std::string& datatype : readernames) {
     std::map<string, vector<std::string> >::const_iterator f_p = popupSpec.find(datatype);
@@ -1135,11 +1134,11 @@ bool ObsPlot::getObsPopupText(int xx, int yy, std::string& setuptext)
       continue;
 
     setuptext += "<table>";
-    if (!dt.obsTime.undef()) {
+    if (!dt.obsTime().undef()) {
       setuptext += "<tr>";
       setuptext += "<td>";
       setuptext += "<span style=\"background: red; color: red\">X</span>";
-      setuptext += dt.obsTime.isoTime();
+      setuptext += dt.obsTime().isoTime();
       setuptext += "</td>";
       setuptext += "</tr>";
     }
@@ -1258,7 +1257,7 @@ void ObsPlot::changeProjection(const Area& /*mapArea*/, const Rectangle& /*plotS
 
 void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 {
-  METLIBS_LOG_SCOPE();
+  METLIBS_LOG_TIME();
 
   if (zorder != PO_LINES && zorder != PO_OVERLAY)
     return;
@@ -1364,7 +1363,7 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 
     if (!firstplot) {
       vector<int> a, b;
-      int n = list_plotnr.size();
+      const size_t n = list_plotnr.size();
       if (n == numObs) {
         for (int i : all_this_area) {
           if (list_plotnr[i] == plotnr)
@@ -1415,7 +1414,7 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 
     if (!fromFile) { //if priority from last plot has been used so far
       all_this_area.clear();
-      for (int j = 0; j < numObs; j++) {
+      for (size_t j = 0; j < numObs; j++) {
         int i = all_from_file[j];
         if (getStaticPlot()->getMapSize().isinside(x[i], y[i]))
           all_this_area.push_back(i);
@@ -1462,17 +1461,17 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     for (p = pbegin; p != pend; p++) {
       int i = *p;
       if (allObs || (listplot && areaFree(i)) || (!listplot && collider_->positionFree(x[i], y[i], xdist, ydist))) {
-        ObsData& dta = obsp[i];
         // Select parameter with correct accumulation/max value interval
         if (pFlag.count("911ff")) {
-          checkGustTime(dta);
+          checkGustTime(i);
         }
         if (pFlag.count("rrr")) {
-          checkAccumulationTime(dta);
+          checkAccumulationTime(i);
         }
         if (pFlag.count("fxfx")) {
-          checkMaxWindTime(dta);
+          checkMaxWindTime(i);
         }
+        const auto& dta = obsp[i];
         if (checkPlotCriteria(dta)) {
           nextplot.push_back(i);
           list_plotnr[i] = plotnr;
@@ -1640,7 +1639,7 @@ void ObsPlot::advanceByDD(int dd, QPointF& xypos)
   }
 }
 
-void ObsPlot::printListParameter(DiGLPainter* gl, const ObsData& dta, const ObsDialogInfo::Par& param, QPointF& xypos, float yStep, bool align_right,
+void ObsPlot::printListParameter(DiGLPainter* gl, const ObsDataRef& dta, const ObsDialogInfo::Par& param, QPointF& xypos, float yStep, bool align_right,
                                  float xshift)
 {
   METLIBS_LOG_SCOPE(LOGVAL(param.name));
@@ -1680,7 +1679,7 @@ void ObsPlot::printListParameter(DiGLPainter* gl, const ObsData& dta, const ObsD
       if (f_p) {
         checkColourCriteria(gl, param.name, *f_p);
         if (param.name == "VV") {
-          printVisibility(gl, *f_p, dta.ship_buoy, xypos, align_right);
+          printVisibility(gl, *f_p, dta.ship_buoy(), xypos, align_right);
         } else if (param.type == ObsDialogInfo::pt_knot && !unit_ms) {
           printList(gl, miutil::ms2knots(*f_p), xypos, param.precision, align_right);
         } else if (param.type == ObsDialogInfo::pt_temp && tempPrecision) {
@@ -1695,7 +1694,7 @@ void ObsPlot::printListParameter(DiGLPainter* gl, const ObsData& dta, const ObsD
   }
 }
 
-void ObsPlot::printListSymbol(DiGLPainter* gl, const ObsData& dta, const ObsDialogInfo::Par& param, QPointF& xypos, float yStep, bool align_right,
+void ObsPlot::printListSymbol(DiGLPainter* gl, const ObsDataRef& dta, const ObsDialogInfo::Par& param, QPointF& xypos, float yStep, bool align_right,
                               const float& xshift)
 {
   if (const float* f_p = dta.get_float(param.name)) {
@@ -1711,7 +1710,7 @@ void ObsPlot::printListSymbol(DiGLPainter* gl, const ObsData& dta, const ObsDial
     } else if (param.name == "ww") {
 
       if (const float* pTTT = dta.get_float("TTT")) {
-        weather(gl, (short int)*f_p, *pTTT, dta.ship_buoy, spos - QPointF(0, 0.2 * yStep * scale), scale * 0.6, align_right);
+        weather(gl, (short int)*f_p, *pTTT, dta.ship_buoy(), spos - QPointF(0, 0.2 * yStep * scale), scale * 0.6, align_right);
       } else {
         if (plotundef)
           printUndef(gl, xypos, align_right);
@@ -1729,8 +1728,7 @@ void ObsPlot::printListSymbol(DiGLPainter* gl, const ObsData& dta, const ObsDial
   }
 }
 
-void ObsPlot::printListRRR(DiGLPainter* gl, const ObsData& dta, const std::string& param,
-    QPointF& xypos, bool align_right)
+void ObsPlot::printListRRR(DiGLPainter* gl, const ObsDataRef& dta, const std::string& param, QPointF& xypos, bool align_right)
 {
   if (const float* f_p = dta.get_float(param)) {
     checkColourCriteria(gl, param, *f_p);
@@ -1746,12 +1744,11 @@ void ObsPlot::printListRRR(DiGLPainter* gl, const ObsData& dta, const std::strin
   }
 }
 
-void ObsPlot::printListPos(DiGLPainter* gl, const ObsData& dta,
-    QPointF& xypos, float yStep, bool align_right)
+void ObsPlot::printListPos(DiGLPainter* gl, const ObsDataRef& dta, QPointF& xypos, float yStep, bool align_right)
 {
   xypos.ry() -= yStep;
-  std::string str1 = diutil::formatLatitude(dta.ypos, 2, 6).toStdString();
-  std::string str2 = diutil::formatLongitude(dta.xpos, 2, 6).toStdString();
+  std::string str1 = diutil::formatLatitude(dta.ypos(), 2, 6).toStdString();
+  std::string str2 = diutil::formatLongitude(dta.xpos(), 2, 6).toStdString();
   if (yStep <= 0)
     str1.swap(str2); // change order of lon and lat
 
@@ -1809,7 +1806,7 @@ void ObsPlot::printListString(DiGLPainter* gl, const std::string& txt, QPointF& 
   gl->drawText(txt, xy.x(), xy.y(), 0.0);
 }
 
-bool ObsPlot::checkQuality(const ObsData& dta) const
+bool ObsPlot::checkQuality(const ObsDataRef& dta) const
 {
   if (not qualityFlag)
     return true;
@@ -1818,7 +1815,7 @@ bool ObsPlot::checkQuality(const ObsData& dta) const
   return true; // assume good data
 }
 
-bool ObsPlot::checkWMOnumber(const ObsData& dta) const
+bool ObsPlot::checkWMOnumber(const ObsDataRef& dta) const
 {
   if (not wmoFlag)
     return true;
@@ -1829,7 +1826,7 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
 {
   METLIBS_LOG_SCOPE("index: " << index);
 
-  const ObsData &dta = obsp[index];
+  const auto& dta = obsp[index];
 
   DiGLPainter::GLfloat radius = 3.0;
   int printPos = -1;
@@ -1905,7 +1902,7 @@ void ObsPlot::plotList(DiGLPainter* gl, int index)
 
     checkColourCriteria(gl, "dd", dd);
     checkColourCriteria(gl, "ff", ff);
-    plotWind(gl, dd_adjusted, ff, ddvar, radius, dta.ypos > 0);
+    plotWind(gl, dd_adjusted, ff, ddvar, radius, dta.ypos() > 0);
 
     advanceByDD(dd_adjusted, xypos);
   }
@@ -1964,7 +1961,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
 {
   METLIBS_LOG_SCOPE("index: " << index);
 
-  ObsData &dta = obsp[index];
+  const auto dta = obsp[index];
 
   if (not checkQuality(dta) or not checkWMOnumber(dta))
     return;
@@ -1977,9 +1974,9 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
     return;
 
   //Some positions depend on wheather the following parameters are plotted or not
-  bool ClFlag = ((pFlag.count("cl") && dta.get_float("Cl")) || ((pFlag.count("st.type") && (not dta.dataType.empty()))));
+  bool ClFlag = ((pFlag.count("cl") && dta.get_float("Cl")) || ((pFlag.count("st.type") && (not dta.dataType().empty()))));
   bool TxTnFlag = (pFlag.count("txtn") && dta.get_float("TxTn"));
-  bool timeFlag = (pFlag.count("time") && dta.ship_buoy);
+  bool timeFlag = (pFlag.count("time") && dta.ship_buoy());
 
   //reset colour
   gl->setColour(origcolour);
@@ -1992,8 +1989,12 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
 
   //wind - dd,ff
   const float *pdd, *pff, *pdd_rotated;
-  if (pFlag.count("wind") && (pdd = dta.get_unrotated_float("dd")) && (pff = dta.get_float("ff")) && (pdd_rotated = dta.get_float("dd_adjusted")) &&
-      (*pdd != undef)) {
+  if (pFlag.count("wind")
+      && (pdd = obsp.get_unrotated_float(index, "dd"))
+      && (pff = dta.get_float("ff"))
+      && (pdd_rotated = dta.get_float("dd_adjusted"))
+      &&(*pdd != undef))
+  {
     bool ddvar = false;
     int dd = (int)*pdd;
     int dd_adjusted = (int)*pdd_rotated;
@@ -2006,7 +2007,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
     lpos = vtab((dd / 10 + 3) / 2) + 10;
     checkColourCriteria(gl, "dd", dd);
     checkColourCriteria(gl, "ff", *pff);
-    plotWind(gl, dd_adjusted, *pff, ddvar, radius, dta.ypos > 0);
+    plotWind(gl, dd_adjusted, *pff, ddvar, radius, dta.ypos() > 0);
   } else {
     lpos = vtab(1) + 10;
   }
@@ -2033,7 +2034,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
     checkColourCriteria(gl, "ww", *f_p);
     const QPointF wwxy = xytab(lpos + 12);
     VVxpos = wwxy.x() - 20;
-    weather(gl, (short int)*f_p, *ttt_p, dta.ship_buoy, wwxy);
+    weather(gl, (short int)*f_p, *ttt_p, dta.ship_buoy(), wwxy);
   }
 
   //characteristics of pressure tendency - a
@@ -2138,13 +2139,13 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   // Clouds, detailed
   if (pFlag.count("clouds")) {
     checkColourCriteria(gl, "Clouds", 0);
-    int ncl = dta.cloud.size();
+    int ncl = dta.cloud().size();
     for (int i = 0; i < ncl; i++)
-      printString(gl, dta.cloud[i], xytab(lpos + 18) + QPointF(0, -i * 12));
+      printString(gl, dta.cloud()[i], xytab(lpos + 18) + QPointF(0, -i * 12));
   }
 
   //Precipitation - RRR
-  if (pFlag.count("rrr") && !(dta.ship_buoy && dta.get_float("ds") && dta.get_float("vs"))) {
+  if (pFlag.count("rrr") && !(dta.ship_buoy() && dta.get_float("ds") && dta.get_float("vs"))) {
     if ((f_p = dta.get_float("RRR"))) {
       checkColourCriteria(gl, "RRR", *f_p);
       if (*f_p < 0.0) // Precipitation, but less than 0.1 mm (0.0)
@@ -2159,7 +2160,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   if (pFlag.count("vv") && (f_p = dta.get_float("VV"))) {
     checkColourCriteria(gl, "VV", *f_p);
     QPointF vvxy(VVxpos, xytab(lpos + 14).y());
-    printVisibility(gl, *f_p, dta.ship_buoy, vvxy);
+    printVisibility(gl, *f_p, dta.ship_buoy(), vvxy);
   }
   // Temperature - TTT
   if (pFlag.count("ttt") && ttt_p) {
@@ -2182,7 +2183,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   }
 
   // Snow depth - sss
-  if (pFlag.count("sss") && (f_p = dta.get_float("sss")) && !dta.ship_buoy) {
+  if (pFlag.count("sss") && (f_p = dta.get_float("sss")) && !dta.ship_buoy()) {
     checkColourCriteria(gl, "sss", *f_p);
     printNumber(gl, *f_p, xytab(lpos + 46));
   }
@@ -2207,7 +2208,7 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
 
   // Maximum wind speed
   if (pFlag.count("fxfx")) {
-    if ((f_p = dta.get_float("fxfx")) && !dta.ship_buoy) {
+    if ((f_p = dta.get_float("fxfx")) && !dta.ship_buoy()) {
       checkColourCriteria(gl, "fxfx", *f_p);
       float ff = unit_ms ? *f_p : miutil::ms2knots(*f_p);
       if (TxTnFlag)
@@ -2226,35 +2227,35 @@ void ObsPlot::plotSynop(DiGLPainter* gl, int index)
   }
 
   //Time
-  if (timeFlag && !dta.obsTime.undef()) {
+  if (timeFlag && !dta.obsTime().undef()) {
     checkColourCriteria(gl, "Time", 0);
-    printTime(gl, dta.obsTime, xytab(lpos + 46), "left", "h.m");
+    printTime(gl, dta.obsTime(), xytab(lpos + 46), "left", "h.m");
   }
 
   // Ship or buoy identifier
-  if (pFlag.count("id") && dta.ship_buoy) {
+  if (pFlag.count("id") && dta.ship_buoy()) {
     checkColourCriteria(gl, "Id", 0);
     if (timeFlag)
-      printString(gl, dta.id, xytab(lpos + 46) + QPointF(0, 15));
+      printString(gl, dta.id(), xytab(lpos + 46) + QPointF(0, 15));
     else
-      printString(gl, dta.id, xytab(lpos + 46));
+      printString(gl, dta.id(), xytab(lpos + 46));
   }
 
   //Wmo block + station number - land stations
-  if (pFlag.count("st.no") && !dta.ship_buoy) {
+  if (pFlag.count("st.no") && !dta.ship_buoy()) {
     checkColourCriteria(gl, "st.no", 0);
     if ((pFlag.count("sss") && dta.get_float("sss"))) // if snow
-      printString(gl, dta.id, xytab(lpos + 46) + QPointF(0, 15));
+      printString(gl, dta.id(), xytab(lpos + 46) + QPointF(0, 15));
     else
-      printString(gl, dta.id, xytab(lpos + 46));
+      printString(gl, dta.id(), xytab(lpos + 46));
   }
   // WMO station id or callsign
-  if (pFlag.count("name") && !dta.id.empty()) {
+  if (pFlag.count("name") && !dta.id().empty()) {
     checkColourCriteria(gl, "name", 0);
     QPointF offset;
     if (pFlag.count("sss") && dta.get_float("sss")) // if snow
       offset = QPointF(0, 15);
-    printString(gl, dta.id, xytab(lpos + 46) + offset);
+    printString(gl, dta.id(), xytab(lpos + 46) + offset);
   }
 
   //Sea temperature
@@ -2293,7 +2294,7 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
 {
   METLIBS_LOG_SCOPE("index: " << index);
 
-  ObsData &dta = obsp[index];
+  const auto dta = obsp[index];
 
   DiGLPainter::GLfloat radius = 7.0;
   int lpos = vtab(1) + 10;
@@ -2318,7 +2319,10 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
 
   //wind
   const float *pdd, *pdd_rotated, *pff;
-  if (pFlag.count("wind") && (pdd = dta.get_unrotated_float("dd")) && (pdd_rotated = dta.get_float("dd_adjusted")) && (pff = dta.get_float("ff"))) {
+  if (pFlag.count("wind") && (pdd = obsp.get_unrotated_float(index, "dd"))
+      && (pdd_rotated = dta.get_float("dd_adjusted"))
+      && (pff = dta.get_float("ff")))
+  {
     checkColourCriteria(gl, "dd", *pdd);
     checkColourCriteria(gl, "ff", *pff);
     metarWind(gl, (int)*pdd_rotated, miutil::ms2knots(*pff), radius, lpos);
@@ -2363,27 +2367,27 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
   int wwshift = 0; //idxm
   if (pFlag.count("ww")) {
     checkColourCriteria(gl, "ww", 0);
-    if (dta.ww.size() > 0 && not dta.ww[0].empty()) {
-      metarSymbol(gl, dta.ww[0], xytab(lpos + 8), wwshift);
+    if (dta.ww().size() > 0 && not dta.ww()[0].empty()) {
+      metarSymbol(gl, dta.ww()[0], xytab(lpos + 8), wwshift);
     }
-    if (dta.ww.size() > 1 && not dta.ww[1].empty()) {
-      metarSymbol(gl, dta.ww[1], xytab(lpos + 10), wwshift);
+    if (dta.ww().size() > 1 && not dta.ww()[1].empty()) {
+      metarSymbol(gl, dta.ww()[1], xytab(lpos + 10), wwshift);
     }
   }
 
   //Recent weather
   if (pFlag.count("reww")) {
     checkColourCriteria(gl, "REww", 0);
-    if (dta.REww.size() > 0 && not dta.REww[0].empty()) {
+    if (dta.REww().size() > 0 && not dta.REww()[0].empty()) {
       int intREww[5];
-      metarString2int(dta.REww[0], intREww);
+      metarString2int(dta.REww()[0], intREww);
       if (intREww[0] >= 0 && intREww[0] < 100) {
         symbol(gl, vtab(40 + intREww[0]), xytab(lpos + 30) + QPointF(0, 2));
       }
     }
-    if (dta.REww.size() > 1 && not dta.REww[1].empty()) {
+    if (dta.REww().size() > 1 && not dta.REww()[1].empty()) {
       int intREww[5];
-      metarString2int(dta.REww[1], intREww);
+      metarString2int(dta.REww()[1], intREww);
       if (intREww[0] >= 0 && intREww[0] < 100) {
         symbol(gl, vtab(40 + intREww[0]), xytab(lpos + 30) + QPointF(15, 2));
       }
@@ -2431,19 +2435,19 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
   if (pFlag.count("vv") && (f_p = dta.get_float("VV"))) {
     checkColourCriteria(gl, "VV", *f_p);
     QPointF vvxy(VVxpos.x(), xytab(lpos + 14).y());
-    printVisibility(gl, *f_p, dta.ship_buoy, vvxy);
+    printVisibility(gl, *f_p, dta.ship_buoy(), vvxy);
   }
 
   //CAVOK
   if (pFlag.count("clouds")) {
     checkColourCriteria(gl, "Clouds", 0);
 
-    if (dta.CAVOK) {
+    if (dta.CAVOK()) {
       printString(gl, "CAVOK", xytab(lpos + 18) + QPointF(2, 2));
-    } else { //Clouds
-      int ncl = dta.cloud.size();
+    } else { // Clouds
+      int ncl = dta.cloud().size();
       for (int i = 0; i < ncl; i++)
-        printString(gl, dta.cloud[i], xytab(lpos + 18 + i * 4) + QPointF(2, 2));
+        printString(gl, dta.cloud()[i], xytab(lpos + 18 + i * 4) + QPointF(2, 2));
     }
   }
 
@@ -2460,13 +2464,13 @@ void ObsPlot::plotMetar(DiGLPainter* gl, int index)
   //Id
   if (pFlag.count("id")) {
     checkColourCriteria(gl, "Id", 0);
-    printString(gl, dta.metarId, xyid);
+    printString(gl, dta.metarId(), xyid);
   }
 
   // Name
   if (pFlag.count("name")) {
     checkColourCriteria(gl, "Name", 0);
-    printString(gl, dta.id, xyid);
+    printString(gl, dta.id(), xyid);
   }
 }
 
@@ -3017,7 +3021,7 @@ void ObsPlot::amountOfClouds(DiGLPainter* gl, short int Nh, short int h, QPointF
   gl->drawText(ost, x * scale, y * scale, 0.0);
 }
 
-void ObsPlot::checkAccumulationTime(ObsData &dta)
+void ObsPlot::checkAccumulationTime(size_t index)
 {
 
   // todo: include this if all data sources reports time info
@@ -3027,19 +3031,19 @@ void ObsPlot::checkAccumulationTime(ObsData &dta)
 
   int hour = obsTime.hour();
   const float* pRRR;
-  if ((hour == 6 || hour == 18) && (pRRR = dta.get_float("RRR_12"))) {
+  if ((hour == 6 || hour == 18) && (pRRR = obsp.get_float(index, "RRR_12"))) {
 
-    dta.put_float("RRR", *pRRR);
+    obsp.put_float(index, "RRR", *pRRR);
 
-  } else if ((hour == 0 || hour == 12) && (pRRR = dta.get_float("RRR_6"))) {
-    dta.put_float("RRR", *pRRR);
+  } else if ((hour == 0 || hour == 12) && (pRRR = obsp.get_float(index, "RRR_6"))) {
+    obsp.put_float(index, "RRR", *pRRR);
 
-  } else if ((pRRR = dta.get_float("RRR_1"))) {
-    dta.put_float("RRR", *pRRR);
+  } else if ((pRRR = obsp.get_float(index, "RRR_1"))) {
+    obsp.put_float(index, "RRR", *pRRR);
   }
 }
 
-void ObsPlot::checkGustTime(ObsData &dta)
+void ObsPlot::checkGustTime(size_t index)
 {
   // todo: include this if all data sources reports time info
   //  if (dta.get_float("911ff")!= dta.fdata.end()){
@@ -3047,12 +3051,12 @@ void ObsPlot::checkGustTime(ObsData &dta)
   //  }
   int hour = obsTime.hour();
   const float* p911ff;
-  if ((hour == 0 || hour == 6 || hour == 12 || hour == 18) && (p911ff = dta.get_float("911ff_360"))) {
-    dta.put_float("911ff", *p911ff);
-  } else if ((hour == 3 || hour == 9 || hour == 15 || hour == 21) && (p911ff = dta.get_float("911ff_180"))) {
-    dta.put_float("911ff", *p911ff);
-  } else if ((p911ff = dta.get_float("911ff_60"))) {
-    dta.put_float("911ff", *p911ff);
+  if ((hour == 0 || hour == 6 || hour == 12 || hour == 18) && (p911ff = obsp.get_float(index, "911ff_360"))) {
+    obsp.put_float(index, "911ff", *p911ff);
+  } else if ((hour == 3 || hour == 9 || hour == 15 || hour == 21) && (p911ff = obsp.get_float(index, "911ff_180"))) {
+    obsp.put_float(index, "911ff", *p911ff);
+  } else if ((p911ff = obsp.get_float(index, "911ff_60"))) {
+    obsp.put_float(index, "911ff", *p911ff);
   }
 }
 
@@ -3061,24 +3065,24 @@ bool ObsPlot::updateDeltaTimes()
   bool updated = false;
   if (has_deltatime) {
     const miutil::miTime nowTime = miutil::miTime::nowTime();
-    for (ObsData& dta : obsp) {
-      if (updateDeltaTime(dta, nowTime))
+    for (size_t i = 0; i < obsp.size(); ++i) {
+      if (updateDeltaTime(i, nowTime))
         updated = true;
     }
   }
   return updated;
 }
 
-bool ObsPlot::updateDeltaTime(ObsData &dta, const miutil::miTime& nowTime)
+bool ObsPlot::updateDeltaTime(size_t index, const miutil::miTime& nowTime)
 {
-  if (dta.obsTime.undef())
+  if (obsp.basic(index).obsTime.undef())
     return false;
 
-  dta.put_string("DeltaTime", miutil::from_number(miutil::miTime::secDiff(nowTime, dta.obsTime)));
+  obsp.put_string(index, "DeltaTime", miutil::from_number(miutil::miTime::secDiff(nowTime, obsp[index].obsTime())));
   return true;
 }
 
-void ObsPlot::checkMaxWindTime(ObsData &dta)
+void ObsPlot::checkMaxWindTime(size_t index)
 {
   // todo: include this if all data sources reports time info
   //  if (dta.get_float("fxfx")!= dta.fdata.end()){
@@ -3087,14 +3091,14 @@ void ObsPlot::checkMaxWindTime(ObsData &dta)
 
   int hour = obsTime.hour();
   const float* pfxfx;
-  if ((hour == 0 || hour == 6 || hour == 12 || hour == 18) && (pfxfx = dta.get_float("fxfx_360"))) {
+  if ((hour == 0 || hour == 6 || hour == 12 || hour == 18) && (pfxfx = obsp.get_float(index, "fxfx_360"))) {
 
-    dta.put_float("fxfx", *pfxfx);
+    obsp.put_float(index, "fxfx", *pfxfx);
 
-  } else if ((hour == 3 || hour == 9 || hour == 15 || hour == 21) && (pfxfx = dta.get_float("fxfx_180"))) {
-    dta.put_float("fxfx", *pfxfx);
-  } else if ((pfxfx = dta.get_float("fxfx_60"))) {
-    dta.put_float("fxfx", *pfxfx);
+  } else if ((hour == 3 || hour == 9 || hour == 15 || hour == 21) && (pfxfx = obsp.get_float(index, "fxfx_180"))) {
+    obsp.put_float(index, "fxfx", *pfxfx);
+  } else if ((pfxfx = obsp.get_float(index, "fxfx_60"))) {
+    obsp.put_float(index, "fxfx", *pfxfx);
   }
 }
 
@@ -3586,7 +3590,7 @@ void ObsPlot::checkColourCriteria(DiGLPainter* gl, const std::string& param, flo
   gl->setColour(col);
 }
 
-bool ObsPlot::getValueForCriteria(const ObsData& dta, const std::string& param, float& value)
+bool ObsPlot::getValueForCriteria(const ObsDataRef& dta, const std::string& param, float& value)
 {
   value = 0;
 
@@ -3594,7 +3598,7 @@ bool ObsPlot::getValueForCriteria(const ObsData& dta, const std::string& param, 
     value = *itf;
   } else if (const std::string* its = dta.get_string(param)) {
     value = miutil::to_float(*its);
-  } else if (miutil::to_lower(param) != dta.dataType) {
+  } else if (miutil::to_lower(param) != dta.dataType()) {
     return false;
   }
   return true;
@@ -3624,7 +3628,7 @@ bool ObsPlot::baseCriteria::match(float value) const
       || (sign == no_sign);
 }
 
-bool ObsPlot::checkPlotCriteria(const ObsData& dta)
+bool ObsPlot::checkPlotCriteria(const ObsDataRef& dta)
 {
   if (plotcriteria.empty())
     return true;
@@ -3648,7 +3652,7 @@ bool ObsPlot::checkPlotCriteria(const ObsData& dta)
   return doPlot;
 }
 
-void ObsPlot::checkTotalColourCriteria(DiGLPainter* gl, const ObsData& dta)
+void ObsPlot::checkTotalColourCriteria(DiGLPainter* gl, const ObsDataRef& dta)
 {
   if (totalcolourcriteria.empty())
     return;
@@ -3669,7 +3673,7 @@ void ObsPlot::checkTotalColourCriteria(DiGLPainter* gl, const ObsData& dta)
   gl->setColour(colour);
 }
 
-std::string ObsPlot::checkMarkerCriteria(const ObsData& dta)
+std::string ObsPlot::checkMarkerCriteria(const ObsDataRef& dta)
 {
   std::string marker = image;
 
@@ -3689,7 +3693,7 @@ std::string ObsPlot::checkMarkerCriteria(const ObsData& dta)
   return marker;
 }
 
-float ObsPlot::checkMarkersizeCriteria(const ObsData& dta)
+float ObsPlot::checkMarkersizeCriteria(const ObsDataRef& dta)
 {
   float relSize = 1;
 

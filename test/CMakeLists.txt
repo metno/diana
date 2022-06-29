@@ -99,6 +99,8 @@ SET (dianaUnitTests_SOURCES
   TestGridIO.cc
   TestImageIO.cc
   TestLogFileIO.cc
+  TestObsDataRotated.cc
+  TestObsDataUnion.cc
   TestObsReaderAscii.cc
   TestObsReaderFile.cc
   TestObsReaderTimeInterval.cc

@@ -8,6 +8,7 @@
 override_dh_auto_configure:
 	dh_auto_configure -- \
 	    -DENABLE_DIANA_OMP=1 \
+	    -DENABLE_GRPC=1 \
 	    -DENABLE_GEOTIFF=1 \
 	    -DENABLE_OBS_BUFR=1 \
 	    -DENABLE_PERL=1

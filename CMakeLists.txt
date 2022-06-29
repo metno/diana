@@ -35,7 +35,7 @@ INCLUDE(MetnoVersions)
 INCLUDE(MetnoFindPackage)
 
 METNO_CMAKE_SETUP()
-METNO_PVERSION(3.56.2)
+METNO_PVERSION(3.57.0~rc1)
 
 OPTION(ENABLE_DIANA_OMP "Use OpenMP" OFF)
 OPTION(ENABLE_PERL "Build perl module" OFF)
@@ -44,6 +44,7 @@ OPTION(ENABLE_NEWARKOBS "Enable NEWARK observations" OFF)
 OPTION(ENABLE_GEOTIFF "Enable GeoTiff support" OFF)
 OPTION(ENABLE_OBS_BUFR "Enable observation from BUFR files" ON)
 OPTION(ENABLE_HDF5 "Enable HDF5 file support" OFF)
+OPTION(ENABLE_GRPC "Enable gRPC services" OFF)
 
 IF(ENABLE_DIANA_OMP)
   FIND_PACKAGE(OpenMP)
@@ -62,6 +63,7 @@ SET(THREADS_PREFER_PTHREAD_FLAG TRUE)
 FIND_PACKAGE(Threads REQUIRED)
 
 FIND_PACKAGE(Boost COMPONENTS date_time REQUIRED)
+FIND_PACKAGE(yaml-cpp REQUIRED)
 
 FIND_PACKAGE(mi-programoptions "2.0.0" REQUIRED)
 FIND_PACKAGE(mi-fieldcalc "0.1.0" REQUIRED)
@@ -89,6 +91,7 @@ SET(PKGS_CORE
   Boost::date_time # only used by FimexIO.cc
   libfimex
   mi-fieldcalc
+  yaml-cpp
 )
 
 SET(PKGS_UI
@@ -174,6 +177,55 @@ METNO_FIND_PACKAGE(udunits2
   INCLUDE_HDR "udunits2.h"
 )
 LIST(APPEND PKGS_CORE ${udunits2_PACKAGE})
+
+IF (ENABLE_GRPC)
+  # see https://github.com/grpc/grpc/blob/master/examples/cpp/helloworld/CMakeLists.txt#L97
+
+  SET (GRPC_MIN_VERSION "1.3.2")
+
+  find_package(gRPC ${GRPC_MIN_VERSION} CONFIG)
+  if (gRPC_FOUND)
+    message(STATUS "Using gRPC ${gRPC_VERSION} from cmake config")
+
+    set(protobuf_MODULE_COMPATIBLE TRUE)
+    find_package(Protobuf CONFIG REQUIRED)
+    message(STATUS "Using protobuf ${Protobuf_VERSION}")
+
+    set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
+    set(_REFLECTION gRPC::grpc++_reflection)
+    if(CMAKE_CROSSCOMPILING)
+      find_program(_PROTOBUF_PROTOC protoc)
+    else()
+      set(_PROTOBUF_PROTOC $<TARGET_FILE:protobuf::protoc>)
+    endif()
+
+    set(_GRPC_GRPCPP gRPC::grpc++)
+    if(CMAKE_CROSSCOMPILING)
+      find_program(_GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
+    else()
+      set(_GRPC_CPP_PLUGIN_EXECUTABLE $<TARGET_FILE:gRPC::grpc_cpp_plugin>)
+    endif()
+
+    SET(GRPC_LIBRARIES ${_GRPC_GRPCPP} ${_PROTOBUF_LIBPROTOBUF})
+    SET(PROTOC ${_PROTOBUF_PROTOC})
+    SET(PROTOC_GEN_GRPC ${_GRPC_CPP_PLUGIN_EXECUTABLE})
+    SET(GRPC_VERSION ${gRPC_VERSION})
+  ELSE()
+    PKG_CHECK_MODULES(PC_GRPC REQUIRED IMPORTED_TARGET grpc++>=${GRPC_MIN_VERSION} protobuf)
+    SET(GRPC_LIBRARIES PkgConfig::PC_GRPC Threads::Threads)
+    SET(GRPC_VERSION ${PC_GRPC_grpc++_VERSION})
+    message(STATUS "Using gRPC++ ${GRPC_VERSION} from pkg-config")
+    find_program(_PROTOBUF_PROTOC protoc)
+    find_program(_GRPC_CPP_PLUGIN_EXECUTABLE grpc_cpp_plugin)
+  ENDIF()
+
+  # changed header files in grpc 1.10.0, see https://github.com/grpc/grpc/releases/tag/v1.10.0
+  IF (GRPC_VERSION VERSION_LESS "1.10")
+    SET(DIANA_GRPC_INCLUDES_IN_GRPCPP 0)
+  ELSE()
+    SET(DIANA_GRPC_INCLUDES_IN_GRPCPP 1)
+  ENDIF()
+ENDIF (ENABLE_GRPC)
 
 IF (ENABLE_GEOTIFF)
   SET (GEOTIFF_HDRS libgeotiff/geotiff.h geotiff/geotiff.h geotiff.h)
