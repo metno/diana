@@ -1,3 +1,15 @@
+diana-3.57 (3.57.0~rc2-1) unstable; urgency=low
+
+  * bugfix table annotations for log line values
+  * rotation of east-north vectors (vectorprojectionlonlat)
+  * sat geotiff: fix angular units
+  * improve resize behaviour of FieldDialog
+  * implement PlotOptions::diff
+  * apply field setup options in bdiana + EditManager, not in FieldPlot
+  * support for proj 6 api
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Thu, 30 Jun 2022 08:00:08 +0200
+
 diana-3.57 (3.57.0~rc1-1) unstable; urgency=low
 
   * grpc obs reader and obs service
