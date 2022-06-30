@@ -442,6 +442,7 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
       METLIBS_LOG_DEBUG("GTIFKeyGet: GeogCitation = " << GTCitation);
       METLIBS_LOG_DEBUG("GTIFKeyGet: GeogAngularUnits = " << GeogAngularUnits);
       METLIBS_LOG_DEBUG("GTIFKeyGet: GeogSemiMajorAxis = " << GeogSemiMajorAxis);
+      METLIBS_LOG_DEBUG("GTIFKeyGet: GeogSemiMinorAxis = " << GeogSemiMinorAxis);
       METLIBS_LOG_DEBUG("GTIFKeyGet: GeogInvFlattening = " << GeogInvFlattening);
     }
 
@@ -522,6 +523,19 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
         GTIFKeyGet(gtifin.get(), ProjAzimuthAngleGeoKey, &ProjAzimuthAngle, 0, 1);
         GTIFKeyGet(gtifin.get(), ProjScaleAtCenterGeoKey, &ProjScaleAtCenter, 0, 1);
         GTIFKeyGet(gtifin.get(), ProjRectifiedGridAngleGeoKey, &ProjRectifiedGridAngle, 0, 1);
+
+        double GeogSemiMajorAxis = 6370997, GeogSemiMinorAxis = GeogSemiMajorAxis, GeogInvFlattening = 298;
+        bool have_semiminor_axis = false;
+        if (GTIFKeyGet(gtifin.get(), GeogSemiMajorAxisGeoKey, &GeogSemiMajorAxis, 0, 1)) {
+          METLIBS_LOG_DEBUG(LOGVAL(GeogSemiMajorAxis));
+        }
+        if (GTIFKeyGet(gtifin.get(), GeogSemiMinorAxisGeoKey, &GeogSemiMinorAxis, 0, 1)) {
+          METLIBS_LOG_DEBUG(LOGVAL(GeogSemiMinorAxis));
+          have_semiminor_axis = true;
+        } else if (GTIFKeyGet(gtifin.get(), GeogInvFlatteningGeoKey, &GeogInvFlattening, 0, 1)) {
+          METLIBS_LOG_DEBUG(LOGVAL(GeogInvFlattening));
+        }
+
         // clang-format off
         proj4 << "+proj=omerc"
               << " +lat_0=" << ProjCenterLat
@@ -529,8 +543,13 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
               << " +alpha=" << ProjAzimuthAngle
               << " +gamma=" << ProjRectifiedGridAngle
               << " +k_0=" << ProjScaleAtCenter
-              << " +a=6370997 +b=6370997 +units=m +no_defs";
+              << " +a=" << GeogSemiMajorAxis
+              << " +units=m +no_defs";
         // clang-format on
+        if (have_semiminor_axis)
+          proj4 << " +b=" << GeogSemiMinorAxis;
+        else
+          proj4 << " +rf=" << GeogInvFlattening;
       } else {
         METLIBS_LOG_ERROR("Projection CT " << ProjCoordTrans << " not yet supported");
         return -1;
