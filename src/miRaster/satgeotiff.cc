@@ -442,6 +442,7 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
       METLIBS_LOG_DEBUG("GTIFKeyGet: GeogCitation = " << GTCitation);
       METLIBS_LOG_DEBUG("GTIFKeyGet: GeogAngularUnits = " << GeogAngularUnits);
       METLIBS_LOG_DEBUG("GTIFKeyGet: GeogSemiMajorAxis = " << GeogSemiMajorAxis);
+      METLIBS_LOG_DEBUG("GTIFKeyGet: GeogSemiMinorAxis = " << GeogSemiMinorAxis);
       METLIBS_LOG_DEBUG("GTIFKeyGet: GeogInvFlattening = " << GeogInvFlattening);
     }
 
@@ -506,11 +507,49 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
         GTIFKeyGet(gtifin.get(), ProjStdParallel2GeoKey, &ProjStdParallel2, 0, 1);
         GTIFKeyGet(gtifin.get(), ProjFalseOriginLatGeoKey, &ProjFalseOriginLat, 0, 1);
         GTIFKeyGet(gtifin.get(), ProjFalseOriginLongGeoKey, &ProjFalseOriginLong, 0, 1);
+        // clang-format off
         proj4 << "+proj=lcc"
               << " +lat_1=" << ProjStdParallel1     // latitude of first standard parallel
               << " +lat_2=" << ProjStdParallel2     // latitude of second standard parallel
               << " +lat_0=" << ProjFalseOriginLat   // latitude of false origin
               << " +lon_0=" << ProjFalseOriginLong; // longitude of false origin
+        // clang-format on
+      } else if (ProjCoordTrans == CT_HotineObliqueMercatorAzimuthCenter || ProjCoordTrans == CT_ObliqueMercator_Hotine) {
+        // see http://geotiff.maptools.org/proj_list/oblique_mercator.html
+        // and http://geotiff.maptools.org/proj_list/hotine_oblique_mercator.html
+        double ProjCenterLat = 63, ProjCenterLon = 15, ProjAzimuthAngle = 63, ProjScaleAtCenter = 1, ProjRectifiedGridAngle = 0;
+        GTIFKeyGet(gtifin.get(), ProjCenterLatGeoKey, &ProjCenterLat, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjCenterLongGeoKey, &ProjCenterLon, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjAzimuthAngleGeoKey, &ProjAzimuthAngle, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjScaleAtCenterGeoKey, &ProjScaleAtCenter, 0, 1);
+        GTIFKeyGet(gtifin.get(), ProjRectifiedGridAngleGeoKey, &ProjRectifiedGridAngle, 0, 1);
+
+        double GeogSemiMajorAxis = 6370997, GeogSemiMinorAxis = GeogSemiMajorAxis, GeogInvFlattening = 298;
+        bool have_semiminor_axis = false;
+        if (GTIFKeyGet(gtifin.get(), GeogSemiMajorAxisGeoKey, &GeogSemiMajorAxis, 0, 1)) {
+          METLIBS_LOG_DEBUG(LOGVAL(GeogSemiMajorAxis));
+        }
+        if (GTIFKeyGet(gtifin.get(), GeogSemiMinorAxisGeoKey, &GeogSemiMinorAxis, 0, 1)) {
+          METLIBS_LOG_DEBUG(LOGVAL(GeogSemiMinorAxis));
+          have_semiminor_axis = true;
+        } else if (GTIFKeyGet(gtifin.get(), GeogInvFlatteningGeoKey, &GeogInvFlattening, 0, 1)) {
+          METLIBS_LOG_DEBUG(LOGVAL(GeogInvFlattening));
+        }
+
+        // clang-format off
+        proj4 << "+proj=omerc"
+              << " +lat_0=" << ProjCenterLat
+              << " +lonc=" << ProjCenterLon
+              << " +alpha=" << ProjAzimuthAngle
+              << " +gamma=" << ProjRectifiedGridAngle
+              << " +k_0=" << ProjScaleAtCenter
+              << " +a=" << GeogSemiMajorAxis
+              << " +units=m +no_defs";
+        // clang-format on
+        if (have_semiminor_axis)
+          proj4 << " +b=" << GeogSemiMinorAxis;
+        else
+          proj4 << " +rf=" << GeogInvFlattening;
       } else {
         METLIBS_LOG_ERROR("Projection CT " << ProjCoordTrans << " not yet supported");
         return -1;
