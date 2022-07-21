@@ -253,9 +253,10 @@ bool ObsManager::parseSetup()
 bool ObsManager::parseFilesSetup()
 {
   METLIBS_LOG_SCOPE();
+  Prod.clear();
+
   const std::string obs_name = "OBSERVATION_FILES";
   vector<std::string> sect_obs;
-
   if (!SetupParser::getSection(obs_name, sect_obs)) {
     METLIBS_LOG_WARN(obs_name << " section not found");
     return true;
@@ -263,7 +264,6 @@ bool ObsManager::parseFilesSetup()
 
   // ********  Common to all plot types **********************
 
-  Prod.clear();
   int sort_order = 0; // addReaders needs to know the order from the setup file
 
   ProdInfo* pip = nullptr;
@@ -377,6 +377,8 @@ bool ObsManager::parsePrioritySetup()
 
 bool ObsManager::parseCriteriaSetup()
 {
+  criteriaList.clear();
+
   const std::string obs_crit_name = "OBSERVATION_CRITERIA";
   vector<std::string> sect_obs_crit;
 
@@ -409,6 +411,8 @@ bool ObsManager::parseCriteriaSetup()
 
 bool ObsManager::parsePopupWindowSetup()
 {
+  popupSpec.clear();
+
   // Handling of popup window specification
   const std::string obs_popup_data = "OBSERVATION_POPUP_SPEC";
   vector<std::string> sect_popup_data;
