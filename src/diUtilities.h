@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017 met.no
+  Copyright (C) 2017-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -62,9 +62,13 @@ inline string_v glob(const std::string& pattern, int glob_flags=0)
 int find_index(bool repeat, int available, int i);
 
 bool getFromFile(const std::string& filename, string_v& lines);
+bool getFromFile(const std::string& filename, std::string& all);
+
 bool getFromHttp(const std::string &url, string_v& lines);
+bool getFromHttp(const std::string& url, std::string& all);
 
 bool getFromAny(const std::string &url_or_filename, string_v& lines);
+bool getFromAny(const std::string& url_or_filename, std::string& all);
 
 inline int float2int(float f)
 { return (int)(f > 0.0 ? f + 0.5 : f - 0.5); }

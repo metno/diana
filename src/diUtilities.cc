@@ -1,3 +1,31 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2017-2022 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #include "diUtilities.h"
 
@@ -50,7 +78,7 @@ int find_index(bool repeat, int available, int i)
 
 bool getFromFile(const std::string& filename, string_v& lines)
 {
-  std::ifstream file(filename.c_str());
+  std::ifstream file(filename);
   if (!file)
     return false;
 
@@ -58,8 +86,19 @@ bool getFromFile(const std::string& filename, string_v& lines)
   while (getline(file, str))
     lines.push_back(str);
 
-  file.close();
   return true;
+}
+
+bool getFromFile(const std::string& filename, std::string& all)
+{
+  std::ifstream file(filename, std::ios::binary | std::ios::ate);
+  if (!file)
+    return false;
+
+  auto size = file.tellg();
+  file.seekg(0, std::ios::beg);
+  all = std::string(size, '\0');
+  return !!file.read(&all[0], size);
 }
 
 namespace detail {
@@ -70,21 +109,28 @@ void append_chars_split_newline(string_v& lines, const char* buffer, size_t nbuf
 {
   const char* newline;
   while (nbuffer > 0 and (newline = (const char*)std::memchr(buffer, '\n', nbuffer))) {
-    std::string& back = lines.back();
-    back.insert(back.end(), buffer, newline);
-    nbuffer -= (newline - buffer) + 1;
+    const size_t count = newline - buffer;
+    lines.back().append(buffer, count);
+    nbuffer -= count + 1;
     buffer = newline + 1;
     lines.push_back(std::string());
   }
   if (nbuffer > 0) {
-    std::string& back = lines.back();
-    back.insert(back.end(), buffer, buffer + nbuffer);
+    lines.back().append(buffer, buffer + nbuffer);
   }
 }
-} // namespace detail
+
+/* assumes that userp points to string */
+size_t curl_write_single(char* buffer, size_t size, size_t nmemb, void* userp)
+{
+  const size_t nbuffer = size * nmemb;
+  std::string& text = *reinterpret_cast<std::string*>(userp);
+  text.append((const char*)buffer, nbuffer);
+  return nbuffer;
+}
 
 /* assumes that userp points to a non-empty string vector */
-static size_t curl_write_callback(void *buffer, size_t size, size_t nmemb, void *userp)
+size_t curl_write_split(char* buffer, size_t size, size_t nmemb, void* userp)
 {
   const size_t nbuffer = size * nmemb;
   string_v& lines = *reinterpret_cast<string_v*>(userp);
@@ -92,7 +138,7 @@ static size_t curl_write_callback(void *buffer, size_t size, size_t nmemb, void 
   return nbuffer;
 }
 
-bool getFromHttp(const std::string &url_, string_v& lines)
+bool doGetFromHttp(const std::string& url_, curl_write_callback cb, void* cb_data)
 {
   METLIBS_LOG_SCOPE();
   std::string url(url_);
@@ -101,7 +147,6 @@ bool getFromHttp(const std::string &url_, string_v& lines)
   if (not easy_handle)
     return false;
 
-  lines.push_back(std::string());
 
   const size_t query_start = url.find('?');
   if (url.size() <= 1024 or query_start == std::string::npos) {
@@ -115,8 +160,8 @@ bool getFromHttp(const std::string &url_, string_v& lines)
   }
   curl_easy_setopt(easy_handle, CURLOPT_URL, url.c_str());
 
-  curl_easy_setopt(easy_handle, CURLOPT_WRITEFUNCTION, curl_write_callback);
-  curl_easy_setopt(easy_handle, CURLOPT_WRITEDATA, &lines);
+  curl_easy_setopt(easy_handle, CURLOPT_WRITEFUNCTION, cb);
+  curl_easy_setopt(easy_handle, CURLOPT_WRITEDATA, cb_data);
   const CURLcode res = curl_easy_perform(easy_handle);
   long http_code = 0;
   if (res == CURLE_OK)
@@ -127,15 +172,48 @@ bool getFromHttp(const std::string &url_, string_v& lines)
   return (res == CURLE_OK) and http_code == 200;
 }
 
+bool is_http_url(const std::string& uof)
+{
+  return (diutil::startswith(uof, "http://") || diutil::startswith(uof, "https://"));
+}
+
+bool is_file_url(const std::string& uof)
+{
+  return diutil::startswith(uof, "file://");
+}
+} // namespace detail
+
+bool getFromHttp(const std::string& url_, string_v& lines)
+{
+  lines.push_back(std::string());
+  return detail::doGetFromHttp(url_, detail::curl_write_split, &lines);
+}
+
+bool getFromHttp(const std::string& url_, std::string& all)
+{
+  return detail::doGetFromHttp(url_, detail::curl_write_single, &all);
+}
+
 bool getFromAny(const std::string &uof, string_v& lines)
 {
-  if (diutil::startswith(uof, "http://") || diutil::startswith(uof, "https://"))
+  if (detail::is_http_url(uof))
     return getFromHttp(uof, lines);
 
-  if (diutil::startswith(uof, "file://"))
+  if (detail::is_file_url(uof))
     return getFromFile(uof.substr(7), lines);
 
   return diutil::getFromFile(uof, lines);
+}
+
+bool getFromAny(const std::string& uof, std::string& all)
+{
+  if (detail::is_http_url(uof))
+    return getFromHttp(uof, all);
+
+  if (detail::is_file_url(uof))
+    return getFromFile(uof.substr(7), all);
+
+  return diutil::getFromFile(uof, all);
 }
 
 std::vector<std::string> numberList(float number, const float* enormal)
