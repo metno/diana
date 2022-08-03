@@ -47,6 +47,7 @@
 
 #include <yaml-cpp/yaml.h>
 
+#include <fstream>
 #include <memory>
 
 #define MILOGGER_CATEGORY "diana.FieldPlotManager"
@@ -137,6 +138,20 @@ bool FieldPlotManager::parseSetup()
 
 namespace {
 
+/*! Generate a list of single-key maps. */
+void yaml_kvs(YAML::Node& ops, const miutil::KeyValue_v& kvs)
+{
+  for (const auto& kv : kvs) {
+    YAML::Node op;
+    if (kv.hasValue()) {
+      op[kv.key()] = kv.value();
+    } else {
+      op["key"] = kv.key();
+    }
+    ops.push_back(op);
+  }
+}
+
 struct LoopKey
 {
   std::string key;
@@ -209,6 +224,9 @@ bool FieldPlotManager::parseFieldPlotSetup()
   const std::string key_field_plots = "field_plots";
   const std::string key_field_plots_version = "field_plots_version";
   const int current_field_plots_version = 1;
+
+  YAML::Node y_field_plots;
+  const std::string key_yaml_output_file = "yaml_output_file";
 
   // parse setup
 
@@ -315,6 +333,19 @@ bool FieldPlotManager::parseFieldPlotSetup()
           }
           loop.clear();
         }
+      } else if (key == key_yaml_output_file && vstr.size() == 2) {
+        const std::string& yaml_output_file = vstr[1];
+        std::ofstream yfps(yaml_output_file);
+        YAML::Node root;
+        root[key_field_plots_version] = current_field_plots_version;
+        root[key_field_plots] = y_field_plots;
+        yfps << "---" << std::endl << root << std::endl;
+        if (yfps) {
+          METLIBS_LOG_INFO("Wrote yaml field plot setup to '" << yaml_output_file << "' (only settings not read from yaml).");
+        } else {
+          METLIBS_LOG_ERROR("Failed to write yaml field plot setup to '" << yaml_output_file << "'.");
+        }
+        y_field_plots = YAML::Node();
       }
     } else if (key == key_endfield) {
       lastLine = l;
@@ -322,12 +353,21 @@ bool FieldPlotManager::parseFieldPlotSetup()
       const unsigned int nl = loop.size();
       const int ml = (nl > 0) ? loop.values_size() : 1;
 
-      for (unsigned int m = 0; m < ml; m++) {
+      YAML::Node y_field, y_options, y_loops;
+      for (size_t il = 0; il < nl; il++) {
+        YAML::Node y_loop;
+        y_loop["key"] = loop.item(il).key;
+        y_loop["values"] = loop.item(il).values;
+        y_loops.push_back(y_loop);
+      }
+
+      for (int m = -1; m < ml; m++) {
         std::string name;
         std::string fieldgroup;
         vector<std::string> input;
         std::string inputstr;
         set<std::string> vcoord;
+        std::string vctype_text;
         FieldVerticalAxes::VerticalType vctype = FieldVerticalAxes::vctype_none;
 
         for (int i = firstLine; i < lastLine; i++) {
@@ -349,10 +389,14 @@ bool FieldPlotManager::parseFieldPlotSetup()
               const auto key = miutil::to_lower(vstr[j]);
               if (key == key_plot && vstr[j + 1] == "=" && j < nv - 3) {
                 const miutil::KeyValue_v option1(1, miutil::KeyValue(key_plottype, miutil::to_lower(vstr[j + 2])));
-                if (!updateFieldPlotOptions(name, option1)) {
-                  std::string errm = "|Unknown fieldplottype in plotcommand";
-                  SetupParser::errorMsg(sect_name, i, errm);
-                  break;
+                if (m < 0) {
+                  yaml_kvs(y_options, option1);
+                } else {
+                  if (!updateFieldPlotOptions(name, option1)) {
+                    std::string errm = "|Unknown fieldplottype in plotcommand";
+                    SetupParser::errorMsg(sect_name, i, errm);
+                    break;
+                  }
                 }
                 inputstr = vstr[j + 3].substr(1, vstr[j + 3].length() - 2);
                 input = miutil::split(inputstr, ",", true);
@@ -366,13 +410,18 @@ bool FieldPlotManager::parseFieldPlotSetup()
               } else if (key == key_vcoord && vstr[j + 1] == "=") {
                 diutil::insert_all(vcoord, miutil::split(vstr[j + 2], ","));
               } else if (key == key_vc_type && vstr[j + 1] == "=") {
+                vctype_text = vstr[j + 2];
                 vctype = FieldVerticalAxes::getVerticalType(vstr[j+2]);
               } else if (vstr[j + 1] == "=") {
                 // this should be a plot option
                 const miutil::KeyValue_v option1 = miutil::splitKeyValue(vstr[j] + "=" + vstr[j + 2]);
-                if (!updateFieldPlotOptions(name, option1)) {
-                  SetupParser::errorMsg(sect_name, i, "Something wrong in plotoption specifications");
-                  break;
+                if (m < 0) {
+                  yaml_kvs(y_options, option1);
+                } else {
+                  if (!updateFieldPlotOptions(name, option1)) {
+                    SetupParser::errorMsg(sect_name, i, "Something wrong in plotoption specifications");
+                    break;
+                  }
                 }
               } else {
                 std::string errm = "Unknown keyword in field specifications: " + vstr[0];
@@ -400,7 +449,28 @@ bool FieldPlotManager::parseFieldPlotSetup()
           pf->inputstr = inputstr;
           pf->vcoord = vcoord;
           pf->vctype = vctype;
-          vPlotField.push_back(pf);
+
+          if (m < 0) {
+            y_field["name"] = pf->name;
+            for (const auto& pfi : pf->input) {
+              YAML::Node y_input;
+              y_input["parameter"] = pfi.name;
+              if (pfi.is_standard_name)
+                y_input["use_standard_name"] = true;
+              y_field["input"].push_back(y_input);
+            }
+            if (!pf->fieldgroup.empty())
+              y_field[key_fieldgroup] = pf->fieldgroup;
+            if (!vctype_text.empty())
+              y_field[key_vc_type] = vctype_text;
+            y_field["options"] = y_options;
+            if (nl > 0)
+              y_field[key_loop] = y_loops;
+
+            y_field_plots.push_back(y_field);
+          } else {
+            vPlotField.push_back(pf);
+          }
         }
       }
 
