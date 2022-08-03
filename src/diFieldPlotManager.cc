@@ -35,6 +35,7 @@
 #include "diFieldPlot.h"
 #include "diFieldPlotCommand.h"
 #include "diFieldUtil.h"
+#include "diUtilities.h"
 #include "miSetupParser.h"
 #include "util/misc_util.h"
 #include "util/string_util.h"
@@ -43,6 +44,8 @@
 
 #include <mi_fieldcalc/math_util.h>
 #include <puTools/miStringFunctions.h>
+
+#include <yaml-cpp/yaml.h>
 
 #include <memory>
 
@@ -202,6 +205,11 @@ bool FieldPlotManager::parseFieldPlotSetup()
   const std::string key_vcoord = "vcoord";
   const std::string key_vc_type = "vc_type";
 
+  const std::string key_yaml_url = "yaml_url";
+  const std::string key_field_plots = "field_plots";
+  const std::string key_field_plots_version = "field_plots_version";
+  const int current_field_plots_version = 1;
+
   // parse setup
 
   Loop loop;
@@ -226,6 +234,87 @@ bool FieldPlotManager::parseFieldPlotSetup()
       } else if (key == key_field) {
         firstLine = l;
         waiting = false;
+      } else if (key == key_yaml_url && vstr.size() == 2) {
+        const std::string& yaml_url = vstr[1];
+        std::string content;
+        if (!diutil::getFromAny(yaml_url, content)) {
+          METLIBS_LOG_ERROR("Could not read field plot styles from '" << yaml_url << "'.");
+          continue;
+        }
+        METLIBS_LOG_INFO("Reading field plot setup from '" << yaml_url << "'");
+        const auto yfps = YAML::Load(content);
+        if (!yfps[key_field_plots_version]) {
+          METLIBS_LOG_ERROR("Missing key '" << key_field_plots_version << "'.");
+          continue;
+        }
+        if (yfps[key_field_plots_version].as<int>() != current_field_plots_version) {
+          METLIBS_LOG_ERROR("Unexpected value for " << key_field_plots_version << "'.");
+          continue;
+        }
+
+        for (const auto& yf : yfps[key_field_plots]) {
+          if (yf[key_loop]) {
+            for (const auto& yl : yf[key_loop]) {
+              const auto key = yl["key"].as<std::string>();
+              std::vector<std::string> values;
+              const auto& ylv = yl["values"];
+              values.reserve(ylv.size());
+              for (const auto& ylvv : ylv)
+                values.push_back(ylvv.as<std::string>());
+              loop.add(key, values);
+            }
+          }
+
+          for (int index = 0; index < std::max(loop.size(), 1ul); ++index) {
+            PlotField_p pf = std::make_shared<FieldPlotManagerPlotField>();
+            pf->name = loop.appliedTo(index, yf["name"].as<std::string>());
+            if (yf[key_fieldgroup])
+              pf->fieldgroup = loop.appliedTo(index, yf[key_fieldgroup].as<std::string>());
+            const auto& yi = yf["input"];
+            pf->input.reserve(yi.size());
+            for (const auto& yip : yi) {
+              PlotFieldInput pfi;
+              pfi.name = loop.appliedTo(index, yip["parameter"].as<std::string>());
+              pfi.is_standard_name = (yip["use_standard_name"]) ? (yip["use_standard_name"].as<bool>()) : false; // FIXME need to apply loop
+              pf->input.push_back(pfi);
+            }
+            if (yf[key_vc_type])
+              pf->vctype = FieldVerticalAxes::getVerticalType(loop.appliedTo(index, yf[key_vc_type].as<std::string>()));
+            vPlotField.push_back(pf);
+
+            miutil::KeyValue_v options;
+            const auto& yo = yf["options"];
+            options.reserve(yo.size());
+            for (const auto& yokvm : yo) {
+              std::string key = "k", val = "v";
+              if (!yokvm[key]) {
+                key = "key";
+                val = "val";
+              }
+              if (yokvm[key]) {
+                // single map {k: key, v: value}, where value is optional
+                const auto k = loop.appliedTo(index, yokvm[key].as<std::string>());
+                if (yokvm[val]) {
+                  const auto v = loop.appliedTo(index, yokvm[val].as<std::string>());
+                  options.push_back(miutil::kv(k, v));
+                } else {
+                  options.push_back(miutil::KeyValue(k));
+                }
+              } else {
+                // each yokvm is a map with a single entry, but we iterate over it anyhow
+                for (const auto& yokv : yokvm) {
+                  const auto k = loop.appliedTo(index, yokv.first.as<std::string>());
+                  const auto v = loop.appliedTo(index, yokv.second.as<std::string>());
+                  options.push_back(miutil::kv(k, v));
+                }
+              }
+            }
+            if (!updateFieldPlotOptions(pf->name, options)) {
+              METLIBS_LOG_ERROR("Something wrong in plotoption specifications for plot '" << pf->name << "'");
+            }
+          }
+          loop.clear();
+        }
       }
     } else if (key == key_endfield) {
       lastLine = l;
