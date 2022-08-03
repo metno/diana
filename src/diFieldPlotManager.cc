@@ -41,6 +41,7 @@
 
 #include "diField/diFlightLevel.h"
 
+#include <mi_fieldcalc/math_util.h>
 #include <puTools/miStringFunctions.h>
 
 #include <memory>
@@ -131,6 +132,53 @@ bool FieldPlotManager::parseSetup()
   return true;
 }
 
+namespace {
+
+struct LoopKey
+{
+  std::string key;
+  vector<std::string> values;
+};
+
+class Loop
+{
+public:
+  Loop() : values_size_(0) {}
+  void add(const std::string& key, const std::vector<std::string>& values);
+  void clear() { values_size_ = 0; items_.clear(); }
+
+  size_t size() const { return items_.size(); }
+  size_t values_size() const { return values_size_; }
+  const LoopKey& item(size_t index) const { return items_[index]; }
+
+  void applyTo(int index, std::string& text) const;
+  std::string appliedTo(int index, const std::string& text) const
+    { std::string t = text; applyTo(index, t); return t; }
+
+private:
+  std::vector<LoopKey> items_;
+  size_t values_size_;
+};
+
+void Loop::add(const std::string& key, const std::vector<std::string>& values)
+{
+  if (items_.empty())
+    values_size_ = values.size();
+  else
+    miutil::minimize(values_size_, values.size());
+  items_.push_back(LoopKey{key, values});
+}
+
+void Loop::applyTo(int index, std::string& text) const
+{
+  if (index >= 0 || index < values_size_) {
+    for (const auto& lk : items_)
+      miutil::replace(text, lk.key, lk.values[index]);
+  }
+}
+
+} // namespace
+
 bool FieldPlotManager::parseFieldPlotSetup()
 {
   METLIBS_LOG_SCOPE();
@@ -144,6 +192,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
   }
 
   vPlotField.clear();
+
   const std::string key_loop = "loop";
   const std::string key_field = "field";
   const std::string key_endfield = "end.field";
@@ -155,32 +204,25 @@ bool FieldPlotManager::parseFieldPlotSetup()
 
   // parse setup
 
-  int nlines = lines.size();
+  Loop loop;
 
-  vector<std::string> vstr;
-  std::string key, str;
-  vector<std::string> vpar;
-
-  vector<std::string> loopname;
-  vector<vector<std::string> > loopvars;
-  map<std::string,int>::const_iterator pfp;
-  int firstLine = 0,lastLine,nv;
+  const int nlines = lines.size();
+  int firstLine = 0, lastLine;
   bool waiting= true;
 
   for (int l = 0; l < nlines; l++) {
 
-    vstr = splitComStr(lines[l], true);
-    int n = vstr.size();
-    key = miutil::to_lower(vstr[0]);
+    const auto vstr = splitComStr(lines[l], true);
+    const int n = vstr.size();
+    const auto key = miutil::to_lower(vstr[0]);
 
     if (waiting) {
       if (key == key_loop && n >= 4) {
-        vpar.clear();
+        vector<std::string> vpar;
         for (unsigned int i = 3; i < vstr.size(); i++) {
           vpar.push_back(diutil::quote_removed(vstr[i]));
         }
-        loopname.push_back(vstr[1]);
-        loopvars.push_back(vpar);
+        loop.add(vstr[1], vpar);
       } else if (key == key_field) {
         firstLine = l;
         waiting = false;
@@ -188,19 +230,8 @@ bool FieldPlotManager::parseFieldPlotSetup()
     } else if (key == key_endfield) {
       lastLine = l;
 
-      unsigned int nl = loopname.size();
-      if (nl > loopvars.size()) {
-        nl = loopvars.size();
-      }
-      unsigned int ml = 1;
-      if (nl > 0) {
-        ml = loopvars[0].size();
-        for (unsigned int il = 0; il < nl; il++) {
-          if (ml > loopvars[il].size()) {
-            ml = loopvars[il].size();
-          }
-        }
-      }
+      const unsigned int nl = loop.size();
+      const int ml = (nl > 0) ? loop.values_size() : 1;
 
       for (unsigned int m = 0; m < ml; m++) {
         std::string name;
@@ -211,13 +242,10 @@ bool FieldPlotManager::parseFieldPlotSetup()
         FieldVerticalAxes::VerticalType vctype = FieldVerticalAxes::vctype_none;
 
         for (int i = firstLine; i < lastLine; i++) {
-          str = lines[i];
-          for (unsigned int il = 0; il < nl; il++) {
-            miutil::replace(str, loopname[il], loopvars[il][m]);
-          }
+          const auto str = loop.appliedTo(m, lines[i]);
           if (i == firstLine) {
             // resplit to keep names with ()
-            vstr = miutil::split(str, "=", false);
+            const auto vstr = miutil::split(str, "=", false);
             if (vstr.size() < 2) {
               std::string errm = "Missing field name";
               SetupParser::errorMsg(sect_name, i, errm);
@@ -225,13 +253,13 @@ bool FieldPlotManager::parseFieldPlotSetup()
             }
             name = diutil::quote_removed(vstr[1]);
           } else {
-            vstr = splitComStr(str, false);
-            nv = vstr.size();
+            const auto vstr = splitComStr(str, false);
+            const int nv = vstr.size();
             int j = 0;
             while (j < nv - 2) {
-              key = miutil::to_lower(vstr[j]);
+              const auto key = miutil::to_lower(vstr[j]);
               if (key == key_plot && vstr[j + 1] == "=" && j < nv - 3) {
-                const miutil::KeyValue_v option1(1, miutil::KeyValue(key_plottype, vstr[j + 2]));
+                const miutil::KeyValue_v option1(1, miutil::KeyValue(key_plottype, miutil::to_lower(vstr[j + 2])));
                 if (!updateFieldPlotOptions(name, option1)) {
                   std::string errm = "|Unknown fieldplottype in plotcommand";
                   SetupParser::errorMsg(sect_name, i, errm);
@@ -287,8 +315,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
         }
       }
 
-      loopname.clear();
-      loopvars.clear();
+      loop.clear();
       waiting = true;
     }
   }
