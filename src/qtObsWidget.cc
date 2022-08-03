@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -577,8 +577,11 @@ miutil::KeyValue_v ObsWidget::makeString()
 
 KVListPlotCommand_cp ObsWidget::getOKString(bool forLog)
 {
+  METLIBS_LOG_SCOPE(LOGVAL(plotType));
+  if (!initialized())
+    return KVListPlotCommand_cp();
+
   shortname.clear();
-  METLIBS_LOG_DEBUG(LOGVAL(plotType));
 
   dVariables.plotType = plotType;
 
