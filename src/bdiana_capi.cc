@@ -1580,7 +1580,7 @@ command_result Bdiana::parseAndProcess(istream& is)
 
     if (key == com_setupfile) {
       if (setupread) {
-        METLIBS_LOG_WARN("Ignoring setupfile option, overwritten by command-line. Linenumber:" << linenumbers[k]);
+        METLIBS_LOG_INFO("Ignoring setupfile option, overwritten by command-line. Linenumber:" << linenumbers[k]);
       } else {
         setupfile = value;
         if (!ensureSetup())
