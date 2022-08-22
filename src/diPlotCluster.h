@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2021 met.no
+  Copyright (C) 2017-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -80,7 +80,6 @@ protected:
   virtual void processInputPE(const PlotCommand_cpv& cmds);
   virtual void add(Plot* plot);
 
-  const miutil::miTime& currenctMapTime() const { return mapTime_; }
   const Area& currentMapArea() const { return mapArea_; }
   const Rectangle& currentPlotSize() const { return plotSize_; }
 
