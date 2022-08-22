@@ -12,6 +12,10 @@ Build-Depends: debhelper (>= 9),
  qtbase5-dev-tools,
  qttools5-dev-tools, qttools5-dev,
  libftgl-dev,
+@metno_config_if .*(bionic|focal).*
+@metno_config_else
+ libopengl-dev,
+@metno_config_endif
  libmi-fieldcalc-dev,
  libmi-programoptions-dev (>= 2.0.0),
  metlibs-qutilities-qt5-dev (>= 8.0.0),
