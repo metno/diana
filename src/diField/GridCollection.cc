@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2020 met.no
+  Copyright (C) 2017-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -381,7 +381,7 @@ bool GridCollection::makeInventory(const std::string& refTime)
 bool GridCollection::sourcesChanged()
 {
   for (const auto& io : gridsources)
-    if (io->sourceChanged(false))
+    if (io->sourceChanged())
       return true;
   return false;
 }

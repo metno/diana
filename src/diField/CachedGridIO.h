@@ -1,6 +1,6 @@
 // -*- c++ -*-
 /*
- Copyright (C) 2020 met.no
+ Copyright (C) 2020-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -62,7 +62,7 @@ public:
   Field_p initializeField(const std::string& modelname, const std::string& reftime, const gridinventory::GridParameter& param, const std::string& level,
                           const miutil::miTime& time, const std::string& elevel) override;
 
-  bool sourceChanged(bool update) override;
+  bool sourceChanged() override;
 
   std::string getReferenceTime() const override;
 

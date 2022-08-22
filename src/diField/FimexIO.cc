@@ -257,7 +257,7 @@ FimexIO::FimexIO(const std::string & modelname, const std::string & sourcename,
   if (makeFeltReader) {
     feltReader = createReader();
     reftime_from_file = fallbackGetReferenceTime();
-    sourceChanged(true);
+    checkSourceChanged(true);
   }
   METLIBS_LOG_DEBUG(LOGVAL(reftime_from_file));
 }
@@ -269,7 +269,7 @@ FimexIO::~FimexIO()
 /**
  * Returns whether the source has changed since the last makeInventory
  */
-bool FimexIO::sourceChanged(bool update)
+bool FimexIO::checkSourceChanged(bool update)
 {
   //Unchecked source, not possible to check
   if ((!update && modificationTime == 0)) {
@@ -285,6 +285,11 @@ bool FimexIO::sourceChanged(bool update)
   }
 
   return false;
+}
+
+bool FimexIO::sourceChanged()
+{
+  return checkSourceChanged(false);
 }
 
 namespace /* anonymous */ {
@@ -548,7 +553,7 @@ bool FimexIO::makeInventory(const std::string& reftime)
   if (!reftime_from_file.empty() && reftime_from_file != reftime)
     return true;
 
-  if (!sourceChanged(true) && sourceOk)
+  if (!checkSourceChanged(true) && sourceOk)
     return true;
 
   METLIBS_LOG_INFO("Source:" << source_name <<" : "<<config_filename<<" : " <<reftime_from_file);

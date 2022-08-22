@@ -1,6 +1,6 @@
 // -*- c++ -*-
 /*
- Copyright (C) 2020 met.no
+ Copyright (C) 2020-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -76,7 +76,7 @@ public:
                                   const miutil::miTime& time, const std::string& elevel) = 0;
 
   //! Returns whether the source has changed since the last makeInventory
-  virtual bool sourceChanged(bool update) = 0;
+  virtual bool sourceChanged() = 0;
 
   //! Return referencetime from filename given in constructor
   virtual std::string getReferenceTime() const = 0;
