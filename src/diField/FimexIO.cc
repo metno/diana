@@ -450,33 +450,44 @@ void FimexIO::inventoryExtractGrid(std::set<gridinventory::Grid>& grids, Coordin
   METLIBS_LOG_TIME();
   // The Grid type for this coordinate system
   gridinventory::Grid grid;
+  grid.name = xAxis->getName() + yAxis->getName();
   
-  std::string projectionName;
   if (cs->hasProjection()) {
-    MetNoFimex::Projection_cp projection = cs->getProjection();
-    inventoryExtractGridProjection(projection, grid, xAxis, yAxis);
-    projectionName = projection->getName();
+    grid.name += "_";
+    grid.name += cs->getProjection()->getName();
   }
-  
-  grid.name = xAxis->getName() + yAxis->getName() + "_" + projectionName;
   if (grid.name == "_") {
     grid.name = "grid";
   }
-  
   grid.id = grid.name;
-  METLIBS_LOG_DEBUG("Inserting grid:" <<grid.name
-      << " [" << grid.projection << "] nx:" << grid.nx << " ny:" << grid.ny);
-  grids.insert(grid);
+  if (grids.find(grid) == grids.end()) {
+    if (cs->hasProjection()) {
+      MetNoFimex::Projection_cp projection = cs->getProjection();
+      inventoryExtractGridProjection(projection, grid, xAxis, yAxis);
+    }
+
+    METLIBS_LOG_DEBUG("Inserting grid:" <<grid.name
+        << " [" << grid.projection << "] nx:" << grid.nx << " ny:" << grid.ny);
+    grids.insert(grid);
+  } else {
+    METLIBS_LOG_DEBUG("Known grid:" <<grid.name);
+  }
 }
 
 void FimexIO::inventoryExtractVAxis(std::set<gridinventory::Zaxis>& zaxes, name2id_t& name2id,
     CoordinateAxis_cp vAxis, CoordinateSystem_cp& cs)
 {
   METLIBS_LOG_TIME();
+  if (name2id.find(vAxis->getName()) != name2id.end()) {
+    METLIBS_LOG_DEBUG("vertical axis '" << vAxis->getName() << "' seems to be known already");
+  }
+
   std::string verticalType;
   if (cs->hasVerticalTransformation()) {
     VerticalTransformation_cp vtran = cs->getVerticalTransformation();
     verticalType = vtran->getName();
+  } else {
+    verticalType = vAxis->getName();
   }
 
   //vertical axis recognized
@@ -485,7 +496,7 @@ void FimexIO::inventoryExtractVAxis(std::set<gridinventory::Zaxis>& zaxes, name2
     vdata = feltReader->getScaledDataInUnit(vAxis->getName(),"hPa");
   else
     vdata= feltReader->getScaledData(vAxis->getName());
-  if (not (vdata and vdata->size()))
+  if (!vdata || vdata->size() == 0)
     return;
 
   METLIBS_LOG_DEBUG("vertical data.size():" << vdata->size() << " axis name:" << vAxis->getName());
@@ -497,9 +508,6 @@ void FimexIO::inventoryExtractVAxis(std::set<gridinventory::Zaxis>& zaxes, name2
   if (feltReader->getCDM().getAttribute(vAxis->getName(), "positive", attr)) {
     positive = (attr.getStringValue() == "up");
   }
-
-  if (verticalType.empty())
-    verticalType = vAxis->getName();
 
   const std::string id = makeId(vAxis->getName(), levels.size());
   zaxes.insert(gridinventory::Zaxis(id, vAxis->getName(), positive, levels,verticalType));
@@ -515,18 +523,20 @@ void FimexIO::inventoryExtractExtraAxes(std::set<gridinventory::ExtraAxis>& extr
     if (unset.find(name) == unset.end())
       continue;
 
+    if (name2id.find(axis->getName()) != name2id.end()) {
+      METLIBS_LOG_DEBUG("extra axis '" << axis->getName() << "' seems to be known already");
+      continue;
+    }
+
     DataPtr edata = feltReader->getScaledData(name);
     METLIBS_LOG_DEBUG("extra axis '" << name << "' size " << edata->size());
     
-    std::vector<double> elevels;
     MetNoFimex::shared_array<double> idata = edata->asDouble();
-    for (size_t i = 0; i < edata->size(); ++i) {
-      elevels.push_back(idata[i]);
-    }
+    const std::vector<double> elevels(idata.get(), idata.get() + edata->size());
 
-    const std::string id = makeId(name, elevels.size());
-    name2id[name] = id;
+    const std::string id = makeId(name, edata->size());
     extraaxes.insert(gridinventory::ExtraAxis(id, name, elevels));
+    name2id[name] = id;
   }
 }
 
