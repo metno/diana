@@ -513,8 +513,8 @@ void FimexIO::inventoryExtractExtraAxes(std::set<gridinventory::ExtraAxis>& extr
     const std::string& name = axis->getName();
     if (unset.find(name) == unset.end())
       continue;
-    
-    DataPtr edata = feltReader->getData(name);
+
+    DataPtr edata = feltReader->getScaledData(name);
     METLIBS_LOG_DEBUG("extra axis '" << name << "' size " << edata->size());
     
     std::vector<double> elevels;
