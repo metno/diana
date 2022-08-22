@@ -317,13 +317,12 @@ std::string makeId(const std::string& name, size_t size)
 
 typedef std::map<std::string, std::string> name2id_t;
 
-void addTimeAxis(CoordinateAxis_cp tAxis,
-    const std::vector<double>& values, const std::string& rtime, gridinventory::Inventory& inventory)
+void addTimeAxis(CoordinateAxis_cp tAxis, const std::vector<double>& values, const std::string& reftime, gridinventory::Inventory& inventory)
 {
-  gridinventory::Taxis taxis = gridinventory::Taxis(tAxis->getName(), values);
-  gridinventory::ReftimeInventory reftime(rtime);
-  reftime.taxes.insert(taxis);
-  inventory.reftimes[reftime.referencetime] = reftime;
+  gridinventory::Taxis invt(tAxis->getName(), values);
+  gridinventory::ReftimeInventory invr(reftime);
+  invr.taxes.insert(invt);
+  inventory.reftimes[invr.referencetime] = invr;
 }
 
 typedef std::map<std::string, std::string> reproj_config_t;
@@ -448,6 +447,7 @@ void FimexIO::inventoryExtractGridProjection(MetNoFimex::Projection_cp projectio
 void FimexIO::inventoryExtractGrid(std::set<gridinventory::Grid>& grids, CoordinateSystem_cp cs,
     CoordinateAxis_cp xAxis, CoordinateAxis_cp yAxis)
 {
+  METLIBS_LOG_TIME();
   // The Grid type for this coordinate system
   gridinventory::Grid grid;
   
@@ -472,6 +472,7 @@ void FimexIO::inventoryExtractGrid(std::set<gridinventory::Grid>& grids, Coordin
 void FimexIO::inventoryExtractVAxis(std::set<gridinventory::Zaxis>& zaxes, name2id_t& name2id,
     CoordinateAxis_cp vAxis, CoordinateSystem_cp& cs)
 {
+  METLIBS_LOG_TIME();
   std::string verticalType;
   if (cs->hasVerticalTransformation()) {
     VerticalTransformation_cp vtran = cs->getVerticalTransformation();
@@ -612,31 +613,27 @@ bool FimexIO::makeInventory(const std::string& reftime)
       // find the geographical axes, returns 0 axes if not found
       CoordinateAxis_cp xAxis = cs->getGeoXAxis(); // X or Lon
       CoordinateAxis_cp yAxis = cs->getGeoYAxis(); // Y or Lat
-      if (not xAxis or not yAxis)
+      if (!xAxis || !yAxis)
         continue;
       
       CoordinateSystemSliceBuilder sb(cdm, cs);
       sb.setStartAndSize(xAxis,0,1);
       sb.setStartAndSize(yAxis,0,1);
-      
       inventoryExtractGrid(grids, cs, xAxis, yAxis);
-      
-      CoordinateAxis_cp vAxis = cs->getGeoZAxis();
-      if (vAxis) {
+
+      if (CoordinateAxis_cp vAxis = cs->getGeoZAxis()) {
         sb.setStartAndSize(vAxis,0,1);
         inventoryExtractVAxis(zaxes, name2id, vAxis, cs);
       }
-      
+
       // find time axis
-      CoordinateAxis_cp tAxis = cs->getTimeAxis();
-      if (tAxis) {
-        
+      if (CoordinateAxis_cp tAxis = cs->getTimeAxis()) {
+        METLIBS_LOG_DEBUG("found time axis " << tAxis->getName());
         if (cs->hasAxisType(CoordinateAxis::ReferenceTime)) { //has reference time axis
           CoordinateAxis_cp rtAxis = cs->findAxisOfType(CoordinateAxis::ReferenceTime);
           DataPtr refTimes = feltReader->getScaledDataInUnit(rtAxis->getName(), SECONDS_SINCE_1970);
           MetNoFimex::shared_array<int> refdata = refTimes->asInt();
-          
-          METLIBS_LOG_DEBUG("reftime data.size():" << refTimes->size());
+          METLIBS_LOG_DEBUG(LOGVAL(refTimes->size()));
           //if one time step per refTime, use refTime as time
           std::vector<double> values;
           for (size_t i = 0; i < refTimes->size(); ++i) {
@@ -646,77 +643,78 @@ bool FimexIO::makeInventory(const std::string& reftime)
             DataPtr times_offset = feltReader->getScaledDataSliceInUnit(tAxis->getName(),
                 SECONDS_SINCE_1970, sb.getTimeVariableSliceBuilder());
             MetNoFimex::shared_array<int> timeOffsetData = times_offset->asInt();
-            
-            METLIBS_LOG_DEBUG("offset data.size():" << times_offset->size() << "singletime:"<<singleTimeStep);
-            for (size_t j = 0; j < times_offset->size(); ++j) {
-              values.push_back(timeOffsetData[j]);
-            }
-            
-            if (not singleTimeStep) {
+
+            METLIBS_LOG_DEBUG(LOGVAL(times_offset->size()) << LOGVAL(singleTimeStep));
+            values.insert(values.end(), &timeOffsetData[0], &timeOffsetData[0] + times_offset->size());
+
+            if (!singleTimeStep) {
               addTimeAxis(tAxis, values, referenceTimes[i], inventory);
               values.clear();
             }
           }
-          
-          if (singleTimeStep and not referenceTimes.empty())
+
+          if (singleTimeStep && !referenceTimes.empty())
             addTimeAxis(tAxis, values, referenceTimes[0], inventory);
           
           sb.setTimeStartAndSize(0,1);
-          
-        } else { // no reference time axis
-          
-          //time axis recognized
-          sb.setStartAndSize(tAxis,0,1);
-          
-          std::vector<double> values;
-          DataPtr tdata = feltReader->getScaledDataInUnit(tAxis->getName(), "days since 0-01-01 00:00:00");
-          MetNoFimex::shared_array<double> timedata = tdata->asDouble();
-          METLIBS_LOG_DEBUG("time data.size():" << tdata->size());
-          
-          if ( tdata->size() && timedata[0] > 365 ) {
-            noOfClimateTimes = 0;
-            tdata = feltReader->getScaledDataInUnit(tAxis->getName(), SECONDS_SINCE_1970);
-            timedata = tdata->asDouble();
 
-            for (size_t i = 0; i < tdata->size(); ++i) {
-              values.push_back(timedata[i]);
-            }
-            
-          } else {
-            noOfClimateTimes = tdata->size();
-            const boost::posix_time::ptime t0_unix =  boost::posix_time::time_from_string("1970-01-01 00:00");
-            boost::posix_time::ptime pt = boost::posix_time::time_from_string("1902-01-01 00:00:00");
-            boost::gregorian::years year(1);
-            for ( size_t j = 0; j < 135; j++) {
-              pt += year;
-              for (size_t i = 0; i < tdata->size(); ++i) {
-                boost::gregorian::days dd(timedata[i]);
-                boost::posix_time::ptime pt2 = pt + dd;
-                int seconds = (pt2-t0_unix).total_seconds();
-                values.push_back(seconds);
+        } else {
+          // time axis but no reference time axis
+          METLIBS_LOG_DEBUG("no reftime axis found for time axis '" << tAxis->getName() << "'");
+          sb.setStartAndSize(tAxis, 0, 1);
+
+          gridinventory::Taxis invt(tAxis->getName(), std::vector<double>());
+          if (taxes.find(invt) == taxes.end()) {
+            // time axis recognized but not found yet
+            DataPtr tdata = feltReader->getScaledDataInUnit(tAxis->getName(), "days since 0-01-01 00:00:00");
+            MetNoFimex::shared_array<double> timedata = tdata->asDouble();
+            METLIBS_LOG_DEBUG(LOGVAL(tdata->size()));
+
+            if (tdata->size() && timedata[0] > 365) {
+              noOfClimateTimes = 0;
+              tdata = feltReader->getScaledDataInUnit(tAxis->getName(), SECONDS_SINCE_1970);
+              timedata = tdata->asDouble();
+              invt.values.insert(invt.values.end(), &timedata[0], &timedata[0] + tdata->size());
+
+            } else {
+              noOfClimateTimes = tdata->size();
+              const boost::posix_time::ptime t0_unix = boost::posix_time::time_from_string("1970-01-01 00:00");
+              boost::posix_time::ptime pt = boost::posix_time::time_from_string("1902-01-01 00:00:00");
+              boost::gregorian::years year(1);
+              for (size_t j = 0; j < 135; j++) {
+                pt += year;
+                for (size_t i = 0; i < tdata->size(); ++i) {
+                  boost::gregorian::days dd(timedata[i]);
+                  boost::posix_time::ptime pt2 = pt + dd;
+                  int seconds = (pt2 - t0_unix).total_seconds();
+                  invt.values.push_back(seconds);
+                }
               }
             }
+            taxes.insert(invt);
+
+            // if no reference Time axis, get unique refTime
+            if (referenceTime.empty() && invt.values.size() > 1)
+              referenceTime = fallbackGetReferenceTime();
+
+            // if no reference Time, use first time value
+            if (referenceTime.empty() && invt.values.size() > 1 && noOfClimateTimes == 0)
+              referenceTime = isoFromTimeT(invt.values.front());
           }
-          taxes.insert(gridinventory::Taxis(tAxis->getName(), values));
-
-          // if no reference Time axis, get unique refTime
-          if (referenceTime.empty() && values.size() > 1)
-            referenceTime = fallbackGetReferenceTime();
-
-          // if no reference Time, use first time value
-            if (referenceTime.empty() && values.size() > 1 && !noOfClimateTimes)
-              referenceTime = isoFromTimeT(timedata[0]);
         }
       }
 
       // ReferenceTime; if no reference Time axis, get uniqe refTime
+      METLIBS_LOG_DEBUG(LOGVAL(referenceTime));
       if (referenceTime.empty())
         referenceTime = fallbackGetReferenceTime();
 
       // find extra axes
       const std::vector<std::string>& unsetList = sb.getUnsetDimensionNames();
-      if (not unsetList.empty())
+      if (!unsetList.empty()) {
+        METLIBS_LOG_DEBUG(LOGVAL(unsetList.size()));
         inventoryExtractExtraAxes(extraaxes, name2id, unsetList, cs->getAxes());
+      }
     }
     METLIBS_LOG_DEBUG("Coordinate Systems Loop FINISHED");
 
@@ -729,11 +727,9 @@ bool FimexIO::makeInventory(const std::string& reftime)
       dimensionnames.insert(dim.getName());
     }
 
-    size_t nvars = variables.size();
-
     // Loop through all non-dimensional variables
-    for (size_t j = 0; j < nvars; ++j) {
-      const std::string& CDMparamName = variables[j].getName();
+    for (const auto& var : variables) {
+      const std::string& CDMparamName = var.getName();
       if (dimensionnames.find(CDMparamName) != dimensionnames.end()) {
         continue;
       }
@@ -767,8 +763,7 @@ bool FimexIO::makeInventory(const std::string& reftime)
       }
 
       const std::string& paramname = CDMparamName;
-      gridinventory::GridParameterKey paramkey(paramname, zaxisname,
-          taxisname, eaxisname);
+      gridinventory::GridParameterKey paramkey(paramname, zaxisname, taxisname, eaxisname);
       gridinventory::GridParameter param(paramkey);
       param.nativename = CDMparamName;
       param.grid = gridname;
