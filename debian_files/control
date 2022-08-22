@@ -3,7 +3,7 @@ Section: science
 Priority: extra
 Maintainer: Norwegian Meteorological Institute met.no <diana@met.no>
 Build-Depends: debhelper (>= 11),
- cmake,
+ cmake (>= 3.10),
  pkg-config,
  qtbase5-dev,
  libqt5opengl5-dev,
