@@ -492,14 +492,14 @@ void FimexIO::inventoryExtractVAxis(std::set<gridinventory::Zaxis>& zaxes, name2
 
   //vertical axis recognized
   DataPtr vdata;
-  if( verticalType == "pressure" )
-    vdata = feltReader->getScaledDataInUnit(vAxis->getName(),"hPa");
+  if (verticalType == "pressure")
+    vdata = feltReader->getScaledDataInUnit(vAxis->getName(), "hPa");
   else
     vdata= feltReader->getScaledData(vAxis->getName());
   if (!vdata || vdata->size() == 0)
     return;
 
-  METLIBS_LOG_DEBUG("vertical data.size():" << vdata->size() << " axis name:" << vAxis->getName());
+  METLIBS_LOG_DEBUG(LOGVAL(vAxis->getName()) << LOGVAL(vdata->size()));
   MetNoFimex::shared_array<double> idata = vdata->asDouble();
   const std::vector<double> levels(idata.get(), idata.get() + vdata->size());
 
@@ -739,30 +739,33 @@ bool FimexIO::makeInventory(const std::string& reftime)
 
     // Loop through all non-dimensional variables
     for (const auto& var : variables) {
-      const std::string& CDMparamName = var.getName();
-      if (dimensionnames.find(CDMparamName) != dimensionnames.end()) {
+      const std::string& varName = var.getName();
+      if (dimensionnames.find(varName) != dimensionnames.end()) {
         continue;
       }
-      METLIBS_LOG_DEBUG("NEXT VAR: " << CDMparamName);
+      METLIBS_LOG_DEBUG("NEXT VAR: " << varName);
 
       // search for coordinate system for varName
-      std::string xaxisname, yaxisname, taxisname, zaxisname, projectionname;
-      if (CoordinateSystem_cp cs = findCompleteCoordinateSystemFor(coordSys, CDMparamName)) {
+      std::string zaxisname, taxisname, eaxisname;
+      std::string grid_id; // must be constructed as in 'inventoryExtractGrid'
+      if (CoordinateSystem_cp cs = findCompleteCoordinateSystemFor(coordSys, varName)) {
+        std::string xaxisname, yaxisname;
         copyAxisName(cs->getTimeAxis(), taxisname);
         copyAxisName(cs->getGeoXAxis(), xaxisname);
         copyAxisName(cs->getGeoYAxis(), yaxisname);
         copyAxisName(cs->getGeoZAxis(), zaxisname);
+        grid_id = xaxisname + yaxisname;
 
-        if (MetNoFimex::Projection_cp projection = cs->getProjection())
-          projectionname = projection->getName();
+        if (MetNoFimex::Projection_cp projection = cs->getProjection()) {
+          grid_id += "_";
+          grid_id += projection->getName();
+        }
+        if (grid_id == "_")
+          grid_id = "grid";
       }
 
-      std::string gridname = xaxisname + yaxisname + "_" + projectionname;
-
-      //extraAxis
-      //Each parameter may only have one extraAxis
-      std::string eaxisname;
-      const vector<string>& shape = cdm.getVariable(CDMparamName).getShape();
+      // extraAxis -- Each parameter may only have one extraAxis
+      const vector<string>& shape = cdm.getVariable(varName).getShape();
       for (const std::string& dim : shape) {
         for (const gridinventory::ExtraAxis& eaxis : extraaxes) {
           if (eaxis.name == dim) {
@@ -772,16 +775,15 @@ bool FimexIO::makeInventory(const std::string& reftime)
         }
       }
 
-      const std::string& paramname = CDMparamName;
-      gridinventory::GridParameterKey paramkey(paramname, zaxisname, taxisname, eaxisname);
+      gridinventory::GridParameterKey paramkey(varName, zaxisname, taxisname, eaxisname);
       gridinventory::GridParameter param(paramkey);
-      param.nativename = CDMparamName;
-      param.grid = gridname;
+      param.nativename = varName;
+      param.grid = grid_id;
       CDMAttribute attr;
-      if (cdm.getAttribute(CDMparamName, "standard_name", attr)) {
+      if (cdm.getAttribute(varName, "standard_name", attr)) {
         param.standard_name  = attr.getStringValue();
       }
-      if (cdm.getAttribute(CDMparamName, "long_name", attr)) {
+      if (cdm.getAttribute(varName, "long_name", attr)) {
         param.long_name  = attr.getStringValue();
       }
       //add axis/grid-id - not a part of key, but used to find times, levels, etc
@@ -789,7 +791,7 @@ bool FimexIO::makeInventory(const std::string& reftime)
       param.taxis_id = taxisname;
       param.extraaxis_id = name2id[eaxisname];
       //unit
-      param.unit = cdm.getUnits(CDMparamName);
+      param.unit = cdm.getUnits(varName);
 
       parameters.insert(param);
     }
