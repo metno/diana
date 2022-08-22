@@ -49,8 +49,6 @@ public:
   GridIOBase();
   virtual ~GridIOBase();
 
-  virtual const std::string& getSourceName() const = 0;
-
   virtual const gridinventory::Inventory& getInventory() const = 0;
 
   virtual const gridinventory::ReftimeInventory& getReftimeInventory(const std::string reftime) const = 0;

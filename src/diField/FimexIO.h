@@ -90,6 +90,7 @@ private:
 private:
   bool sourceOk;
   long modificationTime;
+  std::string source_name;
   std::string model_name;
   std::string source_type;
   std::string config_filename;

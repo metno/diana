@@ -34,11 +34,6 @@
 
 CachedGridIO::~CachedGridIO() {}
 
-const std::string& CachedGridIO::getSourceName() const
-{
-  return base_->getSourceName();
-}
-
 const gridinventory::Inventory& CachedGridIO::getInventory() const
 {
   return base_->getInventory();

@@ -214,13 +214,20 @@ bool FimexIOsetup::parseSetup(std::vector<std::string> lines,
 
 // ------------------------------------------------------------------------
 
-FimexIO::FimexIO(const std::string & modelname, const std::string & sourcename,
-    const std::string & reftime,
-    const std::string & format, const std::string& config,
-    const std::vector<std::string>& options, bool makeFeltReader, FimexIOsetup * s) :
-  GridIO(sourcename), sourceOk(false), modificationTime(0), model_name(modelname), source_type(format),
-  config_filename(config), reftime_from_file(reftime), singleTimeStep(false), noOfClimateTimes(0),
-  writeable(false), turnWaveDirection(false), setup(s)
+FimexIO::FimexIO(const std::string& modelname, const std::string& sourcename, const std::string& reftime, const std::string& format, const std::string& config,
+                 const std::vector<std::string>& options, bool makeFeltReader, FimexIOsetup* s)
+    : sourceOk(false)
+    , modificationTime(0)
+    , source_name(sourcename)
+    , model_name(modelname)
+    , source_type(format)
+    , config_filename(config)
+    , reftime_from_file(reftime)
+    , singleTimeStep(false)
+    , noOfClimateTimes(0)
+    , writeable(false)
+    , turnWaveDirection(false)
+    , setup(s)
 {
   METLIBS_LOG_SCOPE(LOGVAL(modelname) << LOGVAL(sourcename) << LOGVAL(reftime) << LOGVAL(format) << LOGVAL(config));
 

@@ -41,8 +41,6 @@ public:
   CachedGridIO(GridIOBase* base) : base_(base) { }
   ~CachedGridIO();
 
-  const std::string& getSourceName() const override;
-
   const gridinventory::Inventory& getInventory() const override;
 
   const gridinventory::ReftimeInventory& getReftimeInventory(const std::string reftime) const override;

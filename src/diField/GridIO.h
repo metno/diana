@@ -1,6 +1,6 @@
 // -*- c++ -*-
 /*
- Copyright (C) 2006-2020 met.no
+ Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -41,17 +41,14 @@
 class GridIO : public GridIOBase
 {
 protected:
-  std::string source_name;
   gridinventory::Inventory inventory; ///< The inventory for this grid source
 
   std::string limit_min; ///< only include reference times greater than this
   std::string limit_max; ///< only include reference times less than this
 
 public:
-  GridIO(const std::string& source);
+  GridIO();
   ~GridIO();
-
-  const std::string& getSourceName() const override { return source_name; }
 
   const gridinventory::Inventory& getInventory() const override { return inventory; }
 
