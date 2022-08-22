@@ -834,7 +834,7 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int* ktdexp, const double* va
       }
       break;
 
-      //   7001  HEIGHT OF STATION, M
+      //   7030  HEIGHT OF STATION GROUND ABOVE MEAN SEA LEVEL, M
     case 7030:
       if (values[j] < bufrMissing)
         odb.put_float(k_Height, values[j]);
