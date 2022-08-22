@@ -53,6 +53,10 @@ public:
   void getData(ObsDataRequest_cp request, ObsDataResult_p result) override;
 
 private:
+  void updateTimes(bool useArchive);
+  void updateParameters();
+
+private:
   std::unique_ptr<diutil::grpc::obs::ObsServiceGRPCClient> client_;
   std::string name_;
 
