@@ -61,6 +61,12 @@ inline string_v glob(const std::string& pattern, int glob_flags=0)
 //! return adjusted i so that it is between 0 and available; if repeat, return i % available
 int find_index(bool repeat, int available, int i);
 
+//! Get a random, but not very random UUID.
+/*! The purpose is to provide a marker for tracing HTTP requests.
+ *  Algorithm adapted from https://stackoverflow.com/a/58467162
+ */
+std::string get_uuid();
+
 bool getFromFile(const std::string& filename, string_v& lines);
 bool getFromFile(const std::string& filename, std::string& all);
 

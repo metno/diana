@@ -41,6 +41,7 @@
 
 #include <cstring>
 #include <fstream>
+#include <random>
 
 #define MILOGGER_CATEGORY "diana.Utilities"
 #include <miLogger/miLogging.h>
@@ -74,6 +75,27 @@ int find_index(bool repeat, int available, int i)
     return i;
   else
     return available-1;
+}
+
+std::string get_uuid()
+{
+  using namespace std;
+
+  static random_device dev;
+  static mt19937 rng(dev());
+  uniform_int_distribution<int> dist(0, 15);
+
+  const char v[16 + 1] = "0123456789abcdef";
+  const bool dash[16] = {0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0};
+
+  string uuid(2 * 16 + 4, '-');
+  for (int i = 0, j = 0; i < 16; i += 1, j += 2) {
+    if (dash[i])
+      j += 1;
+    uuid[j + 0] = v[dist(rng)];
+    uuid[j + 1] = v[dist(rng)];
+  }
+  return uuid;
 }
 
 bool getFromFile(const std::string& filename, string_v& lines)
@@ -160,6 +182,12 @@ bool doGetFromHttp(const std::string& url_, curl_write_callback cb, void* cb_dat
   }
   curl_easy_setopt(easy_handle, CURLOPT_URL, url.c_str());
 
+  const std::string uuid = get_uuid();
+  struct curl_slist* chunk = NULL;
+  const std::string x_request_id = "X-Request-Id: " + uuid;
+  chunk = curl_slist_append(chunk, x_request_id.c_str());
+  curl_easy_setopt(easy_handle, CURLOPT_HTTPHEADER, chunk);
+
   curl_easy_setopt(easy_handle, CURLOPT_WRITEFUNCTION, cb);
   curl_easy_setopt(easy_handle, CURLOPT_WRITEDATA, cb_data);
   const CURLcode res = curl_easy_perform(easy_handle);
@@ -167,8 +195,9 @@ bool doGetFromHttp(const std::string& url_, curl_write_callback cb, void* cb_dat
   if (res == CURLE_OK)
     curl_easy_getinfo(easy_handle, CURLINFO_RESPONSE_CODE, &http_code);
   curl_easy_cleanup(easy_handle);
+  curl_slist_free_all(chunk);
 
-  METLIBS_LOG_DEBUG(LOGVAL(res) << LOGVAL(http_code));
+  METLIBS_LOG_DEBUG(LOGVAL(res) << LOGVAL(http_code) << LOGVAL(uuid));
   return (res == CURLE_OK) and http_code == 200;
 }
 
