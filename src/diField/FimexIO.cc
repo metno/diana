@@ -279,14 +279,14 @@ FimexIO::~FimexIO()
 bool FimexIO::checkSourceChanged(bool update)
 {
   //Unchecked source, not possible to check
-  if ((!update && modificationTime == 0)) {
+  if (!update && modificationTime == 0) {
     return false;
   }
 
-  const long modificationTime_ = miutil::path_ctime(source_name);
-  if (modificationTime_ != modificationTime) {
+  const long ctime_ = miutil::path_ctime(source_name);
+  if (ctime_ != modificationTime) {
     if (update) {
-      modificationTime = modificationTime_;
+      modificationTime = ctime_;
     }
     return true;
   }
