@@ -61,6 +61,7 @@ using namespace miutil;
 
 VprofValuesRequest::VprofValuesRequest()
     : vertical_axis(vcross::Z_TYPE_PRESSURE)
+    , realization(-1)
 {
 }
 
