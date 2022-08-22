@@ -27,40 +27,27 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef DIObsReaderGRPC_H
-#define DIObsReaderGRPC_H
+#ifndef DIANA_ObsGRPCUtils_h
+#define DIANA_ObsGRPCUtils_h
 
-#include "diObsReader.h"
+#include <puTools/miTime.h>
 
-#include "service/diObsGRPCServiceDecls.h"
+#include <set>
 
-class ObsReaderGRPC : public ObsReader
-{
-public:
-  ObsReaderGRPC();
-  ~ObsReaderGRPC();
+#include "diana_obs_v0.pb.h"
 
-  bool configure(const std::string& key, const std::string& value) override;
+namespace diutil {
+namespace grpc {
+namespace obs {
 
-  bool checkForUpdates(bool useArchive) override;
+miutil::miTime toMiTime(const diana_obs_v0::Time& ot);
 
-  std::set<miutil::miTime> getTimes(bool useArchive, bool update) override;
+void copyFromMiTime(diana_obs_v0::Time& ot, const miutil::miTime& mt);
 
-  std::vector<ObsDialogInfo::Par> getParameters() override;
+std::set<miutil::miTime> timesFromTimeSpans(const diana_obs_v0::TimesResult& res);
 
-  PlotCommand_cpv getExtraAnnotations() override;
+} // namespace obs
+} // namespace grpc
+} // namespace diutil
 
-  void getData(ObsDataRequest_cp request, ObsDataResult_p result) override;
-
-private:
-  std::unique_ptr<diutil::grpc::obs::ObsServiceGRPCClient> client_;
-  std::string name_;
-
-  long updated_times_;
-  std::set<miutil::miTime> cached_times_;
-
-  long updated_parameters_;
-  std::vector<ObsDialogInfo::Par> cached_parameters_;
-};
-
-#endif // DIObsReaderGRPC_H
+#endif // !DIANA_ObsGRPCUtils_h

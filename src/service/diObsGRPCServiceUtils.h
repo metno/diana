@@ -27,40 +27,38 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef DIObsReaderGRPC_H
-#define DIObsReaderGRPC_H
+#ifndef DIANA_ObsGRPCServiceUtils_h
+#define DIANA_ObsGRPCServiceUtils_h
 
-#include "diObsReader.h"
+#include "diObsGRPCServiceDecls.h"
 
-#include "service/diObsGRPCServiceDecls.h"
+#include <memory>
 
-class ObsReaderGRPC : public ObsReader
+#include "diana_config.h"
+#ifdef DIANA_GRPC_INCLUDES_IN_GRPCPP
+#include <grpcpp/create_channel.h>
+#else // !DIANA_GRPC_INCLUDES_IN_GRPCPP
+#include <grpc++/create_channel.h>
+#endif // !DIANA_GRPC_INCLUDES_IN_GRPCPP
+
+#include "diana_obs_v0_svc.grpc.pb.h"
+
+namespace diutil {
+namespace grpc {
+namespace obs {
+
+struct ObsServiceGRPCClient
 {
-public:
-  ObsReaderGRPC();
-  ~ObsReaderGRPC();
+  ObsServiceGRPCClient(std::shared_ptr<::grpc::Channel> channel)
+      : stub(diana_obs_v0::ObservationsService::NewStub(channel))
+  {
+  }
 
-  bool configure(const std::string& key, const std::string& value) override;
-
-  bool checkForUpdates(bool useArchive) override;
-
-  std::set<miutil::miTime> getTimes(bool useArchive, bool update) override;
-
-  std::vector<ObsDialogInfo::Par> getParameters() override;
-
-  PlotCommand_cpv getExtraAnnotations() override;
-
-  void getData(ObsDataRequest_cp request, ObsDataResult_p result) override;
-
-private:
-  std::unique_ptr<diutil::grpc::obs::ObsServiceGRPCClient> client_;
-  std::string name_;
-
-  long updated_times_;
-  std::set<miutil::miTime> cached_times_;
-
-  long updated_parameters_;
-  std::vector<ObsDialogInfo::Par> cached_parameters_;
+  std::unique_ptr<diana_obs_v0::ObservationsService::Stub> stub;
 };
 
-#endif // DIObsReaderGRPC_H
+} // namespace obs
+} // namespace grpc
+} // namespace diutil
+
+#endif // !DIANA_ObsGRPCServiceUtils_h

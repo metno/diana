@@ -30,40 +30,15 @@
 #include "diObsReaderGRPC.h"
 
 #include "diObsDataVector.h"
+#include "service/diObsGRPCServiceUtils.h"
+#include "service/diObsGRPCUtils.h"
 #include "util/debug_timer.h"
 #include "util/time_util.h"
-
-#include "diana_config.h"
-#ifdef DIANA_GRPC_INCLUDES_IN_GRPCPP
-#include <grpcpp/create_channel.h>
-#else // !DIANA_GRPC_INCLUDES_IN_GRPCPP
-#include <grpc++/create_channel.h>
-#endif // !DIANA_GRPC_INCLUDES_IN_GRPCPP
-
-#include "diana_obs_v0_svc.grpc.pb.h"
 
 #define MILOGGER_CATEGORY "diana.ObsReaderGRPC"
 #include <miLogger/miLogging.h>
 
 namespace {
-// FIXME duplicates, shared with diObsService.cc
-
-void copyFromMiTime(diana_obs_v0::Time& ot, const miutil::miTime& mt)
-{
-  ot.set_year(mt.year());
-  ot.set_month(mt.month());
-  ot.set_day(mt.day());
-  ot.set_hour(mt.hour());
-  ot.set_minute(mt.min());
-  ot.set_second(mt.sec());
-  ot.set_sub_second(0);
-}
-
-miutil::miTime toMiTime(const diana_obs_v0::Time& ot)
-{
-  return miutil::miTime(ot.year(), ot.month(), ot.day(), ot.hour(), ot.minute(), ot.second());
-}
-
 ObsDialogInfo::ParType toParType(const diana_obs_v0::Par::Type& t)
 {
   switch (t) {
@@ -79,19 +54,13 @@ ObsDialogInfo::ParType toParType(const diana_obs_v0::Par::Type& t)
 }
 } // namespace
 
-struct ObsReaderGRPCClient
-{
-  ObsReaderGRPCClient(std::shared_ptr<grpc::Channel> channel)
-      : stub(diana_obs_v0::ObservationsService::NewStub(channel))
-  {
-  }
-
-  std::unique_ptr<diana_obs_v0::ObservationsService::Stub> stub;
-};
-
 // ------------------------------------------------------------------------
 
-ObsReaderGRPC::ObsReaderGRPC() {}
+ObsReaderGRPC::ObsReaderGRPC()
+    : updated_times_(0)
+    , updated_parameters_(0)
+{
+}
 
 ObsReaderGRPC::~ObsReaderGRPC() {}
 
@@ -103,7 +72,7 @@ bool ObsReaderGRPC::configure(const std::string& key, const std::string& value)
       METLIBS_LOG_ERROR("client already configured");
       return false;
     }
-    client_.reset(new ObsReaderGRPCClient(grpc::CreateChannel(value, grpc::InsecureChannelCredentials())));
+    client_.reset(new diutil::grpc::obs::ObsServiceGRPCClient(grpc::CreateChannel(value, grpc::InsecureChannelCredentials())));
     METLIBS_LOG_DEBUG("grpc obs client configured");
   } else if (key == "name") {
     name_ = value;
@@ -130,29 +99,13 @@ std::set<miutil::miTime> ObsReaderGRPC::getTimes(bool useArchive, bool /*update*
 
     grpc::ClientContext context;
     client_->stub->GetTimes(&context, req, &res);
-    const bool unchanged = (res.status().code() == diana_obs_v0::Status::Code::Status_Code_UNCHANGED);
-    METLIBS_LOG_DEBUG(LOGVAL(res.timespans_size()) << LOGVAL(updated_times_) << LOGVAL(res.lastupdate()) << LOGVAL(unchanged));
     updated_times_ = res.lastupdate();
-    if (res.status().code() == diana_obs_v0::Status::Code::Status_Code_UNCHANGED)
-      return cached_times_;
 
-    cached_times_.clear();
-
-    for (const auto& rt : res.timespans()) {
-      const miutil::miTime tb = toMiTime(rt.begin());
-      cached_times_.insert(tb);
-      if (rt.has_end() && rt.step() > 0) {
-        const float step = std::max(60.0f, rt.step()); // refuse steps < 60 seconds
-        const miutil::miTime te = toMiTime(rt.end());
-        miutil::miTime t = tb;
-        while (true) {
-          t.addSec(step);
-          if (t >= te)
-            break;
-          cached_times_.insert(t);
-        }
-        cached_times_.insert(te);
-      }
+    const bool status_ok = (res.status().code() == diana_obs_v0::Status::Code::Status_Code_OK);
+    const bool status_unchanged = (res.status().code() == diana_obs_v0::Status::Code::Status_Code_UNCHANGED);
+    METLIBS_LOG_DEBUG(LOGVAL(res.timespans_size()) << LOGVAL(updated_times_) << LOGVAL(res.lastupdate()) << LOGVAL(status_unchanged));
+    if (status_ok) { // not error, not unchanged
+      cached_times_ = diutil::grpc::obs::timesFromTimeSpans(res);
     }
   }
   return cached_times_;
@@ -169,10 +122,10 @@ std::vector<ObsDialogInfo::Par> ObsReaderGRPC::getParameters()
 
     grpc::ClientContext context;
     client_->stub->GetParameters(&context, req, &res);
-    const bool unchanged = (res.status().code() == diana_obs_v0::Status::Code::Status_Code_UNCHANGED);
-    METLIBS_LOG_DEBUG(LOGVAL(res.parameters_size()) << LOGVAL(updated_parameters_) << LOGVAL(res.lastupdate()) << LOGVAL(unchanged));
     updated_parameters_ = res.lastupdate();
-    if (res.status().code() == diana_obs_v0::Status::Code::Status_Code_UNCHANGED)
+    const bool status_unchanged = (res.status().code() == diana_obs_v0::Status::Code::Status_Code_UNCHANGED);
+    METLIBS_LOG_DEBUG(LOGVAL(res.parameters_size()) << LOGVAL(updated_parameters_) << LOGVAL(res.lastupdate()) << LOGVAL(status_unchanged));
+    if (status_unchanged)
       return cached_parameters_;
 
     cached_parameters_.clear();
@@ -194,7 +147,7 @@ void ObsReaderGRPC::getData(ObsDataRequest_cp request, ObsDataResult_p result)
 
   diana_obs_v0::DataRequest req;
   req.set_provider(name_);
-  copyFromMiTime(*req.mutable_obstime(), request->obstime);
+  diutil::grpc::obs::copyFromMiTime(*req.mutable_obstime(), request->obstime);
   req.set_timediff(60 * request->timeDiff); // convert from minutes to seconds
   req.set_level(request->level);
   req.set_usearchive(request->useArchive);
@@ -222,7 +175,7 @@ void ObsReaderGRPC::getData(ObsDataRequest_cp request, ObsDataResult_p result)
     data_keys[ki] = obsdata->add_key(res.data_keys(ki));
   }
 
-  const miutil::miTime time = toMiTime(res.time());
+  const miutil::miTime time = diutil::grpc::obs::toMiTime(res.time());
   result->setTime(time);
 
   for (int i = 0; i < res.data_size(); ++i) {
