@@ -1337,6 +1337,8 @@ void FieldDialogStyle::readLog(const std::vector<std::string>& vstr, const std::
       // update with options from logfile
       PlotOptions::parsePlotOption(miutil::splitKeyValue(ls.substr(first_space + 1)), po, other);
 
+      miutil::unique_options(other);
+
       auto& fo = fieldOptions[fieldname];
       fo = po.toKeyValueList();
       fo << other;

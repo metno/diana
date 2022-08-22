@@ -94,18 +94,12 @@ void SelectedField::setFieldPlotOptions(const miutil::KeyValue_v& kv)
   PlotOptions::parsePlotOption(kv, po, oo);
   diutil::maybeSetDefaults(po);
 
-  {
-    // units are set in this dialog, but are not part of PlotOptions
-    size_t idx = miutil::rfind(oo, UNITS);
-    if (idx == size_t(-1))
-      idx = miutil::rfind(oo, UNIT);
-    if (idx == size_t(-1))
-      units.clear();
-    else {
-      units = oo[idx].value();
-      oo.erase(oo.begin() + idx);
-    }
-  }
+  units = miutil::extract_option(oo, UNITS);
+  const std::string unit = miutil::extract_option(oo, UNIT);
+  if (units.empty())
+    units = unit;
+
+  miutil::unique_options(oo);
 }
 
 miutil::KeyValue_v SelectedField::getFieldPlotOptions() const
