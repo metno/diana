@@ -806,6 +806,7 @@ IF(ENABLE_GRPC)
     ${diana_obs_grpc_gen}
     diObsReaderGRPC.cc
     service/diObsGRPCUtils.cc
+    service/diGRPCUtils.cc
   )
   LIST (APPEND LIBDIANA_HEADERS
     service/diObsGRPCServiceDecls.h

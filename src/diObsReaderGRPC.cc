@@ -30,6 +30,7 @@
 #include "diObsReaderGRPC.h"
 
 #include "diObsDataVector.h"
+#include "service/diGRPCUtils.h"
 #include "service/diObsGRPCServiceUtils.h"
 #include "service/diObsGRPCUtils.h"
 #include "util/debug_timer.h"
@@ -108,6 +109,7 @@ void ObsReaderGRPC::updateTimes(bool useArchive)
   diana_obs_v0::TimesResult res;
 
   grpc::ClientContext context;
+  diutil::grpc::set_timeout(context);
   const auto gstatus = client_->stub->GetTimes(&context, req, &res);
   if (!gstatus.ok()) {
     METLIBS_LOG_ERROR("gRPC GetTimes request unsuccessful: " << gstatus.error_message());
@@ -148,6 +150,7 @@ void ObsReaderGRPC::updateParameters()
   diana_obs_v0::ParametersResult res;
 
   grpc::ClientContext context;
+  diutil::grpc::set_timeout(context);
   const auto gstatus = client_->stub->GetParameters(&context, req, &res);
   if (!gstatus.ok()) {
     METLIBS_LOG_ERROR("gRPC GetParameters request unsuccessful: " << gstatus.error_message());
@@ -191,6 +194,7 @@ void ObsReaderGRPC::getData(ObsDataRequest_cp request, ObsDataResult_p result)
   diana_obs_v0::DataResult res;
 
   grpc::ClientContext context;
+  diutil::grpc::set_timeout(context);
   grpc::Status gstatus;
   {
     METLIBS_LOG_TIME("reading obs data from grpc");
