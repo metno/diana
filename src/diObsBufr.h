@@ -220,9 +220,7 @@ private:
 
 class StationBufr : public ObsBufr {
 public:
-  bool readStationInfo(const std::vector<std::string>& bufr_file,
-      std::vector<stationInfo>& stations,
-      std::vector<miutil::miTime>& timelist);
+  bool readStationInfo(const std::vector<std::string>& bufr_file, std::vector<stationInfo>& stations);
 
 protected:
   SubsetResult handleBufrSubset(int ktdexl, const int *ktdexp, const double* values,
@@ -236,7 +234,6 @@ private:
   typedef std::map<std::string,int> idmap_t;
   idmap_t idmap;
   std::vector<std::string> id;
-  std::vector<miutil::miTime> id_time;
   std::vector<float> latitude;
   std::vector<float> longitude;
 };
