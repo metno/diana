@@ -59,7 +59,7 @@ class FieldDialogStyle : public QObject
   Q_OBJECT
 
 public:
-  // map<fieldName,fieldOptions>
+  //! map fieldName to fieldOptions
   typedef std::map<std::string, miutil::KeyValue_v> fieldoptions_m;
 
 public:
@@ -69,13 +69,23 @@ public:
   QWidget* standardWidget() const { return widgetStd; }
   QWidget* advancedWidget() const { return widgetAdv; }
 
+  //! Copy gui to struct, and remember options as user defaults.
+  /*! User defaults are read in getFieldOptions and stored in writeLog.
+   */
   void updateFieldOptions(SelectedField* sf);
+
+  //! Set gui from struct, i.e. set the widget to options selected in sf, i.e. from sf to gui.
   void enableFieldOptions(const SelectedField* sf);
+
+  //! Get default options for the given field name.
+  /*! Default options are changed in updateFieldOptions, and read in readLog.
+   */
   const miutil::KeyValue_v& getFieldOptions(const std::string& fieldName, bool ignoreUserOptions) const;
 
   std::vector<std::string> writeLog();
   void readLog(const std::vector<std::string>& vstr, const std::string& thisVersion, const std::string& logVersion);
 
+  //! Reset struct and gui with default options from setup, ignoring user defaults.
   void resetFieldOptions(SelectedField* selectedField);
 
 Q_SIGNALS:
