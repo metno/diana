@@ -27,33 +27,19 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef DIANA_GRPCUtils_h
-#define DIANA_GRPCUtils_h
+#include "diObsGRPCServiceUtils.h"
 
-#include <memory>
-
-#include "diana_config.h"
-#ifdef DIANA_GRPC_INCLUDES_IN_GRPCPP
-#include <grpcpp/channel.h>
-#include <grpcpp/client_context.h>
-#else // !DIANA_GRPC_INCLUDES_IN_GRPCPP
-#include <grpc++/channel.h>
-#include <grpc++/client_context.h>
-#endif // !DIANA_GRPC_INCLUDES_IN_GRPCPP
+#include "diGRPCUtils.h"
 
 namespace diutil {
 namespace grpc {
+namespace obs {
 
-//! Set timeout for gRPC context.
-void set_timeout(::grpc::ClientContext& context, int milliseconds);
+ObsServiceGRPCClient::ObsServiceGRPCClient(const std::string& addr)
+    : stub(diana_obs_v0::ObservationsService::NewStub(::diutil::grpc::make_channel(addr)))
+{
+}
 
-//! Set default timeout for gRPC context (2s).
-void set_timeout(::grpc::ClientContext& context);
-
-//! Create a channel with default options (max message size, insecure).
-std::shared_ptr<::grpc::Channel> make_channel(const std::string& addr);
-
+} // namespace obs
 } // namespace grpc
 } // namespace diutil
-
-#endif // !DIANA_GRPCUtils_h

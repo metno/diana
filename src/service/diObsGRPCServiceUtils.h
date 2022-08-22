@@ -34,13 +34,6 @@
 
 #include <memory>
 
-#include "diana_config.h"
-#ifdef DIANA_GRPC_INCLUDES_IN_GRPCPP
-#include <grpcpp/create_channel.h>
-#else // !DIANA_GRPC_INCLUDES_IN_GRPCPP
-#include <grpc++/create_channel.h>
-#endif // !DIANA_GRPC_INCLUDES_IN_GRPCPP
-
 #include "diana_obs_v0_svc.grpc.pb.h"
 
 namespace diutil {
@@ -49,10 +42,7 @@ namespace obs {
 
 struct ObsServiceGRPCClient
 {
-  ObsServiceGRPCClient(std::shared_ptr<::grpc::Channel> channel)
-      : stub(diana_obs_v0::ObservationsService::NewStub(channel))
-  {
-  }
+  ObsServiceGRPCClient(const std::string& addr);
 
   std::unique_ptr<diana_obs_v0::ObservationsService::Stub> stub;
 };

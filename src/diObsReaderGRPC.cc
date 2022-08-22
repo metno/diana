@@ -73,7 +73,7 @@ bool ObsReaderGRPC::configure(const std::string& key, const std::string& value)
       METLIBS_LOG_ERROR("client already configured");
       return false;
     }
-    client_.reset(new diutil::grpc::obs::ObsServiceGRPCClient(grpc::CreateChannel(value, grpc::InsecureChannelCredentials())));
+    client_.reset(new diutil::grpc::obs::ObsServiceGRPCClient(value));
     METLIBS_LOG_DEBUG("grpc obs client configured");
   } else if (key == "name") {
     name_ = value;

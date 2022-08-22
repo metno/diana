@@ -30,6 +30,14 @@
 #include "diGRPCUtils.h"
 
 #include <chrono>
+#include <climits>
+
+#include "diana_config.h"
+#ifdef DIANA_GRPC_INCLUDES_IN_GRPCPP
+#include <grpcpp/create_channel.h>
+#else // !DIANA_GRPC_INCLUDES_IN_GRPCPP
+#include <grpc++/create_channel.h>
+#endif // !DIANA_GRPC_INCLUDES_IN_GRPCPP
 
 namespace diutil {
 namespace grpc {
@@ -43,6 +51,16 @@ void set_timeout(::grpc::ClientContext& context, int milliseconds)
 void set_timeout(::grpc::ClientContext& context)
 {
   set_timeout(context, 2000);
+}
+
+std::shared_ptr<::grpc::Channel> make_channel(const std::string& addr)
+{
+  // https://github.com/tensorflow/serving/issues/1382#issuecomment-730428996
+  auto cargs = ::grpc::ChannelArguments();
+  const int max_size = INT_MAX;
+  cargs.SetMaxReceiveMessageSize(max_size);
+  cargs.SetMaxSendMessageSize(max_size);
+  return ::grpc::CreateCustomChannel(addr, ::grpc::InsecureChannelCredentials(), cargs);
 }
 
 } // namespace grpc
