@@ -126,17 +126,6 @@ class FieldDialog : public DataDialog
 {
   Q_OBJECT
 
-private:
-  struct EnableWidget {
-    bool contourWidgets;
-    bool extremeWidgets;
-    bool shadingWidgets;
-    bool lineWidgets;
-    bool fontWidgets;
-    bool densityWidgets;
-    bool unitWidgets;
-  };
-
 public:
   FieldDialog(QWidget* parent, FieldDialogData* data);
   ~FieldDialog();
