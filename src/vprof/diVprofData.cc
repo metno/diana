@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2018 met.no
+ Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -66,7 +66,11 @@ VprofValuesRequest::VprofValuesRequest()
 
 bool VprofValuesRequest::operator==(const VprofValuesRequest& other) const
 {
-  return name == other.name && time == other.time && realization == other.realization;
+  return name == other.name
+      && time == other.time
+      && realization == other.realization
+      && variables == other.variables
+      && vertical_axis == other.vertical_axis;
 }
 
 // ========================================================================
