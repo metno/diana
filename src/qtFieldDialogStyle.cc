@@ -1085,9 +1085,7 @@ void FieldDialogStyle::updateFieldOptions(SelectedField* selectedField)
   selectedField->units = unitLineEdit->text().toStdString();
   setToPlotOptions(selectedField->po);
 
-  auto& fo = fieldOptions[selectedField->fieldName];
-  fo = selectedField->po.toKeyValueList();
-  fo << selectedField->oo;
+  fieldOptions[selectedField->fieldName] = selectedField->getFieldPlotOptions();
 }
 
 const std::string& FieldDialogStyle::getPlotType() const
