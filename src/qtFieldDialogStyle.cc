@@ -1350,6 +1350,7 @@ void FieldDialogStyle::resetFieldOptions(SelectedField* selectedField)
     return;
 
   const miutil::KeyValue_v fopts = getFieldOptions(selectedField->fieldName, true);
+  fieldOptions.erase(selectedField->fieldName);
 
   selectedField->setFieldPlotOptions(fopts);
   selectedField->hourOffset = 0;
