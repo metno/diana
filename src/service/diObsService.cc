@@ -29,6 +29,9 @@
 
 #include "diObsService.h"
 
+#include "service/diObsGRPCServiceUtils.h"
+#include "service/diObsGRPCUtils.h"
+
 #include <chrono>
 #include <fstream>
 #include <memory>
@@ -61,21 +64,6 @@ diana_obs_v0::Par::Type fromParType(const ObsDialogInfo::ParType& t)
   case ObsDialogInfo::pt_rrr:  return diana_obs_v0::Par::pt_rrr;
   // clang-format on
   }
-}
-
-void copyFromMiTime(diana_obs_v0::Time& ot, const miutil::miTime& mt)
-{
-  ot.set_year(mt.year());
-  ot.set_month(mt.month());
-  ot.set_day(mt.day());
-  ot.set_hour(mt.hour());
-  ot.set_minute(mt.min());
-  ot.set_second(mt.sec());
-}
-
-miutil::miTime toMiTime(const diana_obs_v0::Time& ot)
-{
-  return miutil::miTime(ot.year(), ot.month(), ot.day(), ot.hour(), ot.minute(), ot.second());
 }
 
 void setStatusFromException(diana_obs_v0::Status& status, std::exception& ex)
@@ -152,9 +140,9 @@ void ObservationsService::GetTimes(const diana_obs_v0::TimesRequest* request, di
           spanEnd = t;
         } else {
           diana_obs_v0::TimeSpan& ts = *result->add_timespans();
-          copyFromMiTime(*ts.mutable_begin(), spanBegin);
+          diutil::grpc::obs::copyFromMiTime(*ts.mutable_begin(), spanBegin);
           ts.set_step(spanStep);
-          copyFromMiTime(*ts.mutable_end(), spanEnd);
+          diutil::grpc::obs::copyFromMiTime(*ts.mutable_end(), spanEnd);
 
           spanBegin = t;
           spanStep = -1;
@@ -163,10 +151,10 @@ void ObservationsService::GetTimes(const diana_obs_v0::TimesRequest* request, di
     }
     if (!spanBegin.undef()) {
       diana_obs_v0::TimeSpan& ts = *result->add_timespans();
-      copyFromMiTime(*ts.mutable_begin(), spanBegin);
+      diutil::grpc::obs::copyFromMiTime(*ts.mutable_begin(), spanBegin);
       if (spanStep > 0) {
         ts.set_step(spanStep);
-        copyFromMiTime(*ts.mutable_end(), spanEnd);
+        diutil::grpc::obs::copyFromMiTime(*ts.mutable_end(), spanEnd);
       }
     }
   } catch (std::exception& ex) {
@@ -234,7 +222,7 @@ void ObservationsService::GetData(const diana_obs_v0::DataRequest* request, dian
     ObsReader_p reader = find(request->provider()).reader;
 
     ObsDataRequest_p req = std::make_shared<ObsDataRequest>();
-    req->obstime = toMiTime(request->obstime());
+    req->obstime = diutil::grpc::obs::toMiTime(request->obstime());
     req->timeDiff = request->timediff() / 60; // convert from seconds to minutes
     req->level = request->level();
     req->useArchive = request->usearchive();
@@ -244,7 +232,7 @@ void ObservationsService::GetData(const diana_obs_v0::DataRequest* request, dian
     if (!res->success())
       throw std::runtime_error("error reading obs data");
 
-    copyFromMiTime(*result->mutable_time(), res->time());
+    diutil::grpc::obs::copyFromMiTime(*result->mutable_time(), res->time());
 
     std::map<std::string, int> key_index_cache;
 

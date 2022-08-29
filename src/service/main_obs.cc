@@ -48,8 +48,6 @@
 
 #include <yaml-cpp/yaml.h>
 
-#include <boost/algorithm/string/join.hpp>
-
 #include <cstdlib>
 #include <iostream>
 #include <memory>
@@ -141,12 +139,12 @@ int RunServer(int argc, char** argv)
 
   const std::string& yaml_url = vm.value(op_obs_config);
 
-  std::vector<std::string> content;
+  std::string content;
   if (!diutil::getFromAny(yaml_url, content)) {
     METLIBS_LOG_ERROR("Could not fetch obs config yaml from '" << yaml_url << "'.");
     return 1;
   }
-  const YAML::Node node = YAML::Load(boost::algorithm::join(content, "\n"));
+  const YAML::Node node = YAML::Load(content);
 
   ObservationsService_p os = std::make_shared<ObservationsService>();
 

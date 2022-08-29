@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2020 met.no
+  Copyright (C) 2017-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -220,6 +220,20 @@ void GridCollection::clearGridSources()
   inventoryOK.clear();
 }
 
+namespace {
+const std::string& index_or_first(const std::vector<std::string>& available, size_t index, size_t count)
+{
+  if (count == available.size() && index < count) {
+    return available[index];
+  } else if (!available.empty()) {
+    return available.front();
+  } else {
+    static const std::string empty;
+    return empty;
+  }
+}
+} // namespace
+
 // unpack the raw sources and make one or more GridIO instances
 bool GridCollection::makeGridIOinstances()
 {
@@ -263,21 +277,10 @@ bool GridCollection::makeGridIOinstances()
     diutil::insert_all(sources,tmpsources);
 
     //if #formats == #rawsources, use corresponding files. If not use first format
-    std::string format;
-    if ( rawsources.size() == formats.size() ) {
-      format = formats[index];
-    } else if ( formats.size() > 0) {
-      format = formats[0];
-    }
+    const std::string& format = index_or_first(formats, index, rawsources.size());
 
     //if #configs == #rawsources, use corresponding files. If not use first config
-    std::string config;
-    if ( rawsources.size() == configs.size() ) {
-      config = configs[index];
-    } else if ( configs.size() > 0) {
-      config = configs[0];
-    }
-
+    const std::string& config = index_or_first(configs, index, rawsources.size());
 
     // loop through sources (filenames)
     for (const std::string& sourcename : tmpsources) {
@@ -381,7 +384,7 @@ bool GridCollection::makeInventory(const std::string& refTime)
 bool GridCollection::sourcesChanged()
 {
   for (const auto& io : gridsources)
-    if (io->sourceChanged(false))
+    if (io->sourceChanged())
       return true;
   return false;
 }

@@ -30,6 +30,8 @@
 #include <diObsDataUnion.h>
 #include <diObsDataVector.h>
 
+#include <algorithm>
+
 #include <gtest/gtest.h>
 
 TEST(TestObsDataUnion, Basic)

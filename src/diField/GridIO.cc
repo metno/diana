@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2010-2021 met.no
+  Copyright (C) 2010-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -54,10 +54,7 @@ typename C::const_iterator find_name(const C& c, const std::string& name)
 
 } // namespace
 
-GridIO::GridIO(const std::string& source)
-    : source_name(source)
-{
-}
+GridIO::GridIO() {}
 
 GridIO::~GridIO()
 {

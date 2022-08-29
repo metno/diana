@@ -1,6 +1,2 @@
-@metno_config_if .*xenial.*
 usr/lib/*-linux-gnu/perl5/
-@metno_config_else
-usr/lib/*-linux-gnu/perl5/
-@metno_config_endif
 usr/share/man/man3/Metno*3pm

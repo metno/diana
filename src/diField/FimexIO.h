@@ -5,7 +5,7 @@
  *      Author: audunc
  */
 /*
- Copyright (C) 2006-2021 met.no
+ Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -90,6 +90,7 @@ private:
 private:
   bool sourceOk;
   long modificationTime;
+  std::string source_name;
   std::string model_name;
   std::string source_type;
   std::string config_filename;
@@ -160,6 +161,8 @@ private:
   MetNoFimex::CoordinateSystem_cp findCoordinateSystem(const gridinventory::GridParameter& param);
   const std::string& extractVariableName(const gridinventory::GridParameter& param);
 
+  bool checkSourceChanged(bool update);
+
   std::string reproj_name;
 
 public:
@@ -184,7 +187,7 @@ public:
    * Returns whether the source has changed since the last makeInventory
    * @return bool
    */
-  bool sourceChanged(bool update) override;
+  bool sourceChanged() override;
 
   /**
    * Return referencetime from filename or file

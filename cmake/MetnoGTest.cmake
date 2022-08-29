@@ -1,5 +1,13 @@
 FIND_PACKAGE(GTest QUIET)
-IF(NOT GTEST_FOUND)
+IF(GTEST_FOUND)
+  IF (CMAKE_VERSION VERSION_LESS "3.20")
+    SET(GTEST_LIBRARY GTest::GTest)
+    SET(GTEST_MAIN_LIBRARY GTest::Main)
+  ELSE()
+    SET(GTEST_LIBRARY GTest::gtest)
+    SET(GTEST_MAIN_LIBRARY GTest::gtest_main)
+  ENDIF()
+ELSE()
   MESSAGE("apparently no compiled GTest library, trying to build it")
   FIND_FILE(GTEST_DIR src/gtest-all.cc
     HINTS

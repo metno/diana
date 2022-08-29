@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2020 met.no
+  Copyright (C) 2020-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -33,11 +33,6 @@
 #include "miLogger/miLogging.h"
 
 CachedGridIO::~CachedGridIO() {}
-
-const std::string& CachedGridIO::getSourceName() const
-{
-  return base_->getSourceName();
-}
 
 const gridinventory::Inventory& CachedGridIO::getInventory() const
 {
@@ -85,9 +80,9 @@ Field_p CachedGridIO::initializeField(const std::string& modelname, const std::s
   return base_->initializeField(modelname, reftime, param, level, time, elevel);
 }
 
-bool CachedGridIO::sourceChanged(bool update)
+bool CachedGridIO::sourceChanged()
 {
-  const bool changed = base_->sourceChanged(update);
+  const bool changed = base_->sourceChanged();
   if (changed)
     clear();
   return changed;

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2020 met.no
+  Copyright (C) 2020-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -30,6 +30,8 @@
 #include <diField/FimexIO.h>
 
 #include "testinghelpers.h"
+
+#include <algorithm>
 
 namespace {
 const std::string inputformat("netcdf"), inputreftime = "", inputconfig = "";

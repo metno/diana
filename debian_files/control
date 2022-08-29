@@ -2,8 +2,8 @@ Source: diana-@METNO_VERSION@
 Section: science
 Priority: extra
 Maintainer: Norwegian Meteorological Institute met.no <diana@met.no>
-Build-Depends: debhelper (>= 9),
- cmake,
+Build-Depends: debhelper (>= 11),
+ cmake (>= 3.10),
  pkg-config,
  qtbase5-dev,
  libqt5opengl5-dev,
@@ -12,6 +12,10 @@ Build-Depends: debhelper (>= 9),
  qtbase5-dev-tools,
  qttools5-dev-tools, qttools5-dev,
  libftgl-dev,
+@metno_config_if .*(bionic|focal).*
+@metno_config_else
+ libopengl-dev,
+@metno_config_endif
  libmi-fieldcalc-dev,
  libmi-programoptions-dev (>= 2.0.0),
  metlibs-qutilities-qt5-dev (>= 8.0.0),

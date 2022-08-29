@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -85,8 +85,6 @@ bool VprofDataBufr::updateStationList(const miutil::miTime& plotTime)
   currentFiles.clear();
   mStations.clear();
 #ifdef BUFROBS
-  std::vector<miutil::miTime> tlist;
-
   const std::vector<miutil::miTime> vt = getTimes();
   for (size_t j = 0; j < vt.size(); ++j) {
     if (vt[j] == plotTime) {
@@ -96,7 +94,7 @@ bool VprofDataBufr::updateStationList(const miutil::miTime& plotTime)
         currentFiles.push_back(fileNames[j - 1]);
       }
       StationBufr bufr;
-      bufr.readStationInfo(currentFiles, mStations, tlist);
+      bufr.readStationInfo(currentFiles, mStations);
       renameStations();
       break;
     }

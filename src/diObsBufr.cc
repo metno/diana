@@ -470,17 +470,14 @@ bool ObsBufr::ObsTime(const std::string& bufr_file, miTime& time)
 
 // ########################################################################
 
-bool StationBufr::readStationInfo(const vector<std::string>& bufr_file,
-                                  vector<stationInfo>& stations, vector<miTime>& timelist)
+bool StationBufr::readStationInfo(const vector<std::string>& bufr_file, vector<stationInfo>& stations)
 {
   id.clear();
   idmap.clear();
-  id_time.clear();
 
   for (size_t i=0; i< bufr_file.size(); i++)
     init(bufr_file[i]);
 
-  timelist = id_time;
   stations.clear();
   stations.reserve(id.size());
   for (size_t i=0; i<id.size(); ++i)
@@ -834,7 +831,7 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int* ktdexp, const double* va
       }
       break;
 
-      //   7001  HEIGHT OF STATION, M
+      //   7030  HEIGHT OF STATION GROUND ABOVE MEAN SEA LEVEL, M
     case 7030:
       if (values[j] < bufrMissing)
         odb.put_float(k_Height, values[j]);
@@ -1397,11 +1394,6 @@ void StationBufr::get_station_info(int ktdexl, const int *ktdexp, const double* 
   int wmoBlock = 0;
   int wmoSubarea = 0;
   int wmoStation = 0;
-  int year = 0;
-  int month = 0;
-  int day = 0;
-  int hour = 0;
-  int minute = 0;
   std::string station;
   bool wmoNumber = false;
 
@@ -1435,31 +1427,6 @@ void StationBufr::get_station_info(int ktdexl, const int *ktdexp, const double* 
       }
     break;
 
-    //   4001  YEAR
-    case 4001:
-      year = int(values[j]);
-      break;
-
-      //   4002  MONTH
-    case 4002:
-      month = int(values[j]);
-      break;
-
-      //   4003  DAY
-    case 4003:
-      day = int(values[j]);
-      break;
-
-      //   4004  HOUR
-    case 4004:
-      hour = int(values[j]);
-      break;
-
-      //   4005  MINUTE
-    case 4005:
-      minute = int(values[j]);
-      break;
-
       //   5001  LATITUDE (HIGH ACCURACY),   DEGREE
       //   5002  LATITUDE (COARSE ACCURACY), DEGREE
     case 5001:
@@ -1490,7 +1457,6 @@ void StationBufr::get_station_info(int ktdexl, const int *ktdexp, const double* 
     id.push_back(station);
     idmap.insert(std::make_pair(station, 1));
   }
-  id_time.push_back(miutil::miTime(year, month, day, hour, minute, 0));
 }
 
 // ########################################################################

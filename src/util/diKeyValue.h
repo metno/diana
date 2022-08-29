@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2018-2020 met.no
+  Copyright (C) 2018-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -131,6 +131,9 @@ size_t rfind(const KeyValue_v& kvs, const std::string& key, size_t start);
 
 std::string mergeKeyValue(const miutil::KeyValue_v& kvs);
 KeyValue_v splitKeyValue(const std::string& kvtext, bool keepQuotes=false);
+
+void unique_options(miutil::KeyValue_v& kvs);
+std::string extract_option(miutil::KeyValue_v& kvs, const std::string& k);
 
 std::ostream& operator<<(std::ostream& out, const miutil::KeyValue& kv);
 std::ostream& operator<<(std::ostream& out, const miutil::KeyValue_v& kvs);

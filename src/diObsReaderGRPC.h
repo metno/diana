@@ -32,7 +32,7 @@
 
 #include "diObsReader.h"
 
-class ObsReaderGRPCClient;
+#include "service/diObsGRPCServiceDecls.h"
 
 class ObsReaderGRPC : public ObsReader
 {
@@ -53,7 +53,11 @@ public:
   void getData(ObsDataRequest_cp request, ObsDataResult_p result) override;
 
 private:
-  std::unique_ptr<ObsReaderGRPCClient> client_;
+  void updateTimes(bool useArchive);
+  void updateParameters();
+
+private:
+  std::unique_ptr<diutil::grpc::obs::ObsServiceGRPCClient> client_;
   std::string name_;
 
   long updated_times_;
