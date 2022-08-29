@@ -319,8 +319,42 @@ field4=multiply(field1,9.8067)
 	<tr><td>VALUE</td><td>Prints the values of the fields (max 5 fields)</td></tr>
     </table>
     <p>
- 
-The plots are sorted into fieldgroups according to "fieldgroup" given in the plot definition, or vertical/ensemble-axis if no group name is given
+      
+ <b>Plot Options</b><br>
+    In addition to the plot type, plot options may be specified for
+    each plot. These will be used as default plot options when using
+    the plot. The available plot options are numerous, and a complete list is not available.
+<p>
+   
+    The three different plot options describing line values are connected as described below.
+    <ul>
+      <li>
+        <code>line.interval</code> Specifies the interval for plot
+        types <code>contour</code> and <code>fill_cell</code>.
+      </li>
+      <li>
+        <code>line.values</code> Specifies a comma-separated list of
+        levels for plot types <code>contour</code>
+        and <code>fill_cell</code>.
+
+        <b>Note:</b> The value list is only used
+        if <code>line.interval</code> is 0 and
+        <code>log.line.values</code> is empty.
+      </li>
+      <li>
+        <code>log.line.values</code> Similar
+        to <code>line.values</code>, but specifies levels which will
+        be repeated with a factor of 10. E.g., <code>1,2.5,5</code>
+        will expand to <code>1,2.5,5,10,25,50,...</code>.
+
+        <b>Note:</b> The value list is only used
+        if <code>line.interval</code> is 0.
+      </li>
+    </ul>
+
+
+  <b>Fieldgroups</b><br>
+The plots are sorted into fieldgroups according to <code>fieldgroup</code> given in the plot definition, or the vertical/ensemble-axis if no group name is given
 <p>
 
 <b>Examples:</b>
