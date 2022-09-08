@@ -734,21 +734,26 @@ void FieldDialogStyle::enableFieldOptions(const SelectedField* selectedField)
 
   selectedFieldInEdit = selectedField->inEdit;
 
+
+
+  if (selectedField->minus) {
+    enableWidgets("none");
+  } else {
+    // unit -- not in PlotOptions
+    unitLineEdit->setText(QString::fromStdString(selectedField->units));
+
+    setFromPlotOptions(selectedField->po, selectedField->dimension);
+  }
+
+  // set hour offset / diff last, if these change, a Qt signal invokes updateTime,
+  // which calls updateFieldOptions, which reads the UI settings, which must therefore
+  // be updated before
+
   hourOffsetSpinBox->setValue(selectedFieldInEdit ? 0 : selectedField->hourOffset);
   hourOffsetSpinBox->setEnabled(!selectedFieldInEdit);
 
   hourDiffSpinBox->setValue(selectedFieldInEdit ? 0 : selectedField->hourDiff);
   hourDiffSpinBox->setEnabled(!selectedFieldInEdit);
-
-  if (selectedField->minus) {
-    enableWidgets("none");
-    return;
-  }
-
-  // unit -- not in PlotOptions
-  unitLineEdit->setText(QString::fromStdString(selectedField->units));
-
-  setFromPlotOptions(selectedField->po, selectedField->dimension);
 }
 
 void FieldDialogStyle::setFromPlotOptions(const PlotOptions& po, int dimension)
@@ -1081,7 +1086,7 @@ void FieldDialogStyle::updateFieldOptions(SelectedField* selectedField)
     return;
 
   selectedField->hourOffset = hourOffsetSpinBox->value();
-  selectedField->hourDiff = hourOffsetSpinBox->value();
+  selectedField->hourDiff = hourDiffSpinBox->value();
   selectedField->units = unitLineEdit->text().toStdString();
   setToPlotOptions(selectedField->po);
 
