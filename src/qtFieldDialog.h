@@ -166,6 +166,9 @@ public /*Q_SLOTS*/:
 
   void fieldEditUpdate(const std::string& str);
 
+  //! For UI tests.
+  void simulateSelectField(int index);
+
 protected:
   void doShowMore(bool more) override;
 

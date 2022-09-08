@@ -246,6 +246,39 @@ TEST(TestFieldDialog, PutGetOKStringSetup)
   EXPECT_EQ(expect.str(), cmds_get[0]->toString());
 }
 
+TEST(TestFieldDialog, PutGetOKStringHourOffset)
+{
+  initLinesAndColours();
+  TestFieldDialogData* data = new TestFieldDialogData;
+  std::unique_ptr<FieldDialog> dialog(new FieldDialog(0, data));
+
+  const std::string colours[3] = {"blue", "red", "green"};
+
+  const PlotCommand_cpv cmds_put = makeCommands({
+    "FIELD model=" + MODEL1 + " refhour=0 parameter=" + PARAM1 + " hour.offset=0  colour=" + colours[0],
+    "FIELD model=" + MODEL1 + " refhour=0 parameter=" + PARAM1 + " hour.offset=6  colour=" + colours[1],
+    "FIELD model=" + MODEL1 + " refhour=0 parameter=" + PARAM1 + " hour.offset=12 colour=" + colours[2],
+  });
+  dialog->putOKString(cmds_put);
+  EXPECT_EQ(data->fieldReferenceTimeUpdates, 1);
+
+  // must select fields to trigger the problem
+  dialog->simulateSelectField(1);
+  dialog->simulateSelectField(2);
+
+  const PlotCommand_cpv cmds_get = dialog->getOKString();
+  ASSERT_EQ(cmds_get.size(), 3);
+
+  for (int i=0; i<3; ++i) {
+    std::ostringstream expect;
+    expect << "FIELD model=" << MODEL1 << " reftime=" << *(data->getFieldReferenceTimes(MODEL1).begin()) << " parameter=" << PARAM1;
+    if (i > 0)
+      expect << " hour.offset=" << (6*i);
+    expect << " colour=" << colours[i] << " line.interval=10";
+    EXPECT_EQ(expect.str(), cmds_get[i]->toString());
+  }
+}
+
 TEST(TestFieldDialog, GetShortNameEmpty)
 {
   initLinesAndColours();

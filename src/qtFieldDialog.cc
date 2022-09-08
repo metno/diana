@@ -616,6 +616,12 @@ void FieldDialog::enableFieldOptions()
   fieldStyle->enableFieldOptions(&sf);
 }
 
+void FieldDialog::simulateSelectField(int index)
+{
+  selectedFieldbox->setCurrentRow(index);
+  selectedFieldboxClicked(nullptr);
+}
+
 void FieldDialog::selectedFieldboxClicked(QListWidgetItem*)
 {
   enableFieldOptions();
