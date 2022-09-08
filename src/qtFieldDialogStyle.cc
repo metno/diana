@@ -1086,7 +1086,7 @@ void FieldDialogStyle::updateFieldOptions(SelectedField* selectedField)
     return;
 
   selectedField->hourOffset = hourOffsetSpinBox->value();
-  selectedField->hourDiff = hourOffsetSpinBox->value();
+  selectedField->hourDiff = hourDiffSpinBox->value();
   selectedField->units = unitLineEdit->text().toStdString();
   setToPlotOptions(selectedField->po);
 
