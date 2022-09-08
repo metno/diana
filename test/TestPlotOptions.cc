@@ -344,3 +344,20 @@ TEST(TestPlotOptions, ColourForLcolour)
     EXPECT_EQ("colours=" + RGB, miutil::mergeKeyValue(po.toKeyValueList()));
   }
 }
+
+TEST(TestPlotOptions, ParsePlotOptionTable)
+{
+  miutil::KeyValue_v unused;
+  PlotOptions poptions;
+  EXPECT_TRUE(poptions.table);
+
+  PlotOptions::parsePlotOption({{"table","false"}}, poptions, unused);
+  EXPECT_FALSE(poptions.table);
+  PlotOptions::parsePlotOption({{"table","0"}}, poptions, unused);
+  EXPECT_FALSE(poptions.table);
+
+  PlotOptions::parsePlotOption({{"table","true"}}, poptions, unused);
+  EXPECT_TRUE(poptions.table);
+  PlotOptions::parsePlotOption({{"table","1"}}, poptions, unused);
+  EXPECT_TRUE(poptions.table);
+}
