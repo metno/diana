@@ -685,7 +685,7 @@ bool PlotOptions::parsePlotOption(const miutil::KeyValue& kv, PlotOptions& po)
     po.discontinuous = to_bool(kv);
 
   } else if (key == key_table) {
-    po.table = to_int(kv);
+    po.table = to_bool(kv);
 
   } else if (key == key_alpha) {
     po.alpha = to_int(kv);
