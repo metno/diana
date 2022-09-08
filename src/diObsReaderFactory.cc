@@ -145,11 +145,11 @@ ObsReader_p makeObsReader(const std::string& key)
     return std::make_shared<ObsReaderBufr>();
   if (key == "file" || key == "archivefile" || key == "ascii" || key == "archive_ascii")
     return std::make_shared<ObsReaderAscii>();
-  if (key == "grpc") {
+  if (key == "grpc_obs") {
 #ifdef ENABLE_GRPC
     return std::make_shared<ObsReaderGRPC>();
 #else
-    METLIBS_LOG_WARN("grpc reader disabled");
+    METLIBS_LOG_WARN("grpc_obs reader disabled");
     return ObsReader_p();
 #endif
   }
