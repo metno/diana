@@ -68,13 +68,13 @@ ObsReaderGRPC::~ObsReaderGRPC() {}
 bool ObsReaderGRPC::configure(const std::string& key, const std::string& value)
 {
   METLIBS_LOG_SCOPE(LOGVAL(key) << LOGVAL(value));
-  if (key == "grpc") {
+  if (key == "grpc_obs") {
     if (client_) {
       METLIBS_LOG_ERROR("client already configured");
       return false;
     }
     client_.reset(new diutil::grpc::obs::ObsServiceGRPCClient(value));
-    METLIBS_LOG_DEBUG("grpc obs client configured");
+    METLIBS_LOG_DEBUG("grpc_obs client configured");
   } else if (key == "name") {
     name_ = value;
   } else {
