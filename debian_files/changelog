@@ -1,3 +1,10 @@
+diana-3.57 (3.57.0~rc5-1) unstable; urgency=low
+
+  *  bugfix FieldDialogStyle hour.diff / hour.offset
+  *  PlotOptions::table is a bool
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Thu, 08 Sep 2022 08:00:08 +0200
+
 diana-3.57 (3.57.0~rc4-1) unstable; urgency=low
 
   *  bugfix reset field options
