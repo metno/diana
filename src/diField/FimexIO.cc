@@ -1020,8 +1020,7 @@ vcross::Values_p  FimexIO::getVariable(const std::string& varName)
     CDMDimension dim1 = cdm.getDimension(shape[0]);
     CDMDimension dim2 = cdm.getDimension(shape[1]);
 
-    const DataPtr data = feltReader->getData(varName);
-    MetNoFimex::shared_array<float> fdata = data->asFloat();
+    const auto fdata = feltReader->getData(varName)->asFloat();
     const vcross::Values::Shape shp(dim1.getName(), dim1.getLength(), dim2.getName(), dim2.getLength());
     return std::make_shared<vcross::Values>(shp, fdata);
 
@@ -1063,7 +1062,7 @@ bool FimexIO::putData(const std::string& reftime, const gridinventory::GridParam
     const CoordinateSystemSliceBuilder sb = createSliceBuilder(varCS, reftime, param, taxis_index, zaxis_index, eaxis_index);
 
     const size_t fieldSize = field->area.gridSize();
-    MetNoFimex::shared_array<float> fdata(new float[fieldSize]);
+    auto fdata = MetNoFimex::make_shared_array<float>(fieldSize);
 
     mifi_bad2nanf(&fdata[0], &fdata[0]+fieldSize, fieldUndef);
 
@@ -1073,7 +1072,7 @@ bool FimexIO::putData(const std::string& reftime, const gridinventory::GridParam
     //change time and forecast_reference_time to output_time
     //this only works when there is one time step
     if ( !output_time.empty() ) {
-      MetNoFimex::shared_array<float> fdata2(new float[1]);
+      auto fdata2 = MetNoFimex::make_shared_array<float>(1);
       fdata2[0]=0;
       const DataPtr data2 = MetNoFimex::createData(1,fdata2 );
       std::string time_unit = "seconds since " + output_time + " +00:00";

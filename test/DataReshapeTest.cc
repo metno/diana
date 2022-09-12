@@ -1,3 +1,31 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2015-2022 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #include <DataReshape.h>
 
@@ -117,12 +145,12 @@ TEST(DataReshapeTest, ReshapeArrayIdentical)
   const size_v size_b = (size_v() << 3 << 2);
   const string_v name_b = (string_v() << "z" << "x");
 
-  MetNoFimex::shared_array<float> array_in(new float[6]);
+  auto array_in = diutil::make_shared_array<float>(6);
   const float floats_in[6] = { 11, 21, 31, 12, 22, 32 };
   for (int i=0; i<6; ++i)
     array_in[i] = floats_in[i];
 
-  MetNoFimex::shared_array<float> array_out = reshape(name_a, size_a, name_b, size_b, array_in);
+  auto array_out = reshape(name_a, size_a, name_b, size_b, array_in);
   EXPECT_EQ(array_in, array_out);
 }
 

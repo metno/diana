@@ -32,10 +32,10 @@
 
 #include "DataReshape.h"
 
-#include <fimex/SharedArray.h>
 #include <puDatatypes/miCoordinates.h>
 
 #include <map>
+#include <memory>
 #include <set>
 #include <string>
 #include <vector>
@@ -194,7 +194,7 @@ class Values
 {
 public:
   typedef float value_t;
-  typedef MetNoFimex::shared_array<value_t> ValueArray;
+  typedef std::shared_ptr<value_t[]> ValueArray;
 
 public:
   class Shape {
@@ -293,11 +293,8 @@ public:
 
   static const char *GEO_X, *GEO_Y, *GEO_Z, *TIME, *REALIZATION;
 
-
-  value_t value(const ShapeIndex& si) const
-    { return mValues[si.index()]; }
-  void setValue(value_t v, const ShapeIndex& si)
-    { mValues[si.index()] = v; }
+  value_t value(const ShapeIndex& si) const { return values()[si.index()]; }
+  void setValue(value_t v, const ShapeIndex& si) { values()[si.index()] = v; }
 
   value_t undefValue() const
     { return mUndefValue; }
@@ -305,8 +302,8 @@ public:
     { mUndefValue = u; }
 
   /** direct access to the values -- make sure that you know the shape if you use this! */
-  ValueArray values() const
-    { return mValues; }
+  const ValueArray values() const { return mValues; }
+  ValueArray values() { return mValues; }
   const Shape& shape() const
     { return mShape; }
 
@@ -323,14 +320,14 @@ typedef std::vector<Values_cp> Values_cpv;
 
 typedef std::map<std::string, Values_cp> name2value_t;
 
-template<typename T>
-MetNoFimex::shared_array<T> reshape(const Values::Shape& shapeIn, const Values::Shape& shapeOut, MetNoFimex::shared_array<T> dataIn)
+template <typename T>
+std::shared_ptr<T[]> reshape(const Values::Shape& shapeIn, const Values::Shape& shapeOut, std::shared_ptr<T[]> dataIn)
 {
   return ::reshape(shapeIn.names(), shapeIn.lengths(), shapeOut.names(), shapeOut.lengths(), dataIn);
 }
 
-template<typename T>
-MetNoFimex::shared_array<T> reshape(const Values::ShapeSlice& sliceIn, const Values::Shape& shapeOut, MetNoFimex::shared_array<T> dataIn)
+template <typename T>
+std::shared_ptr<T[]> reshape(const Values::ShapeSlice& sliceIn, const Values::Shape& shapeOut, std::shared_ptr<T[]> dataIn)
 {
   return ::reshape(sliceIn.shape().names(), sliceIn.lengths(), shapeOut.names(), shapeOut.lengths(), dataIn);
 }
