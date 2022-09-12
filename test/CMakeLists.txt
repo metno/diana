@@ -111,6 +111,7 @@ SET (dianaUnitTests_SOURCES
   TestQuickMenues.cc
   TestSatImg.cc
   TestSetupParser.cc
+  TestUnitsConverter.cc
   TestUtilities.cc
   TestVcrossComputer.cc
   TestVprofData.cc

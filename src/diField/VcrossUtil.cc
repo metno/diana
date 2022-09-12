@@ -29,15 +29,11 @@
 
 #include "VcrossUtil.h"
 
+#include "../util/diUnitsConverter.h"
 #include "../util/string_util.h"
 #include "../util/time_util.h"
 
 #include <mi_fieldcalc/MetConstants.h>
-
-#include <fimex/UnitsConverter.h>
-#include <fimex/UnitsException.h>
-
-#include <udunits2.h>
 
 #include <cmath>
 #include <istream>
@@ -111,144 +107,6 @@ bool step_index(int& idx, int step, int max)
   return idx != oidx;
 }
 
-UnitConvertibility unitConvertibility(const std::string& ua, const std::string& ub)
-{
-  if (ua == ub)
-    return UNITS_IDENTICAL;
-
-  MetNoFimex::Units units;
-  if (not units.areConvertible(ua, ub))
-    return UNITS_MISMATCH;
-
-  MetNoFimex::UnitsConverter_p uconv = units.getConverter(ua, ub);
-  if (not uconv)
-    return UNITS_MISMATCH;
-  if (not uconv->isLinear())
-    return UNITS_CONVERTIBLE;
-
-  double scale=0, offset=12354;
-  uconv->getScaleOffset(scale, offset);
-  if (scale == 1 and offset == 0)
-    return UNITS_IDENTICAL;
-  return UNITS_LINEAR;
-}
-
-static ut_system* utSystem = 0;
-static void getUtSystem()
-{
-  if (not utSystem) {
-    ut_set_error_message_handler(&ut_ignore);
-    utSystem = ut_read_xml(0);
-    MetNoFimex::handleUdUnitError(ut_get_status(), "init");
-  }
-}
-
-std::string unitsMultiplyDivide(const std::string& ua, const std::string& ub, bool multiply)
-{
-  if (ub.empty())
-    return ua;
-
-  try {
-    getUtSystem();
-
-    std::shared_ptr<ut_unit> aUnit(ut_parse(utSystem, ua.empty() ? "1" : ua.c_str(), UT_UTF8), ut_free);
-    MetNoFimex::handleUdUnitError(ut_get_status(), ua);
-    std::shared_ptr<ut_unit> bUnit(ut_parse(utSystem, ub.c_str(), UT_UTF8), ut_free);
-    MetNoFimex::handleUdUnitError(ut_get_status(), ub);
-    std::shared_ptr<ut_unit> mUnit((multiply ? ut_multiply : ut_divide)(aUnit.get(), bUnit.get()), ut_free);
-    MetNoFimex::handleUdUnitError(ut_get_status(), "result");
-
-    char buf[128];
-    const int len = ut_format(mUnit.get(), buf, sizeof(buf), UT_ASCII | UT_DEFINITION);
-    if (len >= 0 and len < int(sizeof(buf)))
-      return buf;
-  } catch (MetNoFimex::UnitException& ue) {
-    //METLIBS_LOG_ERROR(ue.what());
-  }
-  return "";
-}
-
-std::string unitsRoot(const std::string& u, int root)
-{
-  if (u.empty())
-    return u;
-
-  try {
-    getUtSystem();
-
-    std::shared_ptr<ut_unit> iUnit(ut_parse(utSystem, u.c_str(), UT_UTF8), ut_free);
-    MetNoFimex::handleUdUnitError(ut_get_status(), u);
-    std::shared_ptr<ut_unit> rUnit(ut_root(iUnit.get(), root), ut_free);
-    MetNoFimex::handleUdUnitError(ut_get_status(), "result");
-
-    char buf[128];
-    const int len = ut_format(rUnit.get(), buf, sizeof(buf), UT_ASCII | UT_DEFINITION);
-    if (len >= 0 and len < int(sizeof(buf)))
-      return buf;
-  } catch (MetNoFimex::UnitException& ue) {
-    //METLIBS_LOG_ERROR(ue.what());
-  }
-  return "";
-}
-
-// ------------------------------------------------------------------------
-
-MetNoFimex::UnitsConverter_p unitConverter(const std::string& ua, const std::string& ub)
-{
-  return MetNoFimex::Units().getConverter(ua, ub);
-}
-
-// ------------------------------------------------------------------------
-
-bool unitConversion(const std::string& unitIn, const std::string& unitOut, size_t volume, float undefval, const float* vIn, float* vOut)
-{
-  MetNoFimex::UnitsConverter_p uconv = util::unitConverter(unitIn, unitOut);
-  if (!uconv)
-    return false;
-
-  for (size_t i = 0; i < volume; ++i) {
-    const float pX = vIn[i];
-    const float v = (pX != undefval) ? uconv->convert(pX) : undefval;
-    vOut[i] = v;
-  }
-  return true;
-}
-
-// ------------------------------------------------------------------------
-
-Values_cp unitConversion(Values_cp valuesIn, const std::string& unitIn, const std::string& unitOut)
-{
-  if (not valuesIn or unitsIdentical(unitIn, unitOut))
-    return valuesIn;
-  MetNoFimex::UnitsConverter_p uconv = util::unitConverter(unitIn, unitOut);
-  if (not uconv)
-    return Values_cp();
-  const float udI = valuesIn->undefValue();
-  auto valuesOut = std::make_shared<Values>(valuesIn->shape());
-
-  const size_t volume = valuesOut->shape().volume();
-  const auto vIn = valuesIn->values();
-  auto vOut = valuesOut->values();
-  for (size_t i = 0; i < volume; ++i) {
-    const float pX = vIn[i];
-    const float v = (pX != udI) ? uconv->convert(pX): udI;
-    vOut[i] = v;
-  }
-  return valuesOut;
-}
-
-// ------------------------------------------------------------------------
-
-float unitConversion(float valueIn, const std::string& unitIn, const std::string& unitOut)
-{
-  if (unitsIdentical(unitIn, unitOut))
-    return valueIn;
-  MetNoFimex::UnitsConverter_p uconv = util::unitConverter(unitIn, unitOut);
-  if (not uconv)
-    return valueIn;
-  return uconv->convert(valueIn);
-}
-
 // ------------------------------------------------------------------------
 
 bool isCommentLine(const std::string& line)
@@ -313,11 +171,11 @@ Time from_miTime(const miutil::miTime& mitime)
 miutil::miTime to_miTime(const std::string& unit, Time::timevalue_t value)
 {
   if (diutil::startswith(unit, "days")) {
-    if (MetNoFimex::UnitsConverter_p uconv = unitConverter(unit, DAYS_SINCE_1900))
-      return miutil::addHour(day0(), 24 * uconv->convert(value));
+    if (auto uconv = diutil::unitConverter(unit, DAYS_SINCE_1900))
+      return miutil::addHour(day0(), 24 * uconv->convert1(value));
   } else if (!unit.empty()) {
-    if (MetNoFimex::UnitsConverter_p uconv = unitConverter(unit, SECONDS_SINCE_1970))
-      return miutil::addSec(time0(), uconv->convert(value));
+    if (auto uconv = diutil::unitConverter(unit, SECONDS_SINCE_1970))
+      return miutil::addSec(time0(), uconv->convert1(value));
   }
   return miutil::miTime();
 }

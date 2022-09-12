@@ -188,14 +188,14 @@ void FieldPlot::setData(const Field_pv& vf, const miutil::miTime& t)
   if (fields.empty()) {
     setPlotName("");
   } else {
-    Field_cp f0 = fields[0];
+    auto f0 = fields[0];
     setPlotName(f0->fulltext);
-    const vcross::Values_cp p0 = f0->palette;
+    auto p0 = f0->palette;
     if (p0) {
       const auto& npoint = p0->shape().length(0);
       const auto& nlevel = p0->shape().length(1);
       if (npoint > 2) {
-        vcross::Values::ShapeIndex si(p0->shape());
+        diutil::Values::ShapeIndex si(p0->shape());
         poptions.palettecolours.clear();
         bool alpha = (npoint == 4);
         for (size_t i = 0; i < nlevel; ++i) {

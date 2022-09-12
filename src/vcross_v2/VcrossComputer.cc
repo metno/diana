@@ -29,6 +29,7 @@
 
 #include "VcrossComputer.h"
 #include "diField/VcrossUtil.h"
+#include "util/diUnitsConverter.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -152,7 +153,7 @@ bool FunctionData::setArguments(const string_v& arguments, const InventoryBase_c
       } else if (a.empty()) {
         METLIBS_LOG_INFO("cannot change to empty unit");
         badArgs = true;
-      } else if (function() == vcf_convert_unit and not util::unitsConvertible(argument(0)->unit(), a)) {
+      } else if (function() == vcf_convert_unit && !diutil::unitsConvertible(argument(0)->unit(), a)) {
         METLIBS_LOG_INFO("cannot convert from '" << argument(0)->unit() << "' to '" << a << "'");
         badArgs = true;
       } else {
@@ -169,18 +170,18 @@ bool FunctionData::setArguments(const string_v& arguments, const InventoryBase_c
       const std::string &a_unit = it->unit();
       const char* f_unit = mFunction->unit_args[arg_idx];
       if (f_unit) {
-        if (not util::unitsIdentical(a_unit, f_unit)) {
+        if (!diutil::unitsIdentical(a_unit, f_unit)) {
           METLIBS_LOG_INFO("argument unit must be '" << f_unit << "', not '" << a_unit << "'");
           badArgs = true;
         }
       } else if (nargument() >= 1 and function() != vcf_multiply and function() != vcf_divide) {
         const std::string &a0_unit = argument(0)->unit();
-        if (not util::unitsIdentical(a0_unit, a_unit)) {
+        if (!diutil::unitsIdentical(a0_unit, a_unit)) {
           METLIBS_LOG_INFO("argument units '" << a0_unit << "' and '" << a_unit << "' not identical");
           badArgs = true;
         }
       } else if (function() == vcf_sqrt) {
-        setUnit(util::unitsRoot(a_unit, 2));
+        setUnit(diutil::unitsRoot(a_unit, 2));
       }
       // TODO check that the z axes are identical
       addArgument(it);
@@ -199,7 +200,7 @@ bool FunctionData::setArguments(const string_v& arguments, const InventoryBase_c
       if (o_unit)
         setUnit(o_unit);
       else if ((function() == vcf_multiply or function() == vcf_divide) and not hasNumericArg())
-        setUnit(util::unitsMultiplyDivide(argument(0)->unit(), argument(1)->unit(), function() == vcf_multiply));
+        setUnit(diutil::unitsMultiplyDivide(argument(0)->unit(), argument(1)->unit(), function() == vcf_multiply));
       else
         setUnit(argument(0)->unit());
     }
@@ -212,69 +213,69 @@ bool FunctionData::setArguments(const string_v& arguments, const InventoryBase_c
 
 // ------------------------------------------------------------------------
 
-static Values::ValueArray getPressureFloats(FieldData_cp arg0, const name2value_t& n2v)
+static diutil::Values::ValueArray getPressureFloats(FieldData_cp arg0, const name2value_t& n2v)
 {
   if (!arg0)
-    return Values::ValueArray();
-  
+    return diutil::Values::ValueArray();
+
   ZAxisData_cp zfield = arg0->zaxis();
   if (!zfield)
-    return Values::ValueArray();
+    return diutil::Values::ValueArray();
 
   std::string pressureId;
-  if (util::unitsConvertible(zfield->unit(), "hPa"))
+  if (diutil::unitsConvertible(zfield->unit(), "hPa"))
     pressureId = zfield->id();
   else if (FieldData_cp pfield = std::static_pointer_cast<const FieldData>(zfield->pressureField()))
     pressureId = pfield->id();
   else
-    return Values::ValueArray();
+    return diutil::Values::ValueArray();
 
   name2value_t::const_iterator itpp = n2v.find(pressureId);
   if (itpp == n2v.end() or not itpp->second)
-    return Values::ValueArray();
+    return diutil::Values::ValueArray();
 
   name2value_t::const_iterator ita0 = n2v.find(arg0->id());
   if (ita0 == n2v.end() or not ita0->second)
-    return Values::ValueArray();
+    return diutil::Values::ValueArray();
 
-  Values_cp p_values = itpp->second, arg0_values = ita0->second;
+  diutil::Values_cp p_values = itpp->second, arg0_values = ita0->second;
   return reshape(p_values->shape(), arg0_values->shape(), p_values->values());
 }
 
-Values_cp FunctionData::evaluate(name2value_t& n2v) const
+diutil::Values_cp FunctionData::evaluate(name2value_t& n2v) const
 {
   METLIBS_LOG_SCOPE(LOGVAL(id()) << LOGVAL(mFunction->name));
-  Values_cpv argument_values;
+  diutil::Values_cpv argument_values;
   for (const InventoryBase_cp& a : arguments()) {
     name2value_t::const_iterator ita = n2v.find(a->id());
     if (ita == n2v.end()) {
       // argument values missing
       if (not vcross::vc_evaluate_field(a, n2v)) {
         METLIBS_LOG_WARN("argument '" << a->id() << "' has no values");
-        return Values_p();
+        return diutil::Values_p();
       }
       ita = n2v.find(a->id());
       if (ita == n2v.end()) {
         METLIBS_LOG_WARN("argument '" << a->id() << "' has no values after evaluating it");
-        return Values_p();
+        return diutil::Values_p();
       }
     }
     if (not ita->second)
-      return Values_p();
-   
+      return diutil::Values_p();
+
     argument_values.push_back(ita->second);
   }
   if (argument_values.empty()) {
     METLIBS_LOG_WARN("no argument values");
-    return Values_p();
+    return diutil::Values_p();
   }
 
   const FieldData_cp a0 = std::dynamic_pointer_cast<const FieldData>(argument(0));
 
-  const Values_cp av0 = argument_values[0], av1 = (argument_values.size() >= 2 ? argument_values[1] : Values_cp());
+  const diutil::Values_cp av0 = argument_values[0], av1 = (argument_values.size() >= 2 ? argument_values[1] : diutil::Values_cp());
   const float ud0 = av0->undefValue(), ud1 = (av1 ? av1->undefValue() : ud0);
   const size_t np = av0->shape().length(0), nl = av0->shape().length(1);
-  auto out = std::make_shared<Values>(av0->shape());
+  auto out = std::make_shared<diutil::Values>(av0->shape());
 
   const float *f0 = av0->values().get(), *f1 = (av1 ? av1->values().get() : 0);
   float* fo = out->values().get();
@@ -296,20 +297,20 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
 
     if (mNumericArgIndex < 0) {
       if (!miutil::fieldcalc::fieldOPERfield(compute, np, nl, f0, f1, fo, fDefined, ud0))
-        return Values_p();
+        return diutil::Values_p();
     } else if (mNumericArgIndex == 0) {
       if (!miutil::fieldcalc::constantOPERfield(compute, np, nl, mNumericArg, f0, fo, fDefined, ud0))
-        return Values_p();
+        return diutil::Values_p();
     } else if (mNumericArgIndex == 1) {
       if (!miutil::fieldcalc::fieldOPERconstant(compute, np, nl, f0, mNumericArg, fo, fDefined, ud0))
-        return Values_p();
+        return diutil::Values_p();
     } else {
-      return Values_p();
+      return diutil::Values_p();
     }
     break; }
 
   case vcf_convert_unit:
-    return util::unitConversion(av0, argument(0)->unit(), unit());
+    return diutil::unitConversion(av0, argument(0)->unit(), unit());
 
   case vcf_impose_unit:
     return av0;
@@ -317,11 +318,11 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
   case vcf_normal: case vcf_tangential: {
     const name2value_t::const_iterator itb = n2v.find(VC_BEARING);
     if (itb == n2v.end())
-      return Values_p();
-    const Values_cp vbearing = itb->second;
+      return diutil::Values_p();
+    const diutil::Values_cp vbearing = itb->second;
 
     const bool ff_normal = (function() == vcf_normal);
-    vcross::Values::ShapeIndex si(av0->shape());
+    diutil::Values::ShapeIndex si(av0->shape());
     for (size_t p = 0; p < np; p++) {
       si.set(0, p).set(1, 0);
       const detail::NormalTangential func(ff_normal, vbearing->value(si));
@@ -335,7 +336,7 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
     break; }
 
   case vcf_total: {
-    vcross::Values::ShapeIndex si(av0->shape());
+    diutil::Values::ShapeIndex si(av0->shape());
     for (size_t l = 0; l < nl; l++) {
       si.set(1, l);
       for (size_t p = 0; p < np; p++) {
@@ -360,14 +361,14 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
   case vcf_thesat_from_th: {
     if (compute == 0) compute = 5;
 
-    const Values::ValueArray f_pp = getPressureFloats(a0, n2v);
+    const diutil::Values::ValueArray f_pp = getPressureFloats(a0, n2v);
     if (not f_pp) {
       METLIBS_LOG_WARN("no pressure for aleveltemp, " << LOGVAL(compute));
-      return Values_cp();
+      return diutil::Values_cp();
     }
 
     if (not miutil::fieldcalc::aleveltemp(np, nl, f0, f_pp.get(), "kelvin", compute, fo, fDefined, ud0))
-      return Values_cp();
+      return diutil::Values_cp();
     break; }
 
   case vcf_the_from_tk_q:
@@ -375,12 +376,12 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
   case vcf_the_from_th_q: {
     if (compute == 0) compute = 2;
 
-    const Values::ValueArray f_pp = getPressureFloats(a0, n2v);
+    const diutil::Values::ValueArray f_pp = getPressureFloats(a0, n2v);
     if (not f_pp)
-      return Values_cp();
+      return diutil::Values_cp();
 
     if (not miutil::fieldcalc::alevelthe(np, nl, f0, f1, f_pp.get(), compute, fo, fDefined, ud0))
-      return Values_cp();
+      return diutil::Values_cp();
     break; }
 
   case vcf_rh_from_tk_q:
@@ -408,24 +409,24 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
     if (compute == 0)
       compute = 12;
 
-    const Values::ValueArray f_pp = getPressureFloats(a0, n2v);
+    const diutil::Values::ValueArray f_pp = getPressureFloats(a0, n2v);
     if (not f_pp) {
       METLIBS_LOG_DEBUG("no pressure field");
-      return Values_p();
+      return diutil::Values_p();
     }
 
     if (not miutil::fieldcalc::alevelhum(np, nl, f0, f1, f_pp.get(), "kelvin", compute, fo, fDefined, ud0))
-      return Values_p();
+      return diutil::Values_p();
     break; }
 
   case vcf_height_above_msl_from_surface_geopotential: {
     compute = 3;
     if (!miutil::fieldcalc::fieldOPERconstant(compute, out->shape().length(0), out->shape().length(1), f0, miutil::constants::ginv, fo, fDefined, ud0))
-      return Values_p();
+      return diutil::Values_p();
     break; }
 
   case vcf_no_function:
-    return Values_p();
+    return diutil::Values_p();
   }
   return out;
 }
@@ -453,7 +454,7 @@ void FunctionData::collectRequired(InventoryBase_cps& required) const
     // these functions require a pressure field
     if (FieldData_cp fa0 = std::dynamic_pointer_cast<const FieldData>(argument(0))) {
       if (ZAxisData_cp zaxis = fa0->zaxis()) {
-        if (util::unitsConvertible(zaxis->unit(), "hPa"))
+        if (diutil::unitsConvertible(zaxis->unit(), "hPa"))
           required.insert(zaxis);
         else if (InventoryBase_cp pfield = zaxis->pressureField())
           required.insert(pfield);
@@ -506,8 +507,8 @@ void resolveCrossection(InventoryBase_cps& inv)
 }
 
 namespace /*anonymous*/ {
-void evaluateCrossectionPoint(Crossection_cp cs, size_t cs_index,
-    Values::value_t& vlon, Values::value_t& vlat, Values::value_t& vbrng, Values::value_t& vstep, Values::value_t& vcor)
+void evaluateCrossectionPoint(Crossection_cp cs, size_t cs_index, diutil::Values::value_t& vlon, diutil::Values::value_t& vlat, diutil::Values::value_t& vbrng,
+                              diutil::Values::value_t& vstep, diutil::Values::value_t& vcor)
 {
   if (cs_index >= cs->length()) {
     vlon = vlat = vbrng = vstep = vcor = 0;
@@ -535,16 +536,16 @@ void evaluateCrossectionPoint(Crossection_cp cs, size_t cs_index,
 void evaluateCrossection(Crossection_cp cs, name2value_t& n2v)
 {
   const auto length = cs->length();
-  const vcross::Values::Shape shp(vcross::Values::GEO_X, length);
-  auto vlon = std::make_shared<Values>(shp);
-  auto vlat = std::make_shared<Values>(shp);
-  auto vbrng = std::make_shared<Values>(shp);
-  auto vstep = std::make_shared<Values>(shp);
-  auto vcor = std::make_shared<Values>(shp);
+  const diutil::Values::Shape shp(diutil::Values::GEO_X, length);
+  auto vlon = std::make_shared<diutil::Values>(shp);
+  auto vlat = std::make_shared<diutil::Values>(shp);
+  auto vbrng = std::make_shared<diutil::Values>(shp);
+  auto vstep = std::make_shared<diutil::Values>(shp);
+  auto vcor = std::make_shared<diutil::Values>(shp);
 
-  vcross::Values::ShapeIndex si(vlon->shape());
+  diutil::Values::ShapeIndex si(vlon->shape());
   for (size_t i = 0; i < length; ++i) {
-    Values::value_t flon, flat, fbrng, fstep, fcor;
+    diutil::Values::value_t flon, flat, fbrng, fstep, fcor;
     evaluateCrossectionPoint(cs, i, flon, flat, fbrng, fstep, fcor);
     si.set(0, i);
     vlon->setValue(flon, si);
@@ -566,15 +567,15 @@ void evaluateCrossection4TimeGraph(Crossection_cp cs, size_t cs_index, size_t nt
   if (cs_index >= cs->length())
     return;
 
-  Values::value_t flon, flat, fbrng, fstep, fcor;
+  diutil::Values::value_t flon, flat, fbrng, fstep, fcor;
   evaluateCrossectionPoint(cs, cs_index, flon, flat, fbrng, fstep, fcor);
 
-  const vcross::Values::Shape shp(vcross::Values::GEO_X, ntimes);
-  auto vlon = std::make_shared<Values>(shp);
-  auto vlat = std::make_shared<Values>(shp);
-  auto vcor = std::make_shared<Values>(shp);
+  const diutil::Values::Shape shp(diutil::Values::GEO_X, ntimes);
+  auto vlon = std::make_shared<diutil::Values>(shp);
+  auto vlat = std::make_shared<diutil::Values>(shp);
+  auto vcor = std::make_shared<diutil::Values>(shp);
 
-  vcross::Values::ShapeIndex si(vlon->shape());
+  diutil::Values::ShapeIndex si(vlon->shape());
   for (size_t i=0; i<ntimes; ++i) {
     si.set(0, i);
     vlon->setValue(flon, si);
@@ -618,11 +619,11 @@ void collectRequiredVertical(InventoryBase_cps& required, InventoryBase_cp item,
 
 // ================================================================================
 
-Values_cp vc_evaluate_field(InventoryBase_cp item, name2value_t& n2v)
+diutil::Values_cp vc_evaluate_field(InventoryBase_cp item, name2value_t& n2v)
 {
   METLIBS_LOG_SCOPE();
   if (not item)
-    return Values_cp();
+    return diutil::Values_cp();
 
   METLIBS_LOG_DEBUG(LOGVAL(item->id()));
   name2value_t::iterator it = n2v.find(item->id());
@@ -630,12 +631,12 @@ Values_cp vc_evaluate_field(InventoryBase_cp item, name2value_t& n2v)
     return it->second;
 
   // insert an item to protect against recursion
-  Values_cp& out = n2v[item->id()];
+  diutil::Values_cp& out = n2v[item->id()];
 
   if (item->dataType() != FunctionData::DATA_TYPE()) {
     // no idea how to evaluate other things than functions
     METLIBS_LOG_WARN("cannot evaluate '" << item->id() << "' with type '" << item->dataType() << "'");
-    return Values_cp();
+    return diutil::Values_cp();
   }
 
   FunctionData_cp f = std::static_pointer_cast<const FunctionData>(item);

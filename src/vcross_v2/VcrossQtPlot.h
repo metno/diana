@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013-2018 met.no
+  Copyright (C) 2013-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -83,13 +83,18 @@ private:
   typedef std::vector<OptionPlot_cp> OptionPlot_cpv;
 
   struct OptionLine {
-    Values_cp linevalues;
+    diutil::Values_cp linevalues;
     std::string linecolour;
     std::string linetype;
     float linewidth;
 
-    OptionLine(Values_cp lv, const std::string& lc, const std::string& lt, float lw)
-      : linevalues(lv), linecolour(lc), linetype(lt), linewidth(lw) { }
+    OptionLine(diutil::Values_cp lv, const std::string& lc, const std::string& lt, float lw)
+        : linevalues(lv)
+        , linecolour(lc)
+        , linetype(lt)
+        , linewidth(lw)
+    {
+    }
   };
   typedef std::vector<OptionLine> OptionLine_v;
 
@@ -138,10 +143,9 @@ public:
       const LonLat_v& csPoints, const LonLat_v& csPointsRequested);
   void setHorizontalTime(const LonLat& tgPosition, const std::vector<miutil::miTime>& times);
   bool setVerticalAxis();
-  void setSurface(Values_cp s)
-    { mSurface = s; }
+  void setSurface(diutil::Values_cp s) { mSurface = s; }
   void addPlot(EvaluatedPlot_cp ep);
-  void addLine(Values_cp linevalues, const std::string& linecolour, const std::string& linetype, float linewidth);
+  void addLine(diutil::Values_cp linevalues, const std::string& linecolour, const std::string& linetype, float linewidth);
   void addMarker(float position, const std::string& text, const std::string& colour);
   void addMarker(float x, float y, const std::string& text, const std::string& colour);
   void setReferencePosition(float rp)
@@ -184,7 +188,7 @@ private:
   std::vector<std::string> plotData(QPainter& painter);
   std::string plotDataExtremes(QPainter& painter, OptionPlot_cp plot);
   void plotDataContour(QPainter& painter, OptionPlot_cp plot);
-  void plotDataArrow(QPainter& painter, OptionPlot_cp plot, const PaintArrow& pa, Values_cp av0, Values_cp av1);
+  void plotDataArrow(QPainter& painter, OptionPlot_cp plot, const PaintArrow& pa, diutil::Values_cp av0, diutil::Values_cp av1);
   void plotDataWind(QPainter& painter, OptionPlot_cp plot);
   void plotDataVector(QPainter& painter, OptionPlot_cp plot);
   void plotDataVectorExample(QPainter& painter, OptionPlot_cp plot);
@@ -234,7 +238,7 @@ private:
   LonLat mTimeCSPoint;
 
   OptionPlot_cpv mPlots;
-  Values_cp mSurface;
+  diutil::Values_cp mSurface;
 
   OptionLine_v mLines;
   OptionMarker_v mMarkers;

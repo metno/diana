@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2020 met.no
+  Copyright (C) 2015-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -32,7 +32,6 @@
 
 #include "VcrossData.h"
 #include <puTools/miTime.h>
-#include <fimex/Units.h>
 
 namespace vcross {
 namespace util {
@@ -65,33 +64,6 @@ void from_set(std::vector<T>& v, const std::set<T>& s)
   v.clear();
   v.insert(v.end(), s.begin(), s.end());
 }
-
-enum UnitConvertibility {
-  UNITS_MISMATCH=0,  //! no unit conversion known
-  UNITS_CONVERTIBLE, //! units are convertible with a function
-  UNITS_LINEAR,      //! units are convertible with a linear transformation
-  UNITS_IDENTICAL    //! units are the same
-};
-
-UnitConvertibility unitConvertibility(const std::string& ua, const std::string& ub);
-
-inline bool unitsIdentical(const std::string& ua, const std::string& ub)
-{ return unitConvertibility(ua, ub) == UNITS_IDENTICAL; }
-
-inline bool unitsConvertible(const std::string& ua, const std::string& ub)
-{ return unitConvertibility(ua, ub) != UNITS_MISMATCH; }
-
-//! result unit after multiplication or division
-std::string unitsMultiplyDivide(const std::string& ua, const std::string& ub, bool multiply);
-
-//! result unit after taking root
-std::string unitsRoot(const std::string& u, int root=2);
-
-MetNoFimex::UnitsConverter_p unitConverter(const std::string& ua, const std::string& ub);
-
-Values_cp unitConversion(Values_cp valuesIn, const std::string& unitIn, const std::string& unitOut);
-float unitConversion(float valueIn, const std::string& unitIn, const std::string& unitOut);
-bool unitConversion(const std::string& unitIn, const std::string& unitOut, size_t volume, float undefval, const float* vIn, float* vOut);
 
 // ########################################################################
 

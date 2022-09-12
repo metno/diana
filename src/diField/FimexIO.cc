@@ -41,21 +41,23 @@
 
 #include <fimex/CDM.h>
 #include <fimex/CDMException.h>
-#include <fimex/CDMFileReaderFactory.h>
-#include <fimex/CDMReaderWriter.h>
-#include <fimex/Data.h>
-#include <fimex/interpolation.h>
-#include <fimex/CoordinateSystemSliceBuilder.h>
-#include <fimex/CDMReaderUtils.h>
-#include <fimex/CDMconstants.h>
-#include <fimex/CDMInterpolator.h>
 #include <fimex/CDMExtractor.h>
-#include <fimex/vertical_coordinate_transformations.h>
+#include <fimex/CDMFileReaderFactory.h>
+#include <fimex/CDMInterpolator.h>
+#include <fimex/CDMReader.h>
+#include <fimex/CDMReaderUtils.h>
+#include <fimex/CDMReaderWriter.h>
+#include <fimex/CDMconstants.h>
+#include <fimex/CoordinateSystemSliceBuilder.h>
+#include <fimex/Data.h>
+#include <fimex/Units.h>
+#include <fimex/coordSys/CoordinateSystem.h>
+#include <fimex/coordSys/verticalTransform/Height.h>
 #include <fimex/coordSys/verticalTransform/HybridSigmaPressure1.h>
 #include <fimex/coordSys/verticalTransform/Pressure.h>
-#include <fimex/coordSys/verticalTransform/Height.h>
 #include <fimex/coordSys/verticalTransform/ToVLevelConverter.h>
-#include <fimex/Units.h>
+#include <fimex/interpolation.h>
+#include <fimex/vertical_coordinate_transformations.h>
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/gregorian/greg_duration.hpp>
@@ -1002,7 +1004,7 @@ Field_p FimexIO::getData(const std::string& reftime, const gridinventory::GridPa
 /**
  * Get data
  */
-vcross::Values_p  FimexIO::getVariable(const std::string& varName)
+diutil::Values_p FimexIO::getVariable(const std::string& varName)
 {
   METLIBS_LOG_SCOPE();
   METLIBS_LOG_INFO(LOGVAL(varName));
@@ -1014,15 +1016,15 @@ vcross::Values_p  FimexIO::getVariable(const std::string& varName)
     const std::vector<std::string>& shape = cdm.getVariable(varName).getShape();
     if ( shape.size() != 2 ) {
       METLIBS_LOG_INFO("Only 2-dim varibles supported yet, dim ="<<shape.size());
-      return  vcross::Values_p();
+      return diutil::Values_p();
     }
 
     CDMDimension dim1 = cdm.getDimension(shape[0]);
     CDMDimension dim2 = cdm.getDimension(shape[1]);
 
     const auto fdata = feltReader->getData(varName)->asFloat();
-    const vcross::Values::Shape shp(dim1.getName(), dim1.getLength(), dim2.getName(), dim2.getLength());
-    return std::make_shared<vcross::Values>(shp, fdata);
+    const diutil::Values::Shape shp(dim1.getName(), dim1.getLength(), dim2.getName(), dim2.getLength());
+    return std::make_shared<diutil::Values>(shp, fdata);
 
   } catch (CDMException& cdmex) {
     METLIBS_LOG_WARN("Could not open or process " << source_name << ", CDMException is: " << cdmex.what());
@@ -1030,7 +1032,7 @@ vcross::Values_p  FimexIO::getVariable(const std::string& varName)
     METLIBS_LOG_WARN("Could not open or process " << source_name << ", exception is: " << ex.what());
   }
 
-  return  vcross::Values_p();
+  return diutil::Values_p();
 }
 
 bool FimexIO::putData(const std::string& reftime, const gridinventory::GridParameter& param, const std::string& level, const miutil::miTime& time,

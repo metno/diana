@@ -35,6 +35,7 @@
 #include <mi_fieldcalc/math_util.h>
 
 #include <cmath>
+#include <set>
 
 #define MILOGGER_CATEGORY "diana.Streamlines"
 #include <miLogger/miLogging.h>

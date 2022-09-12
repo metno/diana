@@ -34,6 +34,7 @@
 #include "diField/diField.h"
 #include "diField/diFlightLevel.h"
 #include "diPlotOptions.h"
+#include "util/diUnitsConverter.h"
 #include "util/misc_util.h"
 #include "util/string_util.h"
 
@@ -170,16 +171,16 @@ Field_p convertUnit(Field_p input, const std::string& output_unit)
   if (!input)
     return nullptr;
 
-  if (input->unit.empty() || output_unit.empty() || vcross::util::unitsIdentical(input->unit, output_unit))
+  if (input->unit.empty() || output_unit.empty() || diutil::unitsIdentical(input->unit, output_unit))
     return input;
 
-  if (!vcross::util::unitsConvertible(input->unit, output_unit))
+  if (!diutil::unitsConvertible(input->unit, output_unit))
     return nullptr;
 
   Field_p result = std::make_shared<Field>(*input);
   result->unit = output_unit;
   if (input->defined() == miutil::NONE_DEFINED ||
-      vcross::util::unitConversion(input->unit, result->unit, result->area.gridSize(), miutil::UNDEF, input->data, result->data))
+      diutil::unitConversion(input->unit, result->unit, result->area.gridSize(), miutil::UNDEF, input->data, result->data))
     return result;
 
   return nullptr;

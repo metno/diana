@@ -1,3 +1,31 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2014-2022 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #ifndef VCROSS_DIVCROSSCONTOUR_H
 #define VCROSS_DIVCROSSCONTOUR_H 1
@@ -21,16 +49,14 @@ typedef std::shared_ptr<Axis> AxisPtr;
 
 class VCAxisPositions : public DianaPositions {
 public:
-  VCAxisPositions(AxisPtr xaxis, AxisPtr yaxis,
-      const std::vector<float>& xvalues, Values_cp zvalues,
-      bool timegraph);
+  VCAxisPositions(AxisPtr xaxis, AxisPtr yaxis, const std::vector<float>& xvalues, diutil::Values_cp zvalues, bool timegraph);
 
   contouring::point_t position(size_t ix, size_t iy) const override;
 
 private:
   AxisPtr mXpos, mYpos;
   std::vector<float> mXval;
-  Values_cp mYval;
+  diutil::Values_cp mYval;
   int mYShapePositionXT, mYShapePositionZ;
 };
 
@@ -39,8 +65,7 @@ private:
 class VCContourField : public DianaFieldBase
 {
 public:
-  VCContourField(Values_cp data, const DianaLevels& levels,
-      const VCAxisPositions& positions, bool timegraph);
+  VCContourField(diutil::Values_cp data, const DianaLevels& levels, const VCAxisPositions& positions, bool timegraph);
 
   size_t nx() const override
     { return mData->shape().length(mShapePositionXT); }
@@ -52,7 +77,7 @@ protected:
   virtual float value(size_t ix, size_t iy) const override;
 
 private:
-  Values_cp mData;
+  diutil::Values_cp mData;
   int mShapePositionXT, mShapePositionZ;
 };
 

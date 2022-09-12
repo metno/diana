@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015 met.no
+  Copyright (C) 2015-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -9,7 +9,7 @@
   0313 OSLO
   NORWAY
   email: diana@met.no
-  
+
   This file is part of Diana
 
   Diana is free software; you can redistribute it and/or modify
@@ -21,7 +21,7 @@
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
   GNU General Public License for more details.
-  
+
   You should have received a copy of the GNU General Public License
   along with Diana; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -41,6 +41,7 @@
 #define MILOGGER_CATEGORY "diana.test.VcrossComputer"
 #include "miLogger/miLogging.h"
 
+using diutil::Values;
 using namespace vcross;
 
 namespace /* anonymous */ {
@@ -107,10 +108,10 @@ TEST(TestVcrossComputer, BangladeshTH)
   fs->getCrossectionValues(BANGLADESH_RT, cs3, time, request, n2v, 0);
   vc_evaluate_field(th, n2v);
 
-  Values_cp th_values = n2v[th->id()];
+  auto th_values = n2v[th->id()];
   ASSERT_TRUE(bool(th_values));
-  Values_cp vertical_values = n2v[vertical->id()];
-  if (not vertical_values)
+  auto vertical_values = n2v[vertical->id()];
+  if (!vertical_values)
     vertical_values = n2v[vertical_pressure->id()];
   ASSERT_TRUE(bool(vertical_values));
 
@@ -172,9 +173,9 @@ TEST(TestVcrossComputer, FunctionsWithConstants)
   vc_evaluate_field(tktwo, n2v);
   vc_evaluate_field(tktk,  n2v);
 
-  Values_cp twotk_values = n2v[twotk->id()];
-  Values_cp tktwo_values = n2v[tktwo->id()];
-  Values_cp tktk_values  = n2v[tktk->id()];
+  auto twotk_values = n2v[twotk->id()];
+  auto tktwo_values = n2v[tktwo->id()];
+  auto tktk_values = n2v[tktk->id()];
   ASSERT_TRUE(bool(twotk_values) && bool(tktwo_values) && bool(tktk_values));
 
   Values::ShapeIndex idx(tktwo_values->shape());
@@ -227,9 +228,9 @@ TEST(TestVcrossComputer, AddMultiplyDivide)
   vc_evaluate_field(xdy, n2v);
   vc_evaluate_field(xpy, n2v);
 
-  Values_cp xmy_values = n2v[xmy->id()];
-  Values_cp xdy_values = n2v[xdy->id()];
-  Values_cp xpy_values = n2v[xpy->id()];
+  auto xmy_values = n2v[xmy->id()];
+  auto xdy_values = n2v[xdy->id()];
+  auto xpy_values = n2v[xpy->id()];
   ASSERT_TRUE(bool(xmy_values) && bool(xdy_values) && bool(xpy_values));
 
   Values::ShapeIndex idx(xdy_values->shape());
@@ -282,7 +283,7 @@ TEST(TestVcrossComputer, Quadratic)
   fs->getCrossectionValues(BANGLADESH_RT, cs3, time, request, n2v, 0);
   vc_evaluate_field(xwq, n2v);
 
-  Values_cp xwq_values = n2v[xwq->id()];
+  auto xwq_values = n2v[xwq->id()];
   ASSERT_TRUE(bool(xwq_values));
 
   Values::ShapeIndex idx(xwq_values->shape());

@@ -97,7 +97,7 @@ public:
    */
   gridinventory::Grid getGrids() const;
 
-  vcross::Values_p getVariable(const std::string& reftime, const std::string& paramname);
+  diutil::Values_p getVariable(const std::string& reftime, const std::string& paramname);
 
   std::set<miutil::miTime> getTimes(const std::string& reftime, const std::string& paramname);
 

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2020 met.no
+  Copyright (C) 2020-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -51,18 +51,17 @@ inline bool isUndefined(float v)
   return std::isnan(v) or v >= UNDEF_VALUE or v < -UNDEF_VALUE;
 }
 
-VCContourField::VCContourField(Values_cp data, const DianaLevels& levels,
-    const VCAxisPositions& positions, bool timegraph)
-  : DianaFieldBase(levels, positions)
-  , mData(data)
-  , mShapePositionXT(mData->shape().position(timegraph ? Values::TIME : Values::GEO_X))
-  , mShapePositionZ(mData->shape().position(Values::GEO_Z))
+VCContourField::VCContourField(diutil::Values_cp data, const DianaLevels& levels, const VCAxisPositions& positions, bool timegraph)
+    : DianaFieldBase(levels, positions)
+    , mData(data)
+    , mShapePositionXT(mData->shape().position(timegraph ? diutil::Values::TIME : diutil::Values::GEO_X))
+    , mShapePositionZ(mData->shape().position(diutil::Values::GEO_Z))
 {
 }
 
 float VCContourField::value(size_t ix, size_t iy) const
 {
-  Values::ShapeIndex idx(mData->shape());
+  diutil::Values::ShapeIndex idx(mData->shape());
   idx.set(mShapePositionXT, ix);
   idx.set(mShapePositionZ, iy);
   return mData->value(idx);
@@ -70,20 +69,19 @@ float VCContourField::value(size_t ix, size_t iy) const
 
 // ########################################################################
 
-VCAxisPositions::VCAxisPositions(AxisPtr xaxis, AxisPtr yaxis,
-    const std::vector<float>& xvalues, Values_cp zvalues, bool timegraph)
-  : mXpos(xaxis)
-  , mYpos(yaxis)
-  , mXval(xvalues)
-  , mYval(zvalues)
-  , mYShapePositionXT(mYval->shape().position(timegraph ? Values::TIME : Values::GEO_X))
-  , mYShapePositionZ(mYval->shape().position(Values::GEO_Z))
+VCAxisPositions::VCAxisPositions(AxisPtr xaxis, AxisPtr yaxis, const std::vector<float>& xvalues, diutil::Values_cp zvalues, bool timegraph)
+    : mXpos(xaxis)
+    , mYpos(yaxis)
+    , mXval(xvalues)
+    , mYval(zvalues)
+    , mYShapePositionXT(mYval->shape().position(timegraph ? diutil::Values::TIME : diutil::Values::GEO_X))
+    , mYShapePositionZ(mYval->shape().position(diutil::Values::GEO_Z))
 {
 }
 
 contouring::point_t VCAxisPositions::position(size_t ix, size_t iy) const
 {
-  Values::ShapeIndex idx_y(mYval->shape());
+  diutil::Values::ShapeIndex idx_y(mYval->shape());
   idx_y.set(mYShapePositionXT, ix);
   idx_y.set(mYShapePositionZ,  iy);
 

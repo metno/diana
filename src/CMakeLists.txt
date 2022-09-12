@@ -70,6 +70,7 @@ SET (DIFIELD_SOURCES
   diField/diPoint.cc
   diField/diProjection.cc
   diField/diRectangle.cc
+  diField/diValues.cc
 )
 
 SET (BUILDINFO_CC "${CMAKE_CURRENT_BINARY_DIR}/diBuild.cc")
@@ -244,6 +245,7 @@ SET (LIBDIANA_SOURCES
   util/debug_timer.cc
   util/diKeyValue.cc
   util/diLineMerger.cc
+  util/diUnitsConverter.cc
   util/fimex_logging.cc
   util/format_int.cc
   util/geo_util.cc

@@ -47,23 +47,24 @@ using namespace vcross;
 
 namespace {
 
-VprofSimpleData_p copy_vprof_values(Values_cp zvalues, const name2value_t& n2v, const std::string& id, const std::string& z_unit, const std::string& x_unit)
+VprofSimpleData_p copy_vprof_values(diutil::Values_cp zvalues, const name2value_t& n2v, const std::string& id, const std::string& z_unit,
+                                    const std::string& x_unit)
 {
   METLIBS_LOG_SCOPE(LOGVAL(id));
   name2value_t::const_iterator it1 = n2v.find(id);
   if (it1 == n2v.end() || !it1->second)
     return VprofSimpleData_p();
 
-  Values_cp values1 = it1->second;
-  const int n1 = values1->shape().length(0);
-  const int nz = zvalues->shape().length(0);
+  auto values1 = it1->second;
+  const auto n1 = values1->shape().length(0);
+  const auto nz = zvalues->shape().length(0);
   if (n1 != nz)
     return VprofSimpleData_p();
 
-  VprofSimpleData_p out = std::make_shared<VprofSimpleData>(id, z_unit, x_unit);
+  auto out = std::make_shared<VprofSimpleData>(id, z_unit, x_unit);
   out->reserve(nz);
-  Values::ShapeIndex idx1(values1->shape());
-  Values::ShapeIndex idxz(zvalues->shape());
+  diutil::Values::ShapeIndex idx1(values1->shape());
+  diutil::Values::ShapeIndex idxz(zvalues->shape());
   for (int i = 0; i < n1; ++i) {
     idxz.set(0, i);
     idx1.set(0, i);
@@ -242,7 +243,7 @@ VprofValues_cp VprofDataFimex::readValues(const VprofValuesRequest& req)
       continue;
     }
 
-    Values_cp z_values = vc_evaluate_z(zaxis, req.vertical_axis, n2v);
+    auto z_values = vc_evaluate_z(zaxis, req.vertical_axis, n2v);
     if (!z_values) {
       METLIBS_LOG_WARN("no z values for model='" << mr.model << " reftime=" << util::to_miTime(mr.reftime) << " var='" << v << "'");
       continue;

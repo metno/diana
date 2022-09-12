@@ -2,7 +2,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013-2020 met.no
+  Copyright (C) 2013-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -31,8 +31,8 @@
 #define diField_h
 
 #include "diArea.h"
-#include "VcrossData.h"
-#include "diField/diFieldFwd.h"
+#include "diFieldFwd.h"
+#include "diValues.h"
 
 #include <mi_fieldcalc/FieldDefined.h>
 
@@ -73,7 +73,7 @@ public:
   float aHybrid;        // pressure[] = aHybrid + bHybrid * pSurface[]  ("eta levels")
   float bHybrid;        //
   std::string unit;     //unit of field (celsius, kelvin, m, mm, ...?)
-  vcross::Values_p palette; //colour palette from file
+  diutil::Values_p palette; // colour palette from file
   //.................................................................................
 
   int numSmoothed;
