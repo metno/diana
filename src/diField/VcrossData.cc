@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2014-2020 met.no
+  Copyright (C) 2014-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -251,24 +251,6 @@ const char *Values::GEO_Z = "GEO_Z";
 const char *Values::REALIZATION = "REALIZATION";
 const char *Values::TIME = "TIME";
 
-Values::Values(int np, int nl, ValueArray v)
-  : mShape(Shape(GEO_X, np, GEO_Z, nl))
-  , mValues(v)
-  , mUndefValue(NANF)
-{
-  assert(mShape.volume() == size_t(np * nl));
-}
-
-Values::Values(int np, int nl, bool fill)
-  : mShape(Shape(GEO_X, np, GEO_Z, nl))
-  , mValues(new float[mShape.volume()])
-  , mUndefValue(NANF)
-{
-  assert(mShape.volume() == size_t(np * nl));
-  if (fill)
-    std::fill(mValues.get(), mValues.get()+mShape.volume(), mUndefValue);
-}
-
 Values::Values(const Shape& shape, ValueArray v)
   : mShape(shape)
   , mValues(v)
@@ -276,13 +258,11 @@ Values::Values(const Shape& shape, ValueArray v)
 {
 }
 
-Values::Values(const Shape& shape, bool fill)
-  : mShape(shape)
-  , mValues(new float[mShape.volume()])
-  , mUndefValue(NANF)
+Values::Values(const Shape& shape)
+    : mShape(shape)
+    , mValues(new float[mShape.volume()])
+    , mUndefValue(NANF)
 {
-  if (fill)
-    std::fill(mValues.get(), mValues.get()+mShape.volume(), mUndefValue);
 }
 
 Values_p reshape(Values_p valuesIn, const Values::Shape& shapeOut)

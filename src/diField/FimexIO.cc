@@ -1022,8 +1022,8 @@ vcross::Values_p  FimexIO::getVariable(const std::string& varName)
 
     const DataPtr data = feltReader->getData(varName);
     MetNoFimex::shared_array<float> fdata = data->asFloat();
-    vcross::Values_p p_values = std::make_shared<vcross::Values>(dim1.getLength(),dim2.getLength(),fdata);
-    return p_values;
+    const vcross::Values::Shape shp(dim1.getName(), dim1.getLength(), dim2.getName(), dim2.getLength());
+    return std::make_shared<vcross::Values>(shp, fdata);
 
   } catch (CDMException& cdmex) {
     METLIBS_LOG_WARN("Could not open or process " << source_name << ", CDMException is: " << cdmex.what());

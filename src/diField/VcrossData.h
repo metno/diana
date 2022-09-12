@@ -34,7 +34,6 @@
 
 #include <fimex/SharedArray.h>
 #include <puDatatypes/miCoordinates.h>
-#include <puCtools/deprecated.h>
 
 #include <map>
 #include <set>
@@ -289,23 +288,11 @@ public:
     size_v mStarts, mLengths;
   };
 
-  METLIBS_DEPRECATED(METLIBS_CONCAT(Values(int np, int nl, ValueArray v)),   "use Values(const Shape&, ValueArray)");
-  METLIBS_DEPRECATED(METLIBS_CONCAT(Values(int np, int nl, bool fill=true)), "use Values(const Shape&, bool)");
-
   Values(const Shape& shape, ValueArray v);
-  Values(const Shape& shape, bool fill=true);
+  Values(const Shape& shape);
 
   static const char *GEO_X, *GEO_Y, *GEO_Z, *TIME, *REALIZATION;
 
-  METLIBS_DEPRECATED(size_t npoint() const, "use shape().length(...)")
-    { return mShape.length(0); }
-  METLIBS_DEPRECATED(size_t nlevel() const, "use shape().length(...)")
-    { return mShape.length(1); }
-
-  METLIBS_DEPRECATED(METLIBS_CONCAT(value_t value(int point, int level) const), "use value(const ShapeIndex&) const")
-    { ShapeIndex si(mShape); si.set(0, point).set(1, level); return value(si); }
-  METLIBS_DEPRECATED(METLIBS_CONCAT(void setValue(value_t v, int point, int level)), "use setValue(value_t, const ShapeIndex&)")
-    { ShapeIndex si(mShape); si.set(0, point).set(1, level); setValue(v, si); }
 
   value_t value(const ShapeIndex& si) const
     { return mValues[si.index()]; }

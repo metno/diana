@@ -224,11 +224,11 @@ Values_cp unitConversion(Values_cp valuesIn, const std::string& unitIn, const st
   if (not uconv)
     return Values_cp();
   const float udI = valuesIn->undefValue();
-  Values_p valuesOut = std::make_shared<Values>(valuesIn->shape(), false);
+  auto valuesOut = std::make_shared<Values>(valuesIn->shape());
 
   const size_t volume = valuesOut->shape().volume();
-  const Values::ValueArray vIn = valuesIn->values();
-  Values::ValueArray vOut = valuesOut->values();
+  const auto vIn = valuesIn->values();
+  auto vOut = valuesOut->values();
   for (size_t i = 0; i < volume; ++i) {
     const float pX = vIn[i];
     const float v = (pX != udI) ? uconv->convert(pX): udI;

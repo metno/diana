@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2014-2021 met.no
+  Copyright (C) 2014-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -528,7 +528,7 @@ void FimexReftimeSource::getTimegraphValues(Crossection_cp crossection,
       Values::Shape shapeOut(Values::TIME, mInventory->times.npoint(), Values::GEO_Z, b->nlevel());
 
       if (Values_p v = getSlicedValues(reader, cs, sliceCdm, shapeOut, b)) {
-        METLIBS_LOG_DEBUG("values for '" << b->id() << " has npoint=" << v->npoint() << " and nlevel=" << v->nlevel());
+        METLIBS_LOG_DEBUG("values for '" << b->id() << " has npoint=" << v->shape().length(0) << " and nlevel=" << v->shape().length(0));
         n2v[b->id()] = v;
       }
     } catch (std::exception& ex) {

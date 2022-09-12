@@ -273,8 +273,8 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
 
   const Values_cp av0 = argument_values[0], av1 = (argument_values.size() >= 2 ? argument_values[1] : Values_cp());
   const float ud0 = av0->undefValue(), ud1 = (av1 ? av1->undefValue() : ud0);
-  const size_t np = av0->npoint(), nl = av0->nlevel();
-  Values_p out = Values_p(new Values(av0->shape()));
+  const size_t np = av0->shape().length(0), nl = av0->shape().length(1);
+  auto out = std::make_shared<Values>(av0->shape());
 
   const float *f0 = av0->values().get(), *f1 = (av1 ? av1->values().get() : 0);
   float* fo = out->values().get();
@@ -321,22 +321,28 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
     const Values_cp vbearing = itb->second;
 
     const bool ff_normal = (function() == vcf_normal);
+    vcross::Values::ShapeIndex si(av0->shape());
     for (size_t p = 0; p < np; p++) {
-      const detail::NormalTangential func(ff_normal, vbearing->value(p, 0));
+      si.set(0, p).set(1, 0);
+      const detail::NormalTangential func(ff_normal, vbearing->value(si));
       for (size_t l = 0; l < nl; l++) {
-        const float pX = av0->value(p, l), pY = av1->value(p, l);
+        si.set(1, l);
+        const float pX = av0->value(si), pY = av1->value(si);
         const float v = (pX != ud0 and pY != ud1) ? func(pX, pY): ud0;
-        out->setValue(v, p, l);
+        out->setValue(v, si);
       }
     }
     break; }
 
   case vcf_total: {
+    vcross::Values::ShapeIndex si(av0->shape());
     for (size_t l = 0; l < nl; l++) {
+      si.set(1, l);
       for (size_t p = 0; p < np; p++) {
-        const float v0 = av0->value(p, l), v1 = av1->value(p, l);
+        si.set(0, p);
+        const float v0 = av0->value(si), v1 = av1->value(si);
         const float v = (v0 != ud0 and v1 != ud1) ? miutil::absval(v0, v1) : ud0;
-        out->setValue(v, p, l);
+        out->setValue(v, si);
       }
     }
     break; }
@@ -414,7 +420,7 @@ Values_cp FunctionData::evaluate(name2value_t& n2v) const
 
   case vcf_height_above_msl_from_surface_geopotential: {
     compute = 3;
-    if (!miutil::fieldcalc::fieldOPERconstant(compute, out->npoint(), out->nlevel(), f0, miutil::constants::ginv, fo, fDefined, ud0))
+    if (!miutil::fieldcalc::fieldOPERconstant(compute, out->shape().length(0), out->shape().length(1), f0, miutil::constants::ginv, fo, fDefined, ud0))
       return Values_p();
     break; }
 
@@ -528,20 +534,24 @@ void evaluateCrossectionPoint(Crossection_cp cs, size_t cs_index,
 
 void evaluateCrossection(Crossection_cp cs, name2value_t& n2v)
 {
-  Values_p vlon (new Values(cs->length(), 1, false));
-  Values_p vlat (new Values(cs->length(), 1, false));
-  Values_p vbrng(new Values(cs->length(), 1, false));
-  Values_p vstep(new Values(cs->length(), 1, false));
-  Values_p vcor (new Values(cs->length(), 1, false));
+  const auto length = cs->length();
+  const vcross::Values::Shape shp(vcross::Values::GEO_X, length);
+  auto vlon = std::make_shared<Values>(shp);
+  auto vlat = std::make_shared<Values>(shp);
+  auto vbrng = std::make_shared<Values>(shp);
+  auto vstep = std::make_shared<Values>(shp);
+  auto vcor = std::make_shared<Values>(shp);
 
-  for (size_t i=0; i<cs->length(); ++i) {
+  vcross::Values::ShapeIndex si(vlon->shape());
+  for (size_t i = 0; i < length; ++i) {
     Values::value_t flon, flat, fbrng, fstep, fcor;
     evaluateCrossectionPoint(cs, i, flon, flat, fbrng, fstep, fcor);
-    vlon ->setValue(flon,  i, 0);
-    vlat ->setValue(flat,  i, 0);
-    vbrng->setValue(fbrng, i, 0);
-    vstep->setValue(fstep, i, 0);
-    vcor ->setValue(fcor,  i, 0);
+    si.set(0, i);
+    vlon->setValue(flon, si);
+    vlat->setValue(flat, si);
+    vbrng->setValue(fbrng, si);
+    vstep->setValue(fstep, si);
+    vcor->setValue(fcor, si);
   }
 
   n2v[VC_LONGITUDE] = vlon;
@@ -559,14 +569,17 @@ void evaluateCrossection4TimeGraph(Crossection_cp cs, size_t cs_index, size_t nt
   Values::value_t flon, flat, fbrng, fstep, fcor;
   evaluateCrossectionPoint(cs, cs_index, flon, flat, fbrng, fstep, fcor);
 
-  Values_p vlon (new Values(ntimes, 1, false));
-  Values_p vlat (new Values(ntimes, 1, false));
-  Values_p vcor (new Values(ntimes, 1, false));
+  const vcross::Values::Shape shp(vcross::Values::GEO_X, ntimes);
+  auto vlon = std::make_shared<Values>(shp);
+  auto vlat = std::make_shared<Values>(shp);
+  auto vcor = std::make_shared<Values>(shp);
 
+  vcross::Values::ShapeIndex si(vlon->shape());
   for (size_t i=0; i<ntimes; ++i) {
-    vlon ->setValue(flon,  i, 0);
-    vlat ->setValue(flat,  i, 0);
-    vcor ->setValue(fcor,  i, 0);
+    si.set(0, i);
+    vlon->setValue(flon, si);
+    vlat->setValue(flat, si);
+    vcor->setValue(fcor, si);
   }
 
   n2v[VC_LONGITUDE] = vlon;
