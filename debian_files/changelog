@@ -1,3 +1,10 @@
+diana-3.57 (3.57.0~rc6-1) unstable; urgency=low
+
+  * set tab order in field dialog
+  * prepare for fimex 1.9
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Wed, 14 Sep 2022 08:00:08 +0200
+
 diana-3.57 (3.57.0~rc5-1) unstable; urgency=low
 
   *  bugfix FieldDialogStyle hour.diff / hour.offset
