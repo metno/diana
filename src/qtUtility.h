@@ -182,6 +182,8 @@ private:
 inline QColor QC(const Colour& c) { return QColor(c.R(), c.G(), c.B(), c.A()); }
 inline Colour fromQColor(const QColor& c, bool alpha=true) { return Colour::fromF(c.redF(), c.greenF(), c.blueF(), alpha ? c.alphaF() : 1); }
 
+void setTabOrder(const std::vector<QWidget*>& widgets_in_order);
+
 } // namespace diutil
 
 #endif

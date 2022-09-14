@@ -46,7 +46,6 @@
 #include <fimex/Data.h>
 #include <fimex/interpolation.h>
 #include <fimex/CoordinateSystemSliceBuilder.h>
-#include <fimex/Felt_Types.h>
 #include <fimex/CDMReaderUtils.h>
 #include <fimex/CDMconstants.h>
 #include <fimex/CDMInterpolator.h>
