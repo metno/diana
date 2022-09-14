@@ -631,4 +631,11 @@ void addShortcutToTooltip(QAction* action)
   }
 }
 
+void setTabOrder(const std::vector<QWidget*>& widgets_in_order)
+{
+  for (size_t i = 1; i < widgets_in_order.size(); ++i) {
+    QWidget::setTabOrder(widgets_in_order[i - 1], widgets_in_order[i]);
+  }
+}
+
 } // namespace diutil

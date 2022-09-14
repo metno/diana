@@ -320,6 +320,8 @@ void FieldDialogStyle::CreateStandard()
   optlayout->addWidget(vectorunitlabel, 7, 0);
   optlayout->addWidget(vectorunitCbox, 7, 1);
   widgetStd->setLayout(optlayout);
+
+  diutil::setTabOrder({unitLineEdit, plottypeComboBox, colorCbox, lineWidthCbox, lineTypeCbox, spinLineInterval, densityCbox, vectorunitCbox});
 }
 
 void FieldDialogStyle::CreateAdvanced()
@@ -704,6 +706,15 @@ void FieldDialogStyle::CreateAdvanced()
   hLayout->setMargin(0);
   hLayout->addWidget(advSep);
   hLayout->addLayout(advLayout);
+
+  diutil::setTabOrder({extremeTypeCbox,    extremeSizeSpinBox, extremeRadiusSpinBox,  gridLinesSpinBox,   gridValueCheckBox,   lineSmoothSpinBox,
+                       fieldSmoothSpinBox, hourOffsetSpinBox,  hourDiffSpinBox,       undefMaskingCbox,   undefColourCbox,     undefLinewidthCbox,
+                       undefLinetypeCbox,  frameCheckBox,      zeroLineCheckBox,      valueLabelCheckBox, labelSizeSpinBox,    valuePrecisionBox,
+                       tableCheckBox,      repeatCheckBox,     shadingComboBox,       shadingSpinBox,     shadingcoldComboBox, shadingcoldSpinBox,
+                       patternComboBox,    patternColourBox,   alphaSpinBox,          min1OnOff,          min1SpinBox,         max1OnOff,
+                       max1SpinBox,        linevaluesField,    linevaluesLogCheckBox, colour2ComboBox,    spinLineInterval2,   linewidth2ComboBox,
+                       linetype2ComboBox,  min2OnOff,          min2SpinBox,           max2OnOff,          max2SpinBox,         threeColourBox[0],
+                       threeColourBox[1],  threeColourBox[2]});
 }
 
 void FieldDialogStyle::toolTips()
