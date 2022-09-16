@@ -174,6 +174,7 @@ ADD_TEST(NAME diFieldTest
 ########################################################################
 
 SET (dianaGuiTests_SOURCES
+  TestAnyDoubleSpinBox.cc
   TestFieldDialog.cc
   TestGLPainter.cc
   TestPdfSink.cc

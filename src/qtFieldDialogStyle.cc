@@ -37,7 +37,7 @@
 #include "qtFieldDialog.h" // for struct SelectedField
 #include "qtUtility.h"
 #include "util/diKeyValue.h"
-#include "util/qtDoubleStepAdapter.h"
+#include "util/qtAnyDoubleSpinBox.h"
 
 #include <mi_fieldcalc/FieldDefined.h>
 #include <mi_fieldcalc/math_util.h>
@@ -46,7 +46,6 @@
 
 #include <QCheckBox>
 #include <QComboBox>
-#include <QDoubleSpinBox>
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -95,20 +94,16 @@ const std::string& getListCombo(QComboBox* box, const std::vector<std::string>& 
   return available[index];
 }
 
-std::string getMinMaxOption(QCheckBox* onOff, QDoubleSpinBox* spin)
+std::string getMinMaxOption(diutil::AnyDoubleSpinBox* spin)
 {
-  if (onOff->isChecked())
-    return spin->text().toStdString();
-  else
-    return "off";
+  return spin->isOff() ? "off" : spin->text().toStdString();
 }
 
-void setMinMaxBoxes(QCheckBox* onOff, QDoubleSpinBox* spin, float value)
+void setMinMaxSpinBox(diutil::AnyDoubleSpinBox* spin, double value)
 {
-  const bool on = (value != -fieldUndef && value != +fieldUndef);
-  onOff->setChecked(on);
-  spin->setEnabled(on);
-  spin->setValue(on ? value : 0);
+  if (value == -fieldUndef || value == +fieldUndef)
+    value = std::nan("");
+  spin->setValue(value);
 }
 
 QString formatDensity(int density, float densityFactor)
@@ -126,19 +121,9 @@ int fractionToPercent(float fraction)
   return (int(fraction * 100. + 0.5)) / 5 * 5;
 }
 
-QDoubleSpinBox* newDoubleSpinBox(QWidget* parent)
+double replaceNaN(double value, double replacement)
 {
-  QDoubleSpinBox* sb = new QDoubleSpinBox(parent);
-  sb->setValue(0);
-  sb->setWrapping(false);
-  sb->setRange(-0.75 * fieldUndef, +0.75 * fieldUndef);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
-  sb->setStepType(QAbstractSpinBox::AdaptiveDecimalStepType);
-#else
-  new diutil::DoubleStepAdapter(sb);
-  sb->setSingleStep(5);
-#endif
-  return sb;
+  return std::isnan(value) ? replacement : value;
 }
 
 const std::vector<std::string>& getPlotTypesForDim(int dim)
@@ -284,10 +269,10 @@ void FieldDialogStyle::CreateStandard()
 
   // lineinterval
   QLabel* lineintervallabel = new QLabel(tr("Line interval"), widgetStd);
-  spinLineInterval = newDoubleSpinBox(widgetStd);
+  spinLineInterval = new diutil::AnyDoubleSpinBox(widgetStd);
   spinLineInterval->setMinimum(0);
   spinLineInterval->setSpecialValueText(tr("Off"));
-  connect(spinLineInterval, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &FieldDialogStyle::lineIntervalChanged);
+  connect(spinLineInterval, &diutil::AnyDoubleSpinBox::valueChanged, this, &FieldDialogStyle::lineIntervalChanged);
 
   // density
   QLabel* densitylabel = new QLabel(tr("Density"), widgetStd);
@@ -504,29 +489,28 @@ void FieldDialogStyle::CreateAdvanced()
   connect(colour2ComboBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &FieldDialogStyle::colour2ComboBoxToggled);
 
   // line interval
-  spinLineInterval2 = newDoubleSpinBox(widgetAdv);
+  spinLineInterval2 = new diutil::AnyDoubleSpinBox(widgetAdv);
   spinLineInterval2->setMinimum(0);
   spinLineInterval2->setSpecialValueText(tr("Off"));
 
   // zero value
-  spinBaseValue1 = newDoubleSpinBox(widgetAdv);
-  spinBaseValue2 = newDoubleSpinBox(widgetAdv);
+  spinBaseValue1 = new diutil::AnyDoubleSpinBox(widgetAdv);
+  spinBaseValue2 = new diutil::AnyDoubleSpinBox(widgetAdv);
 
   // min/max
-  min1OnOff = new QCheckBox(tr("Min"), widgetAdv);
-  max1OnOff = new QCheckBox(tr("Max"), widgetAdv);
-  min2OnOff = new QCheckBox(tr("Min"), widgetAdv);
-  max2OnOff = new QCheckBox(tr("Max"), widgetAdv);
+  QLabel* labelMin1 = new QLabel(tr("Min"), widgetAdv);
+  QLabel* labelMax1 = new QLabel(tr("Max"), widgetAdv);
+  QLabel* labelMin2 = new QLabel(tr("Min"), widgetAdv);
+  QLabel* labelMax2 = new QLabel(tr("Max"), widgetAdv);
 
-  min1SpinBox = newDoubleSpinBox(widgetAdv);
-  max1SpinBox = newDoubleSpinBox(widgetAdv);
-  min2SpinBox = newDoubleSpinBox(widgetAdv);
-  max2SpinBox = newDoubleSpinBox(widgetAdv);
-
-  connect(min1OnOff, &QCheckBox::toggled, min1SpinBox, &QComboBox::setEnabled);
-  connect(max1OnOff, &QCheckBox::toggled, max1SpinBox, &QComboBox::setEnabled);
-  connect(min2OnOff, &QCheckBox::toggled, min2SpinBox, &QComboBox::setEnabled);
-  connect(max2OnOff, &QCheckBox::toggled, max2SpinBox, &QComboBox::setEnabled);
+  min1SpinBox = new diutil::AnyDoubleSpinBox(widgetAdv);
+  min1SpinBox->setSpecialValueText(tr("Off"));
+  max1SpinBox = new diutil::AnyDoubleSpinBox(widgetAdv);
+  max1SpinBox->setSpecialValueText(tr("Off"));
+  min2SpinBox = new diutil::AnyDoubleSpinBox(widgetAdv);
+  min2SpinBox->setSpecialValueText(tr("Off"));
+  max2SpinBox = new diutil::AnyDoubleSpinBox(widgetAdv);
+  max2SpinBox->setSpecialValueText(tr("Off"));
 
   // line values
   linevaluesField = new QLineEdit(widgetAdv);
@@ -647,8 +631,8 @@ void FieldDialogStyle::CreateAdvanced()
 
   line++;
   advLayout->addWidget(baseLabel, line, 0);
-  advLayout->addWidget(min1OnOff, line, 1);
-  advLayout->addWidget(max1OnOff, line, 2);
+  advLayout->addWidget(labelMin1, line, 1);
+  advLayout->addWidget(labelMax1, line, 2);
   line++;
   advLayout->addWidget(spinBaseValue1, line, 0);
   advLayout->addWidget(min1SpinBox, line, 1);
@@ -677,8 +661,8 @@ void FieldDialogStyle::CreateAdvanced()
   advLayout->addWidget(linetype2ComboBox, line, 1);
   line++;
   advLayout->addWidget(base2Label, line, 0);
-  advLayout->addWidget(min2OnOff, line, 1);
-  advLayout->addWidget(max2OnOff, line, 2);
+  advLayout->addWidget(labelMin2, line, 1);
+  advLayout->addWidget(labelMax2, line, 2);
   line++;
   advLayout->addWidget(spinBaseValue2, line, 0);
   advLayout->addWidget(min2SpinBox, line, 1);
@@ -707,14 +691,13 @@ void FieldDialogStyle::CreateAdvanced()
   hLayout->addWidget(advSep);
   hLayout->addLayout(advLayout);
 
-  diutil::setTabOrder({extremeTypeCbox,    extremeSizeSpinBox, extremeRadiusSpinBox,  gridLinesSpinBox,   gridValueCheckBox,   lineSmoothSpinBox,
-                       fieldSmoothSpinBox, hourOffsetSpinBox,  hourDiffSpinBox,       undefMaskingCbox,   undefColourCbox,     undefLinewidthCbox,
-                       undefLinetypeCbox,  frameCheckBox,      zeroLineCheckBox,      valueLabelCheckBox, labelSizeSpinBox,    valuePrecisionBox,
-                       tableCheckBox,      repeatCheckBox,     shadingComboBox,       shadingSpinBox,     shadingcoldComboBox, shadingcoldSpinBox,
-                       patternComboBox,    patternColourBox,   alphaSpinBox,          min1OnOff,          min1SpinBox,         max1OnOff,
-                       max1SpinBox,        linevaluesField,    linevaluesLogCheckBox, colour2ComboBox,    spinLineInterval2,   linewidth2ComboBox,
-                       linetype2ComboBox,  min2OnOff,          min2SpinBox,           max2OnOff,          max2SpinBox,         threeColourBox[0],
-                       threeColourBox[1],  threeColourBox[2]});
+  diutil::setTabOrder({extremeTypeCbox,    extremeSizeSpinBox,    extremeRadiusSpinBox, gridLinesSpinBox,   gridValueCheckBox,   lineSmoothSpinBox,
+                       fieldSmoothSpinBox, hourOffsetSpinBox,     hourDiffSpinBox,      undefMaskingCbox,   undefColourCbox,     undefLinewidthCbox,
+                       undefLinetypeCbox,  frameCheckBox,         zeroLineCheckBox,     valueLabelCheckBox, labelSizeSpinBox,    valuePrecisionBox,
+                       tableCheckBox,      repeatCheckBox,        shadingComboBox,      shadingSpinBox,     shadingcoldComboBox, shadingcoldSpinBox,
+                       patternComboBox,    patternColourBox,      alphaSpinBox,         spinBaseValue1,     min1SpinBox,         max1SpinBox,
+                       linevaluesField,    linevaluesLogCheckBox, colour2ComboBox,      spinLineInterval2,  linewidth2ComboBox,  linetype2ComboBox,
+                       spinBaseValue2,     min2SpinBox,           max2SpinBox,          threeColourBox[0],  threeColourBox[1],   threeColourBox[2]});
 }
 
 void FieldDialogStyle::toolTips()
@@ -995,10 +978,10 @@ void FieldDialogStyle::setFromPlotOptions(const PlotOptions& po, int dimension)
   spinBaseValue1->setValue(po.base);
   spinBaseValue2->setValue(po.base_2);
 
-  setMinMaxBoxes(max1OnOff, max1SpinBox, po.maxvalue);
-  setMinMaxBoxes(min1OnOff, min1SpinBox, po.minvalue);
-  setMinMaxBoxes(max2OnOff, max2SpinBox, po.maxvalue_2);
-  setMinMaxBoxes(min2OnOff, min2SpinBox, po.minvalue_2);
+  setMinMaxSpinBox(max1SpinBox, po.maxvalue);
+  setMinMaxSpinBox(min1SpinBox, po.minvalue);
+  setMinMaxSpinBox(max2SpinBox, po.maxvalue_2);
+  setMinMaxSpinBox(min2SpinBox, po.minvalue_2);
 }
 
 void FieldDialogStyle::enableWidgets(const std::string& plottype)
@@ -1136,8 +1119,8 @@ void FieldDialogStyle::setToPlotOptions(PlotOptions& po)
     po.set_loglinevalues(llvtext);
     po.set_linevalues(lvtext);
   }
-  po.set_lineinterval(spinLineInterval->value());
-  po.set_lineinterval_2(spinLineInterval2->value());
+  po.set_lineinterval(replaceNaN(spinLineInterval->value(), 0));
+  po.set_lineinterval_2(replaceNaN(spinLineInterval2->value(), 0));
 
   if (densityCbox->currentIndex() == 0) {
     po.density = 0;
@@ -1217,10 +1200,10 @@ void FieldDialogStyle::setToPlotOptions(PlotOptions& po)
   po.base = spinBaseValue1->value();
   po.base_2 = spinBaseValue2->value();
 
-  po.set_maxvalue(getMinMaxOption(max1OnOff, max1SpinBox));
-  po.set_minvalue(getMinMaxOption(min1OnOff, min1SpinBox));
-  po.set_maxvalue_2(getMinMaxOption(max2OnOff, max2SpinBox));
-  po.set_minvalue_2(getMinMaxOption(min2OnOff, min2SpinBox));
+  po.set_maxvalue(getMinMaxOption(max1SpinBox));
+  po.set_minvalue(getMinMaxOption(min1SpinBox));
+  po.set_maxvalue_2(getMinMaxOption(max2SpinBox));
+  po.set_minvalue_2(getMinMaxOption(min2SpinBox));
 }
 
 void FieldDialogStyle::plottypeComboBoxActivated(int index)
@@ -1242,6 +1225,7 @@ void FieldDialogStyle::lineIntervalChanged(double interval)
   const std::string& plottype = getPlotType();
   const bool e_shading = plottype == fpt_contour || plottype == fpt_fill_cell;
 
+  interval = replaceNaN(interval, 0);
   const bool enable_linevalues = e_shading && (interval == 0);
   linevaluesField->setEnabled(enable_linevalues);
   linevaluesLogCheckBox->setEnabled(enable_linevalues);
@@ -1301,8 +1285,6 @@ void FieldDialogStyle::enableType2Options(bool on)
 
   spinLineInterval2->setEnabled(on);
   spinBaseValue2->setEnabled(on);
-  min2OnOff->setEnabled(on);
-  max2OnOff->setEnabled(on);
   min2SpinBox->setEnabled(on);
   max2SpinBox->setEnabled(on);
   linewidth2ComboBox->setEnabled(on);

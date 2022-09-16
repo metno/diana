@@ -47,8 +47,10 @@ class QLineEdit;
 class QListWidget;
 class QListWidgetItem;
 class QSpinBox;
-class QDoubleSpinBox;
 
+namespace diutil {
+class AnyDoubleSpinBox;
+}
 class SelectedField;
 
 /**
@@ -140,7 +142,7 @@ private:
   QComboBox* colorCbox;
   QComboBox* lineWidthCbox;
   QComboBox* lineTypeCbox;
-  QDoubleSpinBox* spinLineInterval;
+  diutil::AnyDoubleSpinBox* spinLineInterval;
   QComboBox* densityCbox;
   QComboBox* extremeTypeCbox;
   QComboBox* vectorunitCbox;
@@ -174,17 +176,13 @@ private:
   QComboBox* colour2ComboBox;
   QLineEdit* linevaluesField;
   QCheckBox* linevaluesLogCheckBox;
-  QDoubleSpinBox* spinLineInterval2;
-  QDoubleSpinBox* spinBaseValue1;
-  QDoubleSpinBox* spinBaseValue2;
-  QCheckBox* min1OnOff;
-  QCheckBox* max1OnOff;
-  QCheckBox* min2OnOff;
-  QCheckBox* max2OnOff;
-  QDoubleSpinBox* min1SpinBox;
-  QDoubleSpinBox* max1SpinBox;
-  QDoubleSpinBox* min2SpinBox;
-  QDoubleSpinBox* max2SpinBox;
+  diutil::AnyDoubleSpinBox* spinLineInterval2;
+  diutil::AnyDoubleSpinBox* spinBaseValue1;
+  diutil::AnyDoubleSpinBox* spinBaseValue2;
+  diutil::AnyDoubleSpinBox* min1SpinBox;
+  diutil::AnyDoubleSpinBox* max1SpinBox;
+  diutil::AnyDoubleSpinBox* min2SpinBox;
+  diutil::AnyDoubleSpinBox* max2SpinBox;
   QComboBox* linewidth2ComboBox;
   QComboBox* linetype1ComboBox;
   QComboBox* linetype2ComboBox;

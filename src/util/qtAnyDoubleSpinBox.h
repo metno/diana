@@ -27,37 +27,44 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "qtDoubleStepAdapter.h"
+#ifndef DIANA_DOUBLESTEPADAPTER_H
+#define DIANA_DOUBLESTEPADAPTER_H 1
 
-#include <cmath>
+#include <QDoubleSpinBox>
+#include <QSpinBox>
 
 namespace diutil {
 
-inline double mag10(double v)
+class AnyDoubleSpinBox : public QAbstractSpinBox
 {
-  return std::floor(std::log10(v));
-}
+  Q_OBJECT;
 
-double adaptedStep(double value, int sb_decimals)
-{
-  const double valua = std::abs(value);
-  const double factor = std::pow(10, 1 - mag10(valua));
-  const double valur = std::round(valua * factor) / factor;
-  return std::pow(10, std::max(-1.0 * sb_decimals, mag10(valur) - 1));
-}
+public:
+  AnyDoubleSpinBox(QWidget* parent = 0);
 
-DoubleStepAdapter::DoubleStepAdapter(QDoubleSpinBox* parent)
-    : QObject(parent)
-{
-  connect(parent, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &DoubleStepAdapter::adaptValue);
-}
+  void setMinimum(double min);
+  void setMaximum(double max);
+  void setRange(double min, double max);
+  void setValue(double value);
+  double value() const { return value_; }
+  bool isOff() const;
 
-DoubleStepAdapter::~DoubleStepAdapter() {}
+  void stepBy(int steps) override;
 
-void DoubleStepAdapter::adaptValue(double value)
-{
-  QDoubleSpinBox* sb = static_cast<QDoubleSpinBox*>(parent());
-  sb->setSingleStep(adaptedStep(value, sb->decimals()));
-}
+  QAbstractSpinBox::StepEnabled stepEnabled() const override;
+
+Q_SIGNALS:
+  void valueChanged(double value);
+
+private Q_SLOTS:
+  void lineEditTextEdited();
+
+private:
+  double value_;
+  double min_;
+  double max_;
+};
 
 } // namespace diutil
+
+#endif // DIANA_DOUBLESTEPADAPTER_H
