@@ -93,11 +93,7 @@ double metersPerUnit(const Projection& proj)
   METLIBS_LOG_SCOPE();
   if (proj.isGeographic()) {
     // fixed value for all geographic systems, OGC WMS 1.3.0 section 7.2.4.6.9
-#if 1 // proj4 units are radians
-    return WMTS_EARTH_RADIUS_M;
-#else // proj4 units are degrees
-    return WMTS_EARTH_RADIUS_M * 2 * M_PI / 360;
-#endif
+    return WMTS_EARTH_RADIUS_M * 2 * M_PI / 360; // proj4 units are degrees
   }
 
   const std::string proj4 = proj.getProj4DefinitionExpanded();
