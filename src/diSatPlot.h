@@ -63,6 +63,7 @@ private:
   SatPlot& operator=(const SatPlot& rhs) = delete;
 
   bool hasData() const;
+  void updateMapSatTransformation();
 
 private:
   SatManager* satm_;
