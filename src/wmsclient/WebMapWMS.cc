@@ -82,19 +82,6 @@ bool hasAttributeValue(const QDomElement& e, const QString& a, const QStringList
     return values.contains(e.attribute(a));
 }
 
-bool isGeographic(const std::string& crs)
-{
-  return (crs == EPSG4326 || crs == CRS84);
-}
-
-float toDecimalDegrees(const std::string& crs)
-{
-  if (isGeographic(crs))
-    return RAD_TO_DEG;
-  else
-    return 1;
-}
-
 void swapWms130LatLon(const std::string& crs, float& x1, float& y1, float& x2, float& y2)
 {
   if (crs == EPSG4326) {
@@ -231,8 +218,7 @@ QNetworkReply* WebMapWMS::submitRequest(WebMapWMSLayer_cx layer, const std::map<
   urlq.addQueryItem(aCRS, QString::fromStdString(crs));
 
   const Rectangle& r = tile->rect();
-  const float f = toDecimalDegrees(crs);
-  float minx = f*r.x1, miny = f*r.y1, maxx = f*r.x2, maxy = f*r.y2;
+  float minx = r.x1, miny = r.y1, maxx = r.x2, maxy = r.y2;
   if (mVersion == WMS_130)
     swapWms130LatLon(crs, minx, miny, maxx, maxy);
   QString bbox = toQString(minx) + "," + toQString(miny) + "," + toQString(maxx) + "," + toQString(maxy);
@@ -382,14 +368,13 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::vector<std::string> styles,
     METLIBS_LOG_DEBUG("explicit bbox check" << LOGVAL(sCRS));
     if (sCRS == EPSG900913)
       sCRS = EPSG3857;
-    const float f = 1 / toDecimalDegrees(sCRS);
     float minx = eBoundingBox.attribute("minx").toFloat();
     float miny = eBoundingBox.attribute("miny").toFloat();
     float maxx = eBoundingBox.attribute("maxx").toFloat();
     float maxy = eBoundingBox.attribute("maxy").toFloat();
     if (mVersion == WMS_130)
       swapWms130LatLon(sCRS, minx, miny, maxx, maxy);
-    crs_bboxes[sCRS] = Rectangle(minx*f, miny*f, maxx*f, maxy*f);
+    crs_bboxes[sCRS] = Rectangle(minx, miny, maxx, maxy);
     METLIBS_LOG_DEBUG(LOGVAL(sCRS) << LOGVAL(minx) << LOGVAL(maxx) << LOGVAL(miny) << LOGVAL(maxy));
   }
 

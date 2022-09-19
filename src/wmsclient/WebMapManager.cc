@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2021 met.no
+  Copyright (C) 2015-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -32,6 +32,7 @@
 #include "diLocalSetupParser.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
+#include "util/diKeyValue.h"
 #include "util/misc_util.h"
 #include "wmsclient/WebMapPlot.h"
 #include "wmsclient/WebMapSlippyOSM.h"
@@ -122,13 +123,12 @@ bool WebMapManager::parseSetup()
     std::vector< std::pair< std::string,std::string > > service_extra_query_items;
     bool service_exclude_layers_with_children = false;
 
-    const std::vector<std::string> kvpairs = miutil::split(lines[l]);
-    for (size_t i=0; i<kvpairs.size(); i++) {
-      const std::vector<std::string> kv = miutil::split(kvpairs[i], 1, "=");
-      if (kv.size() != 2)
+    const auto kvpairs = miutil::splitKeyValue(lines[l]);
+    for (const auto& kv : kvpairs) {
+      if (!kv.hasValue())
         continue;
-      const std::string key = miutil::to_lower(kv[0]);
-      const std::string& value = kv[1];
+      const std::string& key = kv.key();
+      const std::string& value = kv.value();
       if (key == "service.id")
         service_id = value;
       else if (key == "service.type")
@@ -221,9 +221,9 @@ WebMapPlot* WebMapManager::createPlot(KVListPlotCommand_cp qmstring)
     } else if (key == "webmap.crs") {
       plot->setCRS(value);
     } else if (key == "webmap.time_tolerance") {
-      plot->setTimeTolerance(miutil::to_int(value));
+      plot->setTimeTolerance(kv.toInt());
     } else if (key == "webmap.time_offset") {
-      plot->setTimeOffset(miutil::to_int(value));
+      plot->setTimeOffset(kv.toInt());
     } else if (key == "webmap.zorder") {
       if (value == "background")
         plotorder = PO_BACKGROUND;
@@ -238,12 +238,11 @@ WebMapPlot* WebMapManager::createPlot(KVListPlotCommand_cp qmstring)
     } else if (key == "style.name") {
       plot->setStyleName(value);
     } else if (key == "style.alpha_scale") {
-      style_alpha_scale = miutil::to_float(value);
+      style_alpha_scale = kv.toFloat();
     } else if (key == "style.alpha_offset") {
-      style_alpha_offset = miutil::to_float(value);
+      style_alpha_offset = kv.toFloat();
     } else if (key == "style.grey") {
-      const std::string lvalue = miutil::to_lower(value);
-      style_grey = (lvalue == "true" || lvalue == "yes" || lvalue == "1");
+      style_grey = kv.toBool();
     }
   }
   plot->setStyleAlpha(style_alpha_offset, style_alpha_scale);
