@@ -255,7 +255,6 @@ SET (LIBDIANA_SOURCES
   util/time_util.cc
   util/was_enabled.cc
   util/qtComboBoxItemDelegate.cc
-  util/qtDoubleStepAdapter.cc
 
   vcross_v2/VcrossCollector.cc
   vcross_v2/VcrossComputer.cc
@@ -320,6 +319,8 @@ SET(LIBDIANA_QTSOURCES
   EditItems/itemgroup.cc
 
   export/ImageSource.cc
+
+  util/qtAnyDoubleSpinBox.cc
 
   vcross_v2/VcrossQtManager.cc
   vcross_v2/VcrossQuickmenues.cc

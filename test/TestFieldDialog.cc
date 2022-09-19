@@ -35,6 +35,8 @@
 #include "qtFieldDialog.h"
 #include "util/misc_util.h"
 
+#include <puTools/miStringFunctions.h>
+
 #include <gtest/gtest.h>
 
 #include <sstream>
@@ -276,6 +278,45 @@ TEST(TestFieldDialog, PutGetOKStringHourOffset)
       expect << " hour.offset=" << (6*i);
     expect << " colour=" << colours[i] << " line.interval=10";
     EXPECT_EQ(expect.str(), cmds_get[i]->toString());
+  }
+}
+
+TEST(TestFieldDialog, PutGetOKStringSmallInterval)
+{
+  initLinesAndColours();
+  TestFieldDialogData* data = new TestFieldDialogData;
+  std::unique_ptr<FieldDialog> dialog(new FieldDialog(0, data));
+
+  const int N = 3;
+  const double line_intervals[N] = {1.2, 0.00001, 1.2345e-12};
+  const PlotCommand_cpv cmds_put = makeCommands({
+      "FIELD model=" + MODEL1 + " refhour=0 parameter=" + PARAM1 + " line.interval=" + miutil::from_number(line_intervals[0]),
+      "FIELD model=" + MODEL1 + " refhour=0 parameter=" + PARAM1 + " line.interval=" + miutil::from_number(line_intervals[1]),
+      "FIELD model=" + MODEL1 + " refhour=0 parameter=" + PARAM1 + " line.interval=" + miutil::from_number(line_intervals[2]),
+  });
+  for (int i = 0; i < N; ++i) {
+    auto cmd = std::dynamic_pointer_cast<const FieldPlotCommand>(cmds_put[i]);
+    ASSERT_TRUE(cmd);
+    PlotOptions po;
+    PlotOptions::parsePlotOption(cmd->options(), po);
+    EXPECT_FLOAT_EQ(po.lineinterval, line_intervals[i]);
+  }
+
+  dialog->putOKString(cmds_put);
+
+  // must select fields to trigger the problem
+  for (int i = 1; i < N; ++i)
+    dialog->simulateSelectField(i);
+  dialog->simulateSelectField(0);
+
+  const PlotCommand_cpv cmds_get = dialog->getOKString();
+  ASSERT_EQ(cmds_get.size(), N);
+  for (int i = 0; i < N; ++i) {
+    auto cmd = std::dynamic_pointer_cast<const FieldPlotCommand>(cmds_get[i]);
+    ASSERT_TRUE(cmd);
+    PlotOptions po;
+    PlotOptions::parsePlotOption(cmd->options(), po);
+    EXPECT_FLOAT_EQ(po.lineinterval, line_intervals[i]);
   }
 }
 
