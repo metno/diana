@@ -58,7 +58,10 @@ SatPlot::~SatPlot()
 
 void SatPlot::changeTime(const miutil::miTime& mapTime)
 {
+  const auto satP = getSatArea();
   satm_->setData(satdata.get(), mapTime);
+  if (satP != getSatArea())
+    updateMapSatTransformation();
   setPlotName(satdata->plotname);
   setStatus(hasData() ? P_OK_DATA : P_OK_EMPTY);
 }
@@ -68,8 +71,13 @@ void SatPlot::changeProjection(const Area& mapArea, const Rectangle& plotSize, c
   SatPlotBase::changeProjection(mapArea, plotSize, physSize);
   if (mapArea.P() != mapP_) {
     mapP_ = mapArea.P();
-    mapT_ = mapP_.transformationFrom(mapArea.P());
+    updateMapSatTransformation();
   }
+}
+
+void SatPlot::updateMapSatTransformation()
+{
+  mapT_ = getSatArea().P().transformationFrom(mapP_);
 }
 
 const GridArea& SatPlot::getSatArea()
@@ -99,7 +107,8 @@ void SatPlot::values(float x, float y, std::vector<SatValues>& satval) const
   // x, y in map coordinates
 
   // convert to satellite proj coordinates
-  mapT_->forward(1, &x, &y);
+  if (!mapT_->forward(1, &x, &y))
+    return;
 
   // convert to satellite pixel
   int xpos = satdata->area.toGridX(x);
