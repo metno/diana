@@ -1091,10 +1091,7 @@ bool Projection::getMapRatios(int nx, int ny, float x0, float y0, float gridReso
 
 bool Projection::isGeographic() const
 {
-  if (miutil::contains(p_->proj4Definition, "+proj=eqc")
-      || miutil::contains(p_->proj4Definition, "+proj=longlat")
-      || miutil::contains(p_->proj4Definition, "+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=90"))
-  {
+  if (miutil::contains(p_->proj4Definition, "+proj=longlat") || miutil::contains(p_->proj4Definition, "+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=90")) {
     return true;
   }
 #ifndef HAVE_PROJ_H
