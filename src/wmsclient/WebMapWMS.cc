@@ -355,7 +355,6 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::vector<std::string> styles,
   // loop over BoundingBox elements to extract explicit bbox'es
   QDOM_FOREACH_CHILD(eBoundingBox, eLayer, "BoundingBox") {
     std::string sCRS = qs(eBoundingBox.attribute(aCRS));
-    METLIBS_LOG_DEBUG("explicit bbox check" << LOGVAL(sCRS));
     if (sCRS == EPSG900913)
       sCRS = EPSG3857;
     float minx = eBoundingBox.attribute("minx").toFloat();
@@ -382,7 +381,6 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::vector<std::string> styles,
   for (const QString& crs : lCRS) {
     float minx, miny, maxx, maxy;
     const std::string sCRS = qs(crs);
-    METLIBS_LOG_DEBUG("known bbox check" << LOGVAL(sCRS));
     crs_bbox_m::iterator it = crs_bboxes.find(sCRS);
     if (sCRS == EPSG3857) {
       static const float M = 2.00375e+07;
