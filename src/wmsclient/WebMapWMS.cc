@@ -37,9 +37,7 @@
 #include <QDomDocument>
 #include <QDomElement>
 #include <QNetworkReply>
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QUrlQuery>
-#endif
 
 #include <algorithm>
 
@@ -49,9 +47,6 @@
 #include <miLogger/miLogging.h>
 
 namespace /* anonymous */ {
-const float DEG_TO_RAD = M_PI / 180;
-const float RAD_TO_DEG = 180 / M_PI;
-
 const int TILESIZE = 512;
 
 const char CRS84[] = "CRS:84";
@@ -182,11 +177,7 @@ QNetworkReply* WebMapWMS::submitRequest(WebMapWMSLayer_cx layer, const std::map<
                                         const std::string& crs, WebMapTile* tile)
 {
   QUrl qurl = mServiceURL;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
   QUrlQuery urlq;
-#else
-  QUrl& urlq = qurl;
-#endif
   urlq.addQueryItem("SERVICE", "WMS");
   urlq.addQueryItem("REQUEST", "GetMap");
   urlq.addQueryItem("VERSION", (mVersion == WMS_130) ? "1.3.0" : "1.1.1");
@@ -222,12 +213,8 @@ QNetworkReply* WebMapWMS::submitRequest(WebMapWMSLayer_cx layer, const std::map<
   if (mVersion == WMS_130)
     swapWms130LatLon(crs, minx, miny, maxx, maxy);
   QString bbox = toQString(minx) + "," + toQString(miny) + "," + toQString(maxx) + "," + toQString(maxy);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-  urlq.addQueryItem("BBOX", bbox /*.replace("+", "%2B")*/ .toUtf8());
+  urlq.addQueryItem("BBOX", bbox.toUtf8());
   qurl.setQuery(urlq);
-#else // Qt < 5.0
-  urlq.addEncodedQueryItem("BBOX", bbox.replace("+", "%2B").toUtf8());
-#endif
 
   METLIBS_LOG_DEBUG("url='" << qurl.toEncoded().constData() << "' x=" << tile->column() << " y=" << tile->row());
   return submitUrl(qurl);
@@ -365,7 +352,6 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::vector<std::string> styles,
   // loop over BoundingBox elements to extract explicit bbox'es
   QDOM_FOREACH_CHILD(eBoundingBox, eLayer, "BoundingBox") {
     std::string sCRS = qs(eBoundingBox.attribute(aCRS));
-    METLIBS_LOG_DEBUG("explicit bbox check" << LOGVAL(sCRS));
     if (sCRS == EPSG900913)
       sCRS = EPSG3857;
     float minx = eBoundingBox.attribute("minx").toFloat();
@@ -392,7 +378,6 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::vector<std::string> styles,
   for (const QString& crs : lCRS) {
     float minx, miny, maxx, maxy;
     const std::string sCRS = qs(crs);
-    METLIBS_LOG_DEBUG("known bbox check" << LOGVAL(sCRS));
     crs_bbox_m::iterator it = crs_bboxes.find(sCRS);
     if (sCRS == EPSG3857) {
       static const float M = 2.00375e+07;
@@ -410,23 +395,23 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::vector<std::string> styles,
         QDomElement eBBox = eLayer.firstChildElement("EX_GeographicBoundingBox");
         if (eBBox.isNull())
           continue;
-        minx = eBBox.firstChildElement("westBoundLongitude").text().toFloat() * DEG_TO_RAD;
-        maxx = eBBox.firstChildElement("eastBoundLongitude").text().toFloat() * DEG_TO_RAD;
-        miny = eBBox.firstChildElement("southBoundLatitude").text().toFloat() * DEG_TO_RAD;
-        maxy = eBBox.firstChildElement("northBoundLatitude").text().toFloat() * DEG_TO_RAD;
+        minx = eBBox.firstChildElement("westBoundLongitude").text().toFloat();
+        maxx = eBBox.firstChildElement("eastBoundLongitude").text().toFloat();
+        miny = eBBox.firstChildElement("southBoundLatitude").text().toFloat();
+        maxy = eBBox.firstChildElement("northBoundLatitude").text().toFloat();
       } else {
         QDomElement eBBox = eLayer.firstChildElement("LatLonBoundingBox");
         if (eBBox.isNull())
           continue;
-        minx = eBBox.attribute("minx").toFloat() * DEG_TO_RAD;
-        miny = eBBox.attribute("miny").toFloat() * DEG_TO_RAD;
-        maxx = eBBox.attribute("maxx").toFloat() * DEG_TO_RAD;
-        maxy = eBBox.attribute("maxy").toFloat() * DEG_TO_RAD;
+        minx = eBBox.attribute("minx").toFloat();
+        miny = eBBox.attribute("miny").toFloat();
+        maxx = eBBox.attribute("maxx").toFloat();
+        maxy = eBBox.attribute("maxy").toFloat();
       }
     } else if (sCRS == CRS84 && it == crs_bboxes.end()) {
-      maxx = 180 * DEG_TO_RAD;
+      maxx = 180;
       minx = -maxx;
-      maxy = 90 * DEG_TO_RAD;
+      maxy = 90;
       miny = -maxy;
     } else {
       continue;
