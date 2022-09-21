@@ -37,9 +37,7 @@
 #include <QDomDocument>
 #include <QDomElement>
 #include <QNetworkReply>
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QUrlQuery>
-#endif
 
 #include <algorithm>
 
@@ -182,11 +180,7 @@ QNetworkReply* WebMapWMS::submitRequest(WebMapWMSLayer_cx layer, const std::map<
                                         const std::string& crs, WebMapTile* tile)
 {
   QUrl qurl = mServiceURL;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
   QUrlQuery urlq;
-#else
-  QUrl& urlq = qurl;
-#endif
   urlq.addQueryItem("SERVICE", "WMS");
   urlq.addQueryItem("REQUEST", "GetMap");
   urlq.addQueryItem("VERSION", (mVersion == WMS_130) ? "1.3.0" : "1.1.1");
@@ -222,12 +216,8 @@ QNetworkReply* WebMapWMS::submitRequest(WebMapWMSLayer_cx layer, const std::map<
   if (mVersion == WMS_130)
     swapWms130LatLon(crs, minx, miny, maxx, maxy);
   QString bbox = toQString(minx) + "," + toQString(miny) + "," + toQString(maxx) + "," + toQString(maxy);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-  urlq.addQueryItem("BBOX", bbox /*.replace("+", "%2B")*/ .toUtf8());
+  urlq.addQueryItem("BBOX", bbox.toUtf8());
   qurl.setQuery(urlq);
-#else // Qt < 5.0
-  urlq.addEncodedQueryItem("BBOX", bbox.replace("+", "%2B").toUtf8());
-#endif
 
   METLIBS_LOG_DEBUG("url='" << qurl.toEncoded().constData() << "' x=" << tile->column() << " y=" << tile->row());
   return submitUrl(qurl);

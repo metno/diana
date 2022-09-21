@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2021 met.no
+  Copyright (C) 2015-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -37,9 +37,7 @@
 #include <QDomDocument>
 #include <QDomElement>
 #include <QNetworkReply>
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QUrlQuery>
-#endif
 
 #include <sys/time.h>
 
@@ -154,11 +152,7 @@ QNetworkReply* WebMapWMTS::submitRequest(WebMapWMTSLayer_cx layer, const std::ma
   } else {
     // KVP-GET
     qurl = mGetTileKvpUrl;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     QUrlQuery urlq;
-#else
-    QUrl& urlq = qurl;
-#endif
     urlq.addQueryItem("Service", "WMTS");
     urlq.addQueryItem("Request", "GetTile");
     urlq.addQueryItem("Version", "1.0.0");
@@ -186,9 +180,7 @@ QNetworkReply* WebMapWMTS::submitRequest(WebMapWMTSLayer_cx layer, const std::ma
     urlq.addQueryItem("TileMatrix", diutil::sq(matrix->identifier()));
     urlq.addQueryItem("TileCol", QString::number(tileX));
     urlq.addQueryItem("TileRow", QString::number(tileY));
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     qurl.setQuery(urlq);
-#endif
   }
   METLIBS_LOG_DEBUG("url='" << qurl.toString().toStdString() << "'");
 
