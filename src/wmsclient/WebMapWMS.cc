@@ -47,9 +47,6 @@
 #include <miLogger/miLogging.h>
 
 namespace /* anonymous */ {
-const float DEG_TO_RAD = M_PI / 180;
-const float RAD_TO_DEG = 180 / M_PI;
-
 const int TILESIZE = 512;
 
 const char CRS84[] = "CRS:84";
@@ -398,23 +395,23 @@ bool WebMapWMS::parseLayer(QDomElement& eLayer, std::vector<std::string> styles,
         QDomElement eBBox = eLayer.firstChildElement("EX_GeographicBoundingBox");
         if (eBBox.isNull())
           continue;
-        minx = eBBox.firstChildElement("westBoundLongitude").text().toFloat() * DEG_TO_RAD;
-        maxx = eBBox.firstChildElement("eastBoundLongitude").text().toFloat() * DEG_TO_RAD;
-        miny = eBBox.firstChildElement("southBoundLatitude").text().toFloat() * DEG_TO_RAD;
-        maxy = eBBox.firstChildElement("northBoundLatitude").text().toFloat() * DEG_TO_RAD;
+        minx = eBBox.firstChildElement("westBoundLongitude").text().toFloat();
+        maxx = eBBox.firstChildElement("eastBoundLongitude").text().toFloat();
+        miny = eBBox.firstChildElement("southBoundLatitude").text().toFloat();
+        maxy = eBBox.firstChildElement("northBoundLatitude").text().toFloat();
       } else {
         QDomElement eBBox = eLayer.firstChildElement("LatLonBoundingBox");
         if (eBBox.isNull())
           continue;
-        minx = eBBox.attribute("minx").toFloat() * DEG_TO_RAD;
-        miny = eBBox.attribute("miny").toFloat() * DEG_TO_RAD;
-        maxx = eBBox.attribute("maxx").toFloat() * DEG_TO_RAD;
-        maxy = eBBox.attribute("maxy").toFloat() * DEG_TO_RAD;
+        minx = eBBox.attribute("minx").toFloat();
+        miny = eBBox.attribute("miny").toFloat();
+        maxx = eBBox.attribute("maxx").toFloat();
+        maxy = eBBox.attribute("maxy").toFloat();
       }
     } else if (sCRS == CRS84 && it == crs_bboxes.end()) {
-      maxx = 180 * DEG_TO_RAD;
+      maxx = 180;
       minx = -maxx;
-      maxy = 90 * DEG_TO_RAD;
+      maxy = 90;
       miny = -maxy;
     } else {
       continue;
