@@ -83,7 +83,7 @@ private:
 
   void setRGB(Sat* satdata);
   void calcRGBstrech(unsigned char *image, const int& size, const float& cut);
-  void setPalette(Sat* satdata, SatFileInfo &);
+  void setPalette(Sat* satdata);
   void listFiles(subProdInfo &subp);
   void readHeader(SatFileInfo&, const std::vector<std::string>&);
 

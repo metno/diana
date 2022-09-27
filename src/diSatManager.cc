@@ -230,7 +230,7 @@ void SatManager::setData(Sat* satdata, const miutil::miTime& satptime)
 
   if (satdata->palette && satdata->formatType != "geotiff") {
     // at the moment no controllable rgb or alpha operations here
-    setPalette(satdata, fInfo);
+    setPalette(satdata);
   } else {
     // GEOTIFF ALWAYS RGBA
     setRGB(satdata);
@@ -367,7 +367,7 @@ bool SatManager::readSatFile(Sat* satdata, const miutil::miTime& t)
 }
 
 /***********************************************************************/
-void SatManager::setPalette(Sat* satdata, SatFileInfo& /*fInfo*/)
+void SatManager::setPalette(Sat* satdata)
 {
   //  PURPOSE:   uses palette to put data from image into satdata.image
   METLIBS_LOG_TIME();
