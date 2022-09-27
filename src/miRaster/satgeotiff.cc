@@ -517,12 +517,13 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
       } else if (ProjCoordTrans == CT_HotineObliqueMercatorAzimuthCenter || ProjCoordTrans == CT_ObliqueMercator_Hotine) {
         // see http://geotiff.maptools.org/proj_list/oblique_mercator.html
         // and http://geotiff.maptools.org/proj_list/hotine_oblique_mercator.html
-        double ProjCenterLat = 63, ProjCenterLon = 15, ProjAzimuthAngle = 63, ProjScaleAtCenter = 1, ProjRectifiedGridAngle = 0;
+        double ProjCenterLat = 63, ProjCenterLon = 15, ProjScaleAtCenter = 1;
         GTIFKeyGet(gtifin.get(), ProjCenterLatGeoKey, &ProjCenterLat, 0, 1);
         GTIFKeyGet(gtifin.get(), ProjCenterLongGeoKey, &ProjCenterLon, 0, 1);
-        GTIFKeyGet(gtifin.get(), ProjAzimuthAngleGeoKey, &ProjAzimuthAngle, 0, 1);
         GTIFKeyGet(gtifin.get(), ProjScaleAtCenterGeoKey, &ProjScaleAtCenter, 0, 1);
-        GTIFKeyGet(gtifin.get(), ProjRectifiedGridAngleGeoKey, &ProjRectifiedGridAngle, 0, 1);
+        double ProjAzimuthAngle = 63, ProjRectifiedGridAngle = 0;
+        const bool have_alpha = (GTIFKeyGet(gtifin.get(), ProjAzimuthAngleGeoKey, &ProjAzimuthAngle, 0, 1) > 0);
+        const bool have_gamma = (GTIFKeyGet(gtifin.get(), ProjRectifiedGridAngleGeoKey, &ProjRectifiedGridAngle, 0, 1) > 0);
 
         double GeogSemiMajorAxis = 6370997, GeogSemiMinorAxis = GeogSemiMajorAxis, GeogInvFlattening = 298;
         bool have_semiminor_axis = false;
@@ -539,10 +540,14 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
         // clang-format off
         proj4 << "+proj=omerc"
               << " +lat_0=" << ProjCenterLat
-              << " +lonc=" << ProjCenterLon
-              << " +alpha=" << ProjAzimuthAngle
-              << " +gamma=" << ProjRectifiedGridAngle
-              << " +k_0=" << ProjScaleAtCenter
+              << " +lonc=" << ProjCenterLon;
+        // clang-format on
+        if (have_alpha)
+          proj4 << " +alpha=" << ProjAzimuthAngle;
+        if (have_gamma)
+          proj4 << " +gamma=" << ProjRectifiedGridAngle;
+        // clang-format off
+        proj4 << " +k_0=" << ProjScaleAtCenter
               << " +a=" << GeogSemiMajorAxis
               << " +units=m +no_defs";
         // clang-format on
