@@ -33,16 +33,6 @@ INCLUDE_DIRECTORIES(
   diField
 )
 
-SET (MIRASTER_SOURCES
-  miRaster/satimg.cc
-)
-
-IF (ENABLE_HDF5)
-  LIST (APPEND MIRASTER_SOURCES
-    miRaster/satimgh5.cc
-  )
-ENDIF ()
-
 SET (DIFIELD_SOURCES
   diField/CachedGridIO.cc
   diField/DataReshape.cc
@@ -122,7 +112,6 @@ SET (LIBDIANA_SOURCES
   diLocationPlot.cc
   diLocationPlotCluster.cc
   diLogFile.cc
-  diMItiff.cc
   diMainPaintable.cc
   diMapAreaNavigator.cc
   diMapAreaSetup.cc
@@ -477,6 +466,18 @@ SET(LIBDIANAUI_QTSOURCES
   wmsclient/WebMapPlotListModel.cc
 )
 
+LIST (APPEND MIRASTER_SOURCES miRaster/satimg.cc)
+
+IF (ENABLE_MITIFF)
+  LIST (APPEND MIRASTER_SOURCES miRaster/satimg_mitiff.cc)
+  LIST (APPEND LIBDIANA_SOURCES diMItiff.cc)
+ENDIF ()
+
+IF (ENABLE_HDF5)
+  LIST (APPEND MIRASTER_SOURCES miRaster/satimgh5.cc)
+  LIST (APPEND LIBDIANA_SOURCES diHDF5.cc)
+ENDIF ()
+
 IF (ENABLE_GEOTIFF)
   LIST (APPEND MIRASTER_SOURCES miRaster/satgeotiff.cc)
   LIST (APPEND LIBDIANA_SOURCES diGEOtiff.cc)
@@ -490,10 +491,6 @@ ENDIF ()
 
 IF (ENABLE_NEWARKOBS)
   LIST (APPEND LIBDIANA_SOURCES diObsRoad.cc)
-ENDIF ()
-
-IF (ENABLE_HDF5)
-  LIST (APPEND LIBDIANA_SOURCES diHDF5.cc)
 ENDIF ()
 
 if (ENABLE_OBS_BUFR)

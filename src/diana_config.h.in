@@ -2,11 +2,14 @@
 #define DIANA_CONFIG_H 1
 
 #cmakedefine BUFROBS 1
+#cmakedefine DIANA_SAT_MITIFF 1
+#cmakedefine DIANA_SAT_HDF5 1
+#cmakedefine DIANA_SAT_GEOTIFF 1
 
-#cmakedefine GEOTIFF 1
 #cmakedefine HAVE_LIBGEOTIFF_GEOTIFF_H 1
 #cmakedefine HAVE_GEOTIFF_GEOTIFF_H 1
 #cmakedefine HAVE_GEOTIFF_H 1
+
 #cmakedefine HAVE_PROJ_H 1
 
 #cmakedefine HAVE_OPENMP
@@ -14,7 +17,6 @@
 #cmakedefine ENABLE_GRPC
 #cmakedefine DIANA_GRPC_INCLUDES_IN_GRPCPP // if defined, gprc++ include files are under "grpcpp" (since 1.10), else under "grpc++" (before 1.10)
 
-#cmakedefine HDF5FILE 1
 #cmakedefine ROADOBS 1
 #cmakedefine NEWARK_INC 1
 

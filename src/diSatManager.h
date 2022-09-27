@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -89,6 +89,7 @@ private:
 
   bool parseChannels(Sat* satdata, const SatFileInfo& info);
   bool readSatFile(Sat* satdata, const miutil::miTime& t);
+  bool doReadSatFile(const std::string& filename, Sat* satdata);
 
   void init_rgbindex(Sat& sd);
   void init_rgbindex_Meteosat(Sat& sd);

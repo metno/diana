@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,10 +27,9 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "diana_config.h"
-
 #include "diMItiff.h"
-#include "miRaster/satimg.h"
+
+#include "miRaster/satimg_mitiff.h"
 
 #include <puTools/miStringFunctions.h>
 
@@ -161,7 +160,7 @@ static std::string fi_channel(const SatFileInfo& fi, int idxPlus1)
 
 bool MItiff::day_night(const SatFileInfo& fInfo, std::string& channels)
 {
-  int aa = satimg::day_night(fInfo.name);
+  int aa = satimg::MITIFF_day_night(fInfo.name);
 
   if(aa<0)
     return false;

@@ -29,6 +29,7 @@
 
 #include "diSatManager.h"
 
+#include "diSat.h"
 #include "diSatPlot.h"
 #include "diSatPlotCommand.h"
 #include "diUtilities.h"
@@ -42,11 +43,13 @@
 
 #include "diana_config.h"
 
+#ifdef DIANA_SAT_MITIFF
 #include <diMItiff.h>
-#ifdef HDF5FILE
+#endif
+#ifdef DIANA_SAT_HDF5
 #include <diHDF5.h>
 #endif
-#ifdef GEOTIFF
+#ifdef DIANA_SAT_GEOTIFF
 #include <diGEOtiff.h>
 #endif
 
@@ -260,10 +263,12 @@ bool SatManager::parseChannels(Sat* satdata, const SatFileInfo &fInfo)
       channels = satdata->plotChannels;
   }
 
+#ifdef DIANA_SAT_MITIFF
   if (channels=="day_night" && !MItiff::day_night(fInfo, channels)) {
     METLIBS_LOG_ERROR("day_night");
     return false;
   }
+#endif
   //name of channels selected
 
   satdata->vch = miutil::split(channels, "+");
@@ -301,7 +306,7 @@ bool SatManager::parseChannels(Sat* satdata, const SatFileInfo &fInfo)
 
 /***********************************************************************/
 
-bool SatManager::readSatFile(Sat* satdata, const miutil::miTime& t)
+bool SatManager::doReadSatFile(const std::string& filename, Sat* satdata)
 {
   //read the file with name satdata->actualfile, channels given in
   //satdata->index. Result in satdata->rawimage
@@ -319,39 +324,41 @@ bool SatManager::readSatFile(Sat* satdata, const miutil::miTime& t)
 #endif
 
   if (satdata->formatType == "mitiff") {
-    if (!MItiff::readMItiff(satdata->actualfile, *satdata))
-      return false;
+#ifdef DIANA_SAT_MITIFF
+    return MItiff::readMItiff(satdata->actualfile, *satdata);
+#else  // !DIANA_SAT_MITIFF
+    METLIBS_LOG_WARN("Compiled without mitiff support.");
+#endif // !DIANA_SAT_MITIFF
   }
 
   else if (satdata->formatType == "hdf5") {
-#ifdef HDF5FILE
-    if(!HDF5::readHDF5(satdata->actualfile,*satdata)) {
-      return false;
-    }
-#else  // !HDF5FILE
+#ifdef DIANA_SAT_HDF5
+    return HDF5::readHDF5(satdata->actualfile, *satdata);
+#else  // !DIANA_SAT_HDF5
     METLIBS_LOG_WARN("Compiled without HDF5 support.");
-    return false;
-#endif // !HDF5FILE
+#endif // !DIANA_SAT_HDF5
   }
 
   else if (satdata->formatType == "geotiff") {
-#ifdef GEOTIFF
-    if(!GEOtiff::readGEOtiff(satdata->actualfile,*satdata)) {
-      return false;
-    }
-#else  // !GEOTIFF
+#ifdef DIANA_SAT_GEOTIFF
+    return GEOtiff::readGEOtiff(satdata->actualfile, *satdata);
+#else  // !DIANA_SAT_GEOTIFF
     METLIBS_LOG_WARN("Compiled without geotiff support.");
-    return false;
-#endif // !GEOTIFF
+#endif // !DIANA_SAT_GEOTIFF
   }
 
   else {
     METLIBS_LOG_ERROR("Unknown formattype '" << satdata->formatType << "'.");
-    return false;
   }
+  return false;
+}
+
+bool SatManager::readSatFile(Sat* satdata, const miutil::miTime& t)
+{
+  if (!doReadSatFile(satdata->actualfile, satdata))
+    return false;
 
   if (!satdata->palette) {
-
     if (satdata->plotChannels == "IR+V")
       init_rgbindex_Meteosat(*satdata);
     else
@@ -614,8 +621,9 @@ void SatManager::addMosaicfiles(Sat* satdata, const std::vector<SatFileInfo>& mo
     for (int j=0; j<Sat::maxch; j++)
       sd.index[j] = satdata->index[j];
     sd.no = satdata->no;
+    sd.formatType = satdata->formatType;
 
-    if (!MItiff::readMItiff(mfi.name, sd))
+    if (!doReadSatFile(mfi.name, &sd))
       continue;
 
     if (sd.area.nx!=satdata->area.nx || sd.area.ny!=satdata->area.ny
@@ -697,17 +705,19 @@ void SatManager::readHeader(SatFileInfo& file, const std::vector<std::string>& c
   if (file.opened)
     return;
 
+#ifdef DIANA_SAT_MITIFF
   if (file.formattype=="mitiff") {
     MItiff::readMItiffHeader(file);
   }
+#endif
 
-#ifdef HDF5FILE
+#ifdef DIANA_SAT_HDF5
   if (file.formattype=="hdf5" || file.formattype=="hdf5-standalone") {
     HDF5::readHDF5Header(file);
   }
 #endif
 
-#ifdef GEOTIFF
+#ifdef DIANA_SAT_GEOTIFF
   if (file.formattype=="geotiff") {
     GEOtiff::readGEOtiffHeader(file);
   }
@@ -801,6 +811,7 @@ void SatManager::listFiles(subProdInfo &subp)
   }
 
   if (subp.formattype == "mitiff") {
+#ifdef DIANA_SAT_MITIFF
     //update Prod[satellite][file].colours
     //Asumes that all files have same palette
     int n=subp.file.size();
@@ -808,24 +819,26 @@ void SatManager::listFiles(subProdInfo &subp)
     int i=0;
     while (i < n && i < 3 && !MItiff::readMItiffPalette(subp.file[i].name, subp.colours))
       i++;
+#endif
   }
-#ifdef HDF5FILE
-  if(subp.formattype == "hdf5" || subp.formattype=="hdf5-standalone") {
+
+  else if (subp.formattype == "hdf5" || subp.formattype == "hdf5-standalone") {
+#ifdef DIANA_SAT_HDF5
     if (subp.file.size() > 0 && subp.file[0].name != "") {
       HDF5::readHDF5Palette(subp.file[0],subp.colours);
     }
-  }
 #endif
+  }
 
-#ifdef GEOTIFF
   else if (subp.formattype == "geotiff") {
+#ifdef DIANA_SAT_GEOTIFF
     //update Prod[satellite][file].colours
     //Asumes that all files have same palette
     if (subp.file.size() > 0 && subp.file[0].name != "") {
       GEOtiff::readGEOtiffPalette(subp.file[0].name, subp.colours);
     }
-  }
 #endif
+  }
 }
 
 SatManager::subProdInfo* SatManager::findProduct(const SatImageAndSubType& sist)
@@ -1074,13 +1087,14 @@ void SatManager::init_rgbindex_Meteosat(Sat& sd)
   // the other channel is read from another file
   //  This image is put in last rawimage slot
 
+#ifdef DIANA_SAT_MITIFF
   const int tmpidx= Sat::maxch-1;
 
   std::string name=sd.actualfile;
   Sat sd2;
   if (miutil::contains(name, "v.")) {
     miutil::replace(name, "v.", "i.");
-    std::ifstream inFile(name.c_str(), std::ios::in);
+    std::ifstream inFile(name, std::ios::in);
     std::string cal=sd.cal_vis;
 
     if (inFile && MItiff::readMItiff(name, sd, tmpidx)) {
@@ -1095,7 +1109,6 @@ void SatManager::init_rgbindex_Meteosat(Sat& sd)
       sd.rgbindex[2]= 0;
       sd.plotChannels = "VIS_RAW"; //for annotations
     }
-    inFile.close();
 
   } else if (miutil::contains(name, "i.")) {
     miutil::replace(name, "i.", "v.");
@@ -1114,6 +1127,6 @@ void SatManager::init_rgbindex_Meteosat(Sat& sd)
       sd.rgbindex[2]= 0;
       sd.plotChannels = "IR_CAL"; //for annotations
     }
-    inFile.close();
   }
+#endif
 }
