@@ -175,9 +175,9 @@ int satimg::MITIFF_head_diana(const std::string& infile, dihead& ginfo)
 
   // Test whether this is a color palette image or not. pmi==3 => color palette
   short pmi;
-  if (TIFFGetField(in.get(), 262, &pmi) && pmi == 3) {
+  if (TIFFGetField(in.get(), TIFFTAG_PHOTOMETRIC, &pmi) && pmi == PHOTOMETRIC_PALETTE) {
     unsigned short int *red, *green, *blue;
-    if (!TIFFGetField(in.get(), 320, &red, &green, &blue)) {
+    if (!TIFFGetField(in.get(), TIFFTAG_COLORMAP, &red, &green, &blue)) {
       return 2;
     }
     for (int i = 0; i < 256; i++) {
@@ -248,7 +248,7 @@ int satimg::MITIFF_head_diana(const std::string& infile, dihead& ginfo)
     ginfo.projection.setProj4Definition(proj4);
   }
 
-  return (pmi == 3) ? 2 : 0;
+  return (pmi == PHOTOMETRIC_PALETTE) ? 2 : 0;
 }
 
 namespace {

@@ -139,19 +139,16 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char* image[]
   uint32  count;
   void    *data;
   // TIFFTAG_GDAL_METADATA 42112 defined in some projets
-  // see https://www.awaresystems.be/imaging/tiff/tifftags/geo_metadata.html
-  if (samplesperpixel == 1 && TIFFGetField(in.get(), 42112, &count, &data)) {
-    //    printf("Tag %d: %s, count %d0 \n", 42112, (char *)data, count);
-    char* t = strstr((char *)data, "scale");
-    if (t) {
-      t += 7;
-      ginfo.AIr = atof(t);
+  // see https://www.awaresystems.be/imaging/tiff/tifftags/gdal_metadata.html
+  if (samplesperpixel == 1 && TIFFGetField(in.get(), /*GDAL_METADATA*/ 42112, &count, &data)) {
+    // this is an xml document, we just search for text and hope that
+    // scale is after '... role="scale">'
+    if (const char* t = strstr((char *)data, "scale")) {
+      ginfo.AIr = atof(t+7);
     }
-
-    t = strstr((char *)data, "offset");
-    if (t) {
-      t += 8;
-      ginfo.BIr = atof(t);
+    // ... and offset after '... role="offset">'
+    if (const char* t = strstr((char *)data, "offset")) {
+      ginfo.BIr = atof(t + 8);
     }
 
     // Why not use BIr and AIr ?
@@ -183,7 +180,8 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char* image[]
       METLIBS_LOG_ERROR("TIFFReadRGBAImageOriented (ORIENTATION_BOTLEFT) failed: size " <<  ginfo.xsize << "," << ginfo.ysize);
     }
     // GDAL_NODATA, see https://www.awaresystems.be/imaging/tiff/tifftags/gdal_nodata.html
-    if (samplesperpixel == 1 && TIFFGetField(in.get(), 42113, &count, &data) && count > 0) {
+    // Used by the GDAL library, contains an ASCII encoded nodata or background pixel value.
+    if (samplesperpixel == 1 && TIFFGetField(in.get(), /* GDAL_NODATA */ 42113, &count, &data) && count > 0) {
       const char* ascii = (const char*)data;
       const unsigned int nodata = atoi(ascii);
       const uint32_t rgba_nodata = 0xFF << 24 | nodata << 16 | nodata << 8 | nodata;
