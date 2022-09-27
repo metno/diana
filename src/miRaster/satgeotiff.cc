@@ -131,36 +131,9 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char* image[]
     return -1;
   }
 
-  int tilesAcross=1, tilesDown=1;
-
-  if (!TIFFGetField(in.get(), TIFFTAG_IMAGEWIDTH, &ginfo.xsize)) {
-    METLIBS_LOG_DEBUG("No TIFFTAG_IMAGEWIDTH");
-  }
-  if (!TIFFGetField(in.get(), TIFFTAG_IMAGELENGTH, &ginfo.ysize)) {
-    METLIBS_LOG_DEBUG("No TIFFTAG_IMAGELENGTH");
-  }
-  unsigned int tileWidth;
-  if (!TIFFGetField(in.get(), TIFFTAG_TILEWIDTH, &tileWidth)) {
-    METLIBS_LOG_DEBUG("No TIFFTAG_TILEWIDTH");
-    tileWidth = 0;
-  }
-  unsigned int tileLength;
-  if (!TIFFGetField(in.get(), TIFFTAG_TILELENGTH, &tileLength)) {
-    METLIBS_LOG_DEBUG("No TIFFTAG_TILELENGTH");
-    tileLength = 0;
-  }
-
   tsample_t samplesperpixel;
   TIFFGetField(in.get(), TIFFTAG_SAMPLESPERPIXEL, &samplesperpixel);
 
-  if (tileWidth != 0 && tileLength != 0) {
-    tilesAcross = (ginfo.xsize + (tileWidth -1)) / tileWidth;
-    tilesDown = (ginfo.ysize + (tileLength -1)) / tileLength;
-    if (tilesAcross * tileWidth >  ginfo.xsize)
-      ginfo.xsize = tilesAcross * tileWidth;
-    if (tilesDown * tileLength > ginfo.ysize)
-      ginfo.ysize=tilesDown * tileLength;
-  }
   const int size = ginfo.xsize * ginfo.ysize;
 
   uint32  count;
@@ -188,8 +161,6 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char* image[]
   }
   METLIBS_LOG_DEBUG(LOGVAL(ginfo.projection.getProj4Definition()) << LOGVAL(size)
                     << LOGVAL(ginfo.xsize) << LOGVAL(ginfo.ysize) << LOGVAL(ginfo.zsize)
-                    << LOGVAL(tileWidth) << LOGVAL(tileLength)
-                    << LOGVAL(tilesAcross) << LOGVAL(tilesDown)
                     << LOGVAL(samplesperpixel) << LOGVAL(ginfo.time));
   /*
    * Memory allocated for image data in this function (*image) is freed
@@ -579,7 +550,37 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
   ginfo.Ax = x_scale * unit_scale_factor;
   ginfo.Ay = y_scale * unit_scale_factor;
 
-  METLIBS_LOG_DEBUG(LOGVAL(ginfo.Ax) << LOGVAL(ginfo.Ay) << LOGVAL(ginfo.Bx) << LOGVAL(ginfo.By) << LOGVAL(ginfo.projection.getProj4Definition()));
+  if (!TIFFGetField(in.get(), TIFFTAG_IMAGEWIDTH, &ginfo.xsize)) {
+    METLIBS_LOG_DEBUG("No TIFFTAG_IMAGEWIDTH");
+  }
+  if (!TIFFGetField(in.get(), TIFFTAG_IMAGELENGTH, &ginfo.ysize)) {
+    METLIBS_LOG_DEBUG("No TIFFTAG_IMAGELENGTH");
+  }
+
+  int tilesAcross = 1, tilesDown = 1;
+
+  unsigned int tileWidth;
+  if (!TIFFGetField(in.get(), TIFFTAG_TILEWIDTH, &tileWidth)) {
+    METLIBS_LOG_DEBUG("No TIFFTAG_TILEWIDTH");
+    tileWidth = 0;
+  }
+  unsigned int tileLength;
+  if (!TIFFGetField(in.get(), TIFFTAG_TILELENGTH, &tileLength)) {
+    METLIBS_LOG_DEBUG("No TIFFTAG_TILELENGTH");
+    tileLength = 0;
+  }
+
+  if (tileWidth != 0 && tileLength != 0) {
+    tilesAcross = (ginfo.xsize + (tileWidth - 1)) / tileWidth;
+    tilesDown = (ginfo.ysize + (tileLength - 1)) / tileLength;
+    if (tilesAcross * tileWidth > ginfo.xsize)
+      ginfo.xsize = tilesAcross * tileWidth;
+    if (tilesDown * tileLength > ginfo.ysize)
+      ginfo.ysize = tilesDown * tileLength;
+  }
+
+  METLIBS_LOG_DEBUG(LOGVAL(ginfo.Ax) << LOGVAL(ginfo.Ay) << LOGVAL(ginfo.Bx) << LOGVAL(ginfo.By) << LOGVAL(ginfo.projection.getProj4Definition())
+                                     << LOGVAL(tileWidth) << LOGVAL(tileLength) << LOGVAL(tilesAcross) << LOGVAL(tilesDown));
 
   if (pmi == PHOTOMETRIC_PALETTE)
     return 2;
