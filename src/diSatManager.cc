@@ -394,15 +394,16 @@ void SatManager::setPalette(Sat* satdata)
   //convert image from palette to RGBA
   for (int j=0; j<ny; j++) {
     for (int i=0; i<nx; i++) {
-      int rawIndex = (int)satdata->rawimage[0][j*nx+i]; //raw image index
-      int index = (i+(ny-j-1)*nx)*4;//image index
+      const int palette_idx = (int)satdata->rawimage[0][j * nx + i]; // raw image index
+      const int pixel_idx = (i + (ny - j - 1) * nx) * 4;             // image index
       for (int k=0; k<3; k++)
-        satdata->image_rgba_[index + k] = colmap[k][rawIndex];
-      if (!satdata->hideColour.count(rawIndex)) {
-        satdata->image_rgba_[index + 3] = satdata->alpha;
-        ;
+        satdata->image_rgba_[pixel_idx + k] = colmap[k][palette_idx];
+
+      const auto it_hide = satdata->hideColour.find(palette_idx);
+      if (it_hide == satdata->hideColour.end()) {
+        satdata->image_rgba_[pixel_idx + 3] = satdata->alpha;
       } else {
-        satdata->image_rgba_[index + 3] = satdata->hideColour[rawIndex];
+        satdata->image_rgba_[pixel_idx + 3] = it_hide->second;
       }
     }
   }
@@ -474,9 +475,8 @@ void SatManager::setRGB(Sat* satdata)
       }
       // Put 1,2 or 3 different channels into satdata->image(RGBA).
       for (int i = 0; i < size; i++) {
-        satdata->image_rgba_[i * 4 + 0] = colmap[0][(unsigned int)(satdata->image_rgba_[i * 4])];
-        satdata->image_rgba_[i * 4 + 1] = colmap[1][(unsigned int)(satdata->image_rgba_[i * 4 + 1])];
-        satdata->image_rgba_[i * 4 + 2] = colmap[2][(unsigned int)(satdata->image_rgba_[i * 4 + 2])];
+        for (int k = 0; k < 3; ++k)
+          satdata->image_rgba_[i * 4 + k] = colmap[k][(unsigned int)(satdata->image_rgba_[i * 4 + k])];
       }
     } else { // set colourStretchInfo even if cut is off
       for (int k = 0; k < 3; k++) {
@@ -774,7 +774,8 @@ void SatManager::listFiles(subProdInfo &subp)
     if (matches.empty()) {
       METLIBS_LOG_WARN("No files found! " << subp.pattern[j]);
     }
-    for (diutil::string_v::const_reverse_iterator it = matches.rbegin(); it != matches.rend(); ++it) {
+    subp.file.reserve(subp.file.size() + matches.size());
+    for (auto it = matches.rbegin(); it != matches.rend(); ++it) {
       SatFileInfo ft;
       ft.name = *it;
       ft.formattype= subp.formattype;
@@ -794,9 +795,8 @@ void SatManager::listFiles(subProdInfo &subp)
       }
 
       // put it in the sorted list
-      std::vector<SatFileInfo>::iterator p =
-          std::lower_bound(subp.file.begin(), subp.file.end(), ft.time, [](const SatFileInfo& i, const miutil::miTime& t) { return t < i.time; });
-      subp.file.insert(p, ft);
+      const auto p = std::lower_bound(subp.file.begin(), subp.file.end(), ft.time, [](const SatFileInfo& i, const miutil::miTime& t) { return t < i.time; });
+      subp.file.insert(p, std::move(ft));
     }
   }
 
