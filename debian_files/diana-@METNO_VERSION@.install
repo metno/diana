@@ -2,6 +2,7 @@ etc/diana/@METNO_VERSION@/diana.setup
 etc/diana/@METNO_VERSION@/log4cpp.properties
 usr/bin/diana*
 usr/bin/bdiana-*
+usr/bin/ddiana-*
 usr/lib/*/diana/@METNO_VERSION@/lib*.so*
 usr/share/applications/metno-diana-@METNO_VERSION@.desktop
 usr/share/doc/diana-@METNO_VERSION@
