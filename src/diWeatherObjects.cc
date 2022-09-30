@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2019 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -55,15 +55,19 @@ using namespace std;
 namespace {
 const std::string ObjectTypeNames[] = {"edittool", "front", "symbol", "area", "anno"};
 
-const Area geoArea(Projection::geographic(), Rectangle());
+const Area& geoArea()
+{
+  static const Area ga(Projection::geographic(), Rectangle());
+  return ga;
+}
 
 bool convertProjection(const Projection& from, const Projection& to, int n, float* x, float* y)
 {
   if (from == to)
     return true;
-  else if (from == geoArea.P())
+  else if (from == geoArea().P())
     return to.convertFromGeographic(n, x, y);
-  else if (to == geoArea.P())
+  else if (to == geoArea().P())
     return from.convertToGeographic(n, x, y);
   else
     return to.convertPoints(from, n, x, y);
@@ -78,7 +82,7 @@ WeatherObjects::WeatherObjects()
 {
   METLIBS_LOG_SCOPE();
 
-  itsArea = geoArea;
+  itsArea = geoArea();
 
   //use all objects if nothing else specified
   for (const std::string& otn : ObjectTypeNames)
@@ -92,7 +96,7 @@ WeatherObjects::~WeatherObjects()
 // static
 const Area& WeatherObjects::getGeoArea()
 {
-  return geoArea;
+  return geoArea();
 }
 
 const miutil::miTime& WeatherObjects::getTime() const
@@ -236,7 +240,7 @@ bool WeatherObjects::readEditDrawFile(const std::string& fn)
   if (diutil::endswith(fn, ".shp")) {
     // shape file expected to be in geographical projection; convert all other objects to this projection
     // such that all objects have the same projection after adding the shape file
-    switchProjection(geoArea);
+    switchProjection(geoArea());
 
     METLIBS_LOG_INFO("This is a shapefile");
     std::unique_ptr<ShapeObject> shape(new ShapeObject());
@@ -310,7 +314,7 @@ bool WeatherObjects::readEditDrawString(const std::string& inputString, bool rep
   // also in DisplayObjects::define and in EditManager::startEdit
 
   // first convert existing objects to geographic coordinates
-  switchProjection(geoArea);
+  switchProjection(geoArea());
 
   //split inputString into one string for each object
   const std::vector<std::string> objectStrings = miutil::split(inputString, 0, "!");
@@ -371,7 +375,7 @@ std::string WeatherObjects::writeEditDrawString(const miTime& t)
     return std::string();
 
   const Area oldarea = itsArea;
-  switchProjection(geoArea);
+  switchProjection(geoArea());
 
   ostringstream ostr;
   ostr << "Date=" << miutil::stringFromTime(t, true) << ';' << endl << endl;
@@ -480,7 +484,7 @@ bool WeatherObjects::writeAreaBorders(const std::string& fn)
   }
 
   const Area oldarea = itsArea;
-  switchProjection(geoArea);
+  switchProjection(geoArea());
 
   diutil::CharsetConverter_p converter = diutil::findConverter(diutil::CHARSET_INTERNAL(), diutil::ISO_8859_1);
 

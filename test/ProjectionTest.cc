@@ -192,8 +192,8 @@ TEST(Projection, BadProj4)
   Projection p("+proj=fishy +x_0=123");
   const auto& msgs = ditest::getMemoryLogMessages();
   ASSERT_GE(msgs.size(), 1);
-  EXPECT_EQ(milogger::WARN, msgs[0].severity);
-  EXPECT_EQ("diField.Projection", msgs[0].tag);
+  EXPECT_EQ(milogger::WARN, msgs.back().severity);
+  EXPECT_EQ("diField.Projection", msgs.back().tag);
 }
 
 TEST(Projection, CopyAssign)
@@ -235,9 +235,29 @@ TEST(Projection, IsGeographic)
 
 TEST(Projection, IsDegree)
 {
-  const auto p_mywave = Projection("+proj=ob_tran +o_proj=longlat +lon_0=-40 +o_lat_p=22 +R=6.371e+06 +no_defs");
-  EXPECT_TRUE(p_mywave.isDegree());
-  EXPECT_FALSE(p_mywave.isGeographic());
+  {
+    const auto p_mywave = Projection("+proj=ob_tran +o_proj=longlat +lon_0=-40 +o_lat_p=22 +R=6.371e+06 +no_defs");
+    EXPECT_TRUE(p_mywave.isDegree());
+    EXPECT_FALSE(p_mywave.isGeographic());
+  }
+  {
+    const auto p = Projection("EPSG:4326");
+    EXPECT_TRUE(p.isDefined());
+    EXPECT_TRUE(p.isDegree());
+    EXPECT_TRUE(p.isGeographic());
+  }
+  {
+    const auto p = Projection(" +proj=longlat +datum=WGS84 +no_defs");
+    EXPECT_TRUE(p.isDefined());
+    EXPECT_TRUE(p.isDegree());
+    EXPECT_TRUE(p.isGeographic());
+  }
+  {
+    const auto p = Projection("+proj=longlat +R=6.371e+06 +no_defs");
+    EXPECT_TRUE(p.isDefined());
+    EXPECT_TRUE(p.isDegree());
+    EXPECT_TRUE(p.isGeographic());
+  }
 }
 
 TEST(Projection, EPSG3575)
@@ -258,7 +278,7 @@ TEST(Projection, EPSG3575)
 TEST(Projection, InitEPSG3575)
 {
   const Projection src("+init=epsg:3575");
-  const Projection dst("+proj=longlat +R=6.371e+06 +no_defs");
+  const Projection dst("  +proj=longlat +R=6.371e+06 +no_defs"); // note spaces
 
   EXPECT_FALSE(src.isDegree());
 

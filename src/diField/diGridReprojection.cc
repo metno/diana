@@ -431,14 +431,14 @@ void divide(ReproBuffer& rb)
       subdivide_back(ev, rb.reproject);
     } else {
       if (!(is_undef(et.xyf[f00]) || is_undef(et.xyf[f10]) || is_undef(et.xyf[f01]) || is_undef(et.xyf[f11]))) {
-        rb.script->push_back(ReproQuad());
-        ReproQuad& q = rb.script->back();
+        ReproQuad q;
         q.s0 = et.s0;
         q.swh = PointI(w, h);
         q.f00 = et.xyf[f00];
         q.f10 = et.xyf[f10];
         q.f01 = et.xyf[f01];
         q.f11 = et.xyf[f11];
+        rb.script->push_back(std::move(q));
       }
       ev.pop_back();
     }

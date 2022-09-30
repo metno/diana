@@ -90,35 +90,34 @@ std::string textAfter(const std::string& haystack, const std::string& key)
 
 double metersPerUnit(const Projection& proj)
 {
-  METLIBS_LOG_SCOPE();
-  if (proj.isGeographic()) {
+  static const double DEGREE_METERS = WMTS_EARTH_RADIUS_M * 2 * M_PI / 360; // proj4 units are degrees
+
+  if (proj.isDegree()) {
     // fixed value for all geographic systems, OGC WMS 1.3.0 section 7.2.4.6.9
-    return WMTS_EARTH_RADIUS_M * 2 * M_PI / 360; // proj4 units are degrees
+    return DEGREE_METERS;
   }
 
-  const std::string proj4 = proj.getProj4DefinitionExpanded();
-  METLIBS_LOG_DEBUG(LOGVAL(proj4));
-  const std::string to_meter = textAfter(proj4, "+to_meter=");
-  METLIBS_LOG_DEBUG(LOGVAL(to_meter));
-  if (!to_meter.empty())
-    return miutil::to_double(to_meter);
+  if (!diutil::startswith(proj.getProj4Definition(), "EPSG:") && !diutil::startswith(proj.getProj4Definition(), "+init=epsg:")) {
+    const std::string proj4 = proj.getProj4DefinitionExpanded();
+    const std::string to_meter = textAfter(proj4, "+to_meter=");
+    if (!to_meter.empty())
+      return miutil::to_double(to_meter);
 
-  const std::string units = textAfter(proj4, "+units=");
-  METLIBS_LOG_DEBUG(LOGVAL(units));
-  if (!units.empty()) {
-    if (units == "m")
-      return 1.0;
-    if (units == "ft")
-      return INTERNATIONAL_FOOT;
-    if (units == "us-ft")
-      return US_SURVEY_FOOT;
-  }
+    const std::string units = textAfter(proj4, "+units=");
+    if (!units.empty()) {
+      if (units == "m")
+        return 1.0;
+      if (units == "ft")
+        return INTERNATIONAL_FOOT;
+      if (units == "us-ft")
+        return US_SURVEY_FOOT;
+    }
 
-  if (miutil::contains(proj4, "+proj=lonlat") || miutil::contains(proj4, "+proj=longlat") || miutil::contains(proj4, "+proj=latlon")
-      || (miutil::contains(proj4, "+proj=ob_tran") &&
-          (miutil::contains(proj4, "+o_proj=lonlat") || miutil::contains(proj4, "+o_proj=longlat") || miutil::contains(proj4, "+o_proj=latlon"))))
-  {
-    return WMTS_EARTH_RADIUS_M;
+    if (miutil::contains(proj4, "+proj=lonlat") || miutil::contains(proj4, "+proj=longlat") || miutil::contains(proj4, "+proj=latlon") ||
+        (miutil::contains(proj4, "+proj=ob_tran") &&
+         (miutil::contains(proj4, "+o_proj=lonlat") || miutil::contains(proj4, "+o_proj=longlat") || miutil::contains(proj4, "+o_proj=latlon")))) {
+      return DEGREE_METERS;
+    }
   }
 
   return 1.0; // assume units are meters
