@@ -79,7 +79,6 @@ const float RAD_TO_DEG = 180 / M_PI;
 PJ_CONTEXT* ctx = nullptr;
 void milogger_log_func(void*, int level, const char* msg)
 {
-#if 0
   milogger::Severity severity;
   switch (level) {
   case PJ_LOG_ERROR:
@@ -99,9 +98,6 @@ void milogger_log_func(void*, int level, const char* msg)
     MILOGGER_record->stream() << msg;
     MILOGGER_logger.submitRecord(MILOGGER_record);
   }
-#else
-  METLIBS_LOG_DEBUG("proj log message (" << level << "): " << msg);
-#endif
 }
 #endif // HAVE_PROJ_H
 

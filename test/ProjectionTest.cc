@@ -192,8 +192,8 @@ TEST(Projection, BadProj4)
   Projection p("+proj=fishy +x_0=123");
   const auto& msgs = ditest::getMemoryLogMessages();
   ASSERT_GE(msgs.size(), 1);
-  EXPECT_EQ(milogger::WARN, msgs[0].severity);
-  EXPECT_EQ("diField.Projection", msgs[0].tag);
+  EXPECT_EQ(milogger::WARN, msgs.back().severity);
+  EXPECT_EQ("diField.Projection", msgs.back().tag);
 }
 
 TEST(Projection, CopyAssign)
