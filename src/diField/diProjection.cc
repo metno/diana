@@ -215,14 +215,27 @@ typedef std::shared_ptr<PJ> PJ_p;
 
 #ifdef HAVE_PROJ_H
 
+PJ_p wrap_PJ(PJ* pj)
+{
+  return PJ_p(pj, proj_destroy);
+}
+
+PJ_p norm_PJ(PJ_p pj)
+{
+  auto pn = wrap_PJ(proj_normalize_for_visualization(ctx, pj.get()));
+  if (!pn)
+    METLIBS_LOG_ERROR("no normalization");
+  return pn ? pn : pj;
+}
+
 PJ_p make_PJ(const std::string& def)
 {
-  return PJ_p(proj_create(ctx, def.c_str()), proj_destroy);
+  return wrap_PJ(proj_create(ctx, def.c_str()));
 }
 
 PJ_p make_PJ(const std::string& src, const std::string& dst)
 {
-  return PJ_p(proj_create_crs_to_crs(ctx, src.c_str(), dst.c_str(), nullptr), proj_destroy);
+  return norm_PJ(wrap_PJ(proj_create_crs_to_crs(ctx, src.c_str(), dst.c_str(), nullptr)));
 }
 
 class Proj6Transformation : public Transformation
