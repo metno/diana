@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2020 met.no
+  Copyright (C) 2015-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -285,29 +285,39 @@ int vc_select_cs(const std::string& ucs, Inventory_cp inv)
 const char SECONDS_SINCE_1970[] = "seconds since 1970-01-01 00:00:00";
 const char DAYS_SINCE_1900[] = "days since 1900-01-01 00:00:00";
 
-static const miutil::miTime time0 = miutil::unix_t0, day0("1900-01-01 00:00:00");
+namespace {
+const miutil::miTime& time0()
+{
+  return miutil::unix_t0;
+}
+
+const miutil::miTime& day0()
+{
+  static const miutil::miTime day0("1900-01-01 00:00:00");
+  return day0;
+}
+} // namespace
 
 Time from_miTime(const miutil::miTime& mitime)
 {
   if (mitime.undef())
     return Time();
-  else if (mitime >= time0)
-    return Time(SECONDS_SINCE_1970, miutil::miTime::secDiff(mitime, time0));
+  else if (mitime >= time0())
+    return Time(SECONDS_SINCE_1970, miutil::miTime::secDiff(mitime, time0()));
   else
-    return Time(DAYS_SINCE_1900, miutil::miTime::hourDiff(mitime, day0)/24);
+    return Time(DAYS_SINCE_1900, miutil::miTime::hourDiff(mitime, day0()) / 24);
 }
 
 // ------------------------------------------------------------------------
 
 miutil::miTime to_miTime(const std::string& unit, Time::timevalue_t value)
 {
-  if (!unit.empty()) {
-    if (diutil::startswith(unit, "days")) {
-      if (MetNoFimex::UnitsConverter_p uconv = unitConverter(unit, DAYS_SINCE_1900))
-        return miutil::addHour(day0, 24 * uconv->convert(value));
-    }
+  if (diutil::startswith(unit, "days")) {
+    if (MetNoFimex::UnitsConverter_p uconv = unitConverter(unit, DAYS_SINCE_1900))
+      return miutil::addHour(day0(), 24 * uconv->convert(value));
+  } else if (!unit.empty()) {
     if (MetNoFimex::UnitsConverter_p uconv = unitConverter(unit, SECONDS_SINCE_1970))
-      return miutil::addSec(time0, uconv->convert(value));
+      return miutil::addSec(time0(), uconv->convert(value));
   }
   return miutil::miTime();
 }

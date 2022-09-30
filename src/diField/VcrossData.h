@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2014-2020 met.no
+  Copyright (C) 2014-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -390,7 +390,7 @@ struct Time
   typedef double timevalue_t;
   std::string unit;
   timevalue_t value;
-  Time(std::string u, timevalue_t v)
+  Time(const std::string& u, timevalue_t v)
     : unit(u), value(v) { }
   Time()
     : value(0) { }
