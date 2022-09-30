@@ -788,16 +788,16 @@ IF(ENABLE_GRPC)
   METNO_HEADERS(DIANA_OBS_HEADERS "cc" "h" ${DIANA_OBS_SOURCES})
   list_prepend_dir(LIBDIANA_SOURCES "${diana_protos_dir}" ${diana_obs_protos})
 
-  SET (DIANA_OBS_GRPC_EXECUTABLE diana_obs_grpc)
-  ADD_EXECUTABLE(${DIANA_OBS_GRPC_EXECUTABLE}
+  SET (DDIANA_OBS_EXECUTABLE ddiana_obs)
+  ADD_EXECUTABLE(${DDIANA_OBS_EXECUTABLE}
     ${DIANA_OBS_SOURCES}
     ${DIANA_OBS_HEADERS}
     service/main_obs.cc
   )
-  SET_TARGET_PROPERTIES(diana_obs_grpc PROPERTIES
-    OUTPUT_NAME "diana-obs-grpc-${PVERSION}"
+  SET_TARGET_PROPERTIES(${DDIANA_OBS_EXECUTABLE} PROPERTIES
+    OUTPUT_NAME "ddiana-obs-${PVERSION}"
   )
-  TARGET_LINK_LIBRARIES(diana_obs_grpc
+  TARGET_LINK_LIBRARIES(${DDIANA_OBS_EXECUTABLE}
     libdiana_core
     mi-programoptions
   )
@@ -902,7 +902,7 @@ INSTALL(
   TARGETS
     diana_ui
     diana_batch
-    ${DIANA_OBS_GRPC_EXECUTABLE}
+    ${DDIANA_OBS_EXECUTABLE}
   DESTINATION
     ${CMAKE_INSTALL_FULL_BINDIR}
 )
