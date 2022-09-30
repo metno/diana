@@ -342,3 +342,13 @@ TEST(WebMapUtilities, Distortion)
   const auto distortion = diutil::distortion(epsg3413, viewProj, viewRect);
   EXPECT_LE(distortion, 1.5e-5);
 }
+
+TEST(WebMapUtilities, MetersPerUnit)
+{
+  {
+    const auto p = diutil::projectionForCRS("EPSG:4326");
+    EXPECT_NEAR(diutil::metersPerUnit(p), 111319, 5) << " proj='" << p.getProj4DefinitionExpanded() << "'";
+  }
+
+  EXPECT_NEAR(diutil::metersPerUnit(Projection("+proj=stere +lat_ts=60 +lat_0=90.0 +lon_0=0 +x_0=5.71849e+06 +y_0=7.37385e+06 +R=6.371e+06")), 1, 0.1);
+}
