@@ -496,14 +496,14 @@ Projection::Projection()
 }
 
 Projection::Projection(const Projection& o)
-    : Projection()
+    : p_(new P(*o.p_))
 {
-  setFromString(o.getProj4Definition());
 }
 
 Projection& Projection::operator=(const Projection& o)
 {
-  setFromString(o.getProj4Definition());
+  Projection p(o);
+  std::swap(p_, p.p_);
   return *this;
 }
 
@@ -516,10 +516,7 @@ Projection::Projection(const std::string& projStr)
 bool Projection::setFromString(const std::string& crsdef)
 {
   if (crsdef.empty()) {
-    p_->proj4Definition.clear();
-#ifndef HAVE_PROJ_H
-    p_->proj4PJ = nullptr;
-#endif // !HAVE_PROJ_H
+    p_.reset(new P);
     return true;
   }
 
