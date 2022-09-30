@@ -258,7 +258,7 @@ TEST(Projection, EPSG3575)
 TEST(Projection, InitEPSG3575)
 {
   const Projection src("+init=epsg:3575");
-  const Projection dst("+proj=longlat +R=6.371e+06 +no_defs");
+  const Projection dst("  +proj=longlat +R=6.371e+06 +no_defs"); // note spaces
 
   EXPECT_FALSE(src.isDegree());
 

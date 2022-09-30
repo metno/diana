@@ -573,7 +573,7 @@ bool Projection::setFromEPSG(const std::string& epsg)
 
 bool Projection::setProj4Definition(const std::string& proj4str)
 {
-  p_->proj4Definition = proj4str;
+  p_->proj4Definition = miutil::trimmed(proj4str);
 
 #ifdef HAVE_PROJ_H
   const auto pj = make_PJ(p_->proj4Definition);
@@ -1129,6 +1129,6 @@ bool Projection::getLatLonIncrement(float lat, float /*lon*/, float& dlat, float
 const Projection& Projection::geographic()
 {
   if (!sGeographic)
-    sGeographic = std::make_shared<Projection>("+proj=longlat  +ellps=WGS84 +towgs84=0,0,0 +no_defs");
+    sGeographic = std::make_shared<Projection>("+proj=longlat +ellps=WGS84 +towgs84=0,0,0 +no_defs");
   return *sGeographic;
 }
