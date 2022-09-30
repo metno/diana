@@ -235,9 +235,29 @@ TEST(Projection, IsGeographic)
 
 TEST(Projection, IsDegree)
 {
-  const auto p_mywave = Projection("+proj=ob_tran +o_proj=longlat +lon_0=-40 +o_lat_p=22 +R=6.371e+06 +no_defs");
-  EXPECT_TRUE(p_mywave.isDegree());
-  EXPECT_FALSE(p_mywave.isGeographic());
+  {
+    const auto p_mywave = Projection("+proj=ob_tran +o_proj=longlat +lon_0=-40 +o_lat_p=22 +R=6.371e+06 +no_defs");
+    EXPECT_TRUE(p_mywave.isDegree());
+    EXPECT_FALSE(p_mywave.isGeographic());
+  }
+  {
+    const auto p = Projection("EPSG:4326");
+    EXPECT_TRUE(p.isDefined());
+    EXPECT_TRUE(p.isDegree());
+    EXPECT_TRUE(p.isGeographic());
+  }
+  {
+    const auto p = Projection(" +proj=longlat +datum=WGS84 +no_defs");
+    EXPECT_TRUE(p.isDefined());
+    EXPECT_TRUE(p.isDegree());
+    EXPECT_TRUE(p.isGeographic());
+  }
+  {
+    const auto p = Projection("+proj=longlat +R=6.371e+06 +no_defs");
+    EXPECT_TRUE(p.isDefined());
+    EXPECT_TRUE(p.isDegree());
+    EXPECT_TRUE(p.isGeographic());
+  }
 }
 
 TEST(Projection, EPSG3575)

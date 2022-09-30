@@ -64,6 +64,7 @@ typedef void PJ;
 #include <map>
 #include <memory>
 #include <regex>
+#include <set>
 #include <stdexcept>
 
 #define MILOGGER_CATEGORY "diField.Projection"
@@ -488,9 +489,13 @@ std::shared_ptr<Projection> Projection::sGeographic;
 struct Projection::P
 {
   std::string proj4Definition;
+  enum LonLat { LL_UNKNOWN, LL_NO, LL_YES };
+  LonLat isLonLat;
 #ifndef HAVE_PROJ_H
   PJ_p proj4PJ;
 #endif // !HAVE_PROJ_H
+
+  P() : isLonLat(LL_UNKNOWN) {}
 };
 
 Projection::Projection()
@@ -556,7 +561,9 @@ bool Projection::setFromEPSG(const std::string& epsg)
       code = it->second;
   }
 
-#ifndef HAVE_PROJ_H
+#ifdef HAVE_PROJ_H
+  static const std::string EPSG_INIT_PREFIX = "EPSG:";
+#else // !HAVE_PROJ_H
   static std::map<std::string, std::string> EPSG_PROJ = { // EPSG code -> proj init
     // DWD, see https://epsg.io/4839
     { "4389", "+proj=lcc +lat_1=48.66666666666666 +lat_2=53.66666666666666 +lat_0=51 +lon_0=10.5 +x_0=0 +y_0=0"
@@ -568,13 +575,19 @@ bool Projection::setFromEPSG(const std::string& epsg)
   if (it != EPSG_PROJ.end()) {
     return setProj4Definition(it->second);
   }
+
+  static const std::string EPSG_INIT_PREFIX = "+init=epsg:";
 #endif // !HAVE_PROJ_H
 
-#ifdef HAVE_PROJ_H
-  return setProj4Definition("EPSG:" + code);
-#else  // !HAVE_PROJ_H
-  return setProj4Definition("+init=epsg:" + code);
-#endif // !HAVE_PROJ_H
+  static const std::set<int> EPSG_LONLAT{
+#include "diProjectionEPSGLonlat.icc"
+  };
+
+  const auto ok = setProj4Definition(EPSG_INIT_PREFIX + code);
+  if (ok) {
+    p_->isLonLat = EPSG_LONLAT.count(miutil::to_int(code)) ? P::LL_YES : P::LL_NO;
+  }
+  return ok;
 }
 
 bool Projection::setProj4Definition(const std::string& proj4str)
@@ -1097,26 +1110,39 @@ bool Projection::getMapRatios(int nx, int ny, float x0, float y0, float gridReso
 
 bool Projection::isGeographic() const
 {
-  if (miutil::contains(p_->proj4Definition, "+proj=longlat") || miutil::contains(p_->proj4Definition, "+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=90")) {
+  if (!isDefined())
+    return false;
+
+  if (p_->isLonLat != P::LL_UNKNOWN)
+    return p_->isLonLat == P::LL_YES;
+
+  const auto& pd = p_->proj4Definition;
+  if (miutil::contains(pd, "+proj=longlat") || miutil::contains(pd, "+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=90")) {
     return true;
   }
-#ifndef HAVE_PROJ_H
+#if !defined(HAVE_PROJ_H)
   if (pj_is_latlong(p_->proj4PJ.get()))
     return true;
 #endif // !HAVE_PROJ_H
+
   return false;
 }
 
 bool Projection::isDegree() const
 {
+  if (!isDefined())
+    return false;
+
   if (isGeographic())
     return true;
-  const std::string& p = p_->proj4Definition;
-  if (miutil::contains(p, "+proj=ob_tran") && miutil::contains(p, "+o_proj=longlat"))
+
+  const std::string& pd = p_->proj4Definition;
+  if (miutil::contains(pd, "+proj=ob_tran") && miutil::contains(pd, "+o_proj=longlat"))
     return true;
 
-#if 0 && defined(HAVE_PROJ_H) && ((1000 * PROJ_VERSION_MAJOR + PROJ_VERSION_MINOR) >= 7002)
-  if (proj_degree_input(p_->proj4PJ.get(), PJ_FWD))
+#if defined(HAVE_PROJ_H) && ((1000 * PROJ_VERSION_MAJOR + PROJ_VERSION_MINOR) >= 7002)
+  const auto pj = make_PJ(p_->proj4Definition, "EPSG:3003");
+  if (pj && proj_degree_input(pj.get(), PJ_FWD))
     return true;
 #endif // HAVE_PROJ_H
 
