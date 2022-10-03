@@ -1350,6 +1350,7 @@ miutil::KeyValue_v PlotOptions::diff(const PlotOptions& from, const PlotOptions&
   add_diff(ostr, key_fontface, from.fontface, to.fontface);
 
   add_diff(ostr, key_precision, from.precision, to.precision);
+  add_diff(ostr, key_enabled, from.enabled, to.enabled);
   add_diff(ostr, key_fname, from.fname, to.fname);
 
   add_diff(ostr, key_legendunits, from.legendunits, to.legendunits);

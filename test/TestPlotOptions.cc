@@ -361,3 +361,15 @@ TEST(TestPlotOptions, ParsePlotOptionTable)
   PlotOptions::parsePlotOption({{"table","1"}}, poptions, unused);
   EXPECT_TRUE(poptions.table);
 }
+
+TEST(TestPlotOptions, Enabled)
+{
+  miutil::KeyValue_v unused;
+  PlotOptions po;
+  EXPECT_TRUE(po.enabled);
+
+  PlotOptions::parsePlotOption({{"enabled", "false"}}, po, unused);
+  EXPECT_FALSE(po.enabled);
+
+  EXPECT_EQ("enabled=false", miutil::mergeKeyValue(po.toKeyValueList()));
+}
