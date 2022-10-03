@@ -112,7 +112,8 @@ void ColourShading::defineColourShadingFromString(const std::string& str)
   pmap[lname]= p;
 }
 
-vector<Colour> ColourShading::getColourShading(int n)
+// static
+std::vector<Colour> ColourShading::adaptColourShading(std::vector<Colour>& colours, int n)
 {
   int ncol = colours.size();
 
@@ -146,6 +147,12 @@ vector<Colour> ColourShading::getColourShading(int n)
   return vcol;
 }
 
+vector<Colour> ColourShading::getColourShading(int n)
+{
+  return adaptColourShading(colours, n);
+}
+
+// static
 void ColourShading::morecols(vector<Colour>& vcol, const Colour& col1,
     const Colour& col2, int n)
 {

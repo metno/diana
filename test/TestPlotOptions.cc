@@ -241,11 +241,26 @@ TEST(TestPlotOptions, PaletteColoursColdOnly)
 TEST(TestPlotOptions, PaletteColoursUser)
 {
   PlotOptions poB;
-  const std::string pc = "68:187:217,74:250:250,72:221:191,71:191:130,71:161:71,132:189:72,191:221:71,252:250:71,251:191:69,250:130:70,255:75:74";
+  const std::string pc = "68:187:217,74:250:250,72:221:191,71:191:130,71:161:71,132:189:72,191:221:71,252:250:71,251:191:69,250:130:70,255:75:74;11";
   PlotOptions::parsePlotOption(miutil::kv(PlotOptions::key_palettecolours, pc), poB);
   EXPECT_EQ(poB.palettename, pc);
   EXPECT_TRUE(poB.contourShading);
   EXPECT_EQ(poB.palettecolours.size(), 11);
+  EXPECT_EQ(poB.palettecolours_cold.size(), 0);
+  EXPECT_EQ(Colour(255, 75, 74), poB.palettecolours.back());
+
+  PlotOptions poA;
+  EXPECT_EQ(miutil::mergeKeyValue(PlotOptions::diff(poA, poB)), "palettecolours=" + pc);
+}
+
+TEST(TestPlotOptions, PaletteColoursUserN)
+{
+  PlotOptions poB;
+  const std::string pc = "68:187:217,74:250:250,72:221:191,71:191:130,71:161:71,132:189:72,191:221:71,252:250:71,251:191:69,250:130:70,255:75:74;9";
+  PlotOptions::parsePlotOption(miutil::kv(PlotOptions::key_palettecolours, pc), poB);
+  EXPECT_EQ(poB.palettename, pc);
+  EXPECT_TRUE(poB.contourShading);
+  EXPECT_EQ(poB.palettecolours.size(), 9);
   EXPECT_EQ(poB.palettecolours_cold.size(), 0);
 
   PlotOptions poA;

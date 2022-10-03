@@ -886,9 +886,14 @@ PlotOptions& PlotOptions::set_palettecolours(const std::string& value)
     const auto stokens = miutil::split(palettename, ",");
     const size_t m = stokens.size();
     if (m > 2) {
-      palettecolours.reserve(m);
+      const auto ntoken = miutil::split(value, ";");
+      const auto stokens = miutil::split(ntoken.front(), ","); // split again, such that the last colour is without ";"
+      palettecolours.reserve(stokens.size());
       for (const auto& c : stokens) {
         palettecolours.push_back(Colour(c));
+      }
+      if (ntoken.size() == 2 && miutil::is_int(ntoken[1])) {
+        palettecolours = ColourShading::adaptColourShading(palettecolours, atoi(ntoken[1].c_str()));
       }
     } else {
       if (m > 0) {
