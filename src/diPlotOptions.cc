@@ -886,6 +886,7 @@ PlotOptions& PlotOptions::set_palettecolours(const std::string& value)
     const auto stokens = miutil::split(palettename, ",");
     const size_t m = stokens.size();
     if (m > 2) {
+      palettecolours.reserve(m);
       for (const auto& c : stokens) {
         palettecolours.push_back(Colour(c));
       }

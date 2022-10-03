@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -304,33 +304,26 @@ QComboBox* PaletteBox( QWidget* parent, const vector<ColourShading::ColourShadin
 
 void ExpandPaletteBox( QComboBox* box, const ColourShading& palette )
 {
-  vector<Colour> colours = palette.getColourShading();
-
-  int nr_colours = colours.size();
-  if ( nr_colours == 0 )
+  const std::vector<Colour>& colours = palette.getColourShading();
+  if (colours.empty())
     return;
+
+  const int nr_colours = colours.size();
   int maxwidth=20;
   int step = nr_colours/maxwidth+1;
   int factor = maxwidth/(nr_colours/step);
   int width = (nr_colours/step) * factor;
-  QPixmap* pmap = new QPixmap( width, 20 );
+  std::unique_ptr<QPixmap> pmap(new QPixmap(width, 20));
   QPainter qp;
-  qp.begin( pmap );
+  qp.begin(pmap.get());
   for( int j=0; j<nr_colours; j+=step ){
-    QColor pixcolor=QColor(colours[j].R(),
-        colours[j].G(),
-        colours[j].B() );
-
-    qp.fillRect( j*factor,0,factor,20,pixcolor);
+    qp.fillRect(j * factor, 0, factor, 20, diutil::QC(colours[j]));
   }
-
   qp.end();
 
   QIcon qicon( *pmap );
   QString qs = QString::fromStdString(palette.Name());
   box->addItem(qicon,qs);
-  delete pmap;
-  pmap=0;
 }
 
 QComboBox* PatternBox(QWidget* parent, const vector<Pattern::PatternInfo>& patternInfo,

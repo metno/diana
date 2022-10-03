@@ -320,6 +320,59 @@ TEST(TestFieldDialog, PutGetOKStringSmallInterval)
   }
 }
 
+TEST(TestFieldDialog, PutGetOKStringPalette)
+{
+  initLinesAndColours();
+  TestFieldDialogData* data = new TestFieldDialogData;
+  std::unique_ptr<FieldDialog> dialog(new FieldDialog(0, data));
+
+  ColourShading::define("light_red", {Colour::BLACK, Colour::RED, Colour::WHITE});
+  ColourShading::define("light_blue", {Colour::BLACK, Colour::BLUE, Colour::WHITE});
+
+  const std::string pc = "68:187:217,74:250:250,72:221:191,71:191:130,71:161:71,132:189:72,191:221:71,252:250:71,251:191:69,250:130:70,255:75:74";
+
+  const int N = 3;
+  const int ncolours_h[N]{11, 3, 0};
+  const int ncolours_c[N]{0, 0, 3};
+  const std::string palette[N] {
+    // clang-format off
+      "68:187:217,74:250:250,72:221:191,71:191:130,71:161:71,132:189:72,191:221:71,252:250:71,251:191:69,250:130:70,255:75:74",
+      "yellow,yellow,yellow",
+      "off,light_red"
+    // clang-format on
+  };
+  const PlotCommand_cpv cmds_put = makeCommands({
+      "FIELD model=" + MODEL1 + " refhour=0 parameter=" + PARAM1 + " palettecolours=" + palette[0],
+      "FIELD model=" + MODEL1 + " refhour=0 parameter=" + PARAM1 + " palettecolours=" + palette[1],
+      "FIELD model=" + MODEL1 + " refhour=0 parameter=" + PARAM1 + " palettecolours=" + palette[2],
+  });
+  for (int i = 0; i < N; ++i) {
+    auto cmd = std::dynamic_pointer_cast<const FieldPlotCommand>(cmds_put[i]);
+    ASSERT_TRUE(cmd);
+    PlotOptions po;
+    PlotOptions::parsePlotOption(cmd->options(), po);
+    EXPECT_EQ(palette[i], po.palettename);
+    EXPECT_EQ(ncolours_h[i], po.palettecolours.size()) << " i=" << i << " palette=" << palette[i];
+    EXPECT_EQ(ncolours_c[i], po.palettecolours_cold.size()) << " i=" << i << " palette=" << palette[i];
+  }
+
+  dialog->putOKString(cmds_put);
+  dialog->simulateSelectField(1);
+  dialog->simulateSelectField(0);
+  const PlotCommand_cpv cmds_get = dialog->getOKString();
+  ASSERT_EQ(cmds_get.size(), N);
+  for (int i = 0; i < N; ++i) {
+    auto cmd = std::dynamic_pointer_cast<const FieldPlotCommand>(cmds_get[i]);
+    ASSERT_TRUE(cmd);
+    EXPECT_TRUE(cmd->toString().find("palettecolours=" + palette[i]) != std::string::npos) << cmd->toString();
+    PlotOptions po;
+    PlotOptions::parsePlotOption(cmd->options(), po);
+    EXPECT_EQ(palette[i], po.palettename);
+    EXPECT_EQ(ncolours_h[i], po.palettecolours.size()) << " i=" << i << " palette=" << palette[i];
+    EXPECT_EQ(ncolours_c[i], po.palettecolours_cold.size()) << " i=" << i << " palette=" << palette[i];
+  }
+}
+
 TEST(TestFieldDialog, GetShortNameEmpty)
 {
   initLinesAndColours();

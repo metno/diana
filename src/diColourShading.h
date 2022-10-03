@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -87,8 +87,8 @@ public:
   ///return n colours, interpolate RGB-values or drop colours if needed
   std::vector<Colour> getColourShading(int n);
   ///return all colours
-  std::vector<Colour> getColourShading() const {return colours;}
-  std::string Name() const {return name;}
+  const std::vector<Colour>& getColourShading() const { return colours; }
+  const std::string& Name() const { return name; }
 };
 
 #endif

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -100,13 +100,14 @@ void ColourShading::define(const std::string& name_, const vector<Colour>& colou
 
 void ColourShading::defineColourShadingFromString(const std::string& str)
 {
-  std::string lname= str;
+  const auto token = miutil::split(str, ",");
   vector<Colour> colours;
-  vector<std::string> token = miutil::split(str, ",");
-
-  for(size_t j=0; j<token.size(); j++) {
-    colours.push_back(Colour(token[j]));
+  colours.reserve(token.size());
+  for (const auto& t : token) {
+    colours.push_back(Colour(t));
   }
+
+  const std::string& lname = str;
   ColourShading p(lname, colours);
   pmap[lname]= p;
 }
