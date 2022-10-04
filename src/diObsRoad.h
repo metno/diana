@@ -36,6 +36,7 @@
 #include "diObsPlot.h"
 #include "diObsReader.h"
 #include "diStationTypes.h"
+#include "diObsDataVector.h"
 #include "vprof/diVprofSimpleData.h"
 #include "vprof/diVprofSimpleValues.h"
 
@@ -59,6 +60,7 @@ private:
   std::string databasefile_;
   std::string stationfile_;
   std::string headerfile_;
+  std::string datatype_;
   // This defines a set of stations, eg synop,metar,ship observations
   std::vector<road::diStation>* stationlist;
   miutil::miTime filetime_;
@@ -72,7 +74,8 @@ private:
   std::string m_filename;
 
   std::vector<std::string> lines;
-  std::vector<ObsData> vObsData;
+  std::map<std::string, std::vector<std::string> > parameterlines;
+  ObsDataVector_p vObsData;
   std::map<std::string, ObsData> mObsData;
   std::string separator;
   bool fileOK;
@@ -84,6 +87,9 @@ private:
   std::set<std::string> asciiColumnUndefined;
   typedef std::map<std::string, size_t> string_size_m;
   string_size_m asciiColumn; // column index(time, x,y,dd,ff etc)
+  string_size_m parameterColumn; // column index (Parameter, LevelParameter, ...)
+  // Name of parameter column in diana/mora mapping file (parameters_mora.csv)
+  std::vector<std::string> m_parameterColumnName;
   int asciiSkipDataLines;
   PlotCommand_cpv labels;
 
@@ -99,11 +105,26 @@ private:
   bool getColumnValue(const std::string& cn, const std::vector<std::string>& cv, float& value) const;
   bool getColumnValue(const std::string& cn, const std::vector<std::string>& cv, int& value) const;
   bool getColumnValue(const std::string& cn, const std::vector<std::string>& cv, std::string& value) const;
+  
+  void decodeNewData();
+  void decodeOneLine(ObsData * obsData, std::vector<std::string> & pstr, const int & obshour);
+  std::string convertWmoStationId(std::string & text);
+  float convertOperatingMode(std::string & text);
+  int decodeOffset(std::string & text);
+  
+  std::string getParameterColumn(const std::string& cn, const std::vector<std::string>& cv);
+  bool getParameterColumnValue(const std::string& cn, const std::vector<std::string>& cv, float& value);
+  bool getParameterColumnValue(const std::string& cn, const std::vector<std::string>& cv, int& value);
+  bool getParameterColumnValue(const std::string& cn, const std::vector<std::string>& cv, std::string& value);
 
   void readHeaderInfo(const std::string& filename, const std::string& headerfile, const std::vector<std::string>& headerinfo);
   void decodeHeader();
   bool bracketContents(std::vector<std::string>& in_out);
   void parseHeaderBrackets(const std::string& str);
+  
+  void decodeNewHeader();
+  void parseNewHeaderFormat(const std::string& str);
+  
 
   void addStationsToUrl(std::string& filename);
   enum VerticalAxis { PRESSURE, ALTITUDE };
@@ -111,12 +132,13 @@ private:
   VprofSimpleData_p temperature, dewpoint_temperature, wind_dd, wind_ff, wind_sig;
   VerticalAxis vertical_axis_;
   // New obsData interface
-  bool isAuto(const ObsData& obs);  
+  bool isAuto(const ObsData& obs);
+  void decodeMetarCloudAmount(const int & Nsx, QString & ost);  
 
 public:
   ObsRoad(const std::string& filename, const std::string& databasefile, const std::string& stationfile, const std::string& headerfile,
           const miutil::miTime& filetime, ObsDataRequest_cp request, bool breadData);
-  void readData(std::vector<ObsData>& obsdata,ObsDataRequest_cp request);
+  void readData(ObsDataVector_p &obsdata,ObsDataRequest_cp request);
   void initData(ObsDataRequest_cp request);
 
   void cloud_type_string(ObsData& d, double v);
@@ -131,10 +153,16 @@ public:
   // from ObsPlot
   void amountOfClouds_1_4(ObsData& dta, bool metar);
   void amountOfClouds_1(ObsData& dta, bool metar);
+  
+  static std::map<std::string, std::map<std::string, std::vector<std::string>>> parameterMap;
+  static std::map<std::string, ObsDataVector_p> obsDataCache;
+  static std::map<std::string, time_t> obsDataTimeStamp;
+  static void clearCaches(){obsDataCache.clear(); obsDataTimeStamp.clear();};
 
   VprofValues_p getVprofPlot(const std::string& modelName, const std::string& station, const miutil::miTime& time);
 
   void getStationList(vector<stationInfo>& stations);
+  friend class ObsData;
 };
 
 #endif // ROADOBS
