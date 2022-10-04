@@ -27,6 +27,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include <diColourShading.h>
 #include <diPlotOptions.h>
 
 #include <mi_fieldcalc/FieldDefined.h>
@@ -165,6 +166,8 @@ TEST(TestPlotOptions, DiffPatterns)
 
 TEST(TestPlotOptions, DiffPaletteColours)
 {
+  ColourShading::define("light_red", {Colour::BLACK, Colour::RED, Colour::WHITE});
+
   PlotOptions poA, poB;
   PlotOptions::parsePlotOption(miutil::kv(PlotOptions::key_palettecolours, "light_red"), poB);
 
@@ -174,6 +177,8 @@ TEST(TestPlotOptions, DiffPaletteColours)
   {
     const PlotOptions po = PlotOptions(poA).apply(poA.diffTo(poB));
     EXPECT_EQ(po.palettename, "light_red");
+    EXPECT_EQ(po.palettecolours.size(), 3);
+    EXPECT_EQ(po.palettecolours_cold.size(), 0);
     EXPECT_TRUE(po.contourShading);
     EXPECT_EQ(po, poB);
   }
@@ -183,6 +188,83 @@ TEST(TestPlotOptions, DiffPaletteColours)
     EXPECT_FALSE(po.contourShading);
     EXPECT_EQ(po, poA);
   }
+}
+
+TEST(TestPlotOptions, PaletteColoursHotCold)
+{
+  ColourShading::define("light_red", {Colour::BLACK, Colour::RED, Colour::WHITE});
+  ColourShading::define("light_blue", {Colour::BLACK, Colour::BLUE, Colour::WHITE});
+
+  PlotOptions poB;
+  PlotOptions::parsePlotOption(miutil::kv(PlotOptions::key_palettecolours, "light_red,light_blue"), poB);
+  EXPECT_EQ(poB.palettename, "light_red,light_blue");
+  EXPECT_TRUE(poB.contourShading);
+  EXPECT_EQ(poB.palettecolours.size(), 3);
+  EXPECT_EQ(poB.palettecolours_cold.size(), 3);
+
+  PlotOptions poA;
+  EXPECT_EQ(miutil::mergeKeyValue(PlotOptions::diff(poA, poB)), "palettecolours=light_red,light_blue");
+}
+
+TEST(TestPlotOptions, PaletteColoursHotColdN)
+{
+  ColourShading::define("light_red", {Colour::BLACK, Colour::RED, Colour::RED, Colour::RED, Colour::WHITE});
+  ColourShading::define("light_blue", {Colour::BLACK, Colour::BLUE, Colour::BLUE, Colour::BLUE, Colour::WHITE});
+
+  PlotOptions poB;
+  PlotOptions::parsePlotOption(miutil::kv(PlotOptions::key_palettecolours, "light_red;4,light_blue;6"), poB);
+  EXPECT_EQ(poB.palettename, "light_red;4,light_blue;6");
+  EXPECT_TRUE(poB.contourShading);
+  EXPECT_EQ(poB.palettecolours.size(), 4);
+  EXPECT_EQ(poB.palettecolours_cold.size(), 6);
+
+  PlotOptions poA;
+  EXPECT_EQ(miutil::mergeKeyValue(PlotOptions::diff(poA, poB)), "palettecolours=light_red;4,light_blue;6");
+}
+
+TEST(TestPlotOptions, PaletteColoursColdOnly)
+{
+  ColourShading::define("light_red", {Colour::BLACK, Colour::RED, Colour::RED, Colour::RED, Colour::WHITE});
+  ColourShading::define("light_blue", {Colour::BLACK, Colour::BLUE, Colour::BLUE, Colour::BLUE, Colour::WHITE});
+
+  PlotOptions poB;
+  PlotOptions::parsePlotOption(miutil::kv(PlotOptions::key_palettecolours, "off,light_blue;6"), poB);
+  EXPECT_EQ(poB.palettename, "off,light_blue;6");
+  EXPECT_TRUE(poB.contourShading);
+  EXPECT_EQ(poB.palettecolours.size(), 0);
+  EXPECT_EQ(poB.palettecolours_cold.size(), 6);
+
+  PlotOptions poA;
+  EXPECT_EQ(miutil::mergeKeyValue(PlotOptions::diff(poA, poB)), "palettecolours=off,light_blue;6");
+}
+
+TEST(TestPlotOptions, PaletteColoursUser)
+{
+  PlotOptions poB;
+  const std::string pc = "68:187:217,74:250:250,72:221:191,71:191:130,71:161:71,132:189:72,191:221:71,252:250:71,251:191:69,250:130:70,255:75:74;11";
+  PlotOptions::parsePlotOption(miutil::kv(PlotOptions::key_palettecolours, pc), poB);
+  EXPECT_EQ(poB.palettename, pc);
+  EXPECT_TRUE(poB.contourShading);
+  EXPECT_EQ(poB.palettecolours.size(), 11);
+  EXPECT_EQ(poB.palettecolours_cold.size(), 0);
+  EXPECT_EQ(Colour(255, 75, 74), poB.palettecolours.back());
+
+  PlotOptions poA;
+  EXPECT_EQ(miutil::mergeKeyValue(PlotOptions::diff(poA, poB)), "palettecolours=" + pc);
+}
+
+TEST(TestPlotOptions, PaletteColoursUserN)
+{
+  PlotOptions poB;
+  const std::string pc = "68:187:217,74:250:250,72:221:191,71:191:130,71:161:71,132:189:72,191:221:71,252:250:71,251:191:69,250:130:70,255:75:74;9";
+  PlotOptions::parsePlotOption(miutil::kv(PlotOptions::key_palettecolours, pc), poB);
+  EXPECT_EQ(poB.palettename, pc);
+  EXPECT_TRUE(poB.contourShading);
+  EXPECT_EQ(poB.palettecolours.size(), 9);
+  EXPECT_EQ(poB.palettecolours_cold.size(), 0);
+
+  PlotOptions poA;
+  EXPECT_EQ(miutil::mergeKeyValue(PlotOptions::diff(poA, poB)), "palettecolours=" + pc);
 }
 
 TEST(TestPlotOptions, DiffColours1)

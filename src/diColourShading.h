@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2013 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -56,11 +56,11 @@ private:
   static std::map<std::string,ColourShading> pmap;
   static std::vector<ColourShadingInfo> colourshadings;
 
-  void morecols(std::vector<Colour>& vcol, const Colour& col1,
-		const Colour& col2, int n);
+  static void morecols(std::vector<Colour>& vcol, const Colour& col1, const Colour& col2, int n);
 
   // Copy members
   void memberCopy(const ColourShading& rhs);
+
 public:
   ColourShading(){;}
   ColourShading(const std::string&);
@@ -77,18 +77,27 @@ public:
 
   ///define new colour shading
   static void addColourShadingInfo(const ColourShadingInfo& csi);
+
   ///return all colour shadings defined
   static std::vector<ColourShadingInfo> getColourShadingInfo(){return colourshadings;}
+
   /// define ColourShading from colour,colour,colour
   static void defineColourShadingFromString(const std::string& str);
+
   ///return the colours of name_
   static std::vector<Colour> getColourShading(const std::string& name_)
     {return pmap[name_].colours;}
+
+  /// return n colours, interpolate RGB-values or drop colours if needed
+  static std::vector<Colour> adaptColourShading(std::vector<Colour>& colours, int n);
+
   ///return n colours, interpolate RGB-values or drop colours if needed
   std::vector<Colour> getColourShading(int n);
+
   ///return all colours
-  std::vector<Colour> getColourShading() const {return colours;}
-  std::string Name() const {return name;}
+  const std::vector<Colour>& getColourShading() const { return colours; }
+
+  const std::string& Name() const { return name; }
 };
 
 #endif

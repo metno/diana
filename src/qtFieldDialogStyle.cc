@@ -750,6 +750,33 @@ void FieldDialogStyle::enableFieldOptions(const SelectedField* selectedField)
   hourDiffSpinBox->setEnabled(!selectedFieldInEdit);
 }
 
+namespace {
+void setPalette(const std::string& value, std::vector<ColourShading::ColourShadingInfo>& csInfo, QComboBox* box, QComboBox* boxOther, QSpinBox* spin)
+{
+  const auto n_c = miutil::split(value, ";");
+  const std::string& name = n_c.front();
+  const auto itH = std::find_if(csInfo.begin(), csInfo.end(), [&](const ColourShading::ColourShadingInfo& ci) { return ci.name == name; });
+  if (itH == csInfo.end()) {
+    // defining a new colour shading only makes sense if "name" is actually a list of colours
+    ColourShading::defineColourShadingFromString(name);
+    const ColourShading csh(name);
+    ExpandPaletteBox(box, csh);
+    ExpandPaletteBox(boxOther, csh);
+    box->setCurrentIndex(box->count() - 1);
+
+    ColourShading::ColourShadingInfo info;
+    info.name = name;
+    info.colour = ColourShading::getColourShading(name);
+    csInfo.push_back(std::move(info));
+  } else {
+    box->setCurrentIndex(1 + std::distance(csInfo.begin(), itH)); // first is "off"
+  }
+
+  const int count = (n_c.size() == 2) ? miutil::to_int(n_c[1]) : 0;
+  spin->setValue(count);
+}
+} // namespace
+
 void FieldDialogStyle::setFromPlotOptions(const PlotOptions& po, int dimension)
 {
   // dimension (1dim = contour,..., 2dim=wind,...)
@@ -797,52 +824,21 @@ void FieldDialogStyle::setFromPlotOptions(const PlotOptions& po, int dimension)
   if (po.palettename.empty()) {
     shadingComboBox->setCurrentIndex(0);
     shadingcoldComboBox->setCurrentIndex(0);
+    shadingSpinBox->setValue(0);
+    shadingcoldSpinBox->setValue(0);
   } else {
-    const auto hc = miutil::split(po.palettename, ",");
-    const auto vh = miutil::split(hc.front(), ";");
-
-    const std::string& nh = vh.front();
-
-    const auto itH = std::find_if(csInfo.begin(), csInfo.end(), [&](const ColourShading::ColourShadingInfo& ci) { return ci.name == nh; });
-    if (itH == csInfo.end()) {
-      ColourShading::defineColourShadingFromString(nh);
-      const ColourShading csh(nh);
-      ExpandPaletteBox(shadingComboBox, csh);
-      ExpandPaletteBox(shadingcoldComboBox, csh);
-      ColourShading::ColourShadingInfo info;
-      info.name = nh;
-      info.colour = ColourShading::getColourShading(nh);
-      csInfo.push_back(info);
+    const auto items = miutil::split(po.palettename, ",");
+    if (items.size() > 2) {
+      // hot palette, user-defined
+      setPalette(po.palettename, csInfo, shadingComboBox, shadingcoldComboBox, shadingSpinBox);
+      shadingcoldSpinBox->setValue(0);
+    } else if (items.size() == 2) {
+      // hot & cold palette by name, each possibly with ";count" appended
+      setPalette(items[0], csInfo, shadingComboBox, shadingcoldComboBox, shadingSpinBox);
+      setPalette(items[1], csInfo, shadingcoldComboBox, shadingComboBox, shadingcoldSpinBox);
     } else {
-      shadingComboBox->setCurrentIndex(1 + std::distance(csInfo.begin(), itH)); // first is "off"
-    }
-    if (vh.size() == 2)
-      shadingSpinBox->setValue(miutil::to_int(vh[1]));
-    else
-      shadingSpinBox->setValue(0);
-
-    if (hc.size() < 2) {
-      shadingcoldComboBox->setCurrentIndex(0);
-    } else {
-      const auto vc = miutil::split(hc.back(), ";");
-      const std::string& nc = vc.front();
-      const auto itC = std::find_if(csInfo.begin(), csInfo.end(), [&](const ColourShading::ColourShadingInfo& ci) { return ci.name == nc; });
-      if (itC == csInfo.end()) {
-        ColourShading::defineColourShadingFromString(nc);
-        const ColourShading csc(nc);
-        ExpandPaletteBox(shadingComboBox, csc);
-        ExpandPaletteBox(shadingcoldComboBox, csc);
-        ColourShading::ColourShadingInfo info;
-        info.name = nc;
-        info.colour = ColourShading::getColourShading(nc);
-        csInfo.push_back(info);
-      } else {
-        shadingcoldComboBox->setCurrentIndex(1 + std::distance(csInfo.begin(), itC)); // first is "off"
-      }
-      if (vc.size() == 2)
-        shadingcoldSpinBox->setValue(miutil::to_int(vc[1]));
-      else
-        shadingcoldSpinBox->setValue(0);
+      // hot palette by name, possibly with ";count" appended
+      setPalette(items[0], csInfo, shadingComboBox, shadingcoldComboBox, shadingSpinBox);
     }
   }
 
@@ -1184,7 +1180,7 @@ void FieldDialogStyle::setToPlotOptions(PlotOptions& po)
         if (value1 > 0)
           str += ";" + miutil::from_number(value1);
         if (index2 > 0)
-          str += ",";
+          str += OFF + ",";
       }
       if (index2 > 0) {
         str += csInfo[index2 - 1].name;
