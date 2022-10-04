@@ -694,7 +694,10 @@ bool PlotOptions::parsePlotOption(const miutil::KeyValue& kv, PlotOptions& po)
     po.repeat = to_bool(kv);
 
   } else if (key == key_classes) {
-    po.classSpecifications = value;
+    if (is_off(value))
+      po.classSpecifications.clear();
+    else
+      po.classSpecifications = value;
 
   } else if (key == key_basevalue) {
     po.base = to_float(kv);
@@ -1324,7 +1327,7 @@ miutil::KeyValue_v PlotOptions::diff(const PlotOptions& from, const PlotOptions&
   add_diff(ostr, key_table, from.table, to.table);
   add_diff(ostr, key_alpha, from.alpha, to.alpha);
   add_diff(ostr, key_repeat, from.repeat, to.repeat);
-  add_diff(ostr, key_classes, from.classSpecifications, to.classSpecifications);
+  add_diff_off(ostr, key_classes, from.classSpecifications, to.classSpecifications, to.classSpecifications.empty());
 
   add_diff(ostr, key_basevalue, from.base, to.base);
   add_diff(ostr, key_basevalue_2, from.base_2, to.base_2);
