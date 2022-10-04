@@ -370,6 +370,24 @@ TEST(TestPlotOptions, LineInterval2)
   EXPECT_EQ(0, po.lineinterval_2);
 }
 
+TEST(TestPlotOptions, ClassesOff)
+{
+  const std::string cs = "1 Calm (0-0.1 m),2 Smooth (0.1-0.5 m),3 Slight (0.5-1.25 m),4 Moderate (1.25-2.5 m),5 Rough (2.5-4 m),6 Very rough (4-6 m),"
+                         "7 High (6-9 m),8 Very high (9-14 m),9 Phenomenal (>14 m)";
+
+  PlotOptions poA;
+  EXPECT_TRUE(PlotOptions::parsePlotOption(miutil::kv(PlotOptions::key_colour, "255:0:0"), poA));
+  EXPECT_TRUE(PlotOptions::parsePlotOption(miutil::kv(PlotOptions::key_classes, cs), poA));
+  EXPECT_FALSE(poA.classSpecifications.empty());
+
+  PlotOptions poB;
+  EXPECT_TRUE(PlotOptions::parsePlotOption(miutil::kv(PlotOptions::key_colour, "0:255:0"), poB));
+  EXPECT_TRUE(poB.classSpecifications.empty());
+
+  EXPECT_EQ(miutil::mergeKeyValue(PlotOptions::diff(poA, poB)), "colour=0:255:0 classes=off");
+  EXPECT_EQ(miutil::mergeKeyValue(PlotOptions::diff(poB, poA)), "colour=255:0:0 classes=\"" + cs + "\"");
+}
+
 TEST(TestPlotOptions, ColourForLcolour)
 {
   const std::string RED = "255:0:0:255";
