@@ -34,6 +34,8 @@
 
 #include "diObsDialogInfo.h"
 
+#include "diObsDataVector.h"
+
 // includes for road specific implementation
 #include <diObsRoad.h>
 
@@ -75,10 +77,11 @@ bool ObsReaderRoad::getDataFromFile(const FileInfo& fi, ObsDataRequest_cp reques
   // The constructor with last argument false init the internal datastructures, but reads no data.
   ObsRoad obsRoad(fi.filename, databasefile, stationfile, headerfile, fi.time, request, false);
   // readData reads the data from the SMHI database.
-  std::vector<ObsData> obsdata;
+  ObsDataVector_p obsdata;
+  //std::vector<ObsData> obsdata;
   obsRoad.readData(obsdata,request);
-  for (ObsData& obs : obsdata)
-    obs.dataType = dataType();
+  for (size_t i = 0; i < obsdata->size(); ++i)
+      obsdata->basic(i).dataType = dataType();
   result->add(obsdata);
 #endif
   return true; // FIXME check for errors
