@@ -183,11 +183,11 @@ void ColourShading::morecols(vector<Colour>& vcol, const Colour& col1,
 
 void ColourShading::addColourShadingInfo(const ColourShadingInfo& csi)
 {
-  if (not csi.name.empty()) {
-    for (unsigned int q=0; q<colourshadings.size(); q++)
-      if (colourshadings[q].name == csi.name) {
-	colourshadings[q] = csi;
-	return;
+  if (!csi.name.empty()) {
+    for (auto& q : colourshadings)
+      if (q.name == csi.name) {
+        q = csi;
+        return;
       }
   }
 

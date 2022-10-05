@@ -79,7 +79,7 @@ public:
   static void addColourShadingInfo(const ColourShadingInfo& csi);
 
   ///return all colour shadings defined
-  static std::vector<ColourShadingInfo> getColourShadingInfo(){return colourshadings;}
+  static const std::vector<ColourShadingInfo>& getColourShadingInfo() { return colourshadings; }
 
   /// define ColourShading from colour,colour,colour
   static void defineColourShadingFromString(const std::string& str);

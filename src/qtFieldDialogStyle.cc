@@ -49,6 +49,7 @@
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QLayoutItem>
 #include <QLineEdit>
 #include <QPainter>
 #include <QPushButton>
@@ -59,8 +60,6 @@
 
 #include <algorithm>
 #include <iterator>
-#include <qlayoutitem.h>
-#include <qspinbox.h>
 
 #define MILOGGER_CATEGORY "diana.FieldDialogStyle"
 #include <miLogger/miLogging.h>
@@ -753,6 +752,12 @@ void FieldDialogStyle::enableFieldOptions(const SelectedField* selectedField)
 namespace {
 void setPalette(const std::string& value, std::vector<ColourShading::ColourShadingInfo>& csInfo, QComboBox* box, QComboBox* boxOther, QSpinBox* spin)
 {
+  if (value == "off") {
+    box->setCurrentIndex(0);
+    spin->setValue(0);
+    return;
+  }
+
   const auto n_c = miutil::split(value, ";");
   const std::string& name = n_c.front();
   const auto itH = std::find_if(csInfo.begin(), csInfo.end(), [&](const ColourShading::ColourShadingInfo& ci) { return ci.name == name; });
@@ -774,6 +779,14 @@ void setPalette(const std::string& value, std::vector<ColourShading::ColourShadi
 
   const int count = (n_c.size() == 2) ? miutil::to_int(n_c[1]) : 0;
   spin->setValue(count);
+}
+
+void getPalette(std::string& str, const std::vector<ColourShading::ColourShadingInfo>& csInfo, int box_index, QSpinBox* spin)
+{
+  str += csInfo[box_index - 1].name;
+  int count = spin->value();
+  if (count > 0)
+    str += ";" + miutil::from_number(count);
 }
 } // namespace
 
@@ -831,6 +844,7 @@ void FieldDialogStyle::setFromPlotOptions(const PlotOptions& po, int dimension)
     if (items.size() > 2) {
       // hot palette, user-defined
       setPalette(po.palettename, csInfo, shadingComboBox, shadingcoldComboBox, shadingSpinBox);
+      shadingcoldComboBox->setCurrentIndex(0);
       shadingcoldSpinBox->setValue(0);
     } else if (items.size() == 2) {
       // hot & cold palette by name, each possibly with ";count" appended
@@ -839,6 +853,8 @@ void FieldDialogStyle::setFromPlotOptions(const PlotOptions& po, int dimension)
     } else {
       // hot palette by name, possibly with ";count" appended
       setPalette(items[0], csInfo, shadingComboBox, shadingcoldComboBox, shadingSpinBox);
+      shadingcoldComboBox->setCurrentIndex(0);
+      shadingcoldSpinBox->setValue(0);
     }
   }
 
@@ -1171,23 +1187,14 @@ void FieldDialogStyle::setToPlotOptions(PlotOptions& po)
     const int index1 = shadingComboBox->currentIndex();
     const int index2 = shadingcoldComboBox->currentIndex();
     std::string str;
-    if (index1 == 0 && index2 == 0) {
+    if (index1 == 0) {
       str = OFF;
     } else {
-      if (index1 > 0) {
-        str = csInfo[index1 - 1].name;
-        int value1 = shadingSpinBox->value();
-        if (value1 > 0)
-          str += ";" + miutil::from_number(value1);
-        if (index2 > 0)
-          str += OFF + ",";
-      }
-      if (index2 > 0) {
-        str += csInfo[index2 - 1].name;
-        int value2 = shadingcoldSpinBox->value();
-        if (value2 > 0)
-          str += ";" + miutil::from_number(value2);
-      }
+      getPalette(str, csInfo, index1, shadingSpinBox);
+    }
+    if (index2 > 0) {
+      str += ",";
+      getPalette(str, csInfo, index2, shadingcoldSpinBox);
     }
     po.set_palettecolours(str);
   }
