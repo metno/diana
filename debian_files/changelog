@@ -1,3 +1,9 @@
+diana-3.57 (3.57.0~rc10-1) unstable; urgency=low
+
+  * bugfix cold palette
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Sun, 23 Oct 2022 16:44:43 +0200
+
 diana-3.57 (3.57.0~rc9-1) unstable; urgency=low
 
   * SMHI: update road obs classes
