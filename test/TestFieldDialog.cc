@@ -133,6 +133,16 @@ void initLinesAndColours()
   // FIXME without linetypes defined, FieldDialog crashes
   Linetype::define(ltd.name, ltd.bmap, ltd.factor);
 }
+
+void defineColourShading(const std::string& name, const std::vector<Colour>& colours)
+{
+  ColourShading::define(name, colours);
+
+  ColourShading::ColourShadingInfo info;
+  info.name = name;
+  info.colour = ColourShading::getColourShading(name);
+  ColourShading::addColourShadingInfo(info);
+}
 } // namespace
 
 TEST(TestFieldDialog, PutGetOKStringRaw)
@@ -323,17 +333,18 @@ TEST(TestFieldDialog, PutGetOKStringSmallInterval)
 TEST(TestFieldDialog, PutGetOKStringPalette)
 {
   initLinesAndColours();
+  defineColourShading("light_red", {Colour::BLACK, Colour::RED, Colour::RED, Colour::WHITE});
+  defineColourShading("light_blue", {Colour::BLACK, Colour::BLUE, Colour::WHITE});
+  const auto n_light_red = ColourShading::getColourShading("light_red").size();
+
   TestFieldDialogData* data = new TestFieldDialogData;
   std::unique_ptr<FieldDialog> dialog(new FieldDialog(0, data));
-
-  ColourShading::define("light_red", {Colour::BLACK, Colour::RED, Colour::WHITE});
-  ColourShading::define("light_blue", {Colour::BLACK, Colour::BLUE, Colour::WHITE});
 
   const std::string pc = "68:187:217,74:250:250,72:221:191,71:191:130,71:161:71,132:189:72,191:221:71,252:250:71,251:191:69,250:130:70,255:75:74";
 
   const int N = 3;
-  const int ncolours_h[N]{11, 3, 0};
-  const int ncolours_c[N]{0, 0, 3};
+  const size_t ncolours_h[N]{11, 3, 0};
+  const size_t ncolours_c[N]{0, 0, n_light_red};
   const std::string palette[N] {
     // clang-format off
       "68:187:217,74:250:250,72:221:191,71:191:130,71:161:71,132:189:72,191:221:71,252:250:71,251:191:69,250:130:70,255:75:74",
@@ -357,8 +368,8 @@ TEST(TestFieldDialog, PutGetOKStringPalette)
   }
 
   dialog->putOKString(cmds_put);
-  dialog->simulateSelectField(1);
-  dialog->simulateSelectField(0);
+  for (int i = N - 1; i >= 0; --i)
+    dialog->simulateSelectField(i);
   const PlotCommand_cpv cmds_get = dialog->getOKString();
   ASSERT_EQ(cmds_get.size(), N);
   for (int i = 0; i < N; ++i) {
