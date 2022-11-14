@@ -43,9 +43,8 @@
 #include <miLogger/miLogging.h>
 
 using namespace::miutil;
-using namespace std;
 
-vector<MapInfo> MapManager::mapfiles;
+std::vector<MapInfo> MapManager::mapfiles;
 
 const std::string SectMapTypes = "MAP_TYPE";
 
@@ -59,7 +58,7 @@ bool MapManager::parseSetup()
 
   mapfiles.clear();
 
-  vector<std::string> strlist;
+  std::vector<std::string> strlist;
   if (!SetupParser::getSection(SectMapTypes, strlist))
     return true;
 
@@ -101,7 +100,7 @@ bool MapManager::parseSetup()
   return true;
 }
 
-const vector<MapInfo>& MapManager::getMapInfo()
+const std::vector<MapInfo>& MapManager::getMapInfo()
 {
   return mapfiles;
 }

@@ -55,7 +55,6 @@
 #define MILOGGER_CATEGORY "diana.ObjectManager"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 using namespace::miutil;
 
 ObjectManager::ObjectManager(PlotModule* pl)
@@ -84,7 +83,7 @@ void ObjectManager::changeProjection(const Area& mapArea, const Rectangle& plotS
 bool ObjectManager::parseSetup() {
 
   std::string section="OBJECTS";
-  vector<std::string> vstr;
+  std::vector<std::string> vstr;
 
   if (!SetupParser::getSection(section,vstr)){
     METLIBS_LOG_WARN("No " << section << " section in setupfile, ok.");
@@ -187,7 +186,7 @@ void ObjectManager::getCapabilitiesTime(plottimes_t& normalTimes, int& timediff,
 
   //Product with prog times
   if (fileName.empty()) {
-    vector<ObjFileInfo> ofi= getObjectFiles(objectname,true);
+    std::vector<ObjFileInfo> ofi= getObjectFiles(objectname,true);
     int nfinfo=ofi.size();
     for (int k=0; k<nfinfo; k++){
       normalTimes.insert(ofi[k].time);
@@ -272,19 +271,19 @@ bool ObjectManager::objectsDefined() const
   return objects.isDefined();
 }
 
-vector<ObjFileInfo> ObjectManager::getObjectFiles(const std::string& objectname, bool refresh)
+std::vector<ObjFileInfo> ObjectManager::getObjectFiles(const std::string& objectname, bool refresh)
 {
   METLIBS_LOG_SCOPE();
 
   if (refresh) {
-    map<std::string,ObjectList>::iterator p,pend= objectFiles.end();
+    std::map<std::string,ObjectList>::iterator p,pend= objectFiles.end();
     for (p=objectFiles.begin(); p!=pend; p++)
       p->second.updated= false;
   }
 
-  vector<ObjFileInfo> files;
+  std::vector<ObjFileInfo> files;
 
-  map<std::string,ObjectList>::iterator po= objectFiles.find(objectname);
+  std::map<std::string,ObjectList>::iterator po= objectFiles.find(objectname);
   if (po==objectFiles.end())
     return files;
 
@@ -297,13 +296,13 @@ vector<ObjFileInfo> ObjectManager::getObjectFiles(const std::string& objectname,
 }
 
 
-vector<ObjFileInfo> ObjectManager::listFiles(ObjectList & ol)
+std::vector<ObjFileInfo> ObjectManager::listFiles(ObjectList & ol)
 {
   METLIBS_LOG_SCOPE();
   std::string fileString= ol.filename + "*";
   METLIBS_LOG_DEBUG("search string " << fileString);
 
-  vector<ObjFileInfo> files;
+  std::vector<ObjFileInfo> files;
 
   const diutil::string_v matches = diutil::glob(fileString);
   for (diutil::string_v::const_iterator it = matches.begin(); it != matches.end(); ++it) {
@@ -317,7 +316,7 @@ vector<ObjFileInfo> ObjectManager::listFiles(ObjectList & ol)
       if (files.empty()) {
         files.push_back(info);
       } else {
-        vector <ObjFileInfo>::iterator p =  files.begin();
+        std::vector <ObjFileInfo>::iterator p =  files.begin();
         while (p!=files.end() && p->time>info.time)
           p++;
         files.insert(p,info);
@@ -333,9 +332,9 @@ vector<ObjFileInfo> ObjectManager::listFiles(ObjectList & ol)
 std::string ObjectManager::prefixFileName(const std::string& fileName)
 {
   //get prefix from a file with name  /.../../prefix_*.yyyymmddhh
-  const vector <std::string> parts = miutil::split(fileName, 0, "/");
+  const std::vector <std::string> parts = miutil::split(fileName, 0, "/");
   const std::string& prefix = parts.back();
-  vector <std::string> sparts = miutil::split(prefix, 0, "_");
+  std::vector <std::string> sparts = miutil::split(prefix, 0, "_");
   return sparts.front();
 }
 
@@ -355,12 +354,12 @@ miTime ObjectManager::timeFilterFileName(const std::string& fileName, const miut
 miTime ObjectManager::timeFileName(const std::string& fileName)
 {
   //get time from a file with name *.yyyymmddhh
-  const vector <std::string> parts= miutil::split(fileName, 0, ".");
+  const std::vector <std::string> parts= miutil::split(fileName, 0, ".");
   int nparts= parts.size();
   if (parts[nparts-1].length() < 10) {
     size_t pos1 = fileName.find_last_of("_");
     size_t pos2 = fileName.find_last_of(".");
-    if ( pos1 != string::npos && pos2 != string::npos && pos2 > pos1 + 10 ) {
+    if ( pos1 != std::string::npos && pos2 != std::string::npos && pos2 > pos1 + 10 ) {
       std::string tStr = fileName.substr(pos1+1,pos2-pos1-1);
       miutil::replace(tStr,"t","T");
       miTime time(tStr);
@@ -379,7 +378,7 @@ bool ObjectManager::getFileName(DisplayObjects& wObjects)
     return false;
 
 
-  map<std::string,ObjectList>::iterator po;
+  std::map<std::string,ObjectList>::iterator po;
   po= objectFiles.find(wObjects.getObjectName());
   if (po==objectFiles.end()) return false;
 
@@ -522,7 +521,7 @@ bool ObjectManager::editCommandReadDrawFile(const std::string filename)
   return true;
 }
 
-bool ObjectManager::readEditDrawFile(const string& filename, WeatherObjects& wObjects)
+bool ObjectManager::readEditDrawFile(const std::string& filename, WeatherObjects& wObjects)
 {
   METLIBS_LOG_SCOPE();
 
@@ -554,7 +553,7 @@ bool ObjectManager::writeEditDrawFile(const std::string filename,
     return false;
 
   // open filestream
-  ofstream file(filename.c_str());
+  std::ofstream file(filename.c_str());
   if (!file){
     METLIBS_LOG_ERROR("ERROR OPEN (WRITE) " << filename);
     return false;
@@ -638,28 +637,28 @@ void ObjectManager::changeMarkedColour(const Colour::ColourInfo & newColour)
 }
 
 
-set<string> ObjectManager::getTextList()
+std::set<std::string> ObjectManager::getTextList()
 {
   return WeatherSymbol::getTextList();
 }
 
-void ObjectManager::getMarkedMultilineText(vector<string>& symbolText)
+void ObjectManager::getMarkedMultilineText(std::vector<std::string>& symbolText)
 {
   editobjects.getMarkedMultilineText(symbolText);
 }
 
 
-void ObjectManager::getMarkedComplexText(vector<string>& symbolText, vector<string>& xText)
+void ObjectManager::getMarkedComplexText(std::vector<std::string>& symbolText, std::vector<std::string>& xText)
 {
   editobjects.getMarkedComplexText(symbolText,xText);
 }
 
-void ObjectManager::getMarkedComplexTextColored(vector <string> & symbolText, vector <string> & xText)
+void ObjectManager::getMarkedComplexTextColored(std::vector <std::string> & symbolText, std::vector <std::string> & xText)
 {
   editobjects.getMarkedComplexTextColored(symbolText,xText);
 }
 
-void ObjectManager::changeMarkedComplexTextColored(const vector<string>& symbolText, const vector<string>& xText)
+void ObjectManager::changeMarkedComplexTextColored(const std::vector<std::string>& symbolText, const std::vector<std::string>& xText)
 {
   if (mapmode==draw_mode){
     editPrepareChange(ChangeText);
@@ -667,7 +666,7 @@ void ObjectManager::changeMarkedComplexTextColored(const vector<string>& symbolT
     editPostOperation();
   }
 }
-void ObjectManager::changeMarkedMultilineText(const vector<string>& symbolText)
+void ObjectManager::changeMarkedMultilineText(const std::vector<std::string>& symbolText)
 {
   if (mapmode==draw_mode){
     editPrepareChange(ChangeText);
@@ -676,7 +675,7 @@ void ObjectManager::changeMarkedMultilineText(const vector<string>& symbolText)
   }
 }
 
-void ObjectManager::changeMarkedComplexText(const vector<string>& symbolText, const vector<string>& xText)
+void ObjectManager::changeMarkedComplexText(const std::vector<std::string>& symbolText, const std::vector<std::string>& xText)
 {
   if (mapmode==draw_mode){
     editPrepareChange(ChangeText);
@@ -702,12 +701,12 @@ bool ObjectManager::inEditTextMode(){
   return editobjects.inEditTextMode();
 }
 
-void ObjectManager::getCurrentComplexText(vector<string> & symbolText, vector<string> & xText)
+void ObjectManager::getCurrentComplexText(std::vector<std::string> & symbolText, std::vector<std::string> & xText)
 {
   WeatherSymbol::getCurrentComplexText(symbolText,xText);
 }
 
-void ObjectManager::setCurrentComplexText(const vector<string>& symbolText, const vector<string> & xText)
+void ObjectManager::setCurrentComplexText(const std::vector<std::string>& symbolText, const std::vector<std::string> & xText)
 {
   WeatherSymbol::setCurrentComplexText(symbolText,xText);
 }
@@ -717,7 +716,7 @@ void ObjectManager::initCurrentComplexText()
   editobjects.initCurrentComplexText();
 }
 
-set<string> ObjectManager::getComplexList()
+std::set<std::string> ObjectManager::getComplexList()
 {
   return WeatherSymbol::getComplexList();
 }

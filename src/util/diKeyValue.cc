@@ -240,13 +240,13 @@ bool Manager__parseKeyValue(const std::string &str, QString &key, QString &value
 void parsingFromDrawingManager()
 {
   // Split each input line into a collection of "words".
-  vector<string> pieces = miutil::split_protected(cmd->command(), '"', '"');
+  std::vector<std::string> pieces = miutil::split_protected(cmd->command(), '"', '"');
   // Skip the first piece ("DRAWING").
   pieces.erase(pieces.begin());
 
   QVariantMap properties;
   QVariantList points;
-  vector<string>::const_iterator it;
+  std::vector<std::string>::const_iterator it;
 
   for (it = pieces.begin(); it != pieces.end(); ++it) {
 

@@ -43,7 +43,6 @@
 #define MILOGGER_CATEGORY "diana.SpectrumModelDialog"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 
 //#define HEIGHTLISTBOX 100
 
@@ -126,7 +125,7 @@ SpectrumModelDialog::SpectrumModelDialog( QWidget* parent,SpectrumManager * vm )
 void SpectrumModelDialog::modelfilelistClicked(QListWidgetItem* item)
 {
   reftimeWidget->clear();
-  vector<std::string> rfv = spectrumm->getReferencetimes(item->text().toStdString());
+  std::vector<std::string> rfv = spectrumm->getReferencetimes(item->text().toStdString());
   for ( size_t i=0; i<rfv.size(); ++i){
     reftimeWidget->addItem(rfv[i].c_str());
   }
@@ -212,7 +211,7 @@ void SpectrumModelDialog::setModel()
 {
   METLIBS_LOG_SCOPE();
 
-  vector<std::string> selectedModels;
+  std::vector<std::string> selectedModels;
   int n = selectedModelsWidget->count();
   for (int i = 0; i < n; i++) {
     selectedModels.push_back(selectedModelsWidget->item(i)->text().toStdString());
@@ -238,7 +237,7 @@ void SpectrumModelDialog::updateModelfileList()
 
   //want to keep the selected models
   int n = modelfileList->count();
-  set<std::string> current;
+  std::set<std::string> current;
   for (int i = 0; i < n; i++)
     if (modelfileList->item(i)->isSelected())
       current.insert(std::string(modelfileList->item(i)->text().toStdString()));
@@ -246,8 +245,8 @@ void SpectrumModelDialog::updateModelfileList()
   //clear box with list of files
   modelfileList->clear();
 
-  vector<std::string> modelnames = spectrumm->getModelNames();
-  vector<std::string> modelfiles = spectrumm->getModelFiles();
+  std::vector<std::string> modelnames = spectrumm->getModelNames();
+  std::vector<std::string> modelfiles = spectrumm->getModelFiles();
   size_t nr_models = modelnames.size();
   bool tooltip = nr_models == modelfiles.size();
   for ( size_t i = 0; i < nr_models; i++) {
@@ -257,7 +256,7 @@ void SpectrumModelDialog::updateModelfileList()
   }
 
 
-  set<std::string>::iterator pend = current.end();
+  std::set<std::string>::iterator pend = current.end();
   n = modelfileList->count();
   for (int i = 0; i < n; i++)
     if (current.find(std::string(modelfileList->item(i)->text().toStdString()))

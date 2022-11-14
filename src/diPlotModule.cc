@@ -76,7 +76,6 @@
 #include <miLogger/miLogging.h>
 
 using namespace miutil;
-using namespace std;
 
 namespace {
 
@@ -258,7 +257,7 @@ void PlotModule::prepareAnnotation(const PlotCommand_cpv& inp)
   annotationCommands = inp;
 }
 
-vector<PlotElement> PlotModule::getPlotElements()
+std::vector<PlotElement> PlotModule::getPlotElements()
 {
   //  METLIBS_LOG_SCOPE();
   std::vector<PlotElement> pel;
@@ -312,7 +311,7 @@ void PlotModule::setAnnotations()
   //Annotations from setup, qmenu, etc.
 
   // set annotation-data
-  vector<AnnotationPlot::Annotation> annotations;
+  std::vector<AnnotationPlot::Annotation> annotations;
   AnnotationPlot::Annotation ann;
 
   const plottimes_t fieldAnalysisTimes = fieldplots_->fieldAnalysisTimes();
@@ -341,8 +340,8 @@ void PlotModule::setAnnotations()
 
   //get field and sat annotations
   for (AnnotationPlot* ap : vap) {
-    vector<vector<string> > vvstr = ap->getAnnotationStrings();
-    for (vector<string>& as : vvstr) {
+    std::vector<std::vector<std::string> > vvstr = ap->getAnnotationStrings();
+    for (std::vector<std::string>& as : vvstr) {
       for (PlotCluster* pc : clusters())
         pc->getDataAnnotations(as);
 
@@ -585,12 +584,12 @@ void PlotModule::plotClustersAndManagers(DiGLPainter* gl, PlotOrder po)
   }
 }
 
-const vector<AnnotationPlot*>& PlotModule::getAnnotations()
+const std::vector<AnnotationPlot*>& PlotModule::getAnnotations()
 {
   return vap;
 }
 
-vector<Rectangle> PlotModule::plotAnnotations(DiGLPainter* gl)
+std::vector<Rectangle> PlotModule::plotAnnotations(DiGLPainter* gl)
 {
   plotInit(gl);
 
@@ -849,7 +848,7 @@ void insertTimes(times_t& times, const std::string& plotkey, const plottimes_t& 
 }
 } // namespace
 
-void PlotModule::getPlotTimes(std::map<string, plottimes_t>& times)
+void PlotModule::getPlotTimes(std::map<std::string, plottimes_t>& times)
 {
   METLIBS_LOG_TIME();
   times.clear();
@@ -948,13 +947,13 @@ std::string PlotModule::findLocation(int x, int y, const std::string& name)
 
 //****************************************************
 
-void PlotModule::trajPos(const vector<std::string>& vstr)
+void PlotModule::trajPos(const std::vector<std::string>& vstr)
 {
   if (trajectoryplots_->trajPos(vstr))
     setAnnotations();
 }
 
-void PlotModule::measurementsPos(const vector<std::string>& vstr)
+void PlotModule::measurementsPos(const std::vector<std::string>& vstr)
 {
   //if vstr starts with "quit", delete all MeasurementsPlot objects
   for (const std::string& s : vstr) {
@@ -1029,7 +1028,7 @@ void PlotModule::editLastAnnoElement()
     eap->editLastAnnoElement();
 }
 
-PlotCommand_cpv PlotModule::writeAnnotations(const string& prodname)
+PlotCommand_cpv PlotModule::writeAnnotations(const std::string& prodname)
 {
   PlotCommand_cpv annoCommands;
   for (AnnotationPlot* eap : editVap) {
@@ -1043,7 +1042,7 @@ void PlotModule::updateEditLabels(const PlotCommand_cpv& productLabelCommands,
     const std::string& productName, bool newProduct)
 {
   METLIBS_LOG_SCOPE();
-  vector<AnnotationPlot*> oldVap; //display object labels
+  std::vector<AnnotationPlot*> oldVap; //display object labels
   //read the old labels...
 
   for (PlotCommand_cp pc : objm->getEditObjects().getObjectLabels())

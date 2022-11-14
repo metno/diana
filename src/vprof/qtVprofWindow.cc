@@ -67,7 +67,6 @@
 #define MILOGGER_CATEGORY "diana.VprofWindow"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 
 VprofWindow::VprofWindow()
     : QMainWindow()
@@ -474,14 +473,14 @@ void VprofWindow::timeBoxActivated(int index)
 
 /***************************************************************************/
 
-void VprofWindow::changeStation(const string& station)
+void VprofWindow::changeStation(const std::string& station)
 {
   METLIBS_LOG_SCOPE(LOGVAL(station));
   vprofm->setStation(station);
   updateStation();
 }
 
-void VprofWindow::changeStations(const std::vector<string>& stations)
+void VprofWindow::changeStations(const std::vector<std::string>& stations)
 {
   METLIBS_LOG_SCOPE(LOGVAL(stations.size()));
   vprofm->setStations(stations);
@@ -566,9 +565,9 @@ void VprofWindow::parseSetup()
   vpModelDialog->updateModelfileList();
 }
 
-vector<string> VprofWindow::writeLog(const string& logpart)
+std::vector<std::string> VprofWindow::writeLog(const std::string& logpart)
 {
-  vector<string> vstr;
+  std::vector<std::string> vstr;
   std::string str;
 
   if (logpart == "window") {
@@ -603,7 +602,7 @@ vector<string> VprofWindow::writeLog(const string& logpart)
   return vstr;
 }
 
-void VprofWindow::readLog(const string& logpart, const vector<string>& vstr, const string& thisVersion, const string& logVersion, int displayWidth,
+void VprofWindow::readLog(const std::string& logpart, const std::vector<std::string>& vstr, const std::string& thisVersion, const std::string& logVersion, int displayWidth,
                           int displayHeight)
 {
   if (logpart == "window") {
@@ -611,7 +610,7 @@ void VprofWindow::readLog(const string& logpart, const vector<string>& vstr, con
     int n = vstr.size();
 
     for (int i = 0; i < n; i++) {
-      vector<string> tokens = miutil::split(vstr[i], 0, " ");
+      std::vector<std::string> tokens = miutil::split(vstr[i], 0, " ");
 
       if (tokens.size() == 3) {
 

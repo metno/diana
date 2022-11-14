@@ -34,7 +34,6 @@
 #define MILOGGER_CATEGORY "diana.TimeSlider"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 
 TimeSlider::TimeSlider(QWidget* parent)
   : QSlider(parent)

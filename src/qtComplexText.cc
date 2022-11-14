@@ -49,7 +49,6 @@
 #define MILOGGER_CATEGORY "diana.ComplexText"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 
 QValidator::State ComplexText::complexValidator::validate(QString& input, int& pos) const
 {
@@ -62,14 +61,14 @@ QValidator::State ComplexText::complexValidator::validate(QString& input, int& p
 
 // initialize static members
 bool               ComplexText::initialized= false;
-vector<Colour::ColourInfo> ComplexText::colourInfo; // all defined colours
+std::vector<Colour::ColourInfo> ComplexText::colourInfo; // all defined colours
 int                ComplexText::nr_colors=0;
 QColor*            ComplexText::pixcolor=0;
 
 /*********************************************/
 ComplexText::ComplexText( QWidget* parent, Controller* llctrl,
-    vector <string> & symbolText, vector <string>  & xText,
-    set <string> cList,bool useColour)
+    std::vector <std::string> & symbolText, std::vector <std::string>  & xText,
+    std::set <std::string> cList,bool useColour)
   : QDialog(parent)
   , m_ctrl(llctrl)
 {
@@ -100,7 +99,7 @@ ComplexText::ComplexText( QWidget* parent, Controller* llctrl,
     QGridLayout* glayout = new QGridLayout();
     hglayout->addLayout(glayout, 0);
     
-    set <string> complexList = cList;
+    std::set <std::string> complexList = cList;
     
     for (int i=0;i<ns;i++){
       METLIBS_LOG_DEBUG("symbolText["<<i<<"]"<<symbolText[i]);
@@ -114,7 +113,7 @@ ComplexText::ComplexText( QWidget* parent, Controller* llctrl,
       if (!cv)
         cv = new complexValidator(this);
       text->addItem(symbolText[i].c_str());
-      set<string>::iterator p = complexList.begin();
+      std::set<std::string>::iterator p = complexList.begin();
       for (; p!=complexList.end(); p++)
         text->addItem(QString::fromStdString(*p));
 
@@ -197,7 +196,7 @@ ComplexText::~ComplexText()
   delete cv;
 }
 
-void ComplexText::getComplexText(vector<string>& symbolText, vector<string>& xText)
+void ComplexText::getComplexText(std::vector<std::string>& symbolText, std::vector<std::string>& xText)
 {
   METLIBS_LOG_SCOPE();
   symbolText.clear();
@@ -226,7 +225,7 @@ void ComplexText::getColour(Colour::ColourInfo &colour)
     colour=colourInfo[index];
 }
 
-int ComplexText::getColourIndex(vector <Colour::ColourInfo> & colourInfo,
+int ComplexText::getColourIndex(std::vector <Colour::ColourInfo> & colourInfo,
     Colour::ColourInfo colour)
 {
   int i,index=-1;

@@ -50,7 +50,6 @@
 #define MILOGGER_CATEGORY "diana.AnnotationPlot"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 using namespace miutil;
 
 namespace {
@@ -128,9 +127,9 @@ const std::string AnnotationPlot::insertTime(const std::string& s, const miTime&
   return es;
 }
 
-const vector<std::string> AnnotationPlot::expanded(const vector<std::string>& vs)
+const std::vector<std::string> AnnotationPlot::expanded(const std::vector<std::string>& vs)
 {
-  vector<std::string> evs;
+  std::vector<std::string> evs;
   for (const std::string& s : vs) {
     std::string es = insertTime(s, getStaticPlot()->getTime());
     if (!fieldAnaTime.undef()) {
@@ -221,7 +220,7 @@ bool AnnotationPlot::prepare(const PlotCommand_cp& pc)
   return true;
 }
 
-void AnnotationPlot::setData(const vector<Annotation>& a, const plottimes_t& fieldAnalysisTime)
+void AnnotationPlot::setData(const std::vector<Annotation>& a, const plottimes_t& fieldAnalysisTime)
 {
   if (atype != anno_text)
     annotations = a;
@@ -257,7 +256,7 @@ bool AnnotationPlot::putElements()
 {
   METLIBS_LOG_SCOPE();
   //decode strings, put into elements...
-  vector<Annotation> anew;
+  std::vector<Annotation> anew;
   nothingToDo = true;
 
   for (Annotation& a : annotations) {
@@ -280,7 +279,7 @@ bool AnnotationPlot::putElements()
       if (miutil::contains(es, "horalign=")) {
         //sets alignment for the whole annotation !
         for (const std::string& tok : anno_split(es, ",")) {
-          const vector<std::string> subtokens = miutil::split(tok, 0, "=");
+          const std::vector<std::string> subtokens = miutil::split(tok, 0, "=");
           if (subtokens.size() != 2)
             continue;
           if (subtokens[0] == "horalign") {
@@ -293,12 +292,12 @@ bool AnnotationPlot::putElements()
           }
         }
       } else if (miutil::contains(es, "bcolour=")) {
-        vector<std::string> stokens = miutil::split(es, 0, "=");
+        std::vector<std::string> stokens = miutil::split(es, 0, "=");
         if (stokens.size() != 2)
           continue;
         a.bordercolour = Colour(stokens[1]);
       } else if (miutil::contains(es, "polystyle=")) {
-        vector<std::string> stokens = miutil::split(es, 0, "=");
+        std::vector<std::string> stokens = miutil::split(es, 0, "=");
         if (stokens.size() != 2)
           continue;
         if (stokens[1] == "fill")
@@ -349,7 +348,7 @@ bool AnnotationPlot::putElements()
   return true;
 }
 
-void AnnotationPlot::addElement2Vector(vector<element>& v_e, const element& e, int index)
+void AnnotationPlot::addElement2Vector(std::vector<element>& v_e, const element& e, int index)
 {
   if (index > 0 && !v_e.empty())
     addElement2Vector(v_e.back().subelement, e, index-1);
@@ -386,7 +385,7 @@ bool AnnotationPlot::decodeElement(const std::string& elementstring, element& e)
     editable = true;
   } else if (miutil::contains(elementstring, "table=") && miutil::contains(elementstring, ";")) {
     e.eType = table;
-    vector<std::string> stokens = anno_split(elementstring, ",");
+    std::vector<std::string> stokens = anno_split(elementstring, ",");
     e.classplot = new LegendPlot(stokens[0]);
     e.classplot->setPlotOptions(poptions);
   } else if (miutil::contains(elementstring, "box")) {
@@ -400,7 +399,7 @@ bool AnnotationPlot::decodeElement(const std::string& elementstring, element& e)
     if (tok == "vertical") {
       e.horizontal = false;
     } else {
-      vector<std::string> subtokens = anno_split(tok, "=");
+      std::vector<std::string> subtokens = anno_split(tok, "=");
       if (subtokens.size() != 2)
         continue;
       if (subtokens[0] == "text" || subtokens[0] == "input") {
@@ -536,7 +535,7 @@ void AnnotationPlot::plot(DiGLPainter* gl, PlotOrder zorder)
 }
 
 bool AnnotationPlot::plotElements(DiGLPainter* gl,
-    vector<element>& annoEl, float& x, float& y,
+    std::vector<element>& annoEl, float& x, float& y,
     float annoHeight, bool horizontal)
 {
   METLIBS_LOG_SCOPE(LOGVAL(annoEl.size()));
@@ -710,7 +709,7 @@ void AnnotationPlot::plotBorders(DiGLPainter* gl)
 }
 
 void AnnotationPlot::getAnnoSize(DiGLPainter* gl,
-    vector<element> &annoEl, float& wid,
+    std::vector<element> &annoEl, float& wid,
     float& hei, bool horizontal)
 {
   METLIBS_LOG_SCOPE(LOGVAL(annoEl.size()));
@@ -808,12 +807,12 @@ void AnnotationPlot::getXYBox(DiGLPainter* gl)
     // The scale factor is the ratio of the width of the annotation (minus borders)
     // to the maximum width of items in the annotation. This gives us a factor we
     // can use to fit the items into the annotation.
-    scaleFactor = min((width - 2 * border) / maxwid, float(1.0));
+    scaleFactor = std::min((width - 2 * border) / maxwid, float(1.0));
     fontsizeToPlot = fontsizeToPlot * scaleFactor;
 
     float scaledHeight = totalhei * scaleFactor;
     float scaledSpacing = (height - scaledHeight - (2 * border))/(annotations.size() - 1);
-    spacing = min(scaledSpacing, spacing);
+    spacing = std::min(scaledSpacing, spacing);
 
     // Scale the width and height of each annotation.
     for (Annotation& a : annotations) {
@@ -944,7 +943,7 @@ void AnnotationPlot::DeleteMarkedAnnotation()
     return;
   if (isMarked) {
     for (Annotation& a : annotations) {
-      vector<element>::iterator p = a.annoElements.begin();
+      std::vector<element>::iterator p = a.annoElements.begin();
       while (p != a.annoElements.end()) {
         if (p->isInside) {
           p = a.annoElements.erase(p);
@@ -1040,14 +1039,14 @@ void AnnotationPlot::editLastAnnoElement()
 }
 
 // static
-vector<std::string> AnnotationPlot::split(const std::string eString, const char s1, const char s2)
+std::vector<std::string> AnnotationPlot::split(const std::string eString, const char s1, const char s2)
 {
   /*finds entries delimited by s1 and s2
    (f.ex. s1=<,s2=>) <"this is the entry">
    anything inside " " is ignored as delimiters
    f.ex. <"this is also > an entry">
    */
-  vector<std::string> vec;
+  std::vector<std::string> vec;
 
   if (eString.empty())
     return vec;
@@ -1125,7 +1124,7 @@ std::string AnnotationPlot::writeElement(const element& annoEl)
     break;
   }
   if (annoEl.eSize != 1) {
-    ostringstream ostr;
+    std::ostringstream ostr;
     ostr << ",size=" << annoEl.eSize;
     str += ostr.str();
   }
@@ -1181,8 +1180,8 @@ void AnnotationPlot::updateInputLabels(const AnnotationPlot * oldAnno, bool newP
   for (Annotation& a: annotations) {
     for (element& annoEl : a.annoElements) {
       if (annoEl.eType == input && not annoEl.eName.empty()) {
-        const map<std::string, std::string>& oldInputText = oldAnno->inputText;
-        const map<std::string, std::string>::const_iterator pf = oldInputText.find(annoEl.eName);
+        const std::map<std::string, std::string>& oldInputText = oldAnno->inputText;
+        const std::map<std::string, std::string>::const_iterator pf = oldInputText.find(annoEl.eName);
         if (pf != oldInputText.end()) {
           annoEl.eText = pf->second;
           if (annoEl.eName == "number" && newProduct)
@@ -1194,12 +1193,12 @@ void AnnotationPlot::updateInputLabels(const AnnotationPlot * oldAnno, bool newP
   }
 }
 
-const vector<AnnotationPlot::Annotation>& AnnotationPlot::getAnnotations()
+const std::vector<AnnotationPlot::Annotation>& AnnotationPlot::getAnnotations()
 {
   return annotations;
 }
 
-vector<vector<std::string> > AnnotationPlot::getAnnotationStrings()
+std::vector<std::vector<std::string> > AnnotationPlot::getAnnotationStrings()
 {
   METLIBS_LOG_SCOPE(LOGVAL(annotations.size()));
 
@@ -1215,13 +1214,13 @@ vector<vector<std::string> > AnnotationPlot::getAnnotationStrings()
       break;
   }
 
-  vector<vector<std::string> > vvstr;
+  std::vector<std::vector<std::string> > vvstr;
   for (const Annotation& a : (orig ? orig_annotations : annotations))
     vvstr.push_back(a.vstr);
   return vvstr;
 }
 
-void AnnotationPlot::setAnnotationStrings(vector<vector<std::string> >& vvstr)
+void AnnotationPlot::setAnnotationStrings(std::vector<std::vector<std::string> >& vvstr)
 {
   METLIBS_LOG_SCOPE(LOGVAL(vvstr.size()));
   if (vvstr.empty())

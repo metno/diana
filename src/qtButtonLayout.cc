@@ -37,7 +37,6 @@
 #define MILOGGER_CATEGORY "diana.ButtonLayout"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 
 ButtonLayout::ButtonLayout(QWidget* parent, const std::vector<ObsDialogInfo::Button>& button_infos, int nr_col)
     : QWidget(parent)

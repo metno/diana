@@ -47,7 +47,6 @@
 #include <miLogger/miLogging.h>
 
 using namespace::miutil;
-using namespace std;
 
 namespace { // anonymous
 
@@ -63,21 +62,21 @@ void replaceDynamicQuickMenuOptions(const std::vector<std::string>& oldCommand, 
   for (int i = 0; i < nold && i < nnew; i++) {
     if (not miutil::contains(oldCommand[i], QM_DYNAMIC_OPTION_PREFIX))
       continue;
-    vector<string> token = miutil::split(oldCommand[i], 0, " ");
+    std::vector<std::string> token = miutil::split(oldCommand[i], 0, " ");
     int ntoken = token.size();
     for (int j = 0; j < ntoken; j++) {
       if (not miutil::contains(token[j], QM_DYNAMIC_OPTION_PREFIX))
         continue;
-      vector<string> stoken = miutil::split(token[j], 0, "=");
+      std::vector<std::string> stoken = miutil::split(token[j], 0, "=");
       if (stoken.size() != 2 || not miutil::contains(stoken[1], QM_DYNAMIC_OPTION_PREFIX))
         continue;
       // found item to replace
-      vector<string> newtoken = miutil::split(newCommand[i], 0, " ");
+      std::vector<std::string> newtoken = miutil::split(newCommand[i], 0, " ");
       int nnewtoken = newtoken.size();
       if (nnewtoken < 2 || token[0] != newtoken[0])
         continue;
       for (int k = 1; k < nnewtoken; k++) {
-        vector<string> snewtoken = miutil::split(newtoken[k], "=");
+        std::vector<std::string> snewtoken = miutil::split(newtoken[k], "=");
         if (snewtoken.size() == 2 && snewtoken[0] == stoken[0]) {
           miutil::replace(newCommand[i], newtoken[k], token[j]);
         }
@@ -119,10 +118,10 @@ const std::vector<std::string>& quickMenu::command() const
 // sort keys by length - make index-list
 std::vector<int> quickMenu::sorted_keys() const
 {
-  vector<int> keys;
+  std::vector<int> keys;
   for (size_t i = 0; i < opt.size(); i++) {
     const size_t key_length = opt[i].key.length();
-    vector<int>::iterator it = keys.begin();
+    std::vector<int>::iterator it = keys.begin();
     for (; it != keys.end() && key_length < opt[*it].key.length(); it++)
       ;
     keys.insert(it, i);
@@ -135,7 +134,7 @@ std::set<int> quickMenu::used_options(const std::string& c) const
   METLIBS_LOG_SCOPE();
   std::set<int> used;
   std::string ts = c; // make a copy as we need to modify the string
-  const vector<int> keys = sorted_keys();
+  const std::vector<int> keys = sorted_keys();
   for (size_t i = 0; i < opt.size(); i++) {
     const int ki = keys[i];
     const std::string key = QM_DYNAMIC_OPTION_PREFIX + opt[ki].key;
@@ -178,26 +177,26 @@ bool writeQuickMenu(const quickMenu& qm)
 
   diutil::CharsetConverter_p converter = diutil::findConverter(diutil::CHARSET_INTERNAL(), diutil::CHARSET_WRITE());
 
-  menufile << "# -*- coding: " << diutil::CHARSET_WRITE() << " -*-" << endl;
-  menufile << "# Name and plot string of Quick-menu" << endl;
-  menufile << "# '#' marks comments" << endl;
-  menufile << "#------------------------------------------------" << endl;
-  menufile << "#-- Name of quick-menu, given in the dialog" << endl;
-  menufile << "# \"name\"" << endl;
-  menufile << "#------------------------------------------------" << endl;
-  menufile << "#-- Variable definitions" << endl;
-  menufile << "# [XX=a,b,c,d,..]" << endl;
-  menufile << "#------------------------------------------------" << endl;
-  menufile << "#-- Plots" << endl;
-  menufile << "# '>Plot name' is separator between the different plots" << endl;
-  menufile << "#------------------------------------------------" << endl;
-  menufile << endl;
-  menufile << "# quickmenu name" << endl;
+  menufile << "# -*- coding: " << diutil::CHARSET_WRITE() << " -*-" << std::endl;
+  menufile << "# Name and plot string of Quick-menu" << std::endl;
+  menufile << "# '#' marks comments" << std::endl;
+  menufile << "#------------------------------------------------" << std::endl;
+  menufile << "#-- Name of quick-menu, given in the dialog" << std::endl;
+  menufile << "# \"name\"" << std::endl;
+  menufile << "#------------------------------------------------" << std::endl;
+  menufile << "#-- Variable definitions" << std::endl;
+  menufile << "# [XX=a,b,c,d,..]" << std::endl;
+  menufile << "#------------------------------------------------" << std::endl;
+  menufile << "#-- Plots" << std::endl;
+  menufile << "# '>Plot name' is separator between the different plots" << std::endl;
+  menufile << "#------------------------------------------------" << std::endl;
+  menufile << std::endl;
+  menufile << "# quickmenu name" << std::endl;
 
-  menufile << "\"" << converter->convert(qm.name) << "\"" << endl;
-  menufile << endl;
+  menufile << "\"" << converter->convert(qm.name) << "\"" << std::endl;
+  menufile << std::endl;
 
-  menufile << "# variables" << endl;
+  menufile << "# variables" << std::endl;
 
   // write options
   for (const quickMenuOption& mo : qm.opt) {
@@ -210,17 +209,17 @@ bool writeQuickMenu(const quickMenu& qm)
 
       menufile << converter->convert(o);
     }
-    menufile << endl;
+    menufile << std::endl;
   }
 
-  menufile << endl;
+  menufile << std::endl;
 
   // the plots
   for (const quickMenuItem& mi : qm.menuitems) {
-    menufile << "#" << endl;
-    menufile << ">" << converter->convert(mi.name) << endl;
+    menufile << "#" << std::endl;
+    menufile << ">" << converter->convert(mi.name) << std::endl;
     for (const std::string& c : mi.command) {
-      menufile << converter->convert(c) << endl;
+      menufile << converter->convert(c) << std::endl;
     }
   }
 
@@ -281,7 +280,7 @@ bool readQuickMenu(quickMenu& qm, std::istream& in)
     } else if (line[0]=='['){
       // variable/options
       diutil::remove_start_end_mark(line, '[', ']');
-      vector<std::string> tokens = miutil::split(line, 1, "=");
+      std::vector<std::string> tokens = miutil::split(line, 1, "=");
       if (tokens.size()>1){
         quickMenuOption op;
         op.key= tokens[0];
@@ -414,15 +413,15 @@ std::string update1Field(const std::string& in, bool withModel)
 bool splitDifferenceCommandString(std::string& f)
 {
   const size_t p1 = f.find(" ( ", 0);
-  if (p1 == string::npos)
+  if (p1 == std::string::npos)
     return false;
 
   const size_t p2 = f.find(" - ", p1 + 3);
-  if (p2 == string::npos)
+  if (p2 == std::string::npos)
     return false;
 
   const size_t p3 = f.find(" ) ", p2 + 3);
-  if (p3 == string::npos)
+  if (p3 == std::string::npos)
     return false;
 
   const std::string common_start = f.substr(0, p1),
@@ -535,7 +534,7 @@ void readQuickMenuLog(std::vector<quickMenu>& qm, const std::vector<std::string>
 
 std::vector<std::string> writeQuickMenuLog(const std::vector<quickMenu>& qm)
 {
-  vector<string> loglines;
+  std::vector<std::string> loglines;
   for (const quickMenu& q : qm) {
     if (q.is_history() || q.opt.empty())
       continue;

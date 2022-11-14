@@ -161,7 +161,7 @@ public:
 
   VprofValues_p getVprofPlot(const std::string& modelName, const std::string& station, const miutil::miTime& time);
 
-  void getStationList(vector<stationInfo>& stations);
+  void getStationList(std::vector<stationInfo>& stations);
   friend class ObsData;
 };
 

@@ -67,7 +67,6 @@
 #define MILOGGER_CATEGORY "diana.QuickMenu"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 
 // ========================================================================
 
@@ -221,9 +220,9 @@ void QuickMenu::start()
   fillMenuList(false);
 }
 
-vector<std::string> QuickMenu::getUserMenus()
+std::vector<std::string> QuickMenu::getUserMenus()
 {
-  vector<std::string> vs;
+  std::vector<std::string> vs;
   for (const quickMenu& q : qm)
     if (q.type == quickMenu::QM_USER)
       vs.push_back(q.name);
@@ -287,7 +286,7 @@ void QuickMenu::addPlotToHistory(const std::string& name, const PlotCommand_cpv&
   if (!isValidList(list))
     return;
 
-  std::vector<string> cmds;
+  std::vector<std::string> cmds;
   cmds.reserve(commands.size());
   for (PlotCommand_cp cmd : commands)
     cmds.push_back(cmd->toString());
@@ -610,7 +609,7 @@ void QuickMenu::updateButton()
     return;
   quickMenuItem& qi = q.item();
 
-  vector<string> vs = p.item(plotted_item).command;
+  std::vector<std::string> vs = p.item(plotted_item).command;
   if (vs.empty())
     return;
 
@@ -672,12 +671,12 @@ void QuickMenu::updateButton()
   selectList(selected_list);
 }
 
-void QuickMenu::readLog(const vector<string>& vstr, const string&, const string&)
+void QuickMenu::readLog(const std::vector<std::string>& vstr, const std::string&, const std::string&)
 {
   readQuickMenuLog(qm, vstr);
 }
 
-vector<string> QuickMenu::writeLog()
+std::vector<std::string> QuickMenu::writeLog()
 {
   // save any changes to the command
   saveChanges(-1,-1);
@@ -846,7 +845,7 @@ void QuickMenu::menuboxItemActivated(const QModelIndex&)
   plotActiveMenu();
 }
 
-void QuickMenu::getCommand(vector<string>& commands)
+void QuickMenu::getCommand(std::vector<std::string>& commands)
 {
   METLIBS_LOG_SCOPE();
   const std::string text = comedit->toPlainText().toStdString();
@@ -856,7 +855,7 @@ void QuickMenu::getCommand(vector<string>& commands)
   }
 }
 
-void QuickMenu::varExpand(vector<string>& com)
+void QuickMenu::varExpand(std::vector<std::string>& com)
 {
   qm[selected_list].expand_options(com);
 }
@@ -864,7 +863,7 @@ void QuickMenu::varExpand(vector<string>& com)
 void QuickMenu::plotActiveMenu()
 {
   METLIBS_LOG_SCOPE();
-  vector<string> com;
+  std::vector<std::string> com;
   getCommand(com);
   METLIBS_LOG_DEBUG(LOGVAL(com.size()));
 

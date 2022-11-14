@@ -45,13 +45,12 @@
 #include <miLogger/miLogging.h>
 
 using namespace::miutil;
-using namespace std;
 
 //int ImageGallery::numimages= 0;
 //ImageGallery::image ImageGallery::Images[ImageGallery::maximages];
-map<std::string,ImageGallery::image> ImageGallery::Images;
-map<std::string,ImageGallery::pattern> ImageGallery::Patterns;
-map<int, vector<std::string> > ImageGallery::Type;
+std::map<std::string,ImageGallery::image> ImageGallery::Images;
+std::map<std::string,ImageGallery::pattern> ImageGallery::Patterns;
+std::map<int, std::vector<std::string> > ImageGallery::Type;
 
 
 ImageGallery::image::image()
@@ -507,11 +506,11 @@ bool ImageGallery::plotMarker_(DiGLPainter* gl, const PlotArea& pa, const std::s
 bool ImageGallery::readFile(const std::string& name, const std::string& filename)
 {
   METLIBS_LOG_SCOPE(LOGVAL(name) << LOGVAL(filename));
-  ifstream inFile;
+  std::ifstream inFile;
   std::string line;
-  vector<std::string> vline;
+  std::vector<std::string> vline;
 
-  inFile.open(filename.c_str(),ios::in);
+  inFile.open(filename.c_str(),std::ios::in);
   if (inFile.bad()) {
     METLIBS_LOG_ERROR("ImageGallery: Can't open file: " << filename);
     return false;
@@ -531,7 +530,7 @@ bool ImageGallery::readFile(const std::string& name, const std::string& filename
   Line l;
   for (const std::string& vl : vline) {
     METLIBS_LOG_DEBUG(LOGVAL(vl));
-    const vector<std::string> tokens = miutil::split(vl, " ");
+    const std::vector<std::string> tokens = miutil::split(vl, " ");
     if (tokens.size() != 2)
       continue;
     const std::string& t0 = tokens[0];
@@ -543,7 +542,7 @@ bool ImageGallery::readFile(const std::string& name, const std::string& filename
       l.invalidate();
     }
     if (t0 == "lto" || t0 == "mvto") {
-      vector<std::string> coor = miutil::split(tokens[1], ",");
+      std::vector<std::string> coor = miutil::split(tokens[1], ",");
       if(coor.size() != 2)
         continue;
       l.points << QPointF(atof(coor[0].c_str()), atof(coor[1].c_str()));
@@ -625,7 +624,7 @@ bool ImageGallery::plotImage(DiGLPainter* gl, const PlotArea& pa, const std::str
   return res;
 }
 
-bool ImageGallery::plotImages(DiGLPainter* gl, const PlotArea& pa, int n, const vector<std::string>& vn, const float* x, const float* y, bool center,
+bool ImageGallery::plotImages(DiGLPainter* gl, const PlotArea& pa, int n, const std::vector<std::string>& vn, const float* x, const float* y, bool center,
                               float scale, int alpha)
 {
   METLIBS_LOG_SCOPE();
@@ -779,7 +778,7 @@ DiGLPainter::GLubyte* ImageGallery::getPattern(std::string name)
 
 void ImageGallery::printInfo() const
 {
-  map<std::string,image>::const_iterator p= Images.begin();
+  std::map<std::string,image>::const_iterator p= Images.begin();
   for( ; p!=Images.end(); p++){
     METLIBS_LOG_INFO("Image: " << p->second.name
     << " W:" << p->second.width
@@ -788,7 +787,7 @@ void ImageGallery::printInfo() const
   }
 }
 
-void ImageGallery::ImageNames(vector<std::string>& vnames,
+void ImageGallery::ImageNames(std::vector<std::string>& vnames,
     int type) const
 {
   vnames = Type[type];
@@ -807,7 +806,7 @@ bool ImageGallery::parseSetup()
 {
   METLIBS_LOG_SCOPE();
   const std::string ig_name = "IMAGE_GALLERY";
-  vector<std::string> sect_ig;
+  std::vector<std::string> sect_ig;
 
   if (!SetupParser::getSection(ig_name,sect_ig)){
     METLIBS_LOG_WARN(ig_name << " section not found");
@@ -817,7 +816,7 @@ bool ImageGallery::parseSetup()
   int lineno = -1;
   for (const std::string& l : sect_ig) {
     lineno += 1;
-    const vector<std::string> token = miutil::split(l, "=");
+    const std::vector<std::string> token = miutil::split(l, "=");
 
     if (token.size() != 2) {
       std::string errmsg="Line must contain '='";

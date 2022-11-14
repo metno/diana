@@ -62,25 +62,24 @@
 
 using namespace miutil;
 using namespace satimg;
-using namespace std;
 
 // #define DEBUGPRINT
 #define MILOGGER_CATEGORY "metno.satimgh5"
 #include "miLogger/miLogging.h"
 
-map<string, string> metno::satimgh5::hdf5map;
-map<float, int> metno::satimgh5::paletteMap;
-map<string, vector<float>> metno::satimgh5::calibrationTable;
-vector<int> metno::satimgh5::RPalette;
-vector<int> metno::satimgh5::GPalette;
-vector<int> metno::satimgh5::BPalette;
-map<string, string> metno::satimgh5::metadataMap;
-map<int, string> metno::satimgh5::paletteStringMap;
+std::map<std::string, std::string> metno::satimgh5::hdf5map;
+std::map<float, int> metno::satimgh5::paletteMap;
+std::map<std::string, std::vector<float>> metno::satimgh5::calibrationTable;
+std::vector<int> metno::satimgh5::RPalette;
+std::vector<int> metno::satimgh5::GPalette;
+std::vector<int> metno::satimgh5::BPalette;
+std::map<std::string, std::string> metno::satimgh5::metadataMap;
+std::map<int, std::string> metno::satimgh5::paletteStringMap;
 
 /*!
- TODO: Should check the metadata string and verify the format.
+ TODO: Should check the metadata std::string and verify the format.
  */
-bool metno::satimgh5::validateChannelString(string& inputStr)
+bool metno::satimgh5::validateChannelString(std::string& inputStr)
 {
   return 1;
 }
@@ -95,14 +94,14 @@ bool metno::satimgh5::validateChannelString(string& inputStr)
 
  */
 
-herr_t metno::satimgh5::getDataForChannel(string& inputStr, string& data)
+herr_t metno::satimgh5::getDataForChannel(std::string& inputStr, std::string& data)
 {
   METLIBS_LOG_SCOPE(LOGVAL(inputStr));
 
-  vector<string> channels, channelParts;
+  std::vector<std::string> channels, channelParts;
 
   if (validateChannelString(inputStr)) {
-    if (inputStr.find(",") != string::npos) {
+    if (inputStr.find(",") != std::string::npos) {
       channels = split(inputStr, ",", true);
     } else {
       channels.push_back(inputStr);
@@ -110,7 +109,7 @@ herr_t metno::satimgh5::getDataForChannel(string& inputStr, string& data)
 
     for (unsigned int i = 0; i < channels.size(); i++) {
       METLIBS_LOG_DEBUG(channels[i]);
-      if (channels[i].find("-") != string::npos) {
+      if (channels[i].find("-") != std::string::npos) {
         channelParts = miutil::split_protected(channels[i], '(', ')', "-", true);
         if (channelParts.size() == 3) {
           remove(channelParts[1], '(');
@@ -144,54 +143,54 @@ herr_t metno::satimgh5::getDataForChannel(string& inputStr, string& data)
 
  */
 
-herr_t metno::satimgh5::getDataForChannel(string inputStr, int chan, string& chpath, string& chname, bool& chinvert, bool& subtract, string& subchpath,
-                                          string& subchname, bool& subchinvert, bool& ch4co2corr, bool& subch4co2corr)
+herr_t metno::satimgh5::getDataForChannel(std::string inputStr, int chan, std::string& chpath, std::string& chname, bool& chinvert, bool& subtract, std::string& subchpath,
+                                          std::string& subchname, bool& subchinvert, bool& ch4co2corr, bool& subch4co2corr)
 {
 
-  vector<string> channels, channelParts, channelSplit, channelSplitParts, channelNameParts, subChannelNameParts, nameSplit, nameSplitParts, subNameSplitParts;
+  std::vector<std::string> channels, channelParts, channelSplit, channelSplitParts, channelNameParts, subChannelNameParts, nameSplit, nameSplitParts, subNameSplitParts;
 
   chinvert = false;
 
   replace(inputStr, " ", "");
 
-  if (inputStr.find(",") != string::npos) {
+  if (inputStr.find(",") != std::string::npos) {
     channels = split(inputStr, ",", true);
   } else {
     channels.push_back(inputStr);
   }
 
   for (unsigned int i = 0; i < channels.size(); i++) {
-    if (channels[i].find("-") != string::npos) {
+    if (channels[i].find("-") != std::string::npos) {
       channelParts = split_protected(channels[i], '(', ')', "-", true);
       if (to_int(channelParts[0], 0) == chan) {
         // check if subtract
-        if (channelParts[1].find("(") != string::npos && channelParts[1].find(")") != string::npos) {
+        if (channelParts[1].find("(") != std::string::npos && channelParts[1].find(")") != std::string::npos) {
           subtract = true;
           replace(channelParts[1], "(", "");
           replace(channelParts[1], ")", "");
           channelSplit = split(channelParts[1], "-", true);
 
           // check invert
-          if (channelSplit[0].find("i") != string::npos) {
+          if (channelSplit[0].find("i") != std::string::npos) {
             chinvert = true;
           } else {
             chinvert = false;
           }
 
-          if (channelSplit[1].find("i") != string::npos) {
+          if (channelSplit[1].find("i") != std::string::npos) {
             subchinvert = true;
           } else {
             subchinvert = false;
           }
 
           // Check co2corr
-          if (channelSplit[0].find("4r") != string::npos) {
+          if (channelSplit[0].find("4r") != std::string::npos) {
             ch4co2corr = true;
           } else {
             ch4co2corr = false;
           }
 
-          if (channelSplit[1].find("4r") != string::npos) {
+          if (channelSplit[1].find("4r") != std::string::npos) {
             subch4co2corr = true;
           } else {
             subch4co2corr = false;
@@ -203,14 +202,14 @@ herr_t metno::satimgh5::getDataForChannel(string inputStr, int chan, string& chp
           subchinvert = false;
 
           // Check invert
-          if (channelParts[1].find("i") != string::npos) {
+          if (channelParts[1].find("i") != std::string::npos) {
             chinvert = true;
           } else {
             chinvert = false;
           }
 
           // Check co2corr
-          if (channelParts[1].find("4r") != string::npos) {
+          if (channelParts[1].find("4r") != std::string::npos) {
             ch4co2corr = true;
           } else {
             ch4co2corr = false;
@@ -218,7 +217,7 @@ herr_t metno::satimgh5::getDataForChannel(string inputStr, int chan, string& chp
         }
 
         // extract path and name
-        if (channelParts[2].find("(") != string::npos && channelParts[2].find(")") != string::npos && subtract == true) {
+        if (channelParts[2].find("(") != std::string::npos && channelParts[2].find(")") != std::string::npos && subtract == true) {
           replace(channelParts[2], "(", "");
           replace(channelParts[2], ")", "");
           nameSplit = split(channelParts[2], "-", true);
@@ -229,7 +228,7 @@ herr_t metno::satimgh5::getDataForChannel(string inputStr, int chan, string& chp
           subchpath = subNameSplitParts[0];
           subchname = subNameSplitParts[1];
 
-        } else if ((channelParts[2].find(":") != string::npos) && (subtract == false)) {
+        } else if ((channelParts[2].find(":") != std::string::npos) && (subtract == false)) {
           nameSplit = split(channelParts[2], ":", true);
           // We may have more than one level of groups
           // The chpath is construted as <group1>:<group2>:...<groupn>
@@ -259,7 +258,7 @@ herr_t metno::satimgh5::getDataForChannel(string inputStr, int chan, string& chp
 /**
  * Check the type of a dataset
  */
-hid_t metno::satimgh5::checkType(hid_t dataset, string name)
+hid_t metno::satimgh5::checkType(hid_t dataset, std::string name)
 {
   hid_t dset = H5Dopen2(dataset, name.c_str(), H5P_DEFAULT);
   hid_t dtype = H5Dget_type(dset);
@@ -274,19 +273,19 @@ hid_t metno::satimgh5::checkType(hid_t dataset, string name)
 /**
  * Reads the imagedata of the HDF5 file with the help of metadata read in HDF5_head_diana
  */
-int metno::satimgh5::HDF5_read_diana(const string& infile, unsigned char* image[], float* orgimage[], int nchan, int chan[], dihead& ginfo)
+int metno::satimgh5::HDF5_read_diana(const std::string& infile, unsigned char* image[], float* orgimage[], int nchan, int chan[], dihead& ginfo)
 {
   METLIBS_LOG_TIME();
 
   int pal = 0;
-  string chpath = "";
-  string chname = "";
+  std::string chpath = "";
+  std::string chname = "";
   bool chinvert = false;
   bool subtract = false;
   bool subch4co2corr = false;
   bool ch4co2corr = false;
-  string subchpath = "";
-  string subchname = "";
+  std::string subchpath = "";
+  std::string subchname = "";
   bool subchinvert = false;
   H5G_stat_t statbuf;
   hid_t group;
@@ -332,7 +331,7 @@ int metno::satimgh5::HDF5_read_diana(const string& infile, unsigned char* image[
    * /tmp-cacheFilePath
    * will put temporary files in /tmp
    */
-  string tmpFilePath = "";
+  std::string tmpFilePath = "";
   if (metadataMap.count("cacheFilePath"))
     tmpFilePath = metadataMap["cacheFilePath"];
   else {
@@ -393,8 +392,8 @@ int metno::satimgh5::HDF5_read_diana(const string& infile, unsigned char* image[
     METLIBS_LOG_DEBUG("chname.c_str()" << chname);
 
     // first, we must check if channel path contains ":"
-    vector<string> chpathSplit;
-    if (chpath.find(":") != string::npos) {
+    std::vector<std::string> chpathSplit;
+    if (chpath.find(":") != std::string::npos) {
       chpathSplit = split(chpath, ":", true);
     } else {
       // One level of groups
@@ -459,11 +458,11 @@ int metno::satimgh5::HDF5_read_diana(const string& infile, unsigned char* image[
              */
             if (subtract) {
               int firstmin = 0;
-              if (hdf5map.count(string("min_") + from_number(q)))
-                firstmin = to_int(hdf5map[string("min_") + from_number(q)]);
+              if (hdf5map.count(std::string("min_") + from_number(q)))
+                firstmin = to_int(hdf5map[std::string("min_") + from_number(q)]);
               int firstmax = 0;
-              if (hdf5map.count(string("max_") + from_number(q)))
-                firstmax = to_int(hdf5map[string("max_") + from_number(q)]);
+              if (hdf5map.count(std::string("max_") + from_number(q)))
+                firstmax = to_int(hdf5map[std::string("max_") + from_number(q)]);
 
               /* Save the channel path as chan_q
                * chan_q is used to extract channel specific settings from
@@ -472,7 +471,7 @@ int metno::satimgh5::HDF5_read_diana(const string& infile, unsigned char* image[
                * channelinfo=0-(10-9)-(image10:image_data-image9:image_data) =>
                * image10_image_data_image9_image_data
                */
-              hdf5map[string("chan_") + from_number(q)] = chpath + string("_") + chname + string("_") + subchpath + string("_") + subchname;
+              hdf5map[std::string("chan_") + from_number(q)] = chpath + std::string("_") + chname + std::string("_") + subchpath + std::string("_") + subchname;
               H5Gclose(group);
               group = H5Gopen2(file, subchpath.c_str(), H5P_DEFAULT);
               float_data_sub = new float*[ginfo.xsize];
@@ -488,15 +487,15 @@ int metno::satimgh5::HDF5_read_diana(const string& infile, unsigned char* image[
               else
                 readDataFromDataset(ginfo, group, subchpath, subchname, subchinvert, float_data_sub, q, orgimage, cloudTopTemperature, haveCachedImage);
               int secondmin = 0;
-              if (hdf5map.count(string("min_") + from_number(q)))
-                secondmin = to_int(hdf5map[string("min_") + from_number(q)]);
+              if (hdf5map.count(std::string("min_") + from_number(q)))
+                secondmin = to_int(hdf5map[std::string("min_") + from_number(q)]);
               int secondmax = 0;
-              if (hdf5map.count(string("max_") + from_number(q)))
-                secondmax = to_int(hdf5map[string("max_") + from_number(q)]);
+              if (hdf5map.count(std::string("max_") + from_number(q)))
+                secondmax = to_int(hdf5map[std::string("max_") + from_number(q)]);
 
               // Compute min/max for the subtracted picture
-              hdf5map[string("min_") + from_number(q)] = from_number(firstmin - secondmax);
-              hdf5map[string("max_") + from_number(q)] = from_number(firstmax - secondmin);
+              hdf5map[std::string("min_") + from_number(q)] = from_number(firstmin - secondmax);
+              hdf5map[std::string("max_") + from_number(q)] = from_number(firstmax - secondmin);
 
               // Subtract the channel, the result goes into float_data
               subtractChannels(float_data, float_data_sub);
@@ -509,7 +508,7 @@ int metno::satimgh5::HDF5_read_diana(const string& infile, unsigned char* image[
                * channelinfo=0-1-image1:image_data =>
                * hdf5map[chan_0]=image1_image_data
                */
-              hdf5map[string("chan_") + from_number(q)] = chpath + string("_") + chname;
+              hdf5map[std::string("chan_") + from_number(q)] = chpath + std::string("_") + chname;
             }
 
             // Return the already cached image
@@ -610,8 +609,8 @@ int metno::satimgh5::subtractChannels(float* float_data[], float* float_data_sub
   /*#ifdef DEBUGPRINT
    cerr << "Submin: " << min << " Submax: " << max << endl;
    #endif
-   hdf5map[string("submin")] = string(min);
-   hdf5map[string("submax")] = string(max);*/
+   hdf5map[std::string("submin")] = std::string(min);
+   hdf5map[std::string("submax")] = std::string(max);*/
 
   return 0;
 }
@@ -622,7 +621,7 @@ int metno::satimgh5::subtractChannels(float* float_data[], float* float_data_sub
 int metno::satimgh5::getPaletteStep(float value)
 {
   int step = 0;
-  for (map<float, int>::iterator p = paletteMap.begin(); p != paletteMap.end(); p++) {
+  for (std::map<float, int>::iterator p = paletteMap.begin(); p != paletteMap.end(); p++) {
     if (value < p->first) {
       break;
     }
@@ -781,8 +780,8 @@ int metno::satimgh5::co2corr_bt39(dihead& ginfo, hid_t source, float* ch4r[], bo
       }
     }
   }
-  hdf5map[string("max_") + from_number(chan)] = from_number(max);
-  hdf5map[string("min_") + from_number(chan)] = from_number(min);
+  hdf5map[std::string("max_") + from_number(chan)] = from_number(max);
+  hdf5map[std::string("min_") + from_number(chan)] = from_number(min);
 
   return 0;
 }
@@ -791,7 +790,7 @@ int metno::satimgh5::co2corr_bt39(dihead& ginfo, hid_t source, float* ch4r[], bo
  * Copies the values from float_data to orgimage
  * If there is a calibrationTable, use it for conversion.
  */
-int metno::satimgh5::makeOrgImage(float* orgimage[], float* float_data[], int chan, string name)
+int metno::satimgh5::makeOrgImage(float* orgimage[], float* float_data[], int chan, std::string name)
 {
   METLIBS_LOG_TIME();
 
@@ -814,11 +813,11 @@ int metno::satimgh5::makeOrgImage(float* orgimage[], float* float_data[], int ch
   bool haveCalibrationTable = false;
   if (calibrationTable.count("calibration_table_" + name))
     haveCalibrationTable = (calibrationTable["calibration_table_" + name].size() > 0);
-  vector<float> calibrationVector;
-  string description = "";
+  std::vector<float> calibrationVector;
+  std::string description = "";
   if (hdf5map.count("description"))
     description = hdf5map["description"];
-  string cloudTopUnit = "";
+  std::string cloudTopUnit = "";
   if (metadataMap.count("cloudTopUnit"))
     cloudTopUnit = metadataMap["cloudTopUnit"];
 
@@ -833,15 +832,15 @@ int metno::satimgh5::makeOrgImage(float* orgimage[], float* float_data[], int ch
 
   // Convert if necessary
   if (description != "" && cloudTopUnit != "") {
-    if (description.empty() || (description.find("eight (m)") != string::npos && cloudTopUnit == "ft")) {
+    if (description.empty() || (description.find("eight (m)") != std::string::npos && cloudTopUnit == "ft")) {
       mul = 100 / 30.52;
-    } else if ((description.find("eight (m)") != string::npos && cloudTopUnit == "hft")) {
+    } else if ((description.find("eight (m)") != std::string::npos && cloudTopUnit == "hft")) {
       mul = 100 / 30.52 / 100.0;
     } else if (cloudTopUnit == "force_ft") {
       mul = 100 / 30.52;
     } else if (cloudTopUnit == "force_hft") {
       mul = 100 / 30.52 / 100.0;
-    } else if (description.find("temperature (K)") != string::npos && cloudTopUnit == "C")
+    } else if (description.find("temperature (K)") != std::string::npos && cloudTopUnit == "C")
       add = -275.15;
   }
 
@@ -895,7 +894,7 @@ int metno::satimgh5::makeImage(unsigned char* image[], float* float_data[], int 
    * or
    * image5_image_data_image6_image_data
    */
-  string channelName = "";
+  std::string channelName = "";
   if (hdf5map.count("chan_" + from_number(chan)))
     channelName = hdf5map["chan_" + from_number(chan)];
   /**
@@ -910,15 +909,15 @@ int metno::satimgh5::makeImage(unsigned char* image[], float* float_data[], int 
    * maxString = 283
    * gammaValue = 1.6
    */
-  string minString = "";
-  if (metadataMap.count(channelName + string("_min")))
-    minString = metadataMap[channelName + string("_min")];
-  string maxString = "";
-  if (metadataMap.count(channelName + string("_max")))
-    maxString = metadataMap[channelName + string("_max")];
+  std::string minString = "";
+  if (metadataMap.count(channelName + std::string("_min")))
+    minString = metadataMap[channelName + std::string("_min")];
+  std::string maxString = "";
+  if (metadataMap.count(channelName + std::string("_max")))
+    maxString = metadataMap[channelName + std::string("_max")];
   float gammaValue = 1.0;
-  if (metadataMap.count(channelName + string("_gamma")))
-    gammaValue = to_float(metadataMap[channelName + string("_gamma")], 1.0);
+  if (metadataMap.count(channelName + std::string("_gamma")))
+    gammaValue = to_float(metadataMap[channelName + std::string("_gamma")], 1.0);
 
   // Replace m with - in {min,max}String.
   replace(minString, "m", "-");
@@ -927,11 +926,11 @@ int metno::satimgh5::makeImage(unsigned char* image[], float* float_data[], int 
   // If min- or maxString contains p then count those values as percent
   bool minPercent = false;
   bool maxPercent = false;
-  if (minString.find("p") != string::npos) {
+  if (minString.find("p") != std::string::npos) {
     minPercent = true;
     replace(minString, "p", "");
   }
-  if (maxString.find("p") != string::npos) {
+  if (maxString.find("p") != std::string::npos) {
     maxPercent = true;
     replace(maxString, "p", "");
   }
@@ -939,12 +938,12 @@ int metno::satimgh5::makeImage(unsigned char* image[], float* float_data[], int 
   // Set the lowest and highest values in the channel using
   // values from metadata or values from readDataFromDataset
   float chanMin = 0.0;
-  if (hdf5map.count(string("min_") + from_number(chan)))
-    chanMin = to_float(hdf5map[string("min_") + from_number(chan)]);
+  if (hdf5map.count(std::string("min_") + from_number(chan)))
+    chanMin = to_float(hdf5map[std::string("min_") + from_number(chan)]);
   float rangeMin = to_float(minString, chanMin);
   float chanMax = 0.0;
-  if (hdf5map.count(string("max_") + from_number(chan)))
-    chanMax = to_float(hdf5map[string("max_") + from_number(chan)]);
+  if (hdf5map.count(std::string("max_") + from_number(chan)))
+    chanMax = to_float(hdf5map[std::string("max_") + from_number(chan)]);
   float rangeMax = to_float(maxString, chanMax);
   int tmpVal;
 
@@ -1047,7 +1046,7 @@ int metno::satimgh5::makeImage(unsigned char* image[], float* float_data[], int 
  * The data is processed and put in the int_data[] array.
  * orgimage is filled with unprocessed data.
  */
-int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source, string path, string name, bool invert, float** float_data, int chan, float* orgImage[],
+int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source, std::string path, std::string name, bool invert, float** float_data, int chan, float* orgImage[],
                                          bool cloudTopTemperature, bool haveCachedImage)
 {
   METLIBS_LOG_TIME();
@@ -1057,8 +1056,8 @@ int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source, string pat
 
   hid_t dset;
   int daynight = day_night(ginfo);
-  bool skip = (name.find("1") != string::npos || name.find("2") != string::npos);
-  string pathname;
+  bool skip = (name.find("1") != std::string::npos || name.find("2") != std::string::npos);
+  std::string pathname;
   float nodata = 0.0;
   if (hdf5map.count("nodata"))
     nodata = to_float(hdf5map["nodata"], 0.0);
@@ -1089,7 +1088,7 @@ int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source, string pat
   bool haveCalibrationTable = false;
   if (calibrationTable.count("calibration_table_" + pathname))
     haveCalibrationTable = (calibrationTable["calibration_table_" + pathname].size() > 0);
-  vector<float> calibrationVector;
+  std::vector<float> calibrationVector;
   if (haveCalibrationTable)
     calibrationVector = calibrationTable["calibration_table_" + pathname];
 
@@ -1102,7 +1101,7 @@ int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source, string pat
   bool haveColorRange = false;
   if (calibrationTable.count("color_range_" + pathname))
     haveColorRange = (calibrationTable["color_range_" + pathname].size() > 0);
-  vector<float> color_range;
+  std::vector<float> color_range;
   if (haveColorRange)
     color_range = calibrationTable["color_range_" + pathname];
 
@@ -1112,8 +1111,8 @@ int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source, string pat
    * calibrationTable[color_range_image7]
    * This vectior is used to convert values to rgb values
    */
-  bool havePalette = ((ginfo.metadata.find("RGBPalette-") != string::npos) && (paletteStringMap.size() == 0));
-  vector<int> palette;
+  bool havePalette = ((ginfo.metadata.find("RGBPalette-") != std::string::npos) && (paletteStringMap.size() == 0));
+  std::vector<int> palette;
   if (havePalette) {
     if (chan == 0)
       palette = RPalette;
@@ -1129,21 +1128,21 @@ int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source, string pat
    * statmax_image9-image9:statistics:stat_max_value
    * MEOS MSG specific
    */
-  if (hdf5map.count(string("statmin_") + pathname)) {
-    if (hdf5map[string("statmin_") + pathname].length() > 0) {
+  if (hdf5map.count(std::string("statmin_") + pathname)) {
+    if (hdf5map[std::string("statmin_") + pathname].length() > 0) {
       if (invert) {
-        max = -1 * to_int(hdf5map[string("statmin_") + pathname]);
+        max = -1 * to_int(hdf5map[std::string("statmin_") + pathname]);
       } else {
-        min = to_int(hdf5map[string("statmin_") + pathname]);
+        min = to_int(hdf5map[std::string("statmin_") + pathname]);
       }
     }
   }
-  if (hdf5map.count(string("statmax_") + pathname)) {
-    if (hdf5map[string("statmax_") + pathname].length() > 0) {
+  if (hdf5map.count(std::string("statmax_") + pathname)) {
+    if (hdf5map[std::string("statmax_") + pathname].length() > 0) {
       if (invert) {
-        min = -1 * to_int(hdf5map[string("statmax_") + pathname]);
+        min = -1 * to_int(hdf5map[std::string("statmax_") + pathname]);
       } else {
-        max = to_int(hdf5map[string("statmax_") + pathname]);
+        max = to_int(hdf5map[std::string("statmax_") + pathname]);
       }
     }
   }
@@ -1205,7 +1204,7 @@ int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source, string pat
    * lookup table to convert value in HDF5 file to the RGB
    * value. This is MEOS MSG specific.
    */
-  vector<float> lookupTable;
+  std::vector<float> lookupTable;
   if (haveColorRange) {
     float value = color_range[0];
     for (size_t i = 0; i < color_range.size(); i++) {
@@ -1282,8 +1281,8 @@ int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source, string pat
 
   // Put min/max for array in hdf5map.
   // These are used in makeImage
-  hdf5map[string("max_") + from_number(chan)] = from_number(max);
-  hdf5map[string("min_") + from_number(chan)] = from_number(min);
+  hdf5map[std::string("max_") + from_number(chan)] = from_number(max);
+  hdf5map[std::string("min_") + from_number(chan)] = from_number(min);
 
   H5Dclose(dset);
   return 0;
@@ -1292,7 +1291,7 @@ int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source, string pat
 /**
  * Without original image for radar images
  */
-int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source, string path, string name, bool invert, float** float_data, int chan)
+int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source, std::string path, std::string name, bool invert, float** float_data, int chan)
 {
   METLIBS_LOG_SCOPE();
 
@@ -1313,7 +1312,7 @@ int metno::satimgh5::readDataFromDataset(dihead& ginfo, hid_t source, string pat
 /**
  * If an attribute is found in the current block it is written to the internal map structure.
  */
-int metno::satimgh5::getAttributeFromGroup(hid_t& dataset, int index, string path)
+int metno::satimgh5::getAttributeFromGroup(hid_t& dataset, int index, std::string path)
 {
 
   METLIBS_LOG_SCOPE();
@@ -1335,12 +1334,12 @@ int metno::satimgh5::getAttributeFromGroup(hid_t& dataset, int index, string pat
   int* int_array;
   size_t npoints = 0;
   herr_t ret = 0;
-  string value = "";
+  std::string value = "";
   H5T_class_t dclass;
   // NOTE: Must be large, H5Aread used and no control of overflow!
   char string_value[10240];
   char* tmpdataset;
-  vector<string> splitString;
+  std::vector<std::string> splitString;
 
   attr = H5Aopen_idx(dataset, index);
   atype = H5Aget_type(attr);
@@ -1373,7 +1372,7 @@ int metno::satimgh5::getAttributeFromGroup(hid_t& dataset, int index, string pat
       ret = H5Aread(attr, atype, string_value);
 
       if (!ret) {
-        value = string(string_value);
+        value = std::string(string_value);
       }
       break;
 
@@ -1385,7 +1384,7 @@ int metno::satimgh5::getAttributeFromGroup(hid_t& dataset, int index, string pat
         if (npoints > 1) {
           for (int i = 0; i < (int)npoints; i++) {
             value += from_number(float_array[i]);
-            insertIntoValueMap(path + string(memb) + "[" + from_number(i) + "]", from_number(float_array[i]));
+            insertIntoValueMap(path + std::string(memb) + "[" + from_number(i) + "]", from_number(float_array[i]));
           }
         } else {
           value = from_number(float_array[0]);
@@ -1451,9 +1450,9 @@ int metno::satimgh5::getAttributeFromGroup(hid_t& dataset, int index, string pat
           status = H5Aread(attr, palette_type, palette);
 
           bool addPalette = false;
-          for (map<string, string>::iterator p = metadataMap.begin(); p != metadataMap.end(); p++) {
+          for (std::map<std::string, std::string>::iterator p = metadataMap.begin(); p != metadataMap.end(); p++) {
             if (!p->first.empty()) {
-              if (p->first.find(path) != string::npos) {
+              if (p->first.find(path) != std::string::npos) {
                 addPalette = true;
               }
             }
@@ -1463,7 +1462,7 @@ int metno::satimgh5::getAttributeFromGroup(hid_t& dataset, int index, string pat
 
           if (addPalette) {
             for (size_t i = 0; i < dims[0]; i++) {
-              splitString = split(string(palette[i].str), ":", true);
+              splitString = split(std::string(palette[i].str), ":", true);
               if (splitString.size() == 2) {
                 paletteStringMap[to_int(splitString[0], 0)] = splitString[1];
                 METLIBS_LOG_DEBUG("splitString.size()==2 "
@@ -1491,7 +1490,7 @@ int metno::satimgh5::getAttributeFromGroup(hid_t& dataset, int index, string pat
       break;
     }
 
-  insertIntoValueMap(path + string(memb), value);
+  insertIntoValueMap(path + std::string(memb), value);
 
   H5Sclose(aspace);
   H5Tclose(atype);
@@ -1502,7 +1501,7 @@ int metno::satimgh5::getAttributeFromGroup(hid_t& dataset, int index, string pat
 /**
  * If a dataset is found the metadata part of the dataset is read. Support for compound datasets is included.
  */
-int metno::satimgh5::openDataset(hid_t root, string dataset, string path, string metadata)
+int metno::satimgh5::openDataset(hid_t root, std::string dataset, std::string path, std::string metadata)
 {
   METLIBS_LOG_SCOPE("dataset: " << dataset << " path: " << path);
   hid_t dset;
@@ -1533,8 +1532,8 @@ int metno::satimgh5::openDataset(hid_t root, string dataset, string path, string
   dtype = H5Dget_type(dset);
   dclass = H5Tget_class(dtype);
   native_type = H5Tget_native_type(dtype, H5T_DIR_DEFAULT);
-  vector<string> sPath = split(path, ":", true);
-  string dianaPath = metadataMap[path];
+  std::vector<std::string> sPath = split(path, ":", true);
+  std::string dianaPath = metadataMap[path];
 
   switch (dclass) {
   case H5T_COMPOUND:
@@ -1563,7 +1562,7 @@ int metno::satimgh5::openDataset(hid_t root, string dataset, string path, string
           H5Tget_array_dims2(memb_id, dims);
 
           for (size_t j = 0; j < dims[0]; j++) {
-            insertIntoValueMap("compound:" + path + "ARRAY[" + miutil::from_number(int(j)) + "]:" + string(memb), from_number(rdata[0].f[j], 20));
+            insertIntoValueMap("compound:" + path + "ARRAY[" + miutil::from_number(int(j)) + "]:" + std::string(memb), from_number(rdata[0].f[j], 20));
           }
 
           status = H5Dvlen_reclaim(floattype, space, H5P_DEFAULT, rdata);
@@ -1580,7 +1579,7 @@ int metno::satimgh5::openDataset(hid_t root, string dataset, string path, string
         status = H5Tinsert(comp, memb, 0, H5T_NATIVE_INT);
         status = H5Dread(dset, comp, H5S_ALL, H5S_ALL, H5P_DEFAULT, iary);
         status = H5Tclose(comp);
-        insertIntoValueMap("compound:" + path + string(memb), from_number(iary[0]));
+        insertIntoValueMap("compound:" + path + std::string(memb), from_number(iary[0]));
         break;
 
       case H5T_FLOAT:
@@ -1588,7 +1587,7 @@ int metno::satimgh5::openDataset(hid_t root, string dataset, string path, string
         status = H5Tinsert(comp, memb, 0, H5T_NATIVE_FLOAT);
         status = H5Dread(dset, comp, H5S_ALL, H5S_ALL, H5P_DEFAULT, fary);
         status = H5Tclose(comp);
-        insertIntoValueMap("compound:" + path + string(memb), from_number(fary[0]));
+        insertIntoValueMap("compound:" + path + std::string(memb), from_number(fary[0]));
         break;
 
       default:
@@ -1605,7 +1604,7 @@ int metno::satimgh5::openDataset(hid_t root, string dataset, string path, string
         status = H5Tclose(stype);
         status = H5Tclose(stid);
 
-        insertIntoValueMap("compound:" + path + string(memb), string(s3[0].str));
+        insertIntoValueMap("compound:" + path + std::string(memb), std::string(s3[0].str));
         break;
       }
       free(memb);
@@ -1654,10 +1653,10 @@ int metno::satimgh5::openDataset(hid_t root, string dataset, string path, string
         // Add only to palette if path in metadata
         // cerr << "addPalette: " << path << endl;
         bool addPalette = false;
-        for (map<string, string>::iterator p = metadataMap.begin(); p != metadataMap.end(); p++) {
+        for (std::map<std::string, std::string>::iterator p = metadataMap.begin(); p != metadataMap.end(); p++) {
           if (!p->first.empty()) {
             // cerr << "key: " << p->first << " value: " << p-> second << endl;
-            if (p->first.find(path) != string::npos) {
+            if (p->first.find(path) != std::string::npos) {
               if (p->second == "RGBPalette") {
                 addPalette = true;
               }
@@ -1708,7 +1707,7 @@ int metno::satimgh5::openDataset(hid_t root, string dataset, string path, string
  * If a group is found in the current block it is opened by this function that calls itself recursively to traverse subgroups.
  * This is the starting point for traversing a HDF5 file
  */
-int metno::satimgh5::openGroup(hid_t group, string groupname, string path, string metadata)
+int metno::satimgh5::openGroup(hid_t group, std::string groupname, std::string path, std::string metadata)
 {
 
   METLIBS_LOG_SCOPE("group: " << group << " groupname: " << groupname << " path: " << path << " metadata: " << metadata);
@@ -1718,7 +1717,7 @@ int metno::satimgh5::openGroup(hid_t group, string groupname, string path, strin
   int nrAttrs = 0;
   int obj_type = 0;
   H5G_stat_t statbuf;
-  string delimiter;
+  std::string delimiter;
 
   H5Gget_objinfo(group, groupname.c_str(), false, &statbuf);
   if (statbuf.type == H5G_GROUP) {
@@ -1739,14 +1738,14 @@ int metno::satimgh5::openGroup(hid_t group, string groupname, string path, strin
           delimiter = ":";
         else
           delimiter = "";
-        openGroup(root, tmpdataset, path + delimiter + string(tmpdataset), metadata);
+        openGroup(root, tmpdataset, path + delimiter + std::string(tmpdataset), metadata);
       } else if (obj_type == H5G_DATASET) {
         H5Gget_objname_by_idx(root, (hsize_t)i, tmpdataset, 80);
         if (path.length() > 0)
           delimiter = ":";
         else
           delimiter = "";
-        openDataset(root, tmpdataset, path + delimiter + string(tmpdataset), metadata);
+        openDataset(root, tmpdataset, path + delimiter + std::string(tmpdataset), metadata);
       }
     }
     H5Gclose(root);
@@ -1760,11 +1759,11 @@ int metno::satimgh5::openGroup(hid_t group, string groupname, string path, strin
 /**
  * Simple insert to the internal map structure.
  */
-int metno::satimgh5::insertIntoValueMap(string fullpath, string value)
+int metno::satimgh5::insertIntoValueMap(std::string fullpath, std::string value)
 {
   METLIBS_LOG_SCOPE("fullpath: " << fullpath << " value: " << value);
   // Special case for product
-  if (fullpath.find("product") != string::npos)
+  if (fullpath.find("product") != std::string::npos)
     replace(value, " ", "_");
   hdf5map[fullpath] = value;
   return 0;
@@ -1776,11 +1775,11 @@ int metno::satimgh5::insertIntoValueMap(string fullpath, string value)
 int metno::satimgh5::getAllValuesFromMap()
 {
   METLIBS_LOG_SCOPE();
-  for (map<string, string>::iterator p = hdf5map.begin(); p != hdf5map.end(); p++) {
+  for (std::map<std::string, std::string>::iterator p = hdf5map.begin(); p != hdf5map.end(); p++) {
     METLIBS_LOG_ERROR("Path: " << p->first << " Value: " << p->second);
   }
   if (calibrationTable.size() > 0) {
-    for (map<string, vector<float>>::iterator p = calibrationTable.begin(); p != calibrationTable.end(); p++) {
+    for (std::map<std::string, std::vector<float>>::iterator p = calibrationTable.begin(); p != calibrationTable.end(); p++) {
       if (!p->first.empty()) {
         for (size_t i = 0; i < p->second.size(); i++) {
           METLIBS_LOG_ERROR("Path: " << p->first << " Value: " << i << " Value: " << p->second[i]);
@@ -1807,7 +1806,7 @@ int metno::satimgh5::getAllValuesFromMap()
  * Returns true if the metadata in the file is read, false otherwise
  *
  */
-bool metno::satimgh5::checkMetadata(string filename, string metadata)
+bool metno::satimgh5::checkMetadata(std::string filename, std::string metadata)
 {
   if (!(hdf5map["filename"] == filename) || !(hdf5map["metadata"] == metadata)) {
     hdf5map.clear();
@@ -1821,7 +1820,7 @@ bool metno::satimgh5::checkMetadata(string filename, string metadata)
     hdf5map["metadata"] = metadata;
     const std::vector<std::string> metadataVector = split(metadata, ",", true);
     for (size_t i = 0; i < metadataVector.size(); i++) {
-      vector<string> metadataRows = split(metadataVector[i], "-", true);
+      std::vector<std::string> metadataRows = split(metadataVector[i], "-", true);
       if (metadataRows.size() == 2)
         metadataMap[metadataRows[1]] = metadataRows[0];
     }
@@ -1834,7 +1833,7 @@ bool metno::satimgh5::checkMetadata(string filename, string metadata)
  * Fills the internal structure dihead with metadata from the HDF5 metadata.
  * metadata in diana.setup is used as well
  */
-herr_t metno::satimgh5::fill_head_diana(string inputStr, int chan)
+herr_t metno::satimgh5::fill_head_diana(std::string inputStr, int chan)
 {
   METLIBS_LOG_SCOPE("inputStr:" << inputStr << " chan: " << chan);
 
@@ -1849,9 +1848,9 @@ herr_t metno::satimgh5::fill_head_diana(string inputStr, int chan)
    compound:region:ysize 1000
    */
 
-  vector<string> input;
-  vector<string> inputPart;
-  string value;
+  std::vector<std::string> input;
+  std::vector<std::string> inputPart;
+  std::string value;
   /*  bool startDateSet = false;
   bool startTimeSet = false;
   bool endDateSet = false;
@@ -1886,22 +1885,22 @@ herr_t metno::satimgh5::fill_head_diana(string inputStr, int chan)
 
   // extract proj
   if (hdf5map["projdef"].length() > 0) {
-    string projdef = hdf5map["projdef"];
+    std::string projdef = hdf5map["projdef"];
 
     replace(projdef, "+", "");
     replace(projdef, ",", " ");
     hdf5map["projdef"] = projdef;
 
-    vector<string> proj = split(projdef, " ", true);
+    std::vector<std::string> proj = split(projdef, " ", true);
 
     for (unsigned int i = 0; i < proj.size(); i++) {
-      vector<string> projParts = split(proj[i], "=", true);
+      std::vector<std::string> projParts = split(proj[i], "=", true);
       hdf5map[projParts[0]] = projParts[1];
     }
   }
 
-  if (hdf5map["projdef"].find("+") == string::npos) {
-    hdf5map["projdef"] = string("+") + hdf5map["projdef"];
+  if (hdf5map["projdef"].find("+") == std::string::npos) {
+    hdf5map["projdef"] = std::string("+") + hdf5map["projdef"];
     replace(hdf5map["projdef"], " ", " +");
   }
 
@@ -1912,38 +1911,38 @@ herr_t metno::satimgh5::fill_head_diana(string inputStr, int chan)
  * Converts datestrings with alpha months (JAN,FEB,...)
  * this is necessary since MEOS MSG files use JAN instead of 01 etc
  */
-string metno::satimgh5::convertAlphaDate(string date)
+std::string metno::satimgh5::convertAlphaDate(std::string date)
 {
 
-  if (date.find("JAN") != string::npos)
+  if (date.find("JAN") != std::string::npos)
     replace(date, "JAN", "01");
-  else if (date.find("FEB") != string::npos)
+  else if (date.find("FEB") != std::string::npos)
     replace(date, "FEB", "02");
-  else if (date.find("MAR") != string::npos)
+  else if (date.find("MAR") != std::string::npos)
     replace(date, "MAR", "03");
-  else if (date.find("APR") != string::npos)
+  else if (date.find("APR") != std::string::npos)
     replace(date, "APR", "04");
-  else if (date.find("MAY") != string::npos)
+  else if (date.find("MAY") != std::string::npos)
     replace(date, "MAY", "05");
-  else if (date.find("JUN") != string::npos)
+  else if (date.find("JUN") != std::string::npos)
     replace(date, "JUN", "06");
-  else if (date.find("JUL") != string::npos)
+  else if (date.find("JUL") != std::string::npos)
     replace(date, "JUL", "07");
-  else if (date.find("AUG") != string::npos)
+  else if (date.find("AUG") != std::string::npos)
     replace(date, "AUG", "08");
-  else if (date.find("SEP") != string::npos)
+  else if (date.find("SEP") != std::string::npos)
     replace(date, "SEP", "09");
-  else if (date.find("OCT") != string::npos)
+  else if (date.find("OCT") != std::string::npos)
     replace(date, "OCT", "10");
-  else if (date.find("NOV") != string::npos)
+  else if (date.find("NOV") != std::string::npos)
     replace(date, "NOV", "11");
-  else if (date.find("DEC") != string::npos)
+  else if (date.find("DEC") != std::string::npos)
     replace(date, "DEC", "12");
 
-  vector<string> tmpdate = split(date, " ", true);
+  std::vector<std::string> tmpdate = split(date, " ", true);
 
   if (tmpdate.size() == 2) {
-    vector<string> tmpdateparts = split(tmpdate[0], "-", true);
+    std::vector<std::string> tmpdateparts = split(tmpdate[0], "-", true);
     date = tmpdateparts[2] + "-" + tmpdateparts[1] + "-" + tmpdateparts[0] + " " + tmpdate[1];
   }
 
@@ -1953,14 +1952,14 @@ string metno::satimgh5::convertAlphaDate(string date)
 /**
  * Reads the metadata of the HDF5 file and fills the dihead with data
  */
-int metno::satimgh5::HDF5_head_diana(const string& infile, dihead& ginfo)
+int metno::satimgh5::HDF5_head_diana(const std::string& infile, dihead& ginfo)
 {
   METLIBS_LOG_TIME();
   hid_t file;
   //  char string_value[80];
   //  int npoints = 0;
   bool havePalette = false;
-  string channelName;
+  std::string channelName;
   // TODO: Fix this
   int chan = 1;
 
@@ -1979,7 +1978,7 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead& ginfo)
   fill_head_diana(ginfo.metadata, chan);
   // Check valid dateTime
   if (hdf5map.count("dateTime")) {
-    if (hdf5map["dateTime"].find("1970-01-01") != string::npos || hdf5map["dateTime"].length() == 0) {
+    if (hdf5map["dateTime"].find("1970-01-01") != std::string::npos || hdf5map["dateTime"].length() == 0) {
       hdf5map["dateTime"] = "";
     }
   } else {
@@ -2045,11 +2044,11 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead& ginfo)
   METLIBS_LOG_DEBUG("ginfo.paletteinfo: " << ginfo.paletteinfo);
 
   paletteMap.clear();
-  vector<string> paletteInfo = split(ginfo.paletteinfo, ",", true);
-  vector<string> paletteSteps;       // values in palette
-  vector<string> paletteColorVector; // steps in colormap for selected colors
+  std::vector<std::string> paletteInfo = split(ginfo.paletteinfo, ",", true);
+  std::vector<std::string> paletteSteps;       // values in palette
+  std::vector<std::string> paletteColorVector; // steps in colormap for selected colors
                                      // This values are defined in paletteinfo from setupfile
-  vector<string> paletteInfoRow;
+  std::vector<std::string> paletteInfoRow;
   // True if paletteinfo in setupfile contains value:color
   bool manualColors = false;
   for (unsigned int ari = 0; ari < paletteInfo.size(); ari++) {
@@ -2077,7 +2076,7 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead& ginfo)
   hdf5map["palette"] = "false";
   hdf5map["isBorder"] = "false";
   if (paletteSteps.size() > 0 || paletteStringMap.size() > 0) {
-    string unit = "";
+    std::string unit = "";
     if (paletteSteps.size())
       unit = paletteSteps[0];
     if ((unit == "border") && (paletteSteps.size() == 2)) {
@@ -2105,7 +2104,7 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead& ginfo)
       METLIBS_LOG_DEBUG("ginfo.noofcl: " << ginfo.noofcl);
       hdf5map["noofcl"] = from_number(ginfo.noofcl);
 #ifdef DEBUGPRINT
-      for (map<float, int>::iterator p = paletteMap.begin(); p != paletteMap.end(); p++)
+      for (std::map<float, int>::iterator p = paletteMap.begin(); p != paletteMap.end(); p++)
         METLIBS_LOG_DEBUG("paletteMap[" << p->first << "]: " << p->second);
 #endif
       int backcolour = 0;
@@ -2121,12 +2120,12 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead& ginfo)
 
   float denominator = 1.0;
   if (hdf5map.count("pixelscale")) {
-    if (!(hdf5map["pixelscale"].find("KM") != string::npos)) {
+    if (!(hdf5map["pixelscale"].find("KM") != std::string::npos)) {
       denominator = 1000.0;
     }
   } else if (ginfo.hdf5type == radar) {
     if (hdf5map.count("projdef")) {
-      if (hdf5map["projdef"].find("+units=m ") != string::npos) {
+      if (hdf5map["projdef"].find("+units=m ") != std::string::npos) {
         denominator = 1.0;
       } else
         denominator = 1000.0;
@@ -2178,7 +2177,7 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead& ginfo)
     ginfo.projection.setProj4Definition(hdf5map["projdef"]);
   } else {
     // FIXME this does not work, +units=km +x_0=.. +y_0=.. will be
-    // added below to an otherwise empty proj4 string
+    // added below to an otherwise empty proj4 std::string
     ginfo.projection = Projection();
   }
 
@@ -2230,7 +2229,7 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead& ginfo)
   ginfo.BIr = 0;
 
   // Dont add x_0 or y_0 if they are already there!
-  if (ginfo.projection.getProj4Definition().find("+x_0=") == string::npos) {
+  if (ginfo.projection.getProj4Definition().find("+x_0=") == std::string::npos) {
     std::ostringstream tmp_proj_string;
     tmp_proj_string << ginfo.projection.getProj4Definition();
     if (denominator == 1000.0)
@@ -2252,13 +2251,13 @@ int metno::satimgh5::HDF5_head_diana(const string& infile, dihead& ginfo)
     return 0;
 }
 
-bool metno::satimgh5::makePalette(dihead& ginfo, string unit, int backcolour, vector<string> colorvector, bool manualcolors)
+bool metno::satimgh5::makePalette(dihead& ginfo, std::string unit, int backcolour, std::vector<std::string> colorvector, bool manualcolors)
 {
   /*if (ginfo.noofcl == 255) {
     return false;
   }*/
   int k = 0;
-  string* pal_name = new string[ginfo.noofcl];
+  std::string* pal_name = new std::string[ginfo.noofcl];
   if (paletteStringMap.size()) {
     // cerr << "paletteStringMap.size(): " << paletteStringMap.size() << endl;
     int pSize = paletteStringMap.size();
@@ -2267,12 +2266,12 @@ bool metno::satimgh5::makePalette(dihead& ginfo, string unit, int backcolour, ve
       pal_name[i - 1] = paletteStringMap[i];
     }
   } else {
-    for (map<float, int>::iterator p = paletteMap.begin(); p != paletteMap.end(); p++) {
+    for (std::map<float, int>::iterator p = paletteMap.begin(); p != paletteMap.end(); p++) {
       pal_name[p->second] = from_number(p->first);
       if (p->second > 0)
-        pal_name[p->second - 1] += string("-") + from_number(p->first) + string(" ") + unit;
+        pal_name[p->second - 1] += std::string("-") + from_number(p->first) + std::string(" ") + unit;
     }
-    pal_name[ginfo.noofcl - 2] = string(">") + pal_name[ginfo.noofcl - 2] + string(" ") + unit;
+    pal_name[ginfo.noofcl - 2] = std::string(">") + pal_name[ginfo.noofcl - 2] + std::string(" ") + unit;
     pal_name[ginfo.noofcl - 1] = "No Value";
   }
 
@@ -2287,7 +2286,7 @@ bool metno::satimgh5::makePalette(dihead& ginfo, string unit, int backcolour, ve
   unsigned short int blue[256];
   unsigned short int red[256];
   unsigned short int green[256];
-  bool haveHDFPalette = (ginfo.metadata.find("RGBPalette-") != string::npos);
+  bool haveHDFPalette = (ginfo.metadata.find("RGBPalette-") != std::string::npos);
   if (haveHDFPalette) {
     for (int i = 0; i < ginfo.noofcl; i++) {
       ginfo.cmap[0][i] = RPalette[i];
@@ -2346,7 +2345,7 @@ bool metno::satimgh5::makePalette(dihead& ginfo, string unit, int backcolour, ve
     // Take nice values from the palette and put them in the colormap
     for (int i = 1; i < ginfo.noofcl; i++) {
       if (manualcolors) {
-        if (colorvector[i].find("0x") != string::npos) {
+        if (colorvector[i].find("0x") != std::string::npos) {
           unsigned int rgb = strtoul(colorvector[i].c_str(), NULL, 16);
           METLIBS_LOG_DEBUG("RGB: " << rgb);
           ginfo.cmap[0][i] = (rgb >> 16) & 0xFF;

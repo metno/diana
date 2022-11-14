@@ -43,11 +43,10 @@
 
 using namespace d_print;
 using namespace::miutil;
-using namespace std;
 
-vector<printerManager::printerExtra> printerManager::printers;
-map<std::string,d_print::PageSize> printerManager::pages;
-map<d_print::PageSize,d_print::PaperSize> printerManager::pagesizes;
+std::vector<printerManager::printerExtra> printerManager::printers;
+std::map<std::string,d_print::PageSize> printerManager::pages;
+std::map<d_print::PageSize,d_print::PaperSize> printerManager::pagesizes;
 std::string printerManager::pcommand;
 
 /*
@@ -91,14 +90,14 @@ std::string printerManager::pcommand;
 */
 void printOptions::printPrintOptions()
 {
-  cerr << "printOptions: " << endl;
-  cerr << fname << " name of output file" << endl;
-  cerr << printer << " name of printer" << endl;
-  cerr << orientation << " paper-orientation" << endl;
-  cerr << colop << " use of colour" << endl;
-  cerr << pagesize << " pagesize in standard notation" << endl;
-  cerr << papersize.hsize << ", " << papersize.vsize << " size of paper in mm" << endl;
-  cerr << usecustomsize << " use papersize instead of pagesize" << endl;
+  std::cerr << "printOptions: " << std::endl;
+  std::cerr << fname << " name of output file" << std::endl;
+  std::cerr << printer << " name of printer" << std::endl;
+  std::cerr << orientation << " paper-orientation" << std::endl;
+  std::cerr << colop << " use of colour" << std::endl;
+  std::cerr << pagesize << " pagesize in standard notation" << std::endl;
+  std::cerr << papersize.hsize << ", " << papersize.vsize << " size of paper in mm" << std::endl;
+  std::cerr << usecustomsize << " use papersize instead of pagesize" << std::endl;
 }
 
 printerManager::printerManager()
@@ -210,8 +209,8 @@ bool printerManager::readPrinterInfo(const std::string fname)
 
   int j=-1;
   std::string s;
-  string comkey,com;
-  vector<std::string> vs, vvs;
+  std::string comkey,com;
+  std::vector<std::string> vs, vvs;
   bool incom= false;
 
   while (getline(file,s)){
@@ -280,7 +279,7 @@ PaperSize printerManager::getSize(const PageSize ps)// size from page
 }
 
 bool printerManager::checkSpecial(const printOptions& po,
-				  map<string,string>& mc)
+				  std::map<std::string,std::string>& mc)
 {
   if (!printers.size()) return false;
   mc.clear();
@@ -305,7 +304,7 @@ bool printerManager::checkSpecial(const printOptions& po,
 bool printerManager::parseSetup() {
 
   std::string section="PRINTING";
-  vector<std::string> vstr;
+  std::vector<std::string> vstr;
 
   const std::string key_command=   "printcommand";
   const std::string key_manualcom= "manualcommands";
@@ -322,7 +321,7 @@ bool printerManager::parseSetup() {
   int i,n,nv,nvstr=vstr.size();
 
   for (nv=0; nv<nvstr; nv++) {
-    vector<std::string> tokens= miutil::split(vstr[nv], ",", true);
+    std::vector<std::string> tokens= miutil::split(vstr[nv], ",", true);
     n= tokens.size();
     std::string name;
 

@@ -33,10 +33,9 @@
 
 #include <puTools/miStringFunctions.h>
 
-using namespace std;
 
-map<std::string,ColourShading> ColourShading::pmap;
-vector<ColourShading::ColourShadingInfo> ColourShading::colourshadings;
+std::map<std::string,ColourShading> ColourShading::pmap;
+std::vector<ColourShading::ColourShadingInfo> ColourShading::colourshadings;
 
 ColourShading::ColourShading(const std::string& name_)
 {
@@ -44,7 +43,7 @@ ColourShading::ColourShading(const std::string& name_)
   memberCopy(pmap[lname]);
 }
 
-ColourShading::ColourShading(const std::string& name_, const vector<Colour>& colours_)
+ColourShading::ColourShading(const std::string& name_, const std::vector<Colour>& colours_)
 {
   name = miutil::to_lower(name_);
   colours = colours_;
@@ -91,7 +90,7 @@ void ColourShading::memberCopy(const ColourShading& rhs)
   name      = rhs.name;
 }
 
-void ColourShading::define(const std::string& name_, const vector<Colour>& colours_)
+void ColourShading::define(const std::string& name_, const std::vector<Colour>& colours_)
 {
   std::string lname= miutil::to_lower(name_);
   ColourShading p(lname, colours_);
@@ -101,7 +100,7 @@ void ColourShading::define(const std::string& name_, const vector<Colour>& colou
 void ColourShading::defineColourShadingFromString(const std::string& str)
 {
   const auto token = miutil::split(str, ",");
-  vector<Colour> colours;
+  std::vector<Colour> colours;
   colours.reserve(token.size());
   for (const auto& t : token) {
     colours.push_back(Colour(t));
@@ -120,7 +119,7 @@ std::vector<Colour> ColourShading::adaptColourShading(std::vector<Colour>& colou
   if (ncol<2)
     return colours;
 
-  vector<Colour> vcol;
+  std::vector<Colour> vcol;
   if (n < ncol) { //remove colours
 
     int step = ncol/n;
@@ -147,13 +146,13 @@ std::vector<Colour> ColourShading::adaptColourShading(std::vector<Colour>& colou
   return vcol;
 }
 
-vector<Colour> ColourShading::getColourShading(int n)
+std::vector<Colour> ColourShading::getColourShading(int n)
 {
   return adaptColourShading(colours, n);
 }
 
 // static
-void ColourShading::morecols(vector<Colour>& vcol, const Colour& col1,
+void ColourShading::morecols(std::vector<Colour>& vcol, const Colour& col1,
     const Colour& col2, int n)
 {
   //add (n+1) colours to vcol, including col1

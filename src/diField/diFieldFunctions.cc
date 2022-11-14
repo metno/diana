@@ -53,13 +53,12 @@
 #define ENABLE_FIELDFUNCTIONS_TIMING 1
 
 using namespace miutil;
-using namespace std;
 
 #define MILOGGER_CATEGORY "diField.FieldFunctions"
 #include "miLogger/miLogging.h"
 
 // static data (setup)
-vector<FieldFunctions::FieldCompute> FieldFunctions::vFieldCompute;
+std::vector<FieldFunctions::FieldCompute> FieldFunctions::vFieldCompute;
 
 FieldFunctions::FieldFunctions()
 {
@@ -305,33 +304,33 @@ static const FieldFunctions::FunctionHelper functions[] {
 };
 
 // static member
-bool FieldFunctions::parseComputeSetup(const vector<std::string>& lines, vector<std::string>& errors)
+bool FieldFunctions::parseComputeSetup(const std::vector<std::string>& lines, std::vector<std::string>& errors)
 {
   METLIBS_LOG_SCOPE();
 
   vFieldCompute.clear();
 
   // parse setup
-  map<std::string, int> compute;
+  std::map<std::string, int> compute;
   compute["add"] = 0;
   compute["subtract"] = 1;
   compute["multiply"] = 2;
   compute["divide"] = 3;
-  map<std::string, int>::const_iterator pc, pcend = compute.end();
+  std::map<std::string, int>::const_iterator pc, pcend = compute.end();
 
   const FunctionHelper* pf = nullptr;
 
   const int nlines = lines.size();
   for (int l = 0; l < nlines; l++) {
     const std::string& oneline = lines[l];
-    const vector<std::string> vstr = miutil::split(oneline, 0, " ", true);
+    const std::vector<std::string> vstr = miutil::split(oneline, 0, " ", true);
     int n = vstr.size();
     for (int i = 0; i < n; i++) {
       bool err = true;
-      const vector<std::string> vspec = miutil::split(vstr[i], 1, "=", false);
+      const std::vector<std::string> vspec = miutil::split(vstr[i], 1, "=", false);
       if (vspec.size() == 2) {
         const size_t p1 = vspec[1].find('('), p2 = vspec[1].find(')');
-        if (p1 != string::npos && p2 != string::npos && p1 > 0 && p1 < p2 - 1) {
+        if (p1 != std::string::npos && p2 != std::string::npos && p1 > 0 && p1 < p2 - 1) {
           const std::string functionName = vspec[1].substr(0, p1);
           const std::string functionName_lc = miutil::to_lower(functionName);
           const std::string str = vspec[1].substr(p1 + 1, p2 - p1 - 1);
@@ -344,7 +343,7 @@ bool FieldFunctions::parseComputeSetup(const vector<std::string>& lines, vector<
           // First check if function is a simple calculation
           if ((pc = compute.find(functionName)) != pcend) {
             fcomp.results.push_back(fcomp.name);
-            const vector<std::string> vpart = miutil::split(str, 1, ",");
+            const std::vector<std::string> vpart = miutil::split(str, 1, ",");
             if (vpart.size() == 2) {
               bool b0 = miutil::is_number(vpart[0]);
               bool b1 = miutil::is_number(vpart[1]);
@@ -373,7 +372,7 @@ bool FieldFunctions::parseComputeSetup(const vector<std::string>& lines, vector<
             fcomp.function = fh.func;
             fcomp.func = &fh;
             // check function arguments
-            vector<std::string> vpart = miutil::split(str, 0, ",", false);
+            std::vector<std::string> vpart = miutil::split(str, 0, ",", false);
             int npart = vpart.size();
             int numf = fh.numfields();
             int numc = fh.numconsts();
@@ -436,13 +435,13 @@ bool FieldFunctions::splitFieldSpecs(const std::string& paramName,FieldSpec& fs)
 {
   fs.use_standard_name = false;
   fs.paramName = paramName;
-  if (paramName.find(':')==string::npos)
+  if (paramName.find(':')==std::string::npos)
     return false;
 
   bool levelSpecified= false;
-  vector<std::string> vs= miutil::split(paramName, 0, ":");
+  std::vector<std::string> vs= miutil::split(paramName, 0, ":");
   fs.paramName= vs[0];
-  vector<std::string> vp;
+  std::vector<std::string> vp;
   for (size_t i=1; i<vs.size(); i++) {
     vp= miutil::split(vs[i], 0, "=");
     if ( vp[0]=="level" ) {
@@ -530,9 +529,9 @@ bool FieldFunctions::fieldComputer(Function function, const std::vector<float>& 
   int ny = vfinput[0]->area.ny;
   int fsize = nx * ny;
 
-  vector<float*> finp;
-  vector<miutil::ValuesDefined> fdefin;
-  vector<float*> fout;
+  std::vector<float*> finp;
+  std::vector<miutil::ValuesDefined> fdefin;
+  std::vector<float*> fout;
 
   bool ok = true;
 

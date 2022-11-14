@@ -58,7 +58,6 @@
 #define MILOGGER_CATEGORY "diana.Utility"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 
 int getIndex(const std::vector<std::string>& vstr, const std::string& def_str)
 {
@@ -201,7 +200,7 @@ QComboBox* ComboBox(QWidget* parent, QColor* pixcolor, int nr_colors, bool Enabl
 
 QComboBox* ColourBox( QWidget* parent, bool Enabled, int defItem, const std::string& firstItem, bool name)
 {
-  vector<Colour::ColourInfo> cInfo = Colour::getColourInfo();
+  std::vector<Colour::ColourInfo> cInfo = Colour::getColourInfo();
   return ColourBox(parent, cInfo, Enabled, defItem, firstItem, name);
 }
 
@@ -213,7 +212,7 @@ static void ExpandColourBox(QComboBox* box, const QColor& pixcolor, const QStrin
   box->addItem(qicon, name, pixcolor);
 }
 
-void installColours(QComboBox* box, const vector<Colour::ColourInfo>& cInfo, bool name)
+void installColours(QComboBox* box, const std::vector<Colour::ColourInfo>& cInfo, bool name)
 {
   const int nr_colors= cInfo.size();
   for (int t=0; t<nr_colors; t++) {
@@ -222,7 +221,7 @@ void installColours(QComboBox* box, const vector<Colour::ColourInfo>& cInfo, boo
   }
 }
 
-QComboBox* ColourBox(QWidget* parent, const vector<Colour::ColourInfo>& cInfo,
+QComboBox* ColourBox(QWidget* parent, const std::vector<Colour::ColourInfo>& cInfo,
     bool Enabled, int defItem, const std::string& firstItem, bool name)
 {
   QComboBox* box = new QComboBox(parent);
@@ -290,7 +289,7 @@ void installPalette(QComboBox* box, const std::vector<ColourShading::ColourShadi
   }
 }
 
-QComboBox* PaletteBox( QWidget* parent, const vector<ColourShading::ColourShadingInfo>& csInfo,
+QComboBox* PaletteBox( QWidget* parent, const std::vector<ColourShading::ColourShadingInfo>& csInfo,
     bool Enabled, int defItem, const std::string& firstItem, bool name)
 {
   QComboBox* box = new QComboBox( parent );
@@ -326,7 +325,7 @@ void ExpandPaletteBox( QComboBox* box, const ColourShading& palette )
   box->addItem(qicon,qs);
 }
 
-QComboBox* PatternBox(QWidget* parent, const vector<Pattern::PatternInfo>& patternInfo,
+QComboBox* PatternBox(QWidget* parent, const std::vector<Pattern::PatternInfo>& patternInfo,
     bool Enabled, int defItem, const std::string& firstItem, bool name)
 {
   QComboBox* box = new QComboBox( parent );
@@ -429,7 +428,7 @@ XPM X11 Pixmap Read/write
 
   ImageGallery ig;
 
-  vector<std::string> name;
+  std::vector<std::string> name;
   ig.ImageNames(name,ImageGallery::marker);
 
   int n=name.size();

@@ -42,7 +42,6 @@
 #define MILOGGER_CATEGORY "diField.GridIO"
 #include "miLogger/miLogging.h"
 
-using namespace std;
 
 namespace {
 
@@ -62,7 +61,7 @@ GridIO::~GridIO()
 
 const gridinventory::ReftimeInventory & GridIO::getReftimeInventory(const std::string reftime) const
 {
-  const map<std::string, gridinventory::ReftimeInventory>::const_iterator ritr = inventory.reftimes.find(reftime);
+  const std::map<std::string, gridinventory::ReftimeInventory>::const_iterator ritr = inventory.reftimes.find(reftime);
   if (ritr != inventory.reftimes.end())
     return ritr->second;
   static const gridinventory::ReftimeInventory EMPTY_REFTIMEINVENTORY;

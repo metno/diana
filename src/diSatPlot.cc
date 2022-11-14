@@ -43,7 +43,6 @@
 #include <miLogger/miLogging.h>
 
 using namespace::miutil;
-using namespace std;
 
 SatPlot::SatPlot(SatPlotCommand_cp cmd, SatManager* satm)
     : SatPlotBase(cmd)
@@ -128,7 +127,7 @@ void SatPlot::plot(DiGLPainter* gl, PlotOrder porder)
   gl->drawScreenImage(QPointF(0, 0), rs.rasterPaint());
 }
 
-void SatPlot::getDataAnnotations(vector<string>& anno) const
+void SatPlot::getDataAnnotations(std::vector<std::string>& anno) const
 {
   if (!isEnabled() || !hasData())
     return;

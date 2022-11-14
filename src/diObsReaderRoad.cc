@@ -45,7 +45,6 @@
 #include <miLogger/miLogging.h>
 
 using namespace miutil;
-using namespace std;
 
 ObsReaderRoad::ObsReaderRoad()
 {

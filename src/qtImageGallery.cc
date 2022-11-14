@@ -41,7 +41,6 @@
 #define MILOGGER_CATEGORY "diana.ImageGallery"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 
 std::map<std::string, QImage> QtImageGallery::Images;
 
@@ -94,7 +93,7 @@ bool QtImageGallery::addImageToGallery(const std::string& name, const QImage& im
 
 bool QtImageGallery::addImageToGallery(const std::string& name, const std::string& imageStr)
 {
-  vector<string> vs = miutil::split(imageStr," ");
+  std::vector<std::string> vs = miutil::split(imageStr," ");
   int n=vs.size();
   QByteArray a(n,' ');
   for (int i=0; i<n; i++)
@@ -191,7 +190,7 @@ bool QtImageGallery::delImage(const std::string& name)
   return true;
 }
 
-void QtImageGallery::ImageNames(vector<std::string>& vnames) const
+void QtImageGallery::ImageNames(std::vector<std::string>& vnames) const
 {
   vnames.clear();
 

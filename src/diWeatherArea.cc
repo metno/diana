@@ -48,12 +48,11 @@
 #include <miLogger/miLogging.h>
 
 using namespace ::miutil;
-using namespace std;
 
 static const float RAD_TO_DEG = 180 / M_PI;
 
-vector<editToolInfo> WeatherArea::allAreas; //info about areas
-map<std::string, int> WeatherArea::areaTypes; //finds area type number from name
+std::vector<editToolInfo> WeatherArea::allAreas; //info about areas
+std::map<std::string, int> WeatherArea::areaTypes; //finds area type number from name
 float WeatherArea::defaultLineWidth = 4;
 
 WeatherArea::WeatherArea()
@@ -122,7 +121,7 @@ void WeatherArea::swap(WeatherArea& rhs)
   swap(yplot, rhs.yplot);
 }
 
-void WeatherArea::defineAreas(vector<editToolInfo> areas)
+void WeatherArea::defineAreas(std::vector<editToolInfo> areas)
 {
   WeatherArea::allAreas = areas;
   for (unsigned int i = 0; i < areas.size(); i++)
@@ -486,9 +485,9 @@ bool WeatherArea::isInsideArea(float x, float y)
   return false;
 }
 
-string WeatherArea::writeTypeString()
+std::string WeatherArea::writeTypeString()
 {
-  string ret = "Object=Area;\n";
+  std::string ret = "Object=Area;\n";
   ret += "Type=";
   ret += allAreas[type].name;
   ret += ";\n";

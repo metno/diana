@@ -64,13 +64,12 @@
 #define MILOGGER_CATEGORY "diana.FieldDialogStyle"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 
 namespace { // anonymous
 
 const std::string OFF = "off";
 
-vector<std::string> numberList(QComboBox* cBox, float number, bool onoff)
+std::vector<std::string> numberList(QComboBox* cBox, float number, bool onoff)
 {
   const float enormal[] = {1., 1.5, 2., 2.5, 3., 3.5, 4., 4.5, 5., 5.5, 6., 6.5, 7., 7.5, 8., 8.5, 9., 9.5, -1};
   return diutil::numberList(cBox, number, enormal, onoff);
@@ -1301,9 +1300,9 @@ inline std::string sub(const std::string& s, std::string::size_type begin, std::
   return s.substr(begin, end - begin);
 }
 
-vector<std::string> FieldDialogStyle::writeLog()
+std::vector<std::string> FieldDialogStyle::writeLog()
 {
-  vector<std::string> vstr;
+  std::vector<std::string> vstr;
 
   // write used field options
   for (const auto& fo : fieldOptions) {

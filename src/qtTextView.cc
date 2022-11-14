@@ -35,7 +35,6 @@
 #include <QTabWidget>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
-using namespace std;
 
 TextWidget::TextWidget(QWidget* parent, const std::string& text, int id_)
   : QWidget(parent)

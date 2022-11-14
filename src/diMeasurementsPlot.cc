@@ -42,7 +42,6 @@
 #define MILOGGER_CATEGORY "diana.MeasurementsPlot"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 using namespace miutil;
 
 MeasurementsPlot::MeasurementsPlot()
@@ -93,14 +92,14 @@ void MeasurementsPlot::reproject()
   getStaticPlot()->GeoToMap(nlon, xpos, ypos);
 }
 
-void MeasurementsPlot::measurementsPos(const vector<string>& vstr)
+void MeasurementsPlot::measurementsPos(const std::vector<std::string>& vstr)
 {
   METLIBS_LOG_SCOPE();
 
   for (const std::string& pin : vstr) {
     METLIBS_LOG_DEBUG(LOGVAL(pin));
     for (const std::string& tok : miutil::split_protected(pin, '"', '"')) {
-      const vector<std::string> stokens = miutil::split(tok, 0, "=");
+      const std::vector<std::string> stokens = miutil::split(tok, 0, "=");
       if (stokens.empty())
         continue;
       const std::string key = miutil::to_lower(stokens[0]);
@@ -114,7 +113,7 @@ void MeasurementsPlot::measurementsPos(const vector<string>& vstr)
       } else if (stokens.size() == 2) {
         const std::string value = miutil::to_lower(stokens[1]);
         if (key == "longitudelatitude" ||key == "latitudelongitude") {
-          const vector<std::string> ll = miutil::split(value, 0, ",");
+          const std::vector<std::string> ll = miutil::split(value, 0, ",");
           const int npos = ll.size()/2;
           if (key == "longitudelatitude" ) {
             for (int i=0; i<npos; i++) {

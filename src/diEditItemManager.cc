@@ -67,7 +67,6 @@
 
 #define PLOTM PlotModule::instance()
 
-using namespace std;
 using namespace miutil;
 
 namespace {
@@ -200,7 +199,7 @@ EditItemManager *EditItemManager::instance()
 
 bool EditItemManager::parseSetup()
 {
-  vector<string> section;
+  std::vector<std::string> section;
 
   if (!SetupParser::getSection("DRAWING", section))
     METLIBS_LOG_WARN("No DRAWING section.");
@@ -208,11 +207,11 @@ bool EditItemManager::parseSetup()
   for (unsigned int i = 0; i < section.size(); ++i) {
 
     // Split the line into tokens.
-    vector<string> tokens = miutil::split_protected(section[i], '\"', '\"', " ", true);
+    std::vector<std::string> tokens = miutil::split_protected(section[i], '\"', '\"', " ", true);
     QHash<QString, QString> items;
 
     for (unsigned int j = 0; j < tokens.size(); ++j) {
-      string key, value;
+      std::string key, value;
       SetupParser::splitKeyValue(tokens[j], key, value);
       items[QString::fromStdString(key)] = QString::fromStdString(value);
     }

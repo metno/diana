@@ -53,7 +53,6 @@
 #define MILOGGER_CATEGORY "diana.FieldPlotManager"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 using namespace miutil;
 
 struct PlotFieldInput
@@ -155,7 +154,7 @@ void yaml_kvs(YAML::Node& ops, const miutil::KeyValue_v& kvs)
 struct LoopKey
 {
   std::string key;
-  vector<std::string> values;
+  std::vector<std::string> values;
 };
 
 class Loop
@@ -202,7 +201,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
   METLIBS_LOG_SCOPE();
 
   std::string sect_name = "FIELD_PLOT";
-  vector<std::string> lines;
+  std::vector<std::string> lines;
 
   if (!SetupParser::getSection(sect_name, lines)) {
     METLIBS_LOG_WARN(sect_name << " section not found");
@@ -244,7 +243,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
 
     if (waiting) {
       if (key == key_loop && n >= 4) {
-        vector<std::string> vpar;
+        std::vector<std::string> vpar;
         for (unsigned int i = 3; i < vstr.size(); i++) {
           vpar.push_back(diutil::quote_removed(vstr[i]));
         }
@@ -364,9 +363,9 @@ bool FieldPlotManager::parseFieldPlotSetup()
       for (int m = -1; m < ml; m++) {
         std::string name;
         std::string fieldgroup;
-        vector<std::string> input;
+        std::vector<std::string> input;
         std::string inputstr;
-        set<std::string> vcoord;
+        std::set<std::string> vcoord;
         std::string vctype_text;
         FieldVerticalAxes::VerticalType vctype = FieldVerticalAxes::vctype_none;
 
@@ -485,7 +484,7 @@ bool FieldPlotManager::parseFieldPlotSetup()
 bool FieldPlotManager::parseFieldGroupSetup()
 {
   std::string sect_name = "FIELD_GROUPS";
-  vector<std::string> lines;
+  std::vector<std::string> lines;
 
   if (!SetupParser::getSection(sect_name, lines)) {
     METLIBS_LOG_WARN(sect_name << " section not found");
@@ -498,9 +497,9 @@ bool FieldPlotManager::parseFieldGroupSetup()
   int nlines = lines.size();
 
   for (int l = 0; l < nlines; l++) {
-    vector<std::string> tokens= miutil::split_protected(lines[l], '"','"');
+    std::vector<std::string> tokens= miutil::split_protected(lines[l], '"','"');
     if ( tokens.size()== 2 ) {
-      vector<std::string> stokens= miutil::split_protected(tokens[0], '"','"',"=",true);
+      std::vector<std::string> stokens= miutil::split_protected(tokens[0], '"','"',"=",true);
       if (stokens.size() == 2 && stokens[0] == key_name ){
         std::string name = stokens[1];
         stokens= miutil::split_protected(tokens[1], '"','"',"=",true);
@@ -520,13 +519,13 @@ bool FieldPlotManager::updateFieldFileSetup(const std::vector<std::string>& line
 }
 
 // static
-vector<std::string> FieldPlotManager::splitComStr(const std::string& s, bool splitall)
+std::vector<std::string> FieldPlotManager::splitComStr(const std::string& s, bool splitall)
 {
   // split commandstring into tokens.
   // split on '=', ',' and multiple blanks, keep blocks within () and ""
   // split on ',' only if <splitall> is true
 
-  vector<std::string> tmp;
+  std::vector<std::string> tmp;
 
   int i = 0, j = 0, n = s.size();
   if (n) {
@@ -610,7 +609,7 @@ miTime FieldPlotManager::getFieldReferenceTime(FieldPlotCommand_cp cmd)
 
   std::string plotName;
   FieldRequest frq;
-  vector<std::string> paramNames;
+  std::vector<std::string> paramNames;
   parseString(cmd, cmd->field, frq, paramNames, plotName);
 
   const std::string timestr = fieldManager->getBestReferenceTime(frq.modelName, frq.refoffset, frq.refhour);
@@ -648,7 +647,7 @@ void FieldPlotManager::getCapabilitiesTime(plottimes_t& normalTimes, int& timedi
   METLIBS_LOG_DEBUG("no. of times"<<normalTimes.size());
 }
 
-vector<std::string> FieldPlotManager::getFieldLevels(FieldPlotCommand_cp cmd)
+std::vector<std::string> FieldPlotManager::getFieldLevels(FieldPlotCommand_cp cmd)
 {
   std::vector<std::string> levels;
 
@@ -713,7 +712,7 @@ void FieldPlotManager::updateFieldReferenceTimes(const std::string& model)
   fieldManager->updateGridCollection(model);
 }
 
-set<std::string> FieldPlotManager::getFieldReferenceTimes(const std::string& model)
+std::set<std::string> FieldPlotManager::getFieldReferenceTimes(const std::string& model)
 {
   return fieldManager->getReferenceTimes(model);
 }
@@ -934,7 +933,7 @@ void FieldPlotManager::getFieldPlotGroups(const std::string& modelName, const st
   vfgi.clear();
 
   const std::map<std::string, FieldPlotInfo>& fieldInfo = fieldManager->getFieldPlotInfo(modelName, refTime);
-  map<std::string, FieldPlotGroupInfo> mfgi;
+  std::map<std::string, FieldPlotGroupInfo> mfgi;
 
   if (!predefinedPlots) {
     for (const auto& vi : fieldInfo) {
@@ -952,7 +951,7 @@ void FieldPlotManager::getFieldPlotGroups(const std::string& modelName, const st
 
       size_t ninput = 0; // number of input fields found
       for (const auto& input : pf->input) {
-        map<std::string, FieldPlotInfo>::const_iterator ip;
+        std::map<std::string, FieldPlotInfo>::const_iterator ip;
         if (input.is_standard_name) {
           ip = fieldInfo.begin();
           while (ip != fieldInfo.end() && ip->second.standard_name != input.name)
@@ -1083,7 +1082,7 @@ void FieldPlotManager::parsePin(FieldPlotCommand_cp cmd, const FieldPlotCommand:
   METLIBS_LOG_SCOPE(LOGVAL(cmd->toString()));
 
   FieldRequest fieldrequest;
-  vector<std::string> paramNames;
+  std::vector<std::string> paramNames;
   parseString(cmd, fs, fieldrequest, paramNames, plotName);
 
   // plotName -> fieldName
@@ -1103,7 +1102,7 @@ bool FieldPlotManager::writeField(const FieldRequest& fieldrequest, Field_cp fie
   return fieldManager->writeField(fieldrequest, field);
 }
 
-vector<FieldRequest> FieldPlotManager::getParamNames(const std::string& plotName, FieldRequest fieldrequest)
+std::vector<FieldRequest> FieldPlotManager::getParamNames(const std::string& plotName, FieldRequest fieldrequest)
 {
   // search through vPlotField
   // Same plotName can be used for plots with different vertical levels.
@@ -1114,7 +1113,7 @@ vector<FieldRequest> FieldPlotManager::getParamNames(const std::string& plotName
 
   // If plotName is not found, use paramName = plotName
 
-  vector<FieldRequest> vfieldrequest;
+  std::vector<FieldRequest> vfieldrequest;
   const FieldVerticalAxes::Zaxis_info* zaxi = FieldVerticalAxes::findZaxisInfo(fieldrequest.zaxis);
   bool z_fr_is_pressure = zaxi && (zaxi->vctype == FieldVerticalAxes::vctype_pressure);
   for (PlotField_p pf : vPlotField) {
@@ -1167,11 +1166,11 @@ void FieldPlotManager::getSetupFieldOptions(std::map<std::string, miutil::KeyVal
 
 void FieldPlotManager::getFieldPlotOptions(const std::string& name, PlotOptions& po, miutil::KeyValue_v& fdo) const
 {
-  map<std::string, PlotOptions>::const_iterator p = fieldPlotOptions.find(name);
+  std::map<std::string, PlotOptions>::const_iterator p = fieldPlotOptions.find(name);
   if (p != fieldPlotOptions.end()) {
     po = p->second;
   }
-  map<std::string, miutil::KeyValue_v>::const_iterator ido = fieldDataOptions.find(name);
+  std::map<std::string, miutil::KeyValue_v>::const_iterator ido = fieldDataOptions.find(name);
   if (ido != fieldDataOptions.end()) {
     fdo = ido->second;
   }

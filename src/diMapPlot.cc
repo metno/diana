@@ -44,7 +44,6 @@
 #define MILOGGER_CATEGORY "diana.MapPlot"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 using namespace miutil;
 
 namespace {
@@ -70,8 +69,8 @@ bool calculateGeogridParameters(const Projection& p, const Rectangle& maprect, f
 std::map<std::string, FilledMap> MapPlot::filledmapObjects;
 std::map<std::string, int> MapPlot::filledmapRefCounts;
 
-map<std::string,ShapeObject> MapPlot::shapemaps;
-map<std::string,Area> MapPlot::shapeareas;
+std::map<std::string,ShapeObject> MapPlot::shapemaps;
+std::map<std::string,Area> MapPlot::shapeareas;
 
 MapPlot::MapPlot()
   : mapchanged(true)
@@ -993,7 +992,7 @@ bool MapPlot::plotGeoGrid(DiGLPainter* gl, const MapInfo& mapinfo, bool plot_lon
       float *y = new float[nlat];
       for (int ilon = ilon1; ilon <= ilon2; ilon++) {
         glon = longitudeStep * float(ilon);
-        ostringstream ost;
+        std::ostringstream ost;
         ost << fabsf(glon) << " " << (glon < 0 ? "W" : "E");
         std::string plotstr = ost.str();
         for (n = 0; n < nlat; n++) {
@@ -1059,7 +1058,7 @@ bool MapPlot::plotGeoGrid(DiGLPainter* gl, const MapInfo& mapinfo, bool plot_lon
       float *y = new float[nlon];
       for (int ilat = ilat1; ilat <= ilat2; ilat++) {
         glat = latitudeStep * float(ilat);
-        ostringstream ost;
+        std::ostringstream ost;
         ost << fabsf(glat) << " " << (glat < 0 ? "S" : "N");
         std::string plotstr = ost.str();
         for (n = 0; n < nlon; n++) {
@@ -1115,7 +1114,7 @@ bool MapPlot::plotLinesSimpleText(DiGLPainter* gl, const std::string& filename)
   //  each line in file: latitude(desimal,float) longitude(desimal,float)
   //  end_of_line: "----"
 
-  ifstream file;
+  std::ifstream file;
   file.open(filename.c_str());
   if (file.bad())
     return false;
@@ -1132,7 +1131,7 @@ bool MapPlot::plotLinesSimpleText(DiGLPainter* gl, const std::string& filename)
   float y[nmax];
 
   std::string str;
-  vector<std::string> coords;
+  std::vector<std::string> coords;
   bool endfile= false;
   bool endline;
   int nlines= 0;

@@ -66,7 +66,6 @@
 
 //#define DEBUGPRINT
 
-using namespace std;
 
 namespace { // anonymous
 
@@ -424,7 +423,7 @@ void FieldDialog::changeLevel(int increment, int type)
   // called from MainWindow levelUp/levelDown
 
   std::string level;
-  vector<std::string> vlevels;
+  std::vector<std::string> vlevels;
   const int n = selectedFields.size();
 
   // For some reason (?) vertical levels and extra levels are sorted i opposite directions
@@ -693,7 +692,7 @@ std::string FieldDialog::getShortname()
   if (n <= field_start)
     return std::string();
 
-  ostringstream ostr;
+  std::ostringstream ostr;
   std::string pmodelName;
   bool fielddiff = false, paramdiff = false, leveldiff = false;
 
@@ -970,7 +969,7 @@ bool FieldDialog::decodeCommand(FieldPlotCommand_cp cmd, const FieldPlotCommand:
   return true;
 }
 
-vector<std::string> FieldDialog::writeLog()
+std::vector<std::string> FieldDialog::writeLog()
 {
   return fieldStyle->writeLog();
 }
@@ -1182,7 +1181,7 @@ void FieldDialog::updateTime()
   emitTimes(fieldtime);
 }
 
-void FieldDialog::fieldEditUpdate(const string& str)
+void FieldDialog::fieldEditUpdate(const std::string& str)
 {
   METLIBS_LOG_SCOPE(LOGVAL(str));
 
@@ -1205,7 +1204,7 @@ void FieldDialog::fieldEditUpdate(const string& str)
 
     // add edit field (and remove the original field)
     SelectedField sf;
-    vector<std::string> vstr = miutil::split(str, " ");
+    std::vector<std::string> vstr = miutil::split(str, " ");
 
     if (vstr.size() == 1) {
       // str=fieldName if the field is not already read

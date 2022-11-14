@@ -55,7 +55,6 @@
 #define MILOGGER_CATEGORY "diana.StationDialog"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 
 /**
  * \class StationDialog

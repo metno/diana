@@ -64,7 +64,6 @@
 #define MILOGGER_CATEGORY "diana.SatDialog"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 
 #define HEIGHTLISTBOX 45
 
@@ -392,7 +391,7 @@ int SatDialog::addSelectedPicture()
         cmd->classtable = msi->classtable;
         cmd->coloursToHideInLegend = msi->coloursToHideInLegend;
         if (files[0].palette) {
-          vector<Colour> c;
+          std::vector<Colour> c;
           sda->setColours(c);
         }
       }
@@ -462,7 +461,7 @@ void SatDialog::picturesSlot(QListWidgetItem*)
     mosaic->setEnabled(true);
   } else {
     sda->setPictures("");
-    sda->setColours(vector<Colour>());
+    sda->setColours(std::vector<Colour>());
   }
   enableUpDownButtons();
 }
@@ -544,8 +543,8 @@ void SatDialog::doubleDisplayDiff(int number)
 
   int hours = totalminutes / 60;
   int minutes = totalminutes - hours * 60;
-  ostringstream ostr;
-  ostr << hours << ":" << setw(2) << setfill('0') << minutes;
+  std::ostringstream ostr;
+  ostr << hours << ":" << std::setw(2) << std::setfill('0') << minutes;
   diffLcdnum->display(QString::fromStdString(ostr.str()));
 }
 
@@ -846,10 +845,10 @@ void SatDialog::emitSatTimes(bool update)
   emitTimes(times, useTimes);
 }
 
-vector<string> SatDialog::writeLog()
+std::vector<std::string> SatDialog::writeLog()
 {
   METLIBS_LOG_SCOPE();
-  vector<string> vstr;
+  std::vector<std::string> vstr;
   for (const imageoptions_t::value_type& so : satoptions) {
     for (const subtypeoptions_t::value_type& ao : so.second) {
       const std::string s = ao.second->toString().substr(4); // FIXME skips "SAT ", better not include it
@@ -859,7 +858,7 @@ vector<string> SatDialog::writeLog()
   return vstr;
 }
 
-void SatDialog::readLog(const vector<string>& vstr, const string& /*thisVersion*/, const string& /*logVersion*/)
+void SatDialog::readLog(const std::vector<std::string>& vstr, const std::string& /*thisVersion*/, const std::string& /*logVersion*/)
 {
   readSatOptionsLog(vstr, satoptions);
 }

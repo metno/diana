@@ -65,7 +65,6 @@
 #define MILOGGER_CATEGORY "diField.FimexIO"
 #include "miLogger/miLogging.h"
 
-using namespace std;
 using namespace miutil;
 using namespace MetNoFimex;
 
@@ -309,7 +308,7 @@ std::string makeId(const std::string& name, size_t size)
 {
   if (size == 1)
     return name;
-  ostringstream id;
+  std::ostringstream id;
   id << name << "_" << size;
   return id.str();
 }
@@ -584,11 +583,11 @@ bool FimexIO::makeInventory(const std::string& reftime)
     reftime_from_file = fallbackGetReferenceTime();
   }
 
-  set<gridinventory::GridParameter> parameters;
-  set<gridinventory::Grid> grids;
-  set<gridinventory::Zaxis> zaxes;
-  set<gridinventory::Taxis> taxes;
-  set<gridinventory::ExtraAxis> extraaxes;
+  std::set<gridinventory::GridParameter> parameters;
+  std::set<gridinventory::Grid> grids;
+  std::set<gridinventory::Zaxis> zaxes;
+  std::set<gridinventory::Taxis> taxes;
+  std::set<gridinventory::ExtraAxis> extraaxes;
 
   std::map<std::string, std::string> name2id;
 
@@ -608,7 +607,7 @@ bool FimexIO::makeInventory(const std::string& reftime)
     zaxes.insert(gridinventory::Zaxis(""));
     taxes.insert(gridinventory::Taxis(""));
 
-    vector<std::string> referenceTimes;
+    std::vector<std::string> referenceTimes;
     std::string referenceTime = reftime_from_file;
 
     METLIBS_LOG_DEBUG("Coordinate Systems Loop");
@@ -731,7 +730,7 @@ bool FimexIO::makeInventory(const std::string& reftime)
     const std::vector<CDMDimension>& dimensions = cdm.getDimensions();
 
     // find all dimension variable names
-    set<std::string> dimensionnames;
+    std::set<std::string> dimensionnames;
     for (const CDMDimension& dim : dimensions) {
       dimensionnames.insert(dim.getName());
     }
@@ -764,7 +763,7 @@ bool FimexIO::makeInventory(const std::string& reftime)
       }
 
       // extraAxis -- Each parameter may only have one extraAxis
-      const vector<string>& shape = cdm.getVariable(varName).getShape();
+      const std::vector<std::string>& shape = cdm.getVariable(varName).getShape();
       for (const std::string& dim : shape) {
         for (const gridinventory::ExtraAxis& eaxis : extraaxes) {
           if (eaxis.name == dim) {
@@ -880,7 +879,7 @@ CoordinateSystemSliceBuilder FimexIO::createSliceBuilder(const CoordinateSystem_
 bool FimexIO::paramExists(const std::string& reftime, const gridinventory::GridParameter& param)
 {
   using namespace gridinventory;
-  const map<std::string, ReftimeInventory>::const_iterator ritr = inventory.reftimes.find(reftime);
+  const std::map<std::string, ReftimeInventory>::const_iterator ritr = inventory.reftimes.find(reftime);
   if (ritr == inventory.reftimes.end())
     return false;
   const ReftimeInventory& reftimeInv = ritr->second;
@@ -1022,7 +1021,7 @@ vcross::Values_p  FimexIO::getVariable(const std::string& varName)
     // Get the CDM from the reader
     const CDM& cdm = feltReader->getCDM();
 
-    const vector<string>& shape = cdm.getVariable(varName).getShape();
+    const std::vector<std::string>& shape = cdm.getVariable(varName).getShape();
     if ( shape.size() != 2 ) {
       METLIBS_LOG_INFO("Only 2-dim varibles supported yet, dim ="<<shape.size());
       return  vcross::Values_p();
