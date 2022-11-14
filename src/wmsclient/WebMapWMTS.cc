@@ -70,6 +70,29 @@ int WebMapWMTS::refreshInterval() const
   return 3600;
 }
 
+std::pair<const WebMapWMTSTileMatrixSet*, const WebMapWMTSTileMatrix*> WebMapWMTS::findBestCRS(WebMapWMTSLayer_cx layer, const Rectangle& viewRect,
+                                                                                               const Projection& viewProj, double viewScale) const
+{
+  METLIBS_LOG_SCOPE(LOGVAL(viewRect) << LOGVAL(viewProj));
+  const size_t n_crs = layer->countCRS();
+  float best_distortion = -1;
+  std::pair<const WebMapWMTSTileMatrixSet*, const WebMapWMTSTileMatrix*> best(nullptr, nullptr);
+  for (size_t i = 0; i < n_crs; ++i) {
+    const WebMapWMTSTileMatrixSet_cx& ms = layer->matrixSet(i);
+    if (WebMapWMTSTileMatrix_cx m = ms->findMatrixForScale(viewScale)) {
+      if (!ms->projection().isDefined())
+        continue;
+      const float ms_distortion = diutil::distortion(ms->projection(), viewProj, viewRect);
+      if (best_distortion < 0 || ms_distortion < best_distortion) {
+        best_distortion = ms_distortion;
+        best = std::make_pair(ms, m);
+        METLIBS_LOG_DEBUG(LOGVAL(best.first->identifier()) << LOGVAL(best.first->projection()) << LOGVAL(best.second->identifier()));
+      }
+    }
+  }
+  return best;
+}
+
 WebMapRequest_x WebMapWMTS::createRequest(const std::string& layerIdentifier,
     const Rectangle& viewRect, const Projection& viewProj, double viewScale, int w, int h)
 {
@@ -81,20 +104,13 @@ WebMapRequest_x WebMapWMTS::createRequest(const std::string& layerIdentifier,
     return 0;
   }
 
-  WebMapWMTSTileMatrixSet_cx matrixSet = layer->matrixSet(layer->countCRS()-1);
-  const Projection& p_tiles = matrixSet->projection();
-  if (!p_tiles.isDefined()) {
-    METLIBS_LOG_DEBUG("projection is undefined");
-    return 0;
+  const auto best = findBestCRS(layer, viewRect, viewProj, viewScale);
+  const WebMapWMTSTileMatrixSet_cx matrixSet = best.first;
+  const WebMapWMTSTileMatrix_cx matrix = best.second;
+  if (!matrixSet || !matrix) {
+    METLIBS_LOG_DEBUG("could not find suitable matrix set");
+    return nullptr;
   }
-  METLIBS_LOG_DEBUG(LOGVAL(matrixSet->identifier()) << LOGVAL(p_tiles.getProj4DefinitionExpanded()));
-
-  WebMapWMTSTileMatrix_cx matrix = matrixSet->findMatrixForScale(viewScale);
-  if (!matrix) {
-    METLIBS_LOG_DEBUG("no matrix");
-    return 0;
-  }
-  METLIBS_LOG_DEBUG(LOGVAL(matrix->identifier()));
 
   std::unique_ptr<WebMapWMTSRequest> request(new WebMapWMTSRequest(this, layer, matrixSet, matrix));
   const float ps = matrixSet->pixelSpan(matrix),
@@ -112,10 +128,8 @@ WebMapRequest_x WebMapWMTS::createRequest(const std::string& layerIdentifier,
   METLIBS_LOG_DEBUG(LOGVAL(request->tilebbx));
 
   diutil::tilexy_s tiles;
-  diutil::select_pixel_tiles(tiles, w, h,
-      matrix->matrixWidth(), request->x0, request->dx,
-      matrix->matrixHeight(), request->y0, request->dy,
-      request->tilebbx, p_tiles, viewRect, viewProj);
+  diutil::select_pixel_tiles(tiles, w, h, matrix->matrixWidth(), request->x0, request->dx, matrix->matrixHeight(), request->y0, request->dy, request->tilebbx,
+                             matrixSet->projection(), viewRect, viewProj);
 
   METLIBS_LOG_DEBUG(LOGVAL(tiles.size()));
   for (diutil::tilexy_s::const_iterator it = tiles.begin(); it != tiles.end(); ++it)
@@ -280,18 +294,21 @@ bool WebMapWMTS::parseReply()
     }
     std::unique_ptr<WebMapWMTSTileMatrixSet> ms(new WebMapWMTSTileMatrixSet(qs(eId.text()), proj));
     QDOM_FOREACH_CHILD(eTileMatrix, eTileMatrixSet, "TileMatrix") {
-      QDomElement eMId = eTileMatrix.firstChildElement("ows:Identifier");
-      QDomElement eScale = eTileMatrix.firstChildElement("ScaleDenominator");
-      QDomElement eTopLeft = eTileMatrix.firstChildElement("TopLeftCorner");
-      QDomElement eTileWidth = eTileMatrix.firstChildElement("TileWidth");
-      QDomElement eTileHeight = eTileMatrix.firstChildElement("TileHeight");
-      QDomElement eMatrixWidth = eTileMatrix.firstChildElement("MatrixWidth");
-      QDomElement eMatrixHeight = eTileMatrix.firstChildElement("MatrixHeight");
-      QStringList topleft = eTopLeft.text().split(" ");
-      ms->addMatrix(WebMapWMTSTileMatrix(qs(eMId.text()), eScale.text().toDouble(),
-              topleft[0].toDouble(), topleft[1].toDouble(),
-              eMatrixWidth.text().toInt(), eMatrixHeight.text().toInt(),
-              eTileWidth.text().toInt(), eTileHeight.text().toInt()));
+      const auto id = qs(eTileMatrix.firstChildElement("ows:Identifier").text());
+      const auto scl = eTileMatrix.firstChildElement("ScaleDenominator").text().toDouble();
+      const QDomElement eTopLeft = eTileMatrix.firstChildElement("TopLeftCorner");
+      const QStringList topleft = eTopLeft.text().split(" ");
+      auto tlx = topleft[0].toDouble();
+      auto tly = topleft[1].toDouble();
+      if (crs == "urn:ogc:def:crs:EPSG::4326") {
+        std::swap(tlx, tly);
+      }
+      const auto tw = eTileMatrix.firstChildElement("TileWidth").text().toInt();
+      const auto th = eTileMatrix.firstChildElement("TileHeight").text().toInt();
+      const auto mw = eTileMatrix.firstChildElement("MatrixWidth").text().toInt();
+      const auto mh = eTileMatrix.firstChildElement("MatrixHeight").text().toInt();
+
+      ms->addMatrix(WebMapWMTSTileMatrix(id, scl, tlx, tly,mw, mh,tw, th));
     }
     mTileMatrixSets.push_back(ms.release());
   }

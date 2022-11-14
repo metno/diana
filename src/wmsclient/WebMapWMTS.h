@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2021 met.no
+  Copyright (C) 2015-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -66,6 +66,8 @@ public:
 private:
   void destroyTileMatrixSets();
   bool parseReply();
+  std::pair<const WebMapWMTSTileMatrixSet*, const WebMapWMTSTileMatrix*> findBestCRS(const WebMapWMTSLayer* layer, const Rectangle& viewRect,
+                                                                                     const Projection& viewProj, double viewScale) const;
 
 private Q_SLOTS:
   void refreshReplyFinished();
