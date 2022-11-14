@@ -294,18 +294,21 @@ bool WebMapWMTS::parseReply()
     }
     std::unique_ptr<WebMapWMTSTileMatrixSet> ms(new WebMapWMTSTileMatrixSet(qs(eId.text()), proj));
     QDOM_FOREACH_CHILD(eTileMatrix, eTileMatrixSet, "TileMatrix") {
-      QDomElement eMId = eTileMatrix.firstChildElement("ows:Identifier");
-      QDomElement eScale = eTileMatrix.firstChildElement("ScaleDenominator");
-      QDomElement eTopLeft = eTileMatrix.firstChildElement("TopLeftCorner");
-      QDomElement eTileWidth = eTileMatrix.firstChildElement("TileWidth");
-      QDomElement eTileHeight = eTileMatrix.firstChildElement("TileHeight");
-      QDomElement eMatrixWidth = eTileMatrix.firstChildElement("MatrixWidth");
-      QDomElement eMatrixHeight = eTileMatrix.firstChildElement("MatrixHeight");
-      QStringList topleft = eTopLeft.text().split(" ");
-      ms->addMatrix(WebMapWMTSTileMatrix(qs(eMId.text()), eScale.text().toDouble(),
-              topleft[0].toDouble(), topleft[1].toDouble(),
-              eMatrixWidth.text().toInt(), eMatrixHeight.text().toInt(),
-              eTileWidth.text().toInt(), eTileHeight.text().toInt()));
+      const auto id = qs(eTileMatrix.firstChildElement("ows:Identifier").text());
+      const auto scl = eTileMatrix.firstChildElement("ScaleDenominator").text().toDouble();
+      const QDomElement eTopLeft = eTileMatrix.firstChildElement("TopLeftCorner");
+      const QStringList topleft = eTopLeft.text().split(" ");
+      auto tlx = topleft[0].toDouble();
+      auto tly = topleft[1].toDouble();
+      if (crs == "urn:ogc:def:crs:EPSG::4326") {
+        std::swap(tlx, tly);
+      }
+      const auto tw = eTileMatrix.firstChildElement("TileWidth").text().toInt();
+      const auto th = eTileMatrix.firstChildElement("TileHeight").text().toInt();
+      const auto mw = eTileMatrix.firstChildElement("MatrixWidth").text().toInt();
+      const auto mh = eTileMatrix.firstChildElement("MatrixHeight").text().toInt();
+
+      ms->addMatrix(WebMapWMTSTileMatrix(id, scl, tlx, tly,mw, mh,tw, th));
     }
     mTileMatrixSets.push_back(ms.release());
   }
