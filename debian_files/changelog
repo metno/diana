@@ -1,3 +1,9 @@
+diana-3.57 (3.57.0-1) unstable; urgency=low
+
+  * improve selection of matrix sets for WMTS
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Mon, 14 Nov 2022 16:53:58 +0100
+
 diana-3.57 (3.57.0~rc10-1) unstable; urgency=low
 
   * bugfix cold palette
