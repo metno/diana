@@ -144,7 +144,7 @@ public:
 private:
   bool no_lines, no_fill;
   bool skip_undef_line, skip_undef_fill;
-  bool skip_level_0, skip_level_1;
+  bool skip_line_0, skip_fill_0, skip_fill_1;
   contouring::level_t level_min, level_max;
   bool have_min;
   bool have_max;

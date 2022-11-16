@@ -51,16 +51,6 @@ inline bool isUndefined(float v)
   return std::isnan(v) or v >= UNDEF_VALUE or v < -UNDEF_VALUE;
 }
 
-inline bool skip_level_below0(const PlotOptions& po)
-{
-  return !po.zeroLine || po.use_linevalues() || po.use_loglinevalues();
-}
-
-inline bool skip_level_above0(const PlotOptions& po)
-{
-  return !po.zeroLine && !po.use_linevalues() && !po.use_loglinevalues();
-}
-
 // ########################################################################
 
 DianaLevelSelector::DianaLevelSelector(const PlotOptions& po, const DianaLevels& levels, int paintMode)
@@ -69,8 +59,10 @@ DianaLevelSelector::DianaLevelSelector(const PlotOptions& po, const DianaLevels&
   no_fill = (paintMode & DianaLines::FILL) == 0;
   skip_undef_line = (paintMode & DianaLines::UNDEFINED) == 0 || po.undefMasking == 0;
   skip_undef_fill = (paintMode & DianaLines::UNDEFINED) == 0 || po.undefMasking != 1;
-  skip_level_0 = skip_level_below0(po);
-  skip_level_1 = skip_level_above0(po);
+  const bool line_values = po.use_linevalues() || po.use_loglinevalues();
+  skip_line_0 = line_values ? false : !po.zeroLine;
+  skip_fill_0 = !po.zeroLine || line_values;
+  skip_fill_1 = !po.zeroLine && !line_values;
   level_min = levels.level_for_value(po.minvalue);
   level_max = levels.level_for_value(po.maxvalue);
   have_min = level_min != DianaLevels::UNDEF_LEVEL;
@@ -86,7 +78,7 @@ bool DianaLevelSelector::fill(contouring::level_t li) const
     return false;
   if ((have_min && li < level_min) || (have_max && li >= level_max))
     return false;
-  if ((skip_level_0 && li == 0) || (skip_level_1 && li == 1))
+  if ((skip_fill_0 && li == 0) || (skip_fill_1 && li == 1))
     return false;
   return true;
 }
@@ -100,7 +92,7 @@ bool DianaLevelSelector::line(contouring::level_t li) const
     return false;
   if ((have_min && li + 1 < level_min) || (have_max && li >= level_max))
     return false;
-  if (skip_level_1 && li == 1)
+  if (skip_line_0 && li == 0)
     return false;
   return true;
 }
