@@ -145,9 +145,15 @@ TEST(TestDianaLevelSelect, StepInterval2NoZero)
   ASSERT_TRUE(levels);
   DianaLevelSelector dls(po, *levels, DianaLines::LINES_LABELS | DianaLines::FILL);
 
+  EXPECT_EQ(0, levels->level_for_value(-0.1));
+  EXPECT_EQ(1, levels->level_for_value(0));
+  EXPECT_EQ(1, levels->level_for_value(0.1));
+
   EXPECT_TRUE(dls.line(levels->level_for_value(-10)));
-  EXPECT_TRUE(dls.line(levels->level_for_value(-2)));
-  EXPECT_FALSE(dls.line(levels->level_for_value(0)));
+  EXPECT_FALSE(dls.line(levels->level_for_value(-2)));
+  EXPECT_FALSE(dls.line(levels->level_for_value(-1)));
+  EXPECT_TRUE(dls.line(levels->level_for_value(0)));
+  EXPECT_TRUE(dls.line(levels->level_for_value(1)));
   EXPECT_TRUE(dls.line(levels->level_for_value(+2)));
   EXPECT_FALSE(dls.line(levels->level_for_value(+10)));
 
@@ -160,16 +166,44 @@ TEST(TestDianaLevelSelect, StepInterval2NoZero)
   EXPECT_FALSE(dls.fill(levels->level_for_value(+10)));
 }
 
-TEST(TestDianaLevelSelect, LineValues)
+namespace {
+PlotOptions po_for_line_values()
 {
   PlotOptions po;
   po.set_lineinterval(0);
   po.set_linevalues("0.2,0.5,1,2,4,6,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80");
+  return po;
+}
+} // namespace
+
+TEST(TestDianaLevelSelect, LineValues)
+{
+  auto po = po_for_line_values();
   DianaLevels_p levels = dianaLevelsForPlotOptions(po, fieldUndef);
   ASSERT_TRUE(levels);
   DianaLevelSelector dls(po, *levels, DianaLines::LINES_LABELS | DianaLines::FILL);
 
+  EXPECT_EQ(0, levels->level_for_value(0));
   EXPECT_EQ(0, levels->level_for_value(0.2));
+  EXPECT_EQ(1, levels->level_for_value(0.4));
+  EXPECT_EQ(1, levels->level_for_value(0.5));
+
+  EXPECT_TRUE(dls.line(levels->level_for_value(0)));
+  EXPECT_TRUE(dls.line(levels->level_for_value(0.2)));
+  EXPECT_TRUE(dls.line(levels->level_for_value(0.5)));
+
+  EXPECT_FALSE(dls.fill(levels->level_for_value(0)));
+  EXPECT_FALSE(dls.fill(levels->level_for_value(0.2)));
+  EXPECT_TRUE(dls.fill(levels->level_for_value(0.5)));
+}
+
+TEST(TestDianaLevelSelect, LineValuesNoZero)
+{
+  auto po = po_for_line_values();
+  po.zeroLine = false;
+  DianaLevels_p levels = dianaLevelsForPlotOptions(po, fieldUndef);
+  ASSERT_TRUE(levels);
+  DianaLevelSelector dls(po, *levels, DianaLines::LINES_LABELS | DianaLines::FILL);
 
   EXPECT_TRUE(dls.line(levels->level_for_value(0)));
   EXPECT_TRUE(dls.line(levels->level_for_value(0.2)));
