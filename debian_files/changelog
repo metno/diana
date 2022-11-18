@@ -1,3 +1,11 @@
+diana-3.57 (3.57.1-1) unstable; urgency=low
+
+  * do not use plot options from setup when loading a quickmenu
+  * streamlines: add back gui options for streamlines
+  * contour: try to solve zero.line problems
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Fri, 18 Nov 2022 08:00:08 +0100
+
 diana-3.57 (3.57.0-1) unstable; urgency=low
 
   * improve selection of matrix sets for WMTS
