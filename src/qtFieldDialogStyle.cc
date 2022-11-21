@@ -1000,7 +1000,7 @@ void FieldDialogStyle::enableWidgets(const std::string& plottype)
 {
   METLIBS_LOG_SCOPE("plottype=" << plottype);
 
-  const bool pt_contour = plottype == fpt_contour || plottype == fpt_contour2 || plottype == fpt_contour2;
+  const bool pt_contour = plottype == fpt_contour || plottype == fpt_contour1 || plottype == fpt_contour2;
   const bool pt_value_symbol = plottype == fpt_value || plottype == fpt_symbol;
   const bool pt_wind_temp_value = plottype == fpt_wind_temp_fl || plottype == fpt_wind_value;
   const bool pt_wind_vector_direction = plottype == fpt_wind || plottype == fpt_vector || plottype == fpt_direction;
@@ -1228,7 +1228,7 @@ void FieldDialogStyle::vectorunitCboxActivated(int index)
 void FieldDialogStyle::lineIntervalChanged(double interval)
 {
   const std::string& plottype = getPlotType();
-  const bool e_shading = plottype == fpt_contour || plottype == fpt_fill_cell;
+  const bool e_shading = plottype == fpt_contour || plottype == fpt_contour1 || plottype == fpt_contour2 || plottype == fpt_fill_cell;
 
   interval = replaceNaN(interval, 0);
   const bool enable_linevalues = e_shading && (interval == 0);
