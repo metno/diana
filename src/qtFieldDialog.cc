@@ -929,7 +929,10 @@ bool FieldDialog::decodeCommand(FieldPlotCommand_cp cmd, const FieldPlotCommand:
   if (!fs.allTimeSteps)
     allTimeStepButton->setChecked(false);
 
-  sf.setFieldPlotOptions(cmd->options());
+  // merge with options from setup/logfile for this fieldname
+  miutil::KeyValue_v kv;
+  kv << fieldStyle->getFieldOptions(fs.name(), true) << cmd->options();
+  sf.setFieldPlotOptions(kv);
 
   METLIBS_LOG_DEBUG(LOGVAL(sf.modelName) << LOGVAL(sf.fieldName) << LOGVAL(sf.level) << LOGVAL(sf.idnum));
 
