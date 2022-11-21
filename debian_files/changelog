@@ -1,3 +1,11 @@
+diana-3.57 (3.57.2-1) unstable; urgency=low
+
+  * bugfix contour min/maxvalue_2
+  * bugfix fielddialog for contour1 / contour2
+  * quickmenus: re-enable setup options; add line.interval=0 if quickmenu contains only line.values
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Mon, 21 Nov 2022 08:00:08 +0100
+
 diana-3.57 (3.57.1-1) unstable; urgency=low
 
   * do not use plot options from setup when loading a quickmenu
