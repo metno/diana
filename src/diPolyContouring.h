@@ -45,10 +45,18 @@ class DiGLPainter;
 
 class DianaLevels {
 public:
+  DianaLevels();
   virtual ~DianaLevels();
   virtual contouring::level_t level_for_value(float value) const = 0;
   virtual float value_for_level(contouring::level_t l) const = 0;
+  void set_min_max(float min_value, float max_value);
+  contouring::level_t level_min() const { return min_level_; }
+  contouring::level_t level_max() const { return max_level_; }
   enum { UNDEF_LEVEL = -10000000 };
+
+private:
+  contouring::level_t min_level_;
+  contouring::level_t max_level_;
 };
 typedef std::shared_ptr<DianaLevels> DianaLevels_p;
 
@@ -68,6 +76,7 @@ public:
 
 protected:
   DianaLevelList();
+
 protected:
   std::vector<float> mLevels;
 };

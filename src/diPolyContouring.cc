@@ -54,19 +54,19 @@ inline bool isUndefined(float v)
 // ########################################################################
 
 DianaLevelSelector::DianaLevelSelector(const PlotOptions& po, const DianaLevels& levels, int paintMode)
+    : no_lines((paintMode & DianaLines::LINES_LABELS) == 0)
+    , no_fill((paintMode & DianaLines::FILL) == 0)
+    , skip_undef_line((paintMode & DianaLines::UNDEFINED) == 0 || po.undefMasking == 0)
+    , skip_undef_fill((paintMode & DianaLines::UNDEFINED) == 0 || po.undefMasking != 1)
+    , level_min(levels.level_min())
+    , level_max(levels.level_max())
+    , have_min(level_min != DianaLevels::UNDEF_LEVEL)
+    , have_max(level_max != DianaLevels::UNDEF_LEVEL)
 {
-  no_lines = (paintMode & DianaLines::LINES_LABELS) == 0;
-  no_fill = (paintMode & DianaLines::FILL) == 0;
-  skip_undef_line = (paintMode & DianaLines::UNDEFINED) == 0 || po.undefMasking == 0;
-  skip_undef_fill = (paintMode & DianaLines::UNDEFINED) == 0 || po.undefMasking != 1;
   const bool line_values = po.use_linevalues() || po.use_loglinevalues();
   skip_line_0 = line_values ? false : !po.zeroLine;
   skip_fill_0 = !po.zeroLine || line_values;
   skip_fill_1 = !po.zeroLine && !line_values;
-  level_min = levels.level_for_value(po.minvalue);
-  level_max = levels.level_for_value(po.maxvalue);
-  have_min = level_min != DianaLevels::UNDEF_LEVEL;
-  have_max = level_max != DianaLevels::UNDEF_LEVEL;
 }
 
 bool DianaLevelSelector::fill(contouring::level_t li) const
@@ -107,8 +107,20 @@ bool DianaLevelSelector::label(contouring::level_t li) const
 
 // ########################################################################
 
+DianaLevels::DianaLevels()
+    : min_level_(UNDEF_LEVEL)
+    , max_level_(UNDEF_LEVEL)
+{
+}
+
 DianaLevels::~DianaLevels()
 {
+}
+
+void DianaLevels::set_min_max(float min_value, float max_value)
+{
+  min_level_ = level_for_value(min_value);
+  max_level_ = level_for_value(max_value);
 }
 
 // ########################################################################
@@ -636,35 +648,41 @@ void DianaGLLines::drawLabels(const QPolygonF& points, contouring::level_t li)
 
 std::shared_ptr<DianaLevels> dianaLevelsForPlotOptions(const PlotOptions& poptions, float fieldUndef)
 {
+  std::shared_ptr<DianaLevels> levels;
   if (poptions.use_linevalues()) {
-    return std::make_shared<DianaLevelList>(poptions.linevalues());
+    levels = std::make_shared<DianaLevelList>(poptions.linevalues());
   } else if (poptions.use_loglinevalues()) {
     // selected line values (the first values in rlines)
     // are drawn, the following vales drawn are the
     // previous multiplied by 10 and so on
     // (nlines=2 rlines=0.1,0.3 => 0.1,0.3,1,3,10,30,...)
     // (or the line at value=zoff)
-    return std::make_shared<DianaLevelList10>(poptions.loglinevalues(), poptions.palettecolours.size());
+    levels = std::make_shared<DianaLevelList10>(poptions.loglinevalues(), poptions.palettecolours.size());
   } else if (poptions.use_lineinterval()) {
     // equally spaced lines (value)
-    return std::make_shared<DianaLevelStep>(poptions.lineinterval, poptions.base);
+    levels = std::make_shared<DianaLevelStep>(poptions.lineinterval, poptions.base);
   } else {
     return nullptr;
   }
+  levels->set_min_max(poptions.minvalue, poptions.maxvalue);
+  return levels;
 }
 
 //! same as dianaLevelsForPlotOptions except that it uses options with "_2" at the end of the name
 std::shared_ptr<DianaLevels> dianaLevelsForPlotOptions_2(const PlotOptions& poptions, float fieldUndef)
 {
+  std::shared_ptr<DianaLevels> levels;
   if (poptions.use_linevalues_2()) {
-    return std::make_shared<DianaLevelList>(poptions.linevalues_2());
+    levels = std::make_shared<DianaLevelList>(poptions.linevalues_2());
   } else if (poptions.use_loglinevalues_2()) {
-    return std::make_shared<DianaLevelList10>(poptions.loglinevalues_2(), poptions.loglinevalues_2().size());
+    levels = std::make_shared<DianaLevelList10>(poptions.loglinevalues_2(), poptions.loglinevalues_2().size());
   } else if (poptions.use_lineinterval_2()) {
-    return std::make_shared<DianaLevelStep>(poptions.lineinterval_2, poptions.base_2);
+    levels = std::make_shared<DianaLevelStep>(poptions.lineinterval_2, poptions.base_2);
   } else {
     return nullptr;
   }
+  levels->set_min_max(poptions.minvalue_2, poptions.maxvalue_2);
+  return levels;
 }
 
 // ########################################################################
