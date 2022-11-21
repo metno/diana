@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -461,6 +461,15 @@ std::string updateLine(std::string line)
   miutil::replace(line, "AREA areaname=", "AREA name=");
   if (diutil::startswith(line, "FIELD") && !miutil::contains(line, "model="))
     updateField(line);
+
+  // these have been added in diana 3.57
+  static const std::regex RE_LINE_INTERVAL("line.interval=");
+  static const std::regex RE_LINE_VALUES("(log\\.)?line.values=");
+  std::smatch mli, mlv;
+  if (std::regex_search(line, mlv, RE_LINE_VALUES) && !std::regex_search(line, mli, RE_LINE_INTERVAL)) {
+    // qm specifies line.values but not line.interval; add line.interval=0
+    diutil::appendText(line, "line.interval=0");
+  }
 
   return line;
 }
