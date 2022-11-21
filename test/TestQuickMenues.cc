@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2015-2018 met.no
+  Copyright (C) 2015-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -58,6 +58,27 @@ TEST(TestQuickMenues, UpdateMapArea)
     lines.push_back("MAP here=there backcolour=white contour=on");
     std::vector<std::string> expect = lines;
 
+    EXPECT_FALSE(updateCommandSyntax(lines));
+    EXPECT_EQ(expect, lines);
+  }
+}
+
+TEST(TestQuickMenues, UpdateLineInterval)
+{
+  {
+    std::vector<std::string> lines{
+        "FIELD model=a plot=b line.values=1,2,3,4,5",
+        "FIELD model=b plot=b line.interval=17 line.values=1,2,3",
+        "FIELD model=a plot=b log.line.values=0.1,0.3",
+        "FIELD model=a plot=b line.interval=0.1 log.line.values=0.1,0.3",
+    };
+    std::vector<std::string> expect = lines;
+    expect[0] += " line.interval=0";
+    expect[2] += " line.interval=0";
+
+    EXPECT_TRUE(updateCommandSyntax(lines));
+    EXPECT_EQ(expect, lines);
+    // second update must not change more
     EXPECT_FALSE(updateCommandSyntax(lines));
     EXPECT_EQ(expect, lines);
   }
