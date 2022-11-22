@@ -48,4 +48,6 @@ void flightlevel2pressure(FieldRequest& frq);
 
 Field_p convertUnit(Field_p input, const std::string& output_unit);
 
+miutil::KeyValue_v mergeSetupAndQuickMenuOptions(const miutil::KeyValue_v& setup, const miutil::KeyValue_v& cmd);
+
 #endif // difieldutil_h

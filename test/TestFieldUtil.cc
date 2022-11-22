@@ -60,3 +60,13 @@ TEST(FieldUtil, ConvertUnitSpecial)
   ASSERT_TRUE(output != nullptr);
   EXPECT_EQ(input.get(), output.get());
 }
+
+TEST(FieldUtil, MergeSetupAndQuickMenuOptions)
+{
+  const miutil::KeyValue_v setup{{"line.interval", "5"}, {"line.width", "2"}};
+  const miutil::KeyValue_v qmenu{{"line.values", "1,2,3,4,5"}, {"line.width", "3"}};
+
+  const miutil::KeyValue_v expect{setup[1], qmenu[0], qmenu[1]};
+  const auto actual = mergeSetupAndQuickMenuOptions(setup, qmenu);
+  EXPECT_EQ(actual, expect);
+}
