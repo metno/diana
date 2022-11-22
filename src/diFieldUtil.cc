@@ -33,6 +33,7 @@
 #include "diField/diCommonFieldTypes.h"
 #include "diField/diField.h"
 #include "diField/diFlightLevel.h"
+#include "diPlotOptions.h"
 #include "util/misc_util.h"
 #include "util/string_util.h"
 
@@ -182,4 +183,30 @@ Field_p convertUnit(Field_p input, const std::string& output_unit)
     return result;
 
   return nullptr;
+}
+
+namespace {
+bool contains(const miutil::KeyValue_v& kvs, const std::string& key, size_t start = 0)
+{
+  return miutil::find(kvs, key, start) != size_t(-1);
+}
+} // namespace
+
+miutil::KeyValue_v mergeSetupAndQuickMenuOptions(const miutil::KeyValue_v& setup, const miutil::KeyValue_v& cmd)
+{
+  // merge with options from setup/logfile for this fieldname
+  miutil::KeyValue_v kv;
+  kv << setup;
+
+  const auto& co = cmd;
+  while (contains(co, PlotOptions::key_linevalues) || contains(co, PlotOptions::key_loglinevalues)) {
+    const size_t idx_lineinterval = miutil::find(kv, PlotOptions::key_lineinterval);
+    if (idx_lineinterval != size_t(-1)) {
+      kv.erase(kv.begin() + idx_lineinterval);
+    } else {
+      break;
+    }
+  }
+  kv << cmd;
+  return kv;
 }
