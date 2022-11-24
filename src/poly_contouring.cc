@@ -1,3 +1,31 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2014-2022 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #include "poly_contouring.h"
 
@@ -953,12 +981,24 @@ void runner::handle_undef_inner(size_t ix, size_t iy, bool undef_bl, bool undef_
     m_level_br = level_tr; // next cell has this cells top-right as bottom-right
 }
 
+namespace {
+inline size_t adiff(int a, int b)
+{
+  return a < b ? b - a : a - b;
+}
+inline bool chkmax(int a, int b)
+{
+    size_t n = adiff(a, b);
+    return (n > MAX_LEVELS);
+}
+} // namespace
+
 void runner::handle_def_inner(size_t ix, size_t iy, level_t level_bl, level_t level_tl, level_t level_tr)
 {
-    const size_t n_right  = abs(m_level_br - level_tr);
-    const size_t n_top    = abs(  level_tr - level_tl);
-    const size_t n_left   = abs(  level_tl - level_bl);
-    const size_t n_bottom = abs(m_level_br - level_bl);
+    const size_t n_right  = adiff(m_level_br, level_tr);
+    const size_t n_top    = adiff(  level_tr, level_tl);
+    const size_t n_left   = adiff(  level_tl, level_bl);
+    const size_t n_bottom = adiff(m_level_br, level_bl);
 
     point_generator right(m_field, ix+1, iy, false/*vertical*/, m_level_br, level_tr);
     point_generator top  (m_field, ix, iy+1, true/*horizontal*/, level_tr, level_tl);
@@ -1064,7 +1104,7 @@ void runner::prepare_left_border()
 
         if (not (undef_bl or undef_tl)) {
             POCO_DEBUG(P("all defined"));
-            if (abs(level_bl - level_tl) > MAX_LEVELS)
+            if (chkmax(level_bl, level_tl))
                 throw too_many_levels(-1, iy, level_bl, 0, 0, level_tl);
 
             point_generator border(m_field, 0, iy, false/*vertical*/, level_bl, level_tl);
@@ -1113,7 +1153,7 @@ void runner::prepare_column_bottom(size_t ix)
     const point_t point_br = m_field.grid_point(ix+1, 0); // lower right corner of bottom cell
 
     if (not (undef_bl or undef_br)) {
-        if (abs(level_bl - m_level_br) > MAX_LEVELS)
+        if (chkmax(level_bl, m_level_br))
             throw too_many_levels(ix, -1, level_bl, m_level_br, 0, 0);
 
         // new points at bottom of grid, from left to right -- need to insert in bmts such that it ends right-to-left
@@ -1168,10 +1208,10 @@ void runner::handle_inner_cell(size_t ix, size_t iy)
         handle_undef_inner(ix, iy, undef_bl, undef_tl, undef_br, undef_tr,
                            level_bl, level_tl, level_tr);
     else {
-      if (abs(level_bl - m_level_br) > MAX_LEVELS
-          or abs(m_level_br - level_tr) > MAX_LEVELS
-          or abs(level_tr - level_tl) > MAX_LEVELS
-          or abs(level_tl - level_bl) > MAX_LEVELS)
+      if (chkmax(level_bl, m_level_br)
+          or chkmax(m_level_br, level_tr)
+          or chkmax(level_tr, level_tl)
+          or chkmax(level_tl, level_bl))
         throw too_many_levels(ix, iy, level_bl, m_level_br, level_tr, level_tl);
       handle_def_inner(ix, iy, level_bl, level_tl, level_tr);
     }
