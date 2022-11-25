@@ -102,7 +102,7 @@ void FieldPlotManager::applySetupOptionsToCommand(const std::string& pn, FieldPl
   miutil::KeyValue_v opts = setupopts;
   opts << setupoptions.toKeyValueList();
   if (!opts.empty()) {
-    opts << fpc->options(); // FIXME why to use "toKV" and "fromKV"?
+    opts = mergeSetupAndQuickMenuOptions(opts, fpc->options());
 
     // build a new FieldPlotCommand with this list
     FieldPlotCommand_p nc = std::make_shared<FieldPlotCommand>(*fpc);
