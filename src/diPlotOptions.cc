@@ -952,7 +952,7 @@ PlotOptions& PlotOptions::set_lineinterval(float value)
 
 PlotOptions& PlotOptions::set_lineinterval(const std::string& value)
 {
-  return set_lineinterval(to_float(miutil::kv(key_lineinterval, value)));
+  return set_lineinterval(to_float_or_off(miutil::kv(key_lineinterval, value), 0));
 }
 
 PlotOptions& PlotOptions::set_lineinterval_2(float value)

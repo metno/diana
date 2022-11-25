@@ -358,6 +358,14 @@ TEST(TestPlotOptions, DiffLineIntervalValues)
   EXPECT_TRUE(po.use_loglinevalues());
 }
 
+TEST(TestPlotOptions, LineIntervalOff)
+{
+  PlotOptions po;
+  po.lineinterval = 17;
+  po.set_lineinterval("off");
+  EXPECT_EQ(0, po.lineinterval);
+}
+
 TEST(TestPlotOptions, LineInterval2)
 {
   PlotOptions po;
