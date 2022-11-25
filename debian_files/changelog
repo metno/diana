@@ -1,3 +1,10 @@
+diana-3.57 (3.57.5-1) unstable; urgency=low
+
+  * accept line.interval=off
+  * merge setup and command options in bdiana
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Fri, 25 Nov 2022 08:00:08 +0100
+
 diana-3.57 (3.57.4-1) unstable; urgency=low
 
   * contour: avoid integer overflow when checking level count
