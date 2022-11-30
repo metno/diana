@@ -1022,6 +1022,8 @@ void FieldDialog::copySelectedField()
   if (index < 0 || index >= (int)selectedFields.size())
     return;
 
+  updateFieldOptions();
+
   SelectedField sf = selectedFields[index]; // make a copy
   sf.hourOffset = 0;
   addSelectedField(sf);
