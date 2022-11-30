@@ -657,19 +657,25 @@ void QuickMenu::updateButton()
     }
   }
 
+  bool rebuildMenuList = false;
   if (q.type == quickMenu::QM_SHARED) {
     qi.command = vs;
   } else {
     replaceDynamicQuickMenuOptions(qi.command, vs);
     qi.command = vs;
-    if (changename)
+    if (changename) {
       qi.name = pi.name;
+      rebuildMenuList = true;
+    }
 
     if (q.type == quickMenu::QM_USER)
       q.write();
   }
 
-  selectList(selected_list);
+  if (rebuildMenuList)
+    fillMenuList(true);
+  else
+    selectList(selected_list);
 }
 
 void QuickMenu::readLog(const vector<string>& vstr, const string&, const string&)
