@@ -1,3 +1,10 @@
+diana-3.57 (3.57.6-1) unstable; urgency=low
+
+  * rebuild view at end of QuickMenu::updateButton
+  * update field options from style dialog before copying
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Thu, 01 Dec 2022 08:00:08 +0100
+
 diana-3.57 (3.57.5-1) unstable; urgency=low
 
   * accept line.interval=off
