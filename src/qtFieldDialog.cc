@@ -1120,6 +1120,7 @@ void FieldDialog::moveField(int delta)
     return;
 
   std::swap(selectedFields[index], selectedFields[other]);
+  currentSelectedFieldIndex = other;
 
   const QString qindex = selectedFieldbox->item(index)->text();
   const QString qother = selectedFieldbox->item(other)->text();
