@@ -1,4 +1,4 @@
-diana-3.57 (3.57.6-1) unstable; urgency=low
+diana-3.57 (3.57.7-1) unstable; urgency=low
 
   * bugfix FieldDialog::moveField
 
