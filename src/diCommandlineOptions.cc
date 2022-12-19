@@ -29,7 +29,7 @@ std::map<std::string, std::string> parse_user_variables(const std::vector<std::s
   for (const std::string& sarg : positional) {
     const std::vector<std::string> ks = miutil::split(sarg, "=");
     if (ks.size() == 2) {
-      user_variables[miutil::to_upper(ks[0])] = ks[1]; // overwrite if given multiple times
+      user_variables[ks[0]] = ks[1]; // overwrite if given multiple times
     } else {
       METLIBS_LOG_WARN("ignoring unknown commandline argument '" << sarg << "'");
     }
