@@ -1838,7 +1838,6 @@ int diana_init(int _argc, char** _argv)
     } else {
       METLIBS_LOG_ERROR("both TIME and option '" << op_nowtime.key() << "' given, ignoring TIME");
     }
-    user_variables.erase(it_time);
   }
   for (const auto& u : user_variables) {
     bdiana()->keys.push_back(keyvalue{u.first, u.second});
