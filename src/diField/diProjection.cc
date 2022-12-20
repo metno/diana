@@ -673,6 +673,9 @@ std::ostream& operator<<(std::ostream& output, const Projection& p)
 
 Transformation_cp Projection::transformationFrom(const Projection& src) const
 {
+  if (!areDefined(src, *this))
+    return {};
+
 #if 0
   std::unique_lock<std::mutex> lock(mutex_);
 #endif
@@ -727,12 +730,12 @@ bool Projection::convertPoints(const Projection& srcProj, size_t npos, diutil::P
 bool Projection::areDefined(const Projection& srcProj, const Projection& tgtProj)
 {
   if (!srcProj.isDefined()) {
-    METLIBS_LOG_ERROR("src projPJ not initialized, definition=" << srcProj);
+    METLIBS_LOG_ERROR("src proj not initialized, definition=" << srcProj << "'");
     return false;
   }
 
   if (!tgtProj.isDefined()) {
-    METLIBS_LOG_ERROR("tgt projPJ not initialized, definition=" << tgtProj);
+    METLIBS_LOG_ERROR("tgt proj not initialized, definition='" << tgtProj << "'");
     return false;
   }
 
