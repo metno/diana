@@ -256,6 +256,8 @@ private:
 Proj6Transformation::Proj6Transformation(const std::string& src_def, const std::string& dst_def)
     : tf(make_PJ(src_def, dst_def))
 {
+  if (!tf)
+    METLIBS_LOG_ERROR("could not create transformation from '" << src_def << "' to '" << dst_def << "'");
 }
 
 bool Proj6Transformation::defined() const
