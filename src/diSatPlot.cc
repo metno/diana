@@ -77,7 +77,11 @@ void SatPlot::changeProjection(const Area& mapArea, const Rectangle& plotSize, c
 
 void SatPlot::updateMapSatTransformation()
 {
-  mapT_ = getSatArea().P().transformationFrom(mapP_);
+  const auto& satP = getSatArea().P();
+  if (satP.isDefined())
+    mapT_ = satP.transformationFrom(mapP_);
+  else
+    mapT_ = nullptr;
 }
 
 const GridArea& SatPlot::getSatArea()
