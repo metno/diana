@@ -1,3 +1,10 @@
+diana-3.57 (3.57.8-1) unstable; urgency=low
+
+  * norm_PJ must check that input is not null
+  * do not convert commandline var names to upper case
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 20 Dec 2022 08:00:08 +0100
+
 diana-3.57 (3.57.7-1) unstable; urgency=low
 
   * bugfix FieldDialog::moveField
