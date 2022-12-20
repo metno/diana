@@ -223,10 +223,11 @@ PJ_p wrap_PJ(PJ* pj)
 
 PJ_p norm_PJ(PJ_p pj)
 {
-  auto pn = wrap_PJ(proj_normalize_for_visualization(ctx, pj.get()));
-  if (!pn)
-    METLIBS_LOG_ERROR("no normalization");
-  return pn ? pn : pj;
+  if (pj) {
+    if (auto pn = wrap_PJ(proj_normalize_for_visualization(ctx, pj.get())))
+      return pn;
+  }
+  return pj;
 }
 
 PJ_p make_PJ(const std::string& def)
