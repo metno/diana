@@ -398,7 +398,6 @@ void FimexIO::inventoryExtractGridProjection(MetNoFimex::Projection_cp projectio
   grid.x_0 = 0;
   grid.y_0 = 0;
 
-  const float axis_scale = 1.0; // X/Y-axes are scaled by this
   const std::string xyUnit = projection->isDegree() ? "degree" : METER;
   DataPtr xdata = feltReader->getScaledDataInUnit(xAxis->getName(), xyUnit);
   DataPtr ydata = feltReader->getScaledDataInUnit(yAxis->getName(), xyUnit);
@@ -408,8 +407,8 @@ void FimexIO::inventoryExtractGridProjection(MetNoFimex::Projection_cp projectio
     if (nx > 1) {
       MetNoFimex::shared_array<float> fdata = xdata->asFloat();
       grid.nx = nx;
-      grid.x_resolution = (fdata[1] - fdata[0]) * axis_scale;
-      grid.x_0 = fdata[0] * axis_scale;
+      grid.x_resolution = (fdata[nx - 1] - fdata[0]) / (nx - 1);
+      grid.x_0 = fdata[0];
       METLIBS_LOG_DEBUG(" x_resolution:" << grid.x_resolution << " x_0:" << grid.x_0);
     }
   }
@@ -419,18 +418,9 @@ void FimexIO::inventoryExtractGridProjection(MetNoFimex::Projection_cp projectio
     if (ny > 1) {
       MetNoFimex::shared_array<float> fdata = ydata->asFloat();
       grid.ny = ny;
-      if( fdata[0] > fdata[1] ) {
-        grid.y_resolution = (fdata[ny-1] - fdata[ny-2]) * axis_scale;
-        grid.y_0 = fdata[ny-1] * axis_scale;
-        grid.y_direction_up = false;
-      } else {
-        grid.y_resolution = (fdata[1] - fdata[0]) * axis_scale;
-        grid.y_0 = fdata[0] * axis_scale;
-        grid.y_direction_up = true;
-      }
-      if ( grid.y_resolution < 0 ) {
-        grid.y_resolution *= -1;
-      }
+      grid.y_direction_up = !(fdata[0] > fdata[1]);
+      grid.y_resolution = std::abs((fdata[ny - 1] - fdata[0]) / (ny - 1));
+      grid.y_0 = fdata[grid.y_direction_up ? 0 : ny - 1];
       METLIBS_LOG_DEBUG(" y_resolution:" << grid.y_resolution << " y_0:" << grid.y_0);
     }
   }
