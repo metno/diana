@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2020 met.no
+ Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -27,8 +27,6 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "diana_config.h"
-
 #include "diRasterRGB.h"
 
 #include "diColour.h"
@@ -50,7 +48,8 @@ RasterRGB::RasterRGB(const PlotArea& pa, const Field_pv& f, const PlotOptions& p
     , poptions(po)
 {
   const int nx = fields[0]->area.nx, ny = fields[0]->area.ny;
-  for (int k = 0; k < 3; k++) {
+  const size_t n = std::min(size_t(4), fields.size());
+  for (int k = 0; k < n; k++) {
     float v_min = 0, v_max = 1;
     if (poptions.minvalue != -fieldUndef && poptions.maxvalue != fieldUndef) {
       v_min = poptions.minvalue;
@@ -72,8 +71,9 @@ RasterRGB::RasterRGB(const PlotArea& pa, const Field_pv& f, const PlotOptions& p
 void RasterRGB::colorizePixel(QRgb& pixel, const diutil::PointI& i)
 {
   const int nx = fields[0]->area.nx;
-  unsigned char ch[3];
-  for (int k = 0; k < 3; k++) {
+  unsigned char ch[4] = {0, 0, 0, static_cast<unsigned char>(poptions.alpha)};
+  const size_t n = std::min(size_t(4), fields.size());
+  for (int k = 0; k < n; k++) {
     const float v0 = fields[k]->data[diutil::index(nx, i.x(), i.y())];
     if (v0 != fieldUndef) {
       const long val = std::lround((v0 - value_min[k]) * value_div[k]);
@@ -83,5 +83,5 @@ void RasterRGB::colorizePixel(QRgb& pixel, const diutil::PointI& i)
       ch[k] = 0;
     }
   }
-  pixel = qRgb(ch[0], ch[1], ch[2]);
+  pixel = qRgba(ch[0], ch[1], ch[2], ch[3]);
 }

@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -43,7 +43,7 @@ public:
 private:
   const Field_pv& fields;
   const PlotOptions& poptions;
-  float value_div[3], value_min[3];
+  float value_div[4], value_min[4];
 };
 
 #endif // diRasterRGB_h
