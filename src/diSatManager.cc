@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2022 met.no
+ Copyright (C) 2006-2023 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -79,6 +79,17 @@ bool _isafile(const std::string& name)
     //so the file obviously does not exist or
     //more capabilities is required
     return false;
+  }
+}
+
+inline void set_alpha(unsigned char& alpha, bool off, float ascale, unsigned char avalue)
+{
+  if (off) {
+    alpha = 0;
+  } else if (ascale < 0) {
+    alpha = avalue;
+  } else {
+    alpha *= ascale;
   }
 }
 } // namespace
@@ -417,7 +428,8 @@ void SatManager::setRGB(Sat* satdata)
   delete[] satdata->image_rgba_;
   satdata->image_rgba_ = nullptr;
 
-  if (satdata->formatType == "geotiff") {
+  const bool is_geotiff = (satdata->formatType == "geotiff");
+  if (is_geotiff) {
     satdata->image_rgba_ = satdata->rawimage[0];
     satdata->rawimage[0] = nullptr;
   } else {
@@ -476,24 +488,23 @@ void SatManager::setRGB(Sat* satdata)
   }
 
   if (doalpha) {
+    const auto ascale = is_geotiff ? (satdata->alpha / 255.0) : -1;
+    const auto avalue = is_geotiff ? 255 : satdata->alpha;
+    const auto size4 = 4 * size;
+
     // set alpha values according to wanted blending
     if (satdata->alphacut > 0) {
-      for (int i = 0; i < size; i++) {
-        // cut on pixelvalue
-        if ((int)satdata->image_rgba_[i * 4] < satdata->alphacut)
-          satdata->image_rgba_[i * 4 + 3] = (unsigned char)0;
-        else
-          // set alpha value to default or the one chosen in dialog
-          satdata->image_rgba_[i * 4 + 3] = (unsigned char)satdata->alpha;
+      for (int i = 0; i < size4; i += 4) {
+        auto pixel = &satdata->image_rgba_[i];
+        // cut on red pixel value
+        set_alpha(pixel[3], pixel[0] < satdata->alphacut, ascale, avalue);
       }
 
     } else {
-      for (int i = 0; i < size; i++) {
+      for (int i = 0; i < size4; i += 4) {
+        auto pixel = &satdata->image_rgba_[i];
         // set alpha value to default or the one chosen in dialog
-        satdata->image_rgba_[i * 4 + 3] = (unsigned char)satdata->alpha;
-        // remove black pixels
-        if (satdata->image_rgba_[i * 4] == 0 && satdata->image_rgba_[i * 4 + 1] == 0 && satdata->image_rgba_[i * 4 + 2] == 0)
-          satdata->image_rgba_[i * 4 + 3] = 0;
+        set_alpha(pixel[3], !is_geotiff && pixel[0] == 0 && pixel[1] == 0 && pixel[2] == 0, ascale, avalue);
       }
     }
   }
