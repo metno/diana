@@ -1,3 +1,10 @@
+diana-3.57 (3.57.9-1) unstable; urgency=low
+
+  * do not make black pixels transparent for geotiff sat images
+  * improve fimexio grid resolution
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Thu, 05 Jan 2023 08:00:08 +0100
+
 diana-3.57 (3.57.8-1) unstable; urgency=low
 
   * norm_PJ must check that input is not null
