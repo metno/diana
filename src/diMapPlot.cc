@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2021 met.no
+ Copyright (C) 2006-2023 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -966,6 +966,7 @@ bool MapPlot::plotGeoGrid(DiGLPainter* gl, const MapInfo& mapinfo, bool plot_lon
 
   bool geo2xyError= false;
 
+  auto t_geo2map = p.transformationFrom(Projection::geographic());
 
   // draw longitude lines.....................................
 
@@ -989,8 +990,8 @@ bool MapPlot::plotGeoGrid(DiGLPainter* gl, const MapInfo& mapinfo, bool plot_lon
       METLIBS_LOG_ERROR("** MapPlot::plotGeoGrid ERROR in Curved longitude lines, nlat="
       << nlat);
     else {
-      float *x = new float[nlat];
-      float *y = new float[nlat];
+      std::unique_ptr<float[]> x(new float[nlat]);
+      std::unique_ptr<float[]> y(new float[nlat]);
       for (int ilon = ilon1; ilon <= ilon2; ilon++) {
         glon = longitudeStep * float(ilon);
         ostringstream ost;
@@ -1000,17 +1001,14 @@ bool MapPlot::plotGeoGrid(DiGLPainter* gl, const MapInfo& mapinfo, bool plot_lon
           x[n] = glon;
           y[n] = glat + dlat * float(n);
         }
-        if (getStaticPlot()->GeoToMap(nlat, x, y)) {
+        if (t_geo2map->forward(nlat, x.get(), y.get())) {
           const Rectangle& ms = getStaticPlot()->getMapSize();
           const float xylim[4]= { ms.x1, ms.x2, ms.y1, ms.y2 };
-          clipPrimitiveLines(gl, nlat, x, y, xylim, jumplimit, lon_values,
-              lon_valuepos, plotstr);
+          clipPrimitiveLines(gl, nlat, x.get(), y.get(), xylim, jumplimit, lon_values, lon_valuepos, plotstr);
         } else {
           geo2xyError = true;
         }
       }
-      delete[] x;
-      delete[] y;
     }
   }
   gl->Disable(DiGLPainter::gl_LINE_STIPPLE);
@@ -1055,8 +1053,8 @@ bool MapPlot::plotGeoGrid(DiGLPainter* gl, const MapInfo& mapinfo, bool plot_lon
           << nlon);
       METLIBS_LOG_ERROR("lonmin,lonmax=" << lonmin << "," << lonmax);
     } else {
-      float *x = new float[nlon];
-      float *y = new float[nlon];
+      std::unique_ptr<float[]> x(new float[nlon]);
+      std::unique_ptr<float[]> y(new float[nlon]);
       for (int ilat = ilat1; ilat <= ilat2; ilat++) {
         glat = latitudeStep * float(ilat);
         ostringstream ost;
@@ -1066,17 +1064,14 @@ bool MapPlot::plotGeoGrid(DiGLPainter* gl, const MapInfo& mapinfo, bool plot_lon
           x[n] = glon + dlon * float(n);
           y[n] = glat;
         }
-        if (getStaticPlot()->GeoToMap(nlon, x, y)) {
+        if (t_geo2map->forward(nlon, x.get(), y.get())) {
           const Rectangle& ms = getStaticPlot()->getMapSize();
           const float xylim[4]= { ms.x1, ms.x2, ms.y1, ms.y2 };
-          clipPrimitiveLines(gl, nlon, x, y, xylim, jumplimit, lat_values,
-              lat_valuepos, plotstr);
+          clipPrimitiveLines(gl, nlon, x.get(), y.get(), xylim, jumplimit, lat_values, lat_valuepos, plotstr);
         } else {
           geo2xyError = true;
         }
       }
-      delete[] x;
-      delete[] y;
     }
   }
 

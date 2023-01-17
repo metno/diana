@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2014-2022 met.no
+  Copyright (C) 2014-2023 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -505,6 +505,8 @@ private:
 private:
     const field_t& m_field;
     lines_t& m_lines;
+    size_t m_nx;
+    size_t m_ny;
 
     line_end_x m_le_border_top;
     line_end_x m_le_border_low;
@@ -1081,9 +1083,9 @@ void runner::prepare_left_border()
     // bmts will contain current line head triplets
 
     // find level indices for all grid points on the left border
-    m_levels.reserve(m_field.ny());
-    for (size_t iy = 0; iy < m_field.ny(); ++iy)
-        m_levels.push_back(m_field.grid_level(0, iy));
+    m_levels.reserve(m_ny);
+    for (size_t iy = 0; iy < m_ny; ++iy)
+      m_levels.push_back(m_field.grid_level(0, iy));
 
     level_t level_bl = m_levels[0];
     POCO_DEBUG(P(LV(level_bl)));
@@ -1097,7 +1099,7 @@ void runner::prepare_left_border()
     }
 
     // make heads for all lines coming in on the left from outside
-    for (size_t iy = 0; iy < m_field.ny()-1; ++iy) {
+    for (size_t iy = 0; iy < m_ny-1; ++iy) {
         const level_t level_tl = m_levels[iy+1];
         const bool    undef_tl = is_undefined(level_tl);
         const point_t point_tl = m_field.grid_point(0, iy+1);
@@ -1226,7 +1228,7 @@ void runner::finish_column_top(size_t ix)
     const bool undef_br = is_undefined(m_level_br);
     POCO_DEBUG(P(LV(ix) << LV(level_bl) << LV(m_level_br)); DUMP_LE("bt",m_le_border_top));
 
-    const point_t point_br = m_field.grid_point(ix+1, m_field.ny()-1); // top-right corner of top cell
+    const point_t point_br = m_field.grid_point(ix + 1, m_ny - 1); // top-right corner of top cell
 
     if (m_connect_up.first) {
         POCO_DEBUG(P("finish_column_top with connect_up"));
@@ -1300,7 +1302,7 @@ void runner::finish_right_border()
 {
     POCO_DEBUG_SCOPE();
     m_tix = m_triplets.begin();
-    for (size_t iy=0; iy<m_field.ny()-1; ++iy) {
+    for (size_t iy=0; iy<m_ny-1; ++iy) {
         level_t level_bl = m_levels[iy];
         level_t level_tl = m_levels[iy+1];
         bool undef_bl = is_undefined(level_bl);
@@ -1308,7 +1310,7 @@ void runner::finish_right_border()
 
         POCO_DEBUG(P("iy=" << iy << " m_tix=" << std::distance(m_triplets.begin(), m_tix) << " #triplets==" << m_triplets.size()));
 
-        const point_t point_tl = m_field.grid_point(m_field.nx()-1, iy);
+        const point_t point_tl = m_field.grid_point(m_nx-1, iy);
 
         if (not (undef_bl or undef_tl)) {
             const size_t n_left = abs(level_bl - level_tl);
@@ -1340,13 +1342,13 @@ void runner::run()
     POCO_DEBUG_SCOPE();
     prepare_left_border();
 
-    for (size_t ix=0; ix < m_field.nx()-1; ++ix) {
-        prepare_column_bottom(ix);
+    for (size_t ix = 0; ix < m_nx - 1; ++ix) {
+      prepare_column_bottom(ix);
 
-        for (size_t iy=0; iy < m_field.ny()-1; ++iy)
-            handle_inner_cell(ix, iy);
+      for (size_t iy = 0; iy < m_ny - 1; ++iy)
+        handle_inner_cell(ix, iy);
 
-        finish_column_top(ix);
+      finish_column_top(ix);
     }
 
     finish_right_border();
@@ -1367,10 +1369,14 @@ void runner::delete_line_end(line_end_x le)
 }
 
 runner::runner(const field_t& field, lines_t& lout)
-    : m_field(field), m_lines(lout)
-    , m_le_border_top(0), m_le_border_low(0)
+    : m_field(field)
+    , m_lines(lout)
+    , m_nx(field.nx())
+    , m_ny(field.ny())
+    , m_le_border_top(0)
+    , m_le_border_low(0)
     , m_tix(m_triplets.begin())
-    , m_connect_up(0,0)
+    , m_connect_up(0, 0)
     , m_undefined_level(m_field.undefined_level())
 {
 }
