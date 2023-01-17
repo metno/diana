@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013-2022 met.no
+  Copyright (C) 2013-2023 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -49,7 +49,7 @@ public:
   virtual ~DianaLevels();
   virtual contouring::level_t level_for_value(float value) const = 0;
   virtual float value_for_level(contouring::level_t l) const = 0;
-  void set_min_max(float min_value, float max_value);
+  virtual void set_min_max(float min_value, float max_value);
   contouring::level_t level_min() const { return min_level_; }
   contouring::level_t level_max() const { return max_level_; }
   enum { UNDEF_LEVEL = -10000000 };
@@ -68,8 +68,8 @@ class DianaLevelList : public DianaLevels {
 public:
   DianaLevelList(const std::vector<float>& levels);
   DianaLevelList(float lstart, float lstop, float lstep);
-  virtual contouring::level_t level_for_value(float value) const override;
-  virtual float value_for_level(contouring::level_t l) const override;
+  contouring::level_t level_for_value(float value) const override;
+  float value_for_level(contouring::level_t l) const override;
   size_t nlevels() const
     { return mLevels.size(); }
   const std::vector<float>& levels() const { return mLevels; }
@@ -94,10 +94,14 @@ public:
 class DianaLevelStep : public DianaLevels {
 public:
   DianaLevelStep(float step, float off);
-  virtual contouring::level_t level_for_value(float value) const override;
-  virtual float value_for_level(contouring::level_t l) const override;
+  void set_min_max(float min_value, float max_value) override;
+  contouring::level_t level_for_value(float value) const override;
+  float value_for_level(contouring::level_t l) const override;
+
 protected:
-  float mStep, mOff;
+  float mStep, mStepI, mOff;
+  contouring::level_t lim_min_;
+  contouring::level_t lim_max_;
 };
 
 // ########################################################################

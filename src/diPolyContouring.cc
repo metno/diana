@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2013-2022 met.no
+  Copyright (C) 2013-2023 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -243,17 +243,40 @@ DianaLevelList10::DianaLevelList10(const std::vector<float>& levels, size_t coun
 
 //------------------------------------------------------------------------
 
+namespace {
+const contouring::level_t lim_min_def = DianaLevels::UNDEF_LEVEL + 2;
+const contouring::level_t lim_max_def = std::numeric_limits<contouring::level_t>::max();
+} // namespace
+
 DianaLevelStep::DianaLevelStep(float step, float off)
-  : mStep(step)
-  , mOff(off)
+    : mStep(step)
+    , mStepI(1 / step)
+    , mOff(off)
+    , lim_min_(lim_min_def)
+    , lim_max_(lim_max_def)
 {
+}
+
+void DianaLevelStep::set_min_max(float min_value, float max_value)
+{
+  DianaLevels::set_min_max(min_value, max_value);
+  if (level_min() != UNDEF_LEVEL)
+    lim_min_ = level_min() - 1;
+  else
+    lim_min_ = lim_min_def;
+
+  if (level_max() != UNDEF_LEVEL)
+    lim_max_ = level_max() + 1;
+  else
+    lim_max_ = lim_max_def;
 }
 
 contouring::level_t DianaLevelStep::level_for_value(float value) const
 {
   if (isUndefined(value))
     return UNDEF_LEVEL;
-  return int(std::floor((value - mOff) / mStep)) + 1;
+  const contouring::level_t lvl = int(std::floor((value - mOff) * mStepI)) + 1;
+  return miutil::constrain_value(lvl, lim_min_, lim_max_);
 }
 
 float DianaLevelStep::value_for_level(contouring::level_t level) const
