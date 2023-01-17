@@ -1,3 +1,9 @@
+diana-3.57 (3.57.10-1) unstable; urgency=low
+
+  * improve contour plot and map speed
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Tue, 17 Jan 2023 08:00:08 +0100
+
 diana-3.57 (3.57.9-1) unstable; urgency=low
 
   * do not make black pixels transparent for geotiff sat images
