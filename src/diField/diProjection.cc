@@ -80,6 +80,8 @@ const float RAD_TO_DEG = 180 / M_PI;
 PJ_CONTEXT* ctx = nullptr;
 void milogger_log_func(void*, int level, const char* msg)
 {
+  ::milogger::LoggerTag proj_logger(MILOGGER_CATEGORY ".proj");
+
   milogger::Severity severity;
   switch (level) {
   case PJ_LOG_ERROR:
@@ -95,9 +97,9 @@ void milogger_log_func(void*, int level, const char* msg)
     return;
   }
 
-  if (milogger::RecordPtr MILOGGER_record = MILOGGER_logger.createRecord(severity)) {
-    MILOGGER_record->stream() << msg;
-    MILOGGER_logger.submitRecord(MILOGGER_record);
+  if (auto record = proj_logger.createRecord(severity)) {
+    record->stream() << msg;
+    proj_logger.submitRecord(record);
   }
 }
 #endif // HAVE_PROJ_H
