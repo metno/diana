@@ -1,3 +1,9 @@
+diana-3.57 (3.57.11-1) unstable; urgency=low
+
+  * add separate logger for messages from proj
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Thu, 26 Jan 2023 08:00:08 +0100
+
 diana-3.57 (3.57.10-1) unstable; urgency=low
 
   * improve contour plot and map speed
