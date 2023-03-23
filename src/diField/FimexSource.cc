@@ -952,8 +952,8 @@ void FimexReftimeSource::makeCrossectionInventory()
     }
   }
 
-  const bool has_y_1 = cdm.hasDimension(COORD_Y)
-      && cdm.getDimension(COORD_Y).getLength() == 1;
+  const bool has_y_1 = !cdm.hasDimension(COORD_Y)
+      || cdm.getDimension(COORD_Y).getLength() == 1;
 
   if (!vc_name.empty() && !vc_bounds.empty() && has_longitude_latitude) {
     mSupportsDynamic = false;
