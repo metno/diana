@@ -45,7 +45,6 @@
 #include "kill.xpm"
 #include "fileopen.xpm"
 
-using namespace std;
 
 /*********************************************/
 TextDialog::TextDialog(QWidget* parent, const InfoFile& ifile)
@@ -97,7 +96,7 @@ void TextDialog::setSource(const InfoFile& ifile)
     std::string ext, file;
     path= "";
     // find filename-extension
-    vector<std::string> vs= miutil::split(infofile.filename, ".");
+    std::vector<std::string> vs= miutil::split(infofile.filename, ".");
     if (vs.size()>1){
       ext= vs[vs.size()-1];
       miutil::trim(ext);

@@ -41,7 +41,6 @@
 #include <miLogger/miLogging.h>
 
 using namespace miutil;
-using namespace std;
 
 static const std::string STATION = "STATION";
 
@@ -135,7 +134,7 @@ void StationPlotCluster::putStations(StationPlot* stationPlot)
 }
 
 void StationPlotCluster::makeStationPlot(const std::string& commondesc, const std::string& common, const std::string& description, int from,
-                                         const vector<std::string>& data)
+                                         const std::vector<std::string>& data)
 {
   putStations(new StationPlot(commondesc, common, description, from, data));
 }
@@ -150,9 +149,9 @@ Station* StationPlotCluster::findStation(int x, int y)
   return 0;
 }
 
-vector<Station*> StationPlotCluster::findStations(int x, int y)
+std::vector<Station*> StationPlotCluster::findStations(int x, int y)
 {
-  vector<Station*> stations;
+  std::vector<Station*> stations;
   for (StationPlot* sp : diutil::static_content_cast<StationPlot*>(plots_)) {
     if (sp->isVisible()) {
       diutil::insert_all(stations, sp->stationsAt(x, y, 5));
@@ -161,11 +160,11 @@ vector<Station*> StationPlotCluster::findStations(int x, int y)
   return stations;
 }
 
-string StationPlotCluster::findStation(int x, int y, const std::string& name, int id)
+std::string StationPlotCluster::findStation(int x, int y, const std::string& name, int id)
 {
   for (StationPlot* sp : diutil::static_content_cast<StationPlot*>(plots_)) {
     if ((id == -1 || id == sp->getId()) && (name == sp->getName())) {
-      vector<std::string> st = sp->findStation(x, y);
+      std::vector<std::string> st = sp->findStation(x, y);
       if (st.size() > 0)
         return st[0];
     }
@@ -173,16 +172,16 @@ string StationPlotCluster::findStation(int x, int y, const std::string& name, in
   return std::string();
 }
 
-vector<string> StationPlotCluster::findStations(int x, int y, const std::string& name, int id)
+std::vector<std::string> StationPlotCluster::findStations(int x, int y, const std::string& name, int id)
 {
   for (StationPlot* sp : diutil::static_content_cast<StationPlot*>(plots_)) {
     if ((id == -1 || id == sp->getId()) && (name == sp->getName())) {
-      vector<std::string> st = sp->findStations(x, y);
+      std::vector<std::string> st = sp->findStations(x, y);
       if (st.size() > 0)
         return st;
     }
   }
-  return vector<std::string>();
+  return std::vector<std::string>();
 }
 
 void StationPlotCluster::findStations(int x, int y, bool add, std::vector<std::string>& name, std::vector<int>& id, std::vector<std::string>& station)
@@ -190,7 +189,7 @@ void StationPlotCluster::findStations(int x, int y, bool add, std::vector<std::s
   for (StationPlot* sp : diutil::static_content_cast<StationPlot*>(plots_)) {
     const int ii = sp->getId();
     if (ii > -1) {
-      const vector<std::string> st = sp->findStation(x, y, add);
+      const std::vector<std::string> st = sp->findStation(x, y, add);
       for (size_t j = 0; j < st.size(); j++) {
         name.push_back(sp->getName());
         id.push_back(ii);
@@ -200,7 +199,7 @@ void StationPlotCluster::findStations(int x, int y, bool add, std::vector<std::s
   }
 }
 
-void StationPlotCluster::stationCommand(const std::string& command, const vector<std::string>& data, const std::string& name, int id, const std::string& misc)
+void StationPlotCluster::stationCommand(const std::string& command, const std::vector<std::string>& data, const std::string& name, int id, const std::string& misc)
 {
   for (StationPlot* sp : diutil::static_content_cast<StationPlot*>(plots_)) {
     if ((id == -1 || id == sp->getId()) && (name == sp->getName() || name.empty())) {
@@ -236,8 +235,8 @@ void StationPlotCluster::stationCommand(const std::string& command, const std::s
 QString StationPlotCluster::getStationsText(int x, int y)
 {
   QString stationsText;
-  vector<Station*> allStations = findStations(x, y);
-  vector<Station*> stations;
+  std::vector<Station*> allStations = findStations(x, y);
+  std::vector<Station*> stations;
   for (unsigned int i = 0; i < allStations.size(); ++i) {
     if (allStations[i]->status != Station::noStatus)
       stations.push_back(allStations[i]);
@@ -248,7 +247,7 @@ QString StationPlotCluster::getStationsText(int x, int y)
     // Count the number of times each station name appears in the list.
     // This is used later to decide whether or not to show the "auto" or
     // "vis" text.
-    map<std::string, unsigned int> stationNames;
+    std::map<std::string, unsigned int> stationNames;
     for (unsigned int i = 0; i < stations.size(); ++i) {
       unsigned int number = stationNames.count(stations[i]->name);
       stationNames[stations[i]->name] = number + 1; // FIXME this is always == 2

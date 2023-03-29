@@ -70,7 +70,6 @@
 #include <miLogger/miLogging.h>
 
 using namespace miutil;
-using namespace std;
 
 Controller::Controller()
     : plotm(0)
@@ -173,12 +172,12 @@ void Controller::plot(DiGLPainter* gl, bool under, bool over)
   plotm->plot(gl, under, over);
 }
 
-vector<AnnotationPlot*> Controller::getAnnotations()
+std::vector<AnnotationPlot*> Controller::getAnnotations()
 {
   return plotm->getAnnotations();
 }
 
-vector<Rectangle> Controller::plotAnnotations(DiGLPainter* gl)
+std::vector<Rectangle> Controller::plotAnnotations(DiGLPainter* gl)
 {
   return plotm->plotAnnotations(gl);
 }
@@ -296,13 +295,13 @@ std::string Controller::getObsPopupText(int x, int y)
 }
 
 //plot trajectory position
-void Controller::trajPos(const vector<string>& str)
+void Controller::trajPos(const std::vector<std::string>& str)
 {
   plotm->trajPos(str);
 }
 
 //plot measurements position
-void Controller::measurementsPos(const vector<string>& str)
+void Controller::measurementsPos(const std::vector<std::string>& str)
 {
   plotm->measurementsPos(str);
 }
@@ -313,7 +312,7 @@ bool Controller::startTrajectoryComputation(){
 }
 
 // get trajectory fields
-vector<string> Controller::getTrajectoryFields()
+std::vector<std::string> Controller::getTrajectoryFields()
 {
   return plotm->fieldplots()->getTrajectoryFields();
 }
@@ -324,13 +323,13 @@ bool Controller::printTrajectoryPositions(const std::string& filename ){
 }
 
 // get name++ of current channels (with calibration)
-vector<string> Controller::getCalibChannels()
+std::vector<std::string> Controller::getCalibChannels()
 {
   return plotm->satplots()->getCalibChannels();
 }
 
 // show values in grid position x,y
-vector<SatValues> Controller::showValues(float x, float y)
+std::vector<SatValues> Controller::showValues(float x, float y)
 {
   return plotm->satplots()->showValues(x, y);
 }
@@ -547,7 +546,7 @@ bool Controller::editManagerIsInEdit()
   return editm->isInEdit();
 }
 
-set<string> Controller::getComplexList()
+std::set<std::string> Controller::getComplexList()
 {
   return objm->getComplexList();
 }
@@ -579,7 +578,7 @@ EditDialogInfo Controller::initEditDialog()
   return editm->getEditDialogInfo();
 }
 
-vector<std::string> Controller::getFieldLevels(const PlotCommand_cp& pinfo)
+std::vector<std::string> Controller::getFieldLevels(const PlotCommand_cp& pinfo)
 {
   if (FieldPlotCommand_cp cmd = std::dynamic_pointer_cast<const FieldPlotCommand>(pinfo))
     return fieldplotm->getFieldLevels(cmd);
@@ -592,7 +591,7 @@ miutil::miTime Controller::getFieldReferenceTime()
   return plotm->fieldplots()->getFieldReferenceTime();
 }
 
-plottimes_t Controller::getObsTimes(const vector<string>& name, bool update)
+plottimes_t Controller::getObsTimes(const std::vector<std::string>& name, bool update)
 {
   return obsm->getTimes(name, update);
 }
@@ -610,11 +609,11 @@ void Controller::putStations(StationPlot* stationPlot)
   plotm->setAnnotations();
 }
 
-void Controller::makeStationPlot(const string& commondesc,
-    const string& common,
-    const string& description,
+void Controller::makeStationPlot(const std::string& commondesc,
+    const std::string& common,
+    const std::string& description,
     int from,
-    const  vector<string>& data)
+    const  std::vector<std::string>& data)
 {
   plotm->stationplots()->makeStationPlot(commondesc, common, description, from, data);
 }
@@ -630,17 +629,17 @@ std::vector<std::string> Controller::findStations(int x, int y, const std::strin
 }
 
 void Controller::findStations(int x, int y, bool add,
-    vector<std::string>& name,
-    vector<int>& id,
-    vector<std::string>& station)
+    std::vector<std::string>& name,
+    std::vector<int>& id,
+    std::vector<std::string>& station)
 {
   plotm->stationplots()->findStations(x, y, add, name, id, station);
 }
 
-void Controller::stationCommand(const string& command,
-    const vector<string>& data,
-    const string& name, int id,
-    const string& misc)
+void Controller::stationCommand(const std::string& command,
+    const std::vector<std::string>& data,
+    const std::string& name, int id,
+    const std::string& misc)
 {
   plotm->stationplots()->stationCommand(command, data, name, id, misc);
 
@@ -648,8 +647,8 @@ void Controller::stationCommand(const string& command,
     plotm->setAnnotations();
 }
 
-void Controller::stationCommand(const string& command,
-    const string& name, int id)
+void Controller::stationCommand(const std::string& command,
+    const std::string& name, int id)
 {
   plotm->stationplots()->stationCommand(command, name, id);
   plotm->setAnnotations();
@@ -689,7 +688,7 @@ void Controller::setSelectedLocation(const std::string& name,
   plotm->setSelectedLocation(name, elementname);
 }
 
-string Controller::findLocation(int x, int y, const string& name)
+std::string Controller::findLocation(int x, int y, const std::string& name)
 {
   METLIBS_LOG_SCOPE(LOGVAL(x) << LOGVAL(y) << LOGVAL(name));
   return plotm->findLocation(x,y,name);
@@ -697,13 +696,13 @@ string Controller::findLocation(int x, int y, const string& name)
 
 //******************************************************************
 
-map<string,InfoFile> Controller::getInfoFiles()
+std::map<std::string,InfoFile> Controller::getInfoFiles()
 {
   return LocalSetupParser::getInfoFiles();
 }
 
 
-vector<PlotElement> Controller::getPlotElements()
+std::vector<PlotElement> Controller::getPlotElements()
 {
   return plotm->getPlotElements();
 }
@@ -715,14 +714,14 @@ void Controller::enablePlotElement(const PlotElement& pe)
 
 /********************* reading and writing log file *******************/
 
-vector<string> Controller::writeLog()
+std::vector<std::string> Controller::writeLog()
 {
   return man_->writeLog();
 }
 
-void Controller::readLog(const vector<string>& vstr,
-    const string& thisVersion,
-    const string& logVersion)
+void Controller::readLog(const std::vector<std::string>& vstr,
+    const std::string& thisVersion,
+    const std::string& logVersion)
 {
   man_->readLog(vstr, thisVersion, logVersion);
 }

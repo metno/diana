@@ -42,12 +42,11 @@
 #define MILOGGER_CATEGORY "diana.ObsAscii"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 using namespace miutil;
 
 static const size_t BAD = 0xFFFFFF;
 
-ObsAscii::ObsAscii(const string& filename, const string& headerfile, const vector<string>& headerinfo)
+ObsAscii::ObsAscii(const std::string& filename, const std::string& headerfile, const std::vector<std::string>& headerinfo)
     : m_needDataRead(true)
     , m_error(false)
     , vObsData(std::make_shared<ObsDataVector>())
@@ -72,8 +71,8 @@ ObsDataVector_p ObsAscii::getObsData(const miTime& filetime, const miutil::miTim
 
 //####################################################################
 
-void ObsAscii::readHeaderInfo(const string& filename, const string& headerfile,
-    const vector<string>& headerinfo)
+void ObsAscii::readHeaderInfo(const std::string& filename, const std::string& headerfile,
+    const std::vector<std::string>& headerinfo)
 {
   METLIBS_LOG_SCOPE(LOGVAL(filename) << LOGVAL(headerfile) << LOGVAL(headerinfo.size()));
 
@@ -149,7 +148,7 @@ bool ObsAscii::bracketContents(std::vector<std::string>& in_out)
 bool ObsAscii::parseHeaderBrackets(const std::string& str)
 {
   METLIBS_LOG_SCOPE(LOGVAL(str));
-  vector<string> pstr = miutil::split_protected(str, '"', '"');
+  std::vector<std::string> pstr = miutil::split_protected(str, '"', '"');
   if (pstr.size() <= 1) {
     return false;
   }
@@ -159,7 +158,7 @@ bool ObsAscii::parseHeaderBrackets(const std::string& str)
       pstr = miutil::split(str, separator);
     for (size_t j = 1; j < pstr.size(); j++) {
       diutil::remove_quote(pstr[j]);
-      const vector<std::string> vs = miutil::split(pstr[j], ":");
+      const std::vector<std::string> vs = miutil::split(pstr[j], ":");
       Column col;
       if (vs.size()>1) {
         col.name = vs[0];
@@ -189,7 +188,7 @@ void ObsAscii::decodeHeader()
 {
   METLIBS_LOG_SCOPE();
 
-  vector<string> vstr;
+  std::vector<std::string> vstr;
   for (std::string& line : lines) { // must be reference here, used later in decodeData
     erase_comment(line);
     miutil::trim(line);
@@ -339,7 +338,7 @@ void ObsAscii::decodeData()
     if (line.empty() or line[0] == '#')
       continue;
 
-    vector<string> pstr;
+    std::vector<std::string> pstr;
     if (not separator.empty())
       pstr = miutil::split(line, separator, false);
     else

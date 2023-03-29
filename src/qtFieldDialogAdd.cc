@@ -50,7 +50,6 @@
 #define MILOGGER_CATEGORY "diana.FieldDialogAdd"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 
 namespace { // anonymous
 
@@ -246,7 +245,7 @@ void FieldDialogAdd::modelboxClicked(const QModelIndex& filterIndex)
   currentModel = m_modelgroup[indexMGR].models[indexM].modelName;
 
   m_data->updateFieldReferenceTimes(currentModel);
-  const set<std::string> refTimes = m_data->getFieldReferenceTimes(currentModel);
+  const std::set<std::string> refTimes = m_data->getFieldReferenceTimes(currentModel);
 
   for (const std::string& rt : refTimes) {
     refTimeComboBox->addItem(QString::fromStdString(rt));

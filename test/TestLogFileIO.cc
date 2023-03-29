@@ -32,7 +32,6 @@
 
 #include <gtest/gtest.h>
 
-using namespace std;
 
 #define HEI_UTF8 "hei blåbær"
 

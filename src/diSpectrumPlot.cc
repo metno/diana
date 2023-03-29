@@ -53,7 +53,6 @@
 #define MILOGGER_CATEGORY "diana.SpectrumPlot"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 using namespace miutil;
 
 static const float DEG_TO_RAD = M_PI / 180;

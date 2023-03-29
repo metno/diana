@@ -35,7 +35,7 @@ using std::vector;
 
 std::map<std::string,Pattern::PatternInfo> Pattern::pmap;
 
-Pattern::Pattern(const std::string& name, const vector<std::string>& pattern)
+Pattern::Pattern(const std::string& name, const std::vector<std::string>& pattern)
 {
   if (not name.empty()) {
     pmap[name].name    = name;
@@ -49,18 +49,18 @@ void Pattern::addPatternInfo(const PatternInfo& pi)
     pmap[pi.name] = pi;
 }
 
-vector<std::string> Pattern::getPatternInfo(const std::string& name)
+std::vector<std::string> Pattern::getPatternInfo(const std::string& name)
 {
   const pmap_t::const_iterator it = pmap.find(name);
   if (it != pmap.end())
     return it->second.pattern;
   
-  return vector<std::string>();
+  return std::vector<std::string>();
 }
 
-vector<Pattern::PatternInfo> Pattern::getAllPatternInfo()
+std::vector<Pattern::PatternInfo> Pattern::getAllPatternInfo()
 {
-  vector<PatternInfo> pattern;
+  std::vector<PatternInfo> pattern;
 
   for (pmap_t::const_iterator p = pmap.begin(); p!=pmap.end(); ++p) {
     pattern.push_back(p->second);

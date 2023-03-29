@@ -51,7 +51,6 @@
 #define MILOGGER_CATEGORY "diana.LocalSetupParser"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 
 /// PVERSION is defined due to debian packing using the metno-debuild tool
 #ifndef PVERSION
@@ -68,10 +67,10 @@ const std::string SectInfoFiles=   "TEXT_INFORMATION_FILES";
 
 // static members
 std::string LocalSetupParser::setupFilename;
-vector<QuickMenuDefs>      LocalSetupParser::quickmenudefs;
-map<std::string,std::string>     LocalSetupParser::basic_values;
-map<std::string,InfoFile>     LocalSetupParser::infoFiles;
-vector<std::string>           LocalSetupParser::langPaths;
+std::vector<QuickMenuDefs>      LocalSetupParser::quickmenudefs;
+std::map<std::string,std::string>     LocalSetupParser::basic_values;
+std::map<std::string,InfoFile>     LocalSetupParser::infoFiles;
+std::vector<std::string>           LocalSetupParser::langPaths;
 
 
 bool LocalSetupParser::makeDirectory(const std::string& filename, std::string & error)
@@ -120,19 +119,19 @@ bool LocalSetupParser::parse(std::string& mainfilename)
     setupFilename = "diana.setup";
     std::string filename_str = setupFilename;
     METLIBS_LOG_INFO("filename:" << setupFilename);
-    ifstream file(setupFilename.c_str());
+    std::ifstream file(setupFilename.c_str());
     if (!file) {
       setupFilename = homedir + "/diana.setup";
       filename_str += " or ";
       filename_str += setupFilename;
       METLIBS_LOG_INFO("filename:" << setupFilename);
-      ifstream file2(setupFilename.c_str());
+      std::ifstream file2(setupFilename.c_str());
       if (!file2) {
         setupFilename = "/etc/diana/" PVERSION "/diana.setup-COMMON";
         filename_str += " or ";
         filename_str += setupFilename;
         METLIBS_LOG_INFO("filename:" << setupFilename);
-        ifstream file3(setupFilename.c_str());
+        std::ifstream file3(setupFilename.c_str());
         if (!file3) {
           METLIBS_LOG_ERROR("LocalSetupParser::readSetup. cannot open default setupfile "
           << filename_str);
@@ -185,7 +184,7 @@ bool LocalSetupParser::parseBasics(const std::string& sectname){
   basic_values[key_imagepath] = SHAREDIR + "/images";
   basic_values[key_language] = language;
 
-  vector<std::string> list,tokens;
+  std::vector<std::string> list,tokens;
   std::string key,value;
   int i,n;
 
@@ -202,7 +201,7 @@ bool LocalSetupParser::parseBasics(const std::string& sectname){
     if (key==key_langpaths){
       langpaths= value;
     } else if (key==key_setenv){
-      vector<std::string> part = miutil::split(value, ",");
+      std::vector<std::string> part = miutil::split(value, ",");
       if(part.size()==3){
 #ifdef __WIN32__
         //TODO: This is broken, disregards third argument (replace option)
@@ -236,13 +235,13 @@ bool LocalSetupParser::parseTextInfoFiles(const std::string& sectname)
   const std::string def_type= "auto";
   const std::string def_font= "auto";
 
-  vector<std::string> list;
+  std::vector<std::string> list;
   if (!miutil::SetupParser::getSection(sectname,list))
     return true;
 
   for (const std::string line : list) {
     std::string name,filename, type = def_type, font = def_font;
-    const vector<std::string> tokens2 = miutil::split(line, " ");
+    const std::vector<std::string> tokens2 = miutil::split(line, " ");
     for (unsigned int j=0; j<tokens2.size(); j++){
       std::string key,value;
       miutil::SetupParser::splitKeyValue(tokens2[j], key, value);
@@ -289,7 +288,7 @@ bool LocalSetupParser::parseColours(const std::string& sectname){
       {64,64,64},{127,127,127},{230,230,230}};
 
 
-  vector<std::string> list,tokens,stokens;
+  std::vector<std::string> list,tokens,stokens;
   std::string key,value,value2;
   int i,n;
   Colour c;
@@ -377,10 +376,10 @@ bool LocalSetupParser::parsePalettes(const std::string& sectname){
 #ifdef DEBUGPRINT1
   METLIBS_LOG_DEBUG("nRGBtab,mRGBtab: "<<nRGBtab<<" "<<mRGBtab);
   for (int i=0; i<nRGBtab; i++) {
-    METLIBS_LOG_DEBUG(setw(3)<<i<<":  "
-    <<setw(3)<<int(RGBtab[i][0]*255.+0.5)<<"  "
-    <<setw(3)<<int(RGBtab[i][1]*255.+0.5)<<"  "
-    <<setw(3)<<int(RGBtab[i][2]*255.+0.5));
+    METLIBS_LOG_DEBUG(std::setw(3)<<i<<":  "
+    <<std::setw(3)<<int(RGBtab[i][0]*255.+0.5)<<"  "
+    <<std::setw(3)<<int(RGBtab[i][1]*255.+0.5)<<"  "
+    <<std::setw(3)<<int(RGBtab[i][2]*255.+0.5));
   }
 #endif
 
@@ -398,7 +397,7 @@ bool LocalSetupParser::parsePalettes(const std::string& sectname){
   ColourShading::addColourShadingInfo(csinfo);
   ColourShading::define("standard",csinfo.colour);
 
-  vector<std::string> list,tokens,stokens;
+  std::vector<std::string> list,tokens,stokens;
   std::string key,value,value2;
 
   if (!miutil::SetupParser::getSection(sectname,list))
@@ -426,7 +425,7 @@ bool LocalSetupParser::parsePalettes(const std::string& sectname){
 // parse section containing fill pattern definitions
 bool LocalSetupParser::parseFillPatterns(const std::string& sectname){
 
-  vector<std::string> list;
+  std::vector<std::string> list;
   std::string key;
   int i,n;
 
@@ -463,12 +462,12 @@ bool LocalSetupParser::parseLineTypes(const std::string& sectname)
   // first define default types/values
   Linetype::init();
 
-  vector<std::string> list;
+  std::vector<std::string> list;
   if (!miutil::SetupParser::getSection(sectname,list))
     return true;
 
   const unsigned int numbits= 16;
-  vector<std::string> stokens;
+  std::vector<std::string> stokens;
   std::string key,value;
 
   for (const std::string& line : list) {
@@ -505,7 +504,7 @@ bool LocalSetupParser::parseQuickMenus(const std::string& sectname){
 
   const std::string key_file= "file";
 
-  vector<std::string> list,tokens,stokens;
+  std::vector<std::string> list,tokens,stokens;
   std::string key,value,file;
   QuickMenuDefs qmenu;
   int i,j,m,n;
@@ -540,7 +539,7 @@ bool LocalSetupParser::parseQuickMenus(const std::string& sectname){
 }
 
 
-bool LocalSetupParser::getQuickMenus(vector<QuickMenuDefs>& qm)
+bool LocalSetupParser::getQuickMenus(std::vector<QuickMenuDefs>& qm)
 {
   qm= quickmenudefs;
   return true;

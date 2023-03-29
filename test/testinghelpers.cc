@@ -38,8 +38,8 @@
 using std::string;
 
 namespace {
-const string test_src(TEST_SRCDIR "/");
-const string extra_data_dir(TEST_EXTRADATA_DIR "/");
+const std::string test_src(TEST_SRCDIR "/");
+const std::string extra_data_dir(TEST_EXTRADATA_DIR "/");
 } // namespace
 
 namespace ditest {
@@ -74,19 +74,19 @@ void remove(const std::string& path)
     ::remove(path.c_str());
 }
 
-string require(const std::string& path)
+std::string require(const std::string& path)
 {
     if (!exists(path))
         throw std::runtime_error("no such file: '" + path + "'");
     return path;
 }
 
-string pathTest(const std::string& filename)
+std::string pathTest(const std::string& filename)
 {
     return require(test_src + filename);
 }
 
-string pathTestExtra(const std::string& filename)
+std::string pathTestExtra(const std::string& filename)
 {
     return require(extra_data_dir + filename);
 }

@@ -48,7 +48,6 @@
 #define MILOGGER_CATEGORY "diana.EditDefineFieldDialog"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 
 /*********************************************/
 EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent, EditManager* editm, int n, EditProduct ep)
@@ -194,11 +193,11 @@ EditDefineFieldDialog::EditDefineFieldDialog(QWidget* parent, EditManager* editm
 
 /*********************************************/
 
-vector<std::string> EditDefineFieldDialog::getProductNames()
+std::vector<std::string> EditDefineFieldDialog::getProductNames()
 {
   METLIBS_LOG_SCOPE();
 
-  vector <std::string> name;
+  std::vector <std::string> name;
   if (!m_editm)
     return name;
   //get fields
@@ -207,15 +206,15 @@ vector<std::string> EditDefineFieldDialog::getProductNames()
     fields= m_editm->getValidEditFields(EdProd,num);
   }
   name.push_back(EdProd.name);
-  vector<savedProduct> sp = m_editm->getSavedProducts(EdProd, num);
+  std::vector<savedProduct> sp = m_editm->getSavedProducts(EdProd, num);
   pmap[EdProd.name]=sp;
-  vector<std::string> products = m_editm->getEditProductNames();
+  std::vector<std::string> products = m_editm->getEditProductNames();
   int n = products.size();
   for (int i =0;i<n;i++){
     if (products[i]==EdProd.name) continue;
     EditProduct epin;
     if (m_editm->findProduct(epin,products[i])){
-      vector<savedProduct> spin;
+      std::vector<savedProduct> spin;
       if (num>-1)
         spin = m_editm->getSavedProducts(epin,EdProd.fields[num].name);
       else
@@ -252,7 +251,7 @@ void EditDefineFieldDialog::fillList()
       fBox->addItem(QString(fields[i].c_str()));
     }
   } else {
-    vector <savedProduct> splist = pmap[currentProductName];
+    std::vector <savedProduct> splist = pmap[currentProductName];
     for (unsigned int i=0; i<splist.size(); i++){
       std::string str;
       if ( splist[i].ptime.undef() ) {
@@ -284,10 +283,10 @@ void EditDefineFieldDialog::fieldselect(QListWidgetItem* item)
     updateFilenames();
     if (filenames->count()) filenames->item(0)->setSelected(true);
   } else {
-    vector <savedProduct> splist = pmap[currentProductName];
+    std::vector <savedProduct> splist = pmap[currentProductName];
     savedProduct selectedprod = splist[i];
     //check this savedproduct not already selected
-    vector<savedProduct>::iterator p=vselectedprod.begin();
+    std::vector<savedProduct>::iterator p=vselectedprod.begin();
     for (; p!=vselectedprod.end() && selectedprod.filename!=p->filename;p++);
     if (p==vselectedprod.end()){
       initCbs();
@@ -393,7 +392,7 @@ void EditDefineFieldDialog::cbsClicked()
     ok->setEnabled(true);
 }
 
-void EditDefineFieldDialog::setCheckedCbs(const map<std::string, bool>& useEditobject)
+void EditDefineFieldDialog::setCheckedCbs(const std::map<std::string, bool>& useEditobject)
 {
   if (num > -1)
     return;

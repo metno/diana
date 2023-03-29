@@ -32,7 +32,6 @@
 
 #include <gtest/gtest.h>
 
-using namespace std;
 
 TEST(TestQuickMenues, UpdateMapArea)
 {
@@ -198,7 +197,7 @@ std::vector<quickMenu> makeQM()
   return qm;
 }
 
-const static string QM_LOG_SEP = "=======================";
+const static std::string QM_LOG_SEP = "=======================";
 
 } // namespace
 

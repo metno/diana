@@ -44,7 +44,6 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-using namespace std;
 
 TimeControl::TimeControl(QWidget* parent)
   : QDialog( parent)
@@ -313,14 +312,14 @@ void TimeControl::useData(const std::string& type, int id)
 }
 
 
-vector<std::string> TimeControl::deleteType(int id)
+std::vector<std::string> TimeControl::deleteType(int id)
 {
   //id=-1 means remove all external types
-  vector<std::string>::iterator p = dataname.begin();
-  map<int,std::string>::iterator q = external_id.begin();
-  map<int,std::string>::iterator qend = external_id.end();
+  std::vector<std::string>::iterator p = dataname.begin();
+  std::map<int,std::string>::iterator q = external_id.begin();
+  std::map<int,std::string>::iterator qend = external_id.end();
 
-  vector<std::string> type;
+  std::vector<std::string> type;
   std::string currentDataname;
   if (dataBox->currentIndex() >=0) {
     currentDataname = dataname[dataBox->currentIndex()];
@@ -330,7 +329,7 @@ vector<std::string> TimeControl::deleteType(int id)
     if (id>-1 && q->first!=id)
       continue;
     int i=0;
-    vector<std::string>::iterator pend = dataname.end();
+    std::vector<std::string>::iterator pend = dataname.end();
     while (p!=pend && q->second != *p) {
       p++;
       i++;

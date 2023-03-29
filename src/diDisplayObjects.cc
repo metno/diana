@@ -45,7 +45,6 @@
 #include <miLogger/miLogging.h>
 
 using namespace::miutil;
-using namespace std;
 
 DisplayObjects::DisplayObjects()
 {
@@ -149,7 +148,7 @@ bool DisplayObjects::prepareObjects()
 
 /*********************************************/
 
-void DisplayObjects::getObjAnnotation(string &str, Colour &col)
+void DisplayObjects::getObjAnnotation(std::string &str, Colour &col)
 {
   if (approved) {
     str = objectname;
@@ -161,11 +160,11 @@ void DisplayObjects::getObjAnnotation(string &str, Colour &col)
   }
 }
 
-void DisplayObjects::getDataAnnotations(vector<string>& anno) const
+void DisplayObjects::getDataAnnotations(std::vector<std::string>& anno) const
 {
   if (!isEnabled() or objects.empty())
     return;
-  for (string& a : anno) {
+  for (std::string& a : anno) {
     if (!miutil::contains(a, "table") || miutil::contains(a, "table="))
       continue;
     std::string endString;

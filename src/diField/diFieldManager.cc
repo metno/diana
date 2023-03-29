@@ -66,7 +66,6 @@
 #define MILOGGER_CATEGORY "diField.FieldManager"
 #include "miLogger/miLogging.h"
 
-using namespace std;
 using namespace miutil;
 using namespace miutil::constants;
 
@@ -115,8 +114,8 @@ std::vector<std::string> FieldManager::subsections()
 bool FieldManager::parseSetup()
 {
   // Parse field sections
-  vector<std::string> errors;
-  vector<std::string> lines;
+  std::vector<std::string> errors;
+  std::vector<std::string> lines;
   for (const std::string& suse : subsections()) {
     SetupParser::getSection(suse, lines);
     parseSetup(lines, suse, errors);
@@ -124,7 +123,7 @@ bool FieldManager::parseSetup()
   // Write error messages
   int nerror = errors.size();
   for (int i = 0; i < nerror; i++) {
-    vector<std::string> token = miutil::split(errors[i], "|");
+    std::vector<std::string> token = miutil::split(errors[i], "|");
     SetupParser::errorMsg(token[0], atoi(token[1].c_str()), token[2]);
   }
 
@@ -180,10 +179,10 @@ bool FieldManager::updateFileSetup(const std::vector<std::string>& lines,
 
     std::string modelName;
     std::string fieldFileType;
-    vector<std::string> fileNames;
-    vector<std::string> options;
-    vector<std::string> format;
-    vector<std::string> config;
+    std::vector<std::string> fileNames;
+    std::vector<std::string> options;
+    std::vector<std::string> format;
+    std::vector<std::string> config;
     std::string guiOptions;
     std::string gridioType = "fimex";
     bool validTimeFromFilename = false;
@@ -271,8 +270,8 @@ bool FieldManager::updateFileSetup(const std::vector<std::string>& lines,
 
     if (!modelName.empty() && (not fileNames.empty())) {
 
-      vector<std::string> vModelNames;
-      vector<vector<std::string> > vFileNames;
+      std::vector<std::string> vModelNames;
+      std::vector<std::vector<std::string> > vFileNames;
 
       if (miutil::contains(modelName, "*")) { // the * is replaced by the filename (without path)
 
@@ -288,13 +287,13 @@ bool FieldManager::updateFileSetup(const std::vector<std::string>& lines,
           for (size_t k = 0; k < matches.size(); k++) {
             const std::string& fname = matches[k];
             size_t pb = fname.rfind('/');
-            if (pb == string::npos)
+            if (pb == std::string::npos)
               pb = 0;
             else
               pb++;
             modelName = mpart1 + fname.substr(pb) + mpart2;
             vModelNames.push_back(modelName);
-            vector<std::string> vf(1, fname);
+            std::vector<std::string> vf(1, fname);
             vFileNames.push_back(vf);
           }
         }
@@ -347,7 +346,7 @@ bool FieldManager::updateFileSetup(const std::vector<std::string>& lines,
             fieldModelGroups[groupIndex].models.push_back(FieldModelInfo(mn, lines[l]));
           }
         } else {
-          ostringstream ost;
+          std::ostringstream ost;
           ost << FIELD_FILES << "|" << l << "|Bad or no GridIO with type= " << gridioType << "  for model='" << mn << "'";
           errors.push_back(ost.str());
         }
@@ -408,7 +407,7 @@ bool FieldManager::addModels(const std::vector<std::string>& configInfo)
       file = defaultFile[sourcetype];
     }
 
-    ostringstream ost;
+    std::ostringstream ost;
     ost <<"m="<<model<<" t=" <<sourcetype<< " f="<<file;
 
     if (not config.empty()) {
@@ -587,7 +586,7 @@ std::set<std::string> FieldManager::getReferenceTimes(const std::string& modelNa
   if (GridCollectionPtr pgc = getGridCollection(modelName, ""))
     return pgc->getReferenceTimes();
   else
-    return set<std::string>();
+    return std::set<std::string>();
 }
 
 std::string FieldManager::getBestReferenceTime(const std::string& modelName,

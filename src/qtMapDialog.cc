@@ -46,7 +46,6 @@
 
 #include "ui_mapdialog.h"
 
-using namespace std;
 
 #define HEIGHTLB 105
 #define HEIGHTLBSMALL 70
@@ -581,7 +580,7 @@ PlotCommand_cpv MapDialog::getOKString()
     logmaps.clear();
   }
 
-  vector<int> lmaps; // check for logging
+  std::vector<int> lmaps; // check for logging
 
   for (int i = 0; i < numselected; i++) {
     const int lindex = selectedmaps[i];
@@ -625,7 +624,7 @@ void MapDialog::putOKString(const PlotCommand_cpv& vstr)
 {
   METLIBS_LOG_SCOPE();
   MapManager mapm;
-  vector<int> themaps;
+  std::vector<int> themaps;
   std::string bgcolour, area;
   MapInfo mi;
 
@@ -707,14 +706,14 @@ std::string MapDialog::getShortname()
 // LOG-FILE read/write methods
 // ------------------------------------------------
 
-vector<string> MapDialog::writeLog()
+std::vector<std::string> MapDialog::writeLog()
 {
-  vector<string> vstr;
+  std::vector<std::string> vstr;
   MapManager mapm;
 
   // first: write all map-specifications
   for (const MapInfo& mi : m_MapDI.maps) {
-    ostringstream ostr;
+    std::ostringstream ostr;
     ostr << mapm.MapInfo2str(mi);
     vstr.push_back(ostr.str());
   }
@@ -724,7 +723,7 @@ vector<string> MapDialog::writeLog()
   getMapInfoFromUi(mi);
 
   //write backcolour/lat/lon/frame
-  ostringstream ostr;
+  std::ostringstream ostr;
   ostr << "backcolour=" << ui->backcolorcbox->currentText().toStdString();
   ostr << ' ' << mapm.MapExtra2str(mi);
   vstr.push_back(ostr.str());
@@ -759,15 +758,15 @@ vector<string> MapDialog::writeLog()
   return vstr;
 }
 
-void MapDialog::readLog(const vector<string>& vstr,
-    const string& thisVersion, const string& logVersion)
+void MapDialog::readLog(const std::vector<std::string>& vstr,
+    const std::string& thisVersion, const std::string& logVersion)
 {
   // version-check
   //bool oldversion= (thisVersion!=logVersion && logVersion < "2001-08-25");
   MapManager mapm;
 
   int n = vstr.size();
-  vector<int> themaps;
+  std::vector<int> themaps;
   std::string bgcolour, area;
   MapInfo mi;
   int iline;

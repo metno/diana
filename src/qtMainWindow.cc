@@ -172,7 +172,6 @@
 //#define DISABLE_VCROSS 1
 //#define DISABLE_WAVESPEC 1
 
-using namespace std;
 
 DianaMainWindow *DianaMainWindow::self = 0;
 
@@ -650,7 +649,7 @@ DianaMainWindow::DianaMainWindow(Controller* co, const QString& instancename)
 
   std::string avatarpath = LocalSetupParser::basicValue("avatars");
   if (not avatarpath.empty()) {
-    const vector<std::string> vs = miutil::split(avatarpath, ":");
+    const std::vector<std::string> vs = miutil::split(avatarpath, ":");
     for ( unsigned int i=0; i<vs.size(); i++ ){
       ig.addImagesInDirectory(vs[i]);
     }
@@ -966,7 +965,7 @@ void DianaMainWindow::recallPlot(const PlotCommand_cpv& vstr, bool replace)
 
   // strings for each dialog
   PlotCommand_cpv mapcom,obscom,satcom,statcom,objcom,labelcom,fldcom;
-  map<std::string, PlotCommand_cpv> dialog_com;
+  std::map<std::string, PlotCommand_cpv> dialog_com;
   for (PlotCommand_cp c : vstr) {
     METLIBS_LOG_DEBUG(LOGVAL(c->toString()));
     const std::string& pre = c->commandKey();
@@ -997,7 +996,7 @@ void DianaMainWindow::recallPlot(const PlotCommand_cpv& vstr, bool replace)
   // If the strings are being replaced then update each of the
   // dialogs whether it has a command or not. Otherwise, only
   // update those with a corresponding string.
-  map<std::string, DataDialog *>::iterator it;
+  std::map<std::string, DataDialog *>::iterator it;
   for (it = dialogNames.begin(); it != dialogNames.end(); ++it) {
     DataDialog *dialog = it->second;
     if (replace || dialog_com.find(it->first) != dialog_com.end())
@@ -1056,7 +1055,7 @@ bool isLabelCommandWithTime(PlotCommand_cp cmd)
 }
 } // namespace
 
-void DianaMainWindow::getPlotStrings(PlotCommand_cpv &pstr, vector<string> &shortnames)
+void DianaMainWindow::getPlotStrings(PlotCommand_cpv &pstr, std::vector<std::string> &shortnames)
 {
   // fields
   pstr = fm->getOKString();
@@ -1114,7 +1113,7 @@ void DianaMainWindow::applyPlotCommandsFromDialogs(bool addToHistory)
   diutil::OverrideCursor waitCursor;
 
   PlotCommand_cpv pstr;
-  vector<string> shortnames;
+  std::vector<std::string> shortnames;
   getPlotStrings(pstr, shortnames);
 
   // init level up/down arrows
@@ -1472,7 +1471,7 @@ void DianaMainWindow::hideSpectrumWindow()
   updateGLSlot();
 }
 
-void DianaMainWindow::stationChangedSlot(const vector<std::string>& station)
+void DianaMainWindow::stationChangedSlot(const std::vector<std::string>& station)
 {
   METLIBS_LOG_SCOPE();
   contr->stationCommand("setSelectedStations",station,"vprof");
@@ -1559,8 +1558,8 @@ void DianaMainWindow::spectrumChangedSlot(const QString& station)
 {
   //METLIBS_LOG_DEBUG("DianaMainWindow::spectrumChangedSlot to " << name);
   METLIBS_LOG_DEBUG("DianaMainWindow::spectrumChangedSlot");
-  string s =station.toStdString();
-  vector<string> data;
+  std::string s =station.toStdString();
+  std::vector<std::string> data;
   data.push_back(s);
   contr->stationCommand("setSelectedStation",data,"spectrum");
   //  contr->setSelectedStation(s, "spectrum");
@@ -1715,12 +1714,12 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
       return;
 
     //obsolete -> new syntax
-    string commondesc = letter.commondesc;
-    string common = letter.common;
-    string description = letter.description;
+    std::string commondesc = letter.commondesc;
+    std::string common = letter.common;
+    std::string description = letter.description;
 
     if (letter.description.find(";") != letter.description.npos) {
-      vector<string> desc;
+      std::vector<std::string> desc;
       boost::algorithm::split(desc, letter.description, boost::algorithm::is_any_of(";"));
       if (desc.size() < 2)
         return;
@@ -1753,7 +1752,7 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
     //METLIBS_LOG_DEBUG("Change text and image\n");
     //description: dataSet;stationname:image:text:alignment
     //find name of data set from description
-    vector<string> desc;
+    std::vector<std::string> desc;
     boost::algorithm::split(desc, letter.description, boost::algorithm::is_any_of(";"));
     if (desc.size() == 2) { //obsolete syntax
       contr->stationCommand("changeImageandText",
@@ -1888,7 +1887,7 @@ void DianaMainWindow::processLetter(int fromId, const miQMessage &qletter)
 
   else if (command == qmstrings::getcurrentplotcommand) {
     PlotCommand_cpv v1;
-    vector<string> v2;
+    std::vector<std::string> v2;
     getPlotStrings(v1, v2);
 
     miQMessage l(qmstrings::currentplotcommand);
@@ -2094,7 +2093,7 @@ void DianaMainWindow::setPlotTime(const miutil::miTime& t)
   updatePlotElements();
 
   //update sat channels in statusbar
-  vector<string> channels = contr->getCalibChannels();
+  std::vector<std::string> channels = contr->getCalibChannels();
   showsatval->SetChannels(channels);
 
   QCoreApplication::sendPostedEvents();
@@ -2269,7 +2268,7 @@ void DianaMainWindow::catchMouseMovePos(QMouseEvent* mev, bool quick)
   sgeopos->handleMousePos(x, y);
 
   // show sat-value at position
-  vector<SatValues> satval;
+  std::vector<SatValues> satval;
   satval = contr->showValues(xmap, ymap);
   showsatval->ShowValues(satval);
 
@@ -2323,7 +2322,7 @@ void DianaMainWindow::catchElement(QMouseEvent* mev)
   showStationOrObsText(x, y);
 
   //find the name of stations clicked/pointed at
-  vector<std::string> stations = contr->findStations(x,y,"vprof");
+  std::vector<std::string> stations = contr->findStations(x,y,"vprof");
   //now tell vpWindow about new station (this calls vpManager)
   if (vpWindow && !stations.empty())
     vpWindow->changeStations(stations);
@@ -2347,9 +2346,9 @@ void DianaMainWindow::catchElement(QMouseEvent* mev)
   if(qsocket){
 
     //set selected and send position to plugin connected
-    vector<int> id;
-    vector<std::string> name;
-    vector<std::string> station;
+    std::vector<int> id;
+    std::vector<std::string> name;
+    std::vector<std::string> station;
 
     bool add = false;
     //    if(mev->modifiers() & Qt::ShiftModifier) add = true; //todo: shift already used (skip editmode)
@@ -2624,7 +2623,7 @@ void restoreDialogPos(QWidget* d, int x, int y)
 
 } // anonymous namespace
 
-vector<string> DianaMainWindow::writeLog(const string& thisVersion, const string& thisBuild)
+std::vector<std::string> DianaMainWindow::writeLog(const std::string& thisVersion, const std::string& thisBuild)
 {
   std::vector<std::string> vstr;
   std::string str;
@@ -2653,7 +2652,7 @@ vector<string> DianaMainWindow::writeLog(const string& thisVersion, const string
   saveDialogSize(vstr, "Textview", textview);
   saveDialogPos(vstr, "Textview", textview);
 
-  map<QAction*, DataDialog*>::iterator it;
+  std::map<QAction*, DataDialog*>::iterator it;
   for (it = dialogs.begin(); it != dialogs.end(); ++it) {
     DataDialog* d = it->second;
     saveDialogPos(vstr, d->name(), d);
@@ -2714,16 +2713,16 @@ std::string DianaMainWindow::saveDocState()
   mmdock->setVisible(false);
 
   QByteArray state = saveState();
-  ostringstream ost;
+  std::ostringstream ost;
   int n= state.count();
   for (int i=0; i<n; i++)
-    ost << setw(7) << int(state[i]);
+    ost << std::setw(7) << int(state[i]);
   return ost.str();
 }
 
-void DianaMainWindow::readLog(const vector<string>& vstr, const string& thisVersion, string& logVersion)
+void DianaMainWindow::readLog(const std::vector<std::string>& vstr, const std::string& thisVersion, std::string& logVersion)
 {
-  vector<string> tokens;
+  std::vector<std::string> tokens;
   int x,y;
 
   int nvstr= vstr.size();
@@ -2773,7 +2772,7 @@ void DianaMainWindow::readLog(const vector<string>& vstr, const string& thisVers
         else if (tokens[0]=="Textview.size")     restoreDialogSize(textview, showmore, x, y);
         else if (tokens[0]=="Textview.pos")      restoreDialogPos(textview, x, y);
         else {
-          map<QAction*, DataDialog*>::iterator it;
+          std::map<QAction*, DataDialog*>::iterator it;
           for (it = dialogs.begin(); it != dialogs.end(); ++it) {
             if (tokens[0] == it->second->name() + ".pos") {
               restoreDialogPos(it->second, x, y);
@@ -2829,7 +2828,7 @@ void DianaMainWindow::readLog(const vector<string>& vstr, const string& thisVers
 
 void DianaMainWindow::restoreDocState(const std::string& logstr)
 {
-  vector<std::string> vs= miutil::split(logstr, " ");
+  std::vector<std::string> vs= miutil::split(logstr, " ");
   int n=vs.size();
   QByteArray state(n-1,' ');
   for (int i=1; i<n; i++){
@@ -2865,7 +2864,7 @@ void DianaMainWindow::checkNews()
   }
 
   // open input filestream
-  ifstream ifile(newsfile.c_str());
+  std::ifstream ifile(newsfile.c_str());
   if (ifile) {
     getline(ifile,newsVersion);
     ifile.close();
@@ -2873,9 +2872,9 @@ void DianaMainWindow::checkNews()
 
   if (thisVersion!=newsVersion) {
     // open output filestream
-    ofstream ofile(newsfile.c_str());
+    std::ofstream ofile(newsfile.c_str());
     if (ofile) {
-      ofile << thisVersion << endl;
+      ofile << thisVersion << std::endl;
       ofile.close();
     }
 
@@ -2886,7 +2885,7 @@ void DianaMainWindow::checkNews()
 void DianaMainWindow::toggleElement(PlotElement pe)
 {
   contr->enablePlotElement(pe);
-  vector<string> channels = contr->getCalibChannels();
+  std::vector<std::string> channels = contr->getCalibChannels();
   showsatval->SetChannels(channels);
   requestBackgroundBufferUpdate();
 }

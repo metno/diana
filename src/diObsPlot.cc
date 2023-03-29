@@ -61,20 +61,19 @@
 #define MILOGGER_CATEGORY "diana.ObsPlot"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 using namespace miutil;
 using boost::adaptors::reverse;
 
-map<std::string, vector<std::string> > ObsPlot::visibleStations;
-map<std::string, ObsPlot::metarww> ObsPlot::metarMap;
-map<int, int> ObsPlot::lwwg2;
+std::map<std::string, std::vector<std::string> > ObsPlot::visibleStations;
+std::map<std::string, ObsPlot::metarww> ObsPlot::metarMap;
+std::map<int, int> ObsPlot::lwwg2;
 
 std::string ObsPlot::currentPriorityFile = "";
-vector<std::string> ObsPlot::priorityList;
-vector<short> ObsPlot::itabSynop;
-vector<short> ObsPlot::iptabSynop;
-vector<short> ObsPlot::itabMetar;
-vector<short> ObsPlot::iptabMetar;
+std::vector<std::string> ObsPlot::priorityList;
+std::vector<short> ObsPlot::itabSynop;
+std::vector<short> ObsPlot::iptabSynop;
+std::vector<short> ObsPlot::itabMetar;
+std::vector<short> ObsPlot::iptabMetar;
 
 static const int undef = -32767; //should be defined elsewhere
 
@@ -242,7 +241,7 @@ ObsPlot::~ObsPlot()
   delete[] y;
 }
 
-void ObsPlot::getAnnotation(string& str, Colour& col) const
+void ObsPlot::getAnnotation(std::string& str, Colour& col) const
 {
   METLIBS_LOG_SCOPE();
   str = annotation;
@@ -258,7 +257,7 @@ void ObsPlot::updatePlotNameAndAnnotation()
 {
   bool first = true;
   std::ostringstream ost;
-  for (const string& rn : readernames) {
+  for (const std::string& rn : readernames) {
     if (!first)
       ost << ' ';
     first = false;
@@ -290,7 +289,7 @@ void ObsPlot::updatePlotNameAndAnnotation()
   annotation = ost.str();
 }
 
-void ObsPlot::getDataAnnotations(vector<string>& anno) const
+void ObsPlot::getDataAnnotations(std::vector<std::string>& anno) const
 {
   METLIBS_LOG_SCOPE();
 
@@ -299,7 +298,7 @@ void ObsPlot::getDataAnnotations(vector<string>& anno) const
 
   const std::string vectorAnnotationSize = miutil::from_number(21 * getStaticPlot()->getPhysToMapScaleX());
   const std::string vectorAnnotationText = miutil::from_number(2.5f * wind_scale, 2) + "m/s";
-  for (const string& a : anno) {
+  for (const std::string& a : anno) {
     if (miutil::contains(a, "arrow")) {
       if (miutil::contains(a, "arrow="))
         continue;
@@ -424,7 +423,7 @@ void ObsPlot::setPlotInfo(const miutil::KeyValue_v& pin)
 
   PlotOptionsPlot::setPlotInfo(pin);
 
-  vector<std::string> parameter;
+  std::vector<std::string> parameter;
   for (const miutil::KeyValue& kv : pin) {
     const std::string& key = kv.key();
     const std::string& value = kv.value();
@@ -720,7 +719,7 @@ void ObsPlot::readStations()
 
   std::vector<std::string>& vs = visibleStations[dialogname];
   if (!vs.empty()) {
-    vector<int> tmpList = all_from_file;
+    std::vector<int> tmpList = all_from_file;
     all_stations.clear();
 
     // Fill the stations from stat into priority_vector,
@@ -778,7 +777,7 @@ void ObsPlot::priority_sort()
 
   all_from_file.resize(numObs);
 
-  vector<int> automat;
+  std::vector<int> automat;
   int n = 0;
   for (i = 0; i < numObs; i++) {
     const auto obs = obsp[i];
@@ -799,7 +798,7 @@ void ObsPlot::priority_sort()
 
     if (priorityList.size() > 0) {
 
-      vector<int> tmpList = all_from_file;
+      std::vector<int> tmpList = all_from_file;
       all_from_file.clear();
 
       // Fill the stations from priority list into all_from_file,
@@ -835,9 +834,9 @@ void ObsPlot::time_sort(void)
 
   numObs = obsp.size();
 
-  vector<int> diff(numObs);
-  multimap<int, int> sortmap1;
-  multimap<int, int> sortmap2;
+  std::vector<int> diff(numObs);
+  std::multimap<int, int> sortmap1;
+  std::multimap<int, int> sortmap2;
 
   // Data from obs-files or database
   // find mindiff = abs(obsTime-plotTime) for all observations
@@ -854,11 +853,11 @@ void ObsPlot::time_sort(void)
     sortmap2.insert(std::make_pair(diff[index], index));
   }
 
-  multimap<int, int>::iterator p = sortmap1.begin();
+  std::multimap<int, int>::iterator p = sortmap1.begin();
   for (int i = 0; i < numObs; i++, p++)
     all_stations[i] = p->second;
 
-  multimap<int, int>::iterator q = sortmap2.begin();
+  std::multimap<int, int>::iterator q = sortmap2.begin();
   for (int i = 0; i < numObs; i++, q++)
     all_from_file[i] = q->second;
 }
@@ -871,13 +870,13 @@ void ObsPlot::parameter_sort(const std::string& parameter, bool minValue)
   if (obsp.empty())
     return;
 
-  vector<int> tmpFileList = all_from_file;
-  vector<int> tmpStnList = all_stations;
+  std::vector<int> tmpFileList = all_from_file;
+  std::vector<int> tmpStnList = all_stations;
 
-  multimap<string, int> stringFileSortmap;
-  multimap<string, int> stringStnSortmap;
-  multimap<double, int> numFileSortmap;
-  multimap<double, int> numStnSortmap;
+  std::multimap<std::string, int> stringFileSortmap;
+  std::multimap<std::string, int> stringStnSortmap;
+  std::multimap<double, int> numFileSortmap;
+  std::multimap<double, int> numStnSortmap;
 
   // Fill the observation with parameter
   // and mark them in tmpList
@@ -887,7 +886,7 @@ void ObsPlot::parameter_sort(const std::string& parameter, bool minValue)
     if (const std::string* stringkey = obsp[index].get_string(parameter)) {
       if (miutil::is_number(*stringkey)) {
         double numberkey = miutil::to_double(*stringkey);
-        numFileSortmap.insert(pair<double, int>(numberkey, index));
+        numFileSortmap.insert(std::pair<double, int>(numberkey, index));
       } else {
         stringFileSortmap.insert(std::make_pair(*stringkey, index));
       }
@@ -901,7 +900,7 @@ void ObsPlot::parameter_sort(const std::string& parameter, bool minValue)
     if (const std::string* stringkey = obsp[index].get_string(parameter)) {
       if (miutil::is_number(*stringkey)) {
         double numberkey = miutil::to_double(*stringkey);
-        numStnSortmap.insert(pair<double, int>(numberkey, index));
+        numStnSortmap.insert(std::pair<double, int>(numberkey, index));
       } else {
         stringStnSortmap.insert(std::make_pair(*stringkey, index));
       }
@@ -913,37 +912,37 @@ void ObsPlot::parameter_sort(const std::string& parameter, bool minValue)
   all_from_file.clear();
   all_stations.clear();
   if (!minValue) {
-    for (multimap<double, int>::iterator p = numFileSortmap.begin();
+    for (std::multimap<double, int>::iterator p = numFileSortmap.begin();
         p != numFileSortmap.end(); p++) {
       all_from_file.push_back(p->second);
     }
-    for (multimap<string, int>::iterator p = stringFileSortmap.begin();
+    for (std::multimap<std::string, int>::iterator p = stringFileSortmap.begin();
         p != stringFileSortmap.end(); p++) {
       all_from_file.push_back(p->second);
     }
 
-    for (multimap<double, int>::iterator p = numStnSortmap.begin();
+    for (std::multimap<double, int>::iterator p = numStnSortmap.begin();
         p != numStnSortmap.end(); p++) {
       all_stations.push_back(p->second);
     }
-    for (multimap<string, int>::iterator p = stringStnSortmap.begin();
+    for (std::multimap<std::string, int>::iterator p = stringStnSortmap.begin();
         p != stringStnSortmap.end(); p++) {
       all_stations.push_back(p->second);
     }
   } else {
-    for (multimap<string, int>::reverse_iterator p = stringFileSortmap.rbegin();
+    for (std::multimap<std::string, int>::reverse_iterator p = stringFileSortmap.rbegin();
         p != stringFileSortmap.rend(); p++) {
       all_from_file.push_back(p->second);
     }
-    for (multimap<double, int>::reverse_iterator p = numFileSortmap.rbegin();
+    for (std::multimap<double, int>::reverse_iterator p = numFileSortmap.rbegin();
         p != numFileSortmap.rend(); p++) {
       all_from_file.push_back(p->second);
     }
-    for (multimap<string, int>::reverse_iterator p = stringStnSortmap.rbegin();
+    for (std::multimap<std::string, int>::reverse_iterator p = stringStnSortmap.rbegin();
         p != stringStnSortmap.rend(); p++) {
       all_stations.push_back(p->second);
     }
-    for (multimap<double, int>::reverse_iterator p = numStnSortmap.rbegin();
+    for (std::multimap<double, int>::reverse_iterator p = numStnSortmap.rbegin();
         p != numStnSortmap.rend(); p++) {
       all_stations.push_back(p->second);
     }
@@ -971,10 +970,10 @@ void ObsPlot::readPriorityFile(const std::string& filename)
   // this will prevent opening a nonexisting file many times
   currentPriorityFile = filename;
 
-  ifstream inFile;
+  std::ifstream inFile;
   std::string line;
 
-  inFile.open(filename.c_str(), ios::in);
+  inFile.open(filename.c_str(), std::ios::in);
   if (inFile.bad()) {
     METLIBS_LOG_WARN("ObsPlot: Can't open file: " << priorityFile);
     return;
@@ -1078,7 +1077,7 @@ bool ObsPlot::showpos_findObs(int xx, int yy)
 
   //insert station found in list of stations to plot, and remove it
   //from list of stations not to plot
-  vector<int>::iterator min_p = notplot.begin()+min_i;
+  std::vector<int>::iterator min_p = notplot.begin()+min_i;
   nextplot.insert(nextplot.begin(), notplot[min_i]);
   notplot.erase(min_p);
   thisObs = true;
@@ -1088,7 +1087,7 @@ bool ObsPlot::showpos_findObs(int xx, int yy)
 void ObsPlot::setPopupSpec(const std::vector<std::string>& txt)
 {
   std::string datatype;
-  vector<std::string> data;
+  std::vector<std::string> data;
 
   for (const std::string& t : txt) {
     if (miutil::contains(t, "datatype")) {
@@ -1096,7 +1095,7 @@ void ObsPlot::setPopupSpec(const std::vector<std::string>& txt)
         popupSpec[datatype] = data;
         data.clear();
       }
-      vector<std::string> token = miutil::split(t, "=");
+      std::vector<std::string> token = miutil::split(t, "=");
       if (token.size() == 2) {
         datatype = token[1];
       }
@@ -1124,7 +1123,7 @@ bool ObsPlot::getObsPopupText(int xx, int yy, std::string& setuptext)
   const ObsDataRef& dt = obsp[min_i];
 
   for (const std::string& datatype : readernames) {
-    std::map<string, vector<std::string> >::const_iterator f_p = popupSpec.find(datatype);
+    std::map<std::string, std::vector<std::string> >::const_iterator f_p = popupSpec.find(datatype);
     if (f_p == popupSpec.end())
       continue;
 
@@ -1146,7 +1145,7 @@ bool ObsPlot::getObsPopupText(int xx, int yy, std::string& setuptext)
       setuptext += "<tr>";
       setuptext += "<td>";
       setuptext += "<span style=\"background: red; color: red\">X</span>";
-      vector<std::string> token = miutil::split(mdat, ' ');
+      std::vector<std::string> token = miutil::split(mdat, ' ');
       for (size_t j = 0; j < token.size(); j++) {
         if (miutil::contains(token[j], "$")) {
           miutil::trim(token[j]);
@@ -1154,10 +1153,10 @@ bool ObsPlot::getObsPopupText(int xx, int yy, std::string& setuptext)
           setuptext += get_popup_text(dt, token[j]);
           setuptext += " ";
         } else if (miutil::contains(token[j], ":")) {
-          vector<std::string> values = miutil::split(token[j], ":");
+          std::vector<std::string> values = miutil::split(token[j], ":");
           for (size_t i = 0; i < values.size(); i++) {
             if (miutil::contains(values[i], "=")) {
-              vector<std::string> keys = miutil::split(values[i], "=");
+              std::vector<std::string> keys = miutil::split(values[i], "=");
               if (keys.size() == 2) {
                 const std::string* s = dt.get_string(token[0]);
                 if (s && *s == keys[0])
@@ -1332,8 +1331,8 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
   //Which stations to plot
 
   bool testpos = true; // positionFree or areaFree must be tested
-  vector<int> ptmp;
-  vector<int>::iterator p, pbegin, pend;
+  std::vector<int> ptmp;
+  std::vector<int>::iterator p, pbegin, pend;
 
   if (firstplot || recalculate_densities_) { // new area
 
@@ -1362,7 +1361,7 @@ void ObsPlot::plot(DiGLPainter* gl, PlotOrder zorder)
     // then the rest if possible
 
     if (!firstplot) {
-      vector<int> a, b;
+      std::vector<int> a, b;
       const size_t n = list_plotnr.size();
       if (n == numObs) {
         for (int i : all_this_area) {
@@ -2568,7 +2567,7 @@ void ObsPlot::metarString2int(std::string ww, int intww[])
     ww.erase(ww.begin(), ww.begin() + 2);
   }
 
-  vector<metarww> ia;
+  std::vector<metarww> ia;
   for (int i = 0; i < size; i += 2) {
     std::string sub = ww.substr(i, 2);
     if (metarMap.find(sub) != metarMap.end())
@@ -2792,10 +2791,10 @@ void ObsPlot::printNumber(DiGLPainter* gl, float f, QPointF xy, const std::strin
   float x = xy.x() * scale;
   float y = xy.y() * scale;
 
-  ostringstream cs;
+  std::ostringstream cs;
 
   if (align == "temp") {
-    cs.setf(ios::fixed);
+    cs.setf(std::ios::fixed);
     if (tempPrecision) {
       f = diutil::float2int(f);
       cs.precision(0);
@@ -2821,7 +2820,7 @@ void ObsPlot::printNumber(DiGLPainter* gl, float f, QPointF xy, const std::strin
     f = (int(f * 10 + 0.5)) % 1000;
     cs << f;
   } else if (align == "float_1") {
-    cs.setf(ios::fixed);
+    cs.setf(std::ios::fixed);
     cs.precision(1);
     cs << f;
     float w, h;
@@ -2846,8 +2845,8 @@ void ObsPlot::printNumber(DiGLPainter* gl, float f, QPointF xy, const std::strin
       cs << '0';
     cs << fabsf(f) * 10;
   } else if (align == "RRR") {
-    cs.setf(ios::fixed);
-    cs.setf(ios::showpoint);
+    cs.setf(std::ios::fixed);
+    cs.setf(std::ios::showpoint);
     if (f < 1) {
       cs.precision(1);
     } else {
@@ -2855,9 +2854,9 @@ void ObsPlot::printNumber(DiGLPainter* gl, float f, QPointF xy, const std::strin
     }
     cs << f;
   } else if (align == "PPPP_mslp") {
-    cs.setf(ios::fixed);
+    cs.setf(std::ios::fixed);
     cs.precision(1);
-    cs.setf(ios::showpos);
+    cs.setf(std::ios::showpos);
     cs << f;
   } else
     cs << f;
@@ -2928,7 +2927,7 @@ void ObsPlot::printTime(DiGLPainter* gl, const miTime& time, QPointF xy, bool al
 void ObsPlot::printVisibility(DiGLPainter* gl, const float& VV, bool ship, QPointF& vvxy, bool align_right)
 {
 
-  ostringstream cs;
+  std::ostringstream cs;
 
   if (show_VV_as_code_) {
     cs.width(2);
@@ -2937,7 +2936,7 @@ void ObsPlot::printVisibility(DiGLPainter* gl, const float& VV, bool ship, QPoin
   } else {
     float VV_value = VV / 1000;
     if (VV_value < 5.0) {
-      cs.setf(ios::fixed);
+      cs.setf(std::ios::fixed);
       cs.precision(1);
       cs << VV_value;
     } else {
@@ -3415,7 +3414,7 @@ bool readTableFile(const std::string& filename, std::vector<short>& table, int c
     METLIBS_LOG_WARN("unable to open table file '" << filename << "'");
     return false;
   }
-  string line;
+  std::string line;
   int i = 0;
   while (ifs.good()) {
     getline(ifs,line);
@@ -3469,12 +3468,12 @@ bool ObsPlot::readTable(const ObsPlotType type, const std::string& itab_filename
 
 void ObsPlot::decodeSort(const std::string& sortStr)
 {
-  vector<std::string> vstr = miutil::split(sortStr, ";");
+  std::vector<std::string> vstr = miutil::split(sortStr, ";");
   int nvstr = vstr.size();
   sortcriteria.clear();
 
   for (int i = 0; i < nvstr; i++) {
-    vector<std::string> vcrit = miutil::split(vstr[i], ",");
+    std::vector<std::string> vcrit = miutil::split(vstr[i], ",");
     if (vcrit.size() > 1 && miutil::to_lower(vcrit[1]) == "desc") {
       sortcriteria[vcrit[0]] = false;
     } else {
@@ -3485,10 +3484,10 @@ void ObsPlot::decodeSort(const std::string& sortStr)
 
 void ObsPlot::decodeCriteria(const std::string& critStr)
 {
-  vector<std::string> vstr = miutil::split(critStr, ";");
+  std::vector<std::string> vstr = miutil::split(critStr, ";");
   int nvstr = vstr.size();
   for (int i = 0; i < nvstr; i++) {
-    vector<std::string> vcrit = miutil::split(vstr[i], ",");
+    std::vector<std::string> vcrit = miutil::split(vstr[i], ",");
     if (vcrit.size() < 2)
       continue;
     std::string sep;
@@ -3517,7 +3516,7 @@ void ObsPlot::decodeCriteria(const std::string& critStr)
       sign = no_sign;
     }
     if (not sep.empty()) {
-      vector<std::string> sstr = miutil::split(vcrit[0], sep);
+      std::vector<std::string> sstr = miutil::split(vcrit[0], sep);
       if (sstr.size() != 2)
         continue;
       parameter = sstr[0];
@@ -3576,7 +3575,7 @@ void ObsPlot::checkColourCriteria(DiGLPainter* gl, const std::string& param, flo
 
   Colour col = colour;
 
-  std::map<std::string, vector<colourCriteria> >::iterator p = colourcriteria.find(param);
+  std::map<std::string, std::vector<colourCriteria> >::iterator p = colourcriteria.find(param);
   if (p != colourcriteria.end()) {
     if (p->first == "RRR")
       adjustRRR(value);

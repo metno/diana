@@ -50,7 +50,6 @@
 #include <miLogger/miLogging.h>
 
 using namespace::miutil;
-using namespace std;
 
 static std::string ddString[16]; // norwegian directions North, NorthNorthEast, NorthEast, EastNorthEast, etc.
 
@@ -62,7 +61,7 @@ static double distance(const miCoordinates& pos, const Station* s)
   return pos.distanceTo(s->pos) / 1000;
 }
 
-StationPlot::StationPlot(const vector<float> & lons, const vector<float> & lats)
+StationPlot::StationPlot(const std::vector<float> & lons, const std::vector<float> & lats)
 {
   init();
   const size_t n = std::min(lons.size(), lats.size());
@@ -72,8 +71,8 @@ StationPlot::StationPlot(const vector<float> & lons, const vector<float> & lats)
   defineCoordinates();
 }
 
-StationPlot::StationPlot(const vector<std::string> & names,
-    const vector<float> & lons, const vector<float> & lats)
+StationPlot::StationPlot(const std::vector<std::string> & names,
+    const std::vector<float> & lons, const std::vector<float> & lats)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
@@ -86,7 +85,7 @@ StationPlot::StationPlot(const vector<std::string> & names,
   defineCoordinates();
 }
 
-StationPlot::StationPlot(const vector<stationInfo> & stations)
+StationPlot::StationPlot(const std::vector<stationInfo> & stations)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
@@ -98,9 +97,9 @@ StationPlot::StationPlot(const vector<stationInfo> & stations)
   defineCoordinates();
 }
 
-StationPlot::StationPlot(const vector<std::string> & names,
-    const vector<float> & lons, const vector<float> & lats,
-    const vector<std::string>& images)
+StationPlot::StationPlot(const std::vector<std::string> & names,
+    const std::vector<float> & lons, const std::vector<float> & lats,
+    const std::vector<std::string>& images)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
@@ -114,7 +113,7 @@ StationPlot::StationPlot(const vector<std::string> & names,
   defineCoordinates();
 }
 
-StationPlot::StationPlot(const vector <Station*> &stations)
+StationPlot::StationPlot(const std::vector <Station*> &stations)
 {
   init();
   for (Station* si : stations)
@@ -124,15 +123,15 @@ StationPlot::StationPlot(const vector <Station*> &stations)
   defineCoordinates();
 }
 
-StationPlot::StationPlot(const string& commondesc, const string& common,
-    const string& description, int from, const vector<string>& data)
+StationPlot::StationPlot(const std::string& commondesc, const std::string& common,
+    const std::string& description, int from, const std::vector<std::string>& data)
 {
   init();
 
   id = from;
-  vector<string> vcommondesc;
-  vector<string> vcommon;
-  vector<string> vdesc;
+  std::vector<std::string> vcommondesc;
+  std::vector<std::string> vcommon;
+  std::vector<std::string> vdesc;
   boost::algorithm::split(vcommondesc, commondesc, boost::algorithm::is_any_of(":"));
   boost::algorithm::split(vcommon, common, boost::algorithm::is_any_of(":"));
   boost::algorithm::split(vdesc, description, boost::algorithm::is_any_of(":"));
@@ -144,7 +143,7 @@ StationPlot::StationPlot(const string& commondesc, const string& common,
   }
 
   int num = vcommondesc.size();
-  map<std::string, int> commonmap;
+  std::map<std::string, int> commonmap;
   for (int i = 0; i < num; i++)
     commonmap[vcommondesc[i]] = i;
   if (commonmap.count("dataset")) {
@@ -175,7 +174,7 @@ StationPlot::StationPlot(const string& commondesc, const string& common,
 
   //decode data
   int ndata = data.size();
-  map<std::string, int> datamap;
+  std::map<std::string, int> datamap;
   unsigned int ndesc = vdesc.size();
   for (unsigned int i = 0; i < ndesc; i++)
     datamap[vdesc[i]] = i;
@@ -188,7 +187,7 @@ StationPlot::StationPlot(const string& commondesc, const string& common,
   float lat, lon;
   int alpha = 255;
   for (int i = 0; i < ndata; i++) {
-    vector<string> token;
+    std::vector<std::string> token;
     boost::algorithm::split(token, data[i], boost::algorithm::is_any_of(":"));
     if (token.size() != ndesc)
       continue;
@@ -287,8 +286,8 @@ void StationPlot::plot(DiGLPainter* gl, PlotOrder zorder)
   if (!isEnabled() || !visible || zorder != PO_LINES)
     return;
 
-  map<Station::Status, vector<int> > selected; //index of selected stations for each status
-  map<Station::Status, vector<int> > unselected; //index of unselected stations for each status
+  std::map<Station::Status, std::vector<int> > selected; //index of selected stations for each status
+  std::map<Station::Status, std::vector<int> > unselected; //index of unselected stations for each status
 
   //first loop, only unselected stations
   int n = stations.size();
@@ -305,10 +304,10 @@ void StationPlot::plot(DiGLPainter* gl, PlotOrder zorder)
   static Station::Status plotOrder[5] = {Station::noStatus, Station::unknown, Station::working, Station::underRepair, Station::failed};
 
   for (unsigned int i = 0; i < 5; ++i) {
-    for (vector<int>::iterator it = unselected[plotOrder[i]].begin(); it != unselected[plotOrder[i]].end(); it++) {
+    for (std::vector<int>::iterator it = unselected[plotOrder[i]].begin(); it != unselected[plotOrder[i]].end(); it++) {
       plotStation(gl, *it);
     }
-    for (vector<int>::iterator it = selected[plotOrder[i]].begin(); it != selected[plotOrder[i]].end(); it++) {
+    for (std::vector<int>::iterator it = selected[plotOrder[i]].begin(); it != selected[plotOrder[i]].end(); it++) {
       plotStation(gl, *it);
     }
   }
@@ -504,7 +503,7 @@ bool StationPlot::switchProjection()
   return true;
 }
 
-vector<Station*> StationPlot::getStations() const
+std::vector<Station*> StationPlot::getStations() const
 {
   return stations;
 }
@@ -514,7 +513,7 @@ Station* StationPlot::stationAt(int phys_x, int phys_y)
   using miutil::square;
 
   const float radius = 100;
-  vector<Station*> found = stationsAt(phys_x, phys_y, radius);
+  std::vector<Station*> found = stationsAt(phys_x, phys_y, radius);
 
   if (found.empty())
     return 0;
@@ -539,17 +538,17 @@ Station* StationPlot::stationAt(int phys_x, int phys_y)
   return found[min_i];
 }
 
-vector<Station*> StationPlot::stationsAt(int phys_x, int phys_y, float radius, bool useAllStations)
+std::vector<Station*> StationPlot::stationsAt(int phys_x, int phys_y, float radius, bool useAllStations)
 {
   const XY pos = getStaticPlot()->PhysToMap(XY(phys_x, phys_y));
 
   float min_r = miutil::square(radius * getStaticPlot()->getPhysToMapScaleX());
 
-  vector<Station*> within;
+  std::vector<Station*> within;
 
   float geo_x = pos.x(), geo_y = pos.y();
   if (getStaticPlot()->MapToGeo(1, &geo_x, &geo_y)) {
-    vector<Station*> found;
+    std::vector<Station*> found;
     if (useAllStations) {
       found = stations;
     } else {
@@ -573,9 +572,9 @@ vector<Station*> StationPlot::stationsAt(int phys_x, int phys_y, float radius, b
   return within;
 }
 
-vector<std::string> StationPlot::findStation(int x, int y, bool add)
+std::vector<std::string> StationPlot::findStation(int x, int y, bool add)
 {
-  vector<std::string> stationstring;
+  std::vector<std::string> stationstring;
 
   if (!visible || !isEnabled())
     return stationstring;
@@ -595,14 +594,14 @@ vector<std::string> StationPlot::findStation(int x, int y, bool add)
   return stationstring;
 }
 
-vector<std::string> StationPlot::findStations(int x, int y)
+std::vector<std::string> StationPlot::findStations(int x, int y)
 {
-  vector<std::string> stationstring;
+  std::vector<std::string> stationstring;
 
   if (!visible || !isEnabled())
     return stationstring;
 
-  vector<Station*> found = stationsAt(x, y, 10.0f, true);
+  std::vector<Station*> found = stationsAt(x, y, 10.0f, true);
 
   for (unsigned int i = 0; i < found.size(); i++) {
     stationstring.push_back(found[i]->name);
@@ -611,9 +610,9 @@ vector<std::string> StationPlot::findStations(int x, int y)
   return stationstring;
 }
 
-vector<Station*> StationPlot::getSelectedStations() const
+std::vector<Station*> StationPlot::getSelectedStations() const
 {
-  vector<Station*> selected;
+  std::vector<Station*> selected;
   for (unsigned int i = 0; i < stations.size(); ++i) {
     if (stations[i]->isSelected)
       selected.push_back(stations[i]);
@@ -684,7 +683,7 @@ int StationPlot::setSelectedStation(int i, bool add)
   return -1;
 }
 
-void StationPlot::getAnnotation(string &str, Colour &col) const
+void StationPlot::getAnnotation(std::string &str, Colour &col) const
 {
   if (visible) {
     str = annotation;
@@ -694,7 +693,7 @@ void StationPlot::getAnnotation(string &str, Colour &col) const
   }
 }
 
-void StationPlot::setStationPlotAnnotation(const string &str)
+void StationPlot::setStationPlotAnnotation(const std::string &str)
 {
   annotation = str;
 }
@@ -738,15 +737,15 @@ void StationPlot::setUseStationName(bool normal, bool selected)
 }
 
 
-bool StationPlot::stationCommand(const string& command,
-    const vector<string>& data, const string& misc)
+bool StationPlot::stationCommand(const std::string& command,
+    const std::vector<std::string>& data, const std::string& misc)
 {
   METLIBS_LOG_SCOPE();
   if (command == "changeImageandText") {
-    vector<string> description;
+    std::vector<std::string> description;
     boost::algorithm::split(description, misc, boost::algorithm::is_any_of(":"));
     int ndesc = description.size();
-    map<std::string, int> datamap;
+    std::map<std::string, int> datamap;
     for (int i = 0; i < ndesc; i++)
       datamap[description[i]] = i;
     if (!datamap.count("name")) {
@@ -780,7 +779,7 @@ bool StationPlot::stationCommand(const string& command,
     Colour colour;
     for (int i = 0; i < n; i++) {
       //       METLIBS_LOG_DEBUG("StationPlot::stationCommand:data:"<<data[i]);
-      vector<string> token;
+      std::vector<std::string> token;
       boost::algorithm::split(token, data[i], boost::algorithm::is_any_of(":"));
       if (token.size() < description.size()) {
         METLIBS_LOG_ERROR("Description:" << misc << " and data:" << data[i] << " do not match");
@@ -914,7 +913,7 @@ bool StationPlot::stationCommand(const string& command,
   }
 
   else if (command == "showPositionName" && data.size() > 0) {
-    vector<string> token;
+    std::vector<std::string> token;
     boost::algorithm::split(token, data[0], boost::algorithm::is_any_of(":"));
     if (token.size() < 2) // obsolete
       boost::algorithm::split(token, data[0], boost::algorithm::is_any_of(","));
@@ -938,17 +937,17 @@ bool StationPlot::stationCommand(const string& command,
 
   else if (command == "showPositionText" && data.size() > 0) {
 
-    vector<string> description;
+    std::vector<std::string> description;
     boost::algorithm::split(description, misc, boost::algorithm::is_any_of(":"));
     int ndesc = description.size();
-    map<std::string, int> datamap;
+    std::map<std::string, int> datamap;
     for (int i = 0; i < ndesc; i++)
       datamap[description[i]] = i;
     if (!datamap.count("showtext")) {
       METLIBS_LOG_ERROR(" StationPlot::stationCommand: description must contain showtext");
       return false;
     }
-    vector<string> token;
+    std::vector<std::string> token;
     boost::algorithm::split(token, data[0], boost::algorithm::is_any_of(":"));
     if (token.size() < description.size()) {
       METLIBS_LOG_ERROR("StationPlot::stationCommand: Description:" << misc
@@ -970,7 +969,7 @@ bool StationPlot::stationCommand(const string& command,
   return false;
 }
 
-bool StationPlot::stationCommand(const string& command)
+bool StationPlot::stationCommand(const std::string& command)
 {
   if (command == "show") {
     setVisible(true);
@@ -1261,9 +1260,9 @@ double StationArea::distance(const miCoordinates& pos) const
   return d / 1000; // convert from m to km
 }
 
-vector<Station*> StationArea::findStations(const miCoordinates& pos, float radius) const
+std::vector<Station*> StationArea::findStations(const miCoordinates& pos, float radius) const
 {
-  vector<Station*> all;
+  std::vector<Station*> all;
 
   if (!areas.empty()) {
     for (std::vector<StationArea>::const_iterator it = areas.begin(); it != areas.end(); ++it) {
@@ -1273,7 +1272,7 @@ vector<Station*> StationArea::findStations(const miCoordinates& pos, float radiu
       }
     }
   } else {
-    for (vector<Station*>::const_iterator it = stations.begin(); it != stations.end(); ++it) {
+    for (std::vector<Station*>::const_iterator it = stations.begin(); it != stations.end(); ++it) {
       Station* s = *it;
       const double d = ::distance(pos, s);
       if (d < radius)
@@ -1285,7 +1284,7 @@ vector<Station*> StationArea::findStations(const miCoordinates& pos, float radiu
 
 Station* StationArea::findStation(const miCoordinates& pos, float radius) const
 {
-  vector<Station*> found = findStations(pos, radius);
+  std::vector<Station*> found = findStations(pos, radius);
   if (found.empty())
     return 0;
 

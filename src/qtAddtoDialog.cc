@@ -49,7 +49,7 @@ AddtoDialog::AddtoDialog( QWidget* parent, Controller* llctrl)
   : QDialog(parent), m_ctrl(llctrl), m_objm(0)
 {
 #ifdef DEBUGPRINT
-  cout<<"AddtoDialog::AddtoDialog called"<<endl;
+  std::cout<<"AddtoDialog::AddtoDialog called"<<std::endl;
 #endif
 
   m_objm= m_ctrl->getObjectManager();

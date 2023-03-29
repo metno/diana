@@ -47,7 +47,6 @@
 #include <miLogger/miLogging.h>
 
 using namespace::miutil;
-using namespace std;
 
 const int DIV_SPLINE = 5;
 
@@ -60,7 +59,7 @@ static const Colour CYAN05(0, 255, 255, 128);
 // static
 const int ObjectPlot::siglinewidth = 2;
 // static
-map <std::string,std::string> ObjectPlot::editTranslations;
+std::map <std::string,std::string> ObjectPlot::editTranslations;
 
 ObjectPlot::~ObjectPlot()
 {
@@ -281,7 +280,7 @@ std::vector<XY> ObjectPlot::getXYmarkedJoined() const
 }
 
 
-void ObjectPlot::setXY(const vector<float>& x, const vector <float>& y)
+void ObjectPlot::setXY(const std::vector<float>& x, const std::vector <float>& y)
 {
   const size_t n = std::min(x.size(), y.size());
   const size_t end = std::min(n, nodePoints.size());
@@ -390,7 +389,7 @@ void ObjectPlot::unmarkAllPoints()
 
 bool ObjectPlot::deleteMarkPoints()
 {
-  deque <ObjectPoint>::iterator p=nodePoints.begin();
+  std::deque <ObjectPoint>::iterator p=nodePoints.begin();
   while (p!= nodePoints.end()){
     if (p->marked())
       p=nodePoints.erase(p);
@@ -758,19 +757,19 @@ void ObjectPlot::setWindowInfo()
   window_dh= getStaticPlot()->getPhysToMapScaleY();
 }
 
-void ObjectPlot::setBasisColor(const string& colour)
+void ObjectPlot::setBasisColor(const std::string& colour)
 {
   // sets basis color of object
   basisColor = colour;
   objectColour = Colour(colour);
 }
 
-void ObjectPlot::setObjectColor(const string& colour)
+void ObjectPlot::setObjectColor(const std::string& colour)
 {
   objectColour = Colour(colour);
 }
 
-void ObjectPlot::setObjectBorderColor(const string& colour)
+void ObjectPlot::setObjectBorderColor(const std::string& colour)
 {
   objectBorderColour = Colour(colour);
 }
@@ -780,10 +779,10 @@ void ObjectPlot::setObjectColor(const Colour::ColourInfo& colour)
   objectColour = Colour(colour.rgb[0],colour.rgb[1],colour.rgb[2]);
 }
 
-void ObjectPlot::setObjectRGBColor(const string& rgbstring)
+void ObjectPlot::setObjectRGBColor(const std::string& rgbstring)
 {
   //METLIBS_LOG_DEBUG("rgba value is " << rgbstring);
-  vector<std::string> colours2add=miutil::split(rgbstring, ",");
+  std::vector<std::string> colours2add=miutil::split(rgbstring, ",");
   int nColours = colours2add.size()/4;
   for (int cc=0; cc < nColours; cc++){
     unsigned char cadd[4];
@@ -812,7 +811,7 @@ bool ObjectPlot::readObjectString(const std::string& objectString)
   METLIBS_LOG_DEBUG("string is: " << objectString);
 
   for (const std::string tok : miutil::split(objectString, 0, ";")) {
-    const vector<std::string> stokens = miutil::split(tok, 0, "=");
+    const std::vector<std::string> stokens = miutil::split(tok, 0, "=");
     if( stokens.size() != 2 ) {
       METLIBS_LOG_WARN(" readObjectString: key without value: '" << tok << "'");
       return false;
@@ -845,7 +844,7 @@ bool ObjectPlot::readObjectString(const std::string& objectString)
         key == "longitudelatitude") {
       METLIBS_LOG_DEBUG("Lonlat value is " << value);
       LonLatRead = true;
-      vector<std::string> points2add=miutil::split(value, ",");
+      std::vector<std::string> points2add=miutil::split(value, ",");
       int nPoints = points2add.size()/2;
       for (int pp=0; pp< nPoints; pp++){
         METLIBS_LOG_DEBUG(points2add[pp*2]);
@@ -898,7 +897,7 @@ bool ObjectPlot::readObjectString(const std::string& objectString)
 
 std::string ObjectPlot::writeObjectString()
 {
-  ostringstream r;
+  std::ostringstream r;
   //write type of object
   r << writeTypeString();
 

@@ -43,7 +43,6 @@
 
 static const float DEG_TO_RAD = M_PI / 180;
 
-using namespace std;
 using namespace miutil;
 
 SpectrumFile::SpectrumFile(const std::string& filename, const std::string& modelname)
@@ -191,7 +190,7 @@ bool SpectrumFile::readFileHeader()
     iscale= vfile->getInt();
     frequences= vfile->getFloatVector(numFreq,iscale,iundef);
 
-    vector<int> decscale= vfile->getIntVector(numExtra);
+    std::vector<int> decscale= vfile->getIntVector(numExtra);
     extraScale.clear();
     for (int i=0; i<numExtra; i++)
       extraScale.push_back(powf(10.0,decscale[i]));

@@ -39,11 +39,10 @@
 #define MILOGGER_CATEGORY "diana.Colour"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 using namespace miutil;
 
-map<std::string,Colour> Colour::cmap;
-vector<Colour::ColourInfo> Colour::colours;
+std::map<std::string,Colour> Colour::cmap;
+std::vector<Colour::ColourInfo> Colour::colours;
 
 Colour Colour::BLACK(0, 0, 0, maxv);
 Colour Colour::WHITE(maxv, maxv, maxv, maxv);
@@ -68,7 +67,7 @@ Colour::Colour(const std::string& name_)
   const std::vector<std::string> vstr = miutil::split(lname, ":");
   const size_t n = vstr.size();
   if (n < 2) {
-    map<std::string, Colour>::const_iterator it = cmap.find(lname);
+    std::map<std::string, Colour>::const_iterator it = cmap.find(lname);
     if (it != cmap.end())
       memberCopy(it->second);
     else {
@@ -152,7 +151,7 @@ void Colour::define(const std::string name_, const values& va)
 void Colour::defineColourFromString(const std::string& rgba_string)
 {
   unsigned char r,g,b,a;
-  vector<std::string> stokens = miutil::split(rgba_string, ":");
+  std::vector<std::string> stokens = miutil::split(rgba_string, ":");
   if (stokens.size()>2 ) {
     r = miutil::to_int(stokens[0]);
     g = miutil::to_int(stokens[1]);
@@ -188,12 +187,12 @@ Colour Colour::contrastColour() const
     return Colour(255, 255, 255);
 }
 
-ostream& operator<<(ostream& out, const Colour& rhs)
+std::ostream& operator<<(std::ostream& out, const Colour& rhs)
 {
   out << " name: " << rhs.name                                        // name
-      << " red: " << setw(3) << setfill('0') << int(rhs.v.rgba[0])    // r
-      << " green: " << setw(3) << setfill('0') << int(rhs.v.rgba[1])  // g
-      << " blue: " << setw(3) << setfill('0') << int(rhs.v.rgba[2])   // b
-      << " alpha: " << setw(3) << setfill('0') << int(rhs.v.rgba[3]); // alpha
+      << " red: " << std::setw(3) << std::setfill('0') << int(rhs.v.rgba[0])    // r
+      << " green: " << std::setw(3) << std::setfill('0') << int(rhs.v.rgba[1])  // g
+      << " blue: " << std::setw(3) << std::setfill('0') << int(rhs.v.rgba[2])   // b
+      << " alpha: " << std::setw(3) << std::setfill('0') << int(rhs.v.rgba[3]); // alpha
   return out;
 }

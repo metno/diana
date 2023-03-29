@@ -56,7 +56,6 @@
 #define MILOGGER_CATEGORY "diana.VprofData"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 using namespace miutil;
 
 VprofValuesRequest::VprofValuesRequest()
@@ -108,7 +107,7 @@ void VprofData::readStationNames()
       continue;
     if (!line.empty() && line[0] == '#')
       continue;
-    vector<std::string> stationVector;
+    std::vector<std::string> stationVector;
     int baseIdx;
     if (miutil::contains(line, ";")) {
       // the new format
@@ -148,7 +147,7 @@ void VprofData::renameStations()
 
   const int n = mStations.size(), m = stationName.size();
 
-  multimap<std::string, int> sortlist;
+  std::multimap<std::string, int> sortlist;
 
   for (int i = 0; i < n; i++) {
     int jmin = -1;
@@ -181,8 +180,8 @@ void VprofData::renameStations()
       jmin = m;
     }
 
-    ostringstream ostr;
-    ostr << setw(4) << setfill('0') << jmin << newname
+    std::ostringstream ostr;
+    ostr << std::setw(4) << std::setfill('0') << jmin << newname
          // << validTime[i].isoTime() // FIXME index i may not be used here
          << mStations[i].name;
     sortlist.insert(std::make_pair(ostr.str(), i));
@@ -193,9 +192,9 @@ void VprofData::renameStations()
   }
 
   // gather amdars from same stations (in station list sequence)
-  vector<stationInfo> stations;
-  map<std::string, int> stationCount;
-  for (multimap<std::string, int>::iterator pt = sortlist.begin(); pt != sortlist.end(); pt++) {
+  std::vector<stationInfo> stations;
+  std::map<std::string, int> stationCount;
+  for (std::multimap<std::string, int>::iterator pt = sortlist.begin(); pt != sortlist.end(); pt++) {
     int i = pt->second;
 
     std::string newname = mStations[i].name;
@@ -223,7 +222,7 @@ void VprofData::readStationList()
   if (stationsFileName.empty())
     return;
 
-  ifstream file(stationsFileName.c_str());
+  std::ifstream file(stationsFileName.c_str());
   if (file.bad()) {
     METLIBS_LOG_ERROR("Unable to open station list '" << stationsFileName << "'");
     return;
@@ -240,7 +239,7 @@ void VprofData::readStationList()
     float latitude = notFound, longitude = notFound;
     std::string name;
     for (const std::string& vs : miutil::split_protected(str, '"', '"')) {
-      const vector<std::string> kv = miutil::split(vs, "=");
+      const std::vector<std::string> kv = miutil::split(vs, "=");
       if (kv.size() == 2) {
         const std::string key = miutil::to_lower(kv[0]);
         if (key == "latitude")

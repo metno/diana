@@ -44,9 +44,9 @@
 #include <mutex>
 #include <thread>
 
-using namespace std;
-
+namespace {
 typedef std::unique_lock<std::mutex> scoped_lock;
+} // namespace
 
 bool ImageCache::init = false;
 ImageCache* ImageCache::instance = NULL;
@@ -125,41 +125,41 @@ void ImageCache::cleanCache()
 				DIR *dp;
 				struct dirent *dirp;
 				if((dp  = opendir(cacheFilePath.c_str())) == NULL) {
-					cerr << "Cannot open: " << cacheFilePath << endl;
+					std::cerr << "Cannot open: " << cacheFilePath << std::endl;
 					//return false;
 					return;
 				} else {
 					std::string fullPath;
 					while ((dirp = readdir(dp)) != NULL) {
-						//cerr << dirp->d_name << endl;
+						//std::cerr << dirp->d_name << std::endl;
 						fullPath = cacheFilePath + std::string("/") + std::string(dirp->d_name);
 						if (!miutil::contains(fullPath, ".cache"))
 							continue;
 						if (stat(fullPath.c_str(), &st) == 0 && S_ISREG(st.st_mode)) {
 #ifdef DEBUGPRINT
-							cerr << fullPath << " atim: " << st.st_atime
+							std::cerr << fullPath << " atim: " << st.st_atime
 								<< " mtime: " << st.st_mtime <<" ctime: " << st.st_ctime
-								<< " mode: " << st.st_mode << endl;
+								<< " mode: " << st.st_mode << std::endl;
 #endif
 							if (time(NULL) - st.st_atime > keepTime) {
-								cerr << "file: " << fullPath << " is older than "
-									<< keepTime << " seconds, removing" << endl;
+								std::cerr << "file: " << fullPath << " is older than "
+									<< keepTime << " seconds, removing" << std::endl;
 								if (remove(fullPath.c_str()) != 0)
-									cerr << "Error deleting file" << endl;
+									std::cerr << "Error deleting file" << std::endl;
 							}
 						} else
 							if(errno == EACCES)
-								cerr <<"EACCES"<< endl;
+								std::cerr <<"EACCES"<< std::endl;
 							else if (errno == EBADF)
-								cerr <<"EBADF"<< endl;
+								std::cerr <<"EBADF"<< std::endl;
 							else if (errno == EFAULT)
-								cerr <<"EFAULT"<< endl;
+								std::cerr <<"EFAULT"<< std::endl;
 							else if (errno == ENOENT)
-								cerr <<"ENOENT"<< endl;
+								std::cerr <<"ENOENT"<< std::endl;
 							else if (errno == ENOTDIR)
-								cerr <<"ENOTDIR"<< endl;
+								std::cerr <<"ENOTDIR"<< std::endl;
 							else
-								cerr <<"Unknown"<< endl;
+								std::cerr <<"Unknown"<< std::endl;
 					}
 				}
 				closedir(dp);
@@ -199,29 +199,29 @@ bool ImageCache::getFromFileCache(const std::string& fileName, uint8_t* image)
 
 	std::string file = cacheFilePath + std::string("/") + fileName + ".cache";
 
-    ifstream in(file.c_str(), ios::in | ios::binary);
+    std::ifstream in(file.c_str(), std::ios::in | std::ios::binary);
 
     if (!in) {
 #ifdef DEBUGPRINT
-      cerr << "Cannot open input file: " << file << endl;
+      std::cerr << "Cannot open input file: " << file << std::endl;
 #endif
       return false;
     } else {
 #ifdef DEBUGPRINT
-      cerr << "File: " << file << endl;
+      std::cerr << "File: " << file << std::endl;
 #endif
       try {
         int length;
 
-        in.seekg(0,ios::end);
+        in.seekg(0, std::ios::end);
         length = in.tellg();
-        in.seekg(0, ios::beg);
+        in.seekg(0, std::ios::beg);
 #ifdef DEBUGPRINT
-        cerr << "length of data in file: " << length << endl;
+        std::cerr << "length of data in file: " << length << std::endl;
 #endif
         in.read((char*)image, length);
-      } catch (exception& e) {
-        cerr << "exception caught: " << e.what() << endl;
+      } catch (std::exception& e) {
+        std::cerr << "exception caught: " << e.what() << std::endl;
       }
       in.close();
     }
@@ -259,7 +259,7 @@ bool ImageCache::putInFileCache(const std::string& fileName, uint8_t* data, int 
 {
 
 #ifdef DEBUGPRINT
-  cerr << fileName << " length: " << length << endl;
+  std::cerr << fileName << " length: " << length << std::endl;
 #endif
   // If cacheFilePath is set, save a copy of the image
   if (cacheFilePath != "") {
@@ -268,30 +268,30 @@ bool ImageCache::putInFileCache(const std::string& fileName, uint8_t* data, int 
     struct stat st;
     if (stat(cacheFilePath.c_str(), &st) != 0) {
       // Create the temporary directory if it's not there
-      vector<std::string> filePathParts = miutil::split(cacheFilePath,"/", true);
+      std::vector<std::string> filePathParts = miutil::split(cacheFilePath,"/", true);
       std::string realFilePath;
       for(size_t j=0; j < filePathParts.size();j++) {
         realFilePath += "/" + filePathParts[j];
         if (stat(realFilePath.c_str(), &st) != 0) {
-          cerr << "Creating directory: " << realFilePath;
+          std::cerr << "Creating directory: " << realFilePath;
 #ifdef __MINGW32__
           if (mkdir(realFilePath.c_str()) != 0)
 #else
             if (mkdir(realFilePath.c_str(), 0777) != 0)
 #endif
-              cerr << " ERROR" << endl;
+              std::cerr << " ERROR" << std::endl;
             else
-              cerr << " SUCCESS" << endl;
+              std::cerr << " SUCCESS" << std::endl;
         }
       }
     }
   }
   std::string file = cacheFilePath + std::string("/") + fileName + ".cache";
-  ofstream out(file.c_str(), ios::out | ios::binary);
+  std::ofstream out(file.c_str(), std::ios::out | std::ios::binary);
 
   if (!out) {
 #ifdef DEBUGPRINT
-    cerr << "Cannot open file.\n";
+    std::cerr << "Cannot open file.\n";
 #endif
     return false;
   } else {
@@ -299,7 +299,7 @@ bool ImageCache::putInFileCache(const std::string& fileName, uint8_t* data, int 
     if (out.fail()) {
       out.close();
       if (remove(file.c_str()) != 0)
-        cerr << "Error deleting file" << endl;
+        std::cerr << "Error deleting file" << std::endl;
       return false;
     }
     else

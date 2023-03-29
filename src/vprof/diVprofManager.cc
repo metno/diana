@@ -61,7 +61,6 @@
 #define MILOGGER_CATEGORY "diana.VprofManager"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 using miutil::miTime;
 
 namespace /* anonymous */ {
@@ -546,7 +545,7 @@ const std::vector<std::string>& VprofManager::getModelNames()
 
 /***************************************************************************/
 
-std::set<std::string> VprofManager::getReferencetimes(const string& modelName)
+std::set<std::string> VprofManager::getReferencetimes(const std::string& modelName)
 {
   METLIBS_LOG_SCOPE(LOGVAL(modelName));
   std::set<std::string> rf;
@@ -606,7 +605,7 @@ void VprofManager::initStations()
   // merge lists from all models
   for (VprofData_p vpd : vpdata) {
     if (vpd->updateStationList(plotTime)) {
-      const vector<stationInfo>& stations = vpd->getStations();
+      const std::vector<stationInfo>& stations = vpd->getStations();
       if (!stations.empty()) {
         // check for duplicates
         // name should be used as to check
@@ -677,17 +676,17 @@ std::string VprofManager::getAnnotationString()
 {
   std::ostringstream ost;
   ost << "Vertical profiles ";
-  for (vector<VprofSelectedModel>::iterator p = selectedModels.begin(); p != selectedModels.end(); p++)
+  for (std::vector<VprofSelectedModel>::iterator p = selectedModels.begin(); p != selectedModels.end(); p++)
     ost << p->model << ' ';
   return ost.str();
 }
 
-vector<string> VprofManager::writeLog()
+std::vector<std::string> VprofManager::writeLog()
 {
   return vpopt->writeOptions();
 }
 
-void VprofManager::readLog(const vector<string>& vstr, const string& /*thisVersion*/, const string& /*logVersion*/)
+void VprofManager::readLog(const std::vector<std::string>& vstr, const std::string& /*thisVersion*/, const std::string& /*logVersion*/)
 {
   miutil::KeyValue_v options;
   for (const std::string& line : vstr)

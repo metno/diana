@@ -43,7 +43,6 @@
 #include <iomanip>
 #include <math.h>
 
-using namespace std;
 
 StatusGeopos::StatusGeopos(Controller* c, QWidget* parent)
     : QWidget(parent)

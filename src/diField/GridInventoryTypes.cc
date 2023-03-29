@@ -20,7 +20,6 @@
 #include "miLogger/miLogging.h"
 
 using namespace gridinventory;
-using namespace std;
 
 //#define DEBUGPRINT
 
@@ -55,7 +54,7 @@ void Zaxis::setStringValues()
 
   if (positive) {
     for (int i = values.size() - 1 ; i>-1; --i) {
-      ostringstream ost;
+      std::ostringstream ost;
       if ( index )
         ost << levelprefix<<i+1<<levelsuffix;
       else
@@ -64,7 +63,7 @@ void Zaxis::setStringValues()
     }
   } else {
     for (size_t i = 0; i < values.size(); ++i) {
-      ostringstream ost;
+      std::ostringstream ost;
       if ( index )
         ost << levelprefix<<i+1<<levelsuffix;
       else
@@ -79,7 +78,7 @@ void ExtraAxis::setStringValues()
 
   stringvalues.clear();
   for (size_t i = 0; i < values.size(); ++i) {
-    ostringstream ost;
+    std::ostringstream ost;
     ost <<values[i];
     stringvalues.push_back(ost.str());
   }
@@ -169,7 +168,7 @@ Inventory Inventory::merge(const Inventory& i) const
             // same id, different values
             if(zax2.values.size() == 1){
               //one value, assume merge values
-              vector<double> newvalues = zaxis1itr->values;
+              std::vector<double> newvalues = zaxis1itr->values;
               diutil::insert_all(newvalues, zax2.values);
               Zaxis newzaxis(zaxis1itr->id, zaxis1itr->name, zaxis1itr->positive, newvalues);
               METLIBS_LOG_DEBUG("     must change zaxis:");
@@ -194,7 +193,7 @@ Inventory Inventory::merge(const Inventory& i) const
           // identical taxis name, check the other attributes");
           if (taxis1itr->values != tax2.values) {
             METLIBS_LOG_DEBUG(" same id, different values, merge values");
-              vector<double> newvalues = taxis1itr->values;
+              std::vector<double> newvalues = taxis1itr->values;
               diutil::insert_all(newvalues, tax2.values);
               Taxis newtaxis(taxis1itr->name, newvalues);
               METLIBS_LOG_DEBUG("     must change taxis: old size:" <<taxis1itr->values.size()
@@ -218,7 +217,7 @@ Inventory Inventory::merge(const Inventory& i) const
             // same id, different values
             if ( eax2.values.size() == 1 ) {
               //one value, assume merge values
-              vector<double> newvalues = eax1it->values;
+              std::vector<double> newvalues = eax1it->values;
               diutil::insert_all(newvalues, eax2.values);
               ExtraAxis newextraaxis(eax1it->id, eax1it->name, newvalues);
               METLIBS_LOG_DEBUG("     must change extraaxis:");

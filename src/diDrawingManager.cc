@@ -60,7 +60,6 @@
 #define MILOGGER_CATEGORY "diana.DrawingManager"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 using namespace miutil;
 
 DrawingManager *DrawingManager::self_ = 0;
@@ -136,7 +135,7 @@ bool DrawingManager::parseSetup()
 #endif
 
   // Store a list of file names in the internal drawing model for use by the dialog.
-  vector<string> section;
+  std::vector<std::string> section;
 
   if (!SetupParser::getSection("DRAWING", section))
     METLIBS_LOG_WARN("No DRAWING section.");
@@ -144,11 +143,11 @@ bool DrawingManager::parseSetup()
   for (unsigned int i = 0; i < section.size(); ++i) {
 
     // Split the line into tokens.
-    vector<string> tokens = miutil::split_protected(section[i], '\"', '\"', " ", true);
+    std::vector<std::string> tokens = miutil::split_protected(section[i], '\"', '\"', " ", true);
     QHash<QString, QString> items;
 
     for (unsigned int j = 0; j < tokens.size(); ++j) {
-      string key, value;
+      std::string key, value;
       SetupParser::splitKeyValue(tokens[j], key, value);
       items[QString::fromStdString(key)] = QString::fromStdString(value);
     }
@@ -293,7 +292,7 @@ bool DrawingManager::processInput(const PlotCommand_cpv& inp)
 
 std::vector<std::string> DrawingManager::getAnnotations() const
 {
-  vector<string> output;
+  std::vector<std::string> output;
   for (QString drawing : loaded_.keys())
     output.push_back(drawing.toStdString());
   return output;

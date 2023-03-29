@@ -55,7 +55,6 @@
 #define MILOGGER_CATEGORY "diana.EditNewDialog"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 
 EditNewDialog::EditNewDialog(QWidget* parent, Controller* llctrl)
     : QDialog(parent)
@@ -245,8 +244,8 @@ void EditNewDialog::combineSelect(QListWidgetItem * item)
     combinetime= miutil::miTime(s);
   }
   cselectlabel->setText(s.c_str());
-  string tmp;
-  vector <string> pids =
+  std::string tmp;
+  std::vector <std::string> pids =
       m_editm->getCombineIds(combinetime,products[currprod],pid);
   int n = pids.size();
   for (int i=0;i<n-1;i++) tmp+=pids[i]+", ";
@@ -378,7 +377,7 @@ bool EditNewDialog::load(){
       for (int j=0; j<m; j++){
         p.fields[j].fromfield = true;
 
-        vector<string> fstr = m_editm->getValidEditFields(p, j);
+        std::vector<std::string> fstr = m_editm->getValidEditFields(p, j);
         if (fstr.size())
           p.fields[j].fromfname = fstr[0];
         else
@@ -522,7 +521,7 @@ void EditNewDialog::handleFieldButton(int num)
       products[currprod].fields[num].fromfname= edf.selectedField();
       products[currprod].fields[num].fromfield= true;
     } else if (edf.productSelected()){
-      vector <savedProduct> vsap= edf.vselectedProd();
+      std::vector <savedProduct> vsap= edf.vselectedProd();
       if (vsap.size()){
         products[currprod].fields[num].fromprod= vsap[0];
         if (num==0){
@@ -574,7 +573,7 @@ bool EditNewDialog::load_combine(){
   METLIBS_LOG_SCOPE();
   isdata= false;
   if( m_editm ){
-    vector<miutil::miTime> vt= m_editm->getCombineProducts(products[currprod],pid);
+    std::vector<miutil::miTime> vt= m_editm->getCombineProducts(products[currprod],pid);
     int n= vt.size();
     int index=0;
     cBox->clear();

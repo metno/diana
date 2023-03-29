@@ -42,7 +42,6 @@
 #define MILOGGER_CATEGORY "diana.MovieMaker"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 
 namespace {
 

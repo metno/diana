@@ -43,7 +43,6 @@
 #include <miLogger/miLogging.h>
 
 using namespace::miutil;
-using namespace std;
 
 //Define symbols from font
 #define SIG1SYMBOL 248
@@ -89,9 +88,9 @@ struct ChangeColour
 //static variables
 // text used in new complex symbols
 
-vector <std::string> ComplexSymbolPlot::currentSymbolStrings; //symbolstrings
-vector <std::string> ComplexSymbolPlot::currentXStrings; //xtext
-set <std::string> ComplexSymbolPlot::clist; //texts used in combobox
+std::vector <std::string> ComplexSymbolPlot::currentSymbolStrings; //symbolstrings
+std::vector <std::string> ComplexSymbolPlot::currentXStrings; //xtext
+std::set <std::string> ComplexSymbolPlot::clist; //texts used in combobox
 float ComplexSymbolPlot::textShrink=1.5;
 
 ComplexSymbolPlot::ComplexSymbolPlot(int drawIndex)
@@ -1656,15 +1655,15 @@ bool ComplexSymbolPlot::isComplexText(int drawIndex)
   }
 }
 
-void ComplexSymbolPlot::getCurrentComplexText(vector <std::string> & symbolText,
-    vector <std::string> & xText)
+void ComplexSymbolPlot::getCurrentComplexText(std::vector <std::string> & symbolText,
+    std::vector <std::string> & xText)
 {
   symbolText=currentSymbolStrings;
   xText=currentXStrings;
 }
 
-void ComplexSymbolPlot::setCurrentComplexText(const vector <std::string> &
-    symbolText, const vector <std::string> & xText)
+void ComplexSymbolPlot::setCurrentComplexText(const std::vector <std::string> &
+    symbolText, const std::vector <std::string> & xText)
 {
   currentSymbolStrings=symbolText;
   //insert into list of texts
@@ -1674,8 +1673,8 @@ void ComplexSymbolPlot::setCurrentComplexText(const vector <std::string> &
   currentXStrings=xText;
 }
 
-void ComplexSymbolPlot::getComplexColoredText(vector <std::string> & symbolText,
-    vector <std::string> & xText)
+void ComplexSymbolPlot::getComplexColoredText(std::vector <std::string> & symbolText,
+    std::vector <std::string> & xText)
 {
   xvisible = true;
 
@@ -1686,13 +1685,13 @@ void ComplexSymbolPlot::getComplexColoredText(vector <std::string> & symbolText,
     symbolText.push_back(symbolStrings[i]);
 }
 
-void ComplexSymbolPlot::getMultilineText(vector <std::string> & symbolText){
+void ComplexSymbolPlot::getMultilineText(std::vector <std::string> & symbolText){
   symbolText.clear();
     for (unsigned int i = 0;i<symbolStrings.size();i++)
       symbolText.push_back(symbolStrings[i]);
 }
 
-void ComplexSymbolPlot::getComplexText(vector <std::string> & symbolText, vector <std::string> & xText){
+void ComplexSymbolPlot::getComplexText(std::vector <std::string> & symbolText, std::vector <std::string> & xText){
   if (xvisible)
     xText=xstrings;
   symbolText.clear();
@@ -1700,11 +1699,11 @@ void ComplexSymbolPlot::getComplexText(vector <std::string> & symbolText, vector
     symbolText.push_back(symbolStrings[i]);
 }
 
-void ComplexSymbolPlot::changeMultilineText(const vector <std::string> & symbolText){
+void ComplexSymbolPlot::changeMultilineText(const std::vector <std::string> & symbolText){
   symbolStrings=symbolText;
 }
 
-void ComplexSymbolPlot::changeComplexText(const vector <std::string> & symbolText, const vector <std::string> & xText){
+void ComplexSymbolPlot::changeComplexText(const std::vector <std::string> & symbolText, const std::vector <std::string> & xText){
   symbolStrings=symbolText;
   //insert into list of texts
   for (unsigned int i =0;i<symbolText.size();i++)
@@ -1718,13 +1717,13 @@ void ComplexSymbolPlot::readComplexText(const std::string& complexString)
 {
   METLIBS_LOG_SCOPE(LOGVAL(complexString));
   std::string key,value;
-  vector <std::string> tokens = miutil::split(complexString, 0, "/");
+  std::vector <std::string> tokens = miutil::split(complexString, 0, "/");
   for (unsigned int i = 0; i<tokens.size();i++){
-    vector <std::string> stokens = miutil::split(tokens[i], 0, ":");
+    std::vector <std::string> stokens = miutil::split(tokens[i], 0, ":");
     if (stokens.size()==2){
       key = miutil::to_lower(stokens[0]);
       value = stokens[1];
-      vector <std::string> texts = miutil::split(value, 0, ",");
+      std::vector <std::string> texts = miutil::split(value, 0, ",");
       if (key=="symbolstrings"){
         symbolStrings=texts;
         for (unsigned int i=0;i<symbolStrings.size();i++)
@@ -1802,7 +1801,7 @@ void ComplexSymbolPlot::initComplexList()
 
 
 
-set <std::string> ComplexSymbolPlot::getComplexList()
+std::set <std::string> ComplexSymbolPlot::getComplexList()
 {
   return clist;
 }

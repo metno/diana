@@ -36,7 +36,6 @@
 #define MILOGGER_CATEGORY "diField.Field"
 #include "miLogger/miLogging.h"
 
-using namespace std;
 using namespace miutil;
 
 Field::Field()

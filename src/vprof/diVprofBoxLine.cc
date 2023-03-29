@@ -53,7 +53,6 @@
 #include <sstream>
 
 using namespace ::miutil;
-using namespace std;
 using diutil::PointF;
 
 #define MILOGGER_CATEGORY "diana.VprofBoxLine"

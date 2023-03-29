@@ -49,7 +49,6 @@
 #define MILOGGER_CATEGORY "diana.LegendPlot"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 using namespace miutil;
 
 namespace {
@@ -67,9 +66,9 @@ LegendPlot::LegendPlot(const std::string& str)
   std::string sstr(str);
   miutil::replace(sstr, '"',' ');
   miutil::trim(sstr);
-  vector<std::string> vstr = miutil::split(sstr, "=");
+  std::vector<std::string> vstr = miutil::split(sstr, "=");
   if(vstr.size()==2){
-    vector<std::string> tokens = miutil::split(vstr[1], ";",false);
+    std::vector<std::string> tokens = miutil::split(vstr[1], ";",false);
     int n=tokens.size();
     if(n>0){
       if (poptions.tableHeader)
@@ -123,7 +122,7 @@ void LegendPlot::calculateSizes(DiGLPainter* gl, float& xborder, float& yborder,
     float width, height;
     getStringSize(gl, titlestring, width, height);
     if (width > tablewidth) {
-      const vector<std::string> vs = miutil::split(titlestring, " ");
+      const std::vector<std::string> vs = miutil::split(titlestring, " ");
       if (vs.size()>=5) {
         // handle field difference...
         std::string smove;
@@ -168,7 +167,7 @@ bool LegendPlot::plotLegend(DiGLPainter* gl, float x, float y)
   // fill the table with colours and textstrings from palette information
 
   float xborder, yborder, tablewidth, titlewidth, maxheight;
-  vector<std::string> vtitlestring;
+  std::vector<std::string> vtitlestring;
   calculateSizes(gl, xborder, yborder, tablewidth, titlewidth, maxheight, vtitlestring);
 
   // position table
@@ -264,7 +263,7 @@ bool LegendPlot::plotLegend(DiGLPainter* gl, float x, float y)
 float LegendPlot::height(DiGLPainter* gl)
 {
   float xborder, yborder, table_width, title_width, row_height;
-  vector<std::string> vtitlestring;
+  std::vector<std::string> vtitlestring;
   calculateSizes(gl, xborder, yborder, table_width, title_width, row_height, vtitlestring);
 
   const float titleheight = row_height * vtitlestring.size();
@@ -276,7 +275,7 @@ float LegendPlot::height(DiGLPainter* gl)
 float LegendPlot::width(DiGLPainter* gl)
 {
   float xborder, yborder, tablewidth, titlewidth, maxheight;
-  vector<std::string> vtitlestring;
+  std::vector<std::string> vtitlestring;
   calculateSizes(gl, xborder, yborder, tablewidth, titlewidth, maxheight, vtitlestring);
 
   return titlewidth;
