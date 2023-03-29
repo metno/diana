@@ -23,7 +23,8 @@ struct ModelReftime {
     { return !(*this == other); }
 };
 
-struct lt_ModelReftime : public std::binary_function<bool, ModelReftime, ModelReftime> {
+struct lt_ModelReftime
+{
   bool operator()(const ModelReftime& mr1, const ModelReftime& mr2) const;
 };
 

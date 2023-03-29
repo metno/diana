@@ -52,10 +52,11 @@ namespace /* anonymous */ {
 const std::string EMPTY_STRING;
 const miutil::KeyValue_v EMPTY_OPTIONS;
 
-struct lt_LocationElement : public std::binary_function<bool, LocationElement, LocationElement>
+struct lt_LocationElement
 {
   bool operator() (const LocationElement& a, const LocationElement& b) const;
 };
+
 bool lt_LocationElement::operator() (const LocationElement& a, const LocationElement& b) const
 {
   if (a.name < b.name)

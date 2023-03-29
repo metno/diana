@@ -104,7 +104,7 @@ typedef std::shared_ptr<const InventoryBase> InventoryBase_cp;
 typedef std::vector<InventoryBase_p> InventoryBase_pv;
 typedef std::vector<InventoryBase_cp> InventoryBase_cpv;
 
-struct InventoryById : public std::binary_function<bool, InventoryBase_cp, InventoryBase_cp>
+struct InventoryById
 {
   bool operator()(const InventoryBase_cp& a, const InventoryBase_cp& b) const
     { return a and b and a->id() < b->id(); }
