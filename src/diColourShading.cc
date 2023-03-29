@@ -33,8 +33,7 @@
 
 #include <puTools/miStringFunctions.h>
 
-
-std::map<std::string,ColourShading> ColourShading::pmap;
+std::map<std::string, ColourShading> ColourShading::pmap;
 std::vector<ColourShading::ColourShadingInfo> ColourShading::colourshadings;
 
 ColourShading::ColourShading(const std::string& name_)
@@ -152,8 +151,7 @@ std::vector<Colour> ColourShading::getColourShading(int n)
 }
 
 // static
-void ColourShading::morecols(std::vector<Colour>& vcol, const Colour& col1,
-    const Colour& col2, int n)
+void ColourShading::morecols(std::vector<Colour>& vcol, const Colour& col1, const Colour& col2, int n)
 {
   //add (n+1) colours to vcol, including col1
 

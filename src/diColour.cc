@@ -41,7 +41,7 @@
 
 using namespace miutil;
 
-std::map<std::string,Colour> Colour::cmap;
+std::map<std::string, Colour> Colour::cmap;
 std::vector<Colour::ColourInfo> Colour::colours;
 
 Colour Colour::BLACK(0, 0, 0, maxv);
@@ -189,7 +189,7 @@ Colour Colour::contrastColour() const
 
 std::ostream& operator<<(std::ostream& out, const Colour& rhs)
 {
-  out << " name: " << rhs.name                                        // name
+  out << " name: " << rhs.name                                                  // name
       << " red: " << std::setw(3) << std::setfill('0') << int(rhs.v.rgba[0])    // r
       << " green: " << std::setw(3) << std::setfill('0') << int(rhs.v.rgba[1])  // g
       << " blue: " << std::setw(3) << std::setfill('0') << int(rhs.v.rgba[2])   // b

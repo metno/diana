@@ -255,7 +255,6 @@ void SpectrumModelDialog::updateModelfileList()
       item->setToolTip(modelfiles[i].c_str());
   }
 
-
   std::set<std::string>::iterator pend = current.end();
   n = modelfileList->count();
   for (int i = 0; i < n; i++)

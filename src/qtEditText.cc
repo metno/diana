@@ -70,12 +70,12 @@ int                EditText::nr_colors=0;
 QColor*            EditText::pixcolor=0;
 
 /*********************************************/
-EditText::EditText( QWidget* parent, Controller* llctrl,
-    std::vector<std::string> & symbolText, std::set<std::string> cList, bool useColour)
-: QDialog(parent), m_ctrl(llctrl)
+EditText::EditText(QWidget* parent, Controller* llctrl, std::vector<std::string>& symbolText, std::set<std::string> cList, bool useColour)
+    : QDialog(parent)
+    , m_ctrl(llctrl)
 {
 #ifdef DEBUGPRINT
-      std::cout<<"EditText::EditText called"<<std::endl;
+  std::cout << "EditText::EditText called" << std::endl;
 #endif
 
       setModal(false);
@@ -105,7 +105,7 @@ EditText::EditText( QWidget* parent, Controller* llctrl,
       METLIBS_LOG_DEBUG("?????????ns = "<< ns);
      // int nx = xText.size();
       //set <std::string> complexList = m_ctrl->getEditList();
-      std::set <std::string> complexList = cList;
+      std::set<std::string> complexList = cList;
       QTextEdit *edittext = new QTextEdit(this);
       edittext->setLineWrapMode(QTextEdit::WidgetWidth);
       edittext->setFont(QFont("Arial", 10, QFont::Normal));
@@ -177,11 +177,10 @@ EditText::EditText( QWidget* parent, Controller* llctrl,
       cv=0;
     }
 
-
-    void EditText::getEditText(std::vector <std::string> & symbolText)
+    void EditText::getEditText(std::vector<std::string>& symbolText)
     {
 #ifdef DEBUGPRINT
-      std::cout<<"EditText::getEditText called"<<std::endl;
+      std::cout << "EditText::getEditText called" << std::endl;
 #endif
       //lines get when you enter return button
       //int lines = vSymbolEdit->document()->blockCount();
@@ -227,7 +226,7 @@ EditText::EditText( QWidget* parent, Controller* llctrl,
 
     void EditText::setColour(Colour::ColourInfo &colour){
 #ifdef DEBUGPRINT
-      std::cout<<"EditText::setColour called"<<std::endl;
+      std::cout << "EditText::setColour called" << std::endl;
 #endif
       int index = getColourIndex(colourInfo,colour);
       colourbox-> setCurrentIndex(index);
@@ -236,16 +235,15 @@ EditText::EditText( QWidget* parent, Controller* llctrl,
 
     void EditText::getColour(Colour::ColourInfo &colour){
 #ifdef DEBUGPRINT
-      std::cout<<"EditText::getColour called"<<std::endl;
+      std::cout << "EditText::getColour called" << std::endl;
 #endif
       int index=colourbox->currentIndex();
       if (index>-1 && index<int(colourInfo.size()))
         colour=colourInfo[index];
     }
 
-
-    int EditText::getColourIndex(std::vector <Colour::ColourInfo> & colourInfo,
-        Colour::ColourInfo colour){
+    int EditText::getColourIndex(std::vector<Colour::ColourInfo>& colourInfo, Colour::ColourInfo colour)
+    {
       int i,index=-1;
       int nr_colors= colourInfo.size();
       for(i=0; i<nr_colors; i++ ){
@@ -266,11 +264,3 @@ EditText::EditText( QWidget* parent, Controller* llctrl,
       }
       return index;
     }
-
-
-
-
-
-
-
-

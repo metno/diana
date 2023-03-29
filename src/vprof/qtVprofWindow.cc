@@ -602,8 +602,8 @@ std::vector<std::string> VprofWindow::writeLog(const std::string& logpart)
   return vstr;
 }
 
-void VprofWindow::readLog(const std::string& logpart, const std::vector<std::string>& vstr, const std::string& thisVersion, const std::string& logVersion, int displayWidth,
-                          int displayHeight)
+void VprofWindow::readLog(const std::string& logpart, const std::vector<std::string>& vstr, const std::string& thisVersion, const std::string& logVersion,
+                          int displayWidth, int displayHeight)
 {
   if (logpart == "window") {
 

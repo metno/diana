@@ -883,11 +883,11 @@ bool contour(int nx, int ny, float z[], const float xz[], const float yz[],
   alp.connect[1][1]= -1;
   alp.closed= false;
 
-  std::vector< std::map<float,int> > verAttach(ixrange+1);  // verAttach[i][y]
-  std::vector< std::map<float,int> > horAttach(iyrange+1);  // horAttach[j][x]
+  std::vector<std::map<float, int>> verAttach(ixrange + 1); // verAttach[i][y]
+  std::vector<std::map<float, int>> horAttach(iyrange + 1); // horAttach[j][x]
 
   // borderConnect[ij][iside][line]
-  std::map<int, std::map<int,int> > borderConnect;
+  std::map<int, std::map<int, int>> borderConnect;
 
   // set corners
   float xcorner[4],ycorner[4],zcorner[4];
@@ -1811,7 +1811,7 @@ bool contour(int nx, int ny, float z[], const float xz[], const float yz[],
       int currcode=0,currend=0,currline,prevcode=0,prevend=0,prevline=0;
       int keepcode=0,keepend=0,keepconnect=0;
       float xydir;
-      std::map<float,int>::iterator p,p1,p2;
+      std::map<float, int>::iterator p, p1, p2;
 
       alp.addfirst= false;
       alp.addlast= false;
@@ -2922,9 +2922,9 @@ bool contour(int nx, int ny, float z[], const float xz[], const float yz[],
 
   if (shading && drawBorders && borderConnect.size()) {
 
-    std::map<int, std::map<int,int> >::iterator pbc=    borderConnect.begin();
-    std::map<int, std::map<int,int> >::iterator pbcend= borderConnect.end();
-    std::map<int,int>::iterator pc, pcend;
+    std::map<int, std::map<int, int>>::iterator pbc = borderConnect.begin();
+    std::map<int, std::map<int, int>>::iterator pbcend = borderConnect.end();
+    std::map<int, int>::iterator pc, pcend;
     int lcodes[4],lines[4],lends[4];
 
     for (; pbc!=pbcend; pbc++) {
@@ -2951,8 +2951,8 @@ bool contour(int nx, int ny, float z[], const float xz[], const float yz[],
 
   if (shading && contourlines.size()>0) {
     // connect lines crossing boundaries (and corner points)
-    std::map<float,int>::iterator p,pend;
-    std::map<float,int>::reverse_iterator r,rend;
+    std::map<float, int>::iterator p, pend;
+    std::map<float, int>::reverse_iterator r, rend;
     std::vector<int> sideAttach;
 
     pend= horAttach[0].end();
@@ -3618,11 +3618,7 @@ void posConvert(int npos, float *x, float *y, int nx, int ny, const float *xz, c
   }
 }
 
-
-
-
-void joinContours(std::vector<ContourLine*>& contourlines, int idraw,
-    bool drawBorders, int iconv)
+void joinContours(std::vector<ContourLine*>& contourlines, int idraw, bool drawBorders, int iconv)
 {
   int ncl= contourlines.size();
 
@@ -4068,7 +4064,7 @@ void joinContours(std::vector<ContourLine*>& contourlines, int idraw,
  * Returns a vector of x positions indicating where the y values in
  * the y array cross the value of ycross.
  */
-std::vector<float> findCrossing(float ycross, int n, float *x, float *y)
+std::vector<float> findCrossing(float ycross, int n, float* x, float* y)
 {
   std::vector<float> xcross;
   std::multiset<float> xset;
@@ -4085,7 +4081,7 @@ std::vector<float> findCrossing(float ycross, int n, float *x, float *y)
     px= x[i];
     py= y[i];
   }
-  std::multiset<float>::iterator p= xset.begin(), pend= xset.end();
+  std::multiset<float>::iterator p = xset.begin(), pend = xset.end();
   while (p!=pend) {
     xcross.push_back(*p);
     p++;
@@ -4093,13 +4089,9 @@ std::vector<float> findCrossing(float ycross, int n, float *x, float *y)
   return xcross;
 }
 
-void fillContours(DiGLPainter* gl, std::vector<ContourLine*>& contourlines,
-    int nx, int ny, float z[],
-    int iconv, float *cxy, const float *xz, const float *yz, int idraw,
-    const PlotOptions& poptions, bool drawBorders,
-    const Area& fieldArea,
-    float zrange[], float zstep, float zoff,
-    const float& fieldUndef)
+void fillContours(DiGLPainter* gl, std::vector<ContourLine*>& contourlines, int nx, int ny, float z[], int iconv, float* cxy, const float* xz, const float* yz,
+                  int idraw, const PlotOptions& poptions, bool drawBorders, const Area& fieldArea, float zrange[], float zstep, float zoff,
+                  const float& fieldUndef)
 {
   std::vector<Colour> colours;
   int ncolours= poptions.palettecolours.size();
@@ -4126,7 +4118,7 @@ void fillContours(DiGLPainter* gl, std::vector<ContourLine*>& contourlines,
   ContourLine *cl2;
   int i,jc,n,ncontours;
 
-  std::vector< std::vector<int> > clindex(ncl);
+  std::vector<std::vector<int>> clindex(ncl);
   // NEW function for countourline indexes to use, separated from the other code,
   // to be used in other methods, such as writing shape files
   getCLindex(contourlines, clindex, poptions, drawBorders, fieldUndef);
@@ -4274,8 +4266,8 @@ void fillContours(DiGLPainter* gl, std::vector<ContourLine*>& contourlines,
   gl->EdgeFlag(DiGLPainter::gl_TRUE);
 }
 
-void getCLindex(std::vector<ContourLine*>& contourlines, std::vector< std::vector<int> >& clind,
-		  const PlotOptions& poptions, bool drawBorders, const float& fieldUndef)
+void getCLindex(std::vector<ContourLine*>& contourlines, std::vector<std::vector<int>>& clind, const PlotOptions& poptions, bool drawBorders,
+                const float& fieldUndef)
 {
 
   int ncl = contourlines.size();
@@ -4288,7 +4280,7 @@ void getCLindex(std::vector<ContourLine*>& contourlines, std::vector< std::vecto
   std::vector<float> xcross;
   std::vector<float> xcross2;
 
-  std::vector< std::vector<int> > insiders(ncl);
+  std::vector<std::vector<int>> insiders(ncl);
 
   // START FINDING clindex
 
@@ -4452,8 +4444,8 @@ void getCLindex(std::vector<ContourLine*>& contourlines, std::vector< std::vecto
 	  if (insiders[jc].size()>0) {
 	cl= contourlines[jc];
 	int ninside= insiders[jc].size();
-	std::vector<int> inside;
-	for (j=0; j<ninside; j++) {
+        std::vector<int> inside;
+        for (j=0; j<ninside; j++) {
 	  ic= insiders[jc][j];
 	  if (contourlines[ic]->inner) {
 		bool ok= true;

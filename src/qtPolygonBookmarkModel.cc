@@ -152,7 +152,7 @@ bool PolygonBookmarkModel::setCurrent(std::string name, QModelIndex& ind)
 {
   if((not !name.empty())) return false;
 
-  std::map<QModelIndex,std::string>::iterator idx;
+  std::map<QModelIndex, std::string>::iterator idx;
   for(idx=bookmarks.begin();idx!=bookmarks.end();idx++) {
     if(idx->second==name) {
       setCurrent(idx->first);

@@ -435,11 +435,11 @@ bool FieldFunctions::splitFieldSpecs(const std::string& paramName,FieldSpec& fs)
 {
   fs.use_standard_name = false;
   fs.paramName = paramName;
-  if (paramName.find(':')==std::string::npos)
+  if (paramName.find(':') == std::string::npos)
     return false;
 
   bool levelSpecified= false;
-  std::vector<std::string> vs= miutil::split(paramName, 0, ":");
+  std::vector<std::string> vs = miutil::split(paramName, 0, ":");
   fs.paramName= vs[0];
   std::vector<std::string> vp;
   for (size_t i=1; i<vs.size(); i++) {

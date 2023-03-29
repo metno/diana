@@ -1266,7 +1266,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       }
     }
     if (lockedValue.size()>0 && odata) {
-      std::set<float>::iterator pend= lockedValue.end();
+      std::set<float>::iterator pend = lockedValue.end();
       int i,j,ij;
       for (j=j1ed; j<j2ed; j++) {
         for (i=i1ed; i<i2ed; i++) {
@@ -2220,16 +2220,16 @@ IsoLine FieldEdit::findIsoLine(float xpos, float ypos, float value,
     int n2= (npos<6) ? 0 : npos-6;
     METLIBS_LOG_DEBUG("start x:");
     for (i=0; i<n1; i++)
-      METLIBS_LOG_DEBUG(std::setw(7)<<std::setprecision(2)<<std::setiosflags(std::ios::fixed)<<xtmp[i]);
+      METLIBS_LOG_DEBUG(std::setw(7) << std::setprecision(2) << std::setiosflags(std::ios::fixed) << xtmp[i]);
     METLIBS_LOG_DEBUG("      y:");
     for (i=0; i<n1; i++)
-      METLIBS_LOG_DEBUG(std::setw(7)<<std::setprecision(2)<<std::setiosflags(std::ios::fixed)<<ytmp[i]);
+      METLIBS_LOG_DEBUG(std::setw(7) << std::setprecision(2) << std::setiosflags(std::ios::fixed) << ytmp[i]);
     METLIBS_LOG_DEBUG("  end x:");
     for (i=n2; i<npos; i++)
-      METLIBS_LOG_DEBUG(std::setw(7)<<std::setprecision(2)<<std::setiosflags(std::ios::fixed)<<xtmp[i]);
+      METLIBS_LOG_DEBUG(std::setw(7) << std::setprecision(2) << std::setiosflags(std::ios::fixed) << xtmp[i]);
     METLIBS_LOG_DEBUG("      y:");
     for (i=n2; i<npos; i++)
-      METLIBS_LOG_DEBUG(std::setw(7)<<std::setprecision(2)<<std::setiosflags(std::ios::fixed)<<ytmp[i]);
+      METLIBS_LOG_DEBUG(std::setw(7) << std::setprecision(2) << std::setiosflags(std::ios::fixed) << ytmp[i]);
 #endif
     //#############################################################
     if (closed) {
@@ -2261,16 +2261,16 @@ IsoLine FieldEdit::findIsoLine(float xpos, float ypos, float value,
     n2= (npos<6) ? 0 : npos-6;
     METLIBS_LOG_DEBUG("start x:");
     for (i=0; i<n1; i++)
-      METLIBS_LOG_DEBUG(std::setw(7)<<std::setprecision(2)<<std::setiosflags(std::ios::fixed)<<xtmp[i]);
+      METLIBS_LOG_DEBUG(std::setw(7) << std::setprecision(2) << std::setiosflags(std::ios::fixed) << xtmp[i]);
     METLIBS_LOG_DEBUG("      y:");
     for (i=0; i<n1; i++)
-      METLIBS_LOG_DEBUG(std::setw(7)<<std::setprecision(2)<<std::setiosflags(std::ios::fixed)<<ytmp[i]);
+      METLIBS_LOG_DEBUG(std::setw(7) << std::setprecision(2) << std::setiosflags(std::ios::fixed) << ytmp[i]);
     METLIBS_LOG_DEBUG("  end x:");
     for (i=n2; i<npos; i++)
-      METLIBS_LOG_DEBUG(std::setw(7)<<std::setprecision(2)<<std::setiosflags(std::ios::fixed)<<xtmp[i]);
+      METLIBS_LOG_DEBUG(std::setw(7) << std::setprecision(2) << std::setiosflags(std::ios::fixed) << xtmp[i]);
     METLIBS_LOG_DEBUG("      y:");
     for (i=n2; i<npos; i++)
-      METLIBS_LOG_DEBUG(std::setw(7)<<std::setprecision(2)<<std::setiosflags(std::ios::fixed)<<ytmp[i]);
+      METLIBS_LOG_DEBUG(std::setw(7) << std::setprecision(2) << std::setiosflags(std::ios::fixed) << ytmp[i]);
     METLIBS_LOG_DEBUG("---------------------------------------------");
 #endif
     //#############################################################
@@ -2765,7 +2765,7 @@ void FieldEdit::editClassLine()
 
   // make a closed line surrouding the field area to be replace
   // (no need to put first point as last point too)
-  std::vector<float> vx,vy;
+  std::vector<float> vx, vy;
 
   // skip lineparts that is inside a single gridsquare
   int li=0;
@@ -2798,10 +2798,7 @@ void FieldEdit::editClassLine()
   replaceInsideLine(vx,vy,classLineValue);
 }
 
-
-void FieldEdit::replaceInsideLine(const std::vector<float>& vx,
-    const std::vector<float>& vy,
-    float replaceValue)
+void FieldEdit::replaceInsideLine(const std::vector<float>& vx, const std::vector<float>& vy, float replaceValue)
 {
   const int nbitwd= sizeof(int)*8;
 
@@ -2924,12 +2921,10 @@ void FieldEdit::replaceInsideLine(const std::vector<float>& vx,
       int ii2= (ii1+nsss)<nppp ? ii1+nsss : nppp;
       METLIBS_LOG_DEBUG("  x:");
       for (int ii=ii1; ii<ii2; ii++)
-        METLIBS_LOG_DEBUG(" "<<std::setw(PW)<<std::setprecision(PR)<<std::setiosflags(std::ios::fixed)
-        <<vx[ii]-i1);
+        METLIBS_LOG_DEBUG(" " << std::setw(PW) << std::setprecision(PR) << std::setiosflags(std::ios::fixed) << vx[ii] - i1);
       METLIBS_LOG_DEBUG("  y:");
       for (int ii=ii1; ii<ii2; ii++)
-        METLIBS_LOG_DEBUG(" "<<std::setw(PW)<<std::setprecision(PR)<<std::setiosflags(std::ios::fixed)
-        <<vy[ii]-j1);
+        METLIBS_LOG_DEBUG(" " << std::setw(PW) << std::setprecision(PR) << std::setiosflags(std::ios::fixed) << vy[ii] - j1);
     }
   }
   METLIBS_LOG_DEBUG("---------- mx,my: "<<mx<<" "<<my);

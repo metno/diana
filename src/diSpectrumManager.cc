@@ -96,11 +96,11 @@ void SpectrumManager::parseSetup()
     int n= vstr.size();
 
     for (int i=0; i<n; i++) {
-      std::vector<std::string> tokens= miutil::split(vstr[i]);
+      std::vector<std::string> tokens = miutil::split(vstr[i]);
       std::string model,filename;
       std::string filetype = "standard";
       for ( size_t j=0; j<tokens.size(); ++j) {
-        std::vector<std::string> tokens1= miutil::split(tokens[j], "=");
+        std::vector<std::string> tokens1 = miutil::split(tokens[j], "=");
         if (tokens1.size() != 2)
           continue;
         if (tokens1[0] == "m") {
@@ -171,7 +171,7 @@ void SpectrumManager::setModel()
   //models from model dialog
   int m= selectedModels.size();
   for (int i=0;i<m;i++) {
-    std::map<std::string,std::string>::iterator pf;
+    std::map<std::string, std::string>::iterator pf;
     pf= filenames.find(selectedModels[i].model);
     if (pf==filenames.end()) {
       METLIBS_LOG_ERROR("NO SPECTRUMFILE for model " << selectedModels[i].model);
@@ -304,16 +304,14 @@ void SpectrumManager::preparePlot()
   }
 }
 
-
-std::vector <std::string> SpectrumManager::getModelNames()
+std::vector<std::string> SpectrumManager::getModelNames()
 {
   METLIBS_LOG_SCOPE();
   parseSetup();
   return dialogModelNames;
 }
 
-
-std::vector <std::string> SpectrumManager::getModelFiles()
+std::vector<std::string> SpectrumManager::getModelFiles()
 {
   METLIBS_LOG_SCOPE();
   return dialogFileNames;
@@ -343,7 +341,7 @@ void SpectrumManager::setSelectedModels(const std::vector<std::string>& models)
   selectedModels.clear();
   for ( size_t i=0; i<models.size(); ++i ) {
     SelectedModel selectedModel;
-    std::vector<std::string> vstr = miutil::split(models[i]," ");
+    std::vector<std::string> vstr = miutil::split(models[i], " ");
     if ( vstr.size() > 0 ) {
       selectedModel.model = vstr[0];
     }
@@ -358,7 +356,7 @@ void SpectrumManager::setSelectedModels(const std::vector<std::string>& models)
 std::string SpectrumManager::getDefaultModel()
 {
   //for now, just the first model in filenames list
-  std::map<std::string,std::string>::iterator p = filenames.begin();
+  std::map<std::string, std::string>::iterator p = filenames.begin();
   std::string model = p->first;
   return model;
 }
@@ -402,11 +400,11 @@ void SpectrumManager::initStations()
 
   nameList.clear();
 
-  std::map<std::string,StationPos> stations;
+  std::map<std::string, StationPos> stations;
 
   std::vector<std::string> namelist;
-  std::vector<float>    latitudelist;
-  std::vector<float>    longitudelist;
+  std::vector<float> latitudelist;
+  std::vector<float> longitudelist;
 
   int nspfile = spfile.size();
   for (int i = 0;i<nspfile;i++){
@@ -448,7 +446,7 @@ void SpectrumManager::initStations()
   latitudelist.clear();
   longitudelist.clear();
 
-  std::map<std::string,StationPos>::iterator p=stations.begin();
+  std::map<std::string, StationPos>::iterator p = stations.begin();
   for (; p!=stations.end(); p++) {
     std::string name=p->first;
     StationPos pos = p->second;
@@ -502,7 +500,6 @@ std::string SpectrumManager::getAnnotationString()
     str += " " + sm.model;
   return str;
 }
-
 
 std::vector<std::string> SpectrumManager::writeLog()
 {

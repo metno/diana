@@ -71,8 +71,7 @@ ObsDataVector_p ObsAscii::getObsData(const miTime& filetime, const miutil::miTim
 
 //####################################################################
 
-void ObsAscii::readHeaderInfo(const std::string& filename, const std::string& headerfile,
-    const std::vector<std::string>& headerinfo)
+void ObsAscii::readHeaderInfo(const std::string& filename, const std::string& headerfile, const std::vector<std::string>& headerinfo)
 {
   METLIBS_LOG_SCOPE(LOGVAL(filename) << LOGVAL(headerfile) << LOGVAL(headerinfo.size()));
 

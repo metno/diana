@@ -311,13 +311,12 @@ void TimeControl::useData(const std::string& type, int id)
   emit data(type);
 }
 
-
 std::vector<std::string> TimeControl::deleteType(int id)
 {
   //id=-1 means remove all external types
   std::vector<std::string>::iterator p = dataname.begin();
-  std::map<int,std::string>::iterator q = external_id.begin();
-  std::map<int,std::string>::iterator qend = external_id.end();
+  std::map<int, std::string>::iterator q = external_id.begin();
+  std::map<int, std::string>::iterator qend = external_id.end();
 
   std::vector<std::string> type;
   std::string currentDataname;

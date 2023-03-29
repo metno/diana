@@ -45,8 +45,8 @@ using namespace d_print;
 using namespace::miutil;
 
 std::vector<printerManager::printerExtra> printerManager::printers;
-std::map<std::string,d_print::PageSize> printerManager::pages;
-std::map<d_print::PageSize,d_print::PaperSize> printerManager::pagesizes;
+std::map<std::string, d_print::PageSize> printerManager::pages;
+std::map<d_print::PageSize, d_print::PaperSize> printerManager::pagesizes;
 std::string printerManager::pcommand;
 
 /*
@@ -209,7 +209,7 @@ bool printerManager::readPrinterInfo(const std::string fname)
 
   int j=-1;
   std::string s;
-  std::string comkey,com;
+  std::string comkey, com;
   std::vector<std::string> vs, vvs;
   bool incom= false;
 
@@ -278,8 +278,7 @@ PaperSize printerManager::getSize(const PageSize ps)// size from page
   return prs;
 }
 
-bool printerManager::checkSpecial(const printOptions& po,
-				  std::map<std::string,std::string>& mc)
+bool printerManager::checkSpecial(const printOptions& po, std::map<std::string, std::string>& mc)
 {
   if (!printers.size()) return false;
   mc.clear();
@@ -321,7 +320,7 @@ bool printerManager::parseSetup() {
   int i,n,nv,nvstr=vstr.size();
 
   for (nv=0; nv<nvstr; nv++) {
-    std::vector<std::string> tokens= miutil::split(vstr[nv], ",", true);
+    std::vector<std::string> tokens = miutil::split(vstr[nv], ",", true);
     n= tokens.size();
     std::string name;
 

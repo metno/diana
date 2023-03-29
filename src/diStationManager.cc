@@ -83,7 +83,7 @@ bool StationManager::parseSetup()
   for (unsigned int i = 0; i < section.size(); ++i) {
     if (section[i].find("image") != std::string::npos) {
       // split on blank, preserve ""
-      std::vector<std::string> tokens = miutil::split_protected(section[i], '"','"'," ",true);
+      std::vector<std::string> tokens = miutil::split_protected(section[i], '"', '"', " ", true);
       stationSetInfo s_info;
       for (size_t k = 0; k < tokens.size(); k++) {
      //  METLIBS_LOG_DEBUG("TOKENS = " << tokens[k]);
@@ -107,8 +107,7 @@ bool StationManager::parseSetup()
         }
       }
       m_info.sets.push_back(s_info);
-    }
-    else {
+    } else {
       std::vector<std::string> pieces = miutil::split(section[i], "=");
       if (pieces.size() == 2) {
         if (urls.find(pieces[1]) == urls.end()) {

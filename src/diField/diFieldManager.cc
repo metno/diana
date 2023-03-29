@@ -271,7 +271,7 @@ bool FieldManager::updateFileSetup(const std::vector<std::string>& lines,
     if (!modelName.empty() && (not fileNames.empty())) {
 
       std::vector<std::string> vModelNames;
-      std::vector<std::vector<std::string> > vFileNames;
+      std::vector<std::vector<std::string>> vFileNames;
 
       if (miutil::contains(modelName, "*")) { // the * is replaced by the filename (without path)
 

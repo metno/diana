@@ -51,8 +51,8 @@ using namespace ::miutil;
 
 static const float RAD_TO_DEG = 180 / M_PI;
 
-std::vector<editToolInfo> WeatherArea::allAreas; //info about areas
-std::map<std::string, int> WeatherArea::areaTypes; //finds area type number from name
+std::vector<editToolInfo> WeatherArea::allAreas;   // info about areas
+std::map<std::string, int> WeatherArea::areaTypes; // finds area type number from name
 float WeatherArea::defaultLineWidth = 4;
 
 WeatherArea::WeatherArea()

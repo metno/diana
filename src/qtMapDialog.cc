@@ -758,8 +758,7 @@ std::vector<std::string> MapDialog::writeLog()
   return vstr;
 }
 
-void MapDialog::readLog(const std::vector<std::string>& vstr,
-    const std::string& thisVersion, const std::string& logVersion)
+void MapDialog::readLog(const std::vector<std::string>& vstr, const std::string& thisVersion, const std::string& logVersion)
 {
   // version-check
   //bool oldversion= (thisVersion!=logVersion && logVersion < "2001-08-25");

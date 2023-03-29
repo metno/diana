@@ -101,7 +101,7 @@ int FieldPlot::getLevel() const
 {
   if (!cmd_)
     return 0;
-  //FIXME: Use stoi?
+  // FIXME: Use stoi?
   return atoi(cmd_->field.vlevel.c_str()); // cannot use miutil::to_int here because the string might also contain the unit
 }
 

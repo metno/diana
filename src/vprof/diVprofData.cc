@@ -181,7 +181,8 @@ void VprofData::renameStations()
     }
 
     std::ostringstream ostr;
-    ostr << std::setw(4) << std::setfill('0') << jmin << newname
+    ostr << std::setw(4) << std::setfill('0') << jmin
+         << newname
          // << validTime[i].isoTime() // FIXME index i may not be used here
          << mStations[i].name;
     sortlist.insert(std::make_pair(ostr.str(), i));

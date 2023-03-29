@@ -245,8 +245,7 @@ void EditNewDialog::combineSelect(QListWidgetItem * item)
   }
   cselectlabel->setText(s.c_str());
   std::string tmp;
-  std::vector <std::string> pids =
-      m_editm->getCombineIds(combinetime,products[currprod],pid);
+  std::vector<std::string> pids = m_editm->getCombineIds(combinetime, products[currprod], pid);
   int n = pids.size();
   for (int i=0;i<n-1;i++) tmp+=pids[i]+", ";
   if ( n > 0 ) {
@@ -521,7 +520,7 @@ void EditNewDialog::handleFieldButton(int num)
       products[currprod].fields[num].fromfname= edf.selectedField();
       products[currprod].fields[num].fromfield= true;
     } else if (edf.productSelected()){
-      std::vector <savedProduct> vsap= edf.vselectedProd();
+      std::vector<savedProduct> vsap = edf.vselectedProd();
       if (vsap.size()){
         products[currprod].fields[num].fromprod= vsap[0];
         if (num==0){
@@ -573,7 +572,7 @@ bool EditNewDialog::load_combine(){
   METLIBS_LOG_SCOPE();
   isdata= false;
   if( m_editm ){
-    std::vector<miutil::miTime> vt= m_editm->getCombineProducts(products[currprod],pid);
+    std::vector<miutil::miTime> vt = m_editm->getCombineProducts(products[currprod], pid);
     int n= vt.size();
     int index=0;
     cBox->clear();

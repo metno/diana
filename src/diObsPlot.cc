@@ -64,7 +64,7 @@
 using namespace miutil;
 using boost::adaptors::reverse;
 
-std::map<std::string, std::vector<std::string> > ObsPlot::visibleStations;
+std::map<std::string, std::vector<std::string>> ObsPlot::visibleStations;
 std::map<std::string, ObsPlot::metarww> ObsPlot::metarMap;
 std::map<int, int> ObsPlot::lwwg2;
 
@@ -912,38 +912,30 @@ void ObsPlot::parameter_sort(const std::string& parameter, bool minValue)
   all_from_file.clear();
   all_stations.clear();
   if (!minValue) {
-    for (std::multimap<double, int>::iterator p = numFileSortmap.begin();
-        p != numFileSortmap.end(); p++) {
+    for (std::multimap<double, int>::iterator p = numFileSortmap.begin(); p != numFileSortmap.end(); p++) {
       all_from_file.push_back(p->second);
     }
-    for (std::multimap<std::string, int>::iterator p = stringFileSortmap.begin();
-        p != stringFileSortmap.end(); p++) {
+    for (std::multimap<std::string, int>::iterator p = stringFileSortmap.begin(); p != stringFileSortmap.end(); p++) {
       all_from_file.push_back(p->second);
     }
 
-    for (std::multimap<double, int>::iterator p = numStnSortmap.begin();
-        p != numStnSortmap.end(); p++) {
+    for (std::multimap<double, int>::iterator p = numStnSortmap.begin(); p != numStnSortmap.end(); p++) {
       all_stations.push_back(p->second);
     }
-    for (std::multimap<std::string, int>::iterator p = stringStnSortmap.begin();
-        p != stringStnSortmap.end(); p++) {
+    for (std::multimap<std::string, int>::iterator p = stringStnSortmap.begin(); p != stringStnSortmap.end(); p++) {
       all_stations.push_back(p->second);
     }
   } else {
-    for (std::multimap<std::string, int>::reverse_iterator p = stringFileSortmap.rbegin();
-        p != stringFileSortmap.rend(); p++) {
+    for (std::multimap<std::string, int>::reverse_iterator p = stringFileSortmap.rbegin(); p != stringFileSortmap.rend(); p++) {
       all_from_file.push_back(p->second);
     }
-    for (std::multimap<double, int>::reverse_iterator p = numFileSortmap.rbegin();
-        p != numFileSortmap.rend(); p++) {
+    for (std::multimap<double, int>::reverse_iterator p = numFileSortmap.rbegin(); p != numFileSortmap.rend(); p++) {
       all_from_file.push_back(p->second);
     }
-    for (std::multimap<std::string, int>::reverse_iterator p = stringStnSortmap.rbegin();
-        p != stringStnSortmap.rend(); p++) {
+    for (std::multimap<std::string, int>::reverse_iterator p = stringStnSortmap.rbegin(); p != stringStnSortmap.rend(); p++) {
       all_stations.push_back(p->second);
     }
-    for (std::multimap<double, int>::reverse_iterator p = numStnSortmap.rbegin();
-        p != numStnSortmap.rend(); p++) {
+    for (std::multimap<double, int>::reverse_iterator p = numStnSortmap.rbegin(); p != numStnSortmap.rend(); p++) {
       all_stations.push_back(p->second);
     }
   }
@@ -1077,7 +1069,7 @@ bool ObsPlot::showpos_findObs(int xx, int yy)
 
   //insert station found in list of stations to plot, and remove it
   //from list of stations not to plot
-  std::vector<int>::iterator min_p = notplot.begin()+min_i;
+  std::vector<int>::iterator min_p = notplot.begin() + min_i;
   nextplot.insert(nextplot.begin(), notplot[min_i]);
   notplot.erase(min_p);
   thisObs = true;
@@ -1123,7 +1115,7 @@ bool ObsPlot::getObsPopupText(int xx, int yy, std::string& setuptext)
   const ObsDataRef& dt = obsp[min_i];
 
   for (const std::string& datatype : readernames) {
-    std::map<std::string, std::vector<std::string> >::const_iterator f_p = popupSpec.find(datatype);
+    std::map<std::string, std::vector<std::string>>::const_iterator f_p = popupSpec.find(datatype);
     if (f_p == popupSpec.end())
       continue;
 
@@ -3575,7 +3567,7 @@ void ObsPlot::checkColourCriteria(DiGLPainter* gl, const std::string& param, flo
 
   Colour col = colour;
 
-  std::map<std::string, std::vector<colourCriteria> >::iterator p = colourcriteria.find(param);
+  std::map<std::string, std::vector<colourCriteria>>::iterator p = colourcriteria.find(param);
   if (p != colourcriteria.end()) {
     if (p->first == "RRR")
       adjustRRR(value);

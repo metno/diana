@@ -190,7 +190,7 @@ bool SpectrumFile::readFileHeader()
     iscale= vfile->getInt();
     frequences= vfile->getFloatVector(numFreq,iscale,iundef);
 
-    std::vector<int> decscale= vfile->getIntVector(numExtra);
+    std::vector<int> decscale = vfile->getIntVector(numExtra);
     extraScale.clear();
     for (int i=0; i<numExtra; i++)
       extraScale.push_back(powf(10.0,decscale[i]));

@@ -205,8 +205,8 @@ bool WeatherObjects::switchProjection(const Area& newArea)
   n= 0;
   for (ObjectPlot* op : objects) {
     const int m = op->getXYZsize();
-    const std::vector<float> x(&xpos[n], &xpos[n+m]);
-    const std::vector<float> y(&ypos[n], &ypos[n+m]);
+    const std::vector<float> x(&xpos[n], &xpos[n + m]);
+    const std::vector<float> y(&ypos[n], &ypos[n + m]);
     op->setXY(x, y);
     n += m;
   }
@@ -379,7 +379,7 @@ std::string WeatherObjects::writeEditDrawString(const miTime& t)
   std::ostringstream ostr;
   ostr << "Date=" << miutil::stringFromTime(t, true) << ';' << std::endl << std::endl;
 
-  for (std::vector <ObjectPlot*>::iterator p = objects.begin(); p!=objects.end(); ++p)
+  for (std::vector<ObjectPlot*>::iterator p = objects.begin(); p != objects.end(); ++p)
     ostr << (*p)->writeObjectString();
 
   switchProjection(oldarea);
@@ -487,7 +487,7 @@ bool WeatherObjects::writeAreaBorders(const std::string& fn)
 
   diutil::CharsetConverter_p converter = diutil::findConverter(diutil::CHARSET_INTERNAL(), diutil::ISO_8859_1);
 
-  for (std::vector <ObjectPlot*>::iterator p = objects.begin(); p!=objects.end(); ++p) {
+  for (std::vector<ObjectPlot*>::iterator p = objects.begin(); p != objects.end(); ++p) {
     ObjectPlot* pobject = *p;
     if (pobject->objectIs(Border))
       file << converter->convert(pobject->writeObjectString());

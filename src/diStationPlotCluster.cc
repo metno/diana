@@ -199,7 +199,8 @@ void StationPlotCluster::findStations(int x, int y, bool add, std::vector<std::s
   }
 }
 
-void StationPlotCluster::stationCommand(const std::string& command, const std::vector<std::string>& data, const std::string& name, int id, const std::string& misc)
+void StationPlotCluster::stationCommand(const std::string& command, const std::vector<std::string>& data, const std::string& name, int id,
+                                        const std::string& misc)
 {
   for (StationPlot* sp : diutil::static_content_cast<StationPlot*>(plots_)) {
     if ((id == -1 || id == sp->getId()) && (name == sp->getName() || name.empty())) {

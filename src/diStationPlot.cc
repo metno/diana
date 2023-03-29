@@ -61,7 +61,7 @@ static double distance(const miCoordinates& pos, const Station* s)
   return pos.distanceTo(s->pos) / 1000;
 }
 
-StationPlot::StationPlot(const std::vector<float> & lons, const std::vector<float> & lats)
+StationPlot::StationPlot(const std::vector<float>& lons, const std::vector<float>& lats)
 {
   init();
   const size_t n = std::min(lons.size(), lats.size());
@@ -71,8 +71,7 @@ StationPlot::StationPlot(const std::vector<float> & lons, const std::vector<floa
   defineCoordinates();
 }
 
-StationPlot::StationPlot(const std::vector<std::string> & names,
-    const std::vector<float> & lons, const std::vector<float> & lats)
+StationPlot::StationPlot(const std::vector<std::string>& names, const std::vector<float>& lons, const std::vector<float>& lats)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
@@ -85,7 +84,7 @@ StationPlot::StationPlot(const std::vector<std::string> & names,
   defineCoordinates();
 }
 
-StationPlot::StationPlot(const std::vector<stationInfo> & stations)
+StationPlot::StationPlot(const std::vector<stationInfo>& stations)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
@@ -97,9 +96,8 @@ StationPlot::StationPlot(const std::vector<stationInfo> & stations)
   defineCoordinates();
 }
 
-StationPlot::StationPlot(const std::vector<std::string> & names,
-    const std::vector<float> & lons, const std::vector<float> & lats,
-    const std::vector<std::string>& images)
+StationPlot::StationPlot(const std::vector<std::string>& names, const std::vector<float>& lons, const std::vector<float>& lats,
+                         const std::vector<std::string>& images)
 {
 #ifdef DEBUGPRINT
   METLIBS_LOG_SCOPE();
@@ -113,7 +111,7 @@ StationPlot::StationPlot(const std::vector<std::string> & names,
   defineCoordinates();
 }
 
-StationPlot::StationPlot(const std::vector <Station*> &stations)
+StationPlot::StationPlot(const std::vector<Station*>& stations)
 {
   init();
   for (Station* si : stations)
@@ -123,8 +121,8 @@ StationPlot::StationPlot(const std::vector <Station*> &stations)
   defineCoordinates();
 }
 
-StationPlot::StationPlot(const std::string& commondesc, const std::string& common,
-    const std::string& description, int from, const std::vector<std::string>& data)
+StationPlot::StationPlot(const std::string& commondesc, const std::string& common, const std::string& description, int from,
+                         const std::vector<std::string>& data)
 {
   init();
 
@@ -286,8 +284,8 @@ void StationPlot::plot(DiGLPainter* gl, PlotOrder zorder)
   if (!isEnabled() || !visible || zorder != PO_LINES)
     return;
 
-  std::map<Station::Status, std::vector<int> > selected; //index of selected stations for each status
-  std::map<Station::Status, std::vector<int> > unselected; //index of unselected stations for each status
+  std::map<Station::Status, std::vector<int>> selected;   // index of selected stations for each status
+  std::map<Station::Status, std::vector<int>> unselected; // index of unselected stations for each status
 
   //first loop, only unselected stations
   int n = stations.size();
@@ -683,7 +681,7 @@ int StationPlot::setSelectedStation(int i, bool add)
   return -1;
 }
 
-void StationPlot::getAnnotation(std::string &str, Colour &col) const
+void StationPlot::getAnnotation(std::string& str, Colour& col) const
 {
   if (visible) {
     str = annotation;
@@ -693,7 +691,7 @@ void StationPlot::getAnnotation(std::string &str, Colour &col) const
   }
 }
 
-void StationPlot::setStationPlotAnnotation(const std::string &str)
+void StationPlot::setStationPlotAnnotation(const std::string& str)
 {
   annotation = str;
 }
@@ -736,9 +734,7 @@ void StationPlot::setUseStationName(bool normal, bool selected)
   useStationNameSelected = selected;
 }
 
-
-bool StationPlot::stationCommand(const std::string& command,
-    const std::vector<std::string>& data, const std::string& misc)
+bool StationPlot::stationCommand(const std::string& command, const std::vector<std::string>& data, const std::string& misc)
 {
   METLIBS_LOG_SCOPE();
   if (command == "changeImageandText") {

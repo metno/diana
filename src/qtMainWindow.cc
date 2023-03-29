@@ -996,7 +996,7 @@ void DianaMainWindow::recallPlot(const PlotCommand_cpv& vstr, bool replace)
   // If the strings are being replaced then update each of the
   // dialogs whether it has a command or not. Otherwise, only
   // update those with a corresponding string.
-  std::map<std::string, DataDialog *>::iterator it;
+  std::map<std::string, DataDialog*>::iterator it;
   for (it = dialogNames.begin(); it != dialogNames.end(); ++it) {
     DataDialog *dialog = it->second;
     if (replace || dialog_com.find(it->first) != dialog_com.end())
@@ -1055,7 +1055,7 @@ bool isLabelCommandWithTime(PlotCommand_cp cmd)
 }
 } // namespace
 
-void DianaMainWindow::getPlotStrings(PlotCommand_cpv &pstr, std::vector<std::string> &shortnames)
+void DianaMainWindow::getPlotStrings(PlotCommand_cpv& pstr, std::vector<std::string>& shortnames)
 {
   // fields
   pstr = fm->getOKString();
@@ -1558,7 +1558,7 @@ void DianaMainWindow::spectrumChangedSlot(const QString& station)
 {
   //METLIBS_LOG_DEBUG("DianaMainWindow::spectrumChangedSlot to " << name);
   METLIBS_LOG_DEBUG("DianaMainWindow::spectrumChangedSlot");
-  std::string s =station.toStdString();
+  std::string s = station.toStdString();
   std::vector<std::string> data;
   data.push_back(s);
   contr->stationCommand("setSelectedStation",data,"spectrum");
@@ -2322,7 +2322,7 @@ void DianaMainWindow::catchElement(QMouseEvent* mev)
   showStationOrObsText(x, y);
 
   //find the name of stations clicked/pointed at
-  std::vector<std::string> stations = contr->findStations(x,y,"vprof");
+  std::vector<std::string> stations = contr->findStations(x, y, "vprof");
   //now tell vpWindow about new station (this calls vpManager)
   if (vpWindow && !stations.empty())
     vpWindow->changeStations(stations);
@@ -2828,7 +2828,7 @@ void DianaMainWindow::readLog(const std::vector<std::string>& vstr, const std::s
 
 void DianaMainWindow::restoreDocState(const std::string& logstr)
 {
-  std::vector<std::string> vs= miutil::split(logstr, " ");
+  std::vector<std::string> vs = miutil::split(logstr, " ");
   int n=vs.size();
   QByteArray state(n-1,' ');
   for (int i=1; i<n; i++){

@@ -53,7 +53,7 @@ AnnoText::AnnoText( QWidget* parent, Controller* llctrl, std::string prodname,
 : QDialog(parent), m_ctrl(llctrl)
 {
 #ifdef DEBUGPRINT
-      std::cout<<"AnnoText::AnnoText called"<<std::endl;
+  std::cout << "AnnoText::AnnoText called" << std::endl;
 #endif
 
       setModal(true);

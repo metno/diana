@@ -54,7 +54,7 @@ std::vector<std::string> Pattern::getPatternInfo(const std::string& name)
   const pmap_t::const_iterator it = pmap.find(name);
   if (it != pmap.end())
     return it->second.pattern;
-  
+
   return std::vector<std::string>();
 }
 

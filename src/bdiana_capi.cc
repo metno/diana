@@ -215,7 +215,7 @@ struct Bdiana
   int addhour, addminute;
 
   std::map<std::string, std::map<std::string, std::string>> outputTextMaps; // output text for cases where output data is XML/JSON
-  std::vector<std::string> outputTextMapOrder;                         // order of legends in output text
+  std::vector<std::string> outputTextMapOrder;                              // order of legends in output text
 
   //! replaceable values for plot-commands
   std::vector<keyvalue> keys;
@@ -228,7 +228,7 @@ struct Bdiana
 
   void unpackloop(std::vector<std::string>& orig, // original strings..
                   std::vector<int>& origlines,    // ..with corresponding line-numbers
-                  unsigned int& index,       // original string-counter to update
+                  unsigned int& index,            // original string-counter to update
                   std::vector<std::string>& part, // final strings from loop-unpacking..
                   std::vector<int>& partlines);   // ..with corresponding line-numbers
 
@@ -315,7 +315,7 @@ static void expandTime(std::string& text, const miutil::miTime& time)
  */
 void Bdiana::unpackloop(std::vector<std::string>& orig, // original strings..
                         std::vector<int>& origlines,    // ..with corresponding line-numbers
-                        unsigned int& index,       // original string-counter to update
+                        unsigned int& index,            // original string-counter to update
                         std::vector<std::string>& part, // final strings from loop-unpacking..
                         std::vector<int>& partlines)    // ..with corresponding line-numbers
 {
@@ -339,7 +339,7 @@ void Bdiana::unpackloop(std::vector<std::string>& orig, // original strings..
 
   std::string argu = vs[1]; // argument-part
   unsigned int nargu;
-  std::vector<std::vector<std::string> > arguments;
+  std::vector<std::vector<std::string>> arguments;
 
   /* Check if argument is name of list
    Lists are recognized with preceding '@' */
@@ -916,12 +916,12 @@ void Bdiana::createJsonAnnotation()
           at += 7;
           size_t end = legend.find("\"", at);
           if (end == std::string::npos)
-              end = legend.size();
+            end = legend.size();
 
           // Remove leading and trailing quotes.
           legend = legend.substr(at, end - at);
 
-          std::map<std::string,std::string> textMap;
+          std::map<std::string, std::string> textMap;
 
           std::string title;
           std::vector<std::string> colors;

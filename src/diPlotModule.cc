@@ -340,7 +340,7 @@ void PlotModule::setAnnotations()
 
   //get field and sat annotations
   for (AnnotationPlot* ap : vap) {
-    std::vector<std::vector<std::string> > vvstr = ap->getAnnotationStrings();
+    std::vector<std::vector<std::string>> vvstr = ap->getAnnotationStrings();
     for (std::vector<std::string>& as : vvstr) {
       for (PlotCluster* pc : clusters())
         pc->getDataAnnotations(as);
@@ -1042,8 +1042,8 @@ void PlotModule::updateEditLabels(const PlotCommand_cpv& productLabelCommands,
     const std::string& productName, bool newProduct)
 {
   METLIBS_LOG_SCOPE();
-  std::vector<AnnotationPlot*> oldVap; //display object labels
-  //read the old labels...
+  std::vector<AnnotationPlot*> oldVap; // display object labels
+  // read the old labels...
 
   for (PlotCommand_cp pc : objm->getEditObjects().getObjectLabels())
     oldVap.push_back(new AnnotationPlot(pc));

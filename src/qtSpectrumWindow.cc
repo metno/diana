@@ -414,9 +414,9 @@ StationPlot* SpectrumWindow::getStations()
 {
   METLIBS_LOG_SCOPE();
 
-  const std::vector <std::string> stations = spectrumm->getStationList();
-  const std::vector <float> latitude = spectrumm->getLatitudes();
-  const std::vector <float> longitude = spectrumm->getLongitudes();
+  const std::vector<std::string> stations = spectrumm->getStationList();
+  const std::vector<float> latitude = spectrumm->getLatitudes();
+  const std::vector<float> longitude = spectrumm->getLongitudes();
   StationPlot* stationPlot = new StationPlot(stations,longitude,latitude);
   std::string ann = spectrumm->getAnnotationString();
   stationPlot->setStationPlotAnnotation(ann);
@@ -568,10 +568,8 @@ std::vector<std::string> SpectrumWindow::writeLog(const std::string& logpart)
   return vstr;
 }
 
-
-void SpectrumWindow::readLog(const std::string& logpart, const std::vector<std::string>& vstr,
-    const std::string& thisVersion, const std::string& logVersion,
-    int displayWidth, int displayHeight)
+void SpectrumWindow::readLog(const std::string& logpart, const std::vector<std::string>& vstr, const std::string& thisVersion, const std::string& logVersion,
+                             int displayWidth, int displayHeight)
 {
   if (logpart=="window") {
 

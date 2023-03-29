@@ -68,7 +68,7 @@ LegendPlot::LegendPlot(const std::string& str)
   miutil::trim(sstr);
   std::vector<std::string> vstr = miutil::split(sstr, "=");
   if(vstr.size()==2){
-    std::vector<std::string> tokens = miutil::split(vstr[1], ";",false);
+    std::vector<std::string> tokens = miutil::split(vstr[1], ";", false);
     int n=tokens.size();
     if(n>0){
       if (poptions.tableHeader)

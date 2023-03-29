@@ -53,11 +53,10 @@
 #define MILOGGER_CATEGORY "diana.QuickEditOptions"
 #include <miLogger/miLogging.h>
 
-
 QuickEditOptions::QuickEditOptions(QWidget* parent, std::vector<quickMenuOption>& opt)
-  : QDialog(parent)
-  , options(opt)
-  , keynum(-1)
+    : QDialog(parent)
+    , options(opt)
+    , keynum(-1)
 {
   QLabel* mainlabel= new QLabel("<em><b>"+tr("Change Dynamic Options")+"</b></em>", this);
   mainlabel->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);

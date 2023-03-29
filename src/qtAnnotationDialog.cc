@@ -208,13 +208,11 @@ PlotCommand_cpv AnnotationDialog::getOKString()
   return cmd;
 }
 
-
 std::vector<std::string> AnnotationDialog::writeLog()
 {
   METLIBS_LOG_SCOPE();
   return std::vector<std::string>(1, "================");
 }
-
 
 void AnnotationDialog::readLog(const std::vector<std::string>&, const std::string&, const std::string&)
 {

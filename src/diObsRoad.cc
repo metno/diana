@@ -699,7 +699,7 @@ void ObsRoad::decodeNewHeader()
   METLIBS_LOG_SCOPE();
   
   // New header format: Time;Offset;StationId;StationName;StationType;Parameter;StatisticsFormula;SamplingTime;Longitud;Latitud;Height;Presentation Value;Database Value;Quality;Nordklim;Restriction;Value Origin;Level Parameter;Level from;Level to;ClimateStationId;ClimateCtationName;NationalStationId;NationalStationName;WmoStationId;WmoStationName;IcaoStationId;IcaoStationName;OperatingMode;
-  // Always the same 
+  // Always the same
 
   std::vector<std::string> vstr;
   for (size_t i = 0; i < lines.size(); ++i) {

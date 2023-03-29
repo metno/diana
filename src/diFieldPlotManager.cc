@@ -497,9 +497,9 @@ bool FieldPlotManager::parseFieldGroupSetup()
   int nlines = lines.size();
 
   for (int l = 0; l < nlines; l++) {
-    std::vector<std::string> tokens= miutil::split_protected(lines[l], '"','"');
+    std::vector<std::string> tokens = miutil::split_protected(lines[l], '"', '"');
     if ( tokens.size()== 2 ) {
-      std::vector<std::string> stokens= miutil::split_protected(tokens[0], '"','"',"=",true);
+      std::vector<std::string> stokens = miutil::split_protected(tokens[0], '"', '"', "=", true);
       if (stokens.size() == 2 && stokens[0] == key_name ){
         std::string name = stokens[1];
         stokens= miutil::split_protected(tokens[1], '"','"',"=",true);

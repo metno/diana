@@ -69,8 +69,8 @@ void drawHalfCircle(DiGLPainter* gl, bool fill, const QPointF& pos, float angle_
 }
 } // namespace anonymous
 
-std::vector<editToolInfo> WeatherFront::allFronts; //info about fronts
-std::map<std::string,int> WeatherFront::frontTypes;   //finds front type number from name
+std::vector<editToolInfo> WeatherFront::allFronts;   // info about fronts
+std::map<std::string, int> WeatherFront::frontTypes; // finds front type number from name
 float WeatherFront::defaultLineWidth=8;
 
 WeatherFront::WeatherFront()
@@ -1118,7 +1118,7 @@ bool WeatherFront::setSpline(bool s)
 
 std::string WeatherFront::writeTypeString()
 {
-  std::string ret ="Object=Front;\n";
+  std::string ret = "Object=Front;\n";
   ret+="Type=";
   ret+=allFronts[type].name;
   ret+=";\n";

@@ -197,7 +197,7 @@ std::vector<std::string> EditDefineFieldDialog::getProductNames()
 {
   METLIBS_LOG_SCOPE();
 
-  std::vector <std::string> name;
+  std::vector<std::string> name;
   if (!m_editm)
     return name;
   //get fields
@@ -251,7 +251,7 @@ void EditDefineFieldDialog::fillList()
       fBox->addItem(QString(fields[i].c_str()));
     }
   } else {
-    std::vector <savedProduct> splist = pmap[currentProductName];
+    std::vector<savedProduct> splist = pmap[currentProductName];
     for (unsigned int i=0; i<splist.size(); i++){
       std::string str;
       if ( splist[i].ptime.undef() ) {
@@ -283,10 +283,10 @@ void EditDefineFieldDialog::fieldselect(QListWidgetItem* item)
     updateFilenames();
     if (filenames->count()) filenames->item(0)->setSelected(true);
   } else {
-    std::vector <savedProduct> splist = pmap[currentProductName];
+    std::vector<savedProduct> splist = pmap[currentProductName];
     savedProduct selectedprod = splist[i];
     //check this savedproduct not already selected
-    std::vector<savedProduct>::iterator p=vselectedprod.begin();
+    std::vector<savedProduct>::iterator p = vselectedprod.begin();
     for (; p!=vselectedprod.end() && selectedprod.filename!=p->filename;p++);
     if (p==vselectedprod.end()){
       initCbs();

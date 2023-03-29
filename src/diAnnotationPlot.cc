@@ -534,9 +534,7 @@ void AnnotationPlot::plot(DiGLPainter* gl, PlotOrder zorder)
   }
 }
 
-bool AnnotationPlot::plotElements(DiGLPainter* gl,
-    std::vector<element>& annoEl, float& x, float& y,
-    float annoHeight, bool horizontal)
+bool AnnotationPlot::plotElements(DiGLPainter* gl, std::vector<element>& annoEl, float& x, float& y, float annoHeight, bool horizontal)
 {
   METLIBS_LOG_SCOPE(LOGVAL(annoEl.size()));
 
@@ -708,9 +706,7 @@ void AnnotationPlot::plotBorders(DiGLPainter* gl)
     gl->drawRect(false, b.x1, b.y1, b.x2, b.y2);
 }
 
-void AnnotationPlot::getAnnoSize(DiGLPainter* gl,
-    std::vector<element> &annoEl, float& wid,
-    float& hei, bool horizontal)
+void AnnotationPlot::getAnnoSize(DiGLPainter* gl, std::vector<element>& annoEl, float& wid, float& hei, bool horizontal)
 {
   METLIBS_LOG_SCOPE(LOGVAL(annoEl.size()));
 
@@ -1198,7 +1194,7 @@ const std::vector<AnnotationPlot::Annotation>& AnnotationPlot::getAnnotations()
   return annotations;
 }
 
-std::vector<std::vector<std::string> > AnnotationPlot::getAnnotationStrings()
+std::vector<std::vector<std::string>> AnnotationPlot::getAnnotationStrings()
 {
   METLIBS_LOG_SCOPE(LOGVAL(annotations.size()));
 
@@ -1214,13 +1210,13 @@ std::vector<std::vector<std::string> > AnnotationPlot::getAnnotationStrings()
       break;
   }
 
-  std::vector<std::vector<std::string> > vvstr;
+  std::vector<std::vector<std::string>> vvstr;
   for (const Annotation& a : (orig ? orig_annotations : annotations))
     vvstr.push_back(a.vstr);
   return vvstr;
 }
 
-void AnnotationPlot::setAnnotationStrings(std::vector<std::vector<std::string> >& vvstr)
+void AnnotationPlot::setAnnotationStrings(std::vector<std::vector<std::string>>& vvstr)
 {
   METLIBS_LOG_SCOPE(LOGVAL(vvstr.size()));
   if (vvstr.empty())

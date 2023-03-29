@@ -668,14 +668,14 @@ void EditDialog::FrontEditClicked()
         }
       }
     } else if (m_objm->inComplexTextMode()) {
-      std::vector <std::string> symbolText,xText;
+      std::vector<std::string> symbolText, xText;
       m_objm->initCurrentComplexText();
       m_objm->getCurrentComplexText(symbolText,xText);
       if (getComplexText(symbolText,xText)){
         m_objm->setCurrentComplexText(symbolText,xText);
       }
     } else if (m_objm->inEditTextMode()) {
-      std::vector<std::string> symbolText,xText;
+      std::vector<std::string> symbolText, xText;
       m_objm->initCurrentComplexText();
       m_objm->getCurrentComplexText(symbolText,xText);
       if (getEditText(symbolText)){
@@ -701,13 +701,13 @@ void EditDialog::FrontEditDoubleClicked()
       m_objm->setCurrentColour(colour);
     }
   } else if (m_objm->inComplexTextMode()){
-    std::vector<std::string> symbolText,xText;
+    std::vector<std::string> symbolText, xText;
     m_objm->getCurrentComplexText(symbolText,xText);
     if (getComplexText(symbolText,xText)){
       m_objm->setCurrentComplexText(symbolText,xText);
     }
   } else if (m_objm->inEditTextMode()){
-    std::vector<std::string> symbolText,xText;
+    std::vector<std::string> symbolText, xText;
     m_objm->getCurrentComplexText(symbolText,xText);
     if (getEditText(symbolText)){
       m_objm->setCurrentComplexText(symbolText,xText);
@@ -765,7 +765,7 @@ void EditDialog::EditMarkedText()
 {
   //called from shortcut ctrl-e
   //changes all marked texts and objectmanagers current text !
-  std::vector <std::string> symbolText,xText,eText, mText;
+  std::vector<std::string> symbolText, xText, eText, mText;
   std::string text = m_objm->getMarkedText();
   METLIBS_LOG_DEBUG("-----EditDialog::EditMarkedText called------- text = " << text);
   if (!text.empty()){
@@ -813,9 +813,9 @@ bool EditDialog::getText(std::string & text, Colour::ColourInfo & colour)
 {
   bool ok = false;
 
-  std::vector <std::string> symbolText,xText;
+  std::vector<std::string> symbolText, xText;
   symbolText.push_back(text);
-  std::set <std::string> textList=m_objm->getTextList();
+  std::set<std::string> textList = m_objm->getTextList();
   ComplexText * cText =new ComplexText(this,m_ctrl, symbolText,xText, textList,true);
   cText->setColour(colour);
   if (cText->exec()){

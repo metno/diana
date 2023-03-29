@@ -193,13 +193,12 @@ Inventory Inventory::merge(const Inventory& i) const
           // identical taxis name, check the other attributes");
           if (taxis1itr->values != tax2.values) {
             METLIBS_LOG_DEBUG(" same id, different values, merge values");
-              std::vector<double> newvalues = taxis1itr->values;
-              diutil::insert_all(newvalues, tax2.values);
-              Taxis newtaxis(taxis1itr->name, newvalues);
-              METLIBS_LOG_DEBUG("     must change taxis: old size:" <<taxis1itr->values.size()
-                  << " new size: " << newvalues.size());
-              reftime.taxes.erase(*taxis1itr); // remove taxis
-              reftime.taxes.insert(newtaxis); // add taxis
+            std::vector<double> newvalues = taxis1itr->values;
+            diutil::insert_all(newvalues, tax2.values);
+            Taxis newtaxis(taxis1itr->name, newvalues);
+            METLIBS_LOG_DEBUG("     must change taxis: old size:" << taxis1itr->values.size() << " new size: " << newvalues.size());
+            reftime.taxes.erase(*taxis1itr); // remove taxis
+            reftime.taxes.insert(newtaxis);  // add taxis
          }
         }
       } // Taxis end

@@ -69,8 +69,8 @@ bool calculateGeogridParameters(const Projection& p, const Rectangle& maprect, f
 std::map<std::string, FilledMap> MapPlot::filledmapObjects;
 std::map<std::string, int> MapPlot::filledmapRefCounts;
 
-std::map<std::string,ShapeObject> MapPlot::shapemaps;
-std::map<std::string,Area> MapPlot::shapeareas;
+std::map<std::string, ShapeObject> MapPlot::shapemaps;
+std::map<std::string, Area> MapPlot::shapeareas;
 
 MapPlot::MapPlot()
   : mapchanged(true)

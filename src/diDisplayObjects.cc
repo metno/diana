@@ -148,7 +148,7 @@ bool DisplayObjects::prepareObjects()
 
 /*********************************************/
 
-void DisplayObjects::getObjAnnotation(std::string &str, Colour &col)
+void DisplayObjects::getObjAnnotation(std::string& str, Colour& col)
 {
   if (approved) {
     str = objectname;

@@ -67,11 +67,10 @@ const std::string SectInfoFiles=   "TEXT_INFORMATION_FILES";
 
 // static members
 std::string LocalSetupParser::setupFilename;
-std::vector<QuickMenuDefs>      LocalSetupParser::quickmenudefs;
-std::map<std::string,std::string>     LocalSetupParser::basic_values;
-std::map<std::string,InfoFile>     LocalSetupParser::infoFiles;
-std::vector<std::string>           LocalSetupParser::langPaths;
-
+std::vector<QuickMenuDefs> LocalSetupParser::quickmenudefs;
+std::map<std::string, std::string> LocalSetupParser::basic_values;
+std::map<std::string, InfoFile> LocalSetupParser::infoFiles;
+std::vector<std::string> LocalSetupParser::langPaths;
 
 bool LocalSetupParser::makeDirectory(const std::string& filename, std::string & error)
 {
@@ -184,7 +183,7 @@ bool LocalSetupParser::parseBasics(const std::string& sectname){
   basic_values[key_imagepath] = SHAREDIR + "/images";
   basic_values[key_language] = language;
 
-  std::vector<std::string> list,tokens;
+  std::vector<std::string> list, tokens;
   std::string key,value;
   int i,n;
 
@@ -287,8 +286,7 @@ bool LocalSetupParser::parseColours(const std::string& sectname){
       {77,0,77},{51,51,255},{43,120,36},{0,54,125},
       {64,64,64},{127,127,127},{230,230,230}};
 
-
-  std::vector<std::string> list,tokens,stokens;
+  std::vector<std::string> list, tokens, stokens;
   std::string key,value,value2;
   int i,n;
   Colour c;
@@ -376,10 +374,8 @@ bool LocalSetupParser::parsePalettes(const std::string& sectname){
 #ifdef DEBUGPRINT1
   METLIBS_LOG_DEBUG("nRGBtab,mRGBtab: "<<nRGBtab<<" "<<mRGBtab);
   for (int i=0; i<nRGBtab; i++) {
-    METLIBS_LOG_DEBUG(std::setw(3)<<i<<":  "
-    <<std::setw(3)<<int(RGBtab[i][0]*255.+0.5)<<"  "
-    <<std::setw(3)<<int(RGBtab[i][1]*255.+0.5)<<"  "
-    <<std::setw(3)<<int(RGBtab[i][2]*255.+0.5));
+    METLIBS_LOG_DEBUG(std::setw(3) << i << ":  " << std::setw(3) << int(RGBtab[i][0] * 255. + 0.5) << "  " << std::setw(3) << int(RGBtab[i][1] * 255. + 0.5)
+                                   << "  " << std::setw(3) << int(RGBtab[i][2] * 255. + 0.5));
   }
 #endif
 
@@ -397,7 +393,7 @@ bool LocalSetupParser::parsePalettes(const std::string& sectname){
   ColourShading::addColourShadingInfo(csinfo);
   ColourShading::define("standard",csinfo.colour);
 
-  std::vector<std::string> list,tokens,stokens;
+  std::vector<std::string> list, tokens, stokens;
   std::string key,value,value2;
 
   if (!miutil::SetupParser::getSection(sectname,list))
@@ -504,7 +500,7 @@ bool LocalSetupParser::parseQuickMenus(const std::string& sectname){
 
   const std::string key_file= "file";
 
-  std::vector<std::string> list,tokens,stokens;
+  std::vector<std::string> list, tokens, stokens;
   std::string key,value,file;
   QuickMenuDefs qmenu;
   int i,j,m,n;
@@ -537,7 +533,6 @@ bool LocalSetupParser::parseQuickMenus(const std::string& sectname){
 
   return true;
 }
-
 
 bool LocalSetupParser::getQuickMenus(std::vector<QuickMenuDefs>& qm)
 {

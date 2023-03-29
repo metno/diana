@@ -683,7 +683,7 @@ KVListPlotCommand_cp ObsWidget::getOKString(bool forLog)
       for (int j=0; j<m; j++) {
         const std::vector<std::string> sub = miutil::split(criteriaList[i].criteria[j], " ");
         std::string subcriteria;
-        for(const std::string& subs : sub)
+        for (const std::string& subs : sub)
           diutil::appendText(subcriteria, subs, ",");
         diutil::appendText(criteria, subcriteria, ";");
       }
@@ -698,7 +698,7 @@ KVListPlotCommand_cp ObsWidget::getOKString(bool forLog)
       for (int j=0; j<m; j++) {
         const std::vector<std::string> sub = miutil::split(savedCriteria.criteria[j], " ");
         std::string subcriteria;
-        for(const std::string& subs : sub)
+        for (const std::string& subs : sub)
           diutil::appendText(subcriteria, subs, ",");
         diutil::appendText(criteria, subcriteria, ";");
       }
@@ -1096,8 +1096,7 @@ void ObsWidget::saveCriteria(const std::vector<std::string>& vstr)
   savedCriteria.criteria = vstr;
 }
 
-bool ObsWidget::saveCriteria(const std::vector<std::string>& vstr,
-    const std::string& name)
+bool ObsWidget::saveCriteria(const std::vector<std::string>& vstr, const std::string& name)
 {
   //don't save list whithout name
   if (name.empty()) {
