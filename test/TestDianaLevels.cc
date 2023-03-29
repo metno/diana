@@ -39,7 +39,6 @@
 
 #include <gtest/gtest.h>
 
-using namespace std;
 
 TEST(TestDianaLevels, List10)
 {

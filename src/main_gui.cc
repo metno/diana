@@ -55,7 +55,6 @@
 #include <miLogger/miLogging.h>
 
 
-using namespace std;
 using namespace miutil;
 
 namespace {
@@ -113,8 +112,8 @@ void setupQtLanguage(QCoreApplication* app, const QString& lang)
   LanguageInstaller liQt(app, "qt_"+lang), liDiana(app, "diana_"+lang), liQUtilities(app, "qUtilities_"+lang);
 
   // translation files for application strings
-  const vector<string> langpaths = LocalSetupParser::languagePaths();
-  for (vector<string>::const_iterator it = langpaths.begin(); it != langpaths.end(); ++it) {
+  const std::vector<std::string> langpaths = LocalSetupParser::languagePaths();
+  for (std::vector<std::string>::const_iterator it = langpaths.begin(); it != langpaths.end(); ++it) {
     const QString dir = QString::fromStdString(*it);
     liQt.load(dir);
     liDiana.load(dir);
@@ -203,7 +202,7 @@ int main(int argc, char **argv)
 
   const std::map<std::string, std::string> user_variables = diutil::parse_user_variables(positional);
   SetupParser::setUserVariables(user_variables);
-  string setupfile = vm.value(diutil::op_setup);
+  std::string setupfile = vm.value(diutil::op_setup);
   if (!LocalSetupParser::parse(setupfile)){
     const QString message = setupfile.empty()
                           ? ("No setup file specified.")

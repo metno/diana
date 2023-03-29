@@ -50,7 +50,6 @@
 #include <miLogger/miLogging.h>
 
 using namespace::miutil;
-using namespace std;
 
 namespace {
 const std::string ObjectTypeNames[] = {"edittool", "front", "symbol", "area", "anno"};
@@ -206,8 +205,8 @@ bool WeatherObjects::switchProjection(const Area& newArea)
   n= 0;
   for (ObjectPlot* op : objects) {
     const int m = op->getXYZsize();
-    const vector<float> x(&xpos[n], &xpos[n+m]);
-    const vector<float> y(&ypos[n], &ypos[n+m]);
+    const std::vector<float> x(&xpos[n], &xpos[n+m]);
+    const std::vector<float> y(&ypos[n], &ypos[n+m]);
     op->setXY(x, y);
     n += m;
   }
@@ -253,7 +252,7 @@ bool WeatherObjects::readEditDrawFile(const std::string& fn)
   diutil::CharsetConverter_p converter = diutil::findConverter( diutil::CHARSET_READ(), diutil::CHARSET_INTERNAL());
 
   // open filestream
-  ifstream file(fn.c_str());
+  std::ifstream file(fn.c_str());
   if (!file){
     METLIBS_LOG_ERROR("ERROR OPEN (READ) '" << fn << "'");
     return false;
@@ -377,10 +376,10 @@ std::string WeatherObjects::writeEditDrawString(const miTime& t)
   const Area oldarea = itsArea;
   switchProjection(geoArea());
 
-  ostringstream ostr;
-  ostr << "Date=" << miutil::stringFromTime(t, true) << ';' << endl << endl;
+  std::ostringstream ostr;
+  ostr << "Date=" << miutil::stringFromTime(t, true) << ';' << std::endl << std::endl;
 
-  for (vector <ObjectPlot*>::iterator p = objects.begin(); p!=objects.end(); ++p)
+  for (std::vector <ObjectPlot*>::iterator p = objects.begin(); p!=objects.end(); ++p)
     ostr << (*p)->writeObjectString();
 
   switchProjection(oldarea);
@@ -450,7 +449,7 @@ const PlotCommand_cpv& WeatherObjects::getEditLabels()
  *  Methods for reading and writing areaBorders  *
  *************************************************/
 
-bool WeatherObjects::readAreaBorders(const string& fn)
+bool WeatherObjects::readAreaBorders(const std::string& fn)
 {
   METLIBS_LOG_SCOPE("filename = " << fn);
 
@@ -488,7 +487,7 @@ bool WeatherObjects::writeAreaBorders(const std::string& fn)
 
   diutil::CharsetConverter_p converter = diutil::findConverter(diutil::CHARSET_INTERNAL(), diutil::ISO_8859_1);
 
-  for (vector <ObjectPlot*>::iterator p = objects.begin(); p!=objects.end(); ++p) {
+  for (std::vector <ObjectPlot*>::iterator p = objects.begin(); p!=objects.end(); ++p) {
     ObjectPlot* pobject = *p;
     if (pobject->objectIs(Border))
       file << converter->convert(pobject->writeObjectString());
@@ -529,7 +528,7 @@ void WeatherObjects::addObject(ObjectPlot* object, bool replace)
   object->setRegion(prefix);
 }
 
-vector<ObjectPlot*>::iterator WeatherObjects::removeObject(vector<ObjectPlot*>::iterator p)
+std::vector<ObjectPlot*>::iterator WeatherObjects::removeObject(std::vector<ObjectPlot*>::iterator p)
 {
   return objects.erase(p);
 }

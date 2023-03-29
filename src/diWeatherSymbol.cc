@@ -44,23 +44,22 @@
 #include <miLogger/miLogging.h>
 
 using namespace::miutil;
-using namespace std;
 
 static const float DEG_TO_RAD = M_PI / 180;
 
 //static variables
-vector<editToolInfo> WeatherSymbol::allSymbols;
-vector<editToolInfo> WeatherSymbol::allRegions;
-map<std::string,int> WeatherSymbol::symbolTypes;     //finds symbol type number
-map<std::string,int> WeatherSymbol::regionTypes;     //finds region type number
-map<int,int> WeatherSymbol::indexTypes;           //finds symbol type number
-map<int,int> WeatherSymbol::next;           //finds next type number
-map<int,int> WeatherSymbol::last;           //finds last type number
+std::vector<editToolInfo> WeatherSymbol::allSymbols;
+std::vector<editToolInfo> WeatherSymbol::allRegions;
+std::map<std::string,int> WeatherSymbol::symbolTypes;     //finds symbol type number
+std::map<std::string,int> WeatherSymbol::regionTypes;     //finds region type number
+std::map<int,int> WeatherSymbol::indexTypes;           //finds symbol type number
+std::map<int,int> WeatherSymbol::next;           //finds next type number
+std::map<int,int> WeatherSymbol::last;           //finds last type number
 float WeatherSymbol::defaultSize=60.;
 float WeatherSymbol::defaultComplexSize=6.;
 std::string WeatherSymbol::currentText;
 Colour::ColourInfo WeatherSymbol::currentColour; //text colour
-set <std::string> WeatherSymbol::textlist; //texts used in combobox
+std::set <std::string> WeatherSymbol::textlist; //texts used in combobox
 
 WeatherSymbol::WeatherSymbol()
   : ObjectPlot(wSymbol)
@@ -81,7 +80,7 @@ WeatherSymbol::WeatherSymbol(int ty)
   setType(ty);
 }
 
-WeatherSymbol::WeatherSymbol(const string& tystring, int objTy)
+WeatherSymbol::WeatherSymbol(const std::string& tystring, int objTy)
     : ObjectPlot(objTy)
     , symbolSize(defaultSize)
 {
@@ -124,7 +123,7 @@ WeatherSymbol::~WeatherSymbol()
 
 
 // static function setting static private members
-void WeatherSymbol::defineSymbols(vector<editToolInfo> symbols)
+void WeatherSymbol::defineSymbols(std::vector<editToolInfo> symbols)
 {
   int nStart = allSymbols.size();
   int n = symbols.size();
@@ -152,7 +151,7 @@ void WeatherSymbol::defineSymbols(vector<editToolInfo> symbols)
 }
 
 
-void WeatherSymbol::defineRegions(vector<editToolInfo> regions)
+void WeatherSymbol::defineRegions(std::vector<editToolInfo> regions)
 {
   if (regions.size()) {
     allRegions = regions;
@@ -168,7 +167,7 @@ void WeatherSymbol::setCurrentText(const std::string & newText)
 }
 
 
-set <std::string> WeatherSymbol::getTextList()
+std::set <std::string> WeatherSymbol::getTextList()
 {
   return textlist;
 }
@@ -198,7 +197,7 @@ void WeatherSymbol::initComplexList()
 }
 
 
-set <string> WeatherSymbol::getComplexList()
+std::set <std::string> WeatherSymbol::getComplexList()
 {
   return ComplexSymbolPlot::getComplexList();
 }
@@ -243,13 +242,13 @@ bool WeatherSymbol::isTextEdit(std::string edittool)
 }
 
 
-void WeatherSymbol::getCurrentComplexText(vector<std::string> & symbolText, vector <std::string> & xText)
+void WeatherSymbol::getCurrentComplexText(std::vector<std::string> & symbolText, std::vector <std::string> & xText)
 {
   ComplexSymbolPlot::getCurrentComplexText(symbolText,xText);
 }
 
 
-void WeatherSymbol::setCurrentComplexText(const vector <std::string>& symbolText, const vector <std::string> & xText)
+void WeatherSymbol::setCurrentComplexText(const std::vector <std::string>& symbolText, const std::vector <std::string> & xText)
 {
   ComplexSymbolPlot::setCurrentComplexText(symbolText,xText);
 }
@@ -522,12 +521,12 @@ bool WeatherSymbol::isOnObject(float x, float y)
 }
 
 
-string WeatherSymbol::writeTypeString()
+std::string WeatherSymbol::writeTypeString()
 {
   METLIBS_LOG_SCOPE();
 
   std::string ret,tstring ;
-  ostringstream cs;
+  std::ostringstream cs;
   if (objectIs(wSymbol) || objectIs(RegionName)) {
     if (objectIs(wSymbol)) {
       ret ="Object=Symbol;\n";
@@ -570,7 +569,7 @@ string WeatherSymbol::writeTypeString()
 
 void WeatherSymbol::setString(const std::string& s)
 {
-  string tempString=s;
+  std::string tempString=s;
   replaceText(tempString,false);
   symbolString = tempString;
   textlist.insert(symbolString);
@@ -590,8 +589,8 @@ void WeatherSymbol::applyFilters(const std::vector<std::string>& symbolfilter)
 /************************************************************
  *  Methods for editing complex symbols                     *
  ************************************************************/
-void WeatherSymbol::getComplexText(vector<string>& symbolText,
-    vector<string>& xText)
+void WeatherSymbol::getComplexText(std::vector<std::string>& symbolText,
+    std::vector<std::string>& xText)
 {
   METLIBS_LOG_SCOPE();
   if (complexSymbol) {
@@ -603,7 +602,7 @@ void WeatherSymbol::getComplexText(vector<string>& symbolText,
 }
 
 
-void WeatherSymbol::getMultilineText(vector<string>& symbolText)
+void WeatherSymbol::getMultilineText(std::vector<std::string>& symbolText)
 {
   METLIBS_LOG_SCOPE();
   if (complexSymbol && drawIndex>=3000)
@@ -619,7 +618,7 @@ void WeatherSymbol::readComplexText(std::string s)
 }
 
 
-void WeatherSymbol::changeMultilineText(const vector <std::string> & symbolText)
+void WeatherSymbol::changeMultilineText(const std::vector <std::string> & symbolText)
 {
   METLIBS_LOG_SCOPE();
   if (complexSymbol && drawIndex>=3000)
@@ -627,8 +626,8 @@ void WeatherSymbol::changeMultilineText(const vector <std::string> & symbolText)
 }
 
 
-void WeatherSymbol::changeComplexText(const vector <std::string> & symbolText,
-    const vector <std::string> & xText)
+void WeatherSymbol::changeComplexText(const std::vector <std::string> & symbolText,
+    const std::vector <std::string> & xText)
 {
   METLIBS_LOG_SCOPE();
   if (complexSymbol && drawIndex<=3000)
@@ -661,7 +660,7 @@ void WeatherSymbol::setWhiteBox(int on)
 }
 
 
-void WeatherSymbol::replaceText(string& tempString, bool writestring)
+void WeatherSymbol::replaceText(std::string& tempString, bool writestring)
 {
   //replace !;=#,:
   if (writestring){

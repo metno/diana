@@ -43,7 +43,6 @@
 #include <miLogger/miLogging.h>
 
 using namespace miutil;
-using namespace std;
 
 StationManager::StationManager()
 {
@@ -73,22 +72,22 @@ bool StationManager::parseSetup()
   METLIBS_LOG_SCOPE();
 
   // Create stationSetInfo objects to be stored for later retrieval by the StationDialog.
-  vector<std::string> section;
+  std::vector<std::string> section;
 
   // Return true if there is no STATIONS section.
   if (!SetupParser::getSection("STATIONS", section))
     return true;
 
-  set<std::string> urls;
+  std::set<std::string> urls;
 
   for (unsigned int i = 0; i < section.size(); ++i) {
-    if (section[i].find("image") != string::npos) {
+    if (section[i].find("image") != std::string::npos) {
       // split on blank, preserve ""
-      vector<std::string> tokens = miutil::split_protected(section[i], '"','"'," ",true);
+      std::vector<std::string> tokens = miutil::split_protected(section[i], '"','"'," ",true);
       stationSetInfo s_info;
       for (size_t k = 0; k < tokens.size(); k++) {
      //  METLIBS_LOG_DEBUG("TOKENS = " << tokens[k]);
-        vector<std::string> pieces = miutil::split(tokens[k], "=");
+        std::vector<std::string> pieces = miutil::split(tokens[k], "=");
         // tag name=url
         if (k == 0 && pieces.size() == 2) {
           if (urls.find(pieces[1]) == urls.end()) {
@@ -110,7 +109,7 @@ bool StationManager::parseSetup()
       m_info.sets.push_back(s_info);
     }
     else {
-      vector<std::string> pieces = miutil::split(section[i], "=");
+      std::vector<std::string> pieces = miutil::split(section[i], "=");
       if (pieces.size() == 2) {
         if (urls.find(pieces[1]) == urls.end()) {
           stationSetInfo s_info;
@@ -136,7 +135,7 @@ bool StationManager::parseSetup()
  */
 StationPlot* StationManager::importStations(const std::string& name, const std::string& url)
 {
-  vector<std::string> lines;
+  std::vector<std::string> lines;
   if (not diutil::getFromAny(url, lines)) {
 #ifdef DEBUGPRINT
     METLIBS_LOG_DEBUG("*** Failed to open '" << url << "'");
@@ -144,11 +143,11 @@ StationPlot* StationManager::importStations(const std::string& name, const std::
     return 0;
   }
 
-  vector<Station*> stations;
+  std::vector<Station*> stations;
   bool useImage = false;
   for (unsigned int i = 0; i < lines.size(); ++i) {
 
-    vector<std::string> pieces = miutil::split(lines[i], ";");
+    std::vector<std::string> pieces = miutil::split(lines[i], ";");
     if (pieces.size() >= 7) {
 
       // Create a station with the latitude, longitude and a combination of
@@ -181,7 +180,7 @@ StationPlot* StationManager::importStations(const std::string& name, const std::
         station->type = Station::visual;
 
       std::string timeString = pieces[6];
-      vector<std::string> timePieces = miutil::split(pieces[6], " ");
+      std::vector<std::string> timePieces = miutil::split(pieces[6], " ");
       if (timePieces.size() == 2 && miutil::count_char(timePieces[0], '-') == 2) {
         if (miutil::count_char(timePieces[1], ':') == 1)
           timeString += ":00";
@@ -214,7 +213,7 @@ StationPlot* StationManager::importStations(const std::string& name, const std::
 Station* StationManager::parseSMHI(const std::string& miLine, const std::string& url)
 {
   Station* st = NULL;
-  vector<std::string> stationVector;
+  std::vector<std::string> stationVector;
 
   std::string image = "";
   for (size_t i  = 0; i<m_info.sets.size(); ++i) {

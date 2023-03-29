@@ -64,7 +64,6 @@
 #define MILOGGER_CATEGORY "diana.ObsWidget"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 
 /*
   GENERAL DESCRIPTION: This widget takes several datatypes ( that might
@@ -295,7 +294,7 @@ void ObsWidget::setDialogInfo(const ObsDialogInfo::PlotType& dialogInfo)
 
 
   //Priority list
-  vector<std::string> priName;
+  std::vector<std::string> priName;
   priName.reserve(priorityList.size());
   for (const auto& pl : priorityList)
     priName.push_back(pl.name);
@@ -542,7 +541,7 @@ void ObsWidget::rightClickedSlot(std::string str)
 }
 
 /*****************************************************************/
-vector<std::string> ObsWidget::getDataTypes()
+std::vector<std::string> ObsWidget::getDataTypes()
 {
   return datatypeButtons->getOKString();
 }
@@ -555,14 +554,14 @@ miutil::KeyValue_v ObsWidget::makeString()
   METLIBS_LOG_DEBUG(LOGVAL(plotType));
   std::string datastr;
   if (dVariables.data.size()) {
-    for (const string& d : dVariables.data)
+    for (const std::string& d : dVariables.data)
       diutil::appendText(datastr, d, ",");
     kvs << miutil::KeyValue("data", datastr);
   }
 
   if (dVariables.parameter.size()) {
     std::string pstr;
-    for (const string& p : dVariables.parameter)
+    for (const std::string& p : dVariables.parameter)
       diutil::appendText(pstr, p, ",");
     kvs << miutil::KeyValue("parameter", pstr);
   }
@@ -680,11 +679,11 @@ KVListPlotCommand_cp ObsWidget::getOKString(bool forLog)
       int m = criteriaList[i].criteria.size();
       if (m==0)
         continue;
-      string criteria = criteriaList[i].name;
+      std::string criteria = criteriaList[i].name;
       for (int j=0; j<m; j++) {
-        const vector<std::string> sub = miutil::split(criteriaList[i].criteria[j], " ");
-        string subcriteria;
-        for(const string& subs : sub)
+        const std::vector<std::string> sub = miutil::split(criteriaList[i].criteria[j], " ");
+        std::string subcriteria;
+        for(const std::string& subs : sub)
           diutil::appendText(subcriteria, subs, ",");
         diutil::appendText(criteria, subcriteria, ";");
       }
@@ -695,11 +694,11 @@ KVListPlotCommand_cp ObsWidget::getOKString(bool forLog)
     if( m==0 )
       addsort = false;
     else {
-      string criteria;
+      std::string criteria;
       for (int j=0; j<m; j++) {
-        const vector<std::string> sub = miutil::split(savedCriteria.criteria[j], " ");
-        string subcriteria;
-        for(const string& subs : sub)
+        const std::vector<std::string> sub = miutil::split(savedCriteria.criteria[j], " ");
+        std::string subcriteria;
+        for(const std::string& subs : sub)
           diutil::appendText(subcriteria, subs, ",");
         diutil::appendText(criteria, subcriteria, ";");
       }
@@ -708,7 +707,7 @@ KVListPlotCommand_cp ObsWidget::getOKString(bool forLog)
   }
 
   if (addsort && sortBox->currentIndex() > 0 && !sortBox->currentText().isEmpty()) {
-    string sort = sortBox->currentText().toStdString();
+    std::string sort = sortBox->currentText().toStdString();
     sort += ",";
     sort += descsortButton->isChecked() ? "desc" : "asc";
     cmd->add("sort", sort);
@@ -1008,7 +1007,7 @@ void ObsWidget::decodeString(const miutil::KeyValue_v& kvs, dialogVariables& var
         } else {
           std::string ss = kv.value();
           miutil::replace(ss, ',', ' ');
-          vector<std::string> vstr = miutil::split(ss, 0, ";");
+          std::vector<std::string> vstr = miutil::split(ss, 0, ";");
           if(vstr.size()>1){
             std::string name=vstr[0];
             vstr.erase(vstr.begin());
@@ -1092,12 +1091,12 @@ bool ObsWidget::setCurrentCriteria(int i)
   return false;
 }
 
-void ObsWidget::saveCriteria(const vector<std::string>& vstr)
+void ObsWidget::saveCriteria(const std::vector<std::string>& vstr)
 {
   savedCriteria.criteria = vstr;
 }
 
-bool ObsWidget::saveCriteria(const vector<std::string>& vstr,
+bool ObsWidget::saveCriteria(const std::vector<std::string>& vstr,
     const std::string& name)
 {
   //don't save list whithout name
@@ -1162,9 +1161,9 @@ bool ObsWidget::getCriteriaLimits(const std::string& name, int& low, int&high)
   return true;
 }
 
-vector<std::string> ObsWidget::getCriteriaNames()
+std::vector<std::string> ObsWidget::getCriteriaNames()
 {
-  vector<std::string> critName;
+  std::vector<std::string> critName;
   critName.reserve(criteriaList.size());
   for (const auto& c : criteriaList)
     critName.push_back(c.name);

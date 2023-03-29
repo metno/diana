@@ -37,9 +37,8 @@
 
 #include <gtest/gtest.h>
 
-using namespace std;
 
-static bool equal_vectors(const vector<float>& a, const vector<float>& b)
+static bool equal_vectors(const std::vector<float>& a, const std::vector<float>& b)
 {
   if (a.size() != b.size())
     return false;
@@ -49,13 +48,13 @@ static bool equal_vectors(const vector<float>& a, const vector<float>& b)
   return true;
 }
 
-static bool test_autoExpandFloatVector(const string& text, const vector<float>& expected)
+static bool test_autoExpandFloatVector(const std::string& text, const std::vector<float>& expected)
 {
-  const vector<float> actual = PlotOptions::autoExpandFloatVector(text);
+  const std::vector<float> actual = PlotOptions::autoExpandFloatVector(text);
   if (not equal_vectors(actual, expected)) {
-    //cout << "error with '" << text << "', unexpected result ";
-    //copy(actual.begin(), actual.end(), ostream_iterator<float>(cout, ","));
-    //cout << " size=" << actual.size() << endl;
+    //std::cout << "error with '" << text << "', unexpected result ";
+    //copy(actual.begin(), actual.end(), std::ostream_iterator<float>(std::cout, ","));
+    //std::cout << " size=" << actual.size() << std::endl;
     return false;
   }
   return true;
@@ -63,16 +62,16 @@ static bool test_autoExpandFloatVector(const string& text, const vector<float>& 
 
 TEST(TestPlotOptions, AutoExpand)
 {
-  const vector<float> expected1{0.1f, 0.2f, 0.5f, 1, 2, 4, 6, 10, 15, 20, 25, 30, 35, 40};
+  const std::vector<float> expected1{0.1f, 0.2f, 0.5f, 1, 2, 4, 6, 10, 15, 20, 25, 30, 35, 40};
   ASSERT_TRUE(test_autoExpandFloatVector("0.1,0.2,0.5,1,2,4,6,10,15,...40", expected1));
 
-  const vector<float> expected2{0.01f, 0.02f, 0.04f, 0.06f, 0.10f, 0.15f, 0.20f, 0.25f, 0.3f, 0.4f, 0.5f, 1, 2, 5};
+  const std::vector<float> expected2{0.01f, 0.02f, 0.04f, 0.06f, 0.10f, 0.15f, 0.20f, 0.25f, 0.3f, 0.4f, 0.5f, 1, 2, 5};
   ASSERT_TRUE(test_autoExpandFloatVector("0.01,0.02,0.04,0.06,0.10,0.15,0.20,0.25,0.3,0.4,0.5,1.,2.,5.", expected2));
 
-  const vector<float> expected3{0.01f, 0.03f};
+  const std::vector<float> expected3{0.01f, 0.03f};
   ASSERT_TRUE(test_autoExpandFloatVector("0.01,0.03", expected3));
 
-  const vector<float> expected4{0.01f, 0.03f, 0.05f, 0.07f};
+  const std::vector<float> expected4{0.01f, 0.03f, 0.05f, 0.07f};
   ASSERT_TRUE(test_autoExpandFloatVector("0.01,0.03,...0.07", expected4));
 }
 

@@ -46,7 +46,6 @@
 #define MILOGGER_CATEGORY "diana.AnnotationDialog"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 
 AnnotationDialog::AnnotationDialog( QWidget* parent, Controller* llctrl )
 : QDialog(parent)
@@ -121,12 +120,12 @@ void AnnotationDialog::parseSetup(){
   const QString defaultName="default";
   const std::string anno_section="ANNOTATIONS";
   const std::string label_section="LABELS";
-  vector<std::string> vstr;
+  std::vector<std::string> vstr;
 
   if (miutil::SetupParser::getSection(anno_section,vstr)){
     int nv=0, nvstr=vstr.size();
     std::string key;
-    vector<std::string> values;
+    std::vector<std::string> values;
     bool ok= true;
 
     while (ok && nv<nvstr) {
@@ -197,7 +196,7 @@ PlotCommand_cpv AnnotationDialog::getOKString()
   current_annoStrings[annoBox->currentText()] = textedit->toPlainText();
   std::string text = textedit->toPlainText().toStdString();
   METLIBS_LOG_DEBUG(LOGVAL(text));
-  const vector<string> str = miutil::split(text, 0, "\n");
+  const std::vector<std::string> str = miutil::split(text, 0, "\n");
   PlotCommand_cpv cmd;
   cmd.reserve(str.size());
   for (std::string s : str) {
@@ -210,14 +209,14 @@ PlotCommand_cpv AnnotationDialog::getOKString()
 }
 
 
-vector<string> AnnotationDialog::writeLog()
+std::vector<std::string> AnnotationDialog::writeLog()
 {
   METLIBS_LOG_SCOPE();
-  return vector<string>(1, "================");
+  return std::vector<std::string>(1, "================");
 }
 
 
-void AnnotationDialog::readLog(const vector<string>&, const string&, const string&)
+void AnnotationDialog::readLog(const std::vector<std::string>&, const std::string&, const std::string&)
 {
   METLIBS_LOG_SCOPE();
 }

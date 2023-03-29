@@ -45,7 +45,6 @@
 
 #include <puTools/miStringFunctions.h>
 
-using namespace std;
 
 SetupDialog::SetupDialog(QWidget* parent)
   : QDialog(parent)
@@ -57,7 +56,7 @@ SetupDialog::SetupDialog(QWidget* parent)
 
   //setupfile
   QLabel* setupLabel = new QLabel( tr("Setupfile"), this);
-  const string& setupfile = LocalSetupParser::getSetupFileName();
+  const std::string& setupfile = LocalSetupParser::getSetupFileName();
   setupLineEdit = new QLineEdit(QString::fromStdString(setupfile), this);
   QToolButton* setupFileSelect = new QToolButton(this);
   setupFileSelect->setText("...");

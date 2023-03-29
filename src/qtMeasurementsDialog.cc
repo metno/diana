@@ -47,7 +47,6 @@
 #define MILOGGER_CATEGORY "diana.MeasurementsDialog"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 
 static const float RAD_TO_DEG = 180 / M_PI;
 
@@ -257,7 +256,7 @@ void MeasurementsDialog::deleteClicked()
   speedbox3->setText(tr("0 knots"));
   distancebox->setText("0 km");
 
-  contr->measurementsPos(vector<string>(1, "delete"));
+  contr->measurementsPos(std::vector<std::string>(1, "delete"));
   sendAllPositions();
 
   Q_EMIT updateMeasurements();
@@ -326,7 +325,7 @@ void MeasurementsDialog::calculate()
 
 void MeasurementsDialog::quitClicked()
 {
-  contr->measurementsPos(vector<string>(1, "quit"));
+  contr->measurementsPos(std::vector<std::string>(1, "quit"));
   Q_EMIT markMeasurementsPos(false);
   Q_EMIT MeasurementsHide();
 }
@@ -340,7 +339,7 @@ void MeasurementsDialog::helpClicked()
 static void insertlatlon(std::ostream& str, float lat, float lon)
 {
 #if 0
-  str << setw(5) << setprecision(2)<< setiosflags(ios::fixed);
+  str << std::setw(5) << std::setprecision(2)<< std::setiosflags(std::ios::fixed);
   str << "latitudelongitude=" << lat << "," << lon;
 #else
   lat = roundf(lat*60)/60;
@@ -371,14 +370,14 @@ void MeasurementsDialog::mapPos(float lat, float lon)
   }
 
   //  //Make string and send to measuremenPlot
-  ostringstream str;
+  std::ostringstream str;
   insertlatlon(str, lat, lon);
   str << ' ';
   insertlatlon(str, lat, lon); // TODO why is the same lat-lon sent twice?
   str <<" numpos="<<1;
   str <<" time="<<pos.time;
 
-  contr->measurementsPos(vector<string>(1, str.str()));
+  contr->measurementsPos(std::vector<std::string>(1, str.str()));
 
   Q_EMIT updateMeasurements();
 }
@@ -416,10 +415,10 @@ void MeasurementsDialog::sendAllPositions()
 {
   METLIBS_LOG_SCOPE();
 
-  vector<string> vstr;
+  std::vector<std::string> vstr;
 
   for (const posStruct& p : positionVector) {
-    ostringstream str;
+    std::ostringstream str;
     insertlatlon(str, p.lat, p.lon);
     vstr.push_back(str.str());
   }

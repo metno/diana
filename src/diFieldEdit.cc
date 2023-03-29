@@ -50,7 +50,6 @@
 #include <miLogger/miLogging.h>
 
 using namespace miutil;
-using namespace std;
 
 using miutil::absval;
 using miutil::absval2;
@@ -1267,7 +1266,7 @@ bool FieldEdit::notifyEditEvent(const EditEvent& ee)
       }
     }
     if (lockedValue.size()>0 && odata) {
-      set<float>::iterator pend= lockedValue.end();
+      std::set<float>::iterator pend= lockedValue.end();
       int i,j,ij;
       for (j=j1ed; j<j2ed; j++) {
         for (i=i1ed; i<i2ed; i++) {
@@ -1989,8 +1988,8 @@ IsoLine FieldEdit::findIsoLine(float xpos, float ypos, float value,
 #endif
   //###############################################################################
 
-  vector<float> xtmp;
-  vector<float> ytmp;
+  std::vector<float> xtmp;
+  std::vector<float> ytmp;
 
   // exit pos from start square
   if (!drawBorders)
@@ -2221,16 +2220,16 @@ IsoLine FieldEdit::findIsoLine(float xpos, float ypos, float value,
     int n2= (npos<6) ? 0 : npos-6;
     METLIBS_LOG_DEBUG("start x:");
     for (i=0; i<n1; i++)
-      METLIBS_LOG_DEBUG(setw(7)<<setprecision(2)<<setiosflags(ios::fixed)<<xtmp[i]);
+      METLIBS_LOG_DEBUG(std::setw(7)<<std::setprecision(2)<<std::setiosflags(std::ios::fixed)<<xtmp[i]);
     METLIBS_LOG_DEBUG("      y:");
     for (i=0; i<n1; i++)
-      METLIBS_LOG_DEBUG(setw(7)<<setprecision(2)<<setiosflags(ios::fixed)<<ytmp[i]);
+      METLIBS_LOG_DEBUG(std::setw(7)<<std::setprecision(2)<<std::setiosflags(std::ios::fixed)<<ytmp[i]);
     METLIBS_LOG_DEBUG("  end x:");
     for (i=n2; i<npos; i++)
-      METLIBS_LOG_DEBUG(setw(7)<<setprecision(2)<<setiosflags(ios::fixed)<<xtmp[i]);
+      METLIBS_LOG_DEBUG(std::setw(7)<<std::setprecision(2)<<std::setiosflags(std::ios::fixed)<<xtmp[i]);
     METLIBS_LOG_DEBUG("      y:");
     for (i=n2; i<npos; i++)
-      METLIBS_LOG_DEBUG(setw(7)<<setprecision(2)<<setiosflags(ios::fixed)<<ytmp[i]);
+      METLIBS_LOG_DEBUG(std::setw(7)<<std::setprecision(2)<<std::setiosflags(std::ios::fixed)<<ytmp[i]);
 #endif
     //#############################################################
     if (closed) {
@@ -2262,16 +2261,16 @@ IsoLine FieldEdit::findIsoLine(float xpos, float ypos, float value,
     n2= (npos<6) ? 0 : npos-6;
     METLIBS_LOG_DEBUG("start x:");
     for (i=0; i<n1; i++)
-      METLIBS_LOG_DEBUG(setw(7)<<setprecision(2)<<setiosflags(ios::fixed)<<xtmp[i]);
+      METLIBS_LOG_DEBUG(std::setw(7)<<std::setprecision(2)<<std::setiosflags(std::ios::fixed)<<xtmp[i]);
     METLIBS_LOG_DEBUG("      y:");
     for (i=0; i<n1; i++)
-      METLIBS_LOG_DEBUG(setw(7)<<setprecision(2)<<setiosflags(ios::fixed)<<ytmp[i]);
+      METLIBS_LOG_DEBUG(std::setw(7)<<std::setprecision(2)<<std::setiosflags(std::ios::fixed)<<ytmp[i]);
     METLIBS_LOG_DEBUG("  end x:");
     for (i=n2; i<npos; i++)
-      METLIBS_LOG_DEBUG(setw(7)<<setprecision(2)<<setiosflags(ios::fixed)<<xtmp[i]);
+      METLIBS_LOG_DEBUG(std::setw(7)<<std::setprecision(2)<<std::setiosflags(std::ios::fixed)<<xtmp[i]);
     METLIBS_LOG_DEBUG("      y:");
     for (i=n2; i<npos; i++)
-      METLIBS_LOG_DEBUG(setw(7)<<setprecision(2)<<setiosflags(ios::fixed)<<ytmp[i]);
+      METLIBS_LOG_DEBUG(std::setw(7)<<std::setprecision(2)<<std::setiosflags(std::ios::fixed)<<ytmp[i]);
     METLIBS_LOG_DEBUG("---------------------------------------------");
 #endif
     //#############################################################
@@ -2766,7 +2765,7 @@ void FieldEdit::editClassLine()
 
   // make a closed line surrouding the field area to be replace
   // (no need to put first point as last point too)
-  vector<float> vx,vy;
+  std::vector<float> vx,vy;
 
   // skip lineparts that is inside a single gridsquare
   int li=0;
@@ -2800,8 +2799,8 @@ void FieldEdit::editClassLine()
 }
 
 
-void FieldEdit::replaceInsideLine(const vector<float>& vx,
-    const vector<float>& vy,
+void FieldEdit::replaceInsideLine(const std::vector<float>& vx,
+    const std::vector<float>& vy,
     float replaceValue)
 {
   const int nbitwd= sizeof(int)*8;
@@ -2885,13 +2884,13 @@ void FieldEdit::replaceInsideLine(const vector<float>& vx,
         //###########################################################
 #ifdef DEBUGCLASSES
         METLIBS_LOG_DEBUG("  MARK im,jm: "<<im<<" "<<jm
-        <<"  n,x1,y1,x2,y2: "<<setw(2)<<n<<" "
-        <<setw(5)<<setprecision(2)<<setiosflags(ios::fixed)<<x1-i1<<" "
-        <<setw(5)<<setprecision(2)<<setiosflags(ios::fixed)<<y1-j1<<" "
-        <<setw(5)<<setprecision(2)<<setiosflags(ios::fixed)<<x2-i1<<" "
-        <<setw(5)<<setprecision(2)<<setiosflags(ios::fixed)<<y2-j1<<"  px,py: "
-        <<setw(5)<<setprecision(2)<<setiosflags(ios::fixed)<<px-i1<<" "
-        <<setw(5)<<setprecision(2)<<setiosflags(ios::fixed)<<py-j1);
+        <<"  n,x1,y1,x2,y2: "<<std::setw(2)<<n<<" "
+        <<std::setw(5)<<std::setprecision(2)<<std::setiosflags(std::ios::fixed)<<x1-i1<<" "
+        <<std::setw(5)<<std::setprecision(2)<<std::setiosflags(std::ios::fixed)<<y1-j1<<" "
+        <<std::setw(5)<<std::setprecision(2)<<std::setiosflags(std::ios::fixed)<<x2-i1<<" "
+        <<std::setw(5)<<std::setprecision(2)<<std::setiosflags(std::ios::fixed)<<y2-j1<<"  px,py: "
+        <<std::setw(5)<<std::setprecision(2)<<std::setiosflags(std::ios::fixed)<<px-i1<<" "
+        <<std::setw(5)<<std::setprecision(2)<<std::setiosflags(std::ios::fixed)<<py-j1);
 #endif
         //###########################################################
         ibit= jm*mx+im;
@@ -2925,11 +2924,11 @@ void FieldEdit::replaceInsideLine(const vector<float>& vx,
       int ii2= (ii1+nsss)<nppp ? ii1+nsss : nppp;
       METLIBS_LOG_DEBUG("  x:");
       for (int ii=ii1; ii<ii2; ii++)
-        METLIBS_LOG_DEBUG(" "<<setw(PW)<<setprecision(PR)<<setiosflags(ios::fixed)
+        METLIBS_LOG_DEBUG(" "<<std::setw(PW)<<std::setprecision(PR)<<std::setiosflags(std::ios::fixed)
         <<vx[ii]-i1);
       METLIBS_LOG_DEBUG("  y:");
       for (int ii=ii1; ii<ii2; ii++)
-        METLIBS_LOG_DEBUG(" "<<setw(PW)<<setprecision(PR)<<setiosflags(ios::fixed)
+        METLIBS_LOG_DEBUG(" "<<std::setw(PW)<<std::setprecision(PR)<<std::setiosflags(std::ios::fixed)
         <<vy[ii]-j1);
     }
   }
@@ -3459,7 +3458,7 @@ void FieldEdit::plot(DiGLPainter* gl, PlotOrder porder, bool showinfluence)
     numbersDisplayed= false;
 }
 
-void FieldEdit::getAnnotations(vector<string>& anno)
+void FieldEdit::getAnnotations(std::vector<std::string>& anno)
 {
   editfieldplot->getDataAnnotations(anno);
 }

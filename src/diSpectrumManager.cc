@@ -51,7 +51,6 @@
 #include <miLogger/miLogging.h>
 
 using namespace::miutil;
-using namespace std;
 
 SpectrumManager::SpectrumManager()
   : spopt(new SpectrumOptions)  // defaults are set
@@ -87,21 +86,21 @@ void SpectrumManager::parseSetup()
   dialogFileNames.clear();
 
   const std::string section2 = "SPECTRUM_FILES";
-  vector<std::string> vstr;
+  std::vector<std::string> vstr;
 
   if (SetupParser::getSection(section2,vstr)) {
 
-    set<std::string> uniquefiles;
-    vector<std::string> sources;
+    std::set<std::string> uniquefiles;
+    std::vector<std::string> sources;
 
     int n= vstr.size();
 
     for (int i=0; i<n; i++) {
-      vector<std::string> tokens= miutil::split(vstr[i]);
+      std::vector<std::string> tokens= miutil::split(vstr[i]);
       std::string model,filename;
       std::string filetype = "standard";
       for ( size_t j=0; j<tokens.size(); ++j) {
-        vector<std::string> tokens1= miutil::split(tokens[j], "=");
+        std::vector<std::string> tokens1= miutil::split(tokens[j], "=");
         if (tokens1.size() != 2)
           continue;
         if (tokens1[0] == "m") {
@@ -141,9 +140,9 @@ void SpectrumManager::setPlotWindow(const QSize& size)
 
 //*************************routines from controller*************************
 
-vector<std::string> SpectrumManager::getLineThickness()
+std::vector<std::string> SpectrumManager::getLineThickness()
 {
-  vector<std::string> linethickness;
+  std::vector<std::string> linethickness;
   linethickness.push_back("1");
   linethickness.push_back("2");
   linethickness.push_back("3");
@@ -172,7 +171,7 @@ void SpectrumManager::setModel()
   //models from model dialog
   int m= selectedModels.size();
   for (int i=0;i<m;i++) {
-    map<std::string,std::string>::iterator pf;
+    std::map<std::string,std::string>::iterator pf;
     pf= filenames.find(selectedModels[i].model);
     if (pf==filenames.end()) {
       METLIBS_LOG_ERROR("NO SPECTRUMFILE for model " << selectedModels[i].model);
@@ -306,7 +305,7 @@ void SpectrumManager::preparePlot()
 }
 
 
-vector <std::string> SpectrumManager::getModelNames()
+std::vector <std::string> SpectrumManager::getModelNames()
 {
   METLIBS_LOG_SCOPE();
   parseSetup();
@@ -314,7 +313,7 @@ vector <std::string> SpectrumManager::getModelNames()
 }
 
 
-vector <std::string> SpectrumManager::getModelFiles()
+std::vector <std::string> SpectrumManager::getModelFiles()
 {
   METLIBS_LOG_SCOPE();
   return dialogFileNames;
@@ -330,7 +329,7 @@ std::vector <std::string> SpectrumManager::getReferencetimes(const std::string& 
 
   collector->getResolver()->getSource(modelName)->update();
   const vcross::Time_s reftimes = collector->getResolver()->getSource(modelName)->getReferenceTimes();
-  vector<miTime> rtv;
+  std::vector<miTime> rtv;
   rtv.reserve(reftimes.size());
   for (vcross::Time_s::const_iterator it=reftimes.begin(); it != reftimes.end(); ++it){
     rf.push_back(vcross::util::to_miTime(*it).isoTime("T"));
@@ -339,12 +338,12 @@ std::vector <std::string> SpectrumManager::getReferencetimes(const std::string& 
   return rf;
 }
 
-void SpectrumManager::setSelectedModels(const vector<std::string>& models)
+void SpectrumManager::setSelectedModels(const std::vector<std::string>& models)
 {
   selectedModels.clear();
   for ( size_t i=0; i<models.size(); ++i ) {
     SelectedModel selectedModel;
-    vector<std::string> vstr = miutil::split(models[i]," ");
+    std::vector<std::string> vstr = miutil::split(models[i]," ");
     if ( vstr.size() > 0 ) {
       selectedModel.model = vstr[0];
     }
@@ -359,7 +358,7 @@ void SpectrumManager::setSelectedModels(const vector<std::string>& models)
 std::string SpectrumManager::getDefaultModel()
 {
   //for now, just the first model in filenames list
-  map<std::string,std::string>::iterator p = filenames.begin();
+  std::map<std::string,std::string>::iterator p = filenames.begin();
   std::string model = p->first;
   return model;
 }
@@ -403,11 +402,11 @@ void SpectrumManager::initStations()
 
   nameList.clear();
 
-  map<std::string,StationPos> stations;
+  std::map<std::string,StationPos> stations;
 
-  vector<std::string> namelist;
-  vector<float>    latitudelist;
-  vector<float>    longitudelist;
+  std::vector<std::string> namelist;
+  std::vector<float>    latitudelist;
+  std::vector<float>    longitudelist;
 
   int nspfile = spfile.size();
   for (int i = 0;i<nspfile;i++){
@@ -449,7 +448,7 @@ void SpectrumManager::initStations()
   latitudelist.clear();
   longitudelist.clear();
 
-  map<std::string,StationPos>::iterator p=stations.begin();
+  std::map<std::string,StationPos>::iterator p=stations.begin();
   for (; p!=stations.end(); p++) {
     std::string name=p->first;
     StationPos pos = p->second;
@@ -505,12 +504,12 @@ std::string SpectrumManager::getAnnotationString()
 }
 
 
-vector<string> SpectrumManager::writeLog()
+std::vector<std::string> SpectrumManager::writeLog()
 {
   return spopt->writeOptions();
 }
 
-void SpectrumManager::readLog(const vector<string>& vstr, const string& /*thisVersion*/, const string& /*logVersion*/)
+void SpectrumManager::readLog(const std::vector<std::string>& vstr, const std::string& /*thisVersion*/, const std::string& /*logVersion*/)
 {
   spopt->readOptions(vstr);
 }

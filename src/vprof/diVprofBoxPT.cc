@@ -478,10 +478,10 @@ void VprofBoxPT::configureOptions(const miutil::KeyValue_v& options)
   setCotrailsStyle(cotrailsLS);
 
 #if 0
-  int set = vpopt->mixingratioSet;
-  if (set < 0 || set >= int(vpopt->qtable.size()))
-    set = 1;
-  qtable = vpopt->qtable[set];
+  int setmixintegrationset = vpopt->mixingratioSet;
+  if (setmixintegrationset < 0 || setmixintegrationset >= int(vpopt->qtable.size()))
+    setmixintegrationset = 1;
+  qtable = vpopt->qtable[setmixintegrationset];
 #endif
 }
 

@@ -63,7 +63,6 @@
 #include "forover.xpm"
 #include "bakover.xpm"
 
-using namespace std;
 
 SpectrumWindow::SpectrumWindow()
     : QMainWindow()
@@ -415,9 +414,9 @@ StationPlot* SpectrumWindow::getStations()
 {
   METLIBS_LOG_SCOPE();
 
-  const vector <std::string> stations = spectrumm->getStationList();
-  const vector <float> latitude = spectrumm->getLatitudes();
-  const vector <float> longitude = spectrumm->getLongitudes();
+  const std::vector <std::string> stations = spectrumm->getStationList();
+  const std::vector <float> latitude = spectrumm->getLatitudes();
+  const std::vector <float> longitude = spectrumm->getLongitudes();
   StationPlot* stationPlot = new StationPlot(stations,longitude,latitude);
   std::string ann = spectrumm->getAnnotationString();
   stationPlot->setStationPlotAnnotation(ann);
@@ -531,9 +530,9 @@ void SpectrumWindow::parseSetup()
   spModelDialog->updateModelfileList();
 }
 
-vector<string> SpectrumWindow::writeLog(const string& logpart)
+std::vector<std::string> SpectrumWindow::writeLog(const std::string& logpart)
 {
-  vector<string> vstr;
+  std::vector<std::string> vstr;
   std::string str;
 
   if (logpart=="window") {
@@ -570,13 +569,13 @@ vector<string> SpectrumWindow::writeLog(const string& logpart)
 }
 
 
-void SpectrumWindow::readLog(const std::string& logpart, const vector<string>& vstr,
-    const string& thisVersion, const string& logVersion,
+void SpectrumWindow::readLog(const std::string& logpart, const std::vector<std::string>& vstr,
+    const std::string& thisVersion, const std::string& logVersion,
     int displayWidth, int displayHeight)
 {
   if (logpart=="window") {
 
-    vector<string> tokens;
+    std::vector<std::string> tokens;
     int n= vstr.size();
 
     for (int i=0; i<n; i++) {

@@ -42,7 +42,6 @@
 
 static const float DEG_TO_RAD = M_PI / 180;
 
-using namespace std;
 using namespace miutil;
 using namespace vcross;
 
@@ -85,7 +84,7 @@ bool SpectrumData::readFileHeader(vcross::Setup_p setup, const std::string& reft
       const LonLat& p = cs->point(i);
       METLIBS_LOG_DEBUG(LOGVAL(p.latDeg()));
       METLIBS_LOG_DEBUG(LOGVAL(p.lonDeg()));
-      ostringstream ost;
+      std::ostringstream ost;
       float lon = int (fabs(p.lonDeg()) * 10);
       lon /= 10.;
       float lat = int (fabs(p.latDeg()) * 10);
@@ -286,7 +285,7 @@ SpectrumPlot* SpectrumData::getData(const std::string& name, const miTime& time,
       idx.set(pos_direction, j);
       idx.set(pos_freq, i);
       spec[ii] = spec_values->value(idx);
-      if (isnan(spec[ii])) {
+      if (std::isnan(spec[ii])) {
         METLIBS_LOG_DEBUG("NAN");
         return 0;
       }

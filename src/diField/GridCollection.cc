@@ -63,7 +63,6 @@
 #define MILOGGER_CATEGORY "diField.GridCollection"
 #include "miLogger/miLogging.h"
 
-using namespace std;
 using namespace gridinventory;
 
 namespace {
@@ -178,10 +177,10 @@ GridCollection::GridCollection()
 
 // initialize collection from a list of sources
 bool GridCollection::setContents(const std::string& type,
-    const std::string& name, const vector<std::string>& filenames,
-    const vector<std::string>& format,
-    const vector<std::string>& config,
-    const vector<std::string>& option,
+    const std::string& name, const std::vector<std::string>& filenames,
+    const std::vector<std::string>& format,
+    const std::vector<std::string>& config,
+    const std::vector<std::string>& option,
     GridIOsetup* setup,
     bool validTimeFromFilename)
 {
@@ -555,7 +554,7 @@ std::set<miutil::miTime> GridCollection::getTimesFromCompute(const std::string& 
     constants = fcm->constants;
   }
 
-  set<miutil::miTime> times_stepfunc;
+  std::set<miutil::miTime> times_stepfunc;
   const bool is_accumulate_flux = (fs.option == "accumulate_flux");
   const miutil::miTime rt(reftime);
   for (const miutil::miTime& t : times) {
@@ -638,7 +637,7 @@ bool GridCollection::standardname2variablename(const std::string& reftime,
 {
   METLIBS_LOG_SCOPE(LOGVAL(reftime) << LOGVAL(standard_name));
 
-  const map<std::string, ReftimeInventory>::const_iterator ritr = inventory.reftimes.find(reftime);
+  const std::map<std::string, ReftimeInventory>::const_iterator ritr = inventory.reftimes.find(reftime);
   if (ritr == inventory.reftimes.end()) {
     METLIBS_LOG_DEBUG("reftime '" << reftime << "' not found in inventory");
     return false;
@@ -714,9 +713,9 @@ template <class Axis>
 struct AxisCache
 {
   std::map<std::string, FieldPlotAxis_cp> axes_by_id;
-  const set<Axis>& inventory_axes;
+  const std::set<Axis>& inventory_axes;
 
-  AxisCache(const set<Axis>& ia)
+  AxisCache(const std::set<Axis>& ia)
       : inventory_axes(ia)
   {
   }
@@ -736,7 +735,7 @@ FieldPlotAxis_cp AxisCache<Axis>::find(const std::string& id)
 
   FieldPlotAxis_cp ax;
 
-  typename set<Axis>::iterator it = inventory_axes.find(Axis(id));
+  typename std::set<Axis>::iterator it = inventory_axes.find(Axis(id));
   if (it != inventory_axes.end())
     ax = createFieldPlotAxisFromGridInventory(*it);
 
@@ -818,7 +817,7 @@ Field_p GridCollection::getField(const FieldRequest& fieldrequest)
 {
   METLIBS_LOG_TIME("SEARCHING FOR :" << fieldrequest.paramName << " : " << fieldrequest.zaxis << " : " << fieldrequest.plevel);
 
-  const map<std::string, ReftimeInventory>::const_iterator ritr = inventory.reftimes.find(fieldrequest.refTime);
+  const std::map<std::string, ReftimeInventory>::const_iterator ritr = inventory.reftimes.find(fieldrequest.refTime);
   if (ritr == inventory.reftimes.end())
     return 0;
 
@@ -836,7 +835,7 @@ Field_p GridCollection::getField(const FieldRequest& fieldrequest)
     return 0;
   }
 
-  set<gridinventory::GridParameter>::iterator pitr = ritr->second.parameters.find(*param);
+  std::set<gridinventory::GridParameter>::iterator pitr = ritr->second.parameters.find(*param);
   if (pitr == ritr->second.parameters.end()) {
     METLIBS_LOG_INFO("parameter " << param_name << "  not found in inventory even if dataExists returned true");
     return 0;
@@ -894,7 +893,7 @@ Field_p GridCollection::getField(const FieldRequest& fieldrequest)
           METLIBS_LOG_INFO("parameter '" << fieldrequest_new.paramName << "' not found by dataExists");
           return 0;
         }
-        set<gridinventory::GridParameter>::iterator pitr_new = ritr->second.parameters.find(*param_new);
+        std::set<gridinventory::GridParameter>::iterator pitr_new = ritr->second.parameters.find(*param_new);
         if (pitr_new == ritr->second.parameters.end()) {
           METLIBS_LOG_INFO("parameter " << fieldrequest_new.paramName << "  not found in inventory");
           return 0;
@@ -1018,7 +1017,7 @@ void GridCollection::addComputedParameters()
     const std::string& computeParameterName = fc.name;
 
     //check if parameter exists
-    set<gridinventory::GridParameter>::iterator pitr = std::find_if(rinventory.parameters.begin(), rinventory.parameters.end(),
+    std::set<gridinventory::GridParameter>::iterator pitr = std::find_if(rinventory.parameters.begin(), rinventory.parameters.end(),
                                                                     compare_name(computeParameterName));
     if (pitr != rinventory.parameters.end()) {
       METLIBS_LOG_DEBUG(LOGVAL(fc.name) << " found in inventory");
@@ -1055,7 +1054,7 @@ void GridCollection::addComputedParameters()
         if (pitr_name == fs.paramName) {
           METLIBS_LOG_DEBUG(LOGVAL(pitr_name));
 
-          set<gridinventory::Zaxis>::iterator zitr = rinventory.zaxes.find(Zaxis(pitr->zaxis_id));
+          std::set<gridinventory::Zaxis>::iterator zitr = rinventory.zaxes.find(Zaxis(pitr->zaxis_id));
 
           // if the funcion is a hybrid function, the variables must have vctype_hybrid or a vertical axis with just one level.
           // The variable with one vertical level are supposed to be the surface pressuer, but there are no futher tests.
@@ -1146,8 +1145,8 @@ void GridCollection::addComputedParameters()
       if ( computeEaxis.empty() ) {
         newparameter.extraaxis_id.clear();
       }
-      ostringstream ost;
-      ost << FUNCTION << i << endl;
+      std::ostringstream ost;
+      ost << FUNCTION << i << std::endl;
       newparameter.nativekey = ost.str();
       rinventory.parameters.insert(newparameter);
       computed_inventory.parameters.insert(newparameter);
@@ -1177,9 +1176,9 @@ bool GridCollection::getAllFields_timeInterval(Field_pv& vfield, FieldRequest fi
 
   // get all available timesteps between start and end.
   //const vector<FieldRequest> fieldrequests(1, fieldrequest);
-  const set<miutil::miTime> fieldTimes = getTimes(fieldrequest.refTime, fieldrequest.paramName);
-  set<miutil::miTime>::const_iterator ip = fieldTimes.begin();
-  set<miutil::miTime> actualfieldTimes;
+  const std::set<miutil::miTime> fieldTimes = getTimes(fieldrequest.refTime, fieldrequest.paramName);
+  std::set<miutil::miTime>::const_iterator ip = fieldTimes.begin();
+  std::set<miutil::miTime> actualfieldTimes;
   for (; ip != fieldTimes.end(); ip++) {
     if (*ip >= startTime && *ip <= endTime)
       actualfieldTimes.insert(*ip);
@@ -1244,7 +1243,7 @@ bool GridCollection::getAllFields(Field_pv& vfield, FieldRequest fieldrequest, c
 // static
 bool GridCollection::multiplyFieldByTimeStep(Field_p f, float sec_diff)
 {
-  const vector<float> constants(1, sec_diff);
+  const std::vector<float> constants(1, sec_diff);
   const Field_pv vfield(1, f);
   if (FieldFunctions::fieldComputer(FieldFunctions::f_multiply_f_c, constants, vfield, vfield, gc)) {
     return true;

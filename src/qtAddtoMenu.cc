@@ -45,7 +45,6 @@
 #include <puTools/miStringFunctions.h>
 #include "filenew.xpm"
 
-using namespace std;
 
 AddtoMenu::AddtoMenu(QWidget* parent, QuickMenu* qm)
 : QDialog(parent), quick(qm)
@@ -117,7 +116,7 @@ void AddtoMenu::fillMenu()
   list->clear();
   if (!quick)
     return;
-  const vector<std::string> vs = quick->getUserMenus();
+  const std::vector<std::string> vs = quick->getUserMenus();
   for (const std::string& qn : vs)
     list->addItem(QString::fromStdString(qn));
   if (!vs.empty()) {

@@ -141,7 +141,7 @@ void ObsManager::getCapabilitiesTime(plottimes_t& normalTimes, int& timediff, co
   if (!cmd || cmd->size() < 2)
     return;
 
-  vector<std::string> obsTypes;
+  std::vector<std::string> obsTypes;
   for (const miutil::KeyValue& kv : cmd->all()) {
     if (kv.key() == "data") {
       obsTypes = miutil::split(kv.value(), ",");
@@ -256,7 +256,7 @@ bool ObsManager::parseFilesSetup()
   Prod.clear();
 
   const std::string obs_name = "OBSERVATION_FILES";
-  vector<std::string> sect_obs;
+  std::vector<std::string> sect_obs;
   if (!SetupParser::getSection(obs_name, sect_obs)) {
     METLIBS_LOG_WARN(obs_name << " section not found");
     return true;
@@ -268,7 +268,7 @@ bool ObsManager::parseFilesSetup()
 
   ProdInfo* pip = nullptr;
   for (unsigned int i = 0; i < sect_obs.size(); i++) {
-    const vector<std::string> token = miutil::split_protected(sect_obs[i], '"', '"', "=", true);
+    const std::vector<std::string> token = miutil::split_protected(sect_obs[i], '"', '"', "=", true);
     if (token.size() != 2) {
       SetupParser::errorMsg(obs_name, i, "Line must contain '='");
       continue;
@@ -276,7 +276,7 @@ bool ObsManager::parseFilesSetup()
 
     const std::string key = miutil::to_lower(token[0]);
     if (key == "prod") {
-      const vector<std::string> stoken = miutil::split(token[1], ":");
+      const std::vector<std::string> stoken = miutil::split(token[1], ":");
       if (stoken.size() < 2) {
         METLIBS_LOG_ERROR("Prod specification needs to be like plottype:readername");
         pip = nullptr;
@@ -331,14 +331,14 @@ bool ObsManager::parsePrioritySetup()
   const std::string key_name = "name";
   const std::string key_file = "file";
 
-  vector<std::string> tokens, stokens;
+  std::vector<std::string> tokens, stokens;
   std::string name;
   ObsDialogInfo::PriorityList pri;
 
   priority.clear();
 
   const std::string pri_name = "OBSERVATION_PRIORITY_LISTS";
-  vector<std::string> sect_pri;
+  std::vector<std::string> sect_pri;
 
   if (SetupParser::getSection(pri_name, sect_pri)) {
 
@@ -380,13 +380,13 @@ bool ObsManager::parseCriteriaSetup()
   criteriaList.clear();
 
   const std::string obs_crit_name = "OBSERVATION_CRITERIA";
-  vector<std::string> sect_obs_crit;
+  std::vector<std::string> sect_obs_crit;
 
   if (SetupParser::getSection(obs_crit_name, sect_obs_crit)) {
     ObsDialogInfo::CriteriaList critList;
     std::string plottype;
     for (const std::string& soc : sect_obs_crit) {
-      vector<std::string> token = miutil::split(soc, "=");
+      std::vector<std::string> token = miutil::split(soc, "=");
       if (token.size() == 2 && miutil::to_lower(token[0]) == "plottype") {
         if (critList.criteria.size()) {
           criteriaList[plottype].push_back(critList);
@@ -415,7 +415,7 @@ bool ObsManager::parsePopupWindowSetup()
 
   // Handling of popup window specification
   const std::string obs_popup_data = "OBSERVATION_POPUP_SPEC";
-  vector<std::string> sect_popup_data;
+  std::vector<std::string> sect_popup_data;
 
   if (SetupParser::getSection(obs_popup_data, sect_popup_data)) {
     popupSpec = sect_popup_data;

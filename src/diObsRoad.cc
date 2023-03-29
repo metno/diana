@@ -77,7 +77,6 @@ const std::regex sanitizeSpaces("\\s\\s+");
 
 using namespace road;
 using namespace miutil;
-using namespace std;
 
 ObsRoad::ObsRoad(const std::string& filename, const std::string& databasefile, const std::string& stationfile, const std::string& headerfile,
                  const miTime& filetime, ObsDataRequest_cp request, bool breadData)
@@ -106,7 +105,7 @@ void ObsRoad::readHeader(ObsDataRequest_cp request)
   METLIBS_LOG_SCOPE("headerfile: " << headerfile_);
 #endif
   int n, i;
-  vector<std::string> vstr, pstr;
+  std::vector<std::string> vstr, pstr;
   std::string str;
   plotTime = filetime_;
   timeDiff = 60;
@@ -126,8 +125,8 @@ void ObsRoad::readHeader(ObsDataRequest_cp request)
     int theresult = diParam::initParameters(headerfile_);
     if (theresult) {
       // take a local copy
-      vector<diParam>* params = NULL;
-      map<std::string, vector<diParam>*>::iterator itp = diParam::params_map.find(headerfile_);
+      std::vector<diParam>* params = NULL;
+      std::map<std::string, std::vector<diParam>*>::iterator itp = diParam::params_map.find(headerfile_);
       if (itp != diParam::params_map.end()) {
         params = itp->second;
       }
@@ -184,18 +183,18 @@ void ObsRoad::readHeader(ObsDataRequest_cp request)
 	if (its == ObsRoad::parameterMap.end()) {
 	  size_t i = 0;
 	  size_t heading_size = 0;
-	  ifstream ifs(headerfile_.c_str(), ios::in);
+	  std::ifstream ifs(headerfile_.c_str(), std::ios::in);
 	  char buf[1024];
 	  if (ifs.is_open()) {
 		while (ifs.good()) {
 		  ifs.getline(buf, 1024);
-		  string str(buf);
+		  std::string str(buf);
 		  //miutil::trim(str);
 		  // Append every non empty line to lines
 		  // Empty lines allowed
 		  if (!str.empty()) {
 		    // decode the headerfile and put it in map
-			vector<string> pstr = miutil::split(str, ";");
+			std::vector<std::string> pstr = miutil::split(str, ";");
 			if (i == 0)
 				heading_size=pstr.size();
 			// Check if format is incorrect
@@ -226,14 +225,14 @@ void ObsRoad::readHeader(ObsDataRequest_cp request)
 #endif
 }
 
-void ObsRoad::getStationList(vector<stationInfo>& stations)
+void ObsRoad::getStationList(std::vector<stationInfo>& stations)
 {
   // This creates the stationlist
   // We must also init the connect string to mora db
   Roaddata::initRoaddata(databasefile_);
   diStation::initStations(stationfile_);
   // get the pointer to the actual station vector
-  map<std::string, vector<diStation>*>::iterator its = diStation::station_map.find(stationfile_);
+  std::map<std::string, std::vector<diStation>*>::iterator its = diStation::station_map.find(stationfile_);
   if (its == diStation::station_map.end()) {
     METLIBS_LOG_ERROR("Unable to find stationlist: '" << stationfile_ << "'");
     return;
@@ -292,19 +291,19 @@ void ObsRoad::initRoadData(ObsDataRequest_cp request)
   fileTime = filetime_;
 
   Roaddata road = Roaddata(databasefile_, stationfile_, headerfile_, filetime_);
-  map<std::string, vector<diStation>*>::iterator its = diStation::station_map.find(stationfile_);
+  std::map<std::string, std::vector<diStation>*>::iterator its = diStation::station_map.find(stationfile_);
   if (its != diStation::station_map.end()) {
     stationlist = its->second;
   }
 
-  map<int, std::string> lines_map;
+  std::map<int, std::string> lines_map;
   // get av vector of paramater names
   std::vector<std::string> paramnames;
   int theresult = diParam::initParameters(headerfile_);
   if (theresult) {
     // take a local copy
-    vector<diParam>* params = NULL;
-    map<std::string, vector<diParam>*>::iterator itp = diParam::params_map.find(headerfile_);
+    std::vector<diParam>* params = NULL;
+    std::map<std::string, std::vector<diParam>*>::iterator itp = diParam::params_map.find(headerfile_);
     if (itp != diParam::params_map.end()) {
       params = itp->second;
     }
@@ -329,7 +328,7 @@ void ObsRoad::initRoadData(ObsDataRequest_cp request)
   // decode the data...
   int stnid;
   std::string str;
-  map<int, std::string>::iterator it = lines_map.begin();
+  std::map<int, std::string>::iterator it = lines_map.begin();
   for (; it != lines_map.end(); it++) {
     // FIXME: Stnid !!!!
     // INDEX in station list
@@ -545,7 +544,7 @@ bool ObsRoad::bracketContents(std::vector<std::string>& in_out)
 void ObsRoad::parseHeaderBrackets(const std::string& str)
 {
   METLIBS_LOG_SCOPE(LOGVAL(str));
-  vector<string> pstr = miutil::split_protected(str, '"', '"');
+  std::vector<std::string> pstr = miutil::split_protected(str, '"', '"');
   if (pstr.size() <= 1)
     return;
 
@@ -554,7 +553,7 @@ void ObsRoad::parseHeaderBrackets(const std::string& str)
       pstr = miutil::split(str, separator);
     for (size_t j = 1; j < pstr.size(); j++) {
       miutil::remove(pstr[j], '"');
-      const vector<std::string> vs = miutil::split(pstr[j], ":");
+      const std::vector<std::string> vs = miutil::split(pstr[j], ":");
       if (vs.size() > 1) {
         m_columnName.push_back(vs[0]);
         m_columnType.push_back(miutil::to_lower(vs[1]));
@@ -580,7 +579,7 @@ void ObsRoad::parseHeaderBrackets(const std::string& str)
 void ObsRoad::parseNewHeaderFormat(const std::string& str)
 {
   METLIBS_LOG_SCOPE(LOGVAL(str));
-  vector<string> pstr = miutil::split(str, ";");
+  std::vector<std::string> pstr = miutil::split(str, ";");
   // Check if format is incorrect
   if (pstr.size() <= 1)
     return;
@@ -601,7 +600,7 @@ void ObsRoad::decodeHeader()
 {
   METLIBS_LOG_SCOPE();
 
-  vector<string> vstr;
+  std::vector<std::string> vstr;
   for (size_t i = 0; i < lines.size(); ++i) {
     std::string& line = lines[i]; // must be reference here, used later in decodeData
     erase_comment(line);
@@ -702,7 +701,7 @@ void ObsRoad::decodeNewHeader()
   // New header format: Time;Offset;StationId;StationName;StationType;Parameter;StatisticsFormula;SamplingTime;Longitud;Latitud;Height;Presentation Value;Database Value;Quality;Nordklim;Restriction;Value Origin;Level Parameter;Level from;Level to;ClimateStationId;ClimateCtationName;NationalStationId;NationalStationName;WmoStationId;WmoStationName;IcaoStationId;IcaoStationName;OperatingMode;
   // Always the same 
 
-  vector<string> vstr;
+  std::vector<std::string> vstr;
   for (size_t i = 0; i < lines.size(); ++i) {
     std::string& line = lines[i]; // must be reference here, used later in decodeData
 	// Check for invalid format in data file.
@@ -872,7 +871,7 @@ void ObsRoad::cloud_type_string(ObsData& d, double v)
     d.put_string("Cl", miutil::from_number(value));
 }
 
-string ObsRoad::height_of_clouds_string(double height)
+std::string ObsRoad::height_of_clouds_string(double height)
 {
   METLIBS_LOG_SCOPE(height);
   height = (height * 3.2808399) / 100.0;
@@ -1190,7 +1189,7 @@ void ObsRoad::decodeData()
     if (lines[ii].empty() or lines[ii][0] == '#')
       continue;
 
-    vector<string> pstr;
+    std::vector<std::string> pstr;
     if (not separator.empty())
       pstr = miutil::split(lines[ii], separator, false);
     else
@@ -1205,7 +1204,7 @@ void ObsRoad::decodeData()
 	obsData.metar().CAVOK=false;
     if (getColumnValue("time", pstr, text)) {
       METLIBS_LOG_DEBUG("time: " << text);
-      vector<std::string> tpart = miutil::split(text, ":");
+      std::vector<std::string> tpart = miutil::split(text, ":");
       obshour = miutil::to_int(tpart[0]);
     }
     // fdata note Cl, Cm, Ch, adjustment
@@ -1333,7 +1332,7 @@ void ObsRoad::decodeData()
       if (isoTime) {
         if (getColumnValue("time", pstr, text)) {
           METLIBS_LOG_DEBUG("time: " << text);
-          vector<std::string> tpart = miutil::split(text, ":");
+          std::vector<std::string> tpart = miutil::split(text, ":");
           hour = miutil::to_int(tpart[0]);
           if (tpart.size() > 1)
             min = miutil::to_int(tpart[1]);
@@ -1638,7 +1637,7 @@ void ObsRoad::decodeNewData()
     // This should not happen
     if (lines[ii].empty() or lines[ii][0] == '#')
       continue;
-    vector<string> pstr;
+    std::vector<std::string> pstr;
     if (not separator.empty())
       pstr = miutil::split(lines[ii], separator, false);
     else
@@ -2039,8 +2038,8 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
   Roaddata::initRoaddata(databasefile_);
   diStation::initStations(stationfile_);
   // get the pointer to the actual station vector
-  vector<diStation>* stations = 0;
-  map<std::string, vector<diStation>*>::iterator its = diStation::station_map.find(stationfile_);
+  std::vector<diStation>* stations = 0;
+  std::map<std::string, std::vector<diStation>*>::iterator its = diStation::station_map.find(stationfile_);
   if (its == diStation::station_map.end()) {
     METLIBS_LOG_ERROR("Unable to find stationlist: " << stationfile_);
     return vp;
@@ -2081,16 +2080,16 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
   Roaddata road = Roaddata(databasefile_, stationfile_, headerfile_, time);
   road.open();
 
-  vector<diStation> stations_to_plot;
+  std::vector<diStation> stations_to_plot;
   /* only get data for one station */
   stations_to_plot.push_back(station_n);
   /* get the data */
-  map<int, vector<RDKCOMBINEDROW_2>> raw_data_map;
+  std::map<int, std::vector<RDKCOMBINEDROW_2>> raw_data_map;
   road.getRadiosondeData(stations_to_plot, raw_data_map);
 
   road.close();
-  vector<RDKCOMBINEDROW_2> raw_data;
-  map<int, vector<RDKCOMBINEDROW_2>>::iterator itd = raw_data_map.find(station_n.stationID());
+  std::vector<RDKCOMBINEDROW_2> raw_data;
+  std::map<int, std::vector<RDKCOMBINEDROW_2>>::iterator itd = raw_data_map.find(station_n.stationID());
   if (itd != raw_data_map.end()) {
     raw_data = itd->second;
   }
@@ -2099,8 +2098,8 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
   METLIBS_LOG_DEBUG("Lines returned from road.getData(): " << raw_data.size());
 #endif
   // For now, we dont use the surface data!
-  vector<diParam>* params = 0;
-  map<std::string, vector<diParam>*>::iterator itp = diParam::params_map.find(headerfile_);
+  std::vector<diParam>* params = 0;
+  std::map<std::string, std::vector<diParam>*>::iterator itp = diParam::params_map.find(headerfile_);
   if (itp == diParam::params_map.end()) {
     // the code below would try to use 'params'
     return vp;
@@ -2109,10 +2108,10 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
   if (params == 0)
     return vp;
   /* map the data and sort them */
-  map<std::string, map<float, RDKCOMBINEDROW_2>> data_map;
+  std::map<std::string, std::map<float, RDKCOMBINEDROW_2>> data_map;
   int no_of_data_rows = raw_data.size();
   for (size_t k = 0; k < params->size(); k++) {
-    map<float, RDKCOMBINEDROW_2> tmpresult;
+    std::map<float, RDKCOMBINEDROW_2> tmpresult;
     for (int i = 0; i < no_of_data_rows; i++) {
       if ((*params)[k].isMapped(raw_data[i])) {
         // Data must be keyed with pressure
@@ -2132,29 +2131,29 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
 
   /* Use TTT + 1 to detrmine no of levels */
 
-  map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator ittt = data_map.begin();
-  map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator ittd = data_map.begin();
-  map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator itdd = data_map.begin();
-  map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator itff = data_map.begin();
+  std::map<std::string, std::map<float, RDKCOMBINEDROW_2>>::iterator ittt = data_map.begin();
+  std::map<std::string, std::map<float, RDKCOMBINEDROW_2>>::iterator ittd = data_map.begin();
+  std::map<std::string, std::map<float, RDKCOMBINEDROW_2>>::iterator itdd = data_map.begin();
+  std::map<std::string, std::map<float, RDKCOMBINEDROW_2>>::iterator itff = data_map.begin();
   /* Siginifcant wind levels */
-  map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator itsig_1 = data_map.begin();
-  map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator itsig_4 = data_map.begin();
-  map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator itsig_5 = data_map.begin();
-  map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator itsig_6 = data_map.begin();
-  map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator itsig_7 = data_map.begin();
-  map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator itsig_12 = data_map.begin();
-  map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator itsig_13 = data_map.begin();
-  map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator itsig_14 = data_map.begin();
+  std::map<std::string, std::map<float, RDKCOMBINEDROW_2>>::iterator itsig_1 = data_map.begin();
+  std::map<std::string, std::map<float, RDKCOMBINEDROW_2>>::iterator itsig_4 = data_map.begin();
+  std::map<std::string, std::map<float, RDKCOMBINEDROW_2>>::iterator itsig_5 = data_map.begin();
+  std::map<std::string, std::map<float, RDKCOMBINEDROW_2>>::iterator itsig_6 = data_map.begin();
+  std::map<std::string, std::map<float, RDKCOMBINEDROW_2>>::iterator itsig_7 = data_map.begin();
+  std::map<std::string, std::map<float, RDKCOMBINEDROW_2>>::iterator itsig_12 = data_map.begin();
+  std::map<std::string, std::map<float, RDKCOMBINEDROW_2>>::iterator itsig_13 = data_map.begin();
+  std::map<std::string, std::map<float, RDKCOMBINEDROW_2>>::iterator itsig_14 = data_map.begin();
 
   /* the surface values */
-  map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator ittts = data_map.begin();
-  map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator ittds = data_map.begin();
-  map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator itdds = data_map.begin();
-  map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator itffs = data_map.begin();
+  std::map<std::string, std::map<float, RDKCOMBINEDROW_2>>::iterator ittts = data_map.begin();
+  std::map<std::string, std::map<float, RDKCOMBINEDROW_2>>::iterator ittds = data_map.begin();
+  std::map<std::string, std::map<float, RDKCOMBINEDROW_2>>::iterator itdds = data_map.begin();
+  std::map<std::string, std::map<float, RDKCOMBINEDROW_2>>::iterator itffs = data_map.begin();
   /* the ground pressure */
-  map<std::string, map<float, RDKCOMBINEDROW_2>>::iterator itpps = data_map.begin();
+  std::map<std::string, std::map<float, RDKCOMBINEDROW_2>>::iterator itpps = data_map.begin();
 
-  map<float, RDKCOMBINEDROW_2>::iterator ittp;
+  std::map<float, RDKCOMBINEDROW_2>::iterator ittp;
 
   ittts = data_map.find("TTTs");
   float TTTs_value = -32767.0;
@@ -2247,12 +2246,12 @@ VprofValues_p ObsRoad::getVprofPlot(const std::string& modelName, const std::str
   itsig_13 = data_map.find("sig_13");
   itsig_14 = data_map.find("sig_14");
   /* allocate temporary maps */
-  map<float, RDKCOMBINEDROW_2> sig_1;
-  map<float, RDKCOMBINEDROW_2> sig_4;
-  map<float, RDKCOMBINEDROW_2> sig_7;
-  map<float, RDKCOMBINEDROW_2> sig_12;
-  map<float, RDKCOMBINEDROW_2> sig_13;
-  map<float, RDKCOMBINEDROW_2> sig_14;
+  std::map<float, RDKCOMBINEDROW_2> sig_1;
+  std::map<float, RDKCOMBINEDROW_2> sig_4;
+  std::map<float, RDKCOMBINEDROW_2> sig_7;
+  std::map<float, RDKCOMBINEDROW_2> sig_12;
+  std::map<float, RDKCOMBINEDROW_2> sig_13;
+  std::map<float, RDKCOMBINEDROW_2> sig_14;
 
   /* fill them with data if data present */
   if (itsig_1 != data_map.end())

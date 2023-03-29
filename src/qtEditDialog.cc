@@ -72,7 +72,6 @@
 #include <miLogger/miLogging.h>
 #include <puTools/miStringFunctions.h>
 
-using namespace std;
 
 /*********************************************/
 #define FIELD_INDEX 0
@@ -582,7 +581,7 @@ void  EditDialog::FrontTab()
 
   objecttab = new QWidget(twd );
 
-  vector<std::string> vstr;
+  std::vector<std::string> vstr;
   m_Frontcm = ComboBox( objecttab, vstr );
   connect( m_Frontcm, SIGNAL( activated(int) ),
       SLOT( FrontTabBox(int) ) );
@@ -669,14 +668,14 @@ void EditDialog::FrontEditClicked()
         }
       }
     } else if (m_objm->inComplexTextMode()) {
-      vector <string> symbolText,xText;
+      std::vector <std::string> symbolText,xText;
       m_objm->initCurrentComplexText();
       m_objm->getCurrentComplexText(symbolText,xText);
       if (getComplexText(symbolText,xText)){
         m_objm->setCurrentComplexText(symbolText,xText);
       }
     } else if (m_objm->inEditTextMode()) {
-      vector<string> symbolText,xText;
+      std::vector<std::string> symbolText,xText;
       m_objm->initCurrentComplexText();
       m_objm->getCurrentComplexText(symbolText,xText);
       if (getEditText(symbolText)){
@@ -702,13 +701,13 @@ void EditDialog::FrontEditDoubleClicked()
       m_objm->setCurrentColour(colour);
     }
   } else if (m_objm->inComplexTextMode()){
-    vector<string> symbolText,xText;
+    std::vector<std::string> symbolText,xText;
     m_objm->getCurrentComplexText(symbolText,xText);
     if (getComplexText(symbolText,xText)){
       m_objm->setCurrentComplexText(symbolText,xText);
     }
   } else if (m_objm->inEditTextMode()){
-    vector<string> symbolText,xText;
+    std::vector<std::string> symbolText,xText;
     m_objm->getCurrentComplexText(symbolText,xText);
     if (getEditText(symbolText)){
       m_objm->setCurrentComplexText(symbolText,xText);
@@ -766,7 +765,7 @@ void EditDialog::EditMarkedText()
 {
   //called from shortcut ctrl-e
   //changes all marked texts and objectmanagers current text !
-  vector <string> symbolText,xText,eText, mText;
+  std::vector <std::string> symbolText,xText,eText, mText;
   std::string text = m_objm->getMarkedText();
   METLIBS_LOG_DEBUG("-----EditDialog::EditMarkedText called------- text = " << text);
   if (!text.empty()){
@@ -814,9 +813,9 @@ bool EditDialog::getText(std::string & text, Colour::ColourInfo & colour)
 {
   bool ok = false;
 
-  vector <string> symbolText,xText;
+  std::vector <std::string> symbolText,xText;
   symbolText.push_back(text);
-  set <string> textList=m_objm->getTextList();
+  std::set <std::string> textList=m_objm->getTextList();
   ComplexText * cText =new ComplexText(this,m_ctrl, symbolText,xText, textList,true);
   cText->setColour(colour);
   if (cText->exec()){
@@ -831,11 +830,11 @@ bool EditDialog::getText(std::string & text, Colour::ColourInfo & colour)
   return ok;
 }
 
-bool EditDialog::getComplexText(vector<string>& symbolText, vector<string>& xText)
+bool EditDialog::getComplexText(std::vector<std::string>& symbolText, std::vector<std::string>& xText)
 {
   bool ok=false;
   if (symbolText.size()||xText.size()){
-    set<string> complexList = m_ctrl->getComplexList();
+    std::set<std::string> complexList = m_ctrl->getComplexList();
     ComplexText * cText =new ComplexText(this,m_ctrl, symbolText,xText,
         complexList);
     if (cText->exec()){
@@ -847,11 +846,11 @@ bool EditDialog::getComplexText(vector<string>& symbolText, vector<string>& xTex
   return ok;
 }
 
-bool EditDialog::getEditText(vector<string>& editText)
+bool EditDialog::getEditText(std::vector<std::string>& editText)
 {
   bool ok=false;
   if (editText.size()) {
-    set<string> complexList = m_ctrl->getComplexList();
+    std::set<std::string> complexList = m_ctrl->getComplexList();
     //set <std::string> textList=m_objm->getTextList();
     EditText * eText =new EditText(this,m_ctrl, editText, complexList, true);
     if (eText->exec()){
@@ -1013,7 +1012,7 @@ void  EditDialog::ListWidgetData( QListWidget* list, int mindex, int index)
 {
 
   list->clear();
-  vector<std::string> vstr;
+  std::vector<std::string> vstr;
   int n= m_EditDI.mapmodeinfo[mindex].editmodeinfo[index].edittools.size();
   list->setViewMode(QListView::ListMode);
   for ( int i=0; i<n; i++){
@@ -1057,7 +1056,7 @@ void  EditDialog::ListWidgetData( QListWidget* list, int mindex, int index)
 void EditDialog::ComboBoxData(QComboBox*, int mindex)
 {
   int n= m_EditDI.mapmodeinfo[mindex].editmodeinfo.size();
-  vector<std::string> vstr;
+  std::vector<std::string> vstr;
   m_Frontcm->clear();
   for( int i=0; i<n; i++ ){
     if (m_EditDI.mapmodeinfo[mindex].editmodeinfo[i].edittools.size()){
@@ -1509,7 +1508,7 @@ void EditDialog::EditNewCombineOk(EditProduct& ep,
   // update field dialog
   emit emitFieldEditUpdate("");
 
-  vector<string> combids;
+  std::vector<std::string> combids;
   // try to start combine
   QString message;
   if (!m_editm->startCombineEdit(ep,ci,time,combids, message)){

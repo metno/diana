@@ -72,7 +72,6 @@ extern void bus012_(int* ilen, int* ibuff, int* ksup,
     int* ksec0, int* ksec1, int* ksec2,int* kerr);
 } // extern "C"
 
-using namespace std;
 using namespace miutil;
 
 namespace {
@@ -470,7 +469,7 @@ bool ObsBufr::ObsTime(const std::string& bufr_file, miTime& time)
 
 // ########################################################################
 
-bool StationBufr::readStationInfo(const vector<std::string>& bufr_file, vector<stationInfo>& stations)
+bool StationBufr::readStationInfo(const std::vector<std::string>& bufr_file, std::vector<stationInfo>& stations)
 {
   id.clear();
   idmap.clear();
@@ -485,7 +484,7 @@ bool StationBufr::readStationInfo(const vector<std::string>& bufr_file, vector<s
   return true;
 }
 
-VprofValues_p VprofBufr::getVprofPlot(const vector<std::string>& bufr_file, const std::string& station, VerticalAxis vertical_axis)
+VprofValues_p VprofBufr::getVprofPlot(const std::vector<std::string>& bufr_file, const std::string& station, VerticalAxis vertical_axis)
 {
   METLIBS_LOG_SCOPE(LOGVAL(station));
 
@@ -501,7 +500,7 @@ VprofValues_p VprofBufr::getVprofPlot(const vector<std::string>& bufr_file, cons
   vplot->add(wind_sig = std::make_shared<VprofSimpleData>(vprof::VP_WIND_SIG, zUnit, ""));
 
   //if station(no)
-  vector<std::string> token = miutil::split(station, "(");
+  std::vector<std::string> token = miutil::split(station, "(");
   METLIBS_LOG_DEBUG(LOGVAL(token.size()));
   if (token.empty())
     return 0;

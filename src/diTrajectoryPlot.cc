@@ -48,7 +48,6 @@
 #define MILOGGER_CATEGORY "diana.TrajectoryPlot"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 using namespace miutil;
 
 namespace {
@@ -142,7 +141,7 @@ void TrajectoryPlot::changeTime(const miutil::miTime& newTime)
   mapTime_ = newTime;
 }
 
-int TrajectoryPlot::trajPos(const vector<string>& vstr)
+int TrajectoryPlot::trajPos(const std::vector<std::string>& vstr)
 {
   METLIBS_LOG_SCOPE();
   if (METLIBS_LOG_DEBUG_ENABLED()) {
@@ -188,7 +187,7 @@ int TrajectoryPlot::trajPos(const vector<string>& vstr)
           action= 1;  // add or remove annotation
         } else if (key == "longitudelatitude" || key == "latitudelongitude") {
           const int dilon = (key == "longitudelatitude") ? 0 : 1, dilat = 1 - dilon;
-          const vector<std::string> lonlat = miutil::split(value, 0, ",");
+          const std::vector<std::string> lonlat = miutil::split(value, 0, ",");
           const int n = lonlat.size();
           for (int i=0; i<n; i+=2) {
             const float lon = miutil::to_double(lonlat[i+dilon]),
@@ -304,7 +303,7 @@ void TrajectoryPlot::clearData()
   setPlotName("");
 }
 
-void TrajectoryPlot::getAnnotation(string& s, Colour& c) const
+void TrajectoryPlot::getAnnotation(std::string& s, Colour& c) const
 {
   if (plot_on && !trajectories.empty()) {
     s = getPlotName();
@@ -332,7 +331,7 @@ bool TrajectoryPlot::printTrajectoryPositions(const std::string& filename)
   fs << "[NAME TRAJECTORY]" << std::endl
      << "[COLUMNS " << std::endl
      << "Date:d   Time:t      Lon:r   Lat:r   No:r]" << std::endl
-     << "[DATA]" << endl;
+     << "[DATA]" << std::endl;
   fs.setf(std::ios::showpoint);
   fs.precision(7);
 

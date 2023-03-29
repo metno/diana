@@ -46,7 +46,6 @@
 #define MILOGGER_CATEGORY "diana.VprofModelDialog"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 
 //#define HEIGHTLISTBOX 100
 
@@ -205,7 +204,7 @@ void VprofModelDialog::getModel()
   for (auto& sm : vprofm->getSelectedModels()) {
     std::string reftime = sm.reftime;
     if (reftime.empty()) {
-      const set<std::string> rfv = vprofm->getReferencetimes(sm.model);
+      const std::set<std::string> rfv = vprofm->getReferencetimes(sm.model);
       if (!rfv.empty())
         reftime = *rfv.rbegin();
     }
@@ -243,7 +242,7 @@ void VprofModelDialog::updateModelfileList()
   METLIBS_LOG_SCOPE();
 
   // want to keep the selected models
-  set<QString> current;
+  std::set<QString> current;
   for (int i = 0; i < modelfileList->count(); i++) {
     if (modelfileList->item(i)->isSelected())
       current.insert(modelfileList->item(i)->text());

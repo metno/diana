@@ -67,7 +67,6 @@
 #define MILOGGER_CATEGORY "diana.ObsDialog"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 
 static QString labelForObsPlotType(ObsPlotType opt)
 {
@@ -258,10 +257,10 @@ void ObsDialog::getTimes(bool update)
 
   diutil::OverrideCursor waitCursor;
 
-  vector<std::string> dataName;
+  std::vector<std::string> dataName;
   if (multiplot) {
 
-    set<std::string> nameset;
+    std::set<std::string> nameset;
     for (ObsWidget* ow : obsWidget) {
       if (ow->initialized()) {
         diutil::insert_all(nameset, ow->getDataTypes());
@@ -329,9 +328,9 @@ PlotCommand_cpv ObsDialog::getOKString()
 }
 
 
-vector<string> ObsDialog::writeLog()
+std::vector<std::string> ObsDialog::writeLog()
 {
-  vector<string> vstr;
+  std::vector<std::string> vstr;
 
   if (nr_plot() == 0)
     return vstr;
@@ -358,7 +357,7 @@ vector<string> ObsDialog::writeLog()
   return vstr;
 }
 
-void ObsDialog::readLog(const vector<string>& vstr, const string& /*thisVersion*/, const string& /*logVersion*/)
+void ObsDialog::readLog(const std::vector<std::string>& vstr, const std::string& /*thisVersion*/, const std::string& /*logVersion*/)
 {
   for (const std::string& l : vstr) {
     if (diutil::startswith(l, "===="))
@@ -442,7 +441,7 @@ void ObsDialog::makeExtension()
   extension = new QWidget(this);
 
   QLabel* listLabel = TitleLabel(tr("List of Criteria"),extension);
-  vector<std::string> critName;
+  std::vector<std::string> critName;
   if (m_selected >= 0 && m_selected < (int)obsWidget.size() && m_selected < nr_plot())
     critName = obsWidget[m_selected]->getCriteriaNames();
   criteriaBox = ComboBox( extension,critName,true);
@@ -631,7 +630,7 @@ void ObsDialog::changeCriteriaString()
     criteriaListbox->currentItem()->setText(QString::fromStdString(str));
     // save changes
     int n = criteriaListbox->count();
-    vector<std::string> vstr;
+    std::vector<std::string> vstr;
     for (int i = 0; i < n; i++) {
       vstr.push_back(criteriaListbox->item(i)->text().toStdString());
     }
@@ -659,7 +658,7 @@ bool ObsDialog::newCriteriaString()
   int i = 0;
   for (; i < n; i++) {
     std::string sstr = criteriaListbox->item(i)->text().toStdString();
-    vector<std::string> vstr;
+    std::vector<std::string> vstr;
     if (miutil::contains(sstr, "<"))
       vstr = miutil::split(sstr, "<");
     else if (miutil::contains(sstr, ">"))
@@ -680,7 +679,7 @@ bool ObsDialog::newCriteriaString()
   criteriaListbox->setCurrentRow(i);
   // save changes
   n = criteriaListbox->count();
-  vector<std::string> vstr;
+  std::vector<std::string> vstr;
   for (int i = 0; i < n; i++) {
     vstr.push_back(criteriaListbox->item(i)->text().toStdString());
   }
@@ -734,7 +733,7 @@ void ObsDialog::criteriaSelected(QListWidgetItem* item)
 
   std::string str = item->text().toStdString();
 
-  vector<std::string> sub = miutil::split(str, " ");
+  std::vector<std::string> sub = miutil::split(str, " ");
 
   //  std::string sign,parameter;
   std::string sign;
@@ -753,7 +752,7 @@ void ObsDialog::criteriaSelected(QListWidgetItem* item)
 
   float value = 0.0;
   if (!sign.empty()) {
-    vector<std::string> sstr = miutil::split(sub[0], sign);
+    std::vector<std::string> sstr = miutil::split(sub[0], sign);
     if (sstr.size() != 2)
       return;
     parameter = sstr[0];
@@ -833,7 +832,7 @@ void ObsDialog::deleteSlot()
   criteriaListbox->takeItem(criteriaListbox->currentRow());
   criteriaSelected(criteriaListbox->currentItem());
   int n = criteriaListbox->count();
-  vector<std::string> vstr;
+  std::vector<std::string> vstr;
   for (int i = 0; i < n; i++) {
     vstr.push_back(criteriaListbox->item(i)->text().toStdString());
   }
@@ -845,7 +844,7 @@ void ObsDialog::deleteSlot()
 void ObsDialog::deleteAllSlot()
 {
   criteriaListbox->clear();
-  vector<std::string> vstr;
+  std::vector<std::string> vstr;
   obsWidget[m_selected]->saveCriteria(vstr);
 }
 
@@ -856,7 +855,7 @@ void ObsDialog::saveSlot()
     return;
 
   int n = criteriaListbox->count();
-  vector<std::string> vstr;
+  std::vector<std::string> vstr;
   for (int i = 0; i < n; i++) {
     vstr.push_back(criteriaListbox->item(i)->text().toStdString());
   }
@@ -944,7 +943,7 @@ void ObsDialog::updateExtension()
 {
   ObsDialogInfo::CriteriaList cList;
   criteriaBox->clear();
-  vector<std::string> critName = obsWidget[m_selected]->getCriteriaNames();
+  std::vector<std::string> critName = obsWidget[m_selected]->getCriteriaNames();
   int n = critName.size();
   if (n == 0) { // no lists, read saved criterias
     cList = obsWidget[m_selected]->getSavedCriteria();
@@ -958,7 +957,7 @@ void ObsDialog::updateExtension()
   criteriaListbox->clear();
   lineedit->setText(criteriaBox->currentText());
 
-  vector<std::string> criteriaList = cList.criteria;
+  std::vector<std::string> criteriaList = cList.criteria;
   for (unsigned int j = 0; j < criteriaList.size(); j++) {
     criteriaListbox->addItem(QString(criteriaList[j].c_str()));
   }

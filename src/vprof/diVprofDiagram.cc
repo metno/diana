@@ -427,7 +427,7 @@ void VprofDiagram::plotText(VprofPainter* painter)
         if (vptext[i].kindexFound) {
           int k = std::lround(vptext[i].kindexValue);
           std::ostringstream ostr;
-          ostr << "K= " << setiosflags(std::ios::showpos) << k;
+          ostr << "K= " << std::setiosflags(std::ios::showpos) << k;
           kitext[i] = ostr.str();
           maximize(wkindex, painter->getTextWidth(kitext[i]));
         }

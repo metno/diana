@@ -78,7 +78,6 @@
 
 //#define DEBUGPRINT
 using namespace miutil;
-using namespace std;
 
 EditManager::EditManager(PlotModule* pm, ObjectManager* om, FieldPlotManager* fm)
     : plotm(pm)
@@ -111,7 +110,7 @@ bool EditManager::parseSetup()
   METLIBS_LOG_SCOPE();
 
   std::string section="EDIT";
-  vector<std::string> vstr;
+  std::vector<std::string> vstr;
 
   if (!SetupParser::getSection(section,vstr)){
     METLIBS_LOG_WARN("No " << section << " section in setupfile, ok.");
@@ -121,7 +120,7 @@ bool EditManager::parseSetup()
   size_t nv=0;
   const size_t nvstr=vstr.size();
   std::string key,error;
-  vector<std::string> values, vsub;
+  std::vector<std::string> values, vsub;
   bool ok= true;
 
   while (ok && nv<nvstr) {
@@ -262,7 +261,7 @@ bool EditManager::parseSetup()
       } else if (key=="arealinewidth" && nval==1){
         ep.areaLineWidth = atoi(values[0].c_str());
       } else if (key=="time_start_early" && nval==1){
-        vector<std::string> vs= miutil::split(values[0], 0, ":", true);
+        std::vector<std::string> vs= miutil::split(values[0], 0, ":", true);
         if (vs.size()==2) {
           int hr= atoi(vs[0].c_str());
           int mn= atoi(vs[1].c_str());
@@ -275,7 +274,7 @@ bool EditManager::parseSetup()
           ok= false;
         }
       } else if (key=="time_start_late" && nval==1){
-        vector<std::string> vs= miutil::split(values[0], 0, ":", true);
+        std::vector<std::string> vs= miutil::split(values[0], 0, ":", true);
         if (vs.size()==2) {
           int hr= atoi(vs[0].c_str());
           int mn= atoi(vs[1].c_str());
@@ -341,10 +340,10 @@ void EditManager::readCommandFile(EditProduct & ep)
   std::string s;
   bool merge= false, newmerge;
   int linenum=0;
-  vector<std::string> tmplines;
+  std::vector<std::string> tmplines;
 
   // open filestream
-  ifstream file(ep.commandFilename.c_str());
+  std::ifstream file(ep.commandFilename.c_str());
   if (!file){
     METLIBS_LOG_ERROR("ERROR OPEN (READ) " << ep.commandFilename);
     return;
@@ -909,12 +908,12 @@ std::string EditManager::editFileName(const std::string directory,
   int hh  = t.hour();
   int min = t.min();
 
-  ostringstream ostr;
-  ostr << setw(4) << setfill('0') << yyyy
-      << setw(2) << setfill('0') << mm
-      << setw(2) << setfill('0') << dd
-      << setw(2) << setfill('0') << hh
-      << setw(2) << setfill('0') << min;
+  std::ostringstream ostr;
+  ostr << std::setw(4) << std::setfill('0') << yyyy
+      << std::setw(2) << std::setfill('0') << mm
+      << std::setw(2) << std::setfill('0') << dd
+      << std::setw(2) << std::setfill('0') << hh
+      << std::setw(2) << std::setfill('0') << min;
 
   std::string filename;
 
@@ -1020,7 +1019,7 @@ bool EditManager::makeNewFile(int fnum, bool local, QString& message)
   }
   QFile qfile(EdProd.templateFilename.c_str());
 
-  vector<std::string> outputFilenames;
+  std::vector<std::string> outputFilenames;
 
   std::string time_string;
   if ( producttimedefined )
@@ -1482,7 +1481,7 @@ void EditManager::writeEditProduct(QString& message, const bool wfield, const bo
 
 
 
-vector<savedProduct> EditManager::getSavedProducts(const EditProduct& ep,
+std::vector<savedProduct> EditManager::getSavedProducts(const EditProduct& ep,
     std::string fieldname){
   METLIBS_LOG_SCOPE();
   int num=-1,n=ep.fields.size();
@@ -1495,10 +1494,10 @@ vector<savedProduct> EditManager::getSavedProducts(const EditProduct& ep,
   return getSavedProducts(ep,num);
 }
 
-vector<savedProduct> EditManager::getSavedProducts(const EditProduct& ep,
+std::vector<savedProduct> EditManager::getSavedProducts(const EditProduct& ep,
     int element)
 {
-  vector<savedProduct> prods;
+  std::vector<savedProduct> prods;
 
   std::string fileString,filenamePart, dir,pid;
 
@@ -1531,12 +1530,12 @@ vector<savedProduct> EditManager::getSavedProducts(const EditProduct& ep,
 }
 
 
-vector<miTime> EditManager::getCombineProducts(const EditProduct& ep,
+std::vector<miTime> EditManager::getCombineProducts(const EditProduct& ep,
     const EditProductId& ei)
 {
   METLIBS_LOG_DEBUG("getCombineProducts");
 
-  vector<miTime> ctime;
+  std::vector<miTime> ctime;
 
   int ncombdirs= ep.combinedirs.size();
   // disable the last (savedir) if a sendable ProductId
@@ -1583,7 +1582,7 @@ vector<miTime> EditManager::getCombineProducts(const EditProduct& ep,
   // some test on combinations (pids and objects/fields)
   // before adding legal time
 
-  vector<std::string> okpids;
+  std::vector<std::string> okpids;
 
   int i=0;
   while (i<ncp) {
@@ -1601,13 +1600,13 @@ vector<miTime> EditManager::getCombineProducts(const EditProduct& ep,
 }
 
 
-vector<std::string> EditManager::findAcceptedCombine(int ibegin, int iend,
+std::vector<std::string> EditManager::findAcceptedCombine(int ibegin, int iend,
     const EditProduct& ep,
     const EditProductId& ei){
 
   METLIBS_LOG_SCOPE();
 
-  vector<std::string> okpids;
+  std::vector<std::string> okpids;
 
   // a "table" of found pids and object/fields
   int nf= ep.fields.size();
@@ -1640,7 +1639,7 @@ vector<std::string> EditManager::findAcceptedCombine(int ibegin, int iend,
   return okpids;
 }
 
-void EditManager::findSavedProducts(vector<savedProduct>& prods, const std::string fileString, bool localSource, int element)
+void EditManager::findSavedProducts(std::vector<savedProduct>& prods, const std::string fileString, bool localSource, int element)
 {
 
   diutil::string_v matches = diutil::glob(fileString);
@@ -1657,7 +1656,7 @@ void EditManager::findSavedProducts(vector<savedProduct>& prods, const std::stri
     if (prods.empty()) {
       prods.push_back(savedprod);
     } else {
-      vector <savedProduct>::iterator p =  prods.begin();
+      std::vector <savedProduct>::iterator p =  prods.begin();
       // test >= to keep directory sequence for each time too
       while (p!=prods.end() && p->ptime>=savedprod.ptime) p++;
       prods.insert(p,savedprod);
@@ -1667,12 +1666,12 @@ void EditManager::findSavedProducts(vector<savedProduct>& prods, const std::stri
 }
 
 
-vector<std::string> EditManager::getValidEditFields(const EditProduct& ep,
+std::vector<std::string> EditManager::getValidEditFields(const EditProduct& ep,
     const int element){
   METLIBS_LOG_SCOPE();
 
   // return names of existing fields valid for editing
-  vector<std::string> vstr;
+  std::vector<std::string> vstr;
   std::string fname= miutil::to_lower(ep.fields[element].name);
   const std::vector<FieldPlot*> vfp = plotm->fieldplots()->getFieldPlots();
   for (size_t i=0; i<vfp.size(); i++){
@@ -1712,17 +1711,17 @@ void EditManager::stopEdit()
   objm->undofrontClear();
 }
 
-vector<std::string> EditManager::getEditProductNames(){
+std::vector<std::string> EditManager::getEditProductNames(){
   METLIBS_LOG_SCOPE();
 
-  vector<std::string> names;
+  std::vector<std::string> names;
   for ( size_t i = 0; i<editproducts.size(); ++i ) {
     names.push_back(editproducts[i].name);
   }
   return names;
 }
 
-vector<EditProduct> EditManager::getEditProducts(){
+std::vector<EditProduct> EditManager::getEditProducts(){
   return editproducts;
 }
 
@@ -1763,7 +1762,7 @@ void EditManager::cleanCombineData(bool cleanData){
   }
 
   //delete all combiningobjects except borders
-  vector <ObjectPlot*>::iterator p = objm->getCombiningObjects().objects.begin();
+  std::vector <ObjectPlot*>::iterator p = objm->getCombiningObjects().objects.begin();
   while (p!=objm->getCombiningObjects().objects.end()){
     ObjectPlot * pobject = *p;
     if (!pobject->objectIs(Border)){
@@ -1776,12 +1775,12 @@ void EditManager::cleanCombineData(bool cleanData){
 }
 
 
-vector <std::string> EditManager::getCombineIds(const miTime & valid,
+std::vector <std::string> EditManager::getCombineIds(const miTime & valid,
     const EditProduct& ep,
     const EditProductId& ei){
   METLIBS_LOG_SCOPE();
 
-  vector <std::string> pids;
+  std::vector <std::string> pids;
   int ipc=0, npc=combineprods.size();
   while (ipc<npc && combineprods[ipc].ptime!=valid) ipc++;
   if (ipc==npc) return pids;
@@ -1800,7 +1799,7 @@ vector <std::string> EditManager::getCombineIds(const miTime & valid,
 bool EditManager::startCombineEdit(const EditProduct& ep,
     const EditProductId& ei,
     const miTime& valid,
-    vector<std::string>& pids,
+    std::vector<std::string>& pids,
     QString& message)
 {
   METLIBS_LOG_SCOPE("Time = " << valid);
@@ -2298,8 +2297,8 @@ bool EditManager::combineFields(float zoneWidth) {
 
 
 struct polygon{
-  vector<float> x;
-  vector<float> y;
+  std::vector<float> x;
+  std::vector<float> y;
 };
 
 
@@ -2386,8 +2385,8 @@ bool EditManager::recalcCombineMatrix(){
   }
 
   // find crossing with fieldarea
-  vector<int> crossp, quadr; // 0=Down, 1=Left, 2=Up, 3=Right
-  vector<float> crossx, crossy;
+  std::vector<int> crossp, quadr; // 0=Down, 1=Left, 2=Up, 3=Right
+  std::vector<float> crossx, crossy;
   const Rectangle& r = fedits[0]->editfield->area.R();
   const Rectangle rex = diutil::extendedRectangle(r, 0.5 * gridResolutionX);
 
@@ -2451,7 +2450,7 @@ bool EditManager::recalcCombineMatrix(){
   }
 
   // sort legs counter-clockwise
-  vector<int> legorder;
+  std::vector<int> legorder;
   for (int j=0; j<4; j++)
     for (int i=0; i<nborders; i++)
       if (quadr[i]==j)
@@ -2657,7 +2656,7 @@ bool EditManager::getFieldArea(Area& a)
   return false;
 }
 
-void EditManager::setEditMessage(const string& str)
+void EditManager::setEditMessage(const std::string& str)
 {
   // set or remove (if empty string) an edit message
 
@@ -3063,11 +3062,11 @@ void EditManager::setMapmodeinfo(){
 
   mapmodeinfo.clear();
 
-  vector<editModeInfo> eMode = {{"Standard", eToolFieldStandard}, {"Klasser", eToolFieldClasses}, {"Tall", eToolFieldNumbers}};
+  std::vector<editModeInfo> eMode = {{"Standard", eToolFieldStandard}, {"Klasser", eToolFieldClasses}, {"Tall", eToolFieldNumbers}};
 
-  vector<editModeInfo> dMode;
+  std::vector<editModeInfo> dMode;
   int emidx=0;
-  map <int,object_modes> objectModes;
+  std::map <int,object_modes> objectModes;
   dMode.push_back(editModeInfo("Fronts", fronts));
   objectModes[emidx++] = front_drawing;
   dMode.push_back(editModeInfo("Symbols", symbols));
@@ -3078,16 +3077,16 @@ void EditManager::setMapmodeinfo(){
   objectModes[emidx++] = symbol_drawing;
 
   // combine_mode types
-  vector<editToolInfo> regionlines = {{"regioner", 0}};
+  std::vector<editToolInfo> regionlines = {{"regioner", 0}};
 
-  vector<editToolInfo> regions;
+  std::vector<editToolInfo> regions;
   const char* colours[3] = { "blue", "red", "darkGreen" };
   for (size_t i=0; i<regnames.size(); i++)
     regions.push_back(editToolInfo(regnames[i], 0, colours[i % 3]));
 
-  vector<editModeInfo> cMode;
+  std::vector<editModeInfo> cMode;
   int cmidx=0;
-  map <int,combine_modes> combineModes;
+  std::map <int,combine_modes> combineModes;
 
   cMode.push_back(editModeInfo("Regionlinjer", regionlines));
   combineModes[cmidx++]=set_borders;
@@ -3106,7 +3105,7 @@ void EditManager::setMapmodeinfo(){
   WeatherArea::setDefaultLineWidth(EdProd.areaLineWidth);
 }
 
-void EditManager::getDataAnnotations(vector<string>& anno) const
+void EditManager::getDataAnnotations(std::vector<std::string>& anno) const
 {
   for (FieldEdit* fe : fedits)
     fe->getAnnotations(anno);

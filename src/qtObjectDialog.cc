@@ -61,7 +61,6 @@
 #define MILOGGER_CATEGORY "diana.ObjectDialog"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 
 /***************************************************************************/
 ObjectDialog::ObjectDialog(QWidget* parent, Controller* llctrl)
@@ -304,8 +303,8 @@ void ObjectDialog::doubleDisplayDiff(int number)
   m_totalminutes=int(number*m_scalediff);
   int hours = m_totalminutes/60;
   int minutes=m_totalminutes-hours*60;
-  ostringstream ostr;
-  ostr << hours << ":" << setw(2) << setfill('0') << minutes;
+  std::ostringstream ostr;
+  ostr << hours << ":" << std::setw(2) << std::setfill('0') << minutes;
   std::string str= ostr.str();
   diffLcdnum->display( str.c_str() );
 }
@@ -626,7 +625,7 @@ std::string ObjectDialog::makeOKString(PlotVariables & okVar)
   if (okVar.useobject["area"])
     str+="area";
 
-  ostringstream ostr;
+  std::ostringstream ostr;
   if (okVar.totalminutes >=0)
     ostr<<" timediff="<< okVar.totalminutes;
   if (okVar.alphanr>=0)

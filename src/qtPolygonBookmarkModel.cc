@@ -40,7 +40,6 @@
 
 #include <puTools/miStringFunctions.h>
 
-using namespace std;
 
 PolygonBookmarkModel::PolygonBookmarkModel(QObject* p) : QStandardItemModel(p)
 {
@@ -67,7 +66,7 @@ PolygonBookmarkModel::PolygonBookmarkModel(QObject* p) : QStandardItemModel(p)
 
 void PolygonBookmarkModel::addBookmark(std::string s,bool isFolder)
 {
-  vector<std::string> words = miutil::split(s, ".");
+  std::vector<std::string> words = miutil::split(s, ".");
 
   QStandardItem *parentItem = invisibleRootItem();
   std::string folder;
@@ -153,7 +152,7 @@ bool PolygonBookmarkModel::setCurrent(std::string name, QModelIndex& ind)
 {
   if((not !name.empty())) return false;
 
-  map<QModelIndex,std::string>::iterator idx;
+  std::map<QModelIndex,std::string>::iterator idx;
   for(idx=bookmarks.begin();idx!=bookmarks.end();idx++) {
     if(idx->second==name) {
       setCurrent(idx->first);

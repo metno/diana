@@ -39,7 +39,6 @@
 #define MILOGGER_CATEGORY "diana.AreaObjects"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 
 AreaObjects::AreaObjects()
 {

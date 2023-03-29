@@ -53,9 +53,8 @@
 #define MILOGGER_CATEGORY "diana.QuickEditOptions"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 
-QuickEditOptions::QuickEditOptions(QWidget* parent, vector<quickMenuOption>& opt)
+QuickEditOptions::QuickEditOptions(QWidget* parent, std::vector<quickMenuOption>& opt)
   : QDialog(parent)
   , options(opt)
   , keynum(-1)
@@ -150,9 +149,9 @@ QuickEditOptions::QuickEditOptions(QWidget* parent, vector<quickMenuOption>& opt
   updateList();
 }
 
-vector<quickMenuOption> QuickEditOptions::getOptions()
+std::vector<quickMenuOption> QuickEditOptions::getOptions()
 {
-  vector<quickMenuOption> opt;
+  std::vector<quickMenuOption> opt;
   for (quickMenuOption& o : options) {
     if (!o.options.empty())
       opt.push_back(o);
@@ -216,7 +215,7 @@ void QuickEditOptions::listClicked( QListWidgetItem * item) // new select in lis
   if (keynum>0) upButton->setEnabled(true);
   if (keynum<int(options.size())-1) downButton->setEnabled(true);
 
-  string s;
+  std::string s;
   int n= options[keynum].options.size();
   for (int i=0; i<n; i++){
     s+= options[keynum].options[i];

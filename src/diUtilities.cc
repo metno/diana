@@ -79,16 +79,15 @@ int find_index(bool repeat, int available, int i)
 
 std::string get_uuid()
 {
-  using namespace std;
 
-  static random_device dev;
-  static mt19937 rng(dev());
-  uniform_int_distribution<int> dist(0, 15);
+  static std::random_device dev;
+  static std::mt19937 rng(dev());
+  std::uniform_int_distribution<int> dist(0, 15);
 
   const char v[16 + 1] = "0123456789abcdef";
   const bool dash[16] = {0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0};
 
-  string uuid(2 * 16 + 4, '-');
+  std::string uuid(2 * 16 + 4, '-');
   for (int i = 0, j = 0; i < 16; i += 1, j += 2) {
     if (dash[i])
       j += 1;

@@ -42,10 +42,9 @@
 #include <miLogger/miLogging.h>
 
 using namespace::miutil;
-using namespace std;
 
-map<int,object_modes> EditObjects::objectModes;
-map<int,combine_modes> EditObjects::combineModes;
+std::map<int,object_modes> EditObjects::objectModes;
+std::map<int,combine_modes> EditObjects::combineModes;
 
 EditObjects::EditObjects()
 {
@@ -73,8 +72,8 @@ void EditObjects::init()
   clear();
 }
 
-void EditObjects::defineModes(map<int,object_modes> objModes,
-    map<int,combine_modes> combModes){
+void EditObjects::defineModes(std::map<int,object_modes> objModes,
+    std::map<int,combine_modes> combModes){
   objectModes=objModes;
   combineModes=combModes;
 }
@@ -148,7 +147,7 @@ bool EditObjects::editResumeDrawing(const float x, const float y)
 
   //resumeDrawing of marked front or insert point
 
-  vector <ObjectPlot*>::iterator p = objects.begin();
+  std::vector <ObjectPlot*>::iterator p = objects.begin();
   while (p!=objects.end()) {
     ObjectPlot * pobject = *p;
     if( pobject->ismarkAllPoints()){
@@ -179,7 +178,7 @@ bool EditObjects::editDeleteMarkedPoints()
 
   if (mapmode==draw_mode){
 
-    vector <ObjectPlot*>::iterator p1 = objects.begin();
+    std::vector <ObjectPlot*>::iterator p1 = objects.begin();
     while (p1!=objects.end()){
       ObjectPlot * pobject = *p1;
       if (pobject->deleteMarkPoints() &&  pobject->isEmpty()){
@@ -193,7 +192,7 @@ bool EditObjects::editDeleteMarkedPoints()
     checkJoinPoints();
 
   } else if (mapmode == combine_mode){
-    vector <ObjectPlot*>::iterator q1 = objects.begin();
+    std::vector <ObjectPlot*>::iterator q1 = objects.begin();
     while (q1!=objects.end()){
       ObjectPlot * qobject = *q1;
       //not allowed to remove the whole border
@@ -273,7 +272,7 @@ bool EditObjects::editMergeFronts(bool mergeAll)
   METLIBS_LOG_SCOPE(LOGVAL(mergeAll));
 
   bool frontsChanged= false;
-  vector <ObjectPlot*>::iterator p = objects.begin();
+  std::vector <ObjectPlot*>::iterator p = objects.begin();
   int pcount=0;//for undo
   for (;p!=objects.end();p++){
     ObjectPlot * pfront = *p;
@@ -284,7 +283,7 @@ bool EditObjects::editMergeFronts(bool mergeAll)
       yend[0] = pfront->getXY(0).y();
       xend[1] = pfront->getXY(end).x();
       yend[1] = pfront->getXY(end).y();
-      vector <ObjectPlot*>::iterator q = objects.begin();
+      std::vector <ObjectPlot*>::iterator q = objects.begin();
       int qcount=0; //for undo
       while (q!=objects.end()){
         bool merged = false;
@@ -360,7 +359,7 @@ bool EditObjects::editJoinFronts(bool joinAll,bool movePoints,bool joinOnLine)
 
   METLIBS_LOG_SCOPE(LOGVAL(joinAll) << LOGVAL(movePoints) << LOGVAL(joinOnLine));
 
-  vector <ObjectPlot*>::iterator p = objects.begin();
+  std::vector <ObjectPlot*>::iterator p = objects.begin();
   for (;p!=objects.end();p++){
     ObjectPlot * pfront = *p;
     if (pfront->oktoJoin(joinAll)){
@@ -371,7 +370,7 @@ bool EditObjects::editJoinFronts(bool joinAll,bool movePoints,bool joinOnLine)
       yend[0] = pfront->getXY(0).y();
       xend[1] = pfront->getXY(end).x();
       yend[1] = pfront->getXY(end).y();
-      vector <ObjectPlot*>::iterator q = objects.begin();
+      std::vector <ObjectPlot*>::iterator q = objects.begin();
       for (;q!=objects.end();q++){
         ObjectPlot * qfront = *q;
         if (pfront !=qfront && qfront->oktoJoin(true)){
@@ -397,7 +396,7 @@ bool EditObjects::editJoinFronts(bool joinAll,bool movePoints,bool joinOnLine)
       }
       if (joinOnLine && !(endPointJoined[0] && endPointJoined[1])){
         //if no end/join points close to front join on line
-        vector <ObjectPlot*>::iterator q = objects.begin();
+        std::vector <ObjectPlot*>::iterator q = objects.begin();
         for (;q!=objects.end();q++){
           ObjectPlot * qfront = *q;
           if (pfront !=qfront && qfront->oktoJoin(true)){
@@ -564,7 +563,7 @@ bool EditObjects::editChangeObjectType(int val)
 bool EditObjects::editSplitFront(const float x, const float y)
 {
   bool ok=false;
-  vector <ObjectPlot*>::iterator p = objects.begin();
+  std::vector <ObjectPlot*>::iterator p = objects.begin();
   while (p!= objects.end()){
     ObjectPlot * pobject = *p;
     if( pobject->ismarkAllPoints()){
@@ -807,7 +806,7 @@ void EditObjects::setAllPassive()
 void EditObjects::cleanUp()
 {
   //remove any front with only one point
-  vector <ObjectPlot*>::iterator p1 = objects.begin();
+  std::vector <ObjectPlot*>::iterator p1 = objects.begin();
   while (p1!=objects.end()){
     ObjectPlot * pobject = *p1;
     if(pobject->objectIs(wFront) && pobject->isSinglePoint()){
@@ -1039,7 +1038,7 @@ bool EditObjects::saveCurrentFronts(operation iop, UndoFront * undo)
         //same symbols were affected
         bool saveThis = true;
         if (undoCurrent->iop == IncreaseSize){
-          vector<saveObject>::iterator p2 = undoCurrent->saveobjects.begin();
+          std::vector<saveObject>::iterator p2 = undoCurrent->saveobjects.begin();
           while (p2!=undoCurrent->saveobjects.end()){
             if (p2->place ==i){
               saveThis = false;
@@ -1114,7 +1113,7 @@ bool EditObjects::saveCurrentFronts(operation iop, UndoFront * undo)
         //same symbols were affected
         bool saveThis = true;
         if (undoCurrent->iop == RotateObjects){
-          vector<saveObject>::iterator p2 = undoCurrent->saveobjects.begin();
+          std::vector<saveObject>::iterator p2 = undoCurrent->saveobjects.begin();
           while (p2!=undoCurrent->saveobjects.end()){
             if (p2->place ==i){
               saveThis = false;
@@ -1243,10 +1242,10 @@ bool EditObjects::changeCurrentFronts()
   //reads the current undoBuffer, and updates fronts
   const Area oldarea= itsArea;
   switchProjection(undoCurrent->oldArea);
-  vector<saveObject>::iterator p1 = undoCurrent->saveobjects.begin();
+  std::vector<saveObject>::iterator p1 = undoCurrent->saveobjects.begin();
   int nFrontsDeleted = 0; // number of symbols deleted
   while (p1!=undoCurrent->saveobjects.end()){
-    vector <ObjectPlot*>::iterator q;
+    std::vector <ObjectPlot*>::iterator q;
     ObjectPlot * pold = 0;
     q = objects.begin()+p1->place;
     q-=nFrontsDeleted;
@@ -1515,7 +1514,7 @@ void EditObjects::changeMarkedColour(const Colour::ColourInfo & newColour)
   }
 }
 
-void EditObjects::getMarkedMultilineText(vector<string>& symbolText)
+void EditObjects::getMarkedMultilineText(std::vector<std::string>& symbolText)
 {
   METLIBS_LOG_SCOPE();
   if (mapmode==draw_mode){
@@ -1529,10 +1528,10 @@ void EditObjects::getMarkedMultilineText(vector<string>& symbolText)
   }
 }
 
-void EditObjects::getMarkedComplexText(vector<string>& symbolText, vector<string>& xText)
+void EditObjects::getMarkedComplexText(std::vector<std::string>& symbolText, std::vector<std::string>& xText)
 {
   METLIBS_LOG_SCOPE();
-  vector <std::string> xString;
+  std::vector <std::string> xString;
   if (mapmode==draw_mode){
     int edsize = objects.size();
     for (int i =0; i< edsize;i++){
@@ -1544,7 +1543,7 @@ void EditObjects::getMarkedComplexText(vector<string>& symbolText, vector<string
   }
 }
 
-void EditObjects::getMarkedComplexTextColored(vector<string> & symbolText, vector<string> & xText)
+void EditObjects::getMarkedComplexTextColored(std::vector<std::string> & symbolText, std::vector<std::string> & xText)
 {
   METLIBS_LOG_SCOPE();
   if (mapmode==draw_mode){
@@ -1558,7 +1557,7 @@ void EditObjects::getMarkedComplexTextColored(vector<string> & symbolText, vecto
   }
 }
 
-void EditObjects::changeMarkedComplexTextColored(const vector<string>& symbolText, const vector<string>& xText)
+void EditObjects::changeMarkedComplexTextColored(const std::vector<std::string>& symbolText, const std::vector<std::string>& xText)
 {
   METLIBS_LOG_SCOPE();
   if (mapmode==draw_mode){
@@ -1571,7 +1570,7 @@ void EditObjects::changeMarkedComplexTextColored(const vector<string>& symbolTex
   }
 }
 
-void EditObjects::changeMarkedMultilineText(const vector<string>& symbolText)
+void EditObjects::changeMarkedMultilineText(const std::vector<std::string>& symbolText)
 {
   METLIBS_LOG_SCOPE();
   if (mapmode==draw_mode){
@@ -1584,7 +1583,7 @@ void EditObjects::changeMarkedMultilineText(const vector<string>& symbolText)
   }
 }
 
-void EditObjects::changeMarkedComplexText(const vector<string>& symbolText, const vector<string>& xText)
+void EditObjects::changeMarkedComplexText(const std::vector<std::string>& symbolText, const std::vector<std::string>& xText)
 {
   METLIBS_LOG_SCOPE();
   if (mapmode==draw_mode){

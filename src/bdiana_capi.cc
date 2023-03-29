@@ -69,7 +69,6 @@
 
 /* Created at Wed May 23 15:28:41 2001 */
 
-using namespace std;
 using namespace miutil;
 
 bool verbose = false;
@@ -171,7 +170,7 @@ struct keyvalue {
 // one list of strings with name
 struct stringlist {
   std::string name;
-  vector<std::string> l;
+  std::vector<std::string> l;
 };
 
 namespace {
@@ -215,30 +214,30 @@ struct Bdiana
   miTime commandline_time;               //!< fixed TIME from commandline
   int addhour, addminute;
 
-  map<std::string, map<std::string, std::string>> outputTextMaps; // output text for cases where output data is XML/JSON
-  vector<std::string> outputTextMapOrder;                         // order of legends in output text
+  std::map<std::string, std::map<std::string, std::string>> outputTextMaps; // output text for cases where output data is XML/JSON
+  std::vector<std::string> outputTextMapOrder;                         // order of legends in output text
 
   //! replaceable values for plot-commands
-  vector<keyvalue> keys;
-  vector<std::string> lines, tmplines;
-  vector<int> linenumbers;
-  vector<stringlist> lists; // list of lists..
+  std::vector<keyvalue> keys;
+  std::vector<std::string> lines, tmplines;
+  std::vector<int> linenumbers;
+  std::vector<stringlist> lists; // list of lists..
 
   //! Write one miTime per line to an output stream. At present, this producses utf-8.
   template <class C> void writeTimes(std::ostream& out, const C& times);
 
-  void unpackloop(vector<std::string>& orig, // original strings..
-                  vector<int>& origlines,    // ..with corresponding line-numbers
+  void unpackloop(std::vector<std::string>& orig, // original strings..
+                  std::vector<int>& origlines,    // ..with corresponding line-numbers
                   unsigned int& index,       // original string-counter to update
-                  vector<std::string>& part, // final strings from loop-unpacking..
-                  vector<int>& partlines);   // ..with corresponding line-numbers
+                  std::vector<std::string>& part, // final strings from loop-unpacking..
+                  std::vector<int>& partlines);   // ..with corresponding line-numbers
 
-  void unpackinput(vector<std::string>& orig,  // original setup
-                   vector<int>& origlines,     // original list of linenumbers
-                   vector<std::string>& final, // final setup
-                   vector<int>& finallines);   // final list of linenumbers
+  void unpackinput(std::vector<std::string>& orig,  // original setup
+                   std::vector<int>& origlines,     // original list of linenumbers
+                   std::vector<std::string>& final, // final setup
+                   std::vector<int>& finallines);   // final list of linenumbers
 
-  command_result prepareInput(istream& is);
+  command_result prepareInput(std::istream& is);
   bool ensureSetup();
   void setTimeChoice(BdianaSource::TimeChoice tc);
   BdianaSource::TimeChoice getTimeChoice() const;
@@ -263,7 +262,7 @@ struct Bdiana
   command_result handleMultiplePlotsCommand(int& k, const std::string& value);
   command_result handlePlotCellCommand(int& k, const std::string& value);
 
-  command_result parseAndProcess(istream& is);
+  command_result parseAndProcess(std::istream& is);
 };
 
 Bdiana::Bdiana()
@@ -314,18 +313,18 @@ static void expandTime(std::string& text, const miutil::miTime& time)
  <contents, all VAR1,VAR2,.. replaced by ARG1,ARG2,.. for each iteration>
  ENDLOOP or LOOP.END
  */
-void Bdiana::unpackloop(vector<std::string>& orig, // original strings..
-                        vector<int>& origlines,    // ..with corresponding line-numbers
+void Bdiana::unpackloop(std::vector<std::string>& orig, // original strings..
+                        std::vector<int>& origlines,    // ..with corresponding line-numbers
                         unsigned int& index,       // original string-counter to update
-                        vector<std::string>& part, // final strings from loop-unpacking..
-                        vector<int>& partlines)    // ..with corresponding line-numbers
+                        std::vector<std::string>& part, // final strings from loop-unpacking..
+                        std::vector<int>& partlines)    // ..with corresponding line-numbers
 {
   unsigned int start = index;
 
   std::string loops = orig[index];
   loops = loops.substr(4, loops.length() - 4);
 
-  vector<std::string> vs, vs2;
+  std::vector<std::string> vs, vs2;
 
   vs = miutil::split(loops, 0, "=");
   if (vs.size() < 2) {
@@ -335,12 +334,12 @@ void Bdiana::unpackloop(vector<std::string>& orig, // original strings..
   }
 
   std::string keys = vs[0]; // key-part
-  vector<std::string> vkeys = miutil::split(keys, 0, "|");
+  std::vector<std::string> vkeys = miutil::split(keys, 0, "|");
   unsigned int nkeys = vkeys.size();
 
   std::string argu = vs[1]; // argument-part
   unsigned int nargu;
-  vector<vector<std::string> > arguments;
+  std::vector<std::vector<std::string> > arguments;
 
   /* Check if argument is name of list
    Lists are recognized with preceding '@' */
@@ -387,8 +386,8 @@ void Bdiana::unpackloop(vector<std::string>& orig, // original strings..
   }
 
   // temporary storage of loop-contents
-  vector<std::string> tmppart;
-  vector<int> tmppartlines;
+  std::vector<std::string> tmppart;
+  std::vector<int> tmppartlines;
 
   // go to next line
   index++;
@@ -438,10 +437,10 @@ void Bdiana::unpackloop(vector<std::string>& orig, // original strings..
  ...
  LIST.END
  */
-void Bdiana::unpackinput(vector<std::string>& orig,  // original setup
-                         vector<int>& origlines,     // original list of linenumbers
-                         vector<std::string>& final, // final setup
-                         vector<int>& finallines)    // final list of linenumbers
+void Bdiana::unpackinput(std::vector<std::string>& orig,  // original setup
+                         std::vector<int>& origlines,     // original list of linenumbers
+                         std::vector<std::string>& final, // final setup
+                         std::vector<int>& finallines)    // final list of linenumbers
 {
   unsigned int i;
   for (i = 0; i < orig.size(); i++) {
@@ -475,10 +474,10 @@ void Bdiana::unpackinput(vector<std::string>& orig,  // original setup
   }
 }
 
-command_result Bdiana::prepareInput(istream& is)
+command_result Bdiana::prepareInput(std::istream& is)
 {
-  vector<std::string> tmplines;
-  vector<int> tmplinenumbers;
+  std::vector<std::string> tmplines;
+  std::vector<int> tmplinenumbers;
   lines.clear();
   linenumbers.clear();
 
@@ -906,30 +905,30 @@ void Bdiana::createJsonAnnotation()
 {
   for (AnnotationPlot* ap : main.controller->getAnnotations()) {
     for (const AnnotationPlot::Annotation& ann : ap->getAnnotations()) {
-      for (const string& ans : ann.vstr) {
+      for (const std::string& ans : ann.vstr) {
 
         // Find the table description in the string.
         std::string legend = ans;
         size_t at = legend.find("table=\"");
 
-        if (at != string::npos) {
+        if (at != std::string::npos) {
           // Find the trailing quote.
           at += 7;
           size_t end = legend.find("\"", at);
-          if (end == string::npos)
+          if (end == std::string::npos)
               end = legend.size();
 
           // Remove leading and trailing quotes.
           legend = legend.substr(at, end - at);
 
-          map<std::string,std::string> textMap;
+          std::map<std::string,std::string> textMap;
 
           std::string title;
-          vector<std::string> colors;
-          vector<std::string> labels;
+          std::vector<std::string> colors;
+          std::vector<std::string> labels;
 
           bool first = true;
-          vector<std::string> line;
+          std::vector<std::string> line;
           std::string current;
           unsigned int i = 0;
 
@@ -973,8 +972,8 @@ void Bdiana::createJsonAnnotation()
                 first = false;
               } else {
                 Colour color = Colour(line[0]);
-                stringstream cs;
-                cs.flags(ios::hex);
+                std::stringstream cs;
+                cs.flags(std::ios::hex);
                 cs.width(6);
                 cs.fill('0');
                 cs << ((int(color.R()) << 16) | (int(color.G()) << 8) | int(color.B()));
@@ -1103,7 +1102,7 @@ command_result Bdiana::handlePlotCommand(int& k)
     if (not main.MAKE_CONTROLLER())
       return cmd_abort;
 
-    vector<std::string> field_errors;
+    std::vector<std::string> field_errors;
     if (!main.controller->updateFieldFileSetup(main.extra_field_lines, field_errors)) {
       METLIBS_LOG_ERROR("ERROR, an error occurred while adding new fields:");
       for (const std::string& fe : field_errors)
@@ -1146,7 +1145,7 @@ command_result Bdiana::handlePlotCommand(int& k)
     }
 
     if (main.plot_trajectory && !main.trajectory_started) {
-      vector<string> vstr;
+      std::vector<std::string> vstr;
       vstr.push_back("clear");
       vstr.push_back("delete");
       vstr.push_back(main.trajectory_options);
@@ -1155,7 +1154,7 @@ command_result Bdiana::handlePlotCommand(int& k)
       main.controller->startTrajectoryComputation();
       main.trajectory_started = true;
     } else if (!main.plot_trajectory && main.trajectory_started) {
-      vector<string> vstr;
+      std::vector<std::string> vstr;
       vstr.push_back("clear");
       vstr.push_back("delete");
       main.controller->trajPos(vstr);
@@ -1280,15 +1279,15 @@ command_result Bdiana::handleTimeCommand(int& k)
   std::vector<std::string> pcom = FIND_END_COMMAND(k, com_endtime);
   auto pcs = main.makeCommands(pcom);
 
-  set<miTime> okTimes;
+  std::set<miTime> okTimes;
   main.controller->getCapabilitiesTime(okTimes, pcs, time_union);
 
-  ofstream file(outputfilename.c_str());
+  std::ofstream file(outputfilename.c_str());
   if (!file) {
     METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << outputfilename << "'");
     return cmd_abort;
   }
-  file << "PROG" << endl;
+  file << "PROG" << std::endl;
   writeTimes(file, okTimes);
   return cmd_success;
 }
@@ -1304,10 +1303,10 @@ command_result Bdiana::handleLevelCommand(int& k)
   if (verbose)
     METLIBS_LOG_INFO("- finding levels");
 
-  vector<std::string> pcom = FIND_END_COMMAND(k, com_endlevel);
+  std::vector<std::string> pcom = FIND_END_COMMAND(k, com_endlevel);
   auto pcs = main.makeCommands(pcom);
 
-  ofstream file(outputfilename.c_str());
+  std::ofstream file(outputfilename.c_str());
   if (!file) {
     METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << outputfilename << "'");
     return cmd_abort;
@@ -1315,8 +1314,8 @@ command_result Bdiana::handleLevelCommand(int& k)
 
   for (const auto& pc : pcs) {
     for (const std::string& level : main.controller->getFieldLevels(pc))
-      file << level << endl;
-    file << endl;
+      file << level << std::endl;
+    file << std::endl;
   }
 
   return cmd_success;
@@ -1330,12 +1329,12 @@ command_result Bdiana::handleTimeVprofCommand(int& k)
   vprof.MAKE_VPROF();
   vprof.commands(FIND_END_COMMAND(k, com_endtime));
 
-  ofstream file(outputfilename.c_str());
+  std::ofstream file(outputfilename.c_str());
   if (!file) {
     METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << outputfilename << "'");
     return cmd_abort;
   }
-  file << "PROG" << endl;
+  file << "PROG" << std::endl;
   writeTimes(file, vprof.manager->getTimeList());
   return cmd_success;
 }
@@ -1356,15 +1355,15 @@ command_result Bdiana::handleTimeSpectrumCommand(int& k)
 
   wavespec.set_station();
 
-  ofstream file(outputfilename.c_str());
+  std::ofstream file(outputfilename.c_str());
   if (!file) {
     METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << outputfilename << "'");
     return cmd_abort;
   }
-  file << "PROG" << endl;
+  file << "PROG" << std::endl;
   writeTimes(file, wavespec.manager->getTimeList());
 
-  file << "CONST" << endl;
+  file << "CONST" << std::endl;
   /* writeTimes(file, constTimes); */
   return cmd_success;
 }
@@ -1410,15 +1409,15 @@ command_result Bdiana::handleDescribeSpectrumCommand(int& k)
     METLIBS_LOG_INFO("- opening file '" << outputfilename << "'");
 
   // open filestream
-  ofstream file(outputfilename.c_str());
+  std::ofstream file(outputfilename.c_str());
   if (!file) {
     METLIBS_LOG_ERROR("ERROR OPEN (WRITE) '" << outputfilename << "'");
     return cmd_abort;
   }
 
-  file << "FILES" << endl;
+  file << "FILES" << std::endl;
   for (const std::string& f : wavespec.manager->getModelFiles())
-    file << f << endl;
+    file << f << std::endl;
 
   return cmd_success;
 }
@@ -1453,7 +1452,7 @@ command_result Bdiana::handleMultiplePlotsCommand(int& k, const std::string& val
     go.disableMultiPlot();
 
   } else {
-    const vector<std::string> v1 = miutil::split(value, ",");
+    const std::vector<std::string> v1 = miutil::split(value, ",");
     if (v1.size() < 2) {
       METLIBS_LOG_WARN("WARNING, illegal values to multiple.plots:" << lines[k] << " Linenumber:" << linenumbers[k]);
       return cmd_abort;
@@ -1474,7 +1473,7 @@ command_result Bdiana::handleMultiplePlotsCommand(int& k, const std::string& val
 
 command_result Bdiana::handlePlotCellCommand(int& k, const std::string& value)
 {
-  vector<std::string> v1 = miutil::split(value, ",");
+  std::vector<std::string> v1 = miutil::split(value, ",");
   if (v1.size() != 2) {
     METLIBS_LOG_WARN("WARNING, illegal values to plotcell:" << lines[k] << " Linenumber:" << linenumbers[k]);
     return cmd_abort;
@@ -1488,7 +1487,7 @@ command_result Bdiana::handlePlotCellCommand(int& k, const std::string& value)
   return cmd_success;
 }
 
-command_result Bdiana::parseAndProcess(istream& is)
+command_result Bdiana::parseAndProcess(std::istream& is)
 {
   // unpack loops, make lists, merge lines etc.
   command_result res = prepareInput(is);
@@ -1565,7 +1564,7 @@ command_result Bdiana::parseAndProcess(istream& is)
 
     // all other options on the form KEY=VALUE
 
-    const vector<std::string> vs = miutil::split(lines[k], "=");
+    const std::vector<std::string> vs = miutil::split(lines[k], "=");
     const int nv = vs.size();
     if (nv < 2) {
       METLIBS_LOG_ERROR("ERROR, unknown command:" << lines[k] << " Linenumber:"
@@ -1709,13 +1708,13 @@ int diana_readSetupFile(const char* setupFilename)
 /*
  * public C api of above parseAndProcessString
  */
-int diana_parseAndProcessString(const char* string)
+int diana_parseAndProcessString(const char* str)
 {
   // reset time (before next wms request)
   bdiana()->ptime = bdiana()->fixedtime = miTime();
 
-  stringstream ss;
-  ss << string;
+  std::stringstream ss;
+  ss << str;
   METLIBS_LOG_INFO("start processing");
   if (bdiana()->parseAndProcess(ss) == cmd_success)
     return DIANA_OK;

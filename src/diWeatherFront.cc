@@ -44,7 +44,6 @@
 #include <miLogger/miLogging.h>
 
 using namespace::miutil;
-using namespace std;
 
 namespace /* anonymous */ {
 const float RAD_TO_DEG = 180 / M_PI;
@@ -70,8 +69,8 @@ void drawHalfCircle(DiGLPainter* gl, bool fill, const QPointF& pos, float angle_
 }
 } // namespace anonymous
 
-vector<editToolInfo> WeatherFront::allFronts; //info about fronts
-map<std::string,int> WeatherFront::frontTypes;   //finds front type number from name
+std::vector<editToolInfo> WeatherFront::allFronts; //info about fronts
+std::map<std::string,int> WeatherFront::frontTypes;   //finds front type number from name
 float WeatherFront::defaultLineWidth=8;
 
 WeatherFront::WeatherFront()
@@ -135,7 +134,7 @@ void WeatherFront::swap(WeatherFront& o)
   swap(first, o.first);
 }
 
-void WeatherFront::defineFronts(vector<editToolInfo> fronts)
+void WeatherFront::defineFronts(std::vector<editToolInfo> fronts)
 {
   allFronts = fronts;
   for (unsigned int i = 0;i<fronts.size();i++)
@@ -1117,9 +1116,9 @@ bool WeatherFront::setSpline(bool s)
   return false;
 }
 
-string WeatherFront::writeTypeString()
+std::string WeatherFront::writeTypeString()
 {
-  string ret ="Object=Front;\n";
+  std::string ret ="Object=Front;\n";
   ret+="Type=";
   ret+=allFronts[type].name;
   ret+=";\n";

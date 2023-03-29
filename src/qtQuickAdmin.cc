@@ -62,7 +62,6 @@
 #define MILOGGER_CATEGORY "diana.QuickAdmin"
 #include <miLogger/miLogging.h>
 
-using namespace std;
 
 class QuickTreeWidgetItem: public QTreeWidgetItem {
 private:
@@ -88,7 +87,7 @@ public:
   }
 };
 
-QuickAdmin::QuickAdmin(QWidget* parent, const vector<quickMenu>& qm)
+QuickAdmin::QuickAdmin(QWidget* parent, const std::vector<quickMenu>& qm)
     : QDialog(parent)
     , menus(qm)
     , autochange(false)
@@ -527,8 +526,8 @@ void QuickAdmin::comChanged()
     return;
   if (active_item < 0 || active_list < 0)
     return;
-  vector<string> s;
-  string str = comedit->toPlainText().toStdString();
+  std::vector<std::string> s;
+  std::string str = comedit->toPlainText().toStdString();
   if (!str.empty())
     s.push_back(str);
   menus[active_list].menuitems[active_item].command = s;
