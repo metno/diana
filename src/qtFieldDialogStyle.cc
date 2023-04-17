@@ -180,6 +180,7 @@ const std::vector<std::string>& getPlotTypesForDim(int dim)
 
   static const std::vector<std::string> plottypes_dim_4{
     fpt_value,
+    fpt_rgb,
     fpt_frame
   };
   // clang-format on
