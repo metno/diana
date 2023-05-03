@@ -1,3 +1,9 @@
+diana-3.57 (3.57.13-1) unstable; urgency=low
+
+  * initialize FimexIO::vectorProjectionLonLat
+
+ -- Alexander Bürger <alexander.buerger@met.no>  Wed, 03 May 2023 08:00:08 +0200
+
 diana-3.57 (3.57.12-1) unstable; urgency=low
 
   * suppress messages from proj
