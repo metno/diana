@@ -225,6 +225,7 @@ FimexIO::FimexIO(const std::string& modelname, const std::string& sourcename, co
     , noOfClimateTimes(0)
     , writeable(false)
     , turnWaveDirection(false)
+    , vectorProjectionLonLat(false)
     , setup(s)
 {
   METLIBS_LOG_SCOPE(LOGVAL(modelname) << LOGVAL(sourcename) << LOGVAL(reftime) << LOGVAL(format) << LOGVAL(config));
