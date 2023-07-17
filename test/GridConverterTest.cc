@@ -111,13 +111,14 @@ Rectangle rectangleR2D(float x1, float y1, float x2, float y2)
 } // namespace
 
 #if 0 // fails due to differences between proj 4 and proj 8 for ob_tran
+// the difference seems to be that proj 8 ignores false easting/northing +x_0/+y_0 for ob_tran with longlat
 TEST(GridConverterTest, FindGridLimits)
 {
-  const GridArea fieldGridArea(Area(Projection("+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=90 +R=6.371e+06 +no_defs +x_0=3.13723 +y_0=1.5708"),
+  const GridArea fieldGridArea(Area(Projection("+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=90 +R=6.371e+06 +no_defs"),
                                     rectangleR2D(0, 0, 6.27913, 3.14166)),
                                1440, 721, 0.00436354*RAD_TO_DEG, 0.00436342*RAD_TO_DEG);
 
-  const Area dummyMapArea(Projection("+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=90 +R=6.371e+06 +no_defs +x_0=3.13723 +y_0=1.5708"),
+  const Area dummyMapArea(Projection("+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=90 +R=6.371e+06 +no_defs"),
                           rectangleR2D(1.01817, 1.81882, 5.25533, 2.42006));
   GridConverter gc;
   Points_p p = gc.getGridPoints(fieldGridArea, dummyMapArea, true);
