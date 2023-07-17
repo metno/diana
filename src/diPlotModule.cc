@@ -453,8 +453,8 @@ void PlotModule::defineMapArea()
     mapdefined = true;
 
   if (!mapdefined) {
-    newMapArea.setP(Projection("+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=25 +x_0=0.811578 +y_0=0.637045 +ellps=WGS84 +towgs84=0,0,0 +no_defs"));
-    newMapArea.setR(Rectangle(0, 0, 93.5, 75.5));
+    newMapArea.setP(Projection("+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=25 +o_lon_p=0 +ellps=WGS84 +towgs84=0,0,0 +no_defs"));
+    newMapArea.setR(Rectangle(-46.5, -36.5, 47, 39));
     mapDefinedByView = true;
   }
 
