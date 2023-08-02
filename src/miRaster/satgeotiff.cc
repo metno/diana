@@ -131,54 +131,24 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char* image[]
     return -1;
   }
 
-  int tilesAcross=1, tilesDown=1;
-
-  if (!TIFFGetField(in.get(), TIFFTAG_IMAGEWIDTH, &ginfo.xsize)) {
-    METLIBS_LOG_DEBUG("No TIFFTAG_IMAGEWIDTH");
-  }
-  if (!TIFFGetField(in.get(), TIFFTAG_IMAGELENGTH, &ginfo.ysize)) {
-    METLIBS_LOG_DEBUG("No TIFFTAG_IMAGELENGTH");
-  }
-  unsigned int tileWidth;
-  if (!TIFFGetField(in.get(), TIFFTAG_TILEWIDTH, &tileWidth)) {
-    METLIBS_LOG_DEBUG("No TIFFTAG_TILEWIDTH");
-    tileWidth = 0;
-  }
-  unsigned int tileLength;
-  if (!TIFFGetField(in.get(), TIFFTAG_TILELENGTH, &tileLength)) {
-    METLIBS_LOG_DEBUG("No TIFFTAG_TILELENGTH");
-    tileLength = 0;
-  }
-
   tsample_t samplesperpixel;
   TIFFGetField(in.get(), TIFFTAG_SAMPLESPERPIXEL, &samplesperpixel);
 
-  if (tileWidth != 0 && tileLength != 0) {
-    tilesAcross = (ginfo.xsize + (tileWidth -1)) / tileWidth;
-    tilesDown = (ginfo.ysize + (tileLength -1)) / tileLength;
-    if (tilesAcross * tileWidth >  ginfo.xsize)
-      ginfo.xsize = tilesAcross * tileWidth;
-    if (tilesDown * tileLength > ginfo.ysize)
-      ginfo.ysize=tilesDown * tileLength;
-  }
   const int size = ginfo.xsize * ginfo.ysize;
 
   uint32  count;
   void    *data;
   // TIFFTAG_GDAL_METADATA 42112 defined in some projets
-  // see https://www.awaresystems.be/imaging/tiff/tifftags/geo_metadata.html
-  if (samplesperpixel == 1 && TIFFGetField(in.get(), 42112, &count, &data)) {
-    //    printf("Tag %d: %s, count %d0 \n", 42112, (char *)data, count);
-    char* t = strstr((char *)data, "scale");
-    if (t) {
-      t += 7;
-      ginfo.AIr = atof(t);
+  // see https://www.awaresystems.be/imaging/tiff/tifftags/gdal_metadata.html
+  if (samplesperpixel == 1 && TIFFGetField(in.get(), /*GDAL_METADATA*/ 42112, &count, &data)) {
+    // this is an xml document, we just search for text and hope that
+    // scale is after '... role="scale">'
+    if (const char* t = strstr((char *)data, "scale")) {
+      ginfo.AIr = atof(t+7);
     }
-
-    t = strstr((char *)data, "offset");
-    if (t) {
-      t += 8;
-      ginfo.BIr = atof(t);
+    // ... and offset after '... role="offset">'
+    if (const char* t = strstr((char *)data, "offset")) {
+      ginfo.BIr = atof(t + 8);
     }
 
     // Why not use BIr and AIr ?
@@ -188,8 +158,6 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char* image[]
   }
   METLIBS_LOG_DEBUG(LOGVAL(ginfo.projection.getProj4Definition()) << LOGVAL(size)
                     << LOGVAL(ginfo.xsize) << LOGVAL(ginfo.ysize) << LOGVAL(ginfo.zsize)
-                    << LOGVAL(tileWidth) << LOGVAL(tileLength)
-                    << LOGVAL(tilesAcross) << LOGVAL(tilesDown)
                     << LOGVAL(samplesperpixel) << LOGVAL(ginfo.time));
   /*
    * Memory allocated for image data in this function (*image) is freed
@@ -212,7 +180,8 @@ int metno::GeoTiff::read_diana(const std::string& infile, unsigned char* image[]
       METLIBS_LOG_ERROR("TIFFReadRGBAImageOriented (ORIENTATION_BOTLEFT) failed: size " <<  ginfo.xsize << "," << ginfo.ysize);
     }
     // GDAL_NODATA, see https://www.awaresystems.be/imaging/tiff/tifftags/gdal_nodata.html
-    if (samplesperpixel == 1 && TIFFGetField(in.get(), 42113, &count, &data) && count > 0) {
+    // Used by the GDAL library, contains an ASCII encoded nodata or background pixel value.
+    if (samplesperpixel == 1 && TIFFGetField(in.get(), /* GDAL_NODATA */ 42113, &count, &data) && count > 0) {
       const char* ascii = (const char*)data;
       const unsigned int nodata = atoi(ascii);
       const uint32_t rgba_nodata = 0xFF << 24 | nodata << 16 | nodata << 8 | nodata;
@@ -517,12 +486,13 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
       } else if (ProjCoordTrans == CT_HotineObliqueMercatorAzimuthCenter || ProjCoordTrans == CT_ObliqueMercator_Hotine) {
         // see http://geotiff.maptools.org/proj_list/oblique_mercator.html
         // and http://geotiff.maptools.org/proj_list/hotine_oblique_mercator.html
-        double ProjCenterLat = 63, ProjCenterLon = 15, ProjAzimuthAngle = 63, ProjScaleAtCenter = 1, ProjRectifiedGridAngle = 0;
+        double ProjCenterLat = 63, ProjCenterLon = 15, ProjScaleAtCenter = 1;
         GTIFKeyGet(gtifin.get(), ProjCenterLatGeoKey, &ProjCenterLat, 0, 1);
         GTIFKeyGet(gtifin.get(), ProjCenterLongGeoKey, &ProjCenterLon, 0, 1);
-        GTIFKeyGet(gtifin.get(), ProjAzimuthAngleGeoKey, &ProjAzimuthAngle, 0, 1);
         GTIFKeyGet(gtifin.get(), ProjScaleAtCenterGeoKey, &ProjScaleAtCenter, 0, 1);
-        GTIFKeyGet(gtifin.get(), ProjRectifiedGridAngleGeoKey, &ProjRectifiedGridAngle, 0, 1);
+        double ProjAzimuthAngle = 63, ProjRectifiedGridAngle = 0;
+        const bool have_alpha = (GTIFKeyGet(gtifin.get(), ProjAzimuthAngleGeoKey, &ProjAzimuthAngle, 0, 1) > 0);
+        const bool have_gamma = (GTIFKeyGet(gtifin.get(), ProjRectifiedGridAngleGeoKey, &ProjRectifiedGridAngle, 0, 1) > 0);
 
         double GeogSemiMajorAxis = 6370997, GeogSemiMinorAxis = GeogSemiMajorAxis, GeogInvFlattening = 298;
         bool have_semiminor_axis = false;
@@ -539,10 +509,14 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
         // clang-format off
         proj4 << "+proj=omerc"
               << " +lat_0=" << ProjCenterLat
-              << " +lonc=" << ProjCenterLon
-              << " +alpha=" << ProjAzimuthAngle
-              << " +gamma=" << ProjRectifiedGridAngle
-              << " +k_0=" << ProjScaleAtCenter
+              << " +lonc=" << ProjCenterLon;
+        // clang-format on
+        if (have_alpha)
+          proj4 << " +alpha=" << ProjAzimuthAngle;
+        if (have_gamma)
+          proj4 << " +gamma=" << ProjRectifiedGridAngle;
+        // clang-format off
+        proj4 << " +k_0=" << ProjScaleAtCenter
               << " +a=" << GeogSemiMajorAxis
               << " +units=m +no_defs";
         // clang-format on
@@ -574,7 +548,37 @@ int metno::GeoTiff::head_diana(const std::string& infile, dihead &ginfo)
   ginfo.Ax = x_scale * unit_scale_factor;
   ginfo.Ay = y_scale * unit_scale_factor;
 
-  METLIBS_LOG_DEBUG(LOGVAL(ginfo.Ax) << LOGVAL(ginfo.Ay) << LOGVAL(ginfo.Bx) << LOGVAL(ginfo.By) << LOGVAL(ginfo.projection.getProj4Definition()));
+  if (!TIFFGetField(in.get(), TIFFTAG_IMAGEWIDTH, &ginfo.xsize)) {
+    METLIBS_LOG_DEBUG("No TIFFTAG_IMAGEWIDTH");
+  }
+  if (!TIFFGetField(in.get(), TIFFTAG_IMAGELENGTH, &ginfo.ysize)) {
+    METLIBS_LOG_DEBUG("No TIFFTAG_IMAGELENGTH");
+  }
+
+  int tilesAcross = 1, tilesDown = 1;
+
+  unsigned int tileWidth;
+  if (!TIFFGetField(in.get(), TIFFTAG_TILEWIDTH, &tileWidth)) {
+    METLIBS_LOG_DEBUG("No TIFFTAG_TILEWIDTH");
+    tileWidth = 0;
+  }
+  unsigned int tileLength;
+  if (!TIFFGetField(in.get(), TIFFTAG_TILELENGTH, &tileLength)) {
+    METLIBS_LOG_DEBUG("No TIFFTAG_TILELENGTH");
+    tileLength = 0;
+  }
+
+  if (tileWidth != 0 && tileLength != 0) {
+    tilesAcross = (ginfo.xsize + (tileWidth - 1)) / tileWidth;
+    tilesDown = (ginfo.ysize + (tileLength - 1)) / tileLength;
+    if (tilesAcross * tileWidth > ginfo.xsize)
+      ginfo.xsize = tilesAcross * tileWidth;
+    if (tilesDown * tileLength > ginfo.ysize)
+      ginfo.ysize = tilesDown * tileLength;
+  }
+
+  METLIBS_LOG_DEBUG(LOGVAL(ginfo.Ax) << LOGVAL(ginfo.Ay) << LOGVAL(ginfo.Bx) << LOGVAL(ginfo.By) << LOGVAL(ginfo.projection.getProj4Definition())
+                                     << LOGVAL(tileWidth) << LOGVAL(tileLength) << LOGVAL(tilesAcross) << LOGVAL(tilesDown));
 
   if (pmi == PHOTOMETRIC_PALETTE)
     return 2;

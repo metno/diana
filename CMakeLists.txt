@@ -41,6 +41,7 @@ OPTION(ENABLE_DIANA_OMP "Use OpenMP" OFF)
 OPTION(ENABLE_PERL "Build perl module" OFF)
 OPTION(ENABLE_TESTS "Build and run tests" ON)
 OPTION(ENABLE_NEWARKOBS "Enable NEWARK observations" OFF)
+OPTION(ENABLE_MITIFF "Enable MiTiff support" ON)
 OPTION(ENABLE_GEOTIFF "Enable GeoTiff support" OFF)
 OPTION(ENABLE_OBS_BUFR "Enable observation from BUFR files" ON)
 OPTION(ENABLE_HDF5 "Enable HDF5 file support" OFF)
@@ -115,11 +116,6 @@ METNO_FIND_PACKAGE(pudatatypes
   PKGCONFIG_NAME metlibs-pudatatypes
 )
 LIST(APPEND PKGS_CORE ${pudatatypes_PACKAGE})
-
-METNO_FIND_PACKAGE(libtiff
-  PKGCONFIG_NAME libtiff-4
-)
-LIST(APPEND PKGS_CORE ${libtiff_PACKAGE})
 
 METNO_FIND_PACKAGE(libpng
   VERSION_MIN "1.2"
@@ -247,7 +243,7 @@ IF (ENABLE_GEOTIFF)
     MESSAGE (FATAL_ERROR "Unsupported geotiff.h subdirectory: '${geotiff_HEADER}'")
   ENDIF ()
 
-  SET(GEOTIFF TRUE)
+  SET(DIANA_SAT_GEOTIFF TRUE)
 ENDIF ()
 
 IF (ENABLE_HDF5)
@@ -258,7 +254,16 @@ IF (ENABLE_HDF5)
   )
   LIST(APPEND PKGS_CORE ${hdf5_PACKAGE})
 
-  SET(HDF5FILE TRUE)
+  SET(DIANA_SAT_HDF5 TRUE) # for diana_config.h
+ENDIF ()
+
+IF (ENABLE_MITIFF)
+  METNO_FIND_PACKAGE(libtiff
+    PKGCONFIG_NAME libtiff-4
+  )
+  LIST(APPEND PKGS_CORE ${libtiff_PACKAGE})
+
+  SET(DIANA_SAT_MITIFF TRUE) # for diana_config.h
 ENDIF ()
 
 IF (ENABLE_NEWARKOBS)

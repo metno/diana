@@ -1,7 +1,7 @@
 /*
   libmiRaster - met.no tiff interface
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -87,16 +87,11 @@ bool proj4_value(std::string& proj4, const std::string& key, double& value, bool
 
 int JulianDay(usi yy, usi mm, usi dd);
 
-int day_night(const std::string& infile);
-
 /**
  * Used to calculate if the image is taken during the day or night.
  * This information is used to figure out if a visual image should be shown or not.
  */
 int day_night(const satimg::dihead& sinfo);
-
-int MITIFF_read_diana(const std::string& infile, unsigned char* image[], int nchan, int chan[], dihead& ginfo);
-int MITIFF_head_diana(const std::string& infile, dihead& ginfo);
 
 } // namespace satimg
 

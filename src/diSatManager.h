@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2018 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -83,12 +83,13 @@ private:
 
   void setRGB(Sat* satdata);
   void calcRGBstrech(unsigned char *image, const int& size, const float& cut);
-  void setPalette(Sat* satdata, SatFileInfo &);
+  void setPalette(Sat* satdata);
   void listFiles(subProdInfo &subp);
   void readHeader(SatFileInfo&, const std::vector<std::string>&);
 
   bool parseChannels(Sat* satdata, const SatFileInfo& info);
   bool readSatFile(Sat* satdata, const miutil::miTime& t);
+  bool doReadSatFile(const std::string& filename, Sat* satdata);
 
   void init_rgbindex(Sat& sd);
   void init_rgbindex_Meteosat(Sat& sd);
