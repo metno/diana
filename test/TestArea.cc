@@ -33,7 +33,7 @@
 
 TEST(Area, EqOperator)
 {
-  const Area a1(Projection("+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=90 +R=6.371e+06 +no_defs +x_0=3.13723 +y_0=1.5708"),
+  const Area a1(Projection("+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=90 +R=6.371e+06 +no_defs"),
                 Rectangle(0, 0, 6.27913, 3.14166));
   ASSERT_TRUE(a1 == a1);
   ASSERT_FALSE(a1 != a1);

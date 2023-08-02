@@ -62,7 +62,7 @@ TEST(Projection, Convert1Point)
 
 TEST(Projection, ObTranPoints)
 {
-  const Projection src("+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=90 +R=6.371e+06 +no_defs +x_0=3.13723 +y_0=1.5708");
+  const Projection src("+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=90 +R=6.371e+06 +no_defs");
   const Projection dst = src;
 
   const float RAD_TO_DEG = 180 / M_PI, gdxy = 0.5;
@@ -226,7 +226,7 @@ TEST(Projection, ProjFromEPSG)
 TEST(Projection, IsGeographic)
 {
   EXPECT_TRUE(Projection::geographic().isGeographic());
-  EXPECT_TRUE(Projection("+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=90 +R=6.371e+06 +no_defs +x_0=3.13723 +y_0=1.5708").isGeographic());
+  EXPECT_TRUE(Projection("+proj=ob_tran +o_proj=longlat +lon_0=0 +o_lat_p=90 +R=6.371e+06 +no_defs").isGeographic());
 
   EXPECT_FALSE(Projection("EPSG:3857").isGeographic());
   EXPECT_FALSE(Projection("+proj=geos +lon_0=0 +h=35785831 +x_0=0 +y_0=0 +ellps=WGS84 +units=m +no_defs").isGeographic());
