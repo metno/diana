@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2020 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -27,11 +27,10 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "diana_config.h"
-
-#include "VcrossUtil.h"
 #include "diField.h"
+
 #include "diGridConverter.h"
+#include "util/diUnitsConverter.h"
 
 #define MILOGGER_CATEGORY "diField.Field"
 #include "miLogger/miLogging.h"
@@ -185,7 +184,7 @@ bool Field::subtract(const Field &rhs)
     return true;
   }
 
-  if ((unit.empty() != rhs.unit.empty()) || !vcross::util::unitsIdentical(unit, rhs.unit)) {
+  if ((unit.empty() != rhs.unit.empty()) || !diutil::unitsIdentical(unit, rhs.unit)) {
     METLIBS_LOG_WARN("subtracting field with unit '" << rhs.unit << "' from field with unit '" << unit << "'");
     unit.clear();
   }

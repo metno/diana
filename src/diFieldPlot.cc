@@ -188,20 +188,26 @@ void FieldPlot::setData(const Field_pv& vf, const miutil::miTime& t)
   if (fields.empty()) {
     setPlotName("");
   } else {
-    Field_cp f0 = fields[0];
+    auto f0 = fields[0];
     setPlotName(f0->fulltext);
-    vcross::Values_p p0 = f0->palette;
-    if (p0 && p0->npoint() > 2) {
-      poptions.palettecolours.clear();
-      bool alpha = (p0->npoint() == 4);
-      for (size_t i = 0; i<p0->nlevel(); ++i) {
-        unsigned char r = p0->value(0,i);
-        unsigned char g = p0->value(1,i);
-        unsigned char b = p0->value(2,i);
-        unsigned char a = 255;
-        if (alpha)
-          a = p0->value(3,i);
-        poptions.palettecolours.push_back(Colour(r,g,b,a));
+    auto p0 = f0->palette;
+    if (p0) {
+      const auto& npoint = p0->shape().length(0);
+      const auto& nlevel = p0->shape().length(1);
+      if (npoint > 2) {
+        diutil::Values::ShapeIndex si(p0->shape());
+        poptions.palettecolours.clear();
+        bool alpha = (npoint == 4);
+        for (size_t i = 0; i < nlevel; ++i) {
+          si.set(1, i);
+          unsigned char r = p0->value(si.set(0, 0));
+          unsigned char g = p0->value(si.set(0, 1));
+          unsigned char b = p0->value(si.set(0, 2));
+          unsigned char a = 255;
+          if (alpha)
+            a = p0->value(si.set(0, 3));
+          poptions.palettecolours.push_back(Colour(r, g, b, a));
+        }
       }
     }
   }

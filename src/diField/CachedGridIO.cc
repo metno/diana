@@ -132,7 +132,7 @@ bool CachedGridIO::putData(const std::string& reftime, const gridinventory::Grid
   return base_->putData(reftime, param, level, time, elevel, unit, field, output_time);
 }
 
-vcross::Values_p CachedGridIO::getVariable(const std::string& varName)
+diutil::Values_p CachedGridIO::getVariable(const std::string& varName)
 {
   return base_->getVariable(varName);
 }

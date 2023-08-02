@@ -74,7 +74,7 @@ public:
   bool putData(const std::string& reftime, const gridinventory::GridParameter& param, const std::string& level, const miutil::miTime& time,
                const std::string& elevel, const std::string& unit, Field_cp field, const std::string& output_time) override;
 
-  virtual vcross::Values_p getVariable(const std::string& varName) override;
+  virtual diutil::Values_p getVariable(const std::string& varName) override;
 
 private:
   void clear();

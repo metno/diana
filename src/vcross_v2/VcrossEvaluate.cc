@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2014-2020 met.no
+  Copyright (C) 2014-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -128,24 +128,23 @@ model_values_m vc_fetch_timegraph(Collector_p collector, const LonLat& position,
 
 // ########################################################################
 
-Values_cp vc_evaluate_field(model_values_m& model_values,
-    const ModelReftime& model, InventoryBase_cp field)
+diutil::Values_cp vc_evaluate_field(model_values_m& model_values, const ModelReftime& model, InventoryBase_cp field)
 {
   METLIBS_LOG_SCOPE();
   const model_values_m::iterator it_m = model_values.find(model);
   if (it_m == model_values.end())
-    return Values_cp();
+    return diutil::Values_cp();
 
   return vc_evaluate_field(field, it_m->second);
 }
 
 //########################################################################
 
-Values_cpv vc_evaluate_fields(name2value_t& n2v, const InventoryBase_cpv& fields)
+diutil::Values_cpv vc_evaluate_fields(name2value_t& n2v, const InventoryBase_cpv& fields)
 {
   METLIBS_LOG_SCOPE();
 
-  Values_cpv values;
+  diutil::Values_cpv values;
   for (InventoryBase_cp f : fields)
       values.push_back(vc_evaluate_field(f, n2v));
   return values;
@@ -153,28 +152,26 @@ Values_cpv vc_evaluate_fields(name2value_t& n2v, const InventoryBase_cpv& fields
 
 //########################################################################
 
-Values_cpv vc_evaluate_fields(name2value_t& n2v, const FieldData_cpv& fields)
+diutil::Values_cpv vc_evaluate_fields(name2value_t& n2v, const FieldData_cpv& fields)
 {
   return vc_evaluate_fields(n2v, InventoryBase_cpv(fields.begin(), fields.end()));
 }
 
 //########################################################################
 
-Values_cpv vc_evaluate_fields(model_values_m& model_values,
-    const ModelReftime& model, const InventoryBase_cpv& fields)
+diutil::Values_cpv vc_evaluate_fields(model_values_m& model_values, const ModelReftime& model, const InventoryBase_cpv& fields)
 {
   METLIBS_LOG_SCOPE();
 
   const model_values_m::iterator it_m = model_values.find(model);
   if (it_m == model_values.end())
-    return Values_cpv();
+    return diutil::Values_cpv();
   return vc_evaluate_fields(it_m->second, fields);
 }
 
 //########################################################################
 
-Values_cpv vc_evaluate_fields(Collector_p collector, model_values_m& model_values,
-    const ModelReftime& model, const string_v& field_ids)
+diutil::Values_cpv vc_evaluate_fields(Collector_p collector, model_values_m& model_values, const ModelReftime& model, const string_v& field_ids)
 {
   METLIBS_LOG_SCOPE();
 
@@ -186,8 +183,7 @@ Values_cpv vc_evaluate_fields(Collector_p collector, model_values_m& model_value
 
 //########################################################################
 
-Values_cpv vc_evaluate_fields(Collector_p collector, model_values_m& model_values,
-    const ModelReftime& model, const char** field_ids)
+diutil::Values_cpv vc_evaluate_fields(Collector_p collector, model_values_m& model_values, const ModelReftime& model, const char** field_ids)
 {
   METLIBS_LOG_SCOPE();
 
@@ -209,12 +205,12 @@ void vc_evaluate_surface(Collector_p collector, model_values_m& model_values, co
 
 // ########################################################################
 
-Values_cp vc_evaluate_z(ZAxisData_cp zaxis, Z_AXIS_TYPE z_type, name2value_t& n2v)
+diutil::Values_cp vc_evaluate_z(ZAxisData_cp zaxis, Z_AXIS_TYPE z_type, name2value_t& n2v)
 {
   if (InventoryBase_cp zfield = zaxis->getField(z_type)) {
     return vc_evaluate_field(zfield, n2v);
   }
-  return Values_cp();
+  return diutil::Values_cp();
 }
 
 EvaluatedPlot_cpv vc_evaluate_plots(Collector_p collector, model_values_m& model_values, Z_AXIS_TYPE z_type)
@@ -242,7 +238,7 @@ EvaluatedPlot_cpv vc_evaluate_plots(Collector_p collector, model_values_m& model
 
     ep->argument_values = vc_evaluate_fields(n2v, sp->resolved->arguments);
 
-    const size_t n_null = std::count(ep->argument_values.begin(), ep->argument_values.end(), Values_cp());
+    const size_t n_null = std::count(ep->argument_values.begin(), ep->argument_values.end(), diutil::Values_cp());
     if (n_null == 0)
       evaluated_plots.push_back(ep);
   }

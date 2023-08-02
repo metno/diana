@@ -44,9 +44,9 @@
 #endif
 #include "../diFieldUtil.h"
 #include "../diUtilities.h"
-#include "VcrossUtil.h"
 #include "diField.h"
 #include "diFieldFunctions.h"
+#include "util/diUnitsConverter.h"
 #include "util/misc_util.h"
 #include "util/nearest_element.h"
 #include "util/string_util.h"
@@ -95,7 +95,7 @@ void updateFieldRequestFromFieldSpec(const FieldFunctions::FieldCompute& fcm, in
     const int iarg = is_varargs_f ? argsf.size() - 1 : arg;
     if (iarg < (int)argsf.size() && !argsf[iarg].units.empty()) {
       frq.unit = argsf[iarg].units;
-      if (!fs.unit.empty() && !vcross::util::unitsIdentical(fs.unit, frq.unit))
+      if (!fs.unit.empty() && !diutil::unitsIdentical(fs.unit, frq.unit))
         METLIBS_LOG_WARN("ignoring unit '" << fs.unit << "' from compute setup as function requires unit '" << frq.unit << "'");
     }
   }
@@ -132,7 +132,7 @@ std::vector<Field_p> createOutputFields(const FieldFunctions::FieldCompute& fcm,
       const bool is_varargs_f = (fcm.func->varargs & FieldFunctions::varargs_field);
       const bool is_unit0 = (fcm.func->units[j] == "=0");
       const std::string& unit = (is_varargs_f || is_unit0) ? vfield[0]->unit : fcm.func->units[j];
-      if (!unit.empty() && !fieldrequest.unit.empty() && !vcross::util::unitsConvertible(unit, fieldrequest.unit))
+      if (!unit.empty() && !fieldrequest.unit.empty() && !diutil::unitsConvertible(unit, fieldrequest.unit))
         return std::vector<Field_p>();
       ff->unit = unit;
     } else {
@@ -475,7 +475,7 @@ Field_p GridCollection::getData(const std::string& reftime, const std::string& p
 /**
  * Get data slice
  */
-vcross::Values_p GridCollection::getVariable(const std::string& reftime, const std::string& paramname)
+diutil::Values_p GridCollection::getVariable(const std::string& reftime, const std::string& paramname)
 {
   for (const auto io : gridsources) {
     if (const gridinventory::GridParameter* gp = dataExists_reftime(io->getReftimeInventory(reftime), paramname)) {
@@ -483,7 +483,7 @@ vcross::Values_p GridCollection::getVariable(const std::string& reftime, const s
     }
   }
   METLIBS_LOG_WARN("giving up .. returning 0");
-  return vcross::Values_p();
+  return diutil::Values_p();
 }
 
 std::set<miutil::miTime> GridCollection::getTimesFromIO(const std::string& reftime, const std::string& paramname)

@@ -41,21 +41,23 @@
 
 #include <fimex/CDM.h>
 #include <fimex/CDMException.h>
-#include <fimex/CDMFileReaderFactory.h>
-#include <fimex/CDMReaderWriter.h>
-#include <fimex/Data.h>
-#include <fimex/interpolation.h>
-#include <fimex/CoordinateSystemSliceBuilder.h>
-#include <fimex/CDMReaderUtils.h>
-#include <fimex/CDMconstants.h>
-#include <fimex/CDMInterpolator.h>
 #include <fimex/CDMExtractor.h>
-#include <fimex/vertical_coordinate_transformations.h>
+#include <fimex/CDMFileReaderFactory.h>
+#include <fimex/CDMInterpolator.h>
+#include <fimex/CDMReader.h>
+#include <fimex/CDMReaderUtils.h>
+#include <fimex/CDMReaderWriter.h>
+#include <fimex/CDMconstants.h>
+#include <fimex/CoordinateSystemSliceBuilder.h>
+#include <fimex/Data.h>
+#include <fimex/Units.h>
+#include <fimex/coordSys/CoordinateSystem.h>
+#include <fimex/coordSys/verticalTransform/Height.h>
 #include <fimex/coordSys/verticalTransform/HybridSigmaPressure1.h>
 #include <fimex/coordSys/verticalTransform/Pressure.h>
-#include <fimex/coordSys/verticalTransform/Height.h>
 #include <fimex/coordSys/verticalTransform/ToVLevelConverter.h>
-#include <fimex/Units.h>
+#include <fimex/interpolation.h>
+#include <fimex/vertical_coordinate_transformations.h>
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/gregorian/greg_duration.hpp>
@@ -1003,7 +1005,7 @@ Field_p FimexIO::getData(const std::string& reftime, const gridinventory::GridPa
 /**
  * Get data
  */
-vcross::Values_p  FimexIO::getVariable(const std::string& varName)
+diutil::Values_p FimexIO::getVariable(const std::string& varName)
 {
   METLIBS_LOG_SCOPE();
   METLIBS_LOG_INFO(LOGVAL(varName));
@@ -1015,16 +1017,15 @@ vcross::Values_p  FimexIO::getVariable(const std::string& varName)
     const std::vector<std::string>& shape = cdm.getVariable(varName).getShape();
     if ( shape.size() != 2 ) {
       METLIBS_LOG_INFO("Only 2-dim varibles supported yet, dim ="<<shape.size());
-      return  vcross::Values_p();
+      return diutil::Values_p();
     }
 
     CDMDimension dim1 = cdm.getDimension(shape[0]);
     CDMDimension dim2 = cdm.getDimension(shape[1]);
 
-    const DataPtr data = feltReader->getData(varName);
-    MetNoFimex::shared_array<float> fdata = data->asFloat();
-    vcross::Values_p p_values = std::make_shared<vcross::Values>(dim1.getLength(),dim2.getLength(),fdata);
-    return p_values;
+    const auto fdata = feltReader->getData(varName)->asFloat();
+    const diutil::Values::Shape shp(dim1.getName(), dim1.getLength(), dim2.getName(), dim2.getLength());
+    return std::make_shared<diutil::Values>(shp, fdata);
 
   } catch (CDMException& cdmex) {
     METLIBS_LOG_WARN("Could not open or process " << source_name << ", CDMException is: " << cdmex.what());
@@ -1032,7 +1033,7 @@ vcross::Values_p  FimexIO::getVariable(const std::string& varName)
     METLIBS_LOG_WARN("Could not open or process " << source_name << ", exception is: " << ex.what());
   }
 
-  return  vcross::Values_p();
+  return diutil::Values_p();
 }
 
 bool FimexIO::putData(const std::string& reftime, const gridinventory::GridParameter& param, const std::string& level, const miutil::miTime& time,
@@ -1064,7 +1065,7 @@ bool FimexIO::putData(const std::string& reftime, const gridinventory::GridParam
     const CoordinateSystemSliceBuilder sb = createSliceBuilder(varCS, reftime, param, taxis_index, zaxis_index, eaxis_index);
 
     const size_t fieldSize = field->area.gridSize();
-    MetNoFimex::shared_array<float> fdata(new float[fieldSize]);
+    auto fdata = MetNoFimex::make_shared_array<float>(fieldSize);
 
     mifi_bad2nanf(&fdata[0], &fdata[0]+fieldSize, fieldUndef);
 
@@ -1074,7 +1075,7 @@ bool FimexIO::putData(const std::string& reftime, const gridinventory::GridParam
     //change time and forecast_reference_time to output_time
     //this only works when there is one time step
     if ( !output_time.empty() ) {
-      MetNoFimex::shared_array<float> fdata2(new float[1]);
+      auto fdata2 = MetNoFimex::make_shared_array<float>(1);
       fdata2[0]=0;
       const DataPtr data2 = MetNoFimex::createData(1,fdata2 );
       std::string time_unit = "seconds since " + output_time + " +00:00";

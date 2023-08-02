@@ -39,6 +39,7 @@
 #include "diPoint.h"
 #include "diUtilities.h"
 #include "qtUtility.h"
+#include "util/diUnitsConverter.h"
 #include "util/qstring_util.h"
 
 #include <mi_fieldcalc/MetConstants.h>
@@ -60,7 +61,7 @@ namespace /* anonymous */ {
 
 static const char* horizontal(bool timegraph)
 {
-  return timegraph ? vcross::Values::TIME : vcross::Values::GEO_X;
+  return timegraph ? diutil::Values::TIME : diutil::Values::GEO_X;
 }
 
 bool eq_LonLat(const LonLat& a, const LonLat& b)
@@ -413,7 +414,7 @@ void QtPlot::clear(bool keepX, bool keepY)
   mTimePoints.clear();
   mTimeDistances.clear();
 
-  mSurface = Values_cp();
+  mSurface = diutil::Values_cp();
   mLines.clear();
   mMarkers.clear();
 
@@ -517,7 +518,7 @@ void QtPlot::addPlot(EvaluatedPlot_cp ep)
   mPlots.push_back(std::make_shared<OptionPlot>(ep));
 }
 
-void QtPlot::addLine(Values_cp linevalues, const std::string& linecolour, const std::string& linetype, float linewidth)
+void QtPlot::addLine(diutil::Values_cp linevalues, const std::string& linecolour, const std::string& linetype, float linewidth)
 {
   METLIBS_LOG_SCOPE();
   mLines.push_back(OptionLine(linevalues, linecolour, linetype, linewidth));
@@ -581,15 +582,14 @@ void QtPlot::prepareYAxisRange()
   float yax_min = 1e35, yax_max = -1e35;
   const char* H_COORD = horizontal(isTimeGraph());
   for (OptionPlot_cp plot : mPlots) {
-    Values_cp z_values = plot->evaluated->z_values;
+    diutil::Values_cp z_values = plot->evaluated->z_values;
     if (not z_values)
       continue;
-    const int nl = z_values->shape().length(Values::GEO_Z),
-        np = z_values->shape().length(H_COORD);
+    const int nl = z_values->shape().length(diutil::Values::GEO_Z), np = z_values->shape().length(H_COORD);
     METLIBS_LOG_DEBUG("next plot" << LOGVAL(np) << LOGVAL(nl));
-    Values::ShapeIndex idx(z_values->shape());
+    diutil::Values::ShapeIndex idx(z_values->shape());
     for (int l=0; l<nl; ++l) {
-      idx.set(Values::GEO_Z, l);
+      idx.set(diutil::Values::GEO_Z, l);
       for (int p=0; p<np; ++p) {
         idx.set(H_COORD, p);
         const float zax_value = z_values->value(idx);
@@ -1025,7 +1025,7 @@ void QtPlot::plotSurface(QPainter& painter)
 
   QPolygonF polygon; // TODO set pen etc
   const int nx = mSurface->shape().length(H_COORD);
-  Values::ShapeIndex idx_surface(mSurface->shape());
+  diutil::Values::ShapeIndex idx_surface(mSurface->shape());
   for (int ix=0; ix<nx; ++ix) {
     idx_surface.set(H_COORD, ix);
     const float vx = distances.at(ix), p0 = mSurface->value(idx_surface);
@@ -1264,8 +1264,8 @@ void QtPlot::plotDataWind(QPainter& painter, OptionPlot_cp plot)
     return;
   }
 
-  Values_cp av0 = util::unitConversion(ep->values(0), ep->argument(0)->unit(), "knot"),
-      av1 = util::unitConversion(ep->values(1), ep->argument(1)->unit(), "knot");
+  diutil::Values_cp av0 = diutil::unitConversion(ep->values(0), ep->argument(0)->unit(), "knot"),
+                    av1 = diutil::unitConversion(ep->values(1), ep->argument(1)->unit(), "knot");
 
   PaintWindArrow pw;
   pw.mWithArrowHead = (plot->poptions.arrowstyle == arrow_wind_arrow);
@@ -1317,12 +1317,12 @@ void QtPlot::plotDataVectorExample(QPainter& painter, OptionPlot_cp plot)
 
   std::string unit_x = plot->evaluated->argument(0)->unit(),
       unit_y = plot->evaluated->argument(1)->unit();
-  if (vcross::util::unitsConvertible(unit_x, plot->poptions.vector_example_unit_x)) {
-    label_ex = vcross::util::unitConversion(example_x, unit_x, plot->poptions.vector_example_unit_x);
+  if (diutil::unitsConvertible(unit_x, plot->poptions.vector_example_unit_x)) {
+    label_ex = diutil::unitConversion(example_x, unit_x, plot->poptions.vector_example_unit_x);
     unit_x = plot->poptions.vector_example_unit_x;
   }
-  if (vcross::util::unitsConvertible(unit_y, plot->poptions.vector_example_unit_y)) {
-    label_ey = vcross::util::unitConversion(example_y, unit_y, plot->poptions.vector_example_unit_y);
+  if (diutil::unitsConvertible(unit_y, plot->poptions.vector_example_unit_y)) {
+    label_ey = diutil::unitConversion(example_y, unit_y, plot->poptions.vector_example_unit_y);
     unit_y = plot->poptions.vector_example_unit_y;
   }
 
@@ -1349,7 +1349,7 @@ void QtPlot::plotDataVectorExample(QPainter& painter, OptionPlot_cp plot)
   painter.drawText(x, bottom, label_y);
 }
 
-void QtPlot::plotDataArrow(QPainter& painter, OptionPlot_cp plot, const PaintArrow& pa, Values_cp av0, Values_cp av1)
+void QtPlot::plotDataArrow(QPainter& painter, OptionPlot_cp plot, const PaintArrow& pa, diutil::Values_cp av0, diutil::Values_cp av1)
 {
   METLIBS_LOG_SCOPE(LOGVAL(plot->name()));
 
@@ -1362,14 +1362,13 @@ void QtPlot::plotDataArrow(QPainter& painter, OptionPlot_cp plot, const PaintArr
   const int xStep = std::max(density, 1);
   const bool xStepAuto = (density < 1);
 
-  const Values_cp z_values = plot->evaluated->z_values;
+  const diutil::Values_cp z_values = plot->evaluated->z_values;
   const std::vector<float>& distances = isTimeGraph() ? mTimeDistances
       : mCrossectionDistances;
 
   const char* H_COORD = horizontal(isTimeGraph());
-  const int ny = z_values->shape().length(Values::GEO_Z),
-      nx = av0->shape().length(H_COORD);
-  Values::ShapeIndex idx_z(z_values->shape()), idx_av0(av0->shape()), idx_av1(av1->shape());
+  const int ny = z_values->shape().length(diutil::Values::GEO_Z), nx = av0->shape().length(H_COORD);
+  diutil::Values::ShapeIndex idx_z(z_values->shape()), idx_av0(av0->shape()), idx_av1(av1->shape());
   float lastX = - 1;
   bool paintedX = false;
   for (int ix=0; ix<nx; ix += xStep) {
@@ -1387,9 +1386,9 @@ void QtPlot::plotDataArrow(QPainter& painter, OptionPlot_cp plot, const PaintArr
     idx_av0.set(H_COORD, ix);
     idx_av1.set(H_COORD, ix);
     for (int iy=0; iy<ny; iy += 1) {
-      idx_z.set(Values::GEO_Z, iy);
-      idx_av0.set(Values::GEO_Z, iy);
-      idx_av1.set(Values::GEO_Z, iy);
+      idx_z.set(diutil::Values::GEO_Z, iy);
+      idx_av0.set(diutil::Values::GEO_Z, iy);
+      idx_av1.set(diutil::Values::GEO_Z, iy);
       const float vy = z_values->value(idx_z);
       const float py = mAxisY->value2paint(vy);
       const bool paintThisY = mAxisY->legalPaint(py)
@@ -1418,17 +1417,17 @@ float QtPlot::absValue(OptionPlot_cp plot, int ix, int iy, bool timegraph)
   if (n == 0)
     return 0;
   const char* H_COORD = horizontal(timegraph);
-  Values::ShapeIndex idx_v0(plot->evaluated->values(0)->shape());
+  diutil::Values::ShapeIndex idx_v0(plot->evaluated->values(0)->shape());
   idx_v0.set(H_COORD, ix);
-  idx_v0.set(Values::GEO_Z, iy);
+  idx_v0.set(diutil::Values::GEO_Z, iy);
   float v = plot->evaluated->values(0)->value(idx_v0);
   if (n == 1)
     return v;
   v *= v;
   for (size_t i=1; i<n; ++i) {
-    Values::ShapeIndex idx_vi(plot->evaluated->values(i)->shape());
+    diutil::Values::ShapeIndex idx_vi(plot->evaluated->values(i)->shape());
     idx_vi.set(H_COORD, ix);
-    idx_vi.set(Values::GEO_Z, iy);
+    idx_vi.set(diutil::Values::GEO_Z, iy);
     v += miutil::square(plot->evaluated->values(i)->value(idx_vi));
   }
   return sqrt(v);
@@ -1454,16 +1453,15 @@ std::string QtPlot::plotDataExtremes(QPainter& painter, OptionPlot_cp plot)
 {
   METLIBS_LOG_SCOPE(LOGVAL(plot->name()));
 
-  const Values_cp z_values = plot->evaluated->z_values;
+  const diutil::Values_cp z_values = plot->evaluated->z_values;
   const std::vector<float>& distances = isTimeGraph() ? mTimeDistances
       : mCrossectionDistances;
   const char* H_COORD = horizontal(isTimeGraph());
 
   // step 1: loop through all values, find minimum / maximum visible value
 
-  const int ny = z_values->shape().length(Values::GEO_Z),
-      nx = z_values->shape().length(H_COORD);
-  Values::ShapeIndex idx_z(z_values->shape());
+  const int ny = z_values->shape().length(diutil::Values::GEO_Z), nx = z_values->shape().length(H_COORD);
+  diutil::Values::ShapeIndex idx_z(z_values->shape());
   bool have_max = false, have_min = false;
   float max_px = -1, max_py = -1, max_vy = 0, min_px = -1, min_py = -1, min_vy = 0;
   float max_v = 0, min_v = 0;
@@ -1476,7 +1474,7 @@ std::string QtPlot::plotDataExtremes(QPainter& painter, OptionPlot_cp plot)
 
     idx_z.set(H_COORD, ix);
     for (int iy=0; iy<ny; iy += 1) {
-      idx_z.set(Values::GEO_Z, iy);
+      idx_z.set(diutil::Values::GEO_Z, iy);
       const float vy = z_values->value(idx_z);
       const float py = mAxisY->value2paint(vy);
       if (not mAxisY->legalPaint(py))
@@ -1549,7 +1547,7 @@ void QtPlot::plotDataLine(QPainter& painter, const OptionLine& ol)
 
   QPolygonF polyline;
   const int nx = ol.linevalues->shape().length(H_COORD);
-  Values::ShapeIndex ol_idx(ol.linevalues->shape());
+  diutil::Values::ShapeIndex ol_idx(ol.linevalues->shape());
   for (int ix=0; ix<nx; ++ix) {
     ol_idx.set(H_COORD, ix);
     const float vx = distances.at(ix), lv = ol.linevalues->value(ol_idx);

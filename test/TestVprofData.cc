@@ -1,8 +1,37 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2015-2022 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #include <vcross_v2/VcrossEvaluate.h>
 #include <vcross_v2/VcrossComputer.h>
 
 #include <diField/VcrossUtil.h>
+#include <util/diUnitsConverter.h>
 
 #include <puTools/miTime.h>
 
@@ -14,6 +43,7 @@
 #define MILOGGER_CATEGORY "diana.test.VprofData"
 #include "miLogger/miLogging.h"
 
+using diutil::Values;
 using namespace vcross;
 
 namespace {
@@ -97,8 +127,8 @@ TEST(VprofDataTest, TestSetup)
   ASSERT_TRUE(itM != model_values.end());
   name2value_t& n2v = itM->second;
 
-  Values_cp zvalues;
-  if (util::unitsConvertible(zaxis->unit(), "hPa"))
+  diutil::Values_cp zvalues;
+  if (diutil::unitsConvertible(zaxis->unit(), "hPa"))
     zvalues = vc_evaluate_field(zaxis, n2v);
   else if (InventoryBase_cp pfield = zaxis->pressureField())
     zvalues = vc_evaluate_field(pfield, n2v);
@@ -108,21 +138,21 @@ TEST(VprofDataTest, TestSetup)
 
   { name2value_t::const_iterator itN = n2v.find("x_wind_ml");
     ASSERT_TRUE(itN != n2v.end());
-    Values_cp xwind_values = itN->second;
+    auto xwind_values = itN->second;
     ASSERT_TRUE(bool(xwind_values));
     EXPECT_EQ(1, xwind_values->shape().rank());
   }
 
   { name2value_t::const_iterator itN = n2v.find("air_temperature_celsius_ml");
     ASSERT_TRUE(itN != n2v.end());
-    Values_cp t_values = itN->second;
+    auto t_values = itN->second;
     ASSERT_TRUE(bool(t_values));
     EXPECT_EQ(1, t_values->shape().rank());
   }
 
   { name2value_t::const_iterator itN = n2v.find("tdk");
     ASSERT_TRUE(itN != n2v.end());
-    Values_cp tdk_values = itN->second;
+    auto tdk_values = itN->second;
     ASSERT_TRUE(bool(tdk_values));
     EXPECT_EQ(1, tdk_values->shape().rank());
   }
@@ -178,10 +208,10 @@ TEST(VprofDataTest, TestBangkok)
   ASSERT_TRUE(itM != model_values.end());
   name2value_t& n2v = itM->second;
 
-  Values_cp zvalues = util::unitConversion(vc_evaluate_field(zaxis, n2v), zaxis->unit(), "hPa");
+  auto zvalues = diutil::unitConversion(vc_evaluate_field(zaxis, n2v), zaxis->unit(), "hPa");
   ASSERT_TRUE(zvalues and zvalues->values());
   EXPECT_EQ(1, zvalues->shape().rank());
-  EXPECT_EQ(BANGKOK_N_Z, zvalues->shape().length(vcross::Values::GEO_Z));
+  EXPECT_EQ(BANGKOK_N_Z, zvalues->shape().length(Values::GEO_Z));
   const float BANGKOK_Z_VALUES[BANGKOK_N_Z] = { 10, 30, 50, 70, 100, 150, 200, 250, 300, 400, 500, 700, 850, 925, 1000 };
   for (int i=0; i<BANGKOK_N_Z; ++i)
     EXPECT_EQ(BANGKOK_Z_VALUES[i], zvalues->values()[i]) << "i=" << i;
@@ -190,7 +220,7 @@ TEST(VprofDataTest, TestBangkok)
 
   { name2value_t::const_iterator itN = n2v.find("air_temperature");
     ASSERT_TRUE(itN != n2v.end());
-    Values_cp t_values = itN->second;
+    auto t_values = itN->second;
     ASSERT_TRUE(bool(t_values));
     EXPECT_EQ(1, t_values->shape().rank());
     EXPECT_EQ(BANGKOK_N_Z, t_values->shape().length(0));
@@ -198,7 +228,7 @@ TEST(VprofDataTest, TestBangkok)
 
   { name2value_t::const_iterator itN = n2v.find("dew_point_temperature_celsius");
     ASSERT_TRUE(itN != n2v.end());
-    Values_cp v_values = itN->second;
+    auto v_values = itN->second;
     ASSERT_TRUE(bool(v_values));
     EXPECT_EQ(1, v_values->shape().rank());
     EXPECT_NEAR(20.6, v_values->values()[BANGKOK_N_Z-1], 0.1);

@@ -28,8 +28,8 @@
 #define DIANA_DIFIELD_GRIDIOBASE_H_
 
 #include "GridInventoryTypes.h"
-#include "VcrossData.h"
 #include "diFieldFwd.h"
+#include "diValues.h"
 
 #include <puTools/miTime.h>
 
@@ -97,7 +97,7 @@ public:
   virtual bool putData(const std::string& reftime, const gridinventory::GridParameter& param, const std::string& level, const miutil::miTime& time,
                        const std::string& elevel, const std::string& unit, Field_cp field, const std::string& output_time) = 0;
 
-  virtual vcross::Values_p getVariable(const std::string& varName) = 0;
+  virtual diutil::Values_p getVariable(const std::string& varName) = 0;
 };
 
 #endif /* DIANA_DIFIELD_GRIDIOBASE_H_ */

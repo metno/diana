@@ -1,3 +1,31 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2015-2022 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #include <FimexSource.h>
 #include <VcrossUtil.h>
@@ -10,6 +38,7 @@
 #define MILOGGER_CATEGORY "diField.test.FimexSourceTest"
 #include "miLogger/miLogging.h"
 
+using diutil::Values;
 using namespace vcross;
 
 static const char SIMRA_FILE[] = "simra_vc.nc";
@@ -105,7 +134,7 @@ TEST(FimexReftimeSourceTest, TestSimraVcross0)
   name2value_t n2v;
   fs->getCrossectionValues(cs0, time, request, n2v, 0);
 
-  Values_cp turbulence_values = n2v[turbulence->id()];
+  auto turbulence_values = n2v[turbulence->id()];
   ASSERT_TRUE(bool(turbulence_values));
 
   const Values::Shape& shape(turbulence_values->shape());
@@ -152,7 +181,7 @@ TEST(FimexReftimeSourceTest, TestSimraVcross1)
   name2value_t n2v;
   fs->getCrossectionValues(cs1, time, request, n2v, 0);
 
-  Values_cp turbulence_values = n2v[turbulence->id()];
+  auto turbulence_values = n2v[turbulence->id()];
   ASSERT_TRUE(bool(turbulence_values));
 
   const Values::Shape& shape(turbulence_values->shape());
@@ -207,10 +236,10 @@ TEST(FimexReftimeSourceTest, TestSimraVcrossVertical)
   request.insert(vertical_altitude);
   name2value_t n2v;
   fs->getCrossectionValues(cs1, time, request, n2v, 0);
-  
-  Values_cp vertical_p_values = n2v[vertical_pressure->id()];
+
+  auto vertical_p_values = n2v[vertical_pressure->id()];
   ASSERT_TRUE(bool(vertical_p_values));
-  Values_cp vertical_h_values = n2v[vertical_altitude->id()];
+  auto vertical_h_values = n2v[vertical_altitude->id()];
   ASSERT_TRUE(bool(vertical_h_values));
 
   const Values::Shape& shape(vertical_p_values->shape());
@@ -261,7 +290,7 @@ TEST(FimexReftimeSourceTest, TestSimraTimegraph)
   name2value_t n2v;
   fs->getTimegraphValues(cs0, 5, request, n2v, 0);
 
-  Values_cp turbulence_values = n2v[turbulence->id()];
+  auto turbulence_values = n2v[turbulence->id()];
   ASSERT_TRUE(bool(turbulence_values));
 
   const Values::Shape& shape(turbulence_values->shape());
@@ -301,7 +330,7 @@ TEST(FimexReftimeSourceTest, TestSimraVprofile)
   name2value_t n2v;
   fs->getPointValues(cs1, 17, time, request, n2v, 0);
 
-  Values_cp turbulence_values = n2v[turbulence->id()];
+  auto turbulence_values = n2v[turbulence->id()];
   ASSERT_TRUE(bool(turbulence_values));
 
   const Values::Shape& shape(turbulence_values->shape());
@@ -342,7 +371,7 @@ TEST(FimexReftimeSourceTest, TestAromeVcross1)
   name2value_t n2v;
   fs->getCrossectionValues(cs1, time, request, n2v, 0);
 
-  Values_cp temperature_values = n2v[temperature->id()];
+  auto temperature_values = n2v[temperature->id()];
   ASSERT_TRUE(bool(temperature_values));
 
   const Values::Shape& shape(temperature_values->shape());
@@ -398,9 +427,9 @@ TEST(FimexReftimeSourceTest, TestAromeVcrossVertical)
   name2value_t n2v;
   fs->getCrossectionValues(cs1, time, request, n2v, 0);
 
-  Values_cp vertical_p_values = n2v[vertical_pressure->id()];
+  auto vertical_p_values = n2v[vertical_pressure->id()];
   ASSERT_TRUE(bool(vertical_p_values));
-  Values_cp vertical_h_values = n2v[vertical_altitude->id()];
+  auto vertical_h_values = n2v[vertical_altitude->id()];
   ASSERT_TRUE(bool(vertical_h_values));
 
   const Values::Shape& shape(vertical_p_values->shape());
@@ -456,9 +485,9 @@ TEST(FimexReftimeSourceTest, TestAromeTimegraph)
   name2value_t n2v;
   fs->getTimegraphValues(cs1, 43, request, n2v, 0);
 
-  Values_cp temperature_values = n2v[temperature->id()];
+  auto temperature_values = n2v[temperature->id()];
   ASSERT_TRUE(bool(temperature_values));
-  Values_cp vertical_values = n2v[vertical_pressure->id()];
+  auto vertical_values = n2v[vertical_pressure->id()];
   ASSERT_TRUE(bool(vertical_values));
 
   const Values::Shape& shape(vertical_values->shape());
@@ -523,11 +552,11 @@ TEST(FimexReftimeSourceTest, TestHirlamVcrossVertical)
   name2value_t n2v;
   fs->getCrossectionValues(cs1, time, request, n2v, 0);
 
-  Values_cp vertical_p_values = n2v[vertical_pressure->id()];
+  auto vertical_p_values = n2v[vertical_pressure->id()];
   ASSERT_TRUE(bool(vertical_p_values));
-  Values_cp vertical_h_values = n2v[vertical_altitude->id()];
+  auto vertical_h_values = n2v[vertical_altitude->id()];
   ASSERT_TRUE(bool(vertical_h_values));
-  Values_cp air_pt_values = n2v[air_pt->id()];
+  auto air_pt_values = n2v[air_pt->id()];
   ASSERT_TRUE(bool(air_pt_values));
 
   const Values::Shape& shape(vertical_p_values->shape());
@@ -609,11 +638,11 @@ TEST(FimexReftimeSourceTest, TestEmepDynVcross)
   name2value_t n2v;
   fs->getCrossectionValues(csdyn, time, request, n2v, 0);
 
-  Values_cp vertical_p_values = n2v[vertical_pressure->id()];
+  auto vertical_p_values = n2v[vertical_pressure->id()];
   ASSERT_TRUE(bool(vertical_p_values));
-  Values_cp vertical_h_values = n2v[vertical_altitude->id()];
+  auto vertical_h_values = n2v[vertical_altitude->id()];
   ASSERT_TRUE(bool(vertical_h_values));
-  Values_cp ash_c_values = n2v[ash_c->id()];
+  auto ash_c_values = n2v[ash_c->id()];
   ASSERT_TRUE(bool(ash_c_values));
 
   const Values::Shape& shape(vertical_p_values->shape());
@@ -689,11 +718,11 @@ TEST(FimexReftimeSourceTest, TestHirlamVcrossDyn)
   name2value_t n2v;
   fs->getTimegraphValues(cs0, 0, request, n2v, 0);
 
-  Values_cp vertical_p_values = n2v[vertical_pressure->id()];
+  auto vertical_p_values = n2v[vertical_pressure->id()];
   ASSERT_TRUE(bool(vertical_p_values));
-  Values_cp vertical_h_values = n2v[vertical_altitude->id()];
+  auto vertical_h_values = n2v[vertical_altitude->id()];
   ASSERT_TRUE(bool(vertical_h_values));
-  Values_cp air_pt_values = n2v[air_pt->id()];
+  auto air_pt_values = n2v[air_pt->id()];
   ASSERT_TRUE(bool(air_pt_values));
 
   const Values::Shape& shape(vertical_p_values->shape());
@@ -770,11 +799,11 @@ TEST(FimexReftimeSourceTest, TestAromeSmhiDynVcross)
   name2value_t n2v;
   fs->getCrossectionValues(csdyn, time, request, n2v, 0);
 
-  Values_cp vertical_p_values = n2v[vertical_pressure->id()];
+  auto vertical_p_values = n2v[vertical_pressure->id()];
   ASSERT_TRUE(bool(vertical_p_values));
-  Values_cp vertical_h_values = n2v[vertical_altitude->id()];
+  auto vertical_h_values = n2v[vertical_altitude->id()];
   ASSERT_TRUE(bool(vertical_h_values));
-  Values_cp airtemp_values = n2v[airtemp->id()];
+  auto airtemp_values = n2v[airtemp->id()];
   ASSERT_TRUE(bool(airtemp_values));
 
   const Values::Shape& shape(vertical_p_values->shape());
@@ -881,13 +910,13 @@ TEST(FimexReftimeSourceTest, TestBangladeshVcross)
   name2value_t n2v;
   fs->getCrossectionValues(cs3, time, request, n2v, 0);
 
-  Values_cp vertical_values = n2v[vertical->id()];
+  auto vertical_values = n2v[vertical->id()];
   ASSERT_TRUE(bool(vertical_values));
-  Values_cp vertical_p_values = n2v[vertical_pressure->id()];
+  auto vertical_p_values = n2v[vertical_pressure->id()];
   ASSERT_TRUE(bool(vertical_p_values));
-  Values_cp vertical_h_values = n2v[vertical_altitude->id()];
+  auto vertical_h_values = n2v[vertical_altitude->id()];
   ASSERT_TRUE(bool(vertical_h_values));
-  Values_cp temperature_values = n2v[temperature->id()];
+  auto temperature_values = n2v[temperature->id()];
   ASSERT_TRUE(bool(temperature_values));
 
   const Values::Shape& shape(vertical_p_values->shape());
@@ -962,11 +991,11 @@ TEST(FimexReftimeSourceTest, TestBangladeshVprof)
   name2value_t n2v;
   fs->getPointValues(cs0, 0, time, request, n2v, 0);
 
-  Values_cp vertical_values = n2v[vertical->id()];
+  auto vertical_values = n2v[vertical->id()];
   ASSERT_TRUE(bool(vertical_values));
-  Values_cp vertical_p_values = n2v[vertical_pressure->id()];
+  auto vertical_p_values = n2v[vertical_pressure->id()];
   ASSERT_TRUE(bool(vertical_p_values));
-  Values_cp temperature_values = n2v[temperature->id()];
+  auto temperature_values = n2v[temperature->id()];
   ASSERT_TRUE(bool(temperature_values));
 
   const Values::Shape& shape(vertical_p_values->shape());
@@ -1016,7 +1045,8 @@ TEST(FimexReftimeSourceTest, WaveSpectra1)
   name2value_t n2v;
   fs->getWaveSpectrumValues(cs0, 2, inv->times.at(0), request, n2v, 0);
 
-  { Values_cp spec_values = n2v[spec->id()];
+  {
+    auto spec_values = n2v[spec->id()];
     ASSERT_TRUE(bool(spec_values));
 
     const Values::Shape& shape(spec_values->shape());
@@ -1034,7 +1064,8 @@ TEST(FimexReftimeSourceTest, WaveSpectra1)
     idx.set("freq", 31);
     EXPECT_FLOAT_EQ(0.0008872001, spec_values->value(idx));
   }
-  { Values_cp freq_values = n2v[freq->id()];
+  {
+    auto freq_values = n2v[freq->id()];
     ASSERT_TRUE(bool(freq_values));
     const Values::Shape& shape(freq_values->shape());
 
@@ -1076,9 +1107,9 @@ TEST(FimexReftimeSourceTest, DepthProfileZ)
   name2value_t n2v;
   fs->getPointValues(cs0, 0, time, request, n2v, 0);
 
-  Values_cp vertical_values = n2v[vertical->id()];
+  auto vertical_values = n2v[vertical->id()];
   ASSERT_TRUE(bool(vertical_values));
-  Values_cp temperature_values = n2v[temperature->id()];
+  auto temperature_values = n2v[temperature->id()];
   ASSERT_TRUE(bool(temperature_values));
 
   const Values::Shape& shape(vertical_values->shape());
@@ -1130,9 +1161,9 @@ TEST(FimexReftimeSourceTest, DepthProfileSG)
   name2value_t n2v;
   fs->getPointValues(cs0, 0, time, request, n2v, 0);
 
-  Values_cp vertical_depth_values = n2v[vertical_depth->id()];
+  auto vertical_depth_values = n2v[vertical_depth->id()];
   ASSERT_TRUE(bool(vertical_depth_values));
-  Values_cp temperature_values = n2v[temperature->id()];
+  auto temperature_values = n2v[temperature->id()];
   ASSERT_TRUE(bool(temperature_values));
 
   const Values::Shape& shape(vertical_depth_values->shape());

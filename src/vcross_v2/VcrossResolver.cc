@@ -1,7 +1,38 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2014-2022 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #include "VcrossResolver.h"
+
 #include "VcrossComputer.h"
-#include <diField/VcrossUtil.h>
+#include "diField/VcrossUtil.h"
+#include "util/diUnitsConverter.h"
+
 #include <puTools/miStringFunctions.h>
 
 #define MILOGGER_CATEGORY "vcross.Resolver"
@@ -162,7 +193,7 @@ void Resolver::resolveAllPlots(model_data& md)
 InventoryBase_cp vc_resolve_unit(Resolver_p resolver, const ModelReftime& model, const std::string& field_id, const std::string& unit)
 {
   InventoryBase_cp field = resolver->getResolvedField(model, field_id);
-  if (field and util::unitsConvertible(field->unit(), unit))
+  if (field && diutil::unitsConvertible(field->unit(), unit))
     return field;
   return InventoryBase_cp();
 }

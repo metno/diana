@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2006-2021 met.no
+  Copyright (C) 2006-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -32,13 +32,14 @@
 #include "VcrossComputer.h"
 #include "VcrossOptions.h"
 #include "VcrossQtPlot.h"
+#include "diField/VcrossUtil.h"
 #include "diFieldUtil.h"
 #include "diKVListPlotCommand.h"
 #include "diPlotOptions.h"
 #include "diUtilities.h"
 #include "miSetupParser.h"
+#include "util/diUnitsConverter.h"
 #include "util/string_util.h"
-#include "diField/VcrossUtil.h"
 
 #include <mi_fieldcalc/math_util.h>
 
@@ -725,8 +726,7 @@ void QtManager::preparePlot()
     if (not surface_id.empty()) {
       if (InventoryBase_cp surface = mCollector->getResolvedField(model1, surface_id)) {
         METLIBS_LOG_DEBUG(LOGVAL(surface->unit()) << LOGVAL(surface_unit));
-        mPlot->setSurface(util::unitConversion(model_values.at(model1).at(surface_id),
-                surface->unit(), surface_unit));
+        mPlot->setSurface(diutil::unitConversion(model_values.at(model1).at(surface_id), surface->unit(), surface_unit));
       }
     }
   }
@@ -742,10 +742,10 @@ void QtManager::preparePlot()
     if (not inflight_id.empty()) {
       if (InventoryBase_cp inflight = mCollector->getResolvedField(model1, inflight_id)) {
         METLIBS_LOG_DEBUG("resolved '" << inflight_id << "'");
-        if (Values_cp linevalues = vc_evaluate_field(model_values, model1, inflight)) {
+        if (auto linevalues = vc_evaluate_field(model_values, model1, inflight)) {
           METLIBS_LOG_DEBUG(LOGVAL(inflight->unit()) << LOGVAL(inflight_unit));
-          mPlot->addLine(util::unitConversion(linevalues, inflight->unit(), inflight_unit),
-              mOptions->inflightColour, mOptions->inflightLinetype, mOptions->inflightLinewidth);
+          mPlot->addLine(diutil::unitConversion(linevalues, inflight->unit(), inflight_unit), mOptions->inflightColour, mOptions->inflightLinetype,
+                         mOptions->inflightLinewidth);
         }
       }
     }

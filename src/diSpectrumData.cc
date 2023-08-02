@@ -1,7 +1,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2015 met.no
+ Copyright (C) 2006-2022 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -115,24 +115,24 @@ bool SpectrumData::readFileHeader(vcross::Setup_p setup, const std::string& reft
     forecastHour.push_back(miTime::hourDiff(validTime[i], t));
   }
 
-  Crossection_cp cs0 = inv->crossections.at(0);
-  FieldData_cp freq = inv->findFieldById("freq");
-  FieldData_cp dir = inv->findFieldById("direction");
+  auto cs0 = inv->crossections.at(0);
+  auto freq = inv->findFieldById("freq");
+  auto dir = inv->findFieldById("direction");
   InventoryBase_cps request;
   request.insert(freq);
   request.insert(dir);
   name2value_t n2v;
   fs = collector->getResolver()->getSource(modelName);
   fs->getWaveSpectrumValues(mr.reftime,cs0, 0, inv->times.at(0), request, n2v, 0);
-  Values_cp freq_values = n2v[freq->id()];
-  Values_cp dir_values = n2v[dir->id()];
+  auto freq_values = n2v[freq->id()];
+  auto dir_values = n2v[dir->id()];
 
-  Values::ShapeIndex idx(freq_values->shape());
+  diutil::Values::ShapeIndex idx(freq_values->shape());
   for (int i = 0; i < freq_values->shape().length(0); ++i) {
     idx.set("freq", i);
     frequences.push_back(freq_values->value(idx));
   }
-  Values::ShapeIndex idx2(dir_values->shape());
+  diutil::Values::ShapeIndex idx2(dir_values->shape());
   for (int i = 0; i < dir_values->shape().length(0); ++i) {
     idx2.set("direction", i);
     directions.push_back(dir_values->value(idx2));
@@ -157,14 +157,14 @@ static FieldData_cp find_request_field(Inventory_cp inv, InventoryBase_cps& requ
   return fld;
 }
 
-static Values_cp field_values(const name2value_t& n2v, FieldData_cp fld)
+static diutil::Values_cp field_values(const name2value_t& n2v, FieldData_cp fld)
 {
   if (fld) {
     name2value_t::const_iterator it = n2v.find(fld->id());
     if (it != n2v.end())
       return it->second;
   }
-  return Values_cp();
+  return diutil::Values_cp();
 }
 
 SpectrumPlot* SpectrumData::getData(const std::string& name, const miTime& time, int realization)
@@ -229,52 +229,52 @@ SpectrumPlot* SpectrumData::getData(const std::string& name, const miTime& time,
   spp->directions = directions;
   spp->frequences = frequences;
 
-  if (Values_cp hmo = field_values(n2v, field_hmo)) {
-    Values::ShapeIndex idx_hmo(hmo->shape());
+  if (auto hmo = field_values(n2v, field_hmo)) {
+    diutil::Values::ShapeIndex idx_hmo(hmo->shape());
     idx_hmo.set(0,0);
     spp->hmo = hmo->value(idx_hmo);
   } else {
     spp->hmo = -1;
   }
-  if (Values_cp wdir = field_values(n2v, field_wdir)) {
-    Values::ShapeIndex idx_wdir(wdir->shape());
+  if (auto wdir = field_values(n2v, field_wdir)) {
+    diutil::Values::ShapeIndex idx_wdir(wdir->shape());
     idx_wdir.set(0,0);
     spp->wdir=wdir->value(idx_wdir);
   } else {
     spp->wdir = -1;
   }
 
-  if (Values_cp wspeed = field_values(n2v, field_wspeed)) {
-    Values::ShapeIndex idx_wspeed(wspeed->shape());
+  if (auto wspeed = field_values(n2v, field_wspeed)) {
+    diutil::Values::ShapeIndex idx_wspeed(wspeed->shape());
     idx_wspeed.set(0,0);
     spp->wspeed=wspeed->value(idx_wspeed);
   } else {
     spp->wspeed = -1;
   }
 
-  if (Values_cp tpeak = field_values(n2v, field_tpeak)) {
-    Values::ShapeIndex idx_tpeak(tpeak->shape());
+  if (auto tpeak = field_values(n2v, field_tpeak)) {
+    diutil::Values::ShapeIndex idx_tpeak(tpeak->shape());
     idx_tpeak.set(0,0);
     spp->tPeak = tpeak->value(idx_tpeak);
   } else {
     spp->tPeak = -1;
   }
 
-  if (Values_cp ddpeak = field_values(n2v, field_ddpeak)) {
-    Values::ShapeIndex idx_ddpeak(ddpeak->shape());
+  if (auto ddpeak = field_values(n2v, field_ddpeak)) {
+    diutil::Values::ShapeIndex idx_ddpeak(ddpeak->shape());
     idx_ddpeak.set(0,0);
     spp->ddPeak = ddpeak->value(idx_ddpeak);
   } else {
     spp->ddPeak = -1;
   }
 
-  Values_cp spec_values = field_values(n2v, field_spec);
+  diutil::Values_cp spec_values = field_values(n2v, field_spec);
   if (!spec_values) {
     METLIBS_LOG_WARN("no spec_values");
     return 0;
   }
-  const Values::Shape& shape(spec_values->shape());
-  Values::ShapeIndex idx(shape);
+  const diutil::Values::Shape& shape(spec_values->shape());
+  diutil::Values::ShapeIndex idx(shape);
   const int size = shape.volume(),
       pos_direction = shape.position("direction"),
       pos_freq = shape.position("freq");

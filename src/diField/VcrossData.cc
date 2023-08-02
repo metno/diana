@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2014-2020 met.no
+  Copyright (C) 2014-2022 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -136,158 +136,9 @@ Crossection::~Crossection()
 
 // ================================================================================
 
-static size_t calculate_volume(const Values::Shape::size_v& counts)
+diutil::Values_p reshape(diutil::Values_p valuesIn, const diutil::Values::Shape& shapeOut)
 {
-  // TODO use this function in DataReshape::reshape
-  return std::accumulate(counts.begin(), counts.end(), 1, std::multiplies<size_t>());
-}
-
-
-Values::Shape::Shape()
-{
-}
-
-Values::Shape::Shape(const std::string& name0, size_t length0)
-{
-  add(name0, length0);
-}
-
-Values::Shape::Shape(const std::string& name0, size_t length0, const std::string& name1, size_t length1)
-{
-  add(name0, length0);
-  add(name1, length1);
-}
-
-Values::Shape::Shape(const string_v& names, const size_v& lengths)
-  : mNames(names)
-  , mLengths(lengths)
-{
-  if (mLengths.size() != mNames.size())
-    throw std::runtime_error("mismatch in number of names and lengths");
-}
-
-Values::Shape& Values::Shape::add(const std::string& name, size_t length)
-{
-  mNames.push_back(name);
-  mLengths.push_back(length);
-  return *this;
-}
-
-int Values::Shape::position(const std::string& name) const
-{
-  string_v::const_iterator it = std::find(mNames.begin(), mNames.end(), name);
-  if (it != mNames.end())
-    return (it - mNames.begin());
-  else
-    return -1;
-}
-
-int Values::Shape::length(int position) const
-{
-  if (position >= 0 and position < (int)mLengths.size())
-    return mLengths[position];
-  else
-    return 1;
-}
-
-size_t Values::Shape::volume() const
-{
-  return calculate_volume(mLengths);
-}
-
-Values::ShapeIndex::ShapeIndex(const Values::Shape& shape)
-  : mShape(shape)
-  , mElements(mShape.rank(), 0)
-{
-}
-
-Values::ShapeIndex& Values::ShapeIndex::set(int position, size_t element)
-{
-  if (position >= 0 and position < (int)mShape.rank()) {
-    if (int(element) < mShape.length(position))
-      mElements[position] = element;
-    else
-      mElements[position] = 0;
-  }
-  return *this;
-}
-
-size_t Values::ShapeIndex::index() const
-{
-  size_t i = 0, s = 1;
-  for (size_t j=0; j<mShape.rank(); ++j) {
-    i += mElements[j]*s;
-    s *= mShape.length(j);
-  }
-  return i;
-}
-
-Values::ShapeSlice::ShapeSlice(const Shape& shape)
-  : mShape(shape)
-  , mStarts(mShape.rank(), 0)
-  , mLengths(mShape.lengths())
-{
-}
-
-Values::ShapeSlice& Values::ShapeSlice::cut(int position, size_t start, size_t length)
-{
-  if (position >= 0 and position < int(mStarts.size())) {
-    if (int(start) >= mShape.length(position) or int(start+length) > mShape.length(position))
-      start = length = 0;
-    mStarts[position] = start;
-    mLengths[position] = length;
-  }
-  return *this;
-}
-
-size_t Values::ShapeSlice::volume() const
-{
-  return calculate_volume(mLengths);
-}
-
-const char *Values::GEO_X = "GEO_X";
-const char *Values::GEO_Y = "GEO_Y";
-const char *Values::GEO_Z = "GEO_Z";
-const char *Values::REALIZATION = "REALIZATION";
-const char *Values::TIME = "TIME";
-
-Values::Values(int np, int nl, ValueArray v)
-  : mShape(Shape(GEO_X, np, GEO_Z, nl))
-  , mValues(v)
-  , mUndefValue(NANF)
-{
-  assert(mShape.volume() == size_t(np * nl));
-}
-
-Values::Values(int np, int nl, bool fill)
-  : mShape(Shape(GEO_X, np, GEO_Z, nl))
-  , mValues(new float[mShape.volume()])
-  , mUndefValue(NANF)
-{
-  assert(mShape.volume() == size_t(np * nl));
-  if (fill)
-    std::fill(mValues.get(), mValues.get()+mShape.volume(), mUndefValue);
-}
-
-Values::Values(const Shape& shape, ValueArray v)
-  : mShape(shape)
-  , mValues(v)
-  , mUndefValue(NANF)
-{
-}
-
-Values::Values(const Shape& shape, bool fill)
-  : mShape(shape)
-  , mValues(new float[mShape.volume()])
-  , mUndefValue(NANF)
-{
-  if (fill)
-    std::fill(mValues.get(), mValues.get()+mShape.volume(), mUndefValue);
-}
-
-Values_p reshape(Values_p valuesIn, const Values::Shape& shapeOut)
-{
-  return std::make_shared<Values>(shapeOut, reshape(valuesIn->shape(), shapeOut, valuesIn->values()));
+  return std::make_shared<diutil::Values>(shapeOut, reshape(valuesIn->shape(), shapeOut, valuesIn->values()));
 }
 
 // ================================================================================
@@ -399,15 +250,6 @@ Crossection_cp Inventory::findCrossectionPoint(const LonLat& point) const
     }
   }
   return best_cs;
-}
-
-std::ostream& operator<<(std::ostream& out, const Values::Shape& shp)
-{
-  out << "[vc shape rank=" << shp.rank();
-  for (size_t i=0; i<shp.rank(); ++i)
-    out << ' ' << shp.name(i) << ':' << shp.length(i);
-  out << ']';
-  return out;
 }
 
 } // namespace vcross

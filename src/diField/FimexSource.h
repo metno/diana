@@ -1,3 +1,31 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2015-2022 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #ifndef FIMEXSOURCE_HH
 #define FIMEXSOURCE_HH
@@ -6,8 +34,18 @@
 
 #include "../util/charsets.h"
 
-#include <fimex/CDMReader.h>
-#include <fimex/coordSys/CoordinateSystem.h>
+#include <fimex/CDMReaderDecl.h>
+
+#include <memory>
+#include <vector>
+
+namespace MetNoFimex {
+// forward decl
+class CDM;
+class CoordinateSystem;
+typedef std::shared_ptr<const CoordinateSystem> CoordinateSystem_cp;
+typedef std::vector<CoordinateSystem_cp> CoordinateSystem_cp_v;
+} // namespace MetNoFimex
 
 namespace vcross {
 
@@ -73,10 +111,10 @@ private:
 
   void prepareGetValues(Crossection_cp cs,
       FimexCrossection_cp& fcs, MetNoFimex::CDMReader_p& reader, MetNoFimex::CoordinateSystem_cp_v& coordinateSystems);
-  Values_p getSlicedValues(MetNoFimex::CDMReader_p reader, MetNoFimex::CoordinateSystem_cp cs,
-      const Values::ShapeSlice& sliceCdm, const Values::Shape& shapeOut, InventoryBase_cp b);
-  Values_p getSlicedValuesGeoZTransformed(MetNoFimex::CDMReader_p csReader, MetNoFimex::CoordinateSystem_cp cs,
-      const Values::ShapeSlice& slice, const Values::Shape& shapeOut, InventoryBase_cp b);
+  diutil::Values_p getSlicedValues(MetNoFimex::CDMReader_p reader, MetNoFimex::CoordinateSystem_cp cs, const diutil::Values::ShapeSlice& sliceCdm,
+                                   const diutil::Values::Shape& shapeOut, InventoryBase_cp b);
+  diutil::Values_p getSlicedValuesGeoZTransformed(MetNoFimex::CDMReader_p csReader, MetNoFimex::CoordinateSystem_cp cs, const diutil::Values::ShapeSlice& slice,
+                                                  const diutil::Values::Shape& shapeOut, InventoryBase_cp b);
   MetNoFimex::CoordinateSystem_cp findCsForVariable(const MetNoFimex::CDM& cdm,
       const MetNoFimex::CoordinateSystem_cp_v& coordinateSystems, InventoryBase_cp v);
 

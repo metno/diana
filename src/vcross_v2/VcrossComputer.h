@@ -1,3 +1,31 @@
+/*
+  Diana - A Free Meteorological Visualisation Tool
+
+  Copyright (C) 2014-2022 met.no
+
+  Contact information:
+  Norwegian Meteorological Institute
+  Box 43 Blindern
+  0313 OSLO
+  NORWAY
+  email: diana@met.no
+
+  This file is part of Diana
+
+  Diana is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  Diana is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with Diana; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #ifndef VCROSSCOMPUTER_H
 #define VCROSSCOMPUTER_H 1
@@ -95,7 +123,7 @@ public:
     { mArguments.push_back(a); }
 
   bool setArguments(const string_v& arguments, const InventoryBase_cps& contentSoFar);
-  Values_cp evaluate(name2value_t& n2v) const;
+  diutil::Values_cp evaluate(name2value_t& n2v) const;
   void collectRequired(InventoryBase_cps& required) const;
 
 private:
@@ -116,7 +144,7 @@ typedef std::shared_ptr<const FunctionData> FunctionData_cp;
 void resolve(InventoryBase_cps& content, const NameItem_v& nameItems);
 void collectRequired(InventoryBase_cps& required, InventoryBase_cp item);
 void collectRequiredVertical(InventoryBase_cps& required, InventoryBase_cp item, Z_AXIS_TYPE zType);
-Values_cp vc_evaluate_field(InventoryBase_cp item, name2value_t& n2v);
+diutil::Values_cp vc_evaluate_field(InventoryBase_cp item, name2value_t& n2v);
 
 extern const char VC_LONGITUDE[];
 extern const char VC_LATITUDE[];
