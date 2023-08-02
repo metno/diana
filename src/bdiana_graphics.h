@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2021 met.no
+  Copyright (C) 2017-2023 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -52,6 +52,7 @@ public:
   ~BdianaGraphics();
 
   bool setBufferSize(int width, int height);
+  bool setFrameRate(double framerate);
   bool enableMultiPlot(int rows, int columns, float spacing, float margin);
   void disableMultiPlot();
   bool setPlotCell(int row, int col);
@@ -74,6 +75,7 @@ private:
 
   bool antialias;
   QSize buffersize;        // total pixmap size
+  double framerate;        // framerate for animations
   bool multiple_plots;     // multiple plots per page
   bool multiple_beginpage; // start new page for multiple plots
   bool multiple_endpage;   // need to end page for multiple plots

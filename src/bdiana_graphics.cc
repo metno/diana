@@ -1,7 +1,7 @@
 /*
   Diana - A Free Meteorological Visualisation Tool
 
-  Copyright (C) 2017-2021 met.no
+  Copyright (C) 2017-2023 met.no
 
   Contact information:
   Norwegian Meteorological Institute
@@ -46,6 +46,7 @@
 BdianaGraphics::BdianaGraphics()
     : antialias(false)
     , buffersize(1696, 1200)
+    , framerate(0.2)
     , multiple_plots(false)
     , multiple_beginpage(false)
     , multiple_endpage(false)
@@ -146,7 +147,6 @@ void BdianaGraphics::createSink(const QSize& size)
       fmt = MovieMaker::format_animated;
     else
       fmt = "AVI";
-    const float framerate = 0.2f;
     sink.reset(new MovieMaker(filename, fmt, framerate, size));
   } else {
     METLIBS_LOG_ERROR("could not create sink for '" << outputfilename_ << "'");
@@ -164,6 +164,16 @@ bool BdianaGraphics::setBufferSize(int width, int height)
   }
 
   return true;
+}
+
+bool BdianaGraphics::setFrameRate(double fr)
+{
+  if (fr > 0) {
+    framerate = fr;
+    return true;
+  } else {
+    return false;
+  }
 }
 
 bool BdianaGraphics::enableMultiPlot(int rows, int columns, float fspacing, float fmargin)
