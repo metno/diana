@@ -1,3 +1,14 @@
+diana-3.57 (3.58.0~a1-1) unstable; urgency=low
+
+  * add framerate command to bdiana
+  * relax file structure requirements
+  * vcross-values-without-fimex
+  * sat-tiff-minor-improvements
+  * obs-ascii-cache-parameters
+  * restore-default-area
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 04 Aug 2023 09:20:33 +0200
+
 diana-3.57 (3.57.13-1) unstable; urgency=low
 
   * initialize FimexIO::vectorProjectionLonLat
