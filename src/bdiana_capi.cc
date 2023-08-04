@@ -2,7 +2,7 @@
 /*
  Diana - A Free Meteorological Visualisation Tool
 
- Copyright (C) 2006-2022 met.no
+ Copyright (C) 2006-2023 met.no
 
  Contact information:
  Norwegian Meteorological Institute
@@ -99,6 +99,7 @@ const std::string com_print_document = "print_document";
 
 const std::string com_setupfile = "setupfile";
 const std::string com_buffersize = "buffersize";
+const std::string com_framerate = "framerate";
 
 const std::string com_papersize = "papersize";
 const std::string com_filename = "filename";
@@ -258,6 +259,7 @@ struct Bdiana
   command_result handleDescribeCommand(int& k);
   command_result handleDescribeSpectrumCommand(int& k);
   command_result handleBuffersize(int& k, const std::string& value);
+  command_result handleFramerate(int& k, const std::string& value);
   void detectOutputFormat();
   command_result handleMultiplePlotsCommand(int& k, const std::string& value);
   command_result handlePlotCellCommand(int& k, const std::string& value);
@@ -1435,6 +1437,12 @@ command_result Bdiana::handleBuffersize(int& k, const std::string& value)
   return go.setBufferSize(w, h) ? cmd_success : cmd_abort;
 }
 
+command_result Bdiana::handleFramerate(int& k, const std::string& value)
+{
+  const auto fr = miutil::to_double(value);
+  return go.setFrameRate(fr) ? cmd_success : cmd_abort;
+}
+
 void Bdiana::detectOutputFormat()
 {
   if (diutil::endswith(outputfilename, ".json")) {
@@ -1588,6 +1596,10 @@ command_result Bdiana::parseAndProcess(std::istream& is)
 
     } else if (key == com_buffersize) {
       if (handleBuffersize(k, value) == cmd_abort)
+        return cmd_abort;
+
+    } else if (key == com_framerate) {
+      if (handleFramerate(k, value) == cmd_abort)
         return cmd_abort;
 
     } else if (key == com_papersize || key == com_toprinter || key == com_printer || key == com_colour || key == com_drawbackground || key == com_orientation ||
