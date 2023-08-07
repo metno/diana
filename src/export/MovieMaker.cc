@@ -191,9 +191,8 @@ bool MovieMaker::createAnimatedGif()
 
   const QString converter = "convert";
   QStringList args;
-  args << "-delay" << QString::number(delay)
-       << mOutputFiles
-       << mOutputFile;
+  args << "-delay" << QString::number(delay) << mOutputFiles << "-loop"
+       << "0" << mOutputFile;
   METLIBS_LOG_INFO("running: '" << converter.toStdString() << "' '" << args.join("' '").toStdString() << "'");
   const int code = diutil::execute(converter, args);
   if (code == 0) {
