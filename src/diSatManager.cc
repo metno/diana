@@ -306,7 +306,7 @@ bool SatManager::parseChannels(Sat* satdata, const SatFileInfo &fInfo)
 
 /***********************************************************************/
 
-bool SatManager::doReadSatFile(const std::string& filename, Sat* satdata)
+bool SatManager::doReadSatFile(Sat* satdata)
 {
   //read the file with name satdata->actualfile, channels given in
   //satdata->index. Result in satdata->rawimage
@@ -315,7 +315,7 @@ bool SatManager::doReadSatFile(const std::string& filename, Sat* satdata)
     //stat() is not able to get the file attributes,
     //so the file obviously does not exist or
     //more capabilities is required
-    METLIBS_LOG_ERROR("filename:" << satdata->actualfile << " does not exist or is not readable");
+    METLIBS_LOG_ERROR("filename: '" << satdata->actualfile << "' does not exist or is not readable");
     return false;
   }
 
@@ -355,7 +355,7 @@ bool SatManager::doReadSatFile(const std::string& filename, Sat* satdata)
 
 bool SatManager::readSatFile(Sat* satdata, const miutil::miTime& t)
 {
-  if (!doReadSatFile(satdata->actualfile, satdata))
+  if (!doReadSatFile(satdata))
     return false;
 
   if (!satdata->palette) {
@@ -622,8 +622,9 @@ void SatManager::addMosaicfiles(Sat* satdata, const std::vector<SatFileInfo>& mo
       sd.index[j] = satdata->index[j];
     sd.no = satdata->no;
     sd.formatType = satdata->formatType;
+    sd.actualfile = mfi.name;
 
-    if (!doReadSatFile(mfi.name, &sd))
+    if (!doReadSatFile(&sd))
       continue;
 
     if (sd.area.nx!=satdata->area.nx || sd.area.ny!=satdata->area.ny
