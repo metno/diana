@@ -89,7 +89,7 @@ private:
 
   bool parseChannels(Sat* satdata, const SatFileInfo& info);
   bool readSatFile(Sat* satdata, const miutil::miTime& t);
-  bool doReadSatFile(const std::string& filename, Sat* satdata);
+  bool doReadSatFile(Sat* satdata);
 
   void init_rgbindex(Sat& sd);
   void init_rgbindex_Meteosat(Sat& sd);
