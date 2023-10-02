@@ -51,17 +51,12 @@ protected:
 
 private:
   std::string decodeText(const std::string& text) const;
-  bool firstFileChanged();
-  void updateFromFirstFile();
 
 private:
   std::string headerfile_;
   QTextCodec* textcodec_;
 
-  std::string first_file_;
-  long first_file_ctime_;
   std::vector<ObsDialogInfo::Par> parameters_;
-  PlotCommand_cpv extra_annotations_;
 };
 
 #endif // DIOBSREADERASCII_H
