@@ -88,6 +88,7 @@ const char TIME[] = "time";
 const char FORECAST_REFERENCE_TIME[] = "forecast_reference_time";
 const char LONGITUDE[] = "longitude";
 const char LATITUDE[]  = "latitude";
+const char COORD_X[]  = "x";
 const char COORD_Y[]  = "y";
 
 const char WAVE_FREQ[] = "freq";
@@ -955,8 +956,8 @@ void FimexReftimeSource::makeCrossectionInventory()
     }
   }
 
-  const bool has_y_1 = !cdm.hasDimension(COORD_Y)
-      || cdm.getDimension(COORD_Y).getLength() == 1;
+  const bool has_xNy1 = (cdm.hasDimension(COORD_X) && (cdm.getDimension(COORD_X).getLength() == dataLon->size()) &&
+                         (!cdm.hasDimension(COORD_Y) || cdm.getDimension(COORD_Y).getLength() == 1));
 
   if (!vc_name.empty() && !vc_bounds.empty() && has_longitude_latitude) {
     mSupportsDynamic = false;
@@ -1001,7 +1002,7 @@ void FimexReftimeSource::makeCrossectionInventory()
       METLIBS_LOG_DEBUG("added segment crossection '" << cs->label()
           << "' with '" << cs->length() << "' points");
     }
-  } else if (has_longitude_latitude and has_y_1) {
+  } else if (has_longitude_latitude and has_xNy1) {
     // assuming it is a file with a single readymade cross-section
     mSupportsDynamic = false;
     const LonLat_v csPoints = makeCrossectionPoints(vLon, vLat, 0, dataLon->size());
