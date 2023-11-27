@@ -531,7 +531,7 @@ void FimexReftimeSource::getTimegraphValues(Crossection_cp crossection,
       diutil::Values::Shape shapeOut(diutil::Values::TIME, mInventory->times.npoint(), diutil::Values::GEO_Z, b->nlevel());
 
       if (auto v = getSlicedValues(reader, cs, sliceCdm, shapeOut, b)) {
-        METLIBS_LOG_DEBUG("values for '" << b->id() << " has npoint=" << v->shape().length(0) << " and nlevel=" << v->shape().length(0));
+        METLIBS_LOG_DEBUG("values for '" << b->id() << " has npoint=" << v->shape().length(0) << " and nlevel=" << v->shape().length(1));
         n2v[b->id()] = v;
       }
     } catch (std::exception& ex) {
