@@ -136,6 +136,7 @@ void ObsReaderAscii::updateFromFirstFile()
     if (!first_file_.empty()) {
       ObsAscii obsAscii = ObsAscii(first_file_, headerfile_, EMPTY_HEADERINFO);
       extra_annotations_  = obsAscii.getLabels();
+      parameters_.clear();
       for (const ObsAscii::Column& cn : obsAscii.getColumns())
         parameters_.push_back(ObsDialogInfo::Par(cn.name,cn.tooltip));
     } else {
