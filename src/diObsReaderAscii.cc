@@ -33,6 +33,7 @@
 #include "diUtilities.h"
 #include "util/misc_util.h"
 
+#include <puTools/miDirtools.h>
 #include <puTools/miStringFunctions.h>
 
 #include <QTextCodec>
@@ -45,6 +46,7 @@ const std::vector<std::string> EMPTY_HEADERINFO;
 }
 
 ObsReaderAscii::ObsReaderAscii()
+  : first_file_ctime_(0)
 {
   setTimeRange(-180, 180);
 }
@@ -88,29 +90,59 @@ bool ObsReaderAscii::getDataFromFile(const FileInfo& fi, ObsDataRequest_cp reque
   return !obsAscii.hasError();
 }
 
-std::vector<ObsDialogInfo::Par> ObsReaderAscii::getParameters()
+bool ObsReaderAscii::firstFileChanged()
 {
-  if (parameters_.empty()) {
-    if (!pattern.empty()) {
-      const diutil::string_v matches = diutil::glob(pattern.front().pattern);
-      if (!matches.empty()) {
-        ObsAscii obsAscii = ObsAscii(matches.front(), headerfile_, EMPTY_HEADERINFO);
-        for (const ObsAscii::Column& cn : obsAscii.getColumns())
-          parameters_.push_back(ObsDialogInfo::Par(cn.name,cn.tooltip));
-      }
+  if (!first_file_.empty() && first_file_ctime_ != 0) {
+    const long ctime_ = miutil::path_ctime(first_file_);
+    if (ctime_ == first_file_ctime_)
+      return false;
+    else if (ctime_ != 0) {
+      first_file_ctime_ = ctime_;
+      return true;
     }
   }
+
+  // need to re-glob
+  if (!pattern.empty()) {
+    const diutil::string_v matches = diutil::glob(pattern.front().pattern);
+    if (!matches.empty()) {
+      first_file_ = matches.front();
+      first_file_ctime_ = miutil::path_ctime(first_file_);
+      return true;
+    }
+  }
+
+  first_file_.clear();
+  first_file_ctime_ = 0;
+  return true;
+}
+
+std::vector<ObsDialogInfo::Par> ObsReaderAscii::getParameters()
+{
+  updateFromFirstFile();
   return parameters_;
 }
 
 PlotCommand_cpv ObsReaderAscii::getExtraAnnotations()
 {
-  if (!pattern.empty()) {
-    const diutil::string_v matches = diutil::glob(pattern.front().pattern);
-    if (!matches.empty()) {
-      ObsAscii obsAscii = ObsAscii(matches.front(), headerfile_, EMPTY_HEADERINFO);
-      return obsAscii.getLabels();
+  updateFromFirstFile();
+  return extra_annotations_;
+}
+
+void ObsReaderAscii::updateFromFirstFile()
+{
+  METLIBS_LOG_SCOPE();
+  if (firstFileChanged()) {
+    if (!first_file_.empty()) {
+      ObsAscii obsAscii = ObsAscii(first_file_, headerfile_, EMPTY_HEADERINFO);
+      extra_annotations_  = obsAscii.getLabels();
+      parameters_.clear();
+      parameters_.reserve(obsAscii.getColumns().size());
+      for (const ObsAscii::Column& cn : obsAscii.getColumns())
+        parameters_.push_back(ObsDialogInfo::Par(cn.name,cn.tooltip));
+    } else {
+      extra_annotations_.clear();
+      parameters_.clear();
     }
   }
-  return PlotCommand_cpv();
 }
