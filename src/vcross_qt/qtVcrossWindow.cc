@@ -717,12 +717,10 @@ void VcrossWindow::makeVisible(bool visible)
 {
   METLIBS_LOG_SCOPE();
 
-  if (visible and active) {
-    raise();
-  } else if (visible != active) {
+  if (visible != active) {
     active = visible;
     if (visible) {
-      show(); // includes raise() ?
+      show();
     } else {
       quitClicked();
     }

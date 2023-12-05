@@ -296,7 +296,6 @@ void VprofWindow::updateStation()
 {
   METLIBS_LOG_SCOPE();
   vprofqw->update();
-  raise();
 
   const std::vector<std::string>& stations = vprofm->getStations();
 

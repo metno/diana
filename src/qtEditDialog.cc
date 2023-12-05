@@ -1177,7 +1177,6 @@ bool EditDialog::okToExit()
   //save comments to plotm->editObjects struct
   ecomment->saveComment();
   if (m_editm->unsavedEditChanges()){
-    raise(); //put dialog on top
 
     switch(QMessageBox::information(this,tr("Exit editing"),
         tr("You have unsaved edits.\n Save before exiting?"),
