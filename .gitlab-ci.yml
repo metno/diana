@@ -1,0 +1,26 @@
+---
+
+# new build is performed if debian_files/changelog is changed
+
+before_script:
+  - source /etc/profile
+
+variables:
+  BUILD_IMG: registry.met.no/met/mapp/builders/internrepo/${CI_OS}:latest
+  LOCAL_IMG: ${CI_REGISTRY_IMAGE}/${CI_OS}:latest
+  DEBIANDIR: debian_files
+  DEBUILD: metno-debuild -us -uc -b
+
+stages:
+  - prepare
+  - build
+  - deploy
+  
+include:
+  - project: met/mapp/builders/templates
+    file:
+      - ci-prepare-internrepo.yml
+      - ci-build-and-deploy-by-changelog.yml
+      - ci-focal-pipeline.yml
+      - ci-bionic-pipeline.yml
+      - ci-jammy-pipeline.yml
