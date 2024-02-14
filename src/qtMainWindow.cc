@@ -1362,9 +1362,7 @@ void DianaMainWindow::vprofMenu()
 {
   if (!vpWindow)
     return;
-  if (vpWindow->active) {
-    vpWindow->raise();
-  } else {
+  if (!vpWindow->active) {
     vprofStartup();
     updateGLSlot();
   }
@@ -1386,9 +1384,7 @@ void DianaMainWindow::spectrumMenu()
 {
   if (!spWindow)
     return;
-  if (spWindow->active) {
-    spWindow->raise();
-  } else {
+  if (!spWindow->active) {
     spectrumStartup();
     updateGLSlot();
   }

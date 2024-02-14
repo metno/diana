@@ -286,7 +286,6 @@ void SpectrumWindow::stationChanged()
 {
   METLIBS_LOG_SCOPE();
   spectrumqw->update();
-  raise();
 
   //get current station
   const QString qs = QString::fromStdString(spectrumm->getStation());
