@@ -56,7 +56,7 @@ struct BdianaMain : public BdianaSource
 
   miutil::miTime getReferenceTime() override;
   plottimes_t getTimes() override;
-  void setTime(const miutil::miTime& time) override;
+  bool setTime(const miutil::miTime& time) override;
 
   bool keeparea;
 

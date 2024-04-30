@@ -51,11 +51,13 @@ public:
   virtual plottimes_t getTimes() = 0;
   virtual miutil::miTime getTime();
 
-  virtual void setTime(const miutil::miTime& time) = 0;
+  virtual bool setTime(const miutil::miTime& time) = 0;
   virtual bool selectTime(const miutil::miTime& time);
 
   TimeChoice getTimeChoice() const { return use_time_; }
   virtual void setTimeChoice(TimeChoice tc);
+
+  bool hasTime(const miutil::miTime& time);
 
 private:
   TimeChoice use_time_;

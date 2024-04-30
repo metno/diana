@@ -93,7 +93,11 @@ plottimes_t BdianaVprof::getTimes()
   return manager->getTimeList();
 }
 
-void BdianaVprof::setTime(const miutil::miTime& time)
+bool BdianaVprof::setTime(const miutil::miTime& time)
 {
-  manager->setTime(time);
+  if (hasTime(time)) {
+    manager->setTime(time);
+    return true;
+  }
+  return false;
 }

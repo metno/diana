@@ -46,7 +46,7 @@ struct DianaVcross : public BdianaSource
 
   miutil::miTime getReferenceTime() override;
   plottimes_t getTimes() override;
-  void setTime(const miutil::miTime& time) override;
+  bool setTime(const miutil::miTime& time) override;
 
   vcross::QtManager_p manager;
   std::unique_ptr<VcrossImageSource> imageSource_;
