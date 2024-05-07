@@ -51,7 +51,7 @@ struct BdianaSpectrum : public BdianaSource
 
   miutil::miTime getReferenceTime() override;
   plottimes_t getTimes() override;
-  void setTime(const miutil::miTime& time) override;
+  bool setTime(const miutil::miTime& time) override;
 
   std::string station;
   std::vector<std::string> spectrum_models, spectrum_options;

@@ -130,7 +130,11 @@ plottimes_t BdianaSpectrum::getTimes()
   return manager->getTimeList();
 }
 
-void BdianaSpectrum::setTime(const miutil::miTime& time)
+bool BdianaSpectrum::setTime(const miutil::miTime& time)
 {
-  manager->setTime(time);
+  if (hasTime(time)) {
+    manager->setTime(time);
+    return true;
+  }
+  return false;
 }

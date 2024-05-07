@@ -76,7 +76,11 @@ plottimes_t DianaVcross::getTimes()
   return times;
 }
 
-void DianaVcross::setTime(const miutil::miTime& time)
+bool DianaVcross::setTime(const miutil::miTime& time)
 {
-  manager->setTimeToBestMatch(time);
+  if (hasTime(time)) {
+    manager->setTimeToBestMatch(time);
+    return true;
+  }
+  return false;
 }

@@ -783,7 +783,7 @@ void SatManager::listFiles(subProdInfo &subp)
 
     const diutil::string_v matches = diutil::glob(subp.pattern[j]);
     if (matches.empty()) {
-      METLIBS_LOG_WARN("No files found! " << subp.pattern[j]);
+      METLIBS_LOG_INFO("No files found! " << subp.pattern[j]);
     }
     subp.file.reserve(subp.file.size() + matches.size());
     for (auto it = matches.rbegin(); it != matches.rend(); ++it) {

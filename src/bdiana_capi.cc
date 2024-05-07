@@ -762,6 +762,7 @@ static void printExample(std::ostream& out)
     "#- alternative to TIME=.. commandline option:",
     "#  (default time is the last available time)",
     "#  use settime=YYYY-MM-DD hh:mm:ss",
+    "#  use settime=hh:mm:ss, adds current date",
     "#  use settime=currenttime / nowtime / firsttime",
     "#- use addhour=<value> or addminute=<value> to increment datatime",
     "#  (offset from TIME=\"\" variable). Useful in loops",
@@ -1635,6 +1636,10 @@ command_result Bdiana::parseAndProcess(std::istream& is)
       } else if (miTime::isValid(value)) {
         setTimeChoice(BdianaSource::USE_FIXEDTIME);
         fixedtime = miTime(value);
+      } else if (miClock::isValid(value)) {
+        setTimeChoice(BdianaSource::USE_FIXEDTIME);
+        miTime now = miTime::nowTime();
+        fixedtime = miTime(now.date(), miClock(value));
       } else {
         METLIBS_LOG_ERROR("command " << com_settime << " has invalid argument '" << value << "'");
         setTimeChoice(BdianaSource::USE_LASTTIME);
