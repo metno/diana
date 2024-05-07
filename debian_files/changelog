@@ -1,3 +1,11 @@
+diana-3.57 (3.59.0-1) unstable; urgency=low
+
+  * bdiana - settime - obey timediff
+  * bdiana - new settime option setttime=HH:MM:SS will add current date
+  * Satellite  METLIBS_LOG - change from WARN to INFO if some of the data sources are missing
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 07 May 2024 08:55:20 +0200
+
 diana-3.57 (3.59.0~a1-3) unstable; urgency=low
 
   * build test
