@@ -1,3 +1,9 @@
+diana-3.57 (3.59.0-2) unstable; urgency=low
+
+  * fimex 2.0
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Tue, 07 May 2024 20:38:44 +0200
+
 diana-3.57 (3.59.0-1) unstable; urgency=low
 
   * bdiana - settime - obey timediff
