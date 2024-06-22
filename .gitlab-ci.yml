@@ -21,6 +21,5 @@ include:
     file:
       - ci-prepare-internrepo.yml
       - ci-build-and-deploy-by-changelog.yml
-      - ci-focal-pipeline.yml
-      - ci-bionic-pipeline.yml
       - ci-jammy-pipeline.yml
+      - ci-noble-pipeline.yml
