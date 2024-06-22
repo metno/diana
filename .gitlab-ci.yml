@@ -24,3 +24,4 @@ include:
       - ci-focal-pipeline.yml
       - ci-bionic-pipeline.yml
       - ci-jammy-pipeline.yml
+      - ci-noble-pipeline.yml
