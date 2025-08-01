@@ -1,14 +1,8 @@
-diana-3.57 (3.59.0-4) unstable; urgency=low
+diana-3.59 (3.59.1-1) unstable; urgency=low
 
-  * new debian revision
+  * building noble, removing bionic and focal
 
- -- Lisbeth Bergholt <lisbethb@met.no>  Wed, 11 Sep 2024 11:44:18 +0200
-
-diana-3.57 (3.59.0-3) unstable; urgency=low
-
-  * building noble version
-
- -- Lisbeth Bergholt <lisbethb@met.no>  Sat, 22 Jun 2024 20:59:20 +0200
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 01 Aug 2025 09:17:54 +0200
 
 diana-3.57 (3.59.0-2) unstable; urgency=low
 
