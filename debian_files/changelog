@@ -1,3 +1,9 @@
+diana-3.59 (3.59.1-1) unstable; urgency=low
+
+  * building noble, removing bionic and focal
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 01 Aug 2025 09:17:54 +0200
+
 diana-3.57 (3.59.0-2) unstable; urgency=low
 
   * fimex 2.0

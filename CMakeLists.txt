@@ -35,7 +35,7 @@ INCLUDE(MetnoVersions)
 INCLUDE(MetnoFindPackage)
 
 METNO_CMAKE_SETUP()
-METNO_PVERSION(3.59.0)
+METNO_PVERSION(3.59.1)
 
 OPTION(ENABLE_DIANA_OMP "Use OpenMP" OFF)
 OPTION(ENABLE_PERL "Build perl module" OFF)
@@ -182,8 +182,7 @@ IF (ENABLE_GRPC)
   if (gRPC_FOUND)
     message(STATUS "Using gRPC ${gRPC_VERSION} from cmake config")
 
-    set(protobuf_MODULE_COMPATIBLE TRUE)
-    find_package(Protobuf CONFIG REQUIRED)
+    find_package(Protobuf REQUIRED)
     message(STATUS "Using protobuf ${Protobuf_VERSION}")
 
     set(_PROTOBUF_LIBPROTOBUF protobuf::libprotobuf)
