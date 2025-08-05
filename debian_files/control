@@ -46,7 +46,6 @@ Standards-Version: 3.9.2
 Package: diana-@METNO_VERSION@
 Architecture: any
 Depends: ${shlibs:Depends},
- libgrpc++1 (>= 1.3.2-1.1+met1),
  ${misc:Depends}
 Recommends: libav-tools, gdal-bin, imagemagick, poppler-utils
 Conflicts: diana-3.33 (<< 3.33.1), diana-3.32, diana-3.31, diana-3.30
