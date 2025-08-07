@@ -591,7 +591,7 @@ int SatManager::getFileName(subProdInfo* subp, const miTime& time, int maxDiff)
   }
 
   if (fileno < 0)
-    METLIBS_LOG_WARN("Could not find data from "<<time.isoTime("T")<<" in inventory");
+    METLIBS_LOG_INFO("Could not find data from "<<time.isoTime("T")<<" in inventory");
   return fileno;
 }
 
