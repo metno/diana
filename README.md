@@ -61,7 +61,6 @@ might want to change the generator for `cmake` with the `-G` option
 (see `cmake --help`), e.g. `-G "CodeBlocks - Unix Makefiles"` or
 `-G "CodeBlocks - Ninja"`.
 
-Please also see the [Diana wiki](https://wiki.met.no/diana/start).
 
 ## Running
 
@@ -90,7 +89,7 @@ The current version supports following file formats:
   * BUFR (using libemos or [ecCodes](https://confluence.ecmwf.int/display/ECC/ecCodes+Home))
   * ASCII
 * Image (satellite, radar)
-  * [mitiff](http://diana.met.no/mitiff/mitiff.html) (proprietary met.no)
+  * mitiff (proprietary met.no)
   * geotiff
   * HDF5
 * Prognostic sounding
@@ -102,7 +101,7 @@ The current version supports following file formats:
 * Maps
   * ESRI shape (via libshp and GDAL)
   * ASCII
-  * [metno-format](https://wiki.met.no/diana/triangle_map_format)
+  * metno-triangle-format
 
 ## Resource files
 
