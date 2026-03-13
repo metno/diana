@@ -749,7 +749,7 @@ bool ObsDataBufr::get_diana_data(int ktdexl, const int* ktdexp, const double* va
 
     //001102 NATIONAL STATION NUMBER
     case 1102:
-      if ( !wmoNumber ) {
+      if ( !wmoNumber && values[j] < bufrMissing ) {
         odb.basic().id = miutil::from_number(int(values[j]));
       }
       break;
