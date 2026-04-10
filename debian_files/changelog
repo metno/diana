@@ -1,3 +1,10 @@
+diana-3.59 (3.59.3-1) unstable; urgency=low
+
+  * BUFR: ignore national station number if it is missing
+  * Removed links to https://wiki.met.no/diana/start
+
+ -- Lisbeth Bergholt <lisbethb@met.no>  Fri, 10 Apr 2026 12:12:06 +0200
+
 diana-3.59 (3.59.2-1) unstable; urgency=low
 
   * changed from WARN to INFO
